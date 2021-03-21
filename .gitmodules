@@ -1,0 +1,4 @@
+
+[submodule "Terran/TerranEngine/vendor/spdlog"]
+	path = Terran/TerranEngine/vendor/spdlog
+	url = https://github.com/gabime/spdlog
