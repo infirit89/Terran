@@ -1,2 +1,0 @@
-C:\Users\georg\Documents\Projects\OKAY\github\Terran\Terran\TerranEngine\bin\Debug\TerranEngine.pdb
-C:\Users\georg\Documents\Projects\OKAY\github\Terran\Terran\TerranEngine\bin-int\Debug\TerranEngine.pdb
