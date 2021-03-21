@@ -2,7 +2,7 @@
 
 #include <string>
 
-int main(char** argc, char** argv);
+int main();
 
 namespace TerranEngine {
 
@@ -15,7 +15,7 @@ namespace TerranEngine {
 		void Run();
 	private:
 		std::string m_Name;
-		friend int ::main(char** argc, char** argv);
+		friend int ::main();
 	};
 
 	Application* CreateApplication();

@@ -16,7 +16,7 @@ project "TerranEngine"
     includedirs
     {
         "src",
-        "vendor/spdlog/include/"
+        "vendor/spdlog/include"
     } 
 
     filter "system:windows"

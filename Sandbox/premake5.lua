@@ -15,7 +15,7 @@ project "Sandbox"
 
     includedirs
     {
-        "%{wks.location}/TerranEngine/src".
+        "%{wks.location}/TerranEngine/src",
         "%{wks.location}/TerranEngine/vendor/spdlog/include"
     } 
 

@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Log.h"
 
 #include <iostream>
 
@@ -14,6 +15,6 @@ namespace TerranEngine
 
 	void Application::Run()
 	{
-		std::cout << m_Name << std::endl;
+		TR_CORE_INFO("Test");
 	}
 }

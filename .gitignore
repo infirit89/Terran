@@ -38,9 +38,6 @@
 bin/
 bin-int/
 
-Sandbox/bin/
-Sandbox/bin-int/
-
 # Visual Studio Solution
 *.sln
 
