@@ -35,7 +35,7 @@
 *.vs
 
 #output folder and obj output foler
-*bin
-*bin-int
+bin
+bin-int
 
 !premake5.exe
