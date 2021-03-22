@@ -1,4 +1,7 @@
 #include "Terran.h"
+#include "Core/EntryPoint.h"
+
+#include "SandboxLayer.h"
 
 namespace TerranEngine 
 {
@@ -7,6 +10,7 @@ namespace TerranEngine
 	public:
 		SandboxApp() : Application("Test")
 		{
+			PushLayer(new SandboxLayer());
 		}
 
 		~SandboxApp()

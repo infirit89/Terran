@@ -16,8 +16,14 @@ project "TerranEngine"
     includedirs
     {
         "src",
-        "vendor/spdlog/include"
+        "vendor/spdlog/include",
+        "vendor/GLFW/include"
     } 
+
+    links 
+    {
+        "GLFW"
+    }
 
     filter "system:windows"
         systemversion "latest"
