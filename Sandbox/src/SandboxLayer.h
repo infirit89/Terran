@@ -10,5 +10,9 @@ namespace TerranEngine {
 		SandboxLayer() : Layer("SandboxLayer") {}
 
 		void Update() override;
+
+		void OnEvent(Event& event) override;
+
+		bool TestKeyEvent(KeyPressedEvent& event);
 	};
 }

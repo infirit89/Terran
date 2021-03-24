@@ -1,6 +1,7 @@
 #pragma once
 
 namespace TerranEngine {
+
 	namespace Key
 	{
 		enum : int

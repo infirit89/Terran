@@ -3,6 +3,9 @@
 #include <string>
 #include <memory>
 
+#include <functional>
+#include "Events/Event.h"
+
 namespace TerranEngine {
 
 	struct WindowData
@@ -20,6 +23,7 @@ namespace TerranEngine {
 	class Window 
 	{
 	public:
+		using EventCallbackFn = std::function<void(Event&)>;
 		virtual ~Window() = default;
 
 		virtual int GetWidth() const = 0;
@@ -34,6 +38,6 @@ namespace TerranEngine {
 
 		static std::unique_ptr<Window> Create(const WindowData& data = WindowData());
 
-	private:
+		virtual void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) = 0;
 	};
 }

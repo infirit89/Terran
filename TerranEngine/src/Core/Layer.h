@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "Events/Event.h"
 
 namespace TerranEngine {
 
@@ -12,7 +13,7 @@ namespace TerranEngine {
 		}
 
 		virtual void Update() {}
-		virtual void OnEvent() {}
+		virtual void OnEvent(Event& event) {}
 		virtual void OnAttach() {}
 		virtual void OnDettach() {}
 
