@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+
 #include "Layer.h"
+
+#include <vector>
 
 namespace TerranEngine {
 

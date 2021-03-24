@@ -25,6 +25,9 @@ project "TerranEngine"
         "GLFW"
     }
 
+    pchheader "trpch.h"
+    pchsource "src/trpch.cpp"
+
     filter "system:windows"
         systemversion "latest"
 

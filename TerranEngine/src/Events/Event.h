@@ -27,14 +27,15 @@ virtual EventType GetType() const override { return GetStaticType(); }
 
 	class EventDispatcher 
 	{
-
+		template<typename T>
+		using EventFN = std::function<bool(T&)>;
 	public:
 		EventDispatcher(Event& event)
 			: m_Event(event)
 		{}
 
-		template<typename T, typename F>
-		bool Dispatch(const F& func) 
+		template<typename T>
+		bool Dispatch(const EventFN<T>& func) 
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{
@@ -46,6 +47,7 @@ virtual EventType GetType() const override { return GetStaticType(); }
 		}
 	private:
 		Event& m_Event;
+
 	};
 }
 

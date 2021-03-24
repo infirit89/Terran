@@ -1,10 +1,9 @@
 #pragma once
 
+#include "Events/Event.h"
+
 #include <string>
 #include <memory>
-
-#include <functional>
-#include "Events/Event.h"
 
 namespace TerranEngine {
 
@@ -14,9 +13,7 @@ namespace TerranEngine {
 		uint32_t Width;
 		uint32_t Height;
 
-		WindowData() {}
-
-		WindowData(std::string name, uint32_t width = 1080, uint32_t height = 790)
+		WindowData(std::string name = "Terran Application", uint32_t width = 1080, uint32_t height = 790)
 			: Name(name), Width(width), Height(height) {}
 	};
 

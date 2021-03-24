@@ -1,5 +1,6 @@
+#include "trpch.h"
+
 #include "GLFWWindow.h"
-#include "Core/Log.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"

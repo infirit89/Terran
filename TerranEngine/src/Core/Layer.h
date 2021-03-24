@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include "Events/Event.h"
+
+#include <string>
 
 namespace TerranEngine {
 

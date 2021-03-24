@@ -1,6 +1,5 @@
+#include "trpch.h"
 #include "LayerStack.h"
-
-#include <algorithm>
 
 namespace TerranEngine {
 

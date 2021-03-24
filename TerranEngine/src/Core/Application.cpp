@@ -1,8 +1,6 @@
-#include "Application.h"
-#include "Log.h"
+#include "trpch.h"
 
-#include <iostream>
-#include <functional>
+#include "Application.h"
 #include "Base.h"
 
 namespace TerranEngine 

@@ -1,11 +1,13 @@
 #pragma once
 
-#include <string>
 #include "LayerStack.h"
 #include "Window.h"
 
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
+
+#include <string>
+#include <memory>
 
 int main();
 
