@@ -16,17 +16,27 @@ project "TerranEngine"
     includedirs
     {
         "src",
-        "vendor/spdlog/include",
-        "vendor/GLFW/include"
+        "vendor/spdlog/include/",
+        "vendor/GLFW/include/",
+        "vendor/ImGui/",
+        "vendor/GLAD/include/"
     } 
 
     links 
     {
-        "GLFW"
+        "GLFW",
+        "ImGui",
+        "GLAD",
+        "opengl32.lib"
     }
 
     pchheader "trpch.h"
     pchsource "src/trpch.cpp"
+
+    defines 
+    {
+        "GLFW_INCLUDE_NONE"
+    }
 
     filter "system:windows"
         systemversion "latest"

@@ -11,3 +11,6 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/Event.h"
+
+/* ---- ImGui ---- */
+#include "ImGui/ImGuiLayer.h"

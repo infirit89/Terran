@@ -1,7 +1,7 @@
 #include "trpch.h"
 
 #include "Window.h"
-#include "Platform/GLFWWindow.h"
+#include "Platform/GLFW/GLFWWindow.h"
 
 namespace TerranEngine 
 {

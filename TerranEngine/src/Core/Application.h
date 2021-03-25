@@ -9,6 +9,10 @@
 #include <string>
 #include <memory>
 
+#include "Log.h"
+
+#include "ImGui/ImGuiLayer.h"
+
 int main();
 
 namespace TerranEngine {
@@ -19,6 +23,7 @@ namespace TerranEngine {
 		Application(std::string);
 		virtual ~Application();
 		void PushLayer(Layer* layer);
+		void Close();
 
 		static Application* Get() { return m_Instance; }
 		Window& GetWindow() { return *m_Window; }
@@ -36,6 +41,8 @@ namespace TerranEngine {
 
 		bool m_Minimized = false;
 		bool m_Running = true;
+
+		ImGuiLayer* m_ImGuiLayer;
 	};
 
 	Application* CreateApplication();

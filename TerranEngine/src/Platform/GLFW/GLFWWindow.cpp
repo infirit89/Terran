@@ -7,6 +7,7 @@
 #include "Events/MouseEvent.h"
 
 #include "Core/Assert.h"
+#include <glad/glad.h>
 
 namespace TerranEngine 
 {
@@ -35,7 +36,8 @@ namespace TerranEngine
 		m_WindowDataPtr.Width = data.Width;
 		m_WindowDataPtr.Height = data.Height;
 
-		TR_ASSERTMSG(glfwInit(), "GFLW couldn't initialze!");
+		int glfwSuccess = glfwInit();
+		TR_ASSERTMSG(glfwSuccess, "GFLW couldn't initialze!");
 
 
 		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name.c_str(), NULL, NULL);
@@ -123,6 +125,9 @@ namespace TerranEngine
 		});
 
 		glfwMakeContextCurrent(m_Window);
+		
+		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		TR_ASSERTMSG(gladSuccess, "Couldn't initialize GLAD");
 
 		SetVsync(true);
 	}

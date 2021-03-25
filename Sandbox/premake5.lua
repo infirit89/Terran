@@ -15,9 +15,10 @@ project "Sandbox"
 
     includedirs
     {
-        "%{wks.location}/TerranEngine/src",
-        "%{wks.location}/TerranEngine/vendor/spdlog/include",
-        "%{wks.location}/TerranEngine/vendor/"
+        "%{wks.location}/TerranEngine/src/",
+        "%{wks.location}/TerranEngine/vendor/spdlog/include/",
+        "%{wks.location}/TerranEngine/vendor/",
+        "%{wks.location}/TerranEngine/vendor/ImGui/"
     } 
 
     links 

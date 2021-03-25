@@ -2,6 +2,10 @@
 
 #include "Application.h"
 #include "Base.h"
+#include "Time.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 namespace TerranEngine 
 {
@@ -13,6 +17,9 @@ namespace TerranEngine
 		m_Instance = this;
 		m_Window = Window::Create(WindowData(name));
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
+
+		m_ImGuiLayer = new ImGuiLayer();
+		PushLayer(m_ImGuiLayer);
 	}
 	Application::~Application()
 	{
@@ -21,16 +28,36 @@ namespace TerranEngine
 	void Application::PushLayer(Layer* layer)
 	{
 		m_Stack.PushLayer(layer);
+		layer->OnAttach();
+	}
+
+	void Application::Close()
+	{
+		m_Running = false;
 	}
 
 	void Application::Run()
 	{
+		float frameTime = 0.0f; float lastFrameTime = 0.0f;
+
+		glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
 		while (m_Running)
 		{
+			frameTime = glfwGetTime();
+			Time time(frameTime - lastFrameTime);
+			lastFrameTime = frameTime;
+
 			if (!m_Minimized)
 			{
+				glClear(GL_COLOR_BUFFER_BIT);
+
 				for (Layer* layer : m_Stack.GetLayers())
-					layer->Update();
+					layer->Update(time);
+
+				m_ImGuiLayer->BeginFrame();
+				for (Layer* layer : m_Stack.GetLayers())
+					layer->ImGuiRender();
+				m_ImGuiLayer->EndFrame();
 			}
 
 			m_Window->Update();
