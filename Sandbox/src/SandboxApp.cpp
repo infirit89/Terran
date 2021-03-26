@@ -8,7 +8,7 @@ namespace TerranEngine
 	class SandboxApp : public Application 
 	{
 	public:
-		SandboxApp() : Application("Test")
+		SandboxApp() : Application("Test", {  })
 		{
 			PushLayer(new SandboxLayer());
 		}

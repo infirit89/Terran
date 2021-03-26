@@ -14,6 +14,7 @@ namespace TerranEngine
 		float GetY() const { return m_YPos; }
 
 		EVENT_CLASS_TYPE(MouseMoved)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 	private:
 		float m_XPos; float m_YPos;
 	};
@@ -28,6 +29,7 @@ namespace TerranEngine
 		float GetYOffset() const { return m_YOffset; }
 
 		EVENT_CLASS_TYPE(MouseScrolled)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 
 	private:
 		float m_XOffset; float m_YOffset;
@@ -40,6 +42,8 @@ namespace TerranEngine
 			: m_ButtonCode(buttonCode) {}
 
 		int GetButton() const { return m_ButtonCode; }
+
+		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 	private:
 		int m_ButtonCode;
 	};

@@ -7,5 +7,8 @@
 #include <memory>
 
 #include <vector>
+#include <array>
+
+#include <initializer_list>
 
 #include "Core/Log.h"

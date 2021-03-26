@@ -6,7 +6,6 @@ namespace TerranEngine
 {
 	void SandboxLayer::Update(Time& time)
 	{
-		TR_TRACE(1 / time.GetSeconds());
 	}
 
 	void SandboxLayer::OnEvent(Event& event)
@@ -17,6 +16,7 @@ namespace TerranEngine
 
 	void SandboxLayer::ImGuiRender()
 	{
+		ImGui::ShowDemoWindow();
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
@@ -24,11 +24,14 @@ namespace TerranEngine
 		if (event.GetRepeatCount() > 0)
 			return false;
 
+		bool isCtrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+
 		switch (event.GetKeyCode())
 		{
-			case Key::Escape: 
+			case Key::X: 
 			{
-				Application::Get()->Close();
+				if (isCtrlPressed)
+					Application::Get()->Close();
 				break;
 			}
 		}

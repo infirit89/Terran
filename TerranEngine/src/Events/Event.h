@@ -13,17 +13,31 @@ namespace TerranEngine
 		WindowClosed, WindowResized
 	};
 
+	enum EventCategory
+	{
+		None = 0,
+		EventCategoryApplication = 1 << 0,
+		EventCategoryKeyboard = 1 << 1,
+		EventCategoryMouse = 1 << 2
+	};
+
 	class Event 
 	{
 	public:
 		~Event() = default;
 
 		virtual EventType GetType() const = 0;
+		virtual EventCategory GetCategory() const = 0;
+
+		bool IsInCategory(EventCategory category) { return GetCategory() & category; }
+
 		bool isHandled = false;
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
 virtual EventType GetType() const override { return GetStaticType(); }
+
+#define EVENT_CLASS_CATEGORY(category) virtual EventCategory GetCategory() const override { return category; }
 
 	class EventDispatcher 
 	{

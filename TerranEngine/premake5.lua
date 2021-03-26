@@ -11,6 +11,8 @@ project "TerranEngine"
     {
         "src/**.h",
         "src/**.cpp",
+        "vendor/stb/**.h",
+        "vendor/stb/**.cpp"
     }
 
     includedirs
@@ -19,7 +21,8 @@ project "TerranEngine"
         "vendor/spdlog/include/",
         "vendor/GLFW/include/",
         "vendor/ImGui/",
-        "vendor/GLAD/include/"
+        "vendor/GLAD/include/",
+        "vendor/stb/"
     } 
 
     links 

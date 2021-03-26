@@ -10,6 +10,8 @@ namespace TerranEngine
 		KeyboardEvent(const int keyCode) 
 			: m_KeyCode(keyCode) {}
 		int GetKeyCode() const { return m_KeyCode; }
+
+		EVENT_CLASS_CATEGORY(EventCategoryKeyboard)
 	private: 
 		int m_KeyCode;
 	};

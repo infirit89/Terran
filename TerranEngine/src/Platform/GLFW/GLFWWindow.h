@@ -18,7 +18,7 @@ namespace TerranEngine
 		int GetHeight() const override { return m_WindowDataPtr.Height; }
 
 		void Update() override;
-
+		
 		virtual void* GetNativeWindow() { return m_Window; }
 
 		void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) override { m_WindowDataPtr.EventCallback = eventCallbackFN; }
@@ -34,7 +34,7 @@ namespace TerranEngine
 		};
 
 		bool m_Vsync;
-		GLFWwindow* m_Window;
+		GLFWwindow* m_Window = NULL;
 		WindowDataPtr m_WindowDataPtr;
 	};
 }

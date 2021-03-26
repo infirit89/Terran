@@ -7,7 +7,9 @@
 #include "Events/MouseEvent.h"
 
 #include "Core/Assert.h"
+
 #include <glad/glad.h>
+#include <stb_image.h>
 
 namespace TerranEngine 
 {
@@ -38,11 +40,18 @@ namespace TerranEngine
 
 		int glfwSuccess = glfwInit();
 		TR_ASSERTMSG(glfwSuccess, "GFLW couldn't initialze!");
-
-
+		
 		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name.c_str(), NULL, NULL);
 
 		TR_ASSERTMSG(m_Window, "Couldn't create a GLFW window!");
+
+		GLFWimage iconImages[2];
+		iconImages[0].pixels = stbi_load(data.IconPaths[0].c_str(), &iconImages[0].width, &iconImages[0].height, 0, 4);
+		iconImages[1].pixels = stbi_load(data.IconPaths[1].c_str(), &iconImages[1].width, &iconImages[1].height, 0, 4);
+
+		glfwSetWindowIcon(m_Window, 2, iconImages);
+		stbi_image_free(iconImages[0].pixels);
+		stbi_image_free(iconImages[1].pixels);
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
 
@@ -123,6 +132,7 @@ namespace TerranEngine
 				}
 			}
 		});
+
 
 		glfwMakeContextCurrent(m_Window);
 		
