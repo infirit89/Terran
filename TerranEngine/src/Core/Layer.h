@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Events/Event.h"
-#include "Core/Time.h"
 
 #include <string>
 
@@ -16,7 +15,7 @@ namespace TerranEngine {
 
 		virtual ~Layer() = default;
 
-		virtual void Update(Time& time) {}
+		virtual void Update(float& time) {}
 		virtual void OnEvent(Event& event) {}
 		virtual void ImGuiRender() {}
 		virtual void OnAttach() {}

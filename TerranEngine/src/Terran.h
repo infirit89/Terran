@@ -14,3 +14,9 @@
 
 /* ---- ImGui ---- */
 #include "ImGui/ImGuiLayer.h"
+
+/* ---- Graphics ---- */
+#include "Renderer/Buffer.h"
+#include "Renderer/RendererCommand.h"
+#include "Renderer/Shader.h"
+#include "Renderer/VertexArray.h"

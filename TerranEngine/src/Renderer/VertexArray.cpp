@@ -34,21 +34,21 @@ namespace TerranEngine
 		glDeleteVertexArrays(1, &m_Vao);
 	}
 
-	void VertexArray::Bind()
+	const void VertexArray::Bind() const
 	{
 		glBindVertexArray(m_Vao);
 	}
 
-	void VertexArray::Unbind()
+	const void VertexArray::Unbind() const
 	{
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::AddVertexBuffer(VertexBuffer& buffer)
+	void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer)
 	{
 		m_VBuffer = buffer;
 
-		VertexBufferLayout layout = buffer.GetLayout();
+		VertexBufferLayout layout = m_VBuffer->GetLayout();
 
 		for (auto element : layout.GetElements()) 
 		{

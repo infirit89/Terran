@@ -18,11 +18,11 @@ project "TerranEngine"
     includedirs
     {
         "src",
-        "vendor/spdlog/include/",
-        "vendor/GLFW/include/",
-        "vendor/ImGui/",
-        "vendor/GLAD/include/",
-        "vendor/stb/"
+        "%{wks.location}/TerranEngine/vendor/spdlog/include/",
+        "%{wks.location}/TerranEngine/vendor/GLFW/include/",
+        "%{wks.location}/TerranEngine/vendor/ImGui/",
+        "%{wks.location}/TerranEngine/vendor/GLAD/include/",
+        "%{wks.location}/TerranEngine/vendor/stb/"
     } 
 
     links 

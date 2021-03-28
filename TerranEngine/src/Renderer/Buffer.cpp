@@ -1,5 +1,8 @@
 #include "trpch.h"
+
 #include "Buffer.h"
+
+#include <glad/glad.h>
 
 namespace TerranEngine 
 {
@@ -12,11 +15,11 @@ namespace TerranEngine
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	VertexBuffer::VertexBuffer(const void* data, int size)
+	VertexBuffer::VertexBuffer(const float* vertices, int size)
 	{
 		glGenBuffers(1, &m_Buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 	}
 
 	VertexBuffer::~VertexBuffer()
@@ -24,17 +27,17 @@ namespace TerranEngine
 		glDeleteBuffers(1, &m_Buffer);
 	}
 
-	void VertexBuffer::SetData(const void* data, int size)
+	void VertexBuffer::SetData(const float* vertices, int size)
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
 	}
 
-	void VertexBuffer::Bind()
+	const void VertexBuffer::Bind() const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
 	}
 
-	void VertexBuffer::Unbind()
+	const void VertexBuffer::Unbind() const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -42,11 +45,11 @@ namespace TerranEngine
 
 
 	/* ---- Index Buffer ---- */
-	IndexBuffer::IndexBuffer(const void* data, int size)
+	IndexBuffer::IndexBuffer(const int* indices, int size)
 	{
 		glGenBuffers(1, &m_Buffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 	}
 
 	IndexBuffer::~IndexBuffer()
@@ -54,12 +57,12 @@ namespace TerranEngine
 		glDeleteBuffers(1, &m_Buffer);
 	}
 
-	void IndexBuffer::Bind()
+	const void IndexBuffer::Bind() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
 	}
 
-	void IndexBuffer::Unbind()
+	const void IndexBuffer::Unbind() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}

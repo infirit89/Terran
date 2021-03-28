@@ -2,8 +2,6 @@
 
 #include "Core/Assert.h"
 
-#include <glad/glad.h>
-
 #include <memory>
 #include <vector>
 #include <initializer_list>
@@ -102,19 +100,19 @@ namespace TerranEngine
 		VertexBuffer() {}
 
 		VertexBuffer(int size);
-		VertexBuffer(const void* data, int size);
+		VertexBuffer(const float* vertices, int size);
 
 		~VertexBuffer();
 
 		void SetLayout(const VertexBufferLayout& layout) { m_Layout = layout; }
 		VertexBufferLayout GetLayout() { return m_Layout; }
 
-		void SetData(const void* data, int);
-		void Bind();
-		void Unbind();
+		void SetData(const float* vertices, int size);
+		const void Bind() const;
+		const void Unbind() const;
 
 	private:
-		unsigned int m_Buffer;
+		uint32_t m_Buffer;
 		VertexBufferLayout m_Layout;
 	};
 
@@ -123,12 +121,12 @@ namespace TerranEngine
 	public:
 		IndexBuffer(){}
 
-		IndexBuffer(const void* data, int size);
+		IndexBuffer(const int* indices, int size);
 		~IndexBuffer();
 
-		void Bind();
-		void Unbind();
+		const void Bind() const;
+		const void Unbind() const;
 	private:
-		unsigned int m_Buffer;
+		uint32_t m_Buffer;
 	};
 }

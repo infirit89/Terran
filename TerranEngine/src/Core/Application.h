@@ -45,10 +45,9 @@ namespace TerranEngine {
 		bool m_Minimized = false;
 		bool m_Running = true;
 
-		unsigned int m_Vao, m_Vbo, m_Ibo;
-
 		ImGuiLayer* m_ImGuiLayer;
 		friend int ::main();
+
 	};
 
 	Application* CreateApplication();

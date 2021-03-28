@@ -4,11 +4,13 @@
 #include "Base.h"
 #include "Time.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "Renderer/Buffer.h"
 #include "Renderer/VertexArray.h"
+
+#include "Renderer/Shader.h"
+#include "Renderer/RendererCommand.h"
 
 namespace TerranEngine 
 {
@@ -43,53 +45,26 @@ namespace TerranEngine
 	{
 		float frameTime = 0.0f; float lastFrameTime = 0.0f;
 
-
-		float positions[] =
-		{
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f,
-		};
-
-		int indices[]
-		{
-			0, 1, 2,
-			2, 3, 0
-		};
-
-		VertexArray vertArr = VertexArray();
-		vertArr.Bind();
-		VertexBuffer vbuffer(positions, sizeof(positions));
-
-		vbuffer.SetLayout({
-			{BufferElementType::Type::FLOAT3}
-		});
-		vertArr.AddVertexBuffer(vbuffer);
-
-		IndexBuffer ibuffer(indices, sizeof(indices));
-
+		RendererCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		while (m_Running)
 		{
 			frameTime = glfwGetTime();
-			Time time(frameTime - lastFrameTime);
+			float dt(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;
 
-			glClearColor(0.1f, 0.1f, 0.1f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			if (!m_Minimized)
+			{
+				RendererCommand::Clear();
 
-			vertArr.Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+				for (Layer* layer : m_Stack.GetLayers())
+					layer->Update(dt);
 
-			for (Layer* layer : m_Stack.GetLayers())
-				layer->Update(time);
-
-
-			m_ImGuiLayer->BeginFrame();
-			for (Layer* layer : m_Stack.GetLayers())
-				layer->ImGuiRender();
-			m_ImGuiLayer->EndFrame();
+				m_ImGuiLayer->BeginFrame();
+				for (Layer* layer : m_Stack.GetLayers())
+					layer->ImGuiRender();
+				m_ImGuiLayer->EndFrame();
+			}
 
 			m_Window->Update();
 		}
@@ -125,6 +100,8 @@ namespace TerranEngine
 		}
 
 		m_Minimized = false;
+
+		RendererCommand::Resize(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}
