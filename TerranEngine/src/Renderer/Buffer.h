@@ -17,6 +17,7 @@ namespace TerranEngine
 			FLOAT, 
 			FLOAT2,
 			FLOAT3,
+			FLOAT4,
 			INT, 
 			INT2,
 			INT3,
@@ -30,13 +31,15 @@ namespace TerranEngine
 			case Type::FLOAT:	return 4;
 			case Type::FLOAT2:	return 4 * 2;
 			case Type::FLOAT3:	return 4 * 3;
+			case Type::FLOAT4:	return 4 * 4;
 			case Type::INT:		return 4;
 			case Type::INT2:	return 4 * 2;
 			case Type::INT3:	return 4 * 3;
 			case Type::BOOL:	return 1;
-			default:
-				TR_ASSERT(false, "No other type supported!");
+			default:			TR_ASSERT(false, "No other type supported!");
 			}
+
+			return 0;
 		}
 	};
 	struct VertexBufferElement 
@@ -55,20 +58,23 @@ namespace TerranEngine
 			case BufferElementType::Type::FLOAT:	return 1;
 			case BufferElementType::Type::FLOAT2:	return 2;
 			case BufferElementType::Type::FLOAT3:	return 3;
+			case BufferElementType::Type::FLOAT4:	return 4;
 			case BufferElementType::Type::INT:		return 1;
 			case BufferElementType::Type::INT2:		return 2;
 			case BufferElementType::Type::INT3:		return 3;
 			case BufferElementType::Type::BOOL:		return 1;
-			default:
-				TR_ASSERT(false, "No other type supported!");
+			default:								TR_ASSERT(false, "No other type supported!");
 			}
+
+			return 0;
 		}
 	};
 
 	class VertexBufferLayout 
 	{
 	public:
-		VertexBufferLayout() {}
+		VertexBufferLayout()
+			: m_Stride(0) {}
 
 		VertexBufferLayout(std::initializer_list<VertexBufferElement> initList)
 			: m_Elements(initList), m_Stride(0) 
@@ -97,20 +103,20 @@ namespace TerranEngine
 	class VertexBuffer 
 	{
 	public:
-		VertexBuffer() {}
+		VertexBuffer() 
+			: m_Buffer(0) {}
 
-		VertexBuffer(int size);
-		VertexBuffer(const float* vertices, int size);
+		VertexBuffer(uint32_t size);
+		VertexBuffer(const float* vertices, uint32_t size);
 
 		~VertexBuffer();
 
 		void SetLayout(const VertexBufferLayout& layout) { m_Layout = layout; }
 		VertexBufferLayout GetLayout() { return m_Layout; }
 
-		void SetData(const float* vertices, int size);
+		void SetData(const void* vertices, uint32_t size);
 		const void Bind() const;
 		const void Unbind() const;
-
 	private:
 		uint32_t m_Buffer;
 		VertexBufferLayout m_Layout;
@@ -119,14 +125,18 @@ namespace TerranEngine
 	class IndexBuffer 
 	{
 	public:
-		IndexBuffer(){}
+		IndexBuffer() 
+			: m_Buffer(0), m_Size(0) {}
 
-		IndexBuffer(const int* indices, int size);
+		IndexBuffer(const int* indices, uint32_t size);
 		~IndexBuffer();
 
 		const void Bind() const;
 		const void Unbind() const;
+
+		uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 	private:
 		uint32_t m_Buffer;
+		int m_Size;
 	};
 }

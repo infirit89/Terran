@@ -7,7 +7,7 @@
 
 namespace TerranEngine 
 {
-	bool Input::IsKeyPressed(int key) 
+	bool Input::IsKeyPressed(uint32_t key)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
@@ -16,7 +16,7 @@ namespace TerranEngine
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool Input::IsMouseButtonPressed(int button) 
+	bool Input::IsMouseButtonPressed(uint16_t button)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 

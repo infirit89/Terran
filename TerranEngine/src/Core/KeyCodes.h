@@ -4,7 +4,7 @@ namespace TerranEngine {
 
 	namespace Key
 	{
-		enum : int
+		enum : uint32_t
 		{
 			// From glfw3.h
 			Space			= 32,

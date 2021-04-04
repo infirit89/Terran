@@ -8,7 +8,7 @@ namespace TerranEngine {
 
 	class Layer {
 	public:
-		Layer(std::string name) 
+		Layer(const char* name) 
 			: m_Name(name)
 		{
 		}
@@ -22,6 +22,6 @@ namespace TerranEngine {
 		virtual void OnDettach() {}
 
 	private:
-		std::string m_Name;
+		const char* m_Name;
 	};
 }

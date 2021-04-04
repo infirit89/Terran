@@ -4,7 +4,7 @@ namespace TerranEngine {
 
 	namespace MouseButton 
 	{
-		enum : int
+		enum : uint16_t
 		{
 			Button1			= 0,
 			Button2			= 1,

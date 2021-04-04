@@ -91,13 +91,19 @@ namespace TerranEngine
 		glUniform4f(GetUniformLoc(name), val1, val2, val3, val4);
 	}
 
+	void Shader::UploadMat4(const std::string& name, glm::mat4x4 val)
+	{
+		Bind();
+		glUniformMatrix4fv(GetUniformLoc(name), 1, false, &val[0][0]);
+	}
+
 	int Shader::GetUniformLoc(const std::string& name)
 	{
 		int loc = glGetUniformLocation(m_SProgram, name.c_str());
 
 		if (loc == -1)
 		{
-			TR_ASSERTMSG(false, "Couldn't find a uniform variable with the name {0}", name);
+			TR_ASSERT(false, "Couldn't find a uniform variable with the name {0}", name);
 			return 0;
 		}
 
@@ -150,7 +156,7 @@ namespace TerranEngine
 
 			glGetShaderInfoLog(shader, length, &length, message);
 
-			TR_ASSERTMSG(false, message);
+			TR_ASSERT(false, message);
 			return 0;
 		}
 

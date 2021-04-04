@@ -12,7 +12,9 @@ project "TerranEngine"
         "src/**.h",
         "src/**.cpp",
         "vendor/stb/**.h",
-        "vendor/stb/**.cpp"
+        "vendor/stb/**.cpp",
+        "vendor/glm/**.hpp",
+        "vendor/glm/**.inl"
     }
 
     includedirs
@@ -22,7 +24,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/GLFW/include/",
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/GLAD/include/",
-        "%{wks.location}/TerranEngine/vendor/stb/"
+        "%{wks.location}/TerranEngine/vendor/stb/",
+        "%{wks.location}/TerranEngine/vendor/glm/"
     } 
 
     links 

@@ -39,11 +39,11 @@ namespace TerranEngine
 		m_WindowDataPtr.Height = data.Height;
 
 		int glfwSuccess = glfwInit();
-		TR_ASSERTMSG(glfwSuccess, "GFLW couldn't initialze!");
+		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
-		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name.c_str(), NULL, NULL);
+		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name, NULL, NULL);
 
-		TR_ASSERTMSG(m_Window, "Couldn't create a GLFW window!");
+		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
 
 		GLFWimage iconImages[2];
 		iconImages[0].pixels = stbi_load(data.IconPaths[0].c_str(), &iconImages[0].width, &iconImages[0].height, 0, 4);
@@ -137,7 +137,7 @@ namespace TerranEngine
 		glfwMakeContextCurrent(m_Window);
 		
 		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		TR_ASSERTMSG(gladSuccess, "Couldn't initialize GLAD");
+		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
 
 		SetVsync(true);
 	}

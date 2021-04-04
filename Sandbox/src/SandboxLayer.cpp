@@ -1,6 +1,9 @@
 #include "SandboxLayer.h"
 
 #include <imgui.h>
+#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace TerranEngine 
 {
@@ -9,10 +12,10 @@ namespace TerranEngine
 	{
 		float positions[] =
 		{
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f,
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
 		int indices[]
@@ -21,29 +24,33 @@ namespace TerranEngine
 			2, 3, 0
 		};
 
-		m_VertexArray.reset(new VertexArray());
-		m_VertexArray->Bind();
-
+		m_VertexArray = std::make_shared<VertexArray>();
 		m_VertexBuffer.reset(new VertexBuffer(positions, sizeof(positions)));
+
 		m_VertexBuffer->SetLayout({
-
-			{ BufferElementType::Type::FLOAT3 }
-
+			{ BufferElementType::Type::FLOAT3 },
+			{ BufferElementType::Type::FLOAT2 }
 		});
 
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-		m_IndexBuffer.reset(new IndexBuffer(indices, sizeof(indices)));
-		
+
+		m_IndexBuffer.reset(new IndexBuffer(indices, sizeof(positions)));
+
 		m_Shader.reset(new Shader("res/VertexShader.shader", "res/FragmentShader.shader"));
 		m_Shader->Bind();
-	}
-	void SandboxLayer::OnAttach()
-	{
+
+		m_Texture.reset(new Texture("res/test_grass.png"));
+		m_Texture->Bind(0);
+
+		m_Camera.reset(new OrthographicCamera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f));
+		glm::mat4 viewMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+
+		m_Shader->UploadMat4("u_ProjMat", m_Camera->ProjectionMat);
+		m_Shader->UploadMat4("u_ViewMat", viewMat);
 	}
 
 	void SandboxLayer::Update(float& time)
 	{
-		m_Shader->UploadFloat4("u_Color", 1.0f, 1.0f, 0.0f, 1.0f);
 		RendererCommand::Draw(m_VertexArray, 6);
 	}
 

@@ -17,6 +17,11 @@
 
 /* ---- Graphics ---- */
 #include "Renderer/Buffer.h"
-#include "Renderer/RendererCommand.h"
-#include "Renderer/Shader.h"
+#include "Scene/OrthographicCamera.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Shader.h"
+#include "Renderer/RendererCommand.h"
+#include "Renderer/Texture.h"
+
+/* ---- Debugging ---- */
+#include "Utils/DebugTimer.h"

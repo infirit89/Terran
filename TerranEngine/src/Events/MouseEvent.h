@@ -38,10 +38,10 @@ namespace TerranEngine
 	class MouseButtonEvent : public Event 
 	{
 	public:
-		MouseButtonEvent(const int buttonCode) 
+		MouseButtonEvent(const uint16_t buttonCode)
 			: m_ButtonCode(buttonCode) {}
 
-		int GetButton() const { return m_ButtonCode; }
+		uint16_t GetButton() const { return m_ButtonCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 	private:
@@ -51,7 +51,7 @@ namespace TerranEngine
 	class MouseButtonPressedEvent : public MouseButtonEvent 
 	{
 	public:
-		MouseButtonPressedEvent(const int buttonCode) 
+		MouseButtonPressedEvent(const uint16_t buttonCode)
 			: MouseButtonEvent(buttonCode) {}
 
 		EVENT_CLASS_TYPE(MouseButtonPressed)
@@ -60,7 +60,7 @@ namespace TerranEngine
 	class MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(const int buttonCode)
+		MouseButtonReleasedEvent(const uint16_t buttonCode)
 			: MouseButtonEvent(buttonCode) {}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)

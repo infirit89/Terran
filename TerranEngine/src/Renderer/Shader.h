@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <glm/mat4x4.hpp>
 
 namespace TerranEngine 
 {
@@ -23,6 +24,8 @@ namespace TerranEngine
 		void UploadFloat2(const std::string& name, float val1, float val2);
 		void UploadFloat3(const std::string& name, float val1, float val2, float val3);
 		void UploadFloat4(const std::string& name, float val1, float val2, float val3, float val4);
+
+		void UploadMat4(const std::string& name, glm::mat4x4 val);
 
 	private:
 		int GetUniformLoc(const std::string& name);

@@ -3,8 +3,6 @@
 #include "Application.h"
 #include "Log.h"
 
-extern TerranEngine::Application* TerranEngine::CreateApplication();
-
 int main() 
 {
 	TerranEngine::Log::Init();

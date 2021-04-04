@@ -16,7 +16,7 @@ namespace TerranEngine
 {
 	Application* Application::m_Instance = nullptr;
 
-	Application::Application(std::string name, std::array<std::string, 2> iconPaths)
+	Application::Application(const char* name, std::array<std::string, 2> iconPaths)
 		: m_Name(name), m_IconPaths(iconPaths)
 	{
 		m_Instance = this;
@@ -26,6 +26,7 @@ namespace TerranEngine
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);
 	}
+
 	Application::~Application()
 	{
 	}

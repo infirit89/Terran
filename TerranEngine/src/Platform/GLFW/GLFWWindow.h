@@ -26,6 +26,7 @@ namespace TerranEngine
 		virtual void InitWindow(WindowData data);
 		virtual void Close();
 	private:
+
 		struct WindowDataPtr 
 		{
 			uint32_t Width; uint32_t Height;

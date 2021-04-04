@@ -6,20 +6,25 @@
 
 namespace TerranEngine 
 {
-	int ConvertToBaseOpenGL(BufferElementType::Type type) 
+	uint32_t ConvertToBaseOpenGL(BufferElementType::Type type)
 	{
 		switch (type)
 		{
-		case BufferElementType::Type::FLOAT:	return GL_FLOAT;
-		case BufferElementType::Type::FLOAT2:	return GL_FLOAT;
-		case BufferElementType::Type::FLOAT3:	return GL_FLOAT;
-		case BufferElementType::Type::INT:		return GL_INT;
-		case BufferElementType::Type::INT2:		return GL_INT;
+		case BufferElementType::Type::FLOAT:
+		case BufferElementType::Type::FLOAT2:
+		case BufferElementType::Type::FLOAT3:
+		case BufferElementType::Type::FLOAT4:	return GL_FLOAT;
+
+		case BufferElementType::Type::INT:		
+		case BufferElementType::Type::INT2:		
 		case BufferElementType::Type::INT3:		return GL_INT;
+
 		case BufferElementType::Type::BOOL:		return GL_BOOL;
 		default:
 			TR_ASSERT(false, "No other type supported!");
 		}
+
+		return 0;
 	}
 
 	VertexArray::VertexArray()

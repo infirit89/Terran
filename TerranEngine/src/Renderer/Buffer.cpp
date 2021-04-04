@@ -8,14 +8,14 @@ namespace TerranEngine
 {
 
 	/* --- Vertex Buffer ---- */
-	VertexBuffer::VertexBuffer(int size)
+	VertexBuffer::VertexBuffer(uint32_t size)
 	{
 		glGenBuffers(1, &m_Buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	VertexBuffer::VertexBuffer(const float* vertices, int size)
+	VertexBuffer::VertexBuffer(const float* vertices, uint32_t size)
 	{
 		glGenBuffers(1, &m_Buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
@@ -27,7 +27,7 @@ namespace TerranEngine
 		glDeleteBuffers(1, &m_Buffer);
 	}
 
-	void VertexBuffer::SetData(const float* vertices, int size)
+	void VertexBuffer::SetData(const void* vertices, uint32_t size)
 	{
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
 	}
@@ -45,7 +45,8 @@ namespace TerranEngine
 
 
 	/* ---- Index Buffer ---- */
-	IndexBuffer::IndexBuffer(const int* indices, int size)
+	IndexBuffer::IndexBuffer(const int* indices, uint32_t size)
+		: m_Size(size)
 	{
 		glGenBuffers(1, &m_Buffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
