@@ -20,8 +20,9 @@
 #include "Scene/OrthographicCamera.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader.h"
-#include "Renderer/RendererCommand.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/Texture.h"
+#include "Renderer/BatchRenderer.h"
 
 /* ---- Debugging ---- */
 #include "Utils/DebugTimer.h"

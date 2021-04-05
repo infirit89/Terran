@@ -7,7 +7,22 @@
 namespace TerranEngine 
 {
 
-	/* --- Vertex Buffer ---- */
+	/* ---- Vertex Buffer Element --- */
+	uint8_t VertexBufferElement::GetSize()
+	{
+		switch (Type)
+		{
+		case GL_FLOAT:
+		case GL_INT:		return 4;
+		case GL_BOOL:		return 1;
+		default:			TR_ASSERT(false, "No other type supported!");
+		}
+
+		return 0;
+	}
+	/* ------------------------------*/
+
+	/* ---- Vertex Buffer ---- */
 	VertexBuffer::VertexBuffer(uint32_t size)
 	{
 		glGenBuffers(1, &m_Buffer);
@@ -41,7 +56,7 @@ namespace TerranEngine
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-	/* ---------------------- */
+	/* ----------------------- */
 
 
 	/* ---- Index Buffer ---- */

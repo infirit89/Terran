@@ -10,7 +10,7 @@
 #include "Renderer/VertexArray.h"
 
 #include "Renderer/Shader.h"
-#include "Renderer/RendererCommand.h"
+#include "Renderer/Renderer.h"
 
 namespace TerranEngine 
 {
@@ -46,7 +46,7 @@ namespace TerranEngine
 	{
 		float frameTime = 0.0f; float lastFrameTime = 0.0f;
 
-		RendererCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		while (m_Running)
 		{
@@ -56,7 +56,7 @@ namespace TerranEngine
 
 			if (!m_Minimized)
 			{
-				RendererCommand::Clear();
+				Renderer::Clear();
 
 				for (Layer* layer : m_Stack.GetLayers())
 					layer->Update(dt);
@@ -102,7 +102,7 @@ namespace TerranEngine
 
 		m_Minimized = false;
 
-		RendererCommand::Resize(e.GetWidth(), e.GetHeight());
+		Renderer::Resize(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}

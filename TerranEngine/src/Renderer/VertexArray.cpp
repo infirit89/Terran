@@ -6,27 +6,6 @@
 
 namespace TerranEngine 
 {
-	uint32_t ConvertToBaseOpenGL(BufferElementType::Type type)
-	{
-		switch (type)
-		{
-		case BufferElementType::Type::FLOAT:
-		case BufferElementType::Type::FLOAT2:
-		case BufferElementType::Type::FLOAT3:
-		case BufferElementType::Type::FLOAT4:	return GL_FLOAT;
-
-		case BufferElementType::Type::INT:		
-		case BufferElementType::Type::INT2:		
-		case BufferElementType::Type::INT3:		return GL_INT;
-
-		case BufferElementType::Type::BOOL:		return GL_BOOL;
-		default:
-			TR_ASSERT(false, "No other type supported!");
-		}
-
-		return 0;
-	}
-
 	VertexArray::VertexArray()
 		: m_ElementIndex(0)
 	{
@@ -49,16 +28,14 @@ namespace TerranEngine
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer)
+	void VertexArray::AddVertexBufferLayout(const VertexBufferLayout& layout)
 	{
-		m_VBuffer = buffer;
+		m_Layout = layout;
 
-		VertexBufferLayout layout = m_VBuffer->GetLayout();
-
-		for (auto element : layout.GetElements()) 
+		for (auto element : m_Layout.GetElements())
 		{
 			glEnableVertexAttribArray(m_ElementIndex);
-			glVertexAttribPointer(m_ElementIndex, element.GetCountOfType(), ConvertToBaseOpenGL(element.Type), element.Normalised ? GL_TRUE : GL_FALSE, layout.GetStride(), (const void*)element.Offset);
+			glVertexAttribPointer(m_ElementIndex, element.Count, element.Type, element.Normalised ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.Offset);
 			m_ElementIndex++;
 		}
 	}

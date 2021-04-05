@@ -15,7 +15,10 @@ namespace TerranEngine
 		const void Bind() const;
 		const void Unbind() const;
 
-		void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer);
+		void AddVertexBufferLayout(const VertexBufferLayout& layout);
+		const VertexBufferLayout& GetVertexBufferLayout() const { return m_Layout; }
+
+		void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer) { m_VBuffer = buffer; }
 		const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return m_VBuffer; }
 
 		void AddIndexBuffer(const std::shared_ptr<IndexBuffer>& buffer) { m_IBuffer = buffer; }
@@ -25,6 +28,7 @@ namespace TerranEngine
 
 		std::shared_ptr<VertexBuffer> m_VBuffer;
 		std::shared_ptr<IndexBuffer> m_IBuffer;
+		VertexBufferLayout m_Layout;
 
 		uint32_t m_ElementIndex;
 	};

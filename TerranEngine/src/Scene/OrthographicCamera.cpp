@@ -11,7 +11,7 @@ namespace TerranEngine
 
 	void OrthographicCamera::AdjustProjection(float left, float right, float bottom, float top)
 	{
-		ProjectionMat = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+		ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
 	}
 
 	void OrthographicCamera::AdjustProjection(float width, float height)

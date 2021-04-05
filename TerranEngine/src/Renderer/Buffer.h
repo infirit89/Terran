@@ -8,66 +8,17 @@
 
 namespace TerranEngine 
 {
-
-	struct BufferElementType
-	{
-		enum class Type
-		{
-			None = 0,
-			FLOAT, 
-			FLOAT2,
-			FLOAT3,
-			FLOAT4,
-			INT, 
-			INT2,
-			INT3,
-			BOOL,
-		};
-
-		static uint32_t GetSizeOfType(Type type) 
-		{
-			switch (type)
-			{
-			case Type::FLOAT:	return 4;
-			case Type::FLOAT2:	return 4 * 2;
-			case Type::FLOAT3:	return 4 * 3;
-			case Type::FLOAT4:	return 4 * 4;
-			case Type::INT:		return 4;
-			case Type::INT2:	return 4 * 2;
-			case Type::INT3:	return 4 * 3;
-			case Type::BOOL:	return 1;
-			default:			TR_ASSERT(false, "No other type supported!");
-			}
-
-			return 0;
-		}
-	};
 	struct VertexBufferElement 
 	{
-		BufferElementType::Type Type;
+		uint32_t Type;
 		bool Normalised;
+		uint8_t Count;
 		uint32_t Offset;
 
-		VertexBufferElement(BufferElementType::Type type, bool normalised = false) 
-			: Type(type), Normalised(normalised), Offset(0) {}
+		VertexBufferElement(uint32_t type, uint8_t count, bool normalised = false) 
+			: Type(type), Normalised(normalised), Count(count), Offset(0) {}
 
-		uint32_t GetCountOfType() 
-		{
-			switch (Type)
-			{
-			case BufferElementType::Type::FLOAT:	return 1;
-			case BufferElementType::Type::FLOAT2:	return 2;
-			case BufferElementType::Type::FLOAT3:	return 3;
-			case BufferElementType::Type::FLOAT4:	return 4;
-			case BufferElementType::Type::INT:		return 1;
-			case BufferElementType::Type::INT2:		return 2;
-			case BufferElementType::Type::INT3:		return 3;
-			case BufferElementType::Type::BOOL:		return 1;
-			default:								TR_ASSERT(false, "No other type supported!");
-			}
-
-			return 0;
-		}
+		uint8_t GetSize();
 	};
 
 	class VertexBufferLayout 
@@ -91,8 +42,8 @@ namespace TerranEngine
 			for (auto& element : m_Elements)
 			{
 				element.Offset = offset;
-				offset += BufferElementType::GetSizeOfType(element.Type);
-				m_Stride += BufferElementType::GetSizeOfType(element.Type);
+				offset += element.GetSize() * element.Count;
+				m_Stride += element.GetSize() * element.Count;
 			}
 		}
 
@@ -111,15 +62,11 @@ namespace TerranEngine
 
 		~VertexBuffer();
 
-		void SetLayout(const VertexBufferLayout& layout) { m_Layout = layout; }
-		VertexBufferLayout GetLayout() { return m_Layout; }
-
 		void SetData(const void* vertices, uint32_t size);
 		const void Bind() const;
 		const void Unbind() const;
 	private:
 		uint32_t m_Buffer;
-		VertexBufferLayout m_Layout;
 	};
 
 	class IndexBuffer 

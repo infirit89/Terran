@@ -8,7 +8,8 @@
 namespace TerranEngine 
 {
 	SandboxLayer::SandboxLayer()
-		: Layer("Sandbox Layer")
+		: Layer("Sandbox Layer"), 
+		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f)
 	{
 		float positions[] =
 		{
@@ -23,35 +24,25 @@ namespace TerranEngine
 			0, 1, 2,
 			2, 3, 0
 		};
+		m_ViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	}
 
-		m_VertexArray = std::make_shared<VertexArray>();
-		m_VertexBuffer.reset(new VertexBuffer(positions, sizeof(positions)));
+	void SandboxLayer::OnAttach()
+	{
+		BatchRenderer::Init(2000);
+	}
 
-		m_VertexBuffer->SetLayout({
-			{ BufferElementType::Type::FLOAT3 },
-			{ BufferElementType::Type::FLOAT2 }
-		});
-
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-		m_IndexBuffer.reset(new IndexBuffer(indices, sizeof(positions)));
-
-		m_Shader.reset(new Shader("res/VertexShader.shader", "res/FragmentShader.shader"));
-		m_Shader->Bind();
-
-		m_Texture.reset(new Texture("res/test_grass.png"));
-		m_Texture->Bind(0);
-
-		m_Camera.reset(new OrthographicCamera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f));
-		glm::mat4 viewMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-		m_Shader->UploadMat4("u_ProjMat", m_Camera->ProjectionMat);
-		m_Shader->UploadMat4("u_ViewMat", viewMat);
+	void SandboxLayer::OnDettach()
+	{
+		BatchRenderer::Close();
 	}
 
 	void SandboxLayer::Update(float& time)
 	{
-		RendererCommand::Draw(m_VertexArray, 6);
+		BatchRenderer::BeginScene(m_Camera, m_ViewMatrix);
+		BatchRenderer::Draw(m_Transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+		BatchRenderer::EndScene();
+		m_Transform.Rotation += 1.0f * time;
 	}
 
 	void SandboxLayer::OnEvent(Event& event)

@@ -4,12 +4,17 @@
 
 #include <memory>
 
+#include "Transform.h"
+
 namespace TerranEngine {
 
 	class SandboxLayer : public Layer
 	{
 	public: 
 		SandboxLayer();
+
+		void OnAttach() override;
+		void OnDettach() override;
 
 		void Update(float& time) override;
 
@@ -18,11 +23,13 @@ namespace TerranEngine {
 
 		bool KeyPressed(KeyPressedEvent& event);
 	private:
-		std::shared_ptr<OrthographicCamera> m_Camera;
-		std::shared_ptr<Shader> m_Shader;
+		OrthographicCamera m_Camera;
+		glm::mat4 m_ViewMatrix;
+		Transform m_Transform;
+		/*std::shared_ptr<Shader> m_Shader;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::shared_ptr<VertexArray> m_VertexArray;
-		std::shared_ptr<Texture> m_Texture;
+		std::shared_ptr<Texture> m_Texture;*/
 	};
 }

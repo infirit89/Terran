@@ -5,7 +5,7 @@
 
 namespace TerranEngine 
 {
-	class RendererCommand 
+	class Renderer 
 	{
 	public:
 		static void SetClearColor(float r, float g, float b, float a);
