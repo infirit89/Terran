@@ -25,6 +25,8 @@ namespace TerranEngine
 			2, 3, 0
 		};
 		m_ViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	
+		m_Texture = new Texture("res/test_grass.png");
 	}
 
 	void SandboxLayer::OnAttach()
@@ -40,9 +42,8 @@ namespace TerranEngine
 	void SandboxLayer::Update(float& time)
 	{
 		BatchRenderer::BeginScene(m_Camera, m_ViewMatrix);
-		BatchRenderer::Draw(m_Transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+		BatchRenderer::Draw(m_Transform.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 		BatchRenderer::EndScene();
-		m_Transform.Rotation += 1.0f * time;
 	}
 
 	void SandboxLayer::OnEvent(Event& event)
@@ -76,4 +77,3 @@ namespace TerranEngine
 		return false;
 	}
 }
-

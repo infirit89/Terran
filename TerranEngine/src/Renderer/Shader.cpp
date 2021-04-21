@@ -43,63 +43,69 @@ namespace TerranEngine
 		glUseProgram(0);
 	}
 
-	void Shader::UploadInt(const std::string& name, int val)
+	void Shader::UploadInt(const char* name, int val)
 	{
 		Bind();
 		glUniform1i(GetUniformLoc(name), val);
 	}
 
-	void Shader::UploadInt2(const std::string& name, int val1, int val2)
+	void Shader::UploadInt2(const char* name, int val1, int val2)
 	{
 		Bind();
 		glUniform2i(GetUniformLoc(name), val1, val2);
 	}
 
-	void Shader::UploadInt3(const std::string& name, int val1, int val2, int val3)
+	void Shader::UploadInt3(const char* name, int val1, int val2, int val3)
 	{
 		Bind();
 		glUniform3i(GetUniformLoc(name), val1, val2, val3);
 	}
 
-	void Shader::UploadInt4(const std::string& name, int val1, int val2, int val3, int val4)
+	void Shader::UploadInt4(const char* name, int val1, int val2, int val3, int val4)
 	{
 		Bind();
 		glUniform4i(GetUniformLoc(name), val1, val2, val3, val4);
 	}
 
-	void Shader::UploadFloat(const std::string& name, float val)
+	void Shader::UploadFloat(const char* name, float val)
 	{
 		Bind();
 		glUniform1f(GetUniformLoc(name), val);
 	}
 
-	void Shader::UploadFloat2(const std::string& name, float val1, float val2)
+	void Shader::UploadFloat2(const char* name, float val1, float val2)
 	{
 		Bind();
 		glUniform2f(GetUniformLoc(name), val1, val2);
 	}
 
-	void Shader::UploadFloat3(const std::string& name, float val1, float val2, float val3)
+	void Shader::UploadFloat3(const char* name, float val1, float val2, float val3)
 	{
 		Bind();
 		glUniform3f(GetUniformLoc(name), val1, val2, val3);
 	}
 
-	void Shader::UploadFloat4(const std::string& name, float val1, float val2, float val3, float val4)
+	void Shader::UploadFloat4(const char* name, float val1, float val2, float val3, float val4)
 	{
 		Bind();
 		glUniform4f(GetUniformLoc(name), val1, val2, val3, val4);
 	}
 
-	void Shader::UploadMat4(const std::string& name, glm::mat4x4 val)
+	void Shader::UploadMat4(const char* name, glm::mat4x4 val)
 	{
 		Bind();
 		glUniformMatrix4fv(GetUniformLoc(name), 1, false, &val[0][0]);
 	}
 
-	int Shader::GetUniformLoc(const std::string& name)
+	void Shader::UploadIntArray(const char* name, uint32_t count, int val[])
 	{
-		int loc = glGetUniformLocation(m_SProgram, name.c_str());
+		Bind();
+		glUniform1iv(GetUniformLoc(name), count, val);
+	}
+
+	int Shader::GetUniformLoc(const char* name)
+	{
+		int loc = glGetUniformLocation(m_SProgram, name);
 
 		if (loc == -1)
 		{

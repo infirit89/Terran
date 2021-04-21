@@ -20,9 +20,9 @@ namespace TerranEngine
 		glViewport(0, 0, width, height);
 	}
 
-	void Renderer::Draw(const std::shared_ptr<VertexArray>& vertexArray, int numIndices)
+	void Renderer::Draw(const VertexArray& vertexArray, int numIndices)
 	{
-		vertexArray->Bind();
+		vertexArray.Bind();
 
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
 	}

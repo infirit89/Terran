@@ -1,10 +1,16 @@
 #version 410 core
 
 in vec4 o_Color;
+in vec2 o_TexCoords;
+in float o_TexIndex;
+
+uniform sampler2D u_Samplers[16];
 
 out vec4 color;
 
 void main() 
 {
-	color = o_Color;
+	int index = int(o_TexIndex);
+
+	color = o_Color * texture(u_Samplers[index], o_TexCoords);
 }

@@ -31,5 +31,12 @@ namespace TerranEngine {
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::shared_ptr<VertexArray> m_VertexArray;
 		std::shared_ptr<Texture> m_Texture;*/
+
+		Shader* m_Shader;
+		VertexBuffer* m_VertexBuffer;
+		IndexBuffer* m_IndexBuffer;
+		VertexArray* m_VertexArray;
+
+		Texture* m_Texture;
 	};
 }

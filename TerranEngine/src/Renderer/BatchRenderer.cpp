@@ -3,132 +3,176 @@
 
 #include <glm/vec3.hpp>
 
-#include "Renderer/Buffer.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/Shader.h"
-#include "Renderer/Renderer.h"
 
 #include <glad/glad.h>
 
 namespace TerranEngine 
 {
-	struct Vertex
-	{
-		glm::vec3 Position;
-		glm::vec4 Color;
-	};
-
-	struct RendererData
-	{
-		uint32_t MaxVertices, MaxIndices;
-
-		std::shared_ptr<VertexBuffer> VertexBuffer;
-		std::shared_ptr<IndexBuffer> IndexBuffer;
-		std::shared_ptr<VertexArray> VertexArray;
-		std::shared_ptr<Shader> Shader;
-
-		Vertex* VertexArrayPtr;
-		uint32_t VertexIndex = 0;
-
-		uint32_t IndexCount = 0;
-
-		glm::vec4 VertexPositions[4];
-	};
-
-	static RendererData s_RData;
+	Data BatchRenderer::s_Data;
 
 	void BatchRenderer::Init(uint32_t batchSize)
 	{
-		s_RData.MaxVertices = batchSize * 4;
-		s_RData.MaxIndices = batchSize * 6;
+		s_Data.MaxVertices = batchSize * 4;
+		s_Data.MaxIndices = batchSize * 6;
 
-		s_RData.VertexArrayPtr = new Vertex[s_RData.MaxVertices];
+		s_Data.VertexArrayPtr = new Vertex[s_Data.MaxVertices];
 
-		s_RData.VertexArray = std::make_shared<VertexArray>();
-		s_RData.VertexBuffer.reset(new VertexBuffer(s_RData.MaxVertices * sizeof(Vertex)));
+		s_Data.VertexArray = new VertexArray();
 
-		VertexBufferLayout layout = VertexBufferLayout({
+		s_Data.VertexBuffer = new VertexBuffer(s_Data.MaxVertices * sizeof(Vertex));
+
+		s_Data.VertexArray->AddVertexBufferLayout({
 			{ GL_FLOAT, 3 },
-			{ GL_FLOAT, 4 }
+			{ GL_FLOAT, 4 },
+			{ GL_FLOAT, 2 },
+			{ GL_FLOAT, 1 }
 		});
 
-		s_RData.VertexArray->AddVertexBuffer(s_RData.VertexBuffer);
-		s_RData.VertexArray->AddVertexBufferLayout(layout);
+		int* indices = new int[s_Data.MaxIndices];
 
-		int* indices = new int[s_RData.MaxIndices];
+		uint32_t offset = 0;
 
-		int offset = 0;
-		for (uint32_t i = 0; i < s_RData.MaxIndices; i += 6)
+		for (size_t i = 0; i < s_Data.MaxIndices; i += 6)
 		{
-			indices[i] = offset;
+			indices[i + 0] = offset + 0;
 			indices[i + 1] = offset + 1;
 			indices[i + 2] = offset + 2;
 			indices[i + 3] = offset + 2;
 			indices[i + 4] = offset + 3;
-			indices[i + 5] = offset;
+			indices[i + 5] = offset + 0;
 
 			offset += 4;
 		}
 
-		s_RData.IndexBuffer.reset(new IndexBuffer(indices, s_RData.MaxIndices * sizeof(int)));
+		s_Data.IndexBuffer = new IndexBuffer(indices, s_Data.MaxIndices * sizeof(int));
 
 		delete[] indices;
+		
+		int samplers[s_Data.MaxTextureSlots];
 
-		s_RData.Shader.reset(new Shader("res/VertexShader.glsl", "res/FragmentShader.glsl"));
-		s_RData.Shader->Bind();
+		for (size_t i = 0; i < s_Data.MaxTextureSlots; i++)
+			samplers[i] = i;
 
-		s_RData.VertexPositions[0] = {	-0.5f, -0.5f, 0.0f, 1.0f };
-		s_RData.VertexPositions[1] = {	 0.5f, -0.5f, 0.0f, 1.0f };
-		s_RData.VertexPositions[2] = {	 0.5f,  0.5f, 0.0f, 1.0f };
-		s_RData.VertexPositions[3] = {	-0.5f,  0.5f, 0.0f, 1.0f };
+		uint32_t whiteTexture = 0xffffffff;
+		s_Data.WhiteTexture = new Texture(1, 1);
+		s_Data.WhiteTexture->SetData(&whiteTexture);
+
+		s_Data.shader = new Shader("res/VertexShader.glsl", "res/FragmentShader.glsl");
+		s_Data.shader->UploadIntArray("u_Samplers", s_Data.MaxTextureSlots, samplers);
+
+		s_Data.Textures[0] = *s_Data.WhiteTexture;
+
+		s_Data.VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		s_Data.VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		s_Data.VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		s_Data.VertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		s_Data.TextureCoordinates[0] = { 0.0f, 0.0f };
+		s_Data.TextureCoordinates[1] = { 1.0f, 0.0f };
+		s_Data.TextureCoordinates[2] = { 1.0f, 1.0f };
+		s_Data.TextureCoordinates[3] = { 0.0f, 1.0f };
 	}
 
 	void BatchRenderer::Close()
 	{
-		delete[] s_RData.VertexArrayPtr;
-	}
+		delete[] s_Data.VertexArrayPtr;
+		delete s_Data.VertexBuffer;
+		delete s_Data.IndexBuffer;
+		delete s_Data.VertexArray;
 
-	void BatchRenderer::BeginScene(const Camera& camera, glm::mat4& cameraTransform)
+		delete s_Data.shader;
+	}
+	
+	void BatchRenderer::BeginScene(Camera& camera, const glm::mat4& transform)
 	{
-		s_RData.Shader->Bind();
-		s_RData.Shader->UploadMat4("u_ProjMat", camera.ProjectionMatrix);
-		s_RData.Shader->UploadMat4("u_ViewMat", cameraTransform);
+		s_Data.shader->UploadMat4("u_ProjMat", camera.ProjectionMatrix);
+		s_Data.shader->UploadMat4("u_ViewMat", transform);
 
-		s_RData.IndexCount = 0;
-		s_RData.VertexIndex = 0;
+		s_Data.IndexCount = 0;
+		s_Data.VertexArrayIndex = 0;
+		s_Data.TexIndex = 1;
 	}
-
-	void BatchRenderer::Draw(glm::mat4& transform, glm::vec4 color)
-	{
-		if (s_RData.IndexCount >= s_RData.MaxIndices) 
-		{
-			Submit();
-			s_RData.IndexCount = 0;
-			s_RData.VertexIndex = 0;
-		}
-
-		for (uint32_t i = 0; i < 4; i++)
-		{
-			s_RData.VertexArrayPtr[s_RData.VertexIndex].Position = transform * s_RData.VertexPositions[i];
-			s_RData.VertexArrayPtr[s_RData.VertexIndex].Color = color;
-			s_RData.VertexIndex++;
-		}
-
-		s_RData.IndexCount += 6;
-	}
-
+	
 	void BatchRenderer::EndScene()
 	{
 		Submit();
 	}
+	
+	void BatchRenderer::Draw(const glm::mat4& transform, const glm::vec4& color)
+	{
+		if (s_Data.IndexCount >= s_Data.MaxIndices)
+			BeginNewBatch();
 
+		for (size_t i = 0; i < 4; i++)
+		{
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].Position = transform * s_Data.VertexPositions[i];
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].Color = color;
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].TextureCoords = s_Data.TextureCoordinates[i];
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].TextureIndex = 0.0f;
+
+			s_Data.VertexArrayIndex++;
+		}
+
+		s_Data.IndexCount += 6;
+	}
+
+	void BatchRenderer::Draw(const glm::mat4& transform, const glm::vec4& color, Texture& texture) 
+	{
+		float texIndex = 0.0f;
+
+		for (size_t i = 1; i < s_Data.TexIndex; i++)
+		{
+			if (s_Data.Textures[i] == texture)
+			{
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == 0.0f)
+		{
+			if (s_Data.TexIndex >= s_Data.MaxTextureSlots)
+				BeginNewBatch();
+
+			texIndex = s_Data.TexIndex;
+			s_Data.Textures[s_Data.TexIndex] = texture;
+			s_Data.TexIndex++;
+		}
+
+		if (s_Data.IndexCount >= s_Data.MaxIndices)
+			BeginNewBatch();
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].Position = transform * s_Data.VertexPositions[i];
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].Color = color;
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].TextureCoords = s_Data.TextureCoordinates[i];
+			s_Data.VertexArrayPtr[s_Data.VertexArrayIndex].TextureIndex = texIndex;
+
+			s_Data.VertexArrayIndex++;
+		}
+
+		s_Data.IndexCount += 6;
+	}
+
+	void BatchRenderer::BeginNewBatch()
+	{
+		s_Data.IndexCount = 0;
+		s_Data.VertexArrayIndex = 0;
+		s_Data.TexIndex = 1;
+		Submit();
+	}
+	
 	void BatchRenderer::Submit()
 	{
-		if (s_RData.IndexCount == 0)
+		if (s_Data.IndexCount == 0)
 			return;
 
-		s_RData.VertexBuffer->SetData(s_RData.VertexArrayPtr, s_RData.VertexIndex * sizeof(Vertex));
+		s_Data.VertexBuffer->SetData(s_Data.VertexArrayPtr, s_Data.VertexArrayIndex * sizeof(Vertex));
 
-		Renderer::Draw(s_RData.VertexArray, s_RData.IndexCount);
+		for (size_t i = 0; i < s_Data.TexIndex; i++)
+			s_Data.Textures[i].Bind(i);
+
+		Renderer::Draw(*s_Data.VertexArray, s_Data.IndexCount);
 	}
 }

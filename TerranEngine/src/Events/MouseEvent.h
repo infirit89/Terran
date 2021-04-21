@@ -1,6 +1,8 @@
 #pragma once
 #include "Event.h"
 
+#include "Core/MouseButtons.h"
+
 namespace TerranEngine 
 {
 
@@ -38,20 +40,20 @@ namespace TerranEngine
 	class MouseButtonEvent : public Event 
 	{
 	public:
-		MouseButtonEvent(const uint16_t buttonCode)
+		MouseButtonEvent(const MouseButton buttonCode)
 			: m_ButtonCode(buttonCode) {}
 
-		uint16_t GetButton() const { return m_ButtonCode; }
+		MouseButton GetButton() const { return m_ButtonCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 	private:
-		int m_ButtonCode;
+		MouseButton m_ButtonCode;
 	};
 
 	class MouseButtonPressedEvent : public MouseButtonEvent 
 	{
 	public:
-		MouseButtonPressedEvent(const uint16_t buttonCode)
+		MouseButtonPressedEvent(const MouseButton buttonCode)
 			: MouseButtonEvent(buttonCode) {}
 
 		EVENT_CLASS_TYPE(MouseButtonPressed)
@@ -60,7 +62,7 @@ namespace TerranEngine
 	class MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(const uint16_t buttonCode)
+		MouseButtonReleasedEvent(const MouseButton buttonCode)
 			: MouseButtonEvent(buttonCode) {}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)

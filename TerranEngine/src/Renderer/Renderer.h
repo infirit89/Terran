@@ -12,6 +12,6 @@ namespace TerranEngine
 		static void Clear();
 		static void Resize(int width, int height);
 
-		static void Draw(const std::shared_ptr<VertexArray>& vertexArray, int numIndices);
+		static void Draw(const VertexArray& vertexArray, int numIndices);
 	};
 }

@@ -8,7 +8,7 @@ namespace TerranEngine {
 	class Input 
 	{
 	public:
-		static bool IsKeyPressed(uint32_t key);
-		static bool IsMouseButtonPressed(uint16_t button);
+		static bool IsKeyPressed(Key key);
+		static bool IsMouseButtonPressed(MouseButton button);
 	};
 }

@@ -79,19 +79,19 @@ namespace TerranEngine
 			{
 				case GLFW_PRESS: 
 				{
-					KeyPressedEvent e(key, 0);
+					KeyPressedEvent e((Key)key, 0);
 					data.EventCallback(e);
 					break;
 				}
 				case GLFW_REPEAT: 
 				{
-					KeyPressedEvent e(key, 1);
+					KeyPressedEvent e((Key)key, 1);
 					data.EventCallback(e);
 					break;
 				}
 				case GLFW_RELEASE: 
 				{
-					KeyReleasedEvent e(key);
+					KeyReleasedEvent e((Key)key);
 					data.EventCallback(e);
 					break;
 				}
@@ -120,13 +120,13 @@ namespace TerranEngine
 			{
 				case GLFW_PRESS: 
 				{
-					MouseButtonPressedEvent e(button);
+					MouseButtonPressedEvent e((MouseButton)button);
 					data.EventCallback(e);
 					break;
 				}
 				case GLFW_RELEASE: 
 				{
-					MouseButtonReleasedEvent e(button);
+					MouseButtonReleasedEvent e((MouseButton)button);
 					data.EventCallback(e);
 					break;
 				}
