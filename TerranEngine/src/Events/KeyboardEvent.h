@@ -21,10 +21,11 @@ namespace TerranEngine
 	{
 	public:
 		KeyPressedEvent(const Key keyCode, const uint8_t repeatCount)
-			: KeyboardEvent(keyCode), m_RepeatCount(repeatCount) {}
+			: KeyboardEvent(keyCode), m_RepeatCount(repeatCount) 
+		{
+		}
 
 		uint8_t GetRepeatCount() const { return m_RepeatCount; }
-
 		EVENT_CLASS_TYPE(KeyPressed)
 	private:
 		uint8_t m_RepeatCount;

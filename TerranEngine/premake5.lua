@@ -25,7 +25,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/GLAD/include/",
         "%{wks.location}/TerranEngine/vendor/stb/",
-        "%{wks.location}/TerranEngine/vendor/glm/"
+        "%{wks.location}/TerranEngine/vendor/glm/",
+        "%{wks.location}/TerranEngine/vendor/entt/include"
     } 
 
     links 
