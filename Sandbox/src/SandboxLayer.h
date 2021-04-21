@@ -22,9 +22,13 @@ namespace TerranEngine {
 		void ImGuiRender() override;
 
 		bool KeyPressed(KeyPressedEvent& event);
+		bool OnWindowResize(WindowResizeEvent& event);
+		bool OnMouseScroll(MouseScrollEvent& event);
+
 	private:
 		OrthographicCamera m_Camera;
-		glm::mat4 m_ViewMatrix;
+		Transform m_CameraTransform;
+		
 		Transform m_Transform;
 		/*std::shared_ptr<Shader> m_Shader;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
@@ -36,6 +40,8 @@ namespace TerranEngine {
 		VertexBuffer* m_VertexBuffer;
 		IndexBuffer* m_IndexBuffer;
 		VertexArray* m_VertexArray;
+
+		float m_ZoomLevel = 0.1f;
 
 		Texture* m_Texture;
 	};

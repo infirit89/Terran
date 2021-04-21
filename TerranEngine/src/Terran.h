@@ -10,6 +10,7 @@
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
+#include "Events/MouseEvent.h"
 #include "Events/Event.h"
 
 /* ---- ImGui ---- */

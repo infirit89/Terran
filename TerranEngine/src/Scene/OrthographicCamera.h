@@ -9,6 +9,8 @@ namespace TerranEngine
 	{
 	public: 
 		OrthographicCamera(float width, float height);
+
+		void SetViewport(float width, float height);
 	private:
 		void AdjustProjection(float left, float right, float bottom, float top);
 		void AdjustProjection(float width, float height);

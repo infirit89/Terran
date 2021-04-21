@@ -43,7 +43,7 @@ namespace TerranEngine
 
 		Texture* WhiteTexture;
 
-		std::array<Texture, MaxTextureSlots> Textures;
+		Texture* Textures[MaxTextureSlots];
 
 		glm::vec4 VertexPositions[4];
 		glm::vec2 TextureCoordinates[4];

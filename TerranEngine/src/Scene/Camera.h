@@ -8,8 +8,10 @@ namespace TerranEngine
 	{
 	public:
 		Camera(glm::mat4x4 projectionMatrix) 
-			: ProjectionMatrix(projectionMatrix) {}
-	public:
-		glm::mat4x4 ProjectionMatrix;
+			: m_ProjectionMatrix(projectionMatrix) {}
+
+		glm::mat4x4& GetProjection() { return m_ProjectionMatrix; }
+	protected:
+		glm::mat4x4 m_ProjectionMatrix;
 	};
 }
