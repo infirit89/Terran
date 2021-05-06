@@ -44,6 +44,7 @@ namespace TerranEngine
 
 	void VertexBuffer::SetData(const void* vertices, uint32_t size)
 	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
 	}
 

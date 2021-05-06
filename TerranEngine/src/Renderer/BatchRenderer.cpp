@@ -3,12 +3,61 @@
 
 #include <glm/vec3.hpp>
 
-
 #include <glad/glad.h>
 
 namespace TerranEngine 
 {
-	Data BatchRenderer::s_Data;
+	std::vector<BatchData> BatchRenderer::m_Batches;
+	uint32_t BatchRenderer::m_BatchSize;
+
+	void BatchRenderer::Init(uint32_t batchSize)
+	{
+		m_BatchSize = batchSize;
+		m_Batches.reserve(1);
+	}
+
+	void BatchRenderer::Close()
+	{
+		for (BatchData& data : m_Batches)
+			Batch::CloseData(data);
+	}
+
+	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture)
+	{
+		bool added = false;
+
+		for (BatchData& data : m_Batches)
+		{
+			if (Batch::HasRoom(data) && data.ZIndex == zIndex)
+			{
+				Batch::AddQuad(data, transform, color, texture);
+				added = true;
+				break;
+			}
+		}
+
+		if (!added) {
+			BatchData data = Batch::InitData(m_BatchSize, zIndex);
+			Batch::AddQuad(data, transform, color, texture);
+			m_Batches.emplace_back(data);
+			std::sort(m_Batches.begin(), m_Batches.end(), [](BatchData data1, BatchData data2) 
+			{
+					return data1.ZIndex < data2.ZIndex;
+			});
+		}
+	}
+
+	void BatchRenderer::EndScene(Camera& camera, const glm::mat4& transform)
+	{
+		for (BatchData& data : m_Batches) 
+		{
+			Batch::BeginScene(data, camera, transform);
+			Batch::EndScene(data);
+			Batch::Clear(data);
+		}
+	}
+
+	/*Data BatchRenderer::s_Data;
 
 	void BatchRenderer::Init(uint32_t batchSize)
 	{
@@ -37,6 +86,7 @@ namespace TerranEngine
 			indices[i + 0] = offset + 0;
 			indices[i + 1] = offset + 1;
 			indices[i + 2] = offset + 2;
+
 			indices[i + 3] = offset + 2;
 			indices[i + 4] = offset + 3;
 			indices[i + 5] = offset + 0;
@@ -47,7 +97,7 @@ namespace TerranEngine
 		s_Data.IndexBuffer = new IndexBuffer(indices, s_Data.MaxIndices * sizeof(int));
 
 		delete[] indices;
-		
+
 		int samplers[s_Data.MaxTextureSlots];
 
 		for (size_t i = 0; i < s_Data.MaxTextureSlots; i++)
@@ -85,7 +135,7 @@ namespace TerranEngine
 
 		delete s_Data.WhiteTexture;
 	}
-	
+
 	void BatchRenderer::BeginScene(Camera& camera, const glm::mat4& transform)
 	{
 		s_Data.shader->UploadMat4("u_ProjMat", camera.GetProjection());
@@ -95,12 +145,12 @@ namespace TerranEngine
 		s_Data.VertexArrayIndex = 0;
 		s_Data.TexIndex = 1;
 	}
-	
+
 	void BatchRenderer::EndScene()
 	{
 		Submit();
 	}
-	
+
 	void BatchRenderer::Draw(const glm::mat4& transform, const glm::vec4& color)
 	{
 		if (s_Data.IndexCount >= s_Data.MaxIndices)
@@ -119,7 +169,7 @@ namespace TerranEngine
 		s_Data.IndexCount += 6;
 	}
 
-	void BatchRenderer::Draw(const glm::mat4& transform, const glm::vec4& color, Texture& texture) 
+	void BatchRenderer::Draw(const glm::mat4& transform, const glm::vec4& color, Texture& texture)
 	{
 		float texIndex = 0.0f;
 
@@ -160,12 +210,12 @@ namespace TerranEngine
 
 	void BatchRenderer::BeginNewBatch()
 	{
+		Submit();
 		s_Data.IndexCount = 0;
 		s_Data.VertexArrayIndex = 0;
 		s_Data.TexIndex = 1;
-		Submit();
 	}
-	
+
 	void BatchRenderer::Submit()
 	{
 		if (s_Data.IndexCount == 0)
@@ -176,6 +226,6 @@ namespace TerranEngine
 		for (size_t i = 0; i < s_Data.TexIndex; i++)
 			s_Data.Textures[i]->Bind(i);
 
-		Renderer::Draw(*s_Data.VertexArray, s_Data.IndexCount);
-	}
+		RenderCommand::Draw(*s_Data.VertexArray, s_Data.IndexCount);
+	}*/
 }

@@ -29,20 +29,16 @@ namespace TerranEngine {
 		OrthographicCamera m_Camera;
 		Transform m_CameraTransform;
 		
-		Transform m_Transform;
+		Transform m_Transform1, m_Transform2;
 		/*std::shared_ptr<Shader> m_Shader;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::shared_ptr<VertexArray> m_VertexArray;
 		std::shared_ptr<Texture> m_Texture;*/
 
-		Shader* m_Shader;
-		VertexBuffer* m_VertexBuffer;
-		IndexBuffer* m_IndexBuffer;
-		VertexArray* m_VertexArray;
-
 		float m_ZoomLevel = 0.1f;
 
 		Texture* m_Texture;
+		float fps = 0.0f;
 	};
 }

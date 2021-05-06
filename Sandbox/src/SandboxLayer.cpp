@@ -9,7 +9,7 @@ namespace TerranEngine
 {
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer"), 
-		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f)
+		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f))
 	{
 		float positions[] =
 		{
@@ -29,7 +29,7 @@ namespace TerranEngine
 
 	void SandboxLayer::OnAttach()
 	{
-		BatchRenderer::Init(2000);
+		BatchRenderer::Init(20000);
 	}
 
 	void SandboxLayer::OnDettach()
@@ -39,30 +39,38 @@ namespace TerranEngine
 
 	void SandboxLayer::Update(float& time)
 	{
-		BatchRenderer::BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 
 		if (Input::IsKeyPressed(Key::A))
-			m_CameraTransform.Position.x -= 1;
+			m_CameraTransform.Position.x -= 10 * time;
 		else if (Input::IsKeyPressed(Key::D))
-			m_CameraTransform.Position.x += 1;
+			m_CameraTransform.Position.x += 10 * time;
 		if (Input::IsKeyPressed(Key::W))
-			m_CameraTransform.Position.y += 1;
+			m_CameraTransform.Position.y += 10 * time;
 		else if (Input::IsKeyPressed(Key::S))
-			m_CameraTransform.Position.y -= 1;
+			m_CameraTransform.Position.y -= 10 * time;
 
+		fps = 1 / time;
+		int times = 0;
 
-
-		for (size_t i = 0; i < 10; i++)
+		/*for (float x = -5.0f; x < 35.0f; x += 0.5f)
 		{
-			glm::vec3 pos(i * 1.1f, 0.0f, 0.0f);
-			
-			Transform transform(pos);
+			for (float y = -5.0f; y < 35.0f; y += 0.5f)
+			{
+				glm::vec3 pos(x * 3, y * 3, 0.0f);
 
-			BatchRenderer::Draw(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+				Transform transform(pos);
 
-		}
+				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
 
-		BatchRenderer::EndScene();
+				times++;
+			}
+		}*/
+
+		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 0, m_Texture);
+
+		TR_TRACE(fps);
+
+		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 	}
 
 	void SandboxLayer::OnEvent(Event& event)
@@ -75,7 +83,6 @@ namespace TerranEngine
 
 	void SandboxLayer::ImGuiRender()
 	{
-		ImGui::ShowDemoWindow();
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
@@ -100,14 +107,14 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnWindowResize(WindowResizeEvent& event) 
 	{
-		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);
+		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth(), Application::Get()->GetWindow().GetHeight());
 
 		return false;
 	}
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
-		m_ZoomLevel += event.GetYOffset() * 0.001f;
+		m_ZoomLevel += event.GetYOffset() * 0.01f;
 		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);
 		return false;
 	}

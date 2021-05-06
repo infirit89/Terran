@@ -1,4 +1,4 @@
-#version 410 core
+#version 450 core
 
 in vec4 o_Color;
 in vec2 o_TexCoords;
@@ -6,7 +6,7 @@ in float o_TexIndex;
 
 uniform sampler2D u_Samplers[16];
 
-out vec4 color;
+layout(location = 0) out vec4 color;
 
 void main() 
 {

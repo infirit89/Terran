@@ -1,21 +1,32 @@
 #pragma once
 
-#include <memory>
+#include "Batch.h"
 
-#include <glm/glm.hpp>
-
-#include "Scene/Camera.h"
-
-#include "Buffer.h"
-#include "VertexArray.h"
-#include "Shader.h"
-#include "Renderer.h"
-#include "Texture.h"
-
+#include <vector>
 
 namespace TerranEngine 
 {
-	struct Vertex
+	class BatchRenderer 
+	{
+	public:
+		static void Init(uint32_t batchSize);
+
+		static void Close();
+
+		static void AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture);
+		static void EndScene(Camera& camera, const glm::mat4& transform);
+
+	private:
+		static std::vector<BatchData> m_Batches;
+		static uint32_t m_BatchSize;
+	};
+
+	/* 
+		old shitty fyuckking batch renderer
+		hahahah poop stinky
+	*/
+
+	/*struct Vertex
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
@@ -66,5 +77,5 @@ namespace TerranEngine
 		
 
 		static Data s_Data;
-	};
+	};*/
 }
