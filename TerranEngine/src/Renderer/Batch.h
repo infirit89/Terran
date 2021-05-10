@@ -17,7 +17,6 @@ namespace TerranEngine
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
-		glm::vec2 TextureCoords;
 		float TextureIndex;
 	};
 
@@ -57,8 +56,10 @@ namespace TerranEngine
 		static void Clear(BatchData& data);
 
 		static bool HasRoom(BatchData& data) { return !(data.IndexCount >= data.MaxIndices) && !(data.TextureIndex >= data.MaxTextureSlots); }
+	
+	private:
+		static glm::vec4 s_VertexPositions[4];
 
-		static glm::vec4 VertexPositions[4];
-		static glm::vec2 TextureCoordinates[4];
+		static int* s_Indices;
 	};
 }

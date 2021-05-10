@@ -7,8 +7,8 @@
 
 namespace TerranEngine 
 {
-	glm::vec4 Batch::VertexPositions[4];
-	glm::vec2 Batch::TextureCoordinates[4];
+	glm::vec4 Batch::s_VertexPositions[4];
+	int* Batch::s_Indices;
 
 	BatchData Batch::InitData(uint32_t batchSize, uint32_t zIndex)
 	{
@@ -28,29 +28,31 @@ namespace TerranEngine
 		data.VertexArray->AddVertexBufferLayout({
 			{ GL_FLOAT, 3 },
 			{ GL_FLOAT, 4 },
-			{ GL_FLOAT, 2 },
 			{ GL_FLOAT, 1 }
 		});
 
-		int* indices = new int[data.MaxIndices];
-
-		uint32_t offset = 0;
-
-		for (size_t i = 0; i < data.MaxIndices; i += 6)
+		if (s_Indices == nullptr) 
 		{
-			indices[i + 0] = offset + 0;
-			indices[i + 1] = offset + 1;
-			indices[i + 2] = offset + 2;
-			indices[i + 3] = offset + 2;
-			indices[i + 4] = offset + 3;
-			indices[i + 5] = offset + 0;
+			TR_TRACE("intited indices");
+			s_Indices = new int[batchSize * 6];
 
-			offset += 4;
+			uint32_t offset = 0;
+
+			for (size_t i = 0; i < batchSize * 6; i += 6)
+			{
+				s_Indices[i + 0] = offset + 0;
+				s_Indices[i + 1] = offset + 1;
+				s_Indices[i + 2] = offset + 2;
+				s_Indices[i + 3] = offset + 2;
+				s_Indices[i + 4] = offset + 3;
+				s_Indices[i + 5] = offset + 0;
+
+				offset += 4;
+			}
+
 		}
 
-		data.IndexBuffer = new IndexBuffer(indices, data.MaxIndices * sizeof(int));
-
-		delete[] indices;
+		data.IndexBuffer = new IndexBuffer(s_Indices, data.MaxIndices * sizeof(int));
 
 		int sampler[data.MaxTextureSlots];
 
@@ -65,15 +67,10 @@ namespace TerranEngine
 		data.Textures[0] = new Texture(1, 1);
 		data.Textures[0]->SetData(&whiteTextureData);
 
-		VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-		VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
-		VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
-		VertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
-
-		TextureCoordinates[0] = { 0.0f, 0.0f };
-		TextureCoordinates[1] = { 1.0f, 0.0f };
-		TextureCoordinates[2] = { 1.0f, 1.0f };
-		TextureCoordinates[3] = { 0.0f, 1.0f };
+		s_VertexPositions[0] = { -1.0f, -1.0f, 0.0f, 1.0f };
+		s_VertexPositions[1] = {  1.0f, -1.0f, 0.0f, 1.0f };
+		s_VertexPositions[2] = {  1.0f,  1.0f, 0.0f, 1.0f };
+		s_VertexPositions[3] = { -1.0f,  1.0f, 0.0f, 1.0f };
 
 		return data;
 	}
@@ -81,12 +78,19 @@ namespace TerranEngine
 	void Batch::CloseData(BatchData& data)
 	{
 		delete[] data.VertexPtr;
+
+		// note: shit fix should probably use shared pointer
+		if (s_Indices != nullptr) 
+		{
+			delete[] s_Indices;
+			s_Indices = nullptr;
+		}
 	}
 
 	void Batch::BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform)
 	{
 		data.Shader->UploadMat4("u_ProjMat", camera.GetProjection());
-		data.Shader->UploadMat4("u_ViewMat", transform);
+		data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
 	}
 
 	void Batch::AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture)
@@ -114,9 +118,8 @@ namespace TerranEngine
 
 		for (size_t i = 0; i < 4; i++)
 		{
-			data.VertexPtr[data.VertexPtrIndex].Position = transform * VertexPositions[i];
+			data.VertexPtr[data.VertexPtrIndex].Position = transform * s_VertexPositions[i];
 			data.VertexPtr[data.VertexPtrIndex].Color = color;
-			data.VertexPtr[data.VertexPtrIndex].TextureCoords = TextureCoordinates[i];
 			data.VertexPtr[data.VertexPtrIndex].TextureIndex = texIndex;
 
 			data.VertexPtrIndex++;

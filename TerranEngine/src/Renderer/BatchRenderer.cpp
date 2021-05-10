@@ -9,7 +9,6 @@ namespace TerranEngine
 {
 	std::vector<BatchData> BatchRenderer::m_Batches;
 	uint32_t BatchRenderer::m_BatchSize;
-
 	void BatchRenderer::Init(uint32_t batchSize)
 	{
 		m_BatchSize = batchSize;

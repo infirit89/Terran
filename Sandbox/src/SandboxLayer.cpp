@@ -24,6 +24,7 @@ namespace TerranEngine
 			0, 1, 2,
 			2, 3, 0
 		};	
+
 		m_Texture = new Texture("res/test_grass.png");
 	}
 
@@ -41,32 +42,33 @@ namespace TerranEngine
 	{
 
 		if (Input::IsKeyPressed(Key::A))
-			m_CameraTransform.Position.x -= 10 * time;
-		else if (Input::IsKeyPressed(Key::D))
 			m_CameraTransform.Position.x += 10 * time;
+		else if (Input::IsKeyPressed(Key::D))
+			m_CameraTransform.Position.x -= 10 * time;
 		if (Input::IsKeyPressed(Key::W))
-			m_CameraTransform.Position.y += 10 * time;
-		else if (Input::IsKeyPressed(Key::S))
 			m_CameraTransform.Position.y -= 10 * time;
+		else if (Input::IsKeyPressed(Key::S))
+			m_CameraTransform.Position.y += 10 * time;
 
 		fps = 1 / time;
 		int times = 0;
 
-		/*for (float x = -5.0f; x < 35.0f; x += 0.5f)
+		/*for (float x = -5.0f; x < 10.0f; x += 0.5f)
 		{
-			for (float y = -5.0f; y < 35.0f; y += 0.5f)
+			for (float y = -5.0f; y < 10.0f; y += 0.5f)
 			{
 				glm::vec3 pos(x * 3, y * 3, 0.0f);
 
 				Transform transform(pos);
 
-				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
+				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 0, m_Texture);
 
 				times++;
 			}
 		}*/
 
-		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 0, m_Texture);
+		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture);
+		TR_TRACE(times);
 
 		TR_TRACE(fps);
 
