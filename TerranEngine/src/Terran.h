@@ -24,6 +24,7 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Texture.h"
 #include "Renderer/BatchRenderer.h"
+#include "Renderer/TextureSheet.h"
 
 /* ---- Debugging ---- */
 #include "Utils/DebugTimer.h"

@@ -28,13 +28,14 @@ namespace TerranEngine
 		data.VertexArray->AddVertexBufferLayout({
 			{ GL_FLOAT, 3 },
 			{ GL_FLOAT, 4 },
+			{ GL_FLOAT, 2 },
 			{ GL_FLOAT, 1 }
 		});
 
 		if (s_Indices == nullptr) 
 		{
 			TR_TRACE("intited indices");
-			s_Indices = new int[batchSize * 6];
+			s_Indices = new int[data.MaxIndices];
 
 			uint32_t offset = 0;
 
@@ -93,7 +94,7 @@ namespace TerranEngine
 		data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
 	}
 
-	void Batch::AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture)
+	void Batch::AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4])
 	{
 		float texIndex = -1;
 
@@ -120,6 +121,7 @@ namespace TerranEngine
 		{
 			data.VertexPtr[data.VertexPtrIndex].Position = transform * s_VertexPositions[i];
 			data.VertexPtr[data.VertexPtrIndex].Color = color;
+			data.VertexPtr[data.VertexPtrIndex].TextureCoordinates = textureCoordinates[i];
 			data.VertexPtr[data.VertexPtrIndex].TextureIndex = texIndex;
 
 			data.VertexPtrIndex++;

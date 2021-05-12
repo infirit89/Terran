@@ -3,6 +3,7 @@
 in vec4 o_Color;
 in vec2 o_TexCoords;
 in float o_TexIndex;
+in float o_TilingIndex; 
 
 uniform sampler2D u_Samplers[16];
 

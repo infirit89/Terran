@@ -21,7 +21,7 @@ namespace TerranEngine
 			Batch::CloseData(data);
 	}
 
-	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture)
+	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture, glm::vec2 textureCoordinates[4])
 	{
 		bool added = false;
 
@@ -29,7 +29,7 @@ namespace TerranEngine
 		{
 			if (Batch::HasRoom(data) && data.ZIndex == zIndex)
 			{
-				Batch::AddQuad(data, transform, color, texture);
+				Batch::AddQuad(data, transform, color, texture, textureCoordinates);
 				added = true;
 				break;
 			}
@@ -37,7 +37,7 @@ namespace TerranEngine
 
 		if (!added) {
 			BatchData data = Batch::InitData(m_BatchSize, zIndex);
-			Batch::AddQuad(data, transform, color, texture);
+			Batch::AddQuad(data, transform, color, texture, textureCoordinates);
 			m_Batches.emplace_back(data);
 			std::sort(m_Batches.begin(), m_Batches.end(), [](BatchData data1, BatchData data2) 
 			{

@@ -16,6 +16,9 @@ namespace TerranEngine
 
 		void SetData(void* data);
 
+		int GetWidth() const { return m_Width; }
+		int GetHeight() const { return m_Height; }
+
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
 	private:

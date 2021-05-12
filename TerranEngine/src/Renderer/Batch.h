@@ -17,6 +17,7 @@ namespace TerranEngine
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
+		glm::vec2 TextureCoordinates;
 		float TextureIndex;
 	};
 
@@ -50,7 +51,7 @@ namespace TerranEngine
 		static void CloseData(BatchData& data);
 
 		static void BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform);
-		static void AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture);
+		static void AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4]);
 		static void EndScene(BatchData& data);
 
 		static void Clear(BatchData& data);

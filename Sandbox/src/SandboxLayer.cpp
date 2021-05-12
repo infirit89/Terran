@@ -9,7 +9,8 @@ namespace TerranEngine
 {
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer"), 
-		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f))
+		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f)),
+		m_TSheet("res/bruh2.png", 50, 50, 2)
 	{
 		float positions[] =
 		{
@@ -19,13 +20,20 @@ namespace TerranEngine
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
+		m_TexCoords[0] = { 0.0f, 0.0f };
+		m_TexCoords[1] = { 0.5f, 0.0f };
+		m_TexCoords[2] = { 0.5f, 1.0f };
+		m_TexCoords[3] = { 0.0f, 1.0f };
+
 		int indices[]
 		{
 			0, 1, 2,
 			2, 3, 0
 		};	
 
-		m_Texture = new Texture("res/test_grass.png");
+		m_Texture = new Texture("res/bruh2.png");
+
+		//TR_TRACE(m_SSheet.GetUVS(0));
 	}
 
 	void SandboxLayer::OnAttach()
@@ -67,10 +75,10 @@ namespace TerranEngine
 			}
 		}*/
 
-		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture);
-		TR_TRACE(times);
+		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
+		//TR_TRACE(times);
 
-		TR_TRACE(fps);
+		//TR_TRACE(fps);
 
 		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 	}
