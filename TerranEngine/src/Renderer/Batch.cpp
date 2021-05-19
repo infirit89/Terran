@@ -34,7 +34,6 @@ namespace TerranEngine
 
 		if (s_Indices == nullptr) 
 		{
-			TR_TRACE("intited indices");
 			s_Indices = new int[data.MaxIndices];
 
 			uint32_t offset = 0;

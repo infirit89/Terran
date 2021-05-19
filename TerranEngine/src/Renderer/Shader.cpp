@@ -12,14 +12,17 @@ namespace TerranEngine
 
 	}
 
-	Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+	Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		: m_SProgram(0), m_IsProgramBound(false)
 	{
-		std::string vertSource = LoadShader(vertexPath);
-		std::string fragSource = LoadShader(fragmentPath);
+		FileData* vertexFile = File::OpenFile(vertexPath);
+		FileData* fragmentFile = File::OpenFile(fragmentPath);
 
-		CreateProgram(vertSource, fragSource);
+		CreateProgram(vertexFile->Data, fragmentFile->Data);
 		Bind();
+
+		File::CloseFile(vertexFile);
+		File::CloseFile(fragmentFile);
 	}
 
 	Shader::~Shader()
@@ -116,38 +119,10 @@ namespace TerranEngine
 		return loc;
 	}
 
-	std::string Shader::LoadShader(const std::string& filePath)
-	{
-		std::string result;
-
-		std::ifstream is(filePath, std::ifstream::binary);
-
-		if (is)
-		{
-			is.seekg(0, is.end);
-			int length = is.tellg();
-			if (length != -1)
-			{
-				is.seekg(0, is.beg);
-				result.resize(length);
-				is.read(&result[0], length);
-			}
-			else
-				TR_ERROR("Couldn't read from file " + filePath);
-		}
-		else
-			TR_ERROR("Couldn't oppen file " +  filePath);
-
-		is.close();
-
-		return result;
-	}
-
-	int Shader::CreateShader(const std::string& source, unsigned int type)
+	int Shader::CreateShader(const char* source, unsigned int type)
 	{
 		unsigned int shader = glCreateShader(type);
-		const char* src = source.c_str();
-		glShaderSource(shader, 1, &src, NULL);
+		glShaderSource(shader, 1, &source, NULL);
 		glCompileShader(shader);
 
 		int result;
@@ -169,7 +144,7 @@ namespace TerranEngine
 		return shader;
 	}
 
-	void Shader::CreateProgram(const std::string& vertexSource, const std::string& fragmentSource)
+	void Shader::CreateProgram(const char* vertexSource, const char* fragmentSource)
 	{
 		m_SProgram = glCreateProgram();
 

@@ -9,7 +9,7 @@ namespace TerranEngine
 	{
 	public:
 		Shader();
-		Shader(const std::string& vertexPath, const std::string& fragmentPath);
+		Shader(const char* vertexPath, const char* fragmentPath);
 		~Shader();
 
 		void Bind() const;
@@ -30,9 +30,8 @@ namespace TerranEngine
 
 	private:
 		int GetUniformLoc(const char* name);
-		std::string LoadShader(const std::string& filePath);
-		int CreateShader(const std::string& source, unsigned int type);
-		void CreateProgram(const std::string& vertexSource, const std::string& fragmentSource);
+		int CreateShader(const char* source, unsigned int type);
+		void CreateProgram(const char* vertexSource, const char* fragmentSource);
 
 	private:
 		uint32_t m_SProgram;

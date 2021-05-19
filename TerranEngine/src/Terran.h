@@ -27,4 +27,4 @@
 #include "Renderer/TextureSheet.h"
 
 /* ---- Debugging ---- */
-#include "Utils/DebugTimer.h"
+#include "Utils/Debug/DebugTimer.h"
