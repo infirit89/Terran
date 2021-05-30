@@ -26,7 +26,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/GLAD/include/",
         "%{wks.location}/TerranEngine/vendor/stb/",
         "%{wks.location}/TerranEngine/vendor/glm/",
-        "%{wks.location}/TerranEngine/vendor/entt/include"
+        "%{wks.location}/TerranEngine/vendor/entt/include/",
+        "%{wks.location}/TerranEngine/vendor/freetype/include/"
     } 
 
     links 
@@ -34,7 +35,8 @@ project "TerranEngine"
         "GLFW",
         "ImGui",
         "GLAD",
-        "opengl32.lib"
+        "opengl32.lib",
+        "Freetype"
     }
 
     pchheader "trpch.h"

@@ -34,6 +34,8 @@ namespace TerranEngine
 		m_Texture = new Texture("res/bruh2.png");
 
 		//TR_TRACE(m_SSheet.GetUVS(0));
+
+		FontUtils::LoadFont("res/OpenSans-Bold.ttf");
 	}
 
 	void SandboxLayer::OnAttach()
