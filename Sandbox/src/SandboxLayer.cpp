@@ -41,6 +41,7 @@ namespace TerranEngine
 	void SandboxLayer::OnAttach()
 	{
 		BatchRenderer::Init(20000);
+		int& test = *(new int);
 	}
 
 	void SandboxLayer::OnDettach()

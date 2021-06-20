@@ -4,9 +4,11 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <glad/glad.h>
+
 namespace TerranEngine 
 {
-	void FontUtils::LoadFont(const char* fontPath)
+	void FontUtils::LoadFont(const char* fontPath, std::vector<Character> characters)
 	{
 		FT_Library ft;
 
@@ -33,6 +35,19 @@ namespace TerranEngine
 		}
 
 		TR_TRACE(face->num_glyphs);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		for (unsigned char c = 0; c < 128; c++)
+		{
+			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) 
+			{
+				TR_ERROR("Failed to load glyph");
+				continue;
+			}
+
+
+		}
 	}
 }
 

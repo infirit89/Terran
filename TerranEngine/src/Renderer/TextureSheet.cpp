@@ -4,8 +4,21 @@
 
 namespace TerranEngine
 {
-	TextureSheet::TextureSheet(char* filePath, int spriteWidth, int spriteHeight, int numSprites)
+	TextureSheet::TextureSheet(char* filePath, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites)
 		: m_Texture(filePath)
+	{
+		Init(spriteWidth, spriteHeight, numSprites);
+	}
+
+	TextureSheet::TextureSheet(void* data, uint32_t textureWidth, uint32_t textureHeight, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites)
+		: m_Texture(textureWidth, textureHeight)
+	{
+		m_Texture.SetData(data);
+
+		Init(spriteWidth, spriteHeight, numSprites);
+	}
+
+	void TextureSheet::Init(uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites)
 	{
 		m_UVS.reserve(numSprites);
 
@@ -31,7 +44,7 @@ namespace TerranEngine
 
 			currentX += spriteWidth;
 
-			if (currentX >= m_Texture.GetWidth()) 
+			if (currentX >= m_Texture.GetWidth())
 			{
 				currentX = 0;
 				currentY -= spriteHeight;

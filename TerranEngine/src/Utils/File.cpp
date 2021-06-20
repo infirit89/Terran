@@ -112,4 +112,3 @@ namespace TerranEngine
         fclose(filePtr);
     }
 }
-
