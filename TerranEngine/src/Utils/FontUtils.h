@@ -1,14 +1,13 @@
 #pragma once
 
 #include "DataStructures.h"
-
-#include <map>
+#include "Renderer/Texture.h"
 
 namespace TerranEngine 
 {
 	class FontUtils 
 	{
 	public:
-		static void LoadFont(const char* fontPath, std::vector<Character>);
+		static Texture& LoadFont(const char* fontPath/*, std::vector<Character>& characters*/);
 	};
 }

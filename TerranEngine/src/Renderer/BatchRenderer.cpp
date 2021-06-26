@@ -9,10 +9,14 @@ namespace TerranEngine
 {
 	std::vector<BatchData> BatchRenderer::m_Batches;
 	uint32_t BatchRenderer::m_BatchSize;
+
+	Shader* quadShader;
 	void BatchRenderer::Init(uint32_t batchSize)
 	{
 		m_BatchSize = batchSize;
 		m_Batches.reserve(1);
+
+		quadShader = new Shader("res/VertexShader.glsl", "res/FragmentShader.glsl");
 	}
 
 	void BatchRenderer::Close()
@@ -36,7 +40,7 @@ namespace TerranEngine
 		}
 
 		if (!added) {
-			BatchData data = Batch::InitData(m_BatchSize, zIndex);
+			BatchData data = Batch::InitData(m_BatchSize, zIndex, quadShader);
 			Batch::AddQuad(data, transform, color, texture, textureCoordinates);
 			m_Batches.emplace_back(data);
 			std::sort(m_Batches.begin(), m_Batches.end(), [](BatchData data1, BatchData data2) 
@@ -44,6 +48,24 @@ namespace TerranEngine
 					return data1.ZIndex < data2.ZIndex;
 			});
 		}
+	}
+
+	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture) 
+	{
+		glm::vec2 textureCoords[4] =
+		{
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f }
+		};
+
+		AddQuad(transform, color, zIndex, texture, textureCoords);
+	}
+
+	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex) 
+	{
+		AddQuad(transform, color, zIndex, nullptr);
 	}
 
 	void BatchRenderer::EndScene(Camera& camera, const glm::mat4& transform)

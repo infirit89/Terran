@@ -9,8 +9,9 @@ namespace TerranEngine
 {
 	glm::vec4 Batch::s_VertexPositions[4];
 	int* Batch::s_Indices;
+	IndexBuffer* Batch::s_IndexBuffer;
 
-	BatchData Batch::InitData(uint32_t batchSize, uint32_t zIndex)
+	BatchData Batch::InitData(uint32_t batchSize, uint32_t zIndex, Shader* shader)
 	{
 		BatchData data;
 
@@ -52,14 +53,14 @@ namespace TerranEngine
 
 		}
 
-		data.IndexBuffer = new IndexBuffer(s_Indices, data.MaxIndices * sizeof(int));
+		s_IndexBuffer = new IndexBuffer(s_Indices, data.MaxIndices * sizeof(int));
 
 		int sampler[data.MaxTextureSlots];
 
 		for (size_t i = 0; i < data.MaxTextureSlots; i++)
 			sampler[i] = i;
 
-		data.Shader = new Shader("res/VertexShader.glsl", "res/FragmentShader.glsl");
+		data.Shader = shader;
 		data.Shader->UploadIntArray("u_Samplers", data.MaxTextureSlots, sampler);
 
 		uint16_t whiteTextureData = 0xffffffff;
@@ -79,7 +80,7 @@ namespace TerranEngine
 	{
 		delete[] data.VertexPtr;
 
-		// note: shit fix should probably use shared pointer
+		// note: shit fix, should probably use shared pointer
 		if (s_Indices != nullptr) 
 		{
 			delete[] s_Indices;
@@ -139,7 +140,7 @@ namespace TerranEngine
 
 		data.VertexArray->Bind();
 		data.VertexBuffer->SetData(data.VertexPtr, data.VertexPtrIndex * sizeof(Vertex));
-		data.IndexBuffer->Bind();
+		s_IndexBuffer->Bind();
 
 		data.Shader->Bind();
 
@@ -153,4 +154,3 @@ namespace TerranEngine
 		data.TextureIndex = 1;
 	}
 }
-

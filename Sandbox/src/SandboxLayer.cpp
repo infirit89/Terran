@@ -35,13 +35,12 @@ namespace TerranEngine
 
 		//TR_TRACE(m_SSheet.GetUVS(0));
 
-		FontUtils::LoadFont("res/OpenSans-Bold.ttf");
+		//FontUtils::LoadFont("res/OpenSans-Bold.ttf");
 	}
 
 	void SandboxLayer::OnAttach()
 	{
 		BatchRenderer::Init(20000);
-		int& test = *(new int);
 	}
 
 	void SandboxLayer::OnDettach()
@@ -78,10 +77,10 @@ namespace TerranEngine
 			}
 		}*/
 
-		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
-		//TR_TRACE(times);
+		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
+		
+		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 0, &FontUtils::LoadFont("res/OpenSans-Bold.ttf"));
 
-		//TR_TRACE(fps);
 
 		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 	}
@@ -129,6 +128,7 @@ namespace TerranEngine
 	{
 		m_ZoomLevel += event.GetYOffset() * 0.01f;
 		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);
+
 		return false;
 	}
 }

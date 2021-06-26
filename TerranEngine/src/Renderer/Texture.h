@@ -14,7 +14,10 @@ namespace TerranEngine
 		void Bind(uint8_t textureSlot) const;
 		void Unbind() const;
 
+		void SetData(void* data, uint32_t internalFormat, uint32_t dataFormat);
 		void SetData(void* data);
+
+		static Texture& EmptyTexture();
 
 		int GetWidth() const { return m_Width; }
 		int GetHeight() const { return m_Height; }

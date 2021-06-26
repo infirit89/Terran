@@ -32,7 +32,6 @@ namespace TerranEngine
 
 		VertexArray* VertexArray;
 		VertexBuffer* VertexBuffer;
-		IndexBuffer* IndexBuffer;
 		Shader* Shader;
 
 		Vertex* VertexPtr;
@@ -47,7 +46,7 @@ namespace TerranEngine
 	{
 	public:
 
-		static BatchData InitData(uint32_t batchSize, uint32_t zIndex);
+		static BatchData InitData(uint32_t batchSize, uint32_t zIndex, Shader* shader);
 		static void CloseData(BatchData& data);
 
 		static void BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform);
@@ -62,5 +61,6 @@ namespace TerranEngine
 		static glm::vec4 s_VertexPositions[4];
 
 		static int* s_Indices;
+		static IndexBuffer* s_IndexBuffer;
 	};
 }
