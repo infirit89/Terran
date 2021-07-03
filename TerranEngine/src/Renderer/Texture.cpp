@@ -46,20 +46,9 @@ namespace TerranEngine
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}	 
 
-	void Texture::SetData(void* data, uint32_t interalFormat, uint32_t dataFormat) 
-	{
-		if (interalFormat != 0)
-			m_InternalFormat = interalFormat;
-
-		if (dataFormat != 0)
-			m_DataFormat = dataFormat;
-
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
-	}
-
 	void Texture::SetData(void* data) 
 	{
-		SetData(data, 0, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	Texture& Texture::EmptyTexture()

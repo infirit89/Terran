@@ -12,6 +12,8 @@ layout(location = 0) out vec4 color;
 void main() 
 {
 	int index = int(o_TexIndex);
-
-	color = o_Color * texture(u_Samplers[index], o_TexCoords);
+	if(index == 0)
+		color = o_Color;
+	else
+		color = o_Color * texture(u_Samplers[index], o_TexCoords);
 }

@@ -6,7 +6,6 @@
 #include "Core/Layer.h"
 #include "Core/Input.h"
 #include "Core/Base.h"
-#include "Utils/FontUtils.h"
 
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"

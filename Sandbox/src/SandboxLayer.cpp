@@ -22,8 +22,8 @@ namespace TerranEngine
 
 		m_TexCoords[0] = { 0.0f, 0.0f };
 		m_TexCoords[1] = { 0.5f, 0.0f };
-		m_TexCoords[2] = { 0.5f, 1.0f };
-		m_TexCoords[3] = { 0.0f, 1.0f };
+		m_TexCoords[2] = { 0.5f, 0.5f };
+		m_TexCoords[3] = { 0.0f, 0.5f };
 
 		int indices[]
 		{
@@ -63,24 +63,22 @@ namespace TerranEngine
 		fps = 1 / time;
 		int times = 0;
 
-		/*for (float x = -5.0f; x < 10.0f; x += 0.5f)
+		for (float x = -5.0f; x < 10.0f; x += 0.5f)
 		{
 			for (float y = -5.0f; y < 10.0f; y += 0.5f)
 			{
-				glm::vec3 pos(x * 3, y * 3, 0.0f);
+				glm::vec3 pos(x * 5, y * 5, 0.0f);
 
 				Transform transform(pos);
 
-				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 0, m_Texture);
+				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
 
-				times++;
 			}
-		}*/
+		}
+		
+		TR_TRACE(fps);
 
 		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
-		
-		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 0, &FontUtils::LoadFont("res/OpenSans-Bold.ttf"));
-
 
 		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 	}

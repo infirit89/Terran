@@ -7,6 +7,7 @@
 #include "Events/MouseEvent.h"
 
 #include "Core/Assert.h"
+#include "Platform/OpenGL/OpenGLErrorHandler.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>
@@ -41,6 +42,8 @@ namespace TerranEngine
 		int glfwSuccess = glfwInit();
 		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+
 		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name, NULL, NULL);
 
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
@@ -138,6 +141,16 @@ namespace TerranEngine
 		
 		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
+
+		int flags;
+		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) 
+		{
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(glDebugOutput, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		}
 
 		SetVsync(true);
 	}

@@ -45,9 +45,9 @@ namespace TerranEngine
 	void Application::Run()
 	{
 		float frameTime = 0.0f; float lastFrameTime = 0.0f;
+		RenderCommand::EnableBlending();
 
 		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		RenderCommand::EnableBlending();
 
 		while (m_Running)
 		{

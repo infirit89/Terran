@@ -18,8 +18,7 @@ void main()
 
 	o_Color = a_Col;
 
-	//o_TexCoords = vec2((a_Pos.x + 1.0) / 2.0, (a_Pos.y + 1.0) / 2.0);
-	o_TexIndex = a_TexIndex;
-
 	o_TexCoords = a_TexCoords;
+
+	o_TexIndex = a_TexIndex;
 }
