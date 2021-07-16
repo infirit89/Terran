@@ -14,7 +14,8 @@ project "TerranEngine"
         "vendor/stb/**.h",
         "vendor/stb/**.cpp",
         "vendor/glm/**.hpp",
-        "vendor/glm/**.inl"
+        "vendor/glm/**.inl",
+        "vendor/freetype-gl/**.h"
     }
 
     includedirs
@@ -27,7 +28,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/stb/",
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype/include/"
+        "%{wks.location}/TerranEngine/vendor/freetype/include/",
+        "%{wks.location}/TerranEngine/vendor/freetype-gl/",
     } 
 
     links 

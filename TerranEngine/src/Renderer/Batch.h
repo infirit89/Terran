@@ -11,6 +11,8 @@
 
 #include <memory>
 
+#include <freetype-gl.h>
+
 namespace TerranEngine 
 {
 	struct Vertex

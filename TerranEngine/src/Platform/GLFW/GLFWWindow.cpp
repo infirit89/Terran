@@ -157,6 +157,7 @@ namespace TerranEngine
 
 	void GLFWWindow::Close()
 	{
+		TR_TRACE("window closed");
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
 	}

@@ -43,6 +43,9 @@ namespace TerranEngine {
 		float m_ZoomLevel = 0.1f;
 
 		Texture* m_Texture;
+		Texture* m_Texture2;
+
+		Font* m_Font;
 		float fps = 0.0f;
 	};
 }

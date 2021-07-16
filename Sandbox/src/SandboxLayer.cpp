@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <math.h>
+
 namespace TerranEngine 
 {
 	SandboxLayer::SandboxLayer()
@@ -32,7 +34,9 @@ namespace TerranEngine
 		};	
 
 		m_Texture = new Texture("res/bruh2.png");
+		m_Texture2 = new Texture("res/test_grass.png");
 
+		m_Font = new Font("res/OpenSans-Bold.ttf", 22);
 		//TR_TRACE(m_SSheet.GetUVS(0));
 
 		//FontUtils::LoadFont("res/OpenSans-Bold.ttf");
@@ -46,6 +50,11 @@ namespace TerranEngine
 	void SandboxLayer::OnDettach()
 	{
 		BatchRenderer::Close();
+
+		delete m_Texture;
+		delete m_Texture2;
+
+		delete m_Font;
 	}
 
 	void SandboxLayer::Update(float& time)
@@ -61,24 +70,23 @@ namespace TerranEngine
 			m_CameraTransform.Position.y += 10 * time;
 
 		fps = 1 / time;
-		int times = 0;
 
-		for (float x = -5.0f; x < 10.0f; x += 0.5f)
+		/*for (float x = -5.0f; x < 50.0f; x += 0.5f)
 		{
-			for (float y = -5.0f; y < 10.0f; y += 0.5f)
+			for (float y = -5.0f; y < 50.0f; y += 0.5f)
 			{
 				glm::vec3 pos(x * 5, y * 5, 0.0f);
 
 				Transform transform(pos);
 
 				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
-
 			}
-		}
+		}*/
 		
-		TR_TRACE(fps);
+		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Font->GetTexutre());
 
-		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
+		//TR_TRACE(fps);
+
 
 		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 	}
