@@ -15,6 +15,7 @@ group "Dependencies"
     include "TerranEngine/vendor/ImGui"
     include "TerranEngine/vendor/GLAD"
     include "TerranEngine/vendor/Freetype"
+    include "TerranEngine/vendor/Freetype-GL"
 
 group ""
 

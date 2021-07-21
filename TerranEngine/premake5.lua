@@ -29,7 +29,7 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
         "%{wks.location}/TerranEngine/vendor/freetype/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype-gl/",
+        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
     } 
 
     links 
@@ -38,7 +38,8 @@ project "TerranEngine"
         "ImGui",
         "GLAD",
         "opengl32.lib",
-        "Freetype"
+        "Freetype",
+        "Freetype-GL"
     }
 
     pchheader "trpch.h"

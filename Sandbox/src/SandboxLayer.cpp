@@ -36,7 +36,7 @@ namespace TerranEngine
 		m_Texture = new Texture("res/bruh2.png");
 		m_Texture2 = new Texture("res/test_grass.png");
 
-		m_Font = new Font("res/OpenSans-Bold.ttf", 22);
+		m_Font = new Font("res/OpenSans-Bold.ttf", 42);
 		//TR_TRACE(m_SSheet.GetUVS(0));
 
 		//FontUtils::LoadFont("res/OpenSans-Bold.ttf");

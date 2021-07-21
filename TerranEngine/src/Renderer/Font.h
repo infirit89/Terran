@@ -1,6 +1,7 @@
 #pragma once
 
 #include <freetype-gl.h>
+
 #include "Texture.h"
 
 namespace TerranEngine 
@@ -10,6 +11,8 @@ namespace TerranEngine
 	public:
 		Font(const char* fontName, uint32_t fontSize);
 		Texture* GetTexutre () const;
+
+		void LoadGlyph(const char character);
 		~Font();
 
 	private:

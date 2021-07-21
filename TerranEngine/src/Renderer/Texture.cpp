@@ -46,9 +46,11 @@ namespace TerranEngine
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}	 
 
-	void Texture::SetData(void* data) 
+	void Texture::SetData(void* data, TextureType type) 
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		NativeTexutreType nativeType = ConvertTextureTypeToNativeType(type);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, nativeType.InternalFormat, m_Width, m_Height, 0, nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	Texture& Texture::EmptyTexture()
@@ -58,6 +60,8 @@ namespace TerranEngine
 
 		return tex;
 	}
+
+
 	
 	bool Texture::operator==(Texture& other) 
 	{
@@ -103,5 +107,37 @@ namespace TerranEngine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
+	}
+
+	Texture::NativeTexutreType Texture::ConvertTextureTypeToNativeType(TextureType type)
+	{
+		uint32_t dataFormat = 0;
+		uint32_t internalType = 0;
+
+		switch (type)
+		{
+		case TerranEngine::TextureType::RED:
+			dataFormat = GL_RED;
+			internalType = GL_RED;
+			break;
+		case TerranEngine::TextureType::GREEN:
+			dataFormat = GL_GREEN;
+			internalType = GL_GREEN;
+			break;
+		case TerranEngine::TextureType::BLUE:
+			dataFormat = GL_BLUE;
+			internalType = GL_BLUE;
+			break;
+		case TerranEngine::TextureType::RGB:
+			dataFormat = GL_RGB;
+			internalType = GL_RGB8;
+			break;
+		case TerranEngine::TextureType::RGBA:
+			dataFormat = GL_RGBA;
+			internalType = GL_RGBA8;
+			break;
+		}
+
+		return { internalType, dataFormat };
 	}
 }

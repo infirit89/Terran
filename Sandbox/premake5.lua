@@ -22,7 +22,7 @@ project "Sandbox"
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype-gl/"        
+        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/"        
     } 
 
     links 

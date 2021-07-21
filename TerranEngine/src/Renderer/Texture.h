@@ -2,6 +2,15 @@
 
 namespace TerranEngine 
 {
+	enum class TextureType : uint32_t
+	{
+		RED,
+		GREEN,
+		BLUE,
+		RGB,
+		RGBA
+	};
+
 	class Texture 
 	{
 	public:
@@ -14,8 +23,7 @@ namespace TerranEngine
 		void Bind(uint8_t textureSlot) const;
 		void Unbind() const;
 
-		void SetData(void* data, uint32_t internalFormat, uint32_t dataFormat);
-		void SetData(void* data);
+		void SetData(void* data, TextureType type = TextureType::RGBA);
 
 		static Texture& EmptyTexture();
 
@@ -25,7 +33,14 @@ namespace TerranEngine
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
 	private:
+		struct NativeTexutreType 
+		{
+			uint32_t InternalFormat;
+			uint32_t DataFormat;
+		};
+
 		void LoadTexture(const char* filePath);
+		NativeTexutreType ConvertTextureTypeToNativeType(TextureType type);
 
 		uint32_t m_TextureID;
 		int m_Width, m_Height, m_Channels;
