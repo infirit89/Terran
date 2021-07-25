@@ -50,6 +50,31 @@ namespace TerranEngine
 		}
 	}
 
+	void BatchRenderer::AddText(const glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text) 
+	{
+		bool added = false;
+
+		for (BatchData& data : m_Batches)
+		{
+			if (Batch::HasRoom(data))
+			{
+				Batch::AddText(data, transform, color, font, text);
+				added = true;
+				break;
+			}
+		}
+
+		if (!added) {
+			BatchData data = Batch::InitData(m_BatchSize, 0, quadShader);
+			Batch::AddText(data, transform, color, font, text);
+			m_Batches.emplace_back(data);
+			/*std::sort(m_Batches.begin(), m_Batches.end(), [](BatchData data1, BatchData data2)
+				{
+					return data1.ZIndex < data2.ZIndex;
+				});*/
+		}
+	}
+
 	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture) 
 	{
 		glm::vec2 textureCoords[4] =

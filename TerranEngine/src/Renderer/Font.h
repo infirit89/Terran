@@ -12,7 +12,7 @@ namespace TerranEngine
 		Font(const char* fontName, uint32_t fontSize);
 		Texture* GetTexutre () const;
 
-		void LoadGlyph(const char character);
+		ftgl::texture_glyph_t* LoadGlyph(const char& character);
 		~Font();
 
 	private:

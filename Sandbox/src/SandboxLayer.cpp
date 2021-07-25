@@ -36,7 +36,7 @@ namespace TerranEngine
 		m_Texture = new Texture("res/bruh2.png");
 		m_Texture2 = new Texture("res/test_grass.png");
 
-		m_Font = new Font("res/OpenSans-Bold.ttf", 42);
+		m_Font = new Font("res/OpenSans-Bold.ttf", 20);
 		//TR_TRACE(m_SSheet.GetUVS(0));
 
 		//FontUtils::LoadFont("res/OpenSans-Bold.ttf");
@@ -83,7 +83,7 @@ namespace TerranEngine
 			}
 		}*/
 		
-		BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Font->GetTexutre());
+		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Hello");
 
 		//TR_TRACE(fps);
 

@@ -20,10 +20,10 @@ namespace TerranEngine
 		return m_Texture;
 	}
 
-	void Font::LoadGlyph(const char character)
+	ftgl::texture_glyph_t* Font::LoadGlyph(const char& character)
 	{
-		std::string codepoint = std::string(1, character);
-		ftgl::texture_font_get_glyph(m_TexutreFont, codepoint.c_str());
+		std::string codepoint(1, character); 
+		return ftgl::texture_font_get_glyph(m_TexutreFont, codepoint.c_str());
 	}
 
 	Font::~Font()

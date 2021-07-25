@@ -17,6 +17,8 @@ namespace TerranEngine
 		static void AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture);
 		static void AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex);
 
+		static void AddText(const glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text);
+
 		static void EndScene(Camera& camera, const glm::mat4& transform);
 
 	private:

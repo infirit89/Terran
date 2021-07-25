@@ -4,12 +4,25 @@
 #include "RenderCommand.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/quaternion.hpp>
 
 namespace TerranEngine 
 {
 	glm::vec4 Batch::s_VertexPositions[4];
 	int* Batch::s_Indices;
 	IndexBuffer* Batch::s_IndexBuffer;
+
+	void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
+	{
+		pos = m[3];
+		for (int i = 0; i < 3; i++)
+			scale[i] = glm::length(glm::vec3(m[i]));
+		const glm::mat3 rotMtx(
+			glm::vec3(m[0]) / scale[0],
+			glm::vec3(m[1]) / scale[1],
+			glm::vec3(m[2]) / scale[2]);
+		rot = glm::quat_cast(rotMtx);
+	}
 
 	BatchData Batch::InitData(uint32_t batchSize, uint32_t zIndex, Shader* shader)
 	{
@@ -128,6 +141,67 @@ namespace TerranEngine
 		}
 
 		data.IndexCount += 6;
+	}
+
+	void Batch::AddText(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text)
+	{
+		float texIndex = 0.0f;
+
+		for (size_t i = 1; i < data.TextureIndex; i++)
+		{
+			if (data.Textures[i] == font->GetTexutre())
+			{
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == 0.0f)
+		{
+			texIndex = data.TextureIndex;
+			data.Textures[data.TextureIndex] = font->GetTexutre();
+			data.TextureIndex++;
+		}
+
+		for (size_t i = 0; i < text.size(); i++)
+		{
+			char c = text[i];
+
+			ftgl::texture_glyph_t* glyph = font->LoadGlyph(c);
+
+
+			if (glyph != NULL) 
+			{
+				
+
+				glm::vec2 uvs[4] =
+				{
+					glm::vec2(glyph->s0, glyph->t0),
+					glm::vec2(glyph->s0, glyph->t1),
+					glm::vec2(glyph->s1, glyph->t1),
+					glm::vec2(glyph->s1, glyph->t0),
+				};
+
+				glm::vec3 position;
+				glm::quat rotation;
+				glm::vec3 scale;
+
+				decomposeMatrix(transform, position, rotation, scale);
+
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					data.VertexPtr[data.VertexPtrIndex].Position = transform * s_VertexPositions[i];
+					data.VertexPtr[data.VertexPtrIndex].Color = color;
+					data.VertexPtr[data.VertexPtrIndex].TextureCoordinates = uvs[i];
+					data.VertexPtr[data.VertexPtrIndex].TextureIndex = texIndex;
+
+					data.VertexPtrIndex++;
+				}
+
+				data.IndexCount += 6;
+			}
+		}
 	}
 
 	void Batch::EndScene(BatchData& data)
