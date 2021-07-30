@@ -25,7 +25,7 @@ namespace TerranEngine
 			Batch::CloseData(data);
 	}
 
-	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture, glm::vec2 textureCoordinates[4])
+	void BatchRenderer::AddQuad(glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture, glm::vec2 textureCoordinates[4])
 	{
 		bool added = false;
 
@@ -50,7 +50,7 @@ namespace TerranEngine
 		}
 	}
 
-	void BatchRenderer::AddText(const glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text) 
+	void BatchRenderer::AddText(glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text) 
 	{
 		bool added = false;
 
@@ -75,7 +75,7 @@ namespace TerranEngine
 		}
 	}
 
-	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture) 
+	void BatchRenderer::AddQuad(glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture) 
 	{
 		glm::vec2 textureCoords[4] =
 		{
@@ -88,7 +88,7 @@ namespace TerranEngine
 		AddQuad(transform, color, zIndex, texture, textureCoords);
 	}
 
-	void BatchRenderer::AddQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t zIndex) 
+	void BatchRenderer::AddQuad(glm::mat4& transform, const glm::vec4& color, uint32_t zIndex) 
 	{
 		AddQuad(transform, color, zIndex, nullptr);
 	}

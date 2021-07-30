@@ -53,8 +53,8 @@ namespace TerranEngine
 		static void CloseData(BatchData& data);
 
 		static void BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform);
-		static void AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4]);
-		static void AddText(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text);
+		static void AddQuad(BatchData& data, glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4]);
+		static void AddText(BatchData& data, glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text);
 		static void EndScene(BatchData& data);
 
 		static void Clear(BatchData& data);

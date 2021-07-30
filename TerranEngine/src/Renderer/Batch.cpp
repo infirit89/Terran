@@ -5,6 +5,9 @@
 
 #include <glad/glad.h>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace TerranEngine 
 {
@@ -22,6 +25,13 @@ namespace TerranEngine
 			glm::vec3(m[1]) / scale[1],
 			glm::vec3(m[2]) / scale[2]);
 		rot = glm::quat_cast(rotMtx);
+	}
+
+	void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
+	{
+		m = glm::translate(glm::mat4(1.0f), pos) *
+			glm::rotate(glm::mat4(1.0f), -1.56f, glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::scale(glm::mat4(1.0f), scale);
 	}
 
 	BatchData Batch::InitData(uint32_t batchSize, uint32_t zIndex, Shader* shader)
@@ -107,7 +117,7 @@ namespace TerranEngine
 		data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
 	}
 
-	void Batch::AddQuad(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4])
+	void Batch::AddQuad(BatchData& data, glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4])
 	{
 		float texIndex = -1;
 
@@ -143,7 +153,7 @@ namespace TerranEngine
 		data.IndexCount += 6;
 	}
 
-	void Batch::AddText(BatchData& data, const glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text)
+	void Batch::AddText(BatchData& data, glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text)
 	{
 		float texIndex = 0.0f;
 
@@ -163,6 +173,13 @@ namespace TerranEngine
 			data.TextureIndex++;
 		}
 
+
+		glm::vec3 position;
+		glm::quat rotation;
+		glm::vec3 scale;
+
+
+		decomposeMatrix(transform, position, rotation, scale);
 		for (size_t i = 0; i < text.size(); i++)
 		{
 			char c = text[i];
@@ -172,8 +189,6 @@ namespace TerranEngine
 
 			if (glyph != NULL) 
 			{
-				
-
 				glm::vec2 uvs[4] =
 				{
 					glm::vec2(glyph->s0, glyph->t0),
@@ -181,13 +196,18 @@ namespace TerranEngine
 					glm::vec2(glyph->s1, glyph->t1),
 					glm::vec2(glyph->s1, glyph->t0),
 				};
+				
+				glm::vec3 pos = glm::vec3(
+					position.x + glyph->offset_x / 20.0f,
+					position.y + glyph->offset_y / 30.0f, 0.0f);
 
-				glm::vec3 position;
-				glm::quat rotation;
-				glm::vec3 scale;
 
-				decomposeMatrix(transform, position, rotation, scale);
+				glm::vec3 size = glm::vec3(
+					glyph->width / 20.0f,
+					glyph->height / 30.0f, 0.0f
+				);
 
+				createTransformMatrix(transform, pos, rotation, size);
 
 				for (size_t i = 0; i < 4; i++)
 				{
@@ -200,6 +220,8 @@ namespace TerranEngine
 				}
 
 				data.IndexCount += 6;
+
+				position.x += glyph->advance_x / 14.0f;
 			}
 		}
 	}
