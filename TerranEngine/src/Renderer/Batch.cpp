@@ -30,7 +30,7 @@ namespace TerranEngine
 	void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
 	{
 		m = glm::translate(glm::mat4(1.0f), pos) *
-			glm::rotate(glm::mat4(1.0f), -1.56f, glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::scale(glm::mat4(1.0f), scale);
 	}
 
@@ -198,13 +198,13 @@ namespace TerranEngine
 				};
 				
 				glm::vec3 pos = glm::vec3(
-					position.x + glyph->offset_x / 20.0f,
-					position.y + glyph->offset_y / 30.0f, 0.0f);
+					position.x + glyph->offset_x,
+					position.y + glyph->offset_y, 0.0f);
 
 
 				glm::vec3 size = glm::vec3(
-					glyph->width / 20.0f,
-					glyph->height / 30.0f, 0.0f
+					pos.x + glyph->width,
+					pos.y - glyph->height, 0.0f
 				);
 
 				createTransformMatrix(transform, pos, rotation, size);

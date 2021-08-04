@@ -11,7 +11,7 @@ namespace TerranEngine
 {
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer"), 
-		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.01f, Application::Get()->GetWindow().GetHeight() * 0.01f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f)),
+		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f)),
 		m_TSheet("res/bruh2.png", 50, 50, 2)
 	{
 		float positions[] =
@@ -83,7 +83,7 @@ namespace TerranEngine
 			}
 		}*/
 		
-		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "qwertyuiopasdfghjklzxcvbnm");
+		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "e");
 
 		//TR_TRACE(fps);
 
@@ -125,7 +125,7 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnWindowResize(WindowResizeEvent& event) 
 	{
-		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth(), Application::Get()->GetWindow().GetHeight());
+		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f);
 
 		return false;
 	}
