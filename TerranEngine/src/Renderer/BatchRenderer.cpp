@@ -10,13 +10,15 @@ namespace TerranEngine
 	std::vector<BatchData> BatchRenderer::m_Batches;
 	uint32_t BatchRenderer::m_BatchSize;
 
-	Shader* quadShader;
+	Shader* quadShader; 
+	Shader* textShader;
 	void BatchRenderer::Init(uint32_t batchSize)
 	{
 		m_BatchSize = batchSize;
 		m_Batches.reserve(1);
 
-		quadShader = new Shader("res/VertexShader.glsl", "res/FragmentShader.glsl");
+		quadShader = new Shader("res/shaders/default/quad/VertexShader.glsl", "res/shaders/default/quad/FragmentShader.glsl");
+		textShader = new Shader("res/shaders/default/text/TextVertex.glsl", "res/shaders/default/text/TextFragment.glsl");
 	}
 
 	void BatchRenderer::Close()
@@ -65,7 +67,7 @@ namespace TerranEngine
 		}
 
 		if (!added) {
-			BatchData data = Batch::InitData(m_BatchSize, 0, quadShader);
+			BatchData data = Batch::InitData(m_BatchSize, 0, textShader);
 			Batch::AddText(data, transform, color, font, text);
 			m_Batches.emplace_back(data);
 			/*std::sort(m_Batches.begin(), m_Batches.end(), [](BatchData data1, BatchData data2)

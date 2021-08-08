@@ -1,4 +1,4 @@
-#version 450 core
+#version 420 core
 
 in vec4 o_Color;
 in vec2 o_TexCoords;

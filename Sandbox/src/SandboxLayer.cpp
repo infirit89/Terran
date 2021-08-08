@@ -83,7 +83,9 @@ namespace TerranEngine
 			}
 		}*/
 		
-		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "e");
+
+		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "He");
+		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0);
 
 		//TR_TRACE(fps);
 

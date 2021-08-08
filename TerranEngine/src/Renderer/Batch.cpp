@@ -30,7 +30,7 @@ namespace TerranEngine
 	void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
 	{
 		m = glm::translate(glm::mat4(1.0f), pos) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::scale(glm::mat4(1.0f), scale);
 	}
 
@@ -153,6 +153,8 @@ namespace TerranEngine
 		data.IndexCount += 6;
 	}
 
+	bool printed = false;
+
 	void Batch::AddText(BatchData& data, glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text)
 	{
 		float texIndex = 0.0f;
@@ -178,34 +180,48 @@ namespace TerranEngine
 		glm::quat rotation;
 		glm::vec3 scale;
 
-
 		decomposeMatrix(transform, position, rotation, scale);
+
 		for (size_t i = 0; i < text.size(); i++)
 		{
 			char c = text[i];
 
 			ftgl::texture_glyph_t* glyph = font->LoadGlyph(c);
 
-
 			if (glyph != NULL) 
 			{
 				glm::vec2 uvs[4] =
 				{
 					glm::vec2(glyph->s0, glyph->t0),
-					glm::vec2(glyph->s0, glyph->t1),
-					glm::vec2(glyph->s1, glyph->t1),
 					glm::vec2(glyph->s1, glyph->t0),
+					glm::vec2(glyph->s1, glyph->t1),
+					glm::vec2(glyph->s0, glyph->t1),
 				};
 				
-				glm::vec3 pos = glm::vec3(
-					position.x + glyph->offset_x,
-					position.y + glyph->offset_y, 0.0f);
+				/*if (!printed) 
+				{
+					TR_TRACE("u0: {0}, v0: {1}", glyph->s0, glyph->t0);
+					TR_TRACE("u1: {0}, v0: {1}", glyph->s1, glyph->t0);
+					TR_TRACE("u1: {0}, v1: {1}", glyph->s1, glyph->t1);
+					TR_TRACE("u0: {0}, v1: {1}", glyph->s0, glyph->t1);
 
+
+					printed = true;
+				}*/
+
+				glm::vec3 pos = glm::vec3(
+					position.x + glyph->offset_x / 4.0f,
+					position.y + glyph->offset_y / 8.0f, 0.0f);
+
+
+				TR_TRACE("Char: {0}, Position:\nx: {1}, y: {2}", c, pos.x, pos.y);
 
 				glm::vec3 size = glm::vec3(
-					pos.x + glyph->width,
-					pos.y - glyph->height, 0.0f
+					pos.x + glyph->width / 4.0f,
+					pos.y - glyph->height / 2.0f, 0.0f
 				);
+
+				TR_TRACE("Size: \nx: {0}, y: {1}", size.x, size.y);
 
 				createTransformMatrix(transform, pos, rotation, size);
 
@@ -221,7 +237,7 @@ namespace TerranEngine
 
 				data.IndexCount += 6;
 
-				position.x += glyph->advance_x / 14.0f;
+				position.x += glyph->advance_x;
 			}
 		}
 	}

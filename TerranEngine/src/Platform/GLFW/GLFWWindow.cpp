@@ -144,6 +144,8 @@ namespace TerranEngine
 
 		int flags;
 		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+#if 0
 		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) 
 		{
 			glEnable(GL_DEBUG_OUTPUT);
@@ -151,6 +153,7 @@ namespace TerranEngine
 			glDebugMessageCallback(glDebugOutput, nullptr);
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 		}
+#endif
 
 		SetVsync(true);
 	}
