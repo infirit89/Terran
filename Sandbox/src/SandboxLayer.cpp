@@ -37,9 +37,6 @@ namespace TerranEngine
 		m_Texture2 = new Texture("res/test_grass.png");
 
 		m_Font = new Font("res/OpenSans-Bold.ttf", 80);
-		//TR_TRACE(m_SSheet.GetUVS(0));
-
-		//FontUtils::LoadFont("res/OpenSans-Bold.ttf");
 	}
 
 	void SandboxLayer::OnAttach()
@@ -65,26 +62,20 @@ namespace TerranEngine
 		else if (Input::IsKeyPressed(Key::D))
 			m_CameraTransform.Position.x -= 10 * time;
 		if (Input::IsKeyPressed(Key::W))
-			m_CameraTransform.Position.y -= 10 * time;
-		else if (Input::IsKeyPressed(Key::S))
+		{
 			m_CameraTransform.Position.y += 10 * time;
+			TR_TRACE(m_CameraTransform.Position.y);
+		}
+		else if (Input::IsKeyPressed(Key::S)) 
+		{
+			m_CameraTransform.Position.y -= 10 * time;
+			TR_TRACE(m_CameraTransform.Position.y);
+		}
+
 
 		fps = 1 / time;
 
-		/*for (float x = -5.0f; x < 50.0f; x += 0.5f)
-		{
-			for (float y = -5.0f; y < 50.0f; y += 0.5f)
-			{
-				glm::vec3 pos(x * 5, y * 5, 0.0f);
-
-				Transform transform(pos);
-
-				BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Texture, m_TSheet.GetUVS(1));
-			}
-		}*/
-		
-
-		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "He");
+		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "qwertyuiopasdfghjklzxcvbnm");
 		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0);
 
 		//TR_TRACE(fps);

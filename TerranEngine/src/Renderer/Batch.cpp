@@ -153,8 +153,6 @@ namespace TerranEngine
 		data.IndexCount += 6;
 	}
 
-	bool printed = false;
-
 	void Batch::AddText(BatchData& data, glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text)
 	{
 		float texIndex = 0.0f;
@@ -192,36 +190,25 @@ namespace TerranEngine
 			{
 				glm::vec2 uvs[4] =
 				{
-					glm::vec2(glyph->s0, glyph->t0),
-					glm::vec2(glyph->s1, glyph->t0),
-					glm::vec2(glyph->s1, glyph->t1),
 					glm::vec2(glyph->s0, glyph->t1),
+					glm::vec2(glyph->s1, glyph->t1),
+					glm::vec2(glyph->s1, glyph->t0),
+					glm::vec2(glyph->s0, glyph->t0),
 				};
 				
-				/*if (!printed) 
-				{
-					TR_TRACE("u0: {0}, v0: {1}", glyph->s0, glyph->t0);
-					TR_TRACE("u1: {0}, v0: {1}", glyph->s1, glyph->t0);
-					TR_TRACE("u1: {0}, v1: {1}", glyph->s1, glyph->t1);
-					TR_TRACE("u0: {0}, v1: {1}", glyph->s0, glyph->t1);
-
-
-					printed = true;
-				}*/
-
 				glm::vec3 pos = glm::vec3(
-					position.x + glyph->offset_x / 4.0f,
-					position.y + glyph->offset_y / 8.0f, 0.0f);
+					position.x + glyph->offset_x / 30.0f,
+					(position.y - (glyph->height - glyph->offset_y) / 60.0f), 0.0f);
 
-
-				TR_TRACE("Char: {0}, Position:\nx: {1}, y: {2}", c, pos.x, pos.y);
+				//TR_TRACE("Char: {0}, Position:\nx: {1}, y: {2}", c, pos.x, pos.y);
+				TR_TRACE("Char: {0}, Glyph Offset: {1}", c, glyph->offset_y);
 
 				glm::vec3 size = glm::vec3(
-					pos.x + glyph->width / 4.0f,
-					pos.y - glyph->height / 2.0f, 0.0f
+					glyph->width / 60.0f,
+					glyph->height / 70.0f, 0.0f
 				);
-
-				TR_TRACE("Size: \nx: {0}, y: {1}", size.x, size.y);
+				
+				//TR_TRACE("Size: \nx: {0}, y: {1}", size.x, size.y);
 
 				createTransformMatrix(transform, pos, rotation, size);
 
@@ -231,13 +218,13 @@ namespace TerranEngine
 					data.VertexPtr[data.VertexPtrIndex].Color = color;
 					data.VertexPtr[data.VertexPtrIndex].TextureCoordinates = uvs[i];
 					data.VertexPtr[data.VertexPtrIndex].TextureIndex = texIndex;
-
+					
 					data.VertexPtrIndex++;
 				}
 
 				data.IndexCount += 6;
 
-				position.x += glyph->advance_x;
+				position.x += glyph->advance_x / 20.0f;
 			}
 		}
 	}

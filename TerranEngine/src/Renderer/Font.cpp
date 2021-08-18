@@ -10,8 +10,6 @@ namespace TerranEngine
 		m_TexutreFont = ftgl::texture_font_new_from_file(m_TextureAtlas, fontSize, fontName);
 
 		m_Texture = new Texture(m_TextureAtlas->width, m_TextureAtlas->height);
-
-		LoadGlyph('A');
 	}
 
 	Texture* Font::GetTexutre() const
