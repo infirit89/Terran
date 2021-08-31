@@ -13,7 +13,7 @@ namespace TerranEngine
 	}
 
 	Shader::Shader(const char* vertexPath, const char* fragmentPath)
-		: m_SProgram(0), m_IsProgramBound(false)
+		: m_SProgram(0), m_IsProgramBound(false), m_VertexPath(vertexPath), m_FragmentPath(fragmentPath)
 	{
 		FileData* vertexFile = File::OpenFile(vertexPath);
 		FileData* fragmentFile = File::OpenFile(fragmentPath);

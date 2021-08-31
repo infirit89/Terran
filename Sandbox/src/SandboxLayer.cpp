@@ -57,26 +57,44 @@ namespace TerranEngine
 	void SandboxLayer::Update(float& time)
 	{
 
-		if (Input::IsKeyPressed(Key::A))
+		if (Input::IsKeyPressed(Key::A)) 
+		{
 			m_CameraTransform.Position.x += 10 * time;
-		else if (Input::IsKeyPressed(Key::D))
+			TR_TRACE("X position: {0}", m_CameraTransform.Position.x);
+		}
+		else if (Input::IsKeyPressed(Key::D)) 
+		{
 			m_CameraTransform.Position.x -= 10 * time;
+			TR_TRACE("X position: {0}", m_CameraTransform.Position.x);
+		}
 		if (Input::IsKeyPressed(Key::W))
 		{
 			m_CameraTransform.Position.y += 10 * time;
-			TR_TRACE(m_CameraTransform.Position.y);
+			TR_TRACE("Y position: {0}", m_CameraTransform.Position.y);
 		}
-		else if (Input::IsKeyPressed(Key::S)) 
+		else if (Input::IsKeyPressed(Key::S))
 		{
 			m_CameraTransform.Position.y -= 10 * time;
-			TR_TRACE(m_CameraTransform.Position.y);
+			TR_TRACE("Y position: {0}", m_CameraTransform.Position.y);
+		}
+
+		//qwertyuiopasdfghjklzxcvbnm
+
+
+		int frames = 1 / time;
+
+		//BatchRenderer::AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 1);
+
+		if (Input::IsKeyPressed(Key::R)) 
+		{
+			m_Transform1.Rotation += 10.0f * time;
 		}
 
 
-		fps = 1 / time;
 
-		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "qwertyuiopasdfghjklzxcvbnm");
-		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0);
+		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Font, "FPS: " + std::to_string(frames));
+		BatchRenderer::AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
+
 
 		//TR_TRACE(fps);
 

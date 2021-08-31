@@ -17,13 +17,14 @@ namespace TerranEngine
 		static void AddQuad(glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Texture* texture);
 		static void AddQuad(glm::mat4& transform, const glm::vec4& color, uint32_t zIndex);
 
-		static void AddText(glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text);
+		static void AddText(glm::mat4& transform, const glm::vec4& color, uint32_t zIndex, Font* font, const std::string& text);
 
 		static void EndScene(Camera& camera, const glm::mat4& transform);
 
 	private:
 		static std::vector<BatchData> m_Batches;
 		static uint32_t m_BatchSize;
+		static int m_TimesAdded;
 	};
 
 	/* 

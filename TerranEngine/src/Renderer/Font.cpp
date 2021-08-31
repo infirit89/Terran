@@ -24,6 +24,8 @@ namespace TerranEngine
 		return ftgl::texture_font_get_glyph(m_TexutreFont, codepoint.c_str());
 	}
 
+
+
 	Font::~Font()
 	{
 		delete m_Texture;

@@ -13,6 +13,7 @@ namespace TerranEngine
 		Texture* GetTexutre () const;
 
 		ftgl::texture_glyph_t* LoadGlyph(const char& character);
+
 		~Font();
 
 	private:

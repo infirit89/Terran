@@ -36,5 +36,7 @@ namespace TerranEngine
 	private:
 		uint32_t m_SProgram;
 		bool mutable m_IsProgramBound;
+
+		std::string m_VertexPath, m_FragmentPath;
 	};
 }

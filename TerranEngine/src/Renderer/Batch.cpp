@@ -113,6 +113,7 @@ namespace TerranEngine
 
 	void Batch::BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform)
 	{
+		data.Shader->Bind();
 		data.Shader->UploadMat4("u_ProjMat", camera.GetProjection());
 		data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
 	}
@@ -173,7 +174,6 @@ namespace TerranEngine
 			data.TextureIndex++;
 		}
 
-
 		glm::vec3 position;
 		glm::quat rotation;
 		glm::vec3 scale;
@@ -190,41 +190,53 @@ namespace TerranEngine
 			{
 				glm::vec2 uvs[4] =
 				{
-					glm::vec2(glyph->s0, glyph->t1),
-					glm::vec2(glyph->s1, glyph->t1),
-					glm::vec2(glyph->s1, glyph->t0),
 					glm::vec2(glyph->s0, glyph->t0),
+					glm::vec2(glyph->s1, glyph->t0),
+					glm::vec2(glyph->s1, glyph->t1),
+					glm::vec2(glyph->s0, glyph->t1),
 				};
-				
-				glm::vec3 pos = glm::vec3(
-					position.x + glyph->offset_x / 30.0f,
-					(position.y - (glyph->height - glyph->offset_y) / 60.0f), 0.0f);
 
-				//TR_TRACE("Char: {0}, Position:\nx: {1}, y: {2}", c, pos.x, pos.y);
-				TR_TRACE("Char: {0}, Glyph Offset: {1}", c, glyph->offset_y);
+				if (i > 0) 
+				{
+					float kerning = ftgl::texture_glyph_get_kerning(glyph, std::string(1, text[i - 1]).c_str());
+					position.x += kerning;
+				}
 
-				glm::vec3 size = glm::vec3(
-					glyph->width / 60.0f,
-					glyph->height / 70.0f, 0.0f
-				);
-				
-				//TR_TRACE("Size: \nx: {0}, y: {1}", size.x, size.y);
+				float x0 = position.x + glyph->offset_x / 80.0f;
+				float y0 = position.y + glyph->offset_y / 80.0f;
 
-				createTransformMatrix(transform, pos, rotation, size);
+				float x1 = x0 + glyph->width / 80.0f;
+				float y1 = y0 - glyph->height / 80.0f;
+
+				glm::vec4 vertexPositions[4] = 
+				{
+					glm::vec4(x0, y0, 0.0f, 1.0f),
+					glm::vec4(x1, y0, 0.0f, 1.0f),
+					glm::vec4(x1, y1, 0.0f, 1.0f),
+					glm::vec4(x0, y1, 0.0f, 1.0f),
+				};
 
 				for (size_t i = 0; i < 4; i++)
 				{
-					data.VertexPtr[data.VertexPtrIndex].Position = transform * s_VertexPositions[i];
+					data.VertexPtr[data.VertexPtrIndex].Position = transform * vertexPositions[i];
 					data.VertexPtr[data.VertexPtrIndex].Color = color;
 					data.VertexPtr[data.VertexPtrIndex].TextureCoordinates = uvs[i];
 					data.VertexPtr[data.VertexPtrIndex].TextureIndex = texIndex;
-					
+
 					data.VertexPtrIndex++;
 				}
 
 				data.IndexCount += 6;
 
-				position.x += glyph->advance_x / 20.0f;
+				/*
+				Char : H, Advance : 0.7749219
+				Char : e, Advance : 0.57894725
+				Char : l, Advance : 0.2754892
+				Char : l, Advance : 0.26860198
+				Char : o, Advance : 0.57950413
+				*/
+
+				position.x += glyph->advance_x / 100.0f;
 			}
 		}
 	}
@@ -234,16 +246,20 @@ namespace TerranEngine
 		if (data.IndexCount == 0)
 			return;
 		
+		data.Shader->Bind();
+
 		for (size_t i = 0; i < data.TextureIndex; i++)
 			data.Textures[i]->Bind(i);
 
 		data.VertexArray->Bind();
-		data.VertexBuffer->SetData(data.VertexPtr, data.VertexPtrIndex * sizeof(Vertex));
 		s_IndexBuffer->Bind();
-
-		data.Shader->Bind();
+		data.VertexBuffer->SetData(data.VertexPtr, data.VertexPtrIndex * sizeof(Vertex));
 
 		RenderCommand::Draw(*data.VertexArray, data.IndexCount);
+
+		data.Shader->Unbind();
+		data.VertexArray->Unbind();
+		data.VertexBuffer->Unbind();
 	}
 
 	void Batch::Clear(BatchData& data)
