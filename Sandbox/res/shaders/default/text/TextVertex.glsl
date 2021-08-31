@@ -8,17 +8,18 @@ layout(location = 3) in float a_TexIndex;
 uniform mat4 u_ProjMat;
 uniform mat4 u_ViewMat;
 
-out vec4 o_Color;
-out vec2 o_TexCoords;
-out float o_TexIndex;
+out VS_OUT 
+{
+	vec4	Color;
+	vec2	TexCoords;
+	float	TexIndex;
+} vsOut;
 
 void main() 
 {
 	gl_Position = u_ProjMat * u_ViewMat * vec4(a_Pos, 1.0); 
 
-	o_Color = a_Col;
-
-	o_TexCoords = a_TexCoords;
-
-	o_TexIndex = a_TexIndex;
+	vsOut.Color = a_Col;
+	vsOut.TexCoords = a_TexCoords;
+	vsOut.TexIndex = a_TexIndex;
 }

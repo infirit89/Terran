@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Font.h"
+#include "UniformBuffer.h"
 
 #include "Scene/Camera.h"
 
@@ -40,6 +41,16 @@ namespace TerranEngine
 		Vertex* VertexPtr;
 
 		Texture* Textures[MaxTextureSlots];
+
+		struct CameraData
+		{
+			glm::mat4 projection;
+			glm::mat4 view;
+		};
+
+		CameraData CameraData;
+
+		UniformBuffer* CameraBuffer;
 
 		uint32_t VertexPtrIndex = 0;
 		uint32_t TextureIndex = 1;

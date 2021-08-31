@@ -3,6 +3,8 @@
 #include <string>
 #include <glm/mat4x4.hpp>
 
+#include <unordered_map>
+
 namespace TerranEngine 
 {
 	class Shader 
@@ -38,5 +40,7 @@ namespace TerranEngine
 		bool mutable m_IsProgramBound;
 
 		std::string m_VertexPath, m_FragmentPath;
+
+		std::unordered_map<const char*, uint32_t> m_Uniforms;
 	};
 }

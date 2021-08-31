@@ -108,6 +108,9 @@ namespace TerranEngine
 
 	int Shader::GetUniformLoc(const char* name)
 	{
+		if (m_Uniforms.find(name) != m_Uniforms.end()) 
+			return m_Uniforms[name];
+
 		int loc = glGetUniformLocation(m_SProgram, name);
 
 		if (loc == -1)
@@ -115,6 +118,8 @@ namespace TerranEngine
 			TR_ASSERT(false, "Couldn't find a uniform variable with the name {0}", name);
 			return 0;
 		}
+
+		m_Uniforms.insert({ name, loc });
 
 		return loc;
 	}

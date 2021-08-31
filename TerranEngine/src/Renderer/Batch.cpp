@@ -96,12 +96,18 @@ namespace TerranEngine
 		s_VertexPositions[2] = {  1.0f,  1.0f, 0.0f, 1.0f };
 		s_VertexPositions[3] = { -1.0f,  1.0f, 0.0f, 1.0f };
 
+		data.CameraBuffer = new UniformBuffer(sizeof(BatchData::CameraData), 0);
+
 		return data;
 	}
 
 	void Batch::CloseData(BatchData& data)
 	{
 		delete[] data.VertexPtr;
+
+		delete data.VertexArray;
+		delete data.VertexBuffer;
+		delete data.CameraBuffer;
 
 		// note: shit fix, should probably use shared pointer
 		if (s_Indices != nullptr) 
@@ -114,8 +120,13 @@ namespace TerranEngine
 	void Batch::BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform)
 	{
 		data.Shader->Bind();
-		data.Shader->UploadMat4("u_ProjMat", camera.GetProjection());
-		data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
+
+		data.CameraData.projection = camera.GetProjection();
+		data.CameraData.view = glm::inverse(transform);
+
+		data.CameraBuffer->SetData(&data.CameraData, sizeof(BatchData::CameraData));
+		//data.Shader->UploadMat4("u_ProjMat", camera.GetProjection());
+		//data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
 	}
 
 	void Batch::AddQuad(BatchData& data, glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4])
