@@ -9,7 +9,7 @@ namespace TerranEngine
 {
 	std::vector<BatchData> BatchRenderer::m_Batches;
 	uint32_t BatchRenderer::m_BatchSize;
-	int BatchRenderer::m_TimesAdded;
+	RendererStatistics BatchRenderer::m_Stats;
 
 	Shader* quadShader; 
 	Shader* textShader;
@@ -20,7 +20,6 @@ namespace TerranEngine
 
 		quadShader = new Shader("res/shaders/default/quad/VertexShader.glsl", "res/shaders/default/quad/FragmentShader.glsl");
 		textShader = new Shader("res/shaders/default/text/TextVertex.glsl", "res/shaders/default/text/TextFragment.glsl");
-		m_TimesAdded = 0;
 	}
 
 	void BatchRenderer::Close()
@@ -100,15 +99,21 @@ namespace TerranEngine
 		AddQuad(transform, color, zIndex, nullptr);
 	}
 
+	void BatchRenderer::Begin()
+	{
+		for (BatchData& data : m_Batches)
+		{
+			Batch::Clear(data);
+			Batch::ResetStats();
+		}
+	}
+
 	void BatchRenderer::EndScene(Camera& camera, const glm::mat4& transform)
 	{
 		for (BatchData& data : m_Batches) 
 		{
 			Batch::BeginScene(data, camera, transform);
 			Batch::EndScene(data);
-			Batch::Clear(data);
 		}
-
-		m_TimesAdded = 0;
 	}
 }

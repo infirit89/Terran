@@ -15,6 +15,8 @@ namespace TerranEngine
 	int* Batch::s_Indices;
 	IndexBuffer* Batch::s_IndexBuffer;
 
+	BatchStats Batch::m_Stats;
+
 	void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
 	{
 		pos = m[3];
@@ -42,6 +44,9 @@ namespace TerranEngine
 
 		data.MaxIndices = batchSize * 6;
 		data.MaxVertices = batchSize * 4;
+
+		m_Stats.MaxIndices = data.MaxIndices;
+		m_Stats.MaxVertices = data.MaxVertices;
 
 		data.VertexPtr = new Vertex[data.MaxVertices];
 
@@ -125,8 +130,6 @@ namespace TerranEngine
 		data.CameraData.view = glm::inverse(transform);
 
 		data.CameraBuffer->SetData(&data.CameraData, sizeof(BatchData::CameraData));
-		//data.Shader->UploadMat4("u_ProjMat", camera.GetProjection());
-		//data.Shader->UploadMat4("u_ViewMat", glm::inverse(transform));
 	}
 
 	void Batch::AddQuad(BatchData& data, glm::mat4& transform, const glm::vec4& color, Texture* texture, glm::vec2 textureCoordinates[4])
@@ -256,6 +259,9 @@ namespace TerranEngine
 		if (data.IndexCount == 0)
 			return;
 		
+		m_Stats.CurrentVertices = data.VertexPtrIndex;
+		m_Stats.CurrentIndices = data.IndexCount;
+
 		data.Shader->Bind();
 
 		for (size_t i = 0; i < data.TextureIndex; i++)
@@ -266,6 +272,7 @@ namespace TerranEngine
 		data.VertexBuffer->SetData(data.VertexPtr, data.VertexPtrIndex * sizeof(Vertex));
 
 		RenderCommand::Draw(*data.VertexArray, data.IndexCount);
+		m_Stats.DrawCalls++;
 
 		data.Shader->Unbind();
 		data.VertexArray->Unbind();
@@ -278,4 +285,20 @@ namespace TerranEngine
 		data.IndexCount = 0;
 		data.TextureIndex = 1;
 	}
+
+	BatchStats Batch::GetStats()
+	{
+		return m_Stats;
+	}
+
+	void Batch::ResetStats()
+	{
+		m_Stats.DrawCalls = 0;
+		m_Stats.CurrentIndices = 0;
+		m_Stats.CurrentVertices = 0;
+		m_Stats.MaxIndices = 0;
+		m_Stats.MaxVertices = 0;
+	}
+
+
 }

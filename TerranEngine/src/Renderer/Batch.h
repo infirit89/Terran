@@ -9,6 +9,8 @@
 #include "Font.h"
 #include "UniformBuffer.h"
 
+#include "BatchRenderer.h"
+
 #include "Scene/Camera.h"
 
 #include <memory>
@@ -55,6 +57,15 @@ namespace TerranEngine
 		uint32_t VertexPtrIndex = 0;
 		uint32_t TextureIndex = 1;
 	};
+	
+	struct BatchStats 
+	{
+		uint32_t DrawCalls = 0;
+		uint32_t MaxVertices = 0;
+		uint32_t CurrentVertices = 0;
+		uint32_t MaxIndices = 0;
+		uint32_t CurrentIndices = 0;
+	};
 
 	class Batch 
 	{
@@ -71,11 +82,18 @@ namespace TerranEngine
 		static void Clear(BatchData& data);
 
 		static bool HasRoom(BatchData& data) { return !(data.IndexCount >= data.MaxIndices) && !(data.TextureIndex >= data.MaxTextureSlots); }
-	
+		
+		static BatchStats GetStats();
+		static void ResetStats();
+
 	private:
 		static glm::vec4 s_VertexPositions[4];
 
 		static int* s_Indices;
 		static IndexBuffer* s_IndexBuffer;
+		
+		static BatchStats m_Stats;
+
+		friend class BatchRenderer;
 	};
 }
