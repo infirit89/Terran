@@ -167,6 +167,13 @@ namespace TerranEngine
 
 	void Batch::AddText(BatchData& data, glm::mat4& transform, const glm::vec4& color, Font* font, const std::string& text)
 	{
+
+		/* Note: there's there's some fuckery with displaying the characters 
+		* which i think is related to how freetype - gl stores them in a packed texture
+		* 
+		* fix fucker
+		*/
+
 		float texIndex = 0.0f;
 
 		for (size_t i = 1; i < data.TextureIndex; i++)
@@ -239,15 +246,7 @@ namespace TerranEngine
 
 				data.IndexCount += 6;
 
-				/*
-				Char : H, Advance : 0.7749219
-				Char : e, Advance : 0.57894725
-				Char : l, Advance : 0.2754892
-				Char : l, Advance : 0.26860198
-				Char : o, Advance : 0.57950413
-				*/
-
-				position.x += glyph->advance_x / 100.0f;
+				position.x += glyph->advance_x / 80.0f;
 			}
 		}
 	}

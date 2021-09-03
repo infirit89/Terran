@@ -5,8 +5,12 @@ layout(location = 1) in vec4 a_Col;
 layout(location = 2) in vec2 a_TexCoords;
 layout(location = 3) in float a_TexIndex;
 
-uniform mat4 u_ProjMat;
-uniform mat4 u_ViewMat;
+layout(std140, binding = 0) uniform Camera 
+{
+	mat4 ProjectionMatrix;
+	mat4 ViewMatrix;
+
+} camera;
 
 out VS_OUT 
 {
@@ -17,7 +21,7 @@ out VS_OUT
 
 void main() 
 {
-	gl_Position = u_ProjMat * u_ViewMat * vec4(a_Pos, 1.0); 
+	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(a_Pos, 1.0); 
 
 	vsOut.Color = a_Col;
 	vsOut.TexCoords = a_TexCoords;

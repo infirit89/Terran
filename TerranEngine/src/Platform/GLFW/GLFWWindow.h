@@ -23,8 +23,8 @@ namespace TerranEngine
 
 		void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) override { m_WindowDataPtr.EventCallback = eventCallbackFN; }
 	private:
-		virtual void InitWindow(WindowData data);
-		virtual void Close();
+		void InitWindow(WindowData data);
+		void Close();
 	private:
 
 		struct WindowDataPtr 
