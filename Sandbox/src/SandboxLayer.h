@@ -47,5 +47,7 @@ namespace TerranEngine {
 
 		Font* m_Font;
 		float fps = 0.0f;
+
+		RendererStats stats;
 	};
 }

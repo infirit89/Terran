@@ -56,6 +56,7 @@ namespace TerranEngine
 
 	void SandboxLayer::Update(float& time)
 	{
+		BatchRenderer::Begin();
 
 		if (Input::IsKeyPressed(Key::A)) 
 		{
@@ -92,14 +93,16 @@ namespace TerranEngine
 
 
 
-		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, m_Font, "FPS: " + std::to_string(frames));
-		//BatchRenderer::AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
-
+		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 0);
+		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "FPS: " + std::to_string(frames));
+		BatchRenderer::AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
 		//TR_TRACE(fps);
 
 
 		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
+
+		stats = BatchRenderer::GetStats();
 	}
 
 	void SandboxLayer::OnEvent(Event& event)
@@ -112,6 +115,31 @@ namespace TerranEngine
 
 	void SandboxLayer::ImGuiRender()
 	{
+		ImGui::Begin("Debug Stuffs");
+		if (ImGui::TreeNode("Renderer Stats"))
+		{
+			for (size_t i = 0; i < stats.Batches; i++)
+			{
+				if (ImGui::TreeNode((void*)i, "Batch %d", i)) 
+				{
+					ImGui::Text("Draw calls %d", stats.BatchStats[i].DrawCalls);
+					ImGui::Text("Quad count %d", stats.BatchStats[i].GetQuadCount());
+					ImGui::Text("Vertices count %d", stats.BatchStats[i].VerticesCount);
+					ImGui::Text("Indices count %d", stats.BatchStats[i].IndicesCount);
+
+					ImGui::TreePop();
+				}
+			}
+
+			ImGui::TreePop();
+		}
+
+
+
+		ImGui::DragFloat3("Transform 1", (float*)&m_Transform1.Position, 0.1f);
+		ImGui::DragFloat3("Transform 2", (float*)&m_Transform2.Position, 0.1f);
+
+		ImGui::End();
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
@@ -143,8 +171,8 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
-		m_ZoomLevel += event.GetYOffset() * 0.01f;
-		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);
+		/*m_ZoomLevel += event.GetYOffset() * 0.01f;
+		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);*/
 
 		return false;
 	}

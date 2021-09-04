@@ -14,8 +14,12 @@ in VS_OUT
 void main() 
 {
 	int index = int(fsIn.TexIndex);
+
 	if(index == 0)
 		color = fsIn.Color;
 	else
 		color = fsIn.Color * texture(u_Samplers[index], fsIn.TexCoords);
+
+	if(color.a < 0.1) 
+		discard;
 }

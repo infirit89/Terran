@@ -9,7 +9,7 @@
 #include "Font.h"
 #include "UniformBuffer.h"
 
-#include "BatchRenderer.h"
+//#include "BatchRenderer.h"
 
 #include "Scene/Camera.h"
 
@@ -27,12 +27,21 @@ namespace TerranEngine
 		float TextureIndex;
 	};
 
+	struct BatchStats
+	{
+		uint32_t DrawCalls = 0;
+		uint32_t MaxVertices = 0;
+		uint32_t MaxIndices = 0;
+		uint32_t VerticesCount = 0;
+		uint32_t IndicesCount = 0;
+
+		uint32_t GetQuadCount() { return VerticesCount / 4; }
+	};
+
 	struct BatchData 
 	{
 		uint32_t MaxVertices, MaxIndices;
 		static const uint32_t MaxTextureSlots = 16;
-
-		uint32_t ZIndex = 0;
 
 		uint32_t IndexCount = 0;
 
@@ -56,22 +65,15 @@ namespace TerranEngine
 
 		uint32_t VertexPtrIndex = 0;
 		uint32_t TextureIndex = 1;
-	};
-	
-	struct BatchStats 
-	{
-		uint32_t DrawCalls = 0;
-		uint32_t MaxVertices = 0;
-		uint32_t CurrentVertices = 0;
-		uint32_t MaxIndices = 0;
-		uint32_t CurrentIndices = 0;
+
+		BatchStats BatchStats;
 	};
 
 	class Batch 
 	{
 	public:
 
-		static BatchData InitData(uint32_t batchSize, uint32_t zIndex, Shader* shader);
+		static BatchData InitData(uint32_t batchSize, Shader* shader);
 		static void CloseData(BatchData& data);
 
 		static void BeginScene(BatchData& data, Camera& camera, const glm::mat4& transform);
@@ -82,18 +84,13 @@ namespace TerranEngine
 		static void Clear(BatchData& data);
 
 		static bool HasRoom(BatchData& data) { return !(data.IndexCount >= data.MaxIndices) && !(data.TextureIndex >= data.MaxTextureSlots); }
-		
-		static BatchStats GetStats();
-		static void ResetStats();
+
+		static void ResetStats(BatchData& data);
 
 	private:
 		static glm::vec4 s_VertexPositions[4];
 
 		static int* s_Indices;
 		static IndexBuffer* s_IndexBuffer;
-		
-		static BatchStats m_Stats;
-
-		friend class BatchRenderer;
 	};
 }

@@ -15,8 +15,6 @@ namespace TerranEngine
 	int* Batch::s_Indices;
 	IndexBuffer* Batch::s_IndexBuffer;
 
-	BatchStats Batch::m_Stats;
-
 	void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
 	{
 		pos = m[3];
@@ -36,17 +34,15 @@ namespace TerranEngine
 			glm::scale(glm::mat4(1.0f), scale);
 	}
 
-	BatchData Batch::InitData(uint32_t batchSize, uint32_t zIndex, Shader* shader)
+	BatchData Batch::InitData(uint32_t batchSize, Shader* shader)
 	{
 		BatchData data;
-
-		data.ZIndex = zIndex;
 
 		data.MaxIndices = batchSize * 6;
 		data.MaxVertices = batchSize * 4;
 
-		m_Stats.MaxIndices = data.MaxIndices;
-		m_Stats.MaxVertices = data.MaxVertices;
+		data.BatchStats.MaxIndices = data.MaxIndices;
+		data.BatchStats.MaxVertices = data.MaxVertices;
 
 		data.VertexPtr = new Vertex[data.MaxVertices];
 
@@ -176,7 +172,6 @@ namespace TerranEngine
 		* 
 		* fix fucker
 		*/
-
 		float texIndex = 0.0f;
 
 		for (size_t i = 1; i < data.TextureIndex; i++)
@@ -196,8 +191,8 @@ namespace TerranEngine
 		}
 
 		glm::vec3 position;
-		glm::quat rotation;
 		glm::vec3 scale;
+		glm::quat rotation;
 
 		decomposeMatrix(transform, position, rotation, scale);
 
@@ -209,6 +204,7 @@ namespace TerranEngine
 
 			if (glyph != NULL) 
 			{
+
 				glm::vec2 uvs[4] =
 				{
 					glm::vec2(glyph->s0, glyph->t0),
@@ -217,7 +213,7 @@ namespace TerranEngine
 					glm::vec2(glyph->s0, glyph->t1),
 				};
 
-				if (i > 0) 
+				if (i > 0)
 				{
 					float kerning = ftgl::texture_glyph_get_kerning(glyph, std::string(1, text[i - 1]).c_str());
 					position.x += kerning;
@@ -225,11 +221,11 @@ namespace TerranEngine
 
 				float x0 = position.x + glyph->offset_x / 80.0f;
 				float y0 = position.y + glyph->offset_y / 80.0f;
-
 				float x1 = x0 + glyph->width / 80.0f;
 				float y1 = y0 - glyph->height / 80.0f;
 
-				glm::vec4 vertexPositions[4] = 
+
+				glm::vec4 vertexPositions[4] =
 				{
 					glm::vec4(x0, y0, 0.0f, 1.0f),
 					glm::vec4(x1, y0, 0.0f, 1.0f),
@@ -259,8 +255,8 @@ namespace TerranEngine
 		if (data.IndexCount == 0)
 			return;
 		
-		m_Stats.CurrentVertices = data.VertexPtrIndex;
-		m_Stats.CurrentIndices = data.IndexCount;
+		data.BatchStats.VerticesCount = data.VertexPtrIndex;
+		data.BatchStats.IndicesCount = data.IndexCount;
 
 		data.Shader->Bind();
 
@@ -272,7 +268,7 @@ namespace TerranEngine
 		data.VertexBuffer->SetData(data.VertexPtr, data.VertexPtrIndex * sizeof(Vertex));
 
 		RenderCommand::Draw(*data.VertexArray, data.IndexCount);
-		m_Stats.DrawCalls++;
+		data.BatchStats.DrawCalls++;
 
 		data.Shader->Unbind();
 		data.VertexArray->Unbind();
@@ -286,18 +282,9 @@ namespace TerranEngine
 		data.TextureIndex = 1;
 	}
 
-	BatchStats Batch::GetStats()
+	void Batch::ResetStats(BatchData& data)
 	{
-		return m_Stats;
-	}
-
-	void Batch::ResetStats()
-	{
-		m_Stats.DrawCalls = 0;
-		m_Stats.CurrentIndices = 0;
-		m_Stats.CurrentVertices = 0;
-		m_Stats.MaxIndices = 0;
-		m_Stats.MaxVertices = 0;
+		memset(&data.BatchStats, 0, sizeof(BatchStats));
 	}
 
 

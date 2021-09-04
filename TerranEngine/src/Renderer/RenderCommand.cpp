@@ -12,7 +12,7 @@ namespace TerranEngine
 
 	void RenderCommand::Clear()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void RenderCommand::Resize(int width, int height)
@@ -24,6 +24,8 @@ namespace TerranEngine
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void RenderCommand::Draw(const VertexArray& vertexArray, int numIndices)

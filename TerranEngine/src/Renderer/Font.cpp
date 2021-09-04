@@ -6,7 +6,7 @@ namespace TerranEngine
 {
 	Font::Font(const char* fontName, uint32_t fontSize)
 	{
-		m_TextureAtlas = ftgl::texture_atlas_new((fontSize / 2) * 16, (fontSize / 2) * 16, 1);
+		m_TextureAtlas = ftgl::texture_atlas_new((fontSize / 2) * 16, (fontSize / 2) * 16, 4);
 		m_TexutreFont = ftgl::texture_font_new_from_file(m_TextureAtlas, fontSize, fontName);
 
 		m_Texture = new Texture(m_TextureAtlas->width, m_TextureAtlas->height);
@@ -14,7 +14,7 @@ namespace TerranEngine
 
 	Texture* Font::GetTexutre() const
 	{
-		m_Texture->SetData(m_TextureAtlas->data, TextureType::RED);
+		m_Texture->SetData(m_TextureAtlas->data, TextureType::RGBA);
 		return m_Texture;
 	}
 
