@@ -115,31 +115,53 @@ namespace TerranEngine
 
 	void SandboxLayer::ImGuiRender()
 	{
-		ImGui::Begin("Debug Stuffs");
-		if (ImGui::TreeNode("Renderer Stats"))
-		{
-			for (size_t i = 0; i < stats.Batches; i++)
-			{
-				if (ImGui::TreeNode((void*)i, "Batch %d", i)) 
-				{
-					ImGui::Text("Draw calls %d", stats.BatchStats[i].DrawCalls);
-					ImGui::Text("Quad count %d", stats.BatchStats[i].GetQuadCount());
-					ImGui::Text("Vertices count %d", stats.BatchStats[i].VerticesCount);
-					ImGui::Text("Indices count %d", stats.BatchStats[i].IndicesCount);
 
-					ImGui::TreePop();
-				}
+		static bool debugMenuOpen = false;
+
+		if (ImGui::BeginMainMenuBar()) 
+		{
+			if (ImGui::BeginMenu("Test menu")) 
+			{
+				if (ImGui::MenuItem("test"))
+					debugMenuOpen = true;
+
+				ImGui::EndMenu();
 			}
 
-			ImGui::TreePop();
+			ImGui::EndMainMenuBar();
 		}
 
+		if (debugMenuOpen) 
+		{
+			ImGui::Begin("Debug Stuffs", &debugMenuOpen);
+			if (ImGui::TreeNode("Renderer Stats"))
+			{
+				for (size_t i = 0; i < stats.Batches; i++)
+				{
+					if (ImGui::TreeNode((void*)i, "Batch %d", i)) 
+					{
+						ImGui::Text("Draw calls %d", stats.BatchStats[i].DrawCalls);
+						ImGui::Text("Quad count %d", stats.BatchStats[i].GetQuadCount());
+						ImGui::Text("Vertices count %d", stats.BatchStats[i].VerticesCount);
+						ImGui::Text("Indices count %d", stats.BatchStats[i].IndicesCount);
+
+						ImGui::TreePop();
+					}
+				}
+
+				ImGui::TreePop();
+			}
 
 
-		ImGui::DragFloat3("Transform 1", (float*)&m_Transform1.Position, 0.1f);
-		ImGui::DragFloat3("Transform 2", (float*)&m_Transform2.Position, 0.1f);
 
-		ImGui::End();
+			ImGui::DragFloat3("Transform 1", (float*)&m_Transform1.Position, 0.1f);
+			ImGui::DragFloat3("Transform 2", (float*)&m_Transform2.Position, 0.1f);
+
+			ImGui::End();
+		}
+
+		ImGui::ShowDemoWindow();
+		ImGui::ShowStyleEditor();
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
