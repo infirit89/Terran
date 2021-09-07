@@ -9,6 +9,10 @@ namespace TerranEngine
 	struct RendererStats 
 	{
 		std::vector<BatchStats> BatchStats;
+		uint32_t DrawCalls = 0;
+		uint32_t TotalQuadCount = 0;
+		uint32_t TotalVertexCount = 0, TotalIndexCount = 0;
+
 		uint32_t Batches = 0;
 	};
 
@@ -30,9 +34,13 @@ namespace TerranEngine
 
 		static RendererStats GetStats();
 
+		static void ClearStats();
+
 	private:
+
 		static std::vector<BatchData> m_Batches;
 		static uint32_t m_BatchSize;
+		static RendererStats m_Stats;
 	};
 
 }

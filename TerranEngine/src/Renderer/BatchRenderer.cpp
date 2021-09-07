@@ -9,7 +9,7 @@ namespace TerranEngine
 {
 	std::vector<BatchData> BatchRenderer::m_Batches;
 	uint32_t BatchRenderer::m_BatchSize;
-	//RendererStatistics BatchRenderer::m_Stats;
+	RendererStats BatchRenderer::m_Stats;
 
 	Shader* quadShader; 
 	Shader* textShader;
@@ -36,7 +36,7 @@ namespace TerranEngine
 		bool added = false;
 		for (BatchData& data : m_Batches)
 		{
-			if (Batch::HasRoom(data) && data.Shader == quadShader)
+			if (Batch::HasRoom(data))
 			{
 				Batch::AddQuad(data, transform, color, texture, textureCoordinates);
 				added = true;
@@ -62,7 +62,7 @@ namespace TerranEngine
 
 		for (BatchData& data : m_Batches)
 		{
-			if (Batch::HasRoom(data) && data.Shader == textShader)
+			if (Batch::HasRoom(data))
 			{
 				Batch::AddText(data, transform, color, font, text);
 				added = true;
@@ -102,10 +102,7 @@ namespace TerranEngine
 	void BatchRenderer::Begin()
 	{
 		for (BatchData& data : m_Batches)
-		{
 			Batch::Clear(data);
-			Batch::ResetStats(data);
-		}
 	}
 
 	void BatchRenderer::EndScene(Camera& camera, const glm::mat4& transform)
@@ -114,17 +111,32 @@ namespace TerranEngine
 		{
 			Batch::BeginScene(data, camera, transform);
 			Batch::EndScene(data);
+
+			m_Stats.DrawCalls++;
 		}
+	}
+
+	void BatchRenderer::ClearStats()
+	{
+		for (BatchData& data : m_Batches) 
+			Batch::ResetStats(data);
+
+		memset(&m_Stats, 0, (sizeof(RendererStats)));
+
 	}
 
 	RendererStats BatchRenderer::GetStats() 
 	{
-		RendererStats stats;
-		stats.Batches = m_Batches.size();
+		m_Stats.Batches = m_Batches.size();
 
-		for (BatchData& data : m_Batches)
-			stats.BatchStats.emplace_back(data.BatchStats);
+		for (BatchData& data : m_Batches) 
+		{
+			m_Stats.BatchStats.emplace_back(data.BatchStats);
+			m_Stats.TotalQuadCount += data.BatchStats.GetQuadCount();
+			m_Stats.TotalVertexCount += data.BatchStats.VertexCount;
+			m_Stats.TotalIndexCount += data.BatchStats.IndexCount;
+		}
 
-		return stats;
+		return m_Stats;
 	}
 }

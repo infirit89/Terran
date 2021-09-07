@@ -1,4 +1,4 @@
-#include "SandboxLayer.h"
+﻿#include "SandboxLayer.h"
 
 #include <imgui.h>
 #include <glm/mat4x4.hpp>
@@ -56,53 +56,44 @@ namespace TerranEngine
 
 	void SandboxLayer::Update(float& time)
 	{
+		BatchRenderer::ClearStats();
+
 		BatchRenderer::Begin();
 
 		if (Input::IsKeyPressed(Key::A)) 
-		{
 			m_CameraTransform.Position.x += 10 * time;
-			TR_TRACE("X position: {0}", m_CameraTransform.Position.x);
-		}
 		else if (Input::IsKeyPressed(Key::D)) 
-		{
 			m_CameraTransform.Position.x -= 10 * time;
-			TR_TRACE("X position: {0}", m_CameraTransform.Position.x);
-		}
 		if (Input::IsKeyPressed(Key::W))
-		{
 			m_CameraTransform.Position.y += 10 * time;
-			TR_TRACE("Y position: {0}", m_CameraTransform.Position.y);
-		}
 		else if (Input::IsKeyPressed(Key::S))
-		{
 			m_CameraTransform.Position.y -= 10 * time;
-			TR_TRACE("Y position: {0}", m_CameraTransform.Position.y);
-		}
 
-		//qwertyuiopasdfghjklzxcvbnm
-
-
-		int frames = 1 / time;
-
-		//BatchRenderer::AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 1);
-
-		if (Input::IsKeyPressed(Key::R)) 
-		{
-			m_Transform1.Rotation += 10.0f * time;
-		}
-
-
-
-		//BatchRenderer::AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 0);
-		BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "FPS: " + std::to_string(frames));
+		//BatchRenderer::AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "FPS: " + std::to_string(frames));
+		//BatchRenderer::AddText(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Bitch");
 		BatchRenderer::AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
-		//TR_TRACE(fps);
 
+		//for (size_t y = 0; y < 200; y++)
+		//{
+		//	for (size_t x = 0; x < 200; x++)
+		//	{
+		//		Transform transform;
+
+		//		transform.Position = { x * 10.0f, y * 10.0f, 0.0f };
+
+		//		BatchRenderer::AddQuad(transform.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		//	}
+		//}
 
 		BatchRenderer::EndScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 
 		stats = BatchRenderer::GetStats();
+		int frames = 1 / time;
+		TR_TRACE(time);
+
+		m_Time = time;
+
 	}
 
 	void SandboxLayer::OnEvent(Event& event)
@@ -116,14 +107,14 @@ namespace TerranEngine
 	void SandboxLayer::ImGuiRender()
 	{
 
-		static bool debugMenuOpen = false;
+		static bool rendererStatsOpen = true;
 
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			if (ImGui::BeginMenu("Test menu")) 
 			{
 				if (ImGui::MenuItem("test"))
-					debugMenuOpen = true;
+					rendererStatsOpen = true;
 
 				ImGui::EndMenu();
 			}
@@ -131,37 +122,35 @@ namespace TerranEngine
 			ImGui::EndMainMenuBar();
 		}
 
-		if (debugMenuOpen) 
+		if (rendererStatsOpen)
 		{
-			ImGui::Begin("Debug Stuffs", &debugMenuOpen);
-			if (ImGui::TreeNode("Renderer Stats"))
+			ImGui::Begin("Renderer Stats", &rendererStatsOpen);
+
+			ImGui::Text("Draw calls: %d", stats.DrawCalls);
+			ImGui::Text("Total Quad count: %d", stats.TotalQuadCount);
+			ImGui::Text("Total Vertex count: %d", stats.TotalVertexCount);
+			ImGui::Text("Total Index count: %d", stats.TotalIndexCount);
+
+			ImGui::Text("Time it takes for a frame: %f", m_Time);
+
+			ImGui::Separator();
+			ImGui::Text("Batch stats:");
+
+			for (size_t i = 0; i < stats.Batches; i++)
 			{
-				for (size_t i = 0; i < stats.Batches; i++)
+				if (ImGui::TreeNode((void*)i, "Batch %d", i)) 
 				{
-					if (ImGui::TreeNode((void*)i, "Batch %d", i)) 
-					{
-						ImGui::Text("Draw calls %d", stats.BatchStats[i].DrawCalls);
-						ImGui::Text("Quad count %d", stats.BatchStats[i].GetQuadCount());
-						ImGui::Text("Vertices count %d", stats.BatchStats[i].VerticesCount);
-						ImGui::Text("Indices count %d", stats.BatchStats[i].IndicesCount);
+					ImGui::Text("Quad count: %d", stats.BatchStats[i].GetQuadCount());
+					ImGui::Text("Vertices count: %d", stats.BatchStats[i].VertexCount);
+					ImGui::Text("Indices count: %d", stats.BatchStats[i].IndexCount);
 
-						ImGui::TreePop();
-					}
+					ImGui::TreePop();
 				}
-
-				ImGui::TreePop();
 			}
 
 
-
-			ImGui::DragFloat3("Transform 1", (float*)&m_Transform1.Position, 0.1f);
-			ImGui::DragFloat3("Transform 2", (float*)&m_Transform2.Position, 0.1f);
-
 			ImGui::End();
 		}
-
-		ImGui::ShowDemoWindow();
-		ImGui::ShowStyleEditor();
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
@@ -193,8 +182,8 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
-		/*m_ZoomLevel += event.GetYOffset() * 0.01f;
-		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);*/
+		m_ZoomLevel += event.GetYOffset() * 0.01f;
+		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);
 
 		return false;
 	}

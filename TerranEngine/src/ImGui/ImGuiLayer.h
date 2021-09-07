@@ -13,6 +13,8 @@ namespace TerranEngine
 		void OnAttach() override;
 		void OnDettach() override;
 
+		void OnEvent(Event& event) override;
+
 		void BeginFrame();
 		void EndFrame();
 	};

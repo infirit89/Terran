@@ -49,5 +49,7 @@ namespace TerranEngine {
 		float fps = 0.0f;
 
 		RendererStats stats;
+
+		float m_Time = 0.0f;
 	};
 }

@@ -29,13 +29,12 @@ namespace TerranEngine
 
 	struct BatchStats
 	{
-		uint32_t DrawCalls = 0;
 		uint32_t MaxVertices = 0;
 		uint32_t MaxIndices = 0;
-		uint32_t VerticesCount = 0;
-		uint32_t IndicesCount = 0;
+		uint32_t VertexCount = 0;
+		uint32_t IndexCount = 0;
 
-		uint32_t GetQuadCount() { return VerticesCount / 4; }
+		uint32_t GetQuadCount() { return VertexCount / 4; }
 	};
 
 	struct BatchData 

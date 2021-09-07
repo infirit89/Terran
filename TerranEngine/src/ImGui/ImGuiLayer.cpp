@@ -45,6 +45,13 @@ namespace TerranEngine
 		ImGui::DestroyContext();
 	}
 
+	void ImGuiLayer::OnEvent(Event& event)
+	{
+		ImGuiIO io = ImGui::GetIO();
+		event.isHandled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+		event.isHandled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+	}
+
 	void ImGuiLayer::BeginFrame()
 	{
 		ImGui_ImplOpenGL3_NewFrame();

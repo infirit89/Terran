@@ -30,7 +30,7 @@ namespace TerranEngine
 	void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
 	{
 		m = glm::translate(glm::mat4(1.0f), pos) *
-			glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::rotate(glm::mat4(1.0f), glm::degrees(rot.z), glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::scale(glm::mat4(1.0f), scale);
 	}
 
@@ -219,11 +219,10 @@ namespace TerranEngine
 					position.x += kerning;
 				}
 
-				float x0 = position.x + glyph->offset_x / 80.0f;
-				float y0 = position.y + glyph->offset_y / 80.0f;
+				float x0 = position.x + (glyph->offset_x / 80.0f);
+				float y0 = position.y + (glyph->offset_y / 80.0f);
 				float x1 = x0 + glyph->width / 80.0f;
 				float y1 = y0 - glyph->height / 80.0f;
-
 
 				glm::vec4 vertexPositions[4] =
 				{
@@ -255,8 +254,8 @@ namespace TerranEngine
 		if (data.IndexCount == 0)
 			return;
 		
-		data.BatchStats.VerticesCount = data.VertexPtrIndex;
-		data.BatchStats.IndicesCount = data.IndexCount;
+		data.BatchStats.VertexCount = data.VertexPtrIndex;
+		data.BatchStats.IndexCount = data.IndexCount;
 
 		data.Shader->Bind();
 
@@ -268,7 +267,6 @@ namespace TerranEngine
 		data.VertexBuffer->SetData(data.VertexPtr, data.VertexPtrIndex * sizeof(Vertex));
 
 		RenderCommand::Draw(*data.VertexArray, data.IndexCount);
-		data.BatchStats.DrawCalls++;
 
 		data.Shader->Unbind();
 		data.VertexArray->Unbind();
