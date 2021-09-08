@@ -15,6 +15,9 @@ namespace TerranEngine
 	int* Batch::s_Indices;
 	IndexBuffer* Batch::s_IndexBuffer;
 
+	uint32_t Batch::MaxIndices;
+	uint32_t Batch::MaxVertices;
+
 	void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
 	{
 		pos = m[3];
@@ -38,17 +41,17 @@ namespace TerranEngine
 	{
 		BatchData data;
 
-		data.MaxIndices = batchSize * 6;
-		data.MaxVertices = batchSize * 4;
+		MaxIndices = batchSize * 6;
+		MaxVertices = batchSize * 4;
 
-		data.BatchStats.MaxIndices = data.MaxIndices;
-		data.BatchStats.MaxVertices = data.MaxVertices;
+		data.BatchStats.MaxIndices = MaxIndices;
+		data.BatchStats.MaxVertices = MaxVertices;
 
-		data.VertexPtr = new Vertex[data.MaxVertices];
+		data.VertexPtr = new Vertex[MaxVertices];
 
 		data.VertexArray = new VertexArray();
 
-		data.VertexBuffer = new VertexBuffer(data.MaxVertices * sizeof(Vertex));
+		data.VertexBuffer = new VertexBuffer(MaxVertices * sizeof(Vertex));
 
 		data.VertexArray->AddVertexBufferLayout({
 			{ GL_FLOAT, 3 },
@@ -59,7 +62,7 @@ namespace TerranEngine
 
 		if (s_Indices == nullptr) 
 		{
-			s_Indices = new int[data.MaxIndices];
+			s_Indices = new int[MaxIndices];
 
 			uint32_t offset = 0;
 
@@ -74,10 +77,9 @@ namespace TerranEngine
 
 				offset += 4;
 			}
-
 		}
 
-		s_IndexBuffer = new IndexBuffer(s_Indices, data.MaxIndices * sizeof(int));
+		s_IndexBuffer = new IndexBuffer(s_Indices, MaxIndices * sizeof(int));
 
 		int sampler[data.MaxTextureSlots];
 

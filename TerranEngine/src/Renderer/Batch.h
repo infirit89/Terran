@@ -39,7 +39,6 @@ namespace TerranEngine
 
 	struct BatchData 
 	{
-		uint32_t MaxVertices, MaxIndices;
 		static const uint32_t MaxTextureSlots = 16;
 
 		uint32_t IndexCount = 0;
@@ -82,7 +81,7 @@ namespace TerranEngine
 
 		static void Clear(BatchData& data);
 
-		static bool HasRoom(BatchData& data) { return !(data.IndexCount >= data.MaxIndices) && !(data.TextureIndex >= data.MaxTextureSlots); }
+		static bool HasRoom(BatchData& data) { return !(data.IndexCount >= MaxIndices) && !(data.TextureIndex >= data.MaxTextureSlots); }
 
 		static void ResetStats(BatchData& data);
 
@@ -91,5 +90,7 @@ namespace TerranEngine
 
 		static int* s_Indices;
 		static IndexBuffer* s_IndexBuffer;
+
+		static uint32_t MaxVertices, MaxIndices;
 	};
 }
