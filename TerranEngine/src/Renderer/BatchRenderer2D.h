@@ -82,7 +82,7 @@ namespace TerranEngine
 		Shared<VertexBuffer> m_VertexBuffer, m_FramebufferVBO;
 		Shared<IndexBuffer>  m_IndexBuffer, m_FramebufferIBO;
 
-		Shared<Shader> m_Shader, m_FramebufferShader;
+		Shared<Shader> m_Shader;
 
 		Vertex* m_VertexPtr = nullptr;
 
