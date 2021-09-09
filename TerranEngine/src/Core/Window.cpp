@@ -5,8 +5,8 @@
 
 namespace TerranEngine 
 {
-	std::unique_ptr<Window> Window::Create(const WindowData& data)
+	Unique<Window> Window::Create(const WindowData& data)
 	{
-		return std::make_unique<GLFWWindow>(std::forward<const WindowData&>(data));
+		return CreateUnique<GLFWWindow>(data);
 	}
 }

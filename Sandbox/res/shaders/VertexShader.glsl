@@ -12,20 +12,20 @@ layout(std140, binding = 0) uniform Camera
 
 } camera;
 
-out VS_OUT
+struct VS_OUT
 {
 	vec4	Color;
 	vec2	TexCoords;
-	float	TexIndex;
-} vsOut;
+};
+
+layout(location = 0) out VS_OUT vsOut;
+layout(location = 2) out flat float	f_TexIndex;
 
 void main() 
 {
 	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(a_Pos, 1.0); 
 
 	vsOut.Color = a_Col;
-
 	vsOut.TexCoords = a_TexCoords;
-
-	vsOut.TexIndex = a_TexIndex;
+	f_TexIndex = a_TexIndex;
 }

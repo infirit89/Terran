@@ -2,8 +2,9 @@
 
 #include "Events/Event.h"
 
+#include "Base.h"
+
 #include <string>
-#include <memory>
 #include <array>
 
 namespace TerranEngine {
@@ -35,7 +36,7 @@ namespace TerranEngine {
 
 		virtual void Update() = 0;	
 
-		static std::unique_ptr<Window> Create(const WindowData& data = WindowData());
+		static Unique<Window> Create(const WindowData& data = WindowData());
 
 		virtual void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) = 0;
 	};

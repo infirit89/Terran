@@ -3,7 +3,6 @@
 #include "Terran.h"
 
 #include <memory>
-
 #include "Transform.h"
 
 namespace TerranEngine {
@@ -42,14 +41,18 @@ namespace TerranEngine {
 
 		float m_ZoomLevel = 0.1f;
 
-		Texture* m_Texture;
+		Shared<Texture> m_Texture;
 		Texture* m_Texture2;
 
-		Font* m_Font;
+		Shared<Font> m_Font;
 		float fps = 0.0f;
 
-		RendererStats stats;
+		BatchRendererStats stats;
+
+		Unique<BatchRenderer2D> m_Renderer;
 
 		float m_Time = 0.0f;
+
+		bool m_Wireframe = false;
 	};
 }

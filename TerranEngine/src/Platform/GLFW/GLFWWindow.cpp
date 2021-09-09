@@ -9,7 +9,6 @@
 #include "Core/Assert.h"
 #include "Platform/OpenGL/OpenGLErrorHandler.h"
 
-#include <glad/glad.h>
 #include <stb_image.h>
 
 namespace TerranEngine 
@@ -138,29 +137,11 @@ namespace TerranEngine
 
 
 		glfwMakeContextCurrent(m_Window);
-		
-		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
-
-		int flags;
-		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-
-#if 0
-		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) 
-		{
-			glEnable(GL_DEBUG_OUTPUT);
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-			glDebugMessageCallback(glDebugOutput, nullptr);
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-		}
-#endif
-
 		SetVsync(true);
 	}
 
 	void GLFWWindow::Close()
 	{
-		TR_TRACE("window closed");
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
 	}

@@ -9,10 +9,10 @@ namespace TerranEngine
 		m_TextureAtlas = ftgl::texture_atlas_new((fontSize / 2) * 16, (fontSize / 2) * 16, 4);
 		m_TexutreFont = ftgl::texture_font_new_from_file(m_TextureAtlas, fontSize, fontName);
 
-		m_Texture = new Texture(m_TextureAtlas->width, m_TextureAtlas->height);
+		m_Texture = CreateShared<Texture>(m_TextureAtlas->width, m_TextureAtlas->height);
 	}
 
-	Texture* Font::GetTexutre() const
+	Shared<Texture> Font::GetTexutre() const
 	{
 		m_Texture->SetData(m_TextureAtlas->data, TextureType::RGBA);
 		return m_Texture;
@@ -28,7 +28,6 @@ namespace TerranEngine
 
 	Font::~Font()
 	{
-		delete m_Texture;
 		ftgl::texture_font_delete(m_TexutreFont);
 		ftgl::texture_atlas_delete(m_TextureAtlas);
 	}

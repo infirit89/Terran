@@ -21,6 +21,8 @@ namespace TerranEngine
 	{
 		m_Instance = this;
 		m_Window = Window::Create(WindowData(name, 1080, 790, m_IconPaths));
+		RenderCommand::Init();
+
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
 		m_ImGuiLayer = new ImGuiLayer();
@@ -51,6 +53,7 @@ namespace TerranEngine
 
 		while (m_Running)
 		{
+
 			frameTime = glfwGetTime();
 			float dt(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;

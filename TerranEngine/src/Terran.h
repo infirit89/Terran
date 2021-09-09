@@ -23,7 +23,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Texture.h"
-#include "Renderer/BatchRenderer.h"
+#include "Renderer/BatchRenderer2D.h"
 #include "Renderer/TextureSheet.h"
 #include "Renderer/Font.h"
 
