@@ -43,6 +43,40 @@ namespace TerranEngine
 	void BatchRenderer2D::CreateFramebuffer(uint32_t width, uint32_t height, bool swapchainTarget)
 	{
 		m_Framebuffer = CreateShared<Framebuffer>(width, height, swapchainTarget);
+
+		float pos[] =
+		{
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+		};
+		m_FramebufferVAO = CreateShared<VertexArray>();
+
+		m_FramebufferVBO = CreateShared<VertexBuffer>(pos, sizeof(pos));
+
+		m_FramebufferVAO->AddVertexBufferLayout({
+			{ GL_FLOAT, 3 },
+			{ GL_FLOAT, 2 },
+		});
+
+		int indices[] =
+		{
+			0, 1, 2,
+			2, 3, 0
+		};
+
+		m_FramebufferIBO = CreateShared<IndexBuffer>(indices, sizeof(indices));
+
+		m_FramebufferVAO->Unbind();
+		m_FramebufferVBO->Unbind();
+		m_FramebufferIBO->Unbind();
+
+		m_Shader->Unbind();
+		m_FramebufferShader = CreateShared<Shader>("res/shaders/Framebuffer/Framebuffershader.glsl");
+		m_FramebufferShader->Unbind();
+		
+		m_Shader->Bind();
 	}
 
 	void BatchRenderer2D::Init(uint32_t batchSize)
@@ -57,7 +91,7 @@ namespace TerranEngine
 
 		m_VertexArray = CreateShared<VertexArray>();
 
-		m_VertexBuffer = CreateUnique<VertexBuffer>(m_MaxVertices * sizeof(Vertex));
+		m_VertexBuffer = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(Vertex));
 
 		m_VertexArray->AddVertexBufferLayout({
 			{ GL_FLOAT, 3 },
@@ -66,23 +100,25 @@ namespace TerranEngine
 			{ GL_FLOAT, 1 }
 		});
 
-			int* indices = new int[m_MaxIndices];
+		int* indices = new int[m_MaxIndices];
 
-			uint32_t offset = 0;
+		uint32_t offset = 0;
 
-			for (uint32_t i = 0; i < batchSize * 6; i += 6)
-			{
-				indices[i] = offset + 0;
-				indices[i + 1] = offset + 1;
-				indices[i + 2] = offset + 2;
-				indices[i + 3] = offset + 2;
-				indices[i + 4] = offset + 3;
-				indices[i + 5] = offset + 0;
+		for (uint32_t i = 0; i < batchSize * 6; i += 6)
+		{
+			indices[i] = offset + 0;
+			indices[i + 1] = offset + 1;
+			indices[i + 2] = offset + 2;
+			indices[i + 3] = offset + 2;
+			indices[i + 4] = offset + 3;
+			indices[i + 5] = offset + 0;
 
-				offset += 4;
-			}
+			offset += 4;
+		}
 
-			m_IndexBuffer = CreateShared<IndexBuffer>(indices, m_MaxIndices * sizeof(int));
+		m_IndexBuffer = CreateShared<IndexBuffer>(indices, m_MaxIndices * sizeof(int));
+
+		delete[] indices;
 
 		int sampler[m_MaxTextureSlots];
 
@@ -114,11 +150,12 @@ namespace TerranEngine
 	{
 		Clear();
 
-		m_Framebuffer->Bind();
+		//m_Shader->Bind();
 
 		m_CameraData.projection = camera.GetProjection();
 		m_CameraData.view = glm::inverse(transform);
 
+		m_CameraBuffer->Bind();
 		m_CameraBuffer->SetData(&m_CameraData, sizeof(CameraData));
 	}
 
@@ -283,21 +320,48 @@ namespace TerranEngine
 		
 		m_Stats.VertexCount = m_VertexPtrIndex;
 		m_Stats.IndexCount =  m_IndexCount;
+		m_Shader->Bind();
 
+		m_VertexArray->Bind();
 		m_VertexBuffer->SetData(m_VertexPtr, m_VertexPtrIndex * sizeof(Vertex));
+
+		m_IndexBuffer->Bind();
+
 
 		for (size_t i = 0; i < m_TextureIndex; i++)
 			m_Textures[i]->Bind(i);
 
-		m_Shader->Bind();
 
 		RenderCommand::Draw(*m_VertexArray, m_IndexCount);
 
 		m_Stats.DrawCalls++;
 
-		m_Framebuffer->Unbind();
+	}
 
-		m_Framebuffer->BindColorAttachment();
+	void BatchRenderer2D::RenderToFramebuffer()
+	{
+		if (m_Framebuffer->IsSwapChainTarget())
+		{
+			m_Shader->Unbind();
+
+			m_Framebuffer->BindColorAttachment();
+
+			m_FramebufferShader->Bind();
+
+			m_FramebufferVBO->Bind();
+			m_FramebufferIBO->Bind();
+
+			RenderCommand::Draw(*m_FramebufferVAO, 6);
+
+			m_FramebufferShader->Unbind();
+			m_Framebuffer->UnbindColorAttachment();
+
+			m_FramebufferVAO->Unbind();
+			m_FramebufferVBO->Unbind();
+			m_FramebufferIBO->Unbind();
+
+			m_Shader->Bind();
+		}
 	}
 
 	void BatchRenderer2D::Clear()

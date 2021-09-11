@@ -1,11 +1,14 @@
 #pragma once
 
+#include <string>
+
 namespace TerranEngine 
 {
 	struct FileData 
 	{
-		char* Data;
-		int Length;
+		char* Data = nullptr;
+		int Length = 0, Index = 0;
+		char PreviousChar;
 	};
 
 	namespace File 
@@ -15,6 +18,9 @@ namespace TerranEngine
 
 		FileData* WriteToFile(const char* filePath, char* text);
 		FileData* AppendToFile(const char* filePath, char* text);
+
+		bool GetCharacter(char& c, FileData* data);
+		bool GetLine(FileData* data, std::string& str);
 
 		void CreateFile(const char* filePath);
 	}

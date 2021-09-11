@@ -8,12 +8,37 @@ namespace TerranEngine
 {
 	Shader::Shader()
 		: m_SProgram(0), m_IsProgramBound(false)
+#ifdef TR_DEBUG
+		, m_VertexPath(nullptr), m_FragmentPath(nullptr), m_ShaderPath(nullptr)
+#endif
 	{
 
 	}
 
+	Shader::Shader(const char* shaderPath)
+		: m_SProgram(0), m_IsProgramBound(false)
+
+#ifdef TR_DEBUG
+		, m_ShaderPath(shaderPath), m_VertexPath(nullptr), m_FragmentPath(nullptr)
+#endif
+
+	{
+		FileData* data = File::OpenFile(shaderPath);
+		
+		auto& shaderSources = ProcessShaderFile(data->Data);
+		CreateProgram(shaderSources);
+		Bind();
+
+		File::CloseFile(data);
+	}
+
 	Shader::Shader(const char* vertexPath, const char* fragmentPath)
-		: m_SProgram(0), m_IsProgramBound(false), m_VertexPath(vertexPath), m_FragmentPath(fragmentPath)
+		: m_SProgram(0), m_IsProgramBound(false)
+
+#ifdef TR_DEBUG
+		, m_VertexPath(vertexPath), m_FragmentPath(fragmentPath), m_ShaderPath(nullptr)
+#endif
+
 	{
 		FileData* vertexFile = File::OpenFile(vertexPath);
 		FileData* fragmentFile = File::OpenFile(fragmentPath);
@@ -149,6 +174,56 @@ namespace TerranEngine
 		return shader;
 	}
 
+	std::unordered_map<uint32_t, std::string> Shader::ProcessShaderFile(const char* shaderSource)
+	{
+		std::string fileSource = shaderSource;
+
+		std::unordered_map<uint32_t, std::string> shaderSources;
+
+		const char* typeToken = "#type";
+		const size_t typeTokenLength = strlen(typeToken);
+
+		size_t pos = fileSource.find(typeToken);
+		while (pos != std::string::npos)
+		{
+			//find end of line
+			size_t eol = fileSource.find("\r\n", pos);
+			TR_ASSERT(eol != std::string::npos, "Syntax error");
+			size_t begin = pos + typeTokenLength + 1;
+			std::string type = fileSource.substr(begin, eol - begin);
+			TR_ASSERT(GetShaderType(type), "Invalid shader type specified.");
+
+			size_t nextLinePos = fileSource.find_first_not_of("\r\n", eol);
+			TR_ASSERT(nextLinePos != std::string::npos, "Syntax error");
+
+			pos = fileSource.find(typeToken, nextLinePos);
+
+			shaderSources[GetShaderType(type)] = fileSource.substr(nextLinePos, pos - nextLinePos);
+		}
+
+		return shaderSources;
+	}
+
+	void Shader::CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources)
+	{
+		m_SProgram = glCreateProgram();
+
+		unsigned int vertShader = CreateShader(shaderSources[GL_VERTEX_SHADER].c_str(), GL_VERTEX_SHADER);
+		unsigned int fragShader = CreateShader(shaderSources[GL_FRAGMENT_SHADER].c_str(), GL_FRAGMENT_SHADER);
+
+		glAttachShader(m_SProgram, vertShader);
+		glAttachShader(m_SProgram, fragShader);
+
+		glLinkProgram(m_SProgram);
+		glValidateProgram(m_SProgram);
+
+		glDetachShader(m_SProgram, vertShader);
+		glDetachShader(m_SProgram, fragShader);
+
+		glDeleteShader(vertShader);
+		glDeleteShader(fragShader);
+	}
+
 	void Shader::CreateProgram(const char* vertexSource, const char* fragmentSource)
 	{
 		m_SProgram = glCreateProgram();
@@ -167,5 +242,14 @@ namespace TerranEngine
 
 		glDeleteShader(vertShader);
 		glDeleteShader(fragShader);
+	}
+
+	uint32_t Shader::GetShaderType(std::string& typeStr)
+	{
+		if (typeStr == "vertex")
+			return GL_VERTEX_SHADER;
+		else if (typeStr == "fragment")
+			return GL_FRAGMENT_SHADER;
+		return 0;
 	}
 }

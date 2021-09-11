@@ -20,6 +20,8 @@ namespace TerranEngine
 
 		bool IsSwapChainTarget() { return m_SwapChainTarget; }
 
+		uint32_t GetColorAttachmentID() { return m_ColorAttachment; }
+
 		uint32_t Width, Height;
 	private:
 		void Create();

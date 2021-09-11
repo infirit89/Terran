@@ -16,6 +16,8 @@ namespace TerranEngine
 	{
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);
 
+		m_Renderer->CreateFramebuffer(1280, 790, true);
+
 		float positions[] =
 		{
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -23,6 +25,7 @@ namespace TerranEngine
 			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
+
 
 		m_TexCoords[0] = { 0.0f, 0.0f };
 		m_TexCoords[1] = { 0.5f, 0.0f };
@@ -53,9 +56,27 @@ namespace TerranEngine
 
 	void SandboxLayer::Update(float& time)
 	{
+
+		/* Bit fat fucking note
+		* a lot here is test code
+		* the framebuffer object doesn't work goddamn properly
+		* 1. blending is just fucking gone
+		*/ 
+		
+		if (Application::Get()->GetWindow().GetWidth() != m_Renderer->GetFramebuffer()->Width ||
+			Application::Get()->GetWindow().GetHeight() != m_Renderer->GetFramebuffer()->Height)
+			m_Renderer->GetFramebuffer()->Resize(Application::Get()->GetWindow().GetWidth(),
+				Application::Get()->GetWindow().GetHeight());
+
 		RenderCommand::WireframeMode(m_Wireframe);
 
 		m_Renderer->ResetStats();
+
+		m_Renderer->GetFramebuffer()->Bind();
+		RenderCommand::EnableBlending(true);
+		RenderCommand::DepthTesting(true);
+		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		RenderCommand::Clear();
 
 		m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 
@@ -71,10 +92,19 @@ namespace TerranEngine
 		if (Input::IsKeyPressed(Key::R))
 			m_Transform2.Rotation += 10 * time;
 
-		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-		m_Renderer->AddText(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Bitch");
+		//m_Renderer->AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Texture);
+		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+
+		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Bitch");
 		
 		m_Renderer->EndScene();
+
+		m_Renderer->GetFramebuffer()->Unbind();
+
+		RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		RenderCommand::Clear();
+
+		m_Renderer->RenderToFramebuffer();
 
 		stats = m_Renderer->GetStats();
 		int frames = 1 / time;

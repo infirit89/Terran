@@ -12,10 +12,14 @@ namespace TerranEngine
 
 		static void SetClearColor(float r, float g, float b, float a);
 		static void Clear();
+		static void ClearC();
+
 		static void Resize(int width, int height);
 		static void WireframeMode(bool enable);
 
-		static void EnableBlending();
+		static void EnableBlending(bool state);
+
+		static void DepthTesting(bool state);
 
 		static void Draw(const VertexArray& vertexArray, int numIndices);
 		static void DrawArrays(int numIndices);

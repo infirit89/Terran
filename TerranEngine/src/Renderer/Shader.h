@@ -11,6 +11,7 @@ namespace TerranEngine
 	{
 	public:
 		Shader();
+		Shader(const char* shaderPath);
 		Shader(const char* vertexPath, const char* fragmentPath);
 		~Shader();
 
@@ -30,16 +31,27 @@ namespace TerranEngine
 		void UploadMat4(const char* name, glm::mat4x4 val);
 		void UploadIntArray(const char* name, uint32_t count, int val[]);
 
+
 	private:
 		int GetUniformLoc(const char* name);
 		int CreateShader(const char* source, unsigned int type);
+
+		std::unordered_map<uint32_t, std::string> ProcessShaderFile(const char* shaderSource);
+
+		void CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources);
 		void CreateProgram(const char* vertexSource, const char* fragmentSource);
 
 	private:
+		uint32_t GetShaderType(std::string& typeStr);
+
 		uint32_t m_SProgram;
 		bool mutable m_IsProgramBound;
 
-		std::string m_VertexPath, m_FragmentPath;
+#ifdef TR_DEBUG
+		const char* m_VertexPath,* m_FragmentPath;
+		const char* m_ShaderPath;
+#endif
+
 
 		std::unordered_map<const char*, uint32_t> m_Uniforms;
 	};

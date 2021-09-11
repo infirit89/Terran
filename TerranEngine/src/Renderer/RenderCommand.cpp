@@ -47,6 +47,11 @@ namespace TerranEngine
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+	void RenderCommand::ClearC()
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
 	void RenderCommand::Resize(int width, int height)
 	{
 		glViewport(0, 0, width, height);
@@ -66,12 +71,22 @@ namespace TerranEngine
 		}
 	}
 
-	void RenderCommand::EnableBlending() 
+	void RenderCommand::EnableBlending(bool state) 
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
-		//glEnable(GL_DEPTH_TEST);
+		if (state) 
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		} else
+			glDisable(GL_BLEND);
+	}
+
+	void RenderCommand::DepthTesting(bool state)
+	{
+		if (state)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
 	}
 
 	void RenderCommand::Draw(const VertexArray& vertexArray, int numIndices)

@@ -59,6 +59,8 @@ namespace TerranEngine
 
 		bool HasRoom() { return !(m_IndexCount >= m_MaxIndices) && !(m_TextureIndex >= m_MaxTextureSlots); }
 
+		void RenderToFramebuffer();
+
 		void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		BatchRendererStats GetStats() { return m_Stats; }
 
@@ -82,7 +84,7 @@ namespace TerranEngine
 		Shared<VertexBuffer> m_VertexBuffer, m_FramebufferVBO;
 		Shared<IndexBuffer>  m_IndexBuffer, m_FramebufferIBO;
 
-		Shared<Shader> m_Shader;
+		Shared<Shader> m_Shader, m_FramebufferShader;
 
 		Vertex* m_VertexPtr = nullptr;
 

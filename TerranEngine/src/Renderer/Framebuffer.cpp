@@ -28,6 +28,7 @@ namespace TerranEngine
 
 	void Framebuffer::BindColorAttachment() const
 	{
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
 	}
 
@@ -40,7 +41,6 @@ namespace TerranEngine
 	{
 		Width = width;
 		Height = height;
-
 		glViewport(0, 0, Width, Height);
 
 		Create();
@@ -53,6 +53,10 @@ namespace TerranEngine
 			glDeleteFramebuffers(1, &m_Buffer);
 			glDeleteTextures(1, &m_ColorAttachment);
 			glDeleteTextures(1, &m_DepthAttachment);
+
+			m_Buffer = 0;
+			m_ColorAttachment = 0;
+			m_DepthAttachment = 0;
 		}
 
 		glGenFramebuffers(1, &m_Buffer);
@@ -65,14 +69,18 @@ namespace TerranEngine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
-
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
+
 
 		glGenTextures(1, &m_DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, Width, Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
+
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			TR_ASSERT(false, "Framebuffer isn't complete");

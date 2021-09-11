@@ -11,6 +11,8 @@ namespace TerranEngine
 
         fopen_s(&filePtr, filePath, "rb");
 
+        data->Index = 0;
+
         if (filePtr) 
         {
             fseek(filePtr, 0, SEEK_END);
@@ -60,11 +62,13 @@ namespace TerranEngine
         }
     }
 
-    FileData* WriteToFile(const char* filePath, char* text)
+    FileData* File::WriteToFile(const char* filePath, char* text)
     {
         FileData* data = (FileData*)malloc(sizeof(FileData));
 
         FILE* filePtr;
+
+        data->Index = 0;
 
         fopen_s(&filePtr, filePath, "w+b");
 
@@ -79,10 +83,12 @@ namespace TerranEngine
         return data;
     }
 
-    FileData* AppendToFile(const char* filePath, char* text) 
+    FileData* File::AppendToFile(const char* filePath, char* text)
     {
         FileData* data = (FileData*)malloc(sizeof(FileData));
         
+        data->Index = 0;
+
         FILE* filePtr;
 
         fopen_s(&filePtr, filePath, "a+b");
@@ -100,7 +106,34 @@ namespace TerranEngine
         return data;
     }
 
-    void CreateFile(const char* filePath) 
+    bool File::GetCharacter(char& c, FileData* data)
+    {
+        if (data->PreviousChar == '\0')
+            return false;
+
+        c = data->Data[data->Index];
+        data->PreviousChar = c;
+
+        data->Index++;
+
+        return true;
+    }
+
+    bool File::GetLine(FileData* data, std::string& str)
+    {
+        char c;
+        str.clear();
+        
+        while (File::GetCharacter(c, data) && c != '\r')
+            str.push_back(c);
+
+        str.push_back('\r');
+        str.push_back('\n');
+
+        return File::GetCharacter(c, data);
+    }
+
+    void File::CreateFile(const char* filePath)
     {
         FILE* filePtr;
 
