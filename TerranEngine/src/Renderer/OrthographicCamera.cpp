@@ -3,6 +3,10 @@
 
 namespace TerranEngine 
 {
+	OrthographicCamera::OrthographicCamera()
+		: Camera(glm::mat4(1.0f))
+	{
+	}
 	OrthographicCamera::OrthographicCamera(float width, float height)
 		: Camera(glm::mat4(0))
 	{

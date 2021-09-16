@@ -11,6 +11,8 @@
 
 namespace TerranEngine 
 {
+	BatchRenderer2D* BatchRenderer2D::m_Instance;
+
 	void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
 	{
 		pos = m[3];
@@ -32,6 +34,7 @@ namespace TerranEngine
 
 	BatchRenderer2D::BatchRenderer2D(uint32_t batchSize)
 	{
+		m_Instance = this;
 		Init(batchSize);
 	}
 

@@ -78,7 +78,11 @@ namespace TerranEngine
 		bool InCameraViewY(float y, float height);
 		bool InCameraViewZ(float z, float depth);
 
+		static BatchRenderer2D* Get() { return m_Instance; }
+
 	private:
+		static BatchRenderer2D* m_Instance;
+
 		BatchRendererStats m_Stats;
 
 		glm::vec4 m_VertexPositions[4];

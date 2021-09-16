@@ -12,8 +12,6 @@ namespace TerranEngine
 		return m_Registry.create();
 	}
 
-
-
 	void Scene::Update()
 	{
 	}

@@ -31,11 +31,6 @@ namespace TerranEngine {
 		Transform m_Transform1, m_Transform2;
 
 		glm::vec2 m_TexCoords[4];
-		/*std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexBuffer> m_VertexBuffer;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
-		std::shared_ptr<VertexArray> m_VertexArray;
-		std::shared_ptr<Texture> m_Texture;*/
 		
 		TextureSheet m_TSheet;
 
@@ -50,6 +45,7 @@ namespace TerranEngine {
 		BatchRendererStats stats;
 
 		Unique<BatchRenderer2D> m_Renderer;
+		Unique<Scene> m_Scene;
 
 		glm::vec2 m_ViewportSize = {1080.0f, 790.0f};
 
