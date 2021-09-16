@@ -19,6 +19,7 @@ namespace TerranEngine
 	void Framebuffer::Bind() const
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_Buffer);
+		glViewport(0, 0, Width, Height);
 	}
 
 	void Framebuffer::Unbind() const
@@ -41,7 +42,6 @@ namespace TerranEngine
 	{
 		Width = width;
 		Height = height;
-		glViewport(0, 0, Width, Height);
 
 		Create();
 	}
@@ -75,8 +75,6 @@ namespace TerranEngine
 		glGenTextures(1, &m_DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, Width, Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);

@@ -20,8 +20,10 @@ namespace TerranEngine
 
 		TR_ASSERT(GLVersion.major > 3 || (GLVersion.major >= 3 && GLVersion.minor >= 2), "Terran doesn't support opengl versions older than 3.2.0");
 
+#ifdef TR_DEBUG
 		if (GLVersion.major >= 4 && GLVersion.minor >= 3)
 		{
+
 			int flags;
 			glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
@@ -34,7 +36,9 @@ namespace TerranEngine
 			}
 
 		}
-
+#endif
+		EnableBlending(true);
+		EnableDepthTesting(true);
 	}
 
 	void RenderCommand::SetClearColor(float r, float g, float b, float a)
@@ -45,11 +49,6 @@ namespace TerranEngine
 	void RenderCommand::Clear()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void RenderCommand::ClearC()
-	{
-		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
 	void RenderCommand::Resize(int width, int height)
@@ -81,10 +80,13 @@ namespace TerranEngine
 			glDisable(GL_BLEND);
 	}
 
-	void RenderCommand::DepthTesting(bool state)
+	void RenderCommand::EnableDepthTesting(bool state)
 	{
-		if (state)
+		if (state) 
+		{
 			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
+		}
 		else
 			glDisable(GL_DEPTH_TEST);
 	}

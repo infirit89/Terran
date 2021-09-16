@@ -10,7 +10,7 @@
 #include "UniformBuffer.h"
 #include "Framebuffer.h"
 
-#include "Scene/Camera.h"
+#include "Camera.h"
 #include "Core/Base.h"
 
 #include <freetype-gl.h>
@@ -64,12 +64,21 @@ namespace TerranEngine
 		void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		BatchRendererStats GetStats() { return m_Stats; }
 
+		void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
+		bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
+
 	private:
 		void Init(uint32_t batchSize);
 
 		void Close();
 		void Clear();
 
+		bool InCameraView(glm::mat4& transform);
+		bool InCameraViewX(float x, float width);
+		bool InCameraViewY(float y, float height);
+		bool InCameraViewZ(float z, float depth);
+
+	private:
 		BatchRendererStats m_Stats;
 
 		glm::vec4 m_VertexPositions[4];
@@ -94,8 +103,10 @@ namespace TerranEngine
 
 		struct CameraData
 		{
-			glm::mat4 projection;
-			glm::mat4 view;
+			glm::mat4 Projection;
+			glm::mat4 View;
+
+			glm::vec3 ProjectionSize, CameraPosition;
 		};
 
 		CameraData m_CameraData;
@@ -104,6 +115,6 @@ namespace TerranEngine
 
 		uint32_t m_VertexPtrIndex = 0;
 		uint32_t m_TextureIndex = 1;
-
+		bool m_CullObjectsOutsideOfCamera = true;
 	};
 }

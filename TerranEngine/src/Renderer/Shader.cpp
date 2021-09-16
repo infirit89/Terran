@@ -149,9 +149,9 @@ namespace TerranEngine
 		return loc;
 	}
 
-	int Shader::CreateShader(const char* source, unsigned int type)
+	uint32_t Shader::CreateShader(const char* source, unsigned int type)
 	{
-		unsigned int shader = glCreateShader(type);
+		uint32_t shader = glCreateShader(type);
 		glShaderSource(shader, 1, &source, NULL);
 		glCompileShader(shader);
 
@@ -168,37 +168,36 @@ namespace TerranEngine
 			glGetShaderInfoLog(shader, length, &length, message);
 
 			TR_ASSERT(false, message);
+
 			return 0;
 		}
 
 		return shader;
 	}
 
-	std::unordered_map<uint32_t, std::string> Shader::ProcessShaderFile(const char* shaderSource)
+	std::unordered_map<uint32_t, std::string> Shader::ProcessShaderFile(const std::string& shaderSource)
 	{
-		std::string fileSource = shaderSource;
-
 		std::unordered_map<uint32_t, std::string> shaderSources;
 
 		const char* typeToken = "#type";
 		const size_t typeTokenLength = strlen(typeToken);
 
-		size_t pos = fileSource.find(typeToken);
+		size_t pos = shaderSource.find(typeToken);
 		while (pos != std::string::npos)
 		{
 			//find end of line
-			size_t eol = fileSource.find("\r\n", pos);
+			size_t eol = shaderSource.find("\r\n", pos);
 			TR_ASSERT(eol != std::string::npos, "Syntax error");
 			size_t begin = pos + typeTokenLength + 1;
-			std::string type = fileSource.substr(begin, eol - begin);
+			std::string type = shaderSource.substr(begin, eol - begin);
 			TR_ASSERT(GetShaderType(type), "Invalid shader type specified.");
 
-			size_t nextLinePos = fileSource.find_first_not_of("\r\n", eol);
+			size_t nextLinePos = shaderSource.find_first_not_of("\r\n", eol);
 			TR_ASSERT(nextLinePos != std::string::npos, "Syntax error");
 
-			pos = fileSource.find(typeToken, nextLinePos);
+			pos = shaderSource.find(typeToken, nextLinePos);
 
-			shaderSources[GetShaderType(type)] = fileSource.substr(nextLinePos, pos - nextLinePos);
+			shaderSources[GetShaderType(type)] = shaderSource.substr(nextLinePos, pos - nextLinePos);
 		}
 
 		return shaderSources;
@@ -208,8 +207,8 @@ namespace TerranEngine
 	{
 		m_SProgram = glCreateProgram();
 
-		unsigned int vertShader = CreateShader(shaderSources[GL_VERTEX_SHADER].c_str(), GL_VERTEX_SHADER);
-		unsigned int fragShader = CreateShader(shaderSources[GL_FRAGMENT_SHADER].c_str(), GL_FRAGMENT_SHADER);
+		uint32_t vertShader = CreateShader(shaderSources[GL_VERTEX_SHADER].c_str(), GL_VERTEX_SHADER);
+		uint32_t fragShader = CreateShader(shaderSources[GL_FRAGMENT_SHADER].c_str(), GL_FRAGMENT_SHADER);
 
 		glAttachShader(m_SProgram, vertShader);
 		glAttachShader(m_SProgram, fragShader);

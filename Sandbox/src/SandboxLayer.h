@@ -51,6 +51,10 @@ namespace TerranEngine {
 
 		Unique<BatchRenderer2D> m_Renderer;
 
+		glm::vec2 m_ViewportSize = {1080.0f, 790.0f};
+
+		glm::uvec2 m_Max = { 10.0f, 10.0f };
+
 		float m_Time = 0.0f;
 
 		bool m_Wireframe = false;

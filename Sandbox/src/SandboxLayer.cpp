@@ -16,7 +16,7 @@ namespace TerranEngine
 	{
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);
 
-		m_Renderer->CreateFramebuffer(1280, 790, true);
+		m_Renderer->CreateFramebuffer(1280, 790, false);
 
 		float positions[] =
 		{
@@ -63,18 +63,20 @@ namespace TerranEngine
 		* 1. blending is just fucking gone
 		*/ 
 		
-		if (Application::Get()->GetWindow().GetWidth() != m_Renderer->GetFramebuffer()->Width ||
-			Application::Get()->GetWindow().GetHeight() != m_Renderer->GetFramebuffer()->Height)
-			m_Renderer->GetFramebuffer()->Resize(Application::Get()->GetWindow().GetWidth(),
-				Application::Get()->GetWindow().GetHeight());
+		if (m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
+			m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height) 
+		{
+			m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
+			m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		}
+
+		RenderCommand::Clear();
 
 		RenderCommand::WireframeMode(m_Wireframe);
 
 		m_Renderer->ResetStats();
 
 		m_Renderer->GetFramebuffer()->Bind();
-		RenderCommand::EnableBlending(true);
-		RenderCommand::DepthTesting(true);
 		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		RenderCommand::Clear();
 
@@ -90,24 +92,32 @@ namespace TerranEngine
 			m_CameraTransform.Position.y -= 10 * time;
 
 		if (Input::IsKeyPressed(Key::R))
-			m_Transform2.Rotation += 10 * time;
+			m_CameraTransform.Rotation += 10 * time;
 
+		for (size_t y = 0; y < m_Max.y; y++)
+		{
+			for (size_t x = 0; x < m_Max.x; x++)
+			{
+				Transform transform;
+				transform.Position = { x * 10.0f, y * 10.0f, 0.0f };
+
+				m_Renderer->AddQuad(transform.GetTransformMatrix(), { 0.0f, 1.0f, 1.0f, 1.0f });
+			}
+		}
+
+		//m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 0.0f, 1.0f, 1.0f });
+		//m_Renderer->AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Bitch");
 		//m_Renderer->AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Texture);
-		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
-		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Bitch");
 		
 		m_Renderer->EndScene();
 
 		m_Renderer->GetFramebuffer()->Unbind();
 
-		RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		RenderCommand::Clear();
-
-		m_Renderer->RenderToFramebuffer();
-
 		stats = m_Renderer->GetStats();
 		int frames = 1 / time;
+
+		TR_TRACE(frames);
 		m_Time = time;
 
 	}
@@ -122,15 +132,18 @@ namespace TerranEngine
 
 	void SandboxLayer::ImGuiRender()
 	{
-
 		static bool rendererStatsOpen = true;
+		static bool viewPortOpen = true;
 
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			if (ImGui::BeginMenu("Test menu")) 
 			{
-				if (ImGui::MenuItem("test"))
+				if (ImGui::MenuItem("Open Stats"))
 					rendererStatsOpen = true;
+
+				if (ImGui::MenuItem("Open viewport"))
+					viewPortOpen = true;
 
 				ImGui::EndMenu();
 			}
@@ -147,7 +160,9 @@ namespace TerranEngine
 			ImGui::Text("Total Vertex count: %d", stats.VertexCount);
 			ImGui::Text("Total Index count: %d", stats.IndexCount);
 
-			ImGui::Text("Time it takes for a frame: %f", m_Time);
+			ImGui::Text("Frame Time: %f ms/frame", m_Time * 1000.0f);
+
+			ImGui::DragInt2("Renderer stress test", (int*)&m_Max, 0.1f);
 
 			ImGui::End();
 		}
@@ -156,13 +171,29 @@ namespace TerranEngine
 
 		ImGui::DragFloat3("Transform 1", (float*)&m_Transform1, 0.1f);
 		ImGui::DragFloat3("Transform 2", (float*)&m_Transform2, 0.1f);
-
-
+		
 		ImGui::End();
+
+		if (viewPortOpen) 
+		{
+			ImGui::Begin("Viewport", &viewPortOpen);
+
+			ImVec2 regionAvail = ImGui::GetContentRegionAvail();
+
+			m_ViewportSize = { regionAvail.x, regionAvail.y };
+
+			uint32_t textureID = m_Renderer->GetFramebuffer()->GetColorAttachmentID();
+			ImGui::Image((void*)textureID, regionAvail, { 0, 1 }, {1, 0});
+
+			ImGui::End();
+		}
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
 	{
+		if (event.GetKeyCode() == Key::R)
+			TR_TRACE("pressed");
+
 		if (event.GetRepeatCount() > 0)
 			return false;
 
@@ -176,11 +207,14 @@ namespace TerranEngine
 					Application::Get()->Close();
 				break;
 			}
-			case Key::I:
+			case Key::I: 
+			{
 				if (!m_Wireframe)
 					m_Wireframe = true;
 				else
 					m_Wireframe = false;
+				break;
+			}
 		}
 
 		return false;
@@ -188,15 +222,13 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnWindowResize(WindowResizeEvent& event) 
 	{
-		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f);
-
 		return false;
 	}
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
 		m_ZoomLevel += event.GetYOffset() * 0.01f;
-		m_Camera.SetViewport(Application::Get()->GetWindow().GetWidth() * m_ZoomLevel, Application::Get()->GetWindow().GetHeight() * m_ZoomLevel);
+		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 		return false;
 	}

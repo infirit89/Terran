@@ -18,7 +18,7 @@
 
 /* ---- Graphics ---- */
 #include "Renderer/Buffer.h"
-#include "Scene/OrthographicCamera.h"
+#include "Renderer/OrthographicCamera.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader.h"
 #include "Renderer/RenderCommand.h"
@@ -29,3 +29,7 @@
 
 /* ---- Debugging ---- */
 #include "Utils/Debug/DebugTimer.h"
+
+/* ---- ECS ---- */
+#include "Scene/Scene.h"
+#include "Scene/Components.h"

@@ -152,11 +152,14 @@ namespace TerranEngine
 
 		//m_Shader->Bind();
 
-		m_CameraData.projection = camera.GetProjection();
-		m_CameraData.view = glm::inverse(transform);
+		m_CameraData.Projection = camera.GetProjection();
+		m_CameraData.View = glm::inverse(transform);
+
+		m_CameraData.ProjectionSize = { camera.GetWidth(), camera.GetHeight(), camera.GetDepth() };
+		m_CameraData.CameraPosition = transform[3];
 
 		m_CameraBuffer->Bind();
-		m_CameraBuffer->SetData(&m_CameraData, sizeof(CameraData));
+		m_CameraBuffer->SetData(&m_CameraData, sizeof(CameraData) - (3 * sizeof(float)));
 	}
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture)
@@ -179,6 +182,9 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4])
 	{
+		if (!InCameraView(transform))
+			return;
+
 		if (!HasRoom()) 
 		{
 			// Begin New Batch
@@ -228,6 +234,9 @@ namespace TerranEngine
 		* 
 		* fix fucker
 		*/
+
+		if (!InCameraView(transform))
+			return;
 
 		if (!HasRoom()) 
 		{
@@ -318,8 +327,8 @@ namespace TerranEngine
 		if (m_IndexCount == 0)
 			return;
 		
-		m_Stats.VertexCount = m_VertexPtrIndex;
-		m_Stats.IndexCount =  m_IndexCount;
+		m_Stats.VertexCount += m_VertexPtrIndex;
+		m_Stats.IndexCount +=  m_IndexCount;
 		m_Shader->Bind();
 
 		m_VertexArray->Bind();
@@ -369,5 +378,44 @@ namespace TerranEngine
 		m_VertexPtrIndex = 0;
 		m_IndexCount = 0;
 		m_TextureIndex = 1;
+	}
+
+	// NOTE: This is (for now) only for orthographic cameras
+
+	bool BatchRenderer2D::InCameraViewX(float x, float width) 
+	{
+		if ((x + (width / 2) + 0.5f >= m_CameraData.CameraPosition.x + -m_CameraData.ProjectionSize.x / 2 && x - (width / 2) - 0.5f <= m_CameraData.CameraPosition.x + m_CameraData.ProjectionSize.x / 2))
+			return true;
+
+		return false;
+	}
+
+	bool BatchRenderer2D::InCameraViewY(float y, float height)
+	{
+		if ((y + (height / 2) + 0.5f >= m_CameraData.CameraPosition.y + -m_CameraData.ProjectionSize.y / 2 && y - (height / 2) - 0.5f <= m_CameraData.CameraPosition.y + m_CameraData.ProjectionSize.y / 2))
+			return true;
+
+		return false;
+	}
+	
+	bool BatchRenderer2D::InCameraViewZ(float z, float depth)
+	{
+		if ((z + (depth / 2) + 0.5f >= m_CameraData.CameraPosition.z + -m_CameraData.ProjectionSize.z / 2 && z - (depth / 2) - 0.5f <= m_CameraData.CameraPosition.z + m_CameraData.ProjectionSize.z / 2))
+			return true;
+
+		return false;
+	}
+
+	bool BatchRenderer2D::InCameraView(glm::mat4& transform)
+	{
+		glm::vec3 position, size;
+		glm::quat rotation;
+
+		decomposeMatrix(transform, position, rotation, size);
+
+		if (InCameraViewX(position.x, size.x) && InCameraViewY(position.y, size.y) && InCameraViewZ(position.z, size.z))
+			return true;
+
+		return m_CullObjectsOutsideOfCamera ? false : true;
 	}
 }

@@ -34,9 +34,9 @@ namespace TerranEngine
 
 	private:
 		int GetUniformLoc(const char* name);
-		int CreateShader(const char* source, unsigned int type);
+		uint32_t CreateShader(const char* source, unsigned int type);
 
-		std::unordered_map<uint32_t, std::string> ProcessShaderFile(const char* shaderSource);
+		std::unordered_map<uint32_t, std::string> ProcessShaderFile(const std::string& shaderSource);
 
 		void CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources);
 		void CreateProgram(const char* vertexSource, const char* fragmentSource);
