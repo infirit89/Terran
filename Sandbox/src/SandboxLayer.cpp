@@ -39,10 +39,9 @@ namespace TerranEngine
 		};	
 		
 		m_Scene = CreateUnique<Scene>();
-		auto entity = m_Scene->CreateEntity();
-		m_Scene->AddComponent<TestComponent>(entity);
-
-		//TR_TRACE(m_Scene->HasComponent<TestComponent>(entity));
+		m_Scene->CreateEntity();
+		m_Scene->CreateEntity();
+		m_Scene->CreateEntity();
 
 		m_Texture = CreateShared<Texture>("res/ChernoLogo.png");
 		m_Texture2 = new Texture("res/test_grass.png");
@@ -79,6 +78,8 @@ namespace TerranEngine
 		RenderCommand::Clear();
 
 		RenderCommand::WireframeMode(m_Wireframe);
+
+		m_Scene->Update();
 
 		m_Renderer->ResetStats();
 
