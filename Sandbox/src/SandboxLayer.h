@@ -54,5 +54,7 @@ namespace TerranEngine {
 		float m_Time = 0.0f;
 
 		bool m_Wireframe = false;
+
+		entt::entity testEntity, cameraEntity;
 	};
 }

@@ -2,6 +2,7 @@
 #include "Scene.h"
 
 #include "Components.h"
+#include "Renderer/BatchRenderer2D.h"
 
 namespace TerranEngine 
 {
@@ -19,16 +20,34 @@ namespace TerranEngine
 
 	void Scene::Update()
 	{
-		auto view = m_Registry.view<TransformComponent>();
+		auto cameraView = m_Registry.view<CameraComponent>();
+		
+		Camera camera;
+		glm::mat4 cameraTransform;
 
-		int it = 0;
-
-		for (auto e : view)
+		for (auto e : cameraView)
 		{
 			auto& transformComponent = GetComponent<TransformComponent>(e);
+			auto& cameraComponent = GetComponent<CameraComponent>(e);
 
-			TR_TRACE("Entity: {0}: Position: {1}, {2}, {3}", it, transformComponent.Position.x, transformComponent.Position.y, transformComponent.Position.z);
-			it++;
+			if (cameraComponent.Primary) 
+			{
+				camera = cameraComponent.Camera;
+				cameraTransform = transformComponent.GetTransformMatrix();
+			}
 		}
+
+		auto srView = m_Registry.view<SpriteRendererComponent>();
+
+		BatchRenderer2D::Get()->BeginScene(camera, cameraTransform);
+		for (auto e : srView)
+		{
+			auto& transformComponent = GetComponent<TransformComponent>(e);
+			auto& srComponent = GetComponent<SpriteRendererComponent>(e);
+
+			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color);
+		}
+
+		BatchRenderer2D::Get()->EndScene();
 	}
 }

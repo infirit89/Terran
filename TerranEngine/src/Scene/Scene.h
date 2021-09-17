@@ -40,8 +40,6 @@ namespace TerranEngine
 		}
 
 		void Update();
-	private:
 		entt::registry m_Registry;
-
 	};
 }

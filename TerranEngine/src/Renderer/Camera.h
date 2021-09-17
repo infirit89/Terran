@@ -7,6 +7,9 @@ namespace TerranEngine
 	class Camera 
 	{
 	public:
+		Camera() 
+			: m_ProjectionMatrix(glm::mat4(1.0f)), m_Width(0.0f), m_Height(0.0f), m_Depth(0.0f)
+		{}
 		Camera(glm::mat4 projectionMatrix) 
 			: m_ProjectionMatrix(projectionMatrix), m_Width(0.0f), m_Height(0.0f), m_Depth(0.0f) {}
 

@@ -17,17 +17,17 @@ namespace TerranEngine
 
 	struct TransformComponent 
 	{
-		glm::vec3 Position, Scale, Rotation;
-
-		TransformComponent(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f), const glm::vec3& rotation = glm::vec3(0.0f, 0.0f, 0.0f))
+		glm::vec3 Position, Scale;
+		float Rotation;
+		TransformComponent(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f), const float& rotation = 0.0f)
 			: Position(position), Scale(scale), Rotation(rotation) {}
 
-		glm::mat4& GetTransformMatrix()
+		glm::mat4 GetTransformMatrix()
 		{
-			glm::mat4 rot = glm::toMat4(glm::quat(Rotation));
+			//glm::mat4 rot = glm::toMat4(glm::quat(Rotation));
 
 			return glm::translate(glm::mat4(1.0f), Position) *
-				rot *
+				glm::rotate(glm::mat4(1.0f), Rotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
 				glm::scale(glm::mat4(1.0f), Scale);
 		}
 	};
@@ -35,7 +35,7 @@ namespace TerranEngine
 	struct CameraComponent 
 	{
 		OrthographicCamera Camera;
-		bool Primary;
+		bool Primary = true;
 
 		CameraComponent() = default;
 

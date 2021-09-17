@@ -67,6 +67,7 @@ namespace TerranEngine
 		void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
 		bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
 
+		static BatchRenderer2D* Get() { return m_Instance; }
 	private:
 		void Init(uint32_t batchSize);
 
@@ -78,7 +79,6 @@ namespace TerranEngine
 		bool InCameraViewY(float y, float height);
 		bool InCameraViewZ(float z, float depth);
 
-		static BatchRenderer2D* Get() { return m_Instance; }
 
 	private:
 		static BatchRenderer2D* m_Instance;
@@ -119,6 +119,6 @@ namespace TerranEngine
 
 		uint32_t m_VertexPtrIndex = 0;
 		uint32_t m_TextureIndex = 1;
-		bool m_CullObjectsOutsideOfCamera = true;
+		bool m_CullObjectsOutsideOfCamera = false;
 	};
 }

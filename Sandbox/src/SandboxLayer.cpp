@@ -39,9 +39,15 @@ namespace TerranEngine
 		};	
 		
 		m_Scene = CreateUnique<Scene>();
-		m_Scene->CreateEntity();
-		m_Scene->CreateEntity();
-		m_Scene->CreateEntity();
+		testEntity = m_Scene->CreateEntity();
+		m_Scene->AddComponent<SpriteRendererComponent>(testEntity);
+		auto& src = m_Scene->GetComponent<SpriteRendererComponent>(testEntity);
+		src.Color = { 1.0f, 0.0f, 1.0f, 1.0f };
+		
+		cameraEntity = m_Scene->CreateEntity();
+		m_Scene->AddComponent<CameraComponent>(cameraEntity);
+		auto& cameraComp = m_Scene->GetComponent<CameraComponent>(cameraEntity);
+		cameraComp.Camera = m_Camera;
 
 		m_Texture = CreateShared<Texture>("res/ChernoLogo.png");
 		m_Texture2 = new Texture("res/test_grass.png");
@@ -72,26 +78,14 @@ namespace TerranEngine
 			m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height) 
 		{
 			m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
-			m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+			auto& camComp = m_Scene->GetComponent<CameraComponent>(cameraEntity);
+			camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+			//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 		}
-
-		RenderCommand::Clear();
-
-		RenderCommand::WireframeMode(m_Wireframe);
-
-		m_Scene->Update();
-
-		m_Renderer->ResetStats();
-
-		m_Renderer->GetFramebuffer()->Bind();
-		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		RenderCommand::Clear();
-
-		m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
-
-		if (Input::IsKeyPressed(Key::A)) 
+		
+		if (Input::IsKeyPressed(Key::A))
 			m_CameraTransform.Position.x += 10 * time;
-		else if (Input::IsKeyPressed(Key::D)) 
+		else if (Input::IsKeyPressed(Key::D))
 			m_CameraTransform.Position.x -= 10 * time;
 		if (Input::IsKeyPressed(Key::W))
 			m_CameraTransform.Position.y += 10 * time;
@@ -101,23 +95,18 @@ namespace TerranEngine
 		if (Input::IsKeyPressed(Key::R))
 			m_CameraTransform.Rotation += 10 * time;
 
-		for (size_t y = 0; y < m_Max.y; y++)
-		{
-			for (size_t x = 0; x < m_Max.x; x++)
-			{
-				Transform transform;
-				transform.Position = { x * 10.0f, y * 10.0f, 0.0f };
+		RenderCommand::Clear();
 
-				m_Renderer->AddQuad(transform.GetTransformMatrix(), { 0.0f, 1.0f, 1.0f, 1.0f });
-			}
-		}
+		RenderCommand::WireframeMode(m_Wireframe);
 
-		//m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 0.0f, 1.0f, 1.0f });
-		//m_Renderer->AddText(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Font, "Bitch");
-		//m_Renderer->AddQuad(m_Transform1.GetTransformMatrix(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), m_Texture);
 
+		m_Renderer->ResetStats();
+
+		m_Renderer->GetFramebuffer()->Bind();
+		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		RenderCommand::Clear();
 		
-		m_Renderer->EndScene();
+		m_Scene->Update();
 
 		m_Renderer->GetFramebuffer()->Unbind();
 
@@ -235,7 +224,10 @@ namespace TerranEngine
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
 		m_ZoomLevel += event.GetYOffset() * 0.01f;
-		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		auto& camComp = m_Scene->GetComponent<CameraComponent>(cameraEntity);
+		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+
+		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 		return false;
 	}
