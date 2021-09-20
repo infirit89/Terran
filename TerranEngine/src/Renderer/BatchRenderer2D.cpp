@@ -153,7 +153,7 @@ namespace TerranEngine
 	{
 		Clear();
 
-		m_Shader->Bind();
+		//m_Shader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = glm::inverse(transform);

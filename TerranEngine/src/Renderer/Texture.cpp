@@ -4,11 +4,12 @@
 
 #include <glad/glad.h>
 #include <stb_image.h>
+#include <filesystem>
 
 namespace TerranEngine 
 {
 	Texture::Texture() 
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0) {}
+		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Name(nullptr) {}
 	
 	Texture::Texture(uint32_t width, uint32_t height) 
 		: m_TextureID(0), m_Width(width), m_Height(height), m_Channels(0), 
@@ -27,6 +28,9 @@ namespace TerranEngine
 	Texture::Texture(const char* filePath)
 		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0)
 	{
+		std::filesystem::path path = filePath;
+		m_Name = path.stem().string();
+
 		LoadTexture(filePath);
 	}
 

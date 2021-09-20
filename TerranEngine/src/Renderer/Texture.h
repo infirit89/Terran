@@ -27,8 +27,10 @@ namespace TerranEngine
 
 		static Texture& EmptyTexture();
 
-		int GetWidth() const { return m_Width; }
-		int GetHeight() const { return m_Height; }
+		const int GetWidth() const { return m_Width; }
+		const int GetHeight() const { return m_Height; }
+
+		const std::string GetName() const { return m_Name; }
 
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
@@ -45,5 +47,6 @@ namespace TerranEngine
 		uint32_t m_TextureID;
 		int m_Width, m_Height, m_Channels;
 		uint32_t m_InternalFormat, m_DataFormat;
+		std::string m_Name;
 	};
 }

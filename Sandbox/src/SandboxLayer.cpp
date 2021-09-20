@@ -40,13 +40,13 @@ namespace TerranEngine
 		
 		m_Scene = CreateUnique<Scene>();
 		testEntity = m_Scene->CreateEntity();
-		m_Scene->AddComponent<SpriteRendererComponent>(testEntity);
-		auto& src = m_Scene->GetComponent<SpriteRendererComponent>(testEntity);
+		testEntity.AddComponent<SpriteRendererComponent>();
+		auto& src = testEntity.GetComponent<SpriteRendererComponent>();
 		src.Color = { 1.0f, 0.0f, 1.0f, 1.0f };
 		
 		cameraEntity = m_Scene->CreateEntity();
-		m_Scene->AddComponent<CameraComponent>(cameraEntity);
-		auto& cameraComp = m_Scene->GetComponent<CameraComponent>(cameraEntity);
+		cameraEntity.AddComponent<CameraComponent>();
+		auto& cameraComp = cameraEntity.GetComponent<CameraComponent>();
 		cameraComp.Camera = m_Camera;
 
 		m_Texture = CreateShared<Texture>("res/ChernoLogo.png");
@@ -78,9 +78,7 @@ namespace TerranEngine
 			m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height) 
 		{
 			m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
-			auto& camComp = m_Scene->GetComponent<CameraComponent>(cameraEntity);
-			camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
-			//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+			m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 		
 		if (Input::IsKeyPressed(Key::A))
@@ -113,7 +111,6 @@ namespace TerranEngine
 		stats = m_Renderer->GetStats();
 		int frames = 1 / time;
 
-		//TR_TRACE(frames);
 		m_Time = time;
 
 	}
@@ -224,10 +221,8 @@ namespace TerranEngine
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
 		m_ZoomLevel += event.GetYOffset() * 0.01f;
-		auto& camComp = m_Scene->GetComponent<CameraComponent>(cameraEntity);
+		auto& camComp = cameraEntity.GetComponent<CameraComponent>();
 		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
-
-		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 		return false;
 	}

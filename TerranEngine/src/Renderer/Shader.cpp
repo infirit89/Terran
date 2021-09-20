@@ -3,6 +3,7 @@
 #include "Shader.h"
 
 #include <glad/glad.h>
+#include <filesystem>
 
 namespace TerranEngine 
 {
@@ -23,6 +24,9 @@ namespace TerranEngine
 #endif
 
 	{
+		std::filesystem::path path = shaderPath;
+		m_Name = path.stem().string();
+
 		FileData* data = File::OpenFile(shaderPath);
 		
 		auto& shaderSources = ProcessShaderFile(data->Data);
@@ -32,8 +36,8 @@ namespace TerranEngine
 		File::CloseFile(data);
 	}
 
-	Shader::Shader(const char* vertexPath, const char* fragmentPath)
-		: m_SProgram(0), m_IsProgramBound(false)
+	Shader::Shader(const char* name, const char* vertexPath, const char* fragmentPath)
+		: m_SProgram(0), m_IsProgramBound(false), m_Name(name)
 
 #ifdef TR_DEBUG
 		, m_VertexPath(vertexPath), m_FragmentPath(fragmentPath), m_ShaderPath(nullptr)

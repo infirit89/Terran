@@ -12,7 +12,7 @@ namespace TerranEngine
 	public:
 		Shader();
 		Shader(const char* shaderPath);
-		Shader(const char* vertexPath, const char* fragmentPath);
+		Shader(const char* name, const char* vertexPath, const char* fragmentPath);
 		~Shader();
 
 		void Bind() const;
@@ -31,6 +31,7 @@ namespace TerranEngine
 		void UploadMat4(const char* name, glm::mat4x4 val);
 		void UploadIntArray(const char* name, uint32_t count, int val[]);
 
+		const std::string GetName() const { return m_Name; }
 
 	private:
 		int GetUniformLoc(const char* name);
@@ -46,6 +47,8 @@ namespace TerranEngine
 
 		uint32_t m_SProgram;
 		bool mutable m_IsProgramBound;
+
+		std::string m_Name;
 
 #ifdef TR_DEBUG
 		const char* m_VertexPath,* m_FragmentPath;

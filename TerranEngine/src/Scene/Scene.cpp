@@ -3,6 +3,7 @@
 
 #include "Components.h"
 #include "Renderer/BatchRenderer2D.h"
+#include "Entity.h"
 
 namespace TerranEngine 
 {
@@ -10,10 +11,12 @@ namespace TerranEngine
 	{
 	}
 
-	entt::entity Scene::CreateEntity()
+	Entity Scene::CreateEntity()
 	{
-		auto entity = m_Registry.create();
-		AddComponent<TransformComponent>(entity);
+		entt::entity e = m_Registry.create();
+
+		Entity entity(e, this);
+		entity.AddComponent<TransformComponent>();
 
 		return entity;
 	}
@@ -27,8 +30,10 @@ namespace TerranEngine
 
 		for (auto e : cameraView)
 		{
-			auto& transformComponent = GetComponent<TransformComponent>(e);
-			auto& cameraComponent = GetComponent<CameraComponent>(e);
+			Entity entity(e, this);
+
+			auto& transformComponent = entity.GetComponent<TransformComponent>();
+			auto& cameraComponent = entity.GetComponent<CameraComponent>();
 
 			if (cameraComponent.Primary) 
 			{
@@ -42,12 +47,28 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->BeginScene(camera, cameraTransform);
 		for (auto e : srView)
 		{
-			auto& transformComponent = GetComponent<TransformComponent>(e);
-			auto& srComponent = GetComponent<SpriteRendererComponent>(e);
+			Entity entity(e, this);
+
+			auto& transformComponent = entity.GetComponent<TransformComponent>();
+			auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
 
 			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color);
 		}
 
 		BatchRenderer2D::Get()->EndScene();
+	}
+
+	void Scene::OnResize(float width, float height)
+	{
+		auto cameraView = m_Registry.view<CameraComponent>();
+
+		for (auto e : cameraView)
+		{
+			Entity entity(e, this);
+
+			auto& cameraComponent = entity.GetComponent<CameraComponent>();
+
+			cameraComponent.Camera.SetViewport(width, height);
+		}
 	}
 }

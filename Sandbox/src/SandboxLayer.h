@@ -55,6 +55,6 @@ namespace TerranEngine {
 
 		bool m_Wireframe = false;
 
-		entt::entity testEntity, cameraEntity;
+		Entity testEntity, cameraEntity;
 	};
 }

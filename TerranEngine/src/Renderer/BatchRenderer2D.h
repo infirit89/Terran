@@ -13,9 +13,6 @@
 #include "Camera.h"
 #include "Core/Base.h"
 
-#include <freetype-gl.h>
-
-
 namespace TerranEngine 
 {
 	struct Vertex
