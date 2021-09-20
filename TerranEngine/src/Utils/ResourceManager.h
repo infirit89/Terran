@@ -11,9 +11,9 @@ namespace TerranEngine
 {
 	class ResourceManager 
 	{
-	public:
+	public:	
 		static Shared<Shader> LoadShader(const char* name);
-		static Shared<Shader> LoadShader(const char* fName, const char* vName, const char* name = nullptr);
+		static Shared<Shader> LoadShader(const char* name, const char* vName, const char* fName);
 
 		static Shared<Texture> LoadTexture(const char* name);
 

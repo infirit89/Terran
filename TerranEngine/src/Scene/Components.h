@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer/OrthographicCamera.h"
+#include "Renderer/Texture.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -44,6 +45,7 @@ namespace TerranEngine
 	struct SpriteRendererComponent 
 	{
 		glm::vec4 Color;
+		Shared<Texture> Texture;
 
 		SpriteRendererComponent()
 			: Color({ 1.0f, 1.0f, 1.0f, 1.0f })
