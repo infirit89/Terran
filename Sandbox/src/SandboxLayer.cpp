@@ -43,7 +43,8 @@ namespace TerranEngine
 		testEntity.AddComponent<SpriteRendererComponent>();
 		auto& src = testEntity.GetComponent<SpriteRendererComponent>();
 		src.Color = { 1.0f, 0.0f, 1.0f, 1.0f };
-		
+		src.Texture = CreateShared<Texture>("res/ChernoLogo.png");
+
 		cameraEntity = m_Scene->CreateEntity();
 		cameraEntity.AddComponent<CameraComponent>();
 		auto& cameraComp = cameraEntity.GetComponent<CameraComponent>();

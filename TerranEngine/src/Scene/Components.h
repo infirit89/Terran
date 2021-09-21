@@ -2,10 +2,10 @@
 
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/Texture.h"
+#include "Core/Base.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -20,6 +20,7 @@ namespace TerranEngine
 	{
 		glm::vec3 Position, Scale;
 		float Rotation;
+
 		TransformComponent(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f), const float& rotation = 0.0f)
 			: Position(position), Scale(scale), Rotation(rotation) {}
 
@@ -45,10 +46,15 @@ namespace TerranEngine
 	struct SpriteRendererComponent 
 	{
 		glm::vec4 Color;
-		Shared<Texture> Texture;
+		Shared<Texture> Texture = nullptr;
 
 		SpriteRendererComponent()
 			: Color({ 1.0f, 1.0f, 1.0f, 1.0f })
 		{}
+	};
+
+	struct ScriptableComponent 
+	{
+
 	};
 }

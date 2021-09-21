@@ -4,6 +4,7 @@
 #include "Components.h"
 #include "Renderer/BatchRenderer2D.h"
 #include "Entity.h"
+#include "Utils/ResourceManager.h"
 
 namespace TerranEngine 
 {
@@ -52,7 +53,7 @@ namespace TerranEngine
 			auto& transformComponent = entity.GetComponent<TransformComponent>();
 			auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
 
-			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color);
+			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color, srComponent.Texture);
 		}
 
 		BatchRenderer2D::Get()->EndScene();

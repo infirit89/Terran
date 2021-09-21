@@ -128,7 +128,7 @@ namespace TerranEngine
 		for (size_t i = 0; i < m_MaxTextureSlots; i++)
 			sampler[i] = i;
 
-		m_Shader = CreateShared<Shader>("res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
+		m_Shader = CreateShared<Shader>("DefaultShader", "res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
 		m_Shader->UploadIntArray("u_Samplers", m_MaxTextureSlots, sampler);
 
 		uint16_t whiteTextureData = 0xffffffff;

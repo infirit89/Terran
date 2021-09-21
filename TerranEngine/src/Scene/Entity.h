@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "Components.h"
 
 namespace TerranEngine 
 {
@@ -41,6 +42,11 @@ namespace TerranEngine
 		bool HasComponent()
 		{
 			return m_Scene->m_Registry.all_of<Component>(m_Handle);
+		}
+
+		TransformComponent& GetTransform() 
+		{
+			return GetComponent<TransformComponent>();
 		}
 
 	private:
