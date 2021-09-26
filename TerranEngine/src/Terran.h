@@ -6,6 +6,7 @@
 #include "Core/Layer.h"
 #include "Core/Input.h"
 #include "Core/Base.h"
+#include "Core/UUID.h"
 
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"

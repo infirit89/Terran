@@ -12,7 +12,7 @@ namespace TerranEngine
 	public:
 		Scene();
 
-		Entity CreateEntity();
+		Entity CreateEntity(const std::string& name = "Entity");
 
 		void Update();
 		void OnResize(float width, float height);

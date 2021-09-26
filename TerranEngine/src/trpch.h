@@ -1,5 +1,11 @@
 #pragma once
 
+#include "Core/Log.h"
+#include "Core/Assert.h"
+#include "Utils/File.h"
+#include "Core/Base.h"
+#include "Core/PlatformCheck.h"
+
 #include <iostream>
 #include <string>
 #include <functional>
@@ -13,7 +19,3 @@
 #include <fstream>
 
 #include <initializer_list>
-
-#include "Core/Log.h"
-#include "Core/Assert.h"
-#include "Utils/File.h"
