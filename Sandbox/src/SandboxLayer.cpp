@@ -38,7 +38,7 @@ namespace TerranEngine
 			2, 3, 0
 		};	
 		
-		m_Scene = CreateUnique<Scene>();
+		m_Scene = CreateShared<Scene>();
 		testEntity = m_Scene->CreateEntity();
 		testEntity.AddComponent<SpriteRendererComponent>();
 		auto& src = testEntity.GetComponent<SpriteRendererComponent>();
@@ -55,6 +55,9 @@ namespace TerranEngine
 
 		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 80);
 		m_Transform1.Position.x = 1.5f;
+
+		m_SSerializer = SceneSerializer(m_Scene);
+		m_SSerializer.SerializeJson("");
 	}
 
 	void SandboxLayer::OnAttach()

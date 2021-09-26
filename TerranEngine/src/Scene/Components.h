@@ -21,12 +21,12 @@ namespace TerranEngine
 	struct TagComponent 
 	{
 		std::string Name;
-		UUID uuid;
+		UUID ID;
 
 		TagComponent() = default;
 
-		TagComponent(const std::string& name, const UUID& uuid)
-			: Name(Name), uuid(uuid) {}
+		TagComponent(const std::string& name, const UUID& id)
+			: Name(Name), ID(id) {}
 
 		TagComponent(const std::string& name)
 			: Name(Name) {}

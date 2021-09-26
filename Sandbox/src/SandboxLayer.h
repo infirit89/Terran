@@ -45,7 +45,7 @@ namespace TerranEngine {
 		BatchRendererStats stats;
 
 		Unique<BatchRenderer2D> m_Renderer;
-		Unique<Scene> m_Scene;
+		Shared<Scene> m_Scene;
 
 		glm::vec2 m_ViewportSize = {1080.0f, 790.0f};
 
@@ -56,5 +56,7 @@ namespace TerranEngine {
 		bool m_Wireframe = false;
 
 		Entity testEntity, cameraEntity;
+
+		SceneSerializer m_SSerializer;
 	};
 }

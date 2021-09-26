@@ -30,6 +30,7 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/entt/include/",
         "%{wks.location}/TerranEngine/vendor/freetype/include/",
         "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
+        "%{wks.location}/TerranEngine/vendor/nlohman-json/include/"
     } 
 
     links 

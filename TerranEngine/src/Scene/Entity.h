@@ -49,6 +49,11 @@ namespace TerranEngine
 			return GetComponent<TransformComponent>();
 		}
 
+		UUID& GetID() 
+		{
+			return GetComponent<TagComponent>().ID;
+		}
+
 	private:
 		entt::entity m_Handle = {};
 		Scene* m_Scene;

@@ -20,5 +20,6 @@ namespace TerranEngine
 	private:
 		entt::registry m_Registry;
 		friend class Entity;
+		friend class SceneSerializer;
 	};
 }
