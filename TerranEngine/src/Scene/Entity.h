@@ -17,11 +17,12 @@ namespace TerranEngine
 		~Entity() = default;
 
 		template<typename Component, typename... Args>
-		void AddComponent(Args&&... parameters)
+		Component& AddComponent(Args&&... parameters)
 		{
 			TR_ASSERT(!HasComponent<Component>(), "Entity already has component");
 
-			m_Scene->m_Registry.emplace<Component>(m_Handle, std::forward<Args>(parameters)...);
+			Component& component = m_Scene->m_Registry.emplace<Component>(m_Handle, std::forward<Args>(parameters)...);
+			return component;
 		}
 
 		template<typename T>

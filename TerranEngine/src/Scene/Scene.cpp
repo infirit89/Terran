@@ -14,10 +14,15 @@ namespace TerranEngine
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
+		return CreateEntityWithUUID(name, UUID());
+	}
+
+	Entity Scene::CreateEntityWithUUID(const std::string name, const UUID& uuid)
+	{
 		entt::entity e = m_Registry.create();
 
 		Entity entity(e, this);
-		entity.AddComponent<TagComponent>(name);
+		entity.AddComponent<TagComponent>(name, uuid);
 		entity.AddComponent<TransformComponent>();
 
 		return entity;

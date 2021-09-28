@@ -39,25 +39,8 @@ namespace TerranEngine
 		};	
 		
 		m_Scene = CreateShared<Scene>();
-		testEntity = m_Scene->CreateEntity();
-		testEntity.AddComponent<SpriteRendererComponent>();
-		auto& src = testEntity.GetComponent<SpriteRendererComponent>();
-		src.Color = { 1.0f, 0.0f, 1.0f, 1.0f };
-		src.Texture = CreateShared<Texture>("res/ChernoLogo.png");
-
-		cameraEntity = m_Scene->CreateEntity();
-		cameraEntity.AddComponent<CameraComponent>();
-		auto& cameraComp = cameraEntity.GetComponent<CameraComponent>();
-		cameraComp.Camera = m_Camera;
-
-		m_Texture = CreateShared<Texture>("res/ChernoLogo.png");
-		m_Texture2 = new Texture("res/test_grass.png");
-
-		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 80);
-		m_Transform1.Position.x = 1.5f;
 
 		m_SSerializer = SceneSerializer(m_Scene);
-		m_SSerializer.SerializeJson("");
 	}
 
 	void SandboxLayer::OnAttach()
@@ -212,6 +195,15 @@ namespace TerranEngine
 					m_Wireframe = false;
 				break;
 			}
+
+			case Key::S:
+				if(isCtrlPressed)
+					m_SSerializer.SerializeJson("");
+				break;
+			case Key::O:
+				if (isCtrlPressed)
+					m_SSerializer.DesirializeJson("");
+				break;
 		}
 
 		return false;

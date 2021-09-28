@@ -1,10 +1,10 @@
 {
     "Scene": "Name",
-    "Entities": 2,
-    "Entity 1": {
+    "Entities": 3,
+    "Entity 2": {
         "TagComponent": {
-            "Tag": "Entity",
-            "ID": "f795b9c5-d2e4-4a80-85bd-2246b9a81aa"
+            "Tag": "",
+            "ID": "da2ad52c-5eca-4c22-b02-6fd89341deda"
         },
         "TransformComponent": {
             "Position": {
@@ -25,17 +25,48 @@
         },
         "CameraComponent": {
             "Camera": {
-                "Width": 108.0,
-                "Height": 79.0,
+                "Width": 18.060009002685547,
+                "Height": 14.91000747680664,
                 "Depth": 20.0
             },
             "Primary": true
         }
     },
+    "Entity 1": {
+        "TagComponent": {
+            "Tag": "",
+            "ID": "e12ff7a3-bb2d-47f7-aa28-c4eb9413fc78"
+        },
+        "TransformComponent": {
+            "Position": {
+                "X": 1.5,
+                "Y": 0.0,
+                "Z": 0.0
+            },
+            "Scale": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "Rotation": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            }
+        },
+        "SpriteRendererComponent": {
+            "Color": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 0.0,
+                "W": 1.0
+            }
+        }
+    },
     "Entity 0": {
         "TagComponent": {
-            "Tag": "Entity",
-            "ID": "1e4c10-3059-49e2-bc58-75f24ba0b2b5"
+            "Tag": "",
+            "ID": "a2f7cdf4-b0ee-46be-85a8-48afdb8257b"
         },
         "TransformComponent": {
             "Position": {

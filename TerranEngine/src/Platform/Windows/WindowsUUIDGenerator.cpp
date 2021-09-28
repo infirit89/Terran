@@ -8,8 +8,7 @@
 
 namespace TerranEngine 
 {
-
-	void UUID::Generate()
+    void UUID::Generate()
 	{
 		GUID uuid;
 		UuidCreate(&uuid);

@@ -30,6 +30,20 @@ namespace TerranEngine
 		};
 	}
 
+	static glm::vec3 DeserializeVec3(json& j, const std::string& name) 
+	{
+		glm::vec3 vec = glm::vec3(0.0f);
+
+		if (j.contains(name))
+		{
+			vec.x = j[name]["X"];
+			vec.y = j[name]["Y"];
+			vec.z = j[name]["Z"];
+		}
+
+		return vec;
+	}
+
 	static json SerializeVec4(const std::string& name, const glm::vec4& value)
 	{
 		return
@@ -41,6 +55,21 @@ namespace TerranEngine
 				{"W", value.w}
 			}
 		};
+	}
+
+	static glm::vec4 DeserializeVec4(json& j, const std::string& name)
+	{
+		glm::vec4 vec = glm::vec4(0.0f);
+
+		if (j.contains(name))
+		{
+			vec.x = j[name]["X"];
+			vec.y = j[name]["Y"];
+			vec.z = j[name]["Z"];
+			vec.w = j[name]["W"];
+		}
+
+		return vec;
 	}
 
 	static void SerializeEntity(json& j, Entity entity) 
@@ -113,7 +142,7 @@ namespace TerranEngine
 
 			SerializeEntity(j, entity);
 		});
-		//j["Entity 1"]["ID"] = { "Components", {"Transform"}};
+
 		std::ofstream ofs("res/TestScene.json");
 
 		ofs << std::setw(4) << j << std::endl;
@@ -121,5 +150,38 @@ namespace TerranEngine
 
 	void SceneSerializer::DesirializeJson(const std::string& filePath)
 	{
+		std::ifstream ifs("res/TestScene.json");
+
+		json j;
+		ifs >> j;
+
+		for (size_t i = 0; i < j["Entities"]; i++)
+		{
+			json jEntity = j["Entity " + std::to_string(i)];
+			TR_ASSERT(jEntity.contains("TagComponent"), "Can't desirialize an entity that doesn't have a tag component");
+			std::string tag = jEntity["TagComponent"]["Tag"];
+			UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
+
+			auto& entity = m_Scene->CreateEntityWithUUID(tag, uuid);
+			auto& transform = entity.GetTransform();
+			glm::vec3 pos = DeserializeVec3(jEntity["TransformComponent"], "Position");
+			glm::vec3 scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+			glm::vec3 rot = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+
+			if (jEntity.contains("CameraComponent"))
+			{
+				json jCamera = jEntity["CameraComponent"];
+
+				OrthographicCamera cam(jCamera["Camera"]["Width"], jCamera["Camera"]["Height"], jCamera["Camera"]["Depth"]);
+
+				entity.AddComponent<CameraComponent>().Camera = cam;
+				entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];
+			}
+
+			if (jEntity.contains("SpriteRendererComponent"))
+			{
+				entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+			}
+		}
 	}
 }

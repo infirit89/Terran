@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <array>
 
 namespace TerranEngine 
@@ -12,6 +13,7 @@ namespace TerranEngine
 
 		std::array<uint8_t, 16> GetData() const { return m_Data; }
 
+		static UUID FromString(const std::string& str);
 	private:
 		void Generate();
 		std::array<uint8_t, 16> m_Data;
@@ -22,7 +24,6 @@ namespace TerranEngine
 	};
 }
 
-#include <string>
 #include <sstream>
 namespace std 
 {
