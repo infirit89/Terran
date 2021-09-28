@@ -1,5 +1,66 @@
 {
     "Scene": "Name",
-    "Entity : 9753fdf-55bd-4283-b0ed-fb5f76bad2d": "Test",
-    "Entity : 3dae3a65-1fbc-41d9-b7bf-1212f4d13c3e": "Test"
+    "Entities": 2,
+    "Entity 1": {
+        "TagComponent": {
+            "Tag": "Entity",
+            "ID": "f795b9c5-d2e4-4a80-85bd-2246b9a81aa"
+        },
+        "TransformComponent": {
+            "Position": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            },
+            "Scale": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "Rotation": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            }
+        },
+        "CameraComponent": {
+            "Camera": {
+                "Width": 108.0,
+                "Height": 79.0,
+                "Depth": 20.0
+            },
+            "Primary": true
+        }
+    },
+    "Entity 0": {
+        "TagComponent": {
+            "Tag": "Entity",
+            "ID": "1e4c10-3059-49e2-bc58-75f24ba0b2b5"
+        },
+        "TransformComponent": {
+            "Position": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            },
+            "Scale": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "Rotation": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            }
+        },
+        "SpriteRendererComponent": {
+            "Color": {
+                "X": 1.0,
+                "Y": 0.0,
+                "Z": 1.0,
+                "W": 1.0
+            }
+        }
+    }
 }

@@ -29,7 +29,7 @@ namespace TerranEngine
 			: Name(Name), ID(id) {}
 
 		TagComponent(const std::string& name)
-			: Name(Name) {}
+			: Name(name) {}
 	};
 
 	struct TransformComponent 

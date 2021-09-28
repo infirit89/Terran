@@ -54,6 +54,7 @@ namespace TerranEngine
 			return GetComponent<TagComponent>().ID;
 		}
 
+		operator uint32_t() { return uint32_t(m_Handle); }
 	private:
 		entt::entity m_Handle = {};
 		Scene* m_Scene;
