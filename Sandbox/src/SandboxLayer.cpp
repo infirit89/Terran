@@ -40,7 +40,24 @@ namespace TerranEngine
 		
 		m_Scene = CreateShared<Scene>();
 
+		/*testEntity = m_Scene->CreateEntity();
+		testEntity.AddComponent<SpriteRendererComponent>().Color = { 1.0f, 0.0f, 1.0f, 1.0f };
+
+		Entity tEntity = m_Scene->CreateEntity();
+		tEntity.GetComponent<TransformComponent>().Position = { 1.5f, 0.0f, 0.0f };
+		tEntity.AddComponent<SpriteRendererComponent>().Color = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+		cameraEntity = m_Scene->CreateEntity();
+		cameraEntity.AddComponent<CameraComponent>().Camera = m_Camera;*/
+
 		m_SSerializer = SceneSerializer(m_Scene);
+
+		Shared<Scene> newScene = CreateShared<Scene>();
+
+		SceneSerializer serializer(newScene);
+		serializer.DesirializeJson("");
+
+		m_Scene = newScene;
 	}
 
 	void SandboxLayer::OnAttach()
@@ -49,7 +66,6 @@ namespace TerranEngine
 
 	void SandboxLayer::OnDettach()
 	{
-		delete m_Texture2;
 	}
 
 	void SandboxLayer::Update(float& time)
@@ -201,8 +217,10 @@ namespace TerranEngine
 					m_SSerializer.SerializeJson("");
 				break;
 			case Key::O:
-				if (isCtrlPressed)
-					m_SSerializer.DesirializeJson("");
+				if (isCtrlPressed) 
+				{
+
+				}
 				break;
 		}
 

@@ -12,7 +12,7 @@ namespace TerranEngine
 	public:
 		Scene();
 
-		Entity CreateEntity(const std::string& name = "Entity");
+		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
 
 		void Update();

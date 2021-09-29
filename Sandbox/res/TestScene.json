@@ -3,8 +3,8 @@
     "Entities": 3,
     "Entity 2": {
         "TagComponent": {
-            "Tag": "",
-            "ID": "da2ad52c-5eca-4c22-b02-6fd89341deda"
+            "Tag": "Entity",
+            "ID": "986b40-a630-4647-a96b-d2cbc9372a32"
         },
         "TransformComponent": {
             "Position": {
@@ -25,8 +25,8 @@
         },
         "CameraComponent": {
             "Camera": {
-                "Width": 18.060009002685547,
-                "Height": 14.91000747680664,
+                "Width": 602.0,
+                "Height": 497.0,
                 "Depth": 20.0
             },
             "Primary": true
@@ -34,8 +34,8 @@
     },
     "Entity 1": {
         "TagComponent": {
-            "Tag": "",
-            "ID": "e12ff7a3-bb2d-47f7-aa28-c4eb9413fc78"
+            "Tag": "Entity",
+            "ID": "f2f377c1-e3e9-4d9e-9ba1-3b3bafb4f0dc"
         },
         "TransformComponent": {
             "Position": {
@@ -65,8 +65,8 @@
     },
     "Entity 0": {
         "TagComponent": {
-            "Tag": "",
-            "ID": "a2f7cdf4-b0ee-46be-85a8-48afdb8257b"
+            "Tag": "Entity",
+            "ID": "8f33771-534-43a5-8862-87ccc8419b35"
         },
         "TransformComponent": {
             "Position": {

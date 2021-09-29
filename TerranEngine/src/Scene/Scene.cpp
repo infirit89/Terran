@@ -22,7 +22,7 @@ namespace TerranEngine
 		entt::entity e = m_Registry.create();
 
 		Entity entity(e, this);
-		entity.AddComponent<TagComponent>(name, uuid);
+		entity.AddComponent<TagComponent>(name.empty() ? "Entity" : name, uuid);
 		entity.AddComponent<TransformComponent>();
 
 		return entity;

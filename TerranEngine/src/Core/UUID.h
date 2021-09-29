@@ -13,6 +13,11 @@ namespace TerranEngine
 
 		std::array<uint8_t, 16> GetData() const { return m_Data; }
 
+		bool operator==(const UUID& other) const;
+		bool operator!=(const UUID& other) const;
+		bool operator<(const UUID& other) const;
+		bool operator>(const UUID& other) const;
+
 		static UUID FromString(const std::string& str);
 	private:
 		void Generate();

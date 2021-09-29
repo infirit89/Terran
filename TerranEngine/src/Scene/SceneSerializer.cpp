@@ -162,11 +162,11 @@ namespace TerranEngine
 			std::string tag = jEntity["TagComponent"]["Tag"];
 			UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
 
-			auto& entity = m_Scene->CreateEntityWithUUID(tag, uuid);
+			Entity entity = m_Scene->CreateEntityWithUUID(tag, uuid);
 			auto& transform = entity.GetTransform();
-			glm::vec3 pos = DeserializeVec3(jEntity["TransformComponent"], "Position");
-			glm::vec3 scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
-			glm::vec3 rot = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+			transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
+			transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+			transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
 
 			if (jEntity.contains("CameraComponent"))
 			{

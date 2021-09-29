@@ -37,8 +37,7 @@ namespace TerranEngine {
 		float m_ZoomLevel = 0.1f;
 
 		Shared<Texture> m_Texture;
-		Texture* m_Texture2;
-
+		
 		Shared<Font> m_Font;
 		float fps = 0.0f;
 

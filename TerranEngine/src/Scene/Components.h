@@ -26,7 +26,7 @@ namespace TerranEngine
 		TagComponent() = default;
 
 		TagComponent(const std::string& name, const UUID& id)
-			: Name(Name), ID(id) {}
+			: Name(name), ID(id) {}
 
 		TagComponent(const std::string& name)
 			: Name(name) {}
