@@ -12,16 +12,16 @@ namespace TerranEngine
 		virtual ~GLFWWindow();
 
 		void SetVsync(bool enable) override;
-		bool IsVsync() const override { return m_Vsync; }
+		inline bool IsVsync() const override { return m_Vsync; }
 
-		int GetWidth() const override { return m_WindowDataPtr.Width; }
-		int GetHeight() const override { return m_WindowDataPtr.Height; }
+		inline int GetWidth() const override { return m_WindowDataPtr.Width; }
+		inline int GetHeight() const override { return m_WindowDataPtr.Height; }
 
 		void Update() override;
 		
 		virtual void* GetNativeWindow() { return m_Window; }
 
-		void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) override { m_WindowDataPtr.EventCallback = eventCallbackFN; }
+		inline void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) override { m_WindowDataPtr.EventCallback = eventCallbackFN; }
 	private:
 		void InitWindow(WindowData data);
 		void Close();

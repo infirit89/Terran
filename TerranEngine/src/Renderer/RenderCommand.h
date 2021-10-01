@@ -1,7 +1,7 @@
 #pragma once
 
 #include "VertexArray.h"
-#include <memory>
+#include "Core/Base.h"
 
 namespace TerranEngine 
 {
@@ -20,7 +20,7 @@ namespace TerranEngine
 
 		static void EnableDepthTesting(bool state);
 
-		static void Draw(const VertexArray& vertexArray, int numIndices);
+		static void Draw(const Shared<VertexArray>& vertexArray, int numIndices);
 		static void DrawArrays(int numIndices);
 
 	};

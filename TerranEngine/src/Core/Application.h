@@ -26,8 +26,8 @@ namespace TerranEngine {
 		void PushLayer(Layer* layer);
 		void Close();
 
-		static Application* Get() { return m_Instance; }
-		Window& GetWindow() { return *m_Window; }
+		inline static Application* Get() { return m_Instance; }
+		inline Window& GetWindow() { return *m_Window; }
 	private:
 		void Run();
 		void OnEvent(Event& event);

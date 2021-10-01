@@ -29,7 +29,7 @@ namespace TerranEngine
 		virtual EventType GetType() const = 0;
 		virtual EventCategory GetCategory() const = 0;
 
-		bool IsInCategory(EventCategory category) { return GetCategory() & category; }
+		inline bool IsInCategory(EventCategory category) { return GetCategory() & category; }
 
 		bool isHandled = false;
 	};
@@ -49,7 +49,7 @@ virtual EventType GetType() const override { return GetStaticType(); }
 		{}
 
 		template<typename T>
-		bool Dispatch(const EventFN<T>& func) 
+		inline bool Dispatch(const EventFN<T>& func) 
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{

@@ -33,8 +33,8 @@ namespace TerranEngine
 			CalculateStrideAndOffset();
 		}
 
-		uint32_t GetStride() { return m_Stride; }
-		std::vector<VertexBufferElement> GetElements() { return m_Elements; }
+		inline uint32_t GetStride() const { return m_Stride; }
+		inline std::vector<VertexBufferElement> GetElements() const { return m_Elements; }
 	private:
 		void CalculateStrideAndOffset() 
 		{
@@ -81,7 +81,7 @@ namespace TerranEngine
 		const void Bind() const;
 		const void Unbind() const;
 
-		uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
+		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 	private:
 		uint32_t m_Buffer;
 		int m_Size;

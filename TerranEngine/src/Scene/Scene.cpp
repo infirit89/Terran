@@ -78,4 +78,21 @@ namespace TerranEngine
 			cameraComponent.Camera.SetViewport(width, height);
 		}
 	}
+
+	Entity Scene::GetPrimaryCamera()
+	{
+		auto cameraView = m_Registry.view<CameraComponent>();
+
+		for (auto e : cameraView)
+		{
+			Entity entity(e, this);
+
+			auto& cameraComponent = entity.GetComponent<CameraComponent>();
+
+			if (cameraComponent.Primary)
+				return entity;
+		}
+
+		return Entity(entt::entity{ entt::null }, this);
+	}
 }

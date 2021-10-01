@@ -13,10 +13,10 @@ namespace TerranEngine
 		Camera(glm::mat4 projectionMatrix) 
 			: m_ProjectionMatrix(projectionMatrix), m_Width(0.0f), m_Height(0.0f), m_Depth(0.0f) {}
 
-		const glm::mat4& GetProjection() const { return m_ProjectionMatrix; }
-		const float GetWidth() { return m_Width; }
-		const float GetHeight() { return m_Height; }
-		const float GetDepth() { return m_Depth; }
+		inline const glm::mat4& GetProjection() const { return m_ProjectionMatrix; }
+		inline const float GetWidth() const { return m_Width; }
+		inline const float GetHeight() const { return m_Height; }
+		inline const float GetDepth() const { return m_Depth; }
 	protected:
 		glm::mat4 m_ProjectionMatrix;
 		float m_Width, m_Height, m_Depth;

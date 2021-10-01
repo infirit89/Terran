@@ -91,10 +91,10 @@ namespace TerranEngine
 			glDisable(GL_DEPTH_TEST);
 	}
 
-	void RenderCommand::Draw(const VertexArray& vertexArray, int numIndices)
+	void RenderCommand::Draw(const Shared<VertexArray>& vertexArray, int numIndices)
 	{
-		vertexArray.Bind();
-
+		vertexArray->GetIndexBuffer()->Bind();
+		vertexArray->Bind();
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 

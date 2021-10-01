@@ -47,39 +47,42 @@ namespace TerranEngine
 	{
 		m_Framebuffer = CreateShared<Framebuffer>(width, height, swapchainTarget);
 
-		float pos[] =
+		if (swapchainTarget) 
 		{
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
-		};
-		m_FramebufferVAO = CreateShared<VertexArray>();
+			float pos[] =
+			{
+				-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+				 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+				 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+				-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+			};
+			m_FramebufferVAO = CreateShared<VertexArray>();
 
-		m_FramebufferVBO = CreateShared<VertexBuffer>(pos, sizeof(pos));
+			m_FramebufferVBO = CreateShared<VertexBuffer>(pos, sizeof(pos));
 
-		m_FramebufferVAO->AddVertexBufferLayout({
-			{ GL_FLOAT, 3 },
-			{ GL_FLOAT, 2 },
-		});
+			m_FramebufferVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 2 },
+			});
 
-		int indices[] =
-		{
-			0, 1, 2,
-			2, 3, 0
-		};
+			int indices[] =
+			{
+				0, 1, 2,
+				2, 3, 0
+			};
 
-		m_FramebufferIBO = CreateShared<IndexBuffer>(indices, sizeof(indices));
+			m_FramebufferIBO = CreateShared<IndexBuffer>(indices, sizeof(indices));
 
-		m_FramebufferVAO->Unbind();
-		m_FramebufferVBO->Unbind();
-		m_FramebufferIBO->Unbind();
+			m_FramebufferVAO->Unbind();
+			m_FramebufferVBO->Unbind();
+			m_FramebufferIBO->Unbind();
 
-		m_Shader->Unbind();
-		m_FramebufferShader = CreateShared<Shader>("res/shaders/Framebuffer/Framebuffershader.glsl");
-		m_FramebufferShader->Unbind();
+			m_QuadShader->Unbind();
+			m_FramebufferShader = CreateShared<Shader>("res/shaders/Base/Framebuffer/Framebuffershader.glsl");
+			m_FramebufferShader->Unbind();
 		
-		m_Shader->Bind();
+			m_QuadShader->Bind();
+		}
 	}
 
 	void BatchRenderer2D::Init(uint32_t batchSize)
@@ -90,19 +93,7 @@ namespace TerranEngine
 		m_Stats.MaxIndices = m_MaxIndices;
 		m_Stats.MaxVertices = m_MaxVertices;
 
-		m_VertexPtr = new Vertex[m_MaxVertices];
-
-		m_VertexArray = CreateShared<VertexArray>();
-
-		m_VertexBuffer = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(Vertex));
-
-		m_VertexArray->AddVertexBufferLayout({
-			{ GL_FLOAT, 3 },
-			{ GL_FLOAT, 4 },
-			{ GL_FLOAT, 2 },
-			{ GL_FLOAT, 1 }
-		});
-
+		// ******** Index buffer setup ********
 		int* indices = new int[m_MaxIndices];
 
 		uint32_t offset = 0;
@@ -122,19 +113,77 @@ namespace TerranEngine
 		m_IndexBuffer = CreateShared<IndexBuffer>(indices, m_MaxIndices * sizeof(int));
 
 		delete[] indices;
-
-		int sampler[m_MaxTextureSlots];
-
-		for (size_t i = 0; i < m_MaxTextureSlots; i++)
-			sampler[i] = i;
-
-		m_Shader = CreateShared<Shader>("DefaultShader", "res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
-		m_Shader->UploadIntArray("u_Samplers", m_MaxTextureSlots, sampler);
+		// ************************************
 
 		uint16_t whiteTextureData = 0xffffffff;
 
-		m_Textures[0] = CreateShared<Texture>(1, 1);
-		m_Textures[0]->SetData(&whiteTextureData);
+		// ******** Quad ******** 
+		{
+			m_QuadVertexPtr = new Vertex[m_MaxVertices];
+
+			m_QuadVAO = CreateShared<VertexArray>();
+
+			m_QuadVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(Vertex));
+
+			m_QuadVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 },
+				{ GL_FLOAT, 1 }
+			});
+
+			m_QuadVAO->AddIndexBuffer(m_IndexBuffer);
+
+			int sampler[m_MaxTextureSlots];
+
+			for (size_t i = 0; i < m_MaxTextureSlots; i++)
+				sampler[i] = i;
+
+			m_QuadShader = CreateShared<Shader>("DefaultQuadShader", "res/shaders/Base/Quad/VertexShader.glsl", "res/shaders/Base/Quad/FragmentShader.glsl");
+
+			m_QuadShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, sampler);
+
+			m_QuadShader->Unbind();
+
+			m_QuadTextures[0] = CreateShared<Texture>(1, 1);
+			m_QuadTextures[0]->SetData(&whiteTextureData);
+
+		}
+		// **********************
+
+		// ******** Text ******** 
+		{
+			m_TextVertexPtr = new Vertex[m_MaxVertices];
+
+			m_TextVAO = CreateShared<VertexArray>();
+
+			m_TextVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(Vertex));
+
+			m_TextVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 },
+				{ GL_FLOAT, 1 }
+				});
+
+			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
+
+
+			int sampler[m_MaxTextureSlots];
+
+			for (size_t i = 0; i < m_MaxTextureSlots; i++)
+				sampler[i] = i;
+
+			m_TextShader = CreateShared<Shader>("DefaultQuadShader", "res/shaders/Base/Text/TextVertex.glsl", "res/shaders/Base/Text/TextFragment.glsl");
+
+			m_TextShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, sampler);
+
+			m_TextShader->Unbind();
+
+			m_TextTextures[0] = CreateShared<Texture>(1, 1);
+			m_TextTextures[0]->SetData(&whiteTextureData);
+		}
+		// **********************
 
 		m_VertexPositions[0] = { -1.0f, -1.0f, 0.0f, 1.0f };
 		m_VertexPositions[1] = {  1.0f, -1.0f, 0.0f, 1.0f };
@@ -146,14 +195,15 @@ namespace TerranEngine
 
 	void BatchRenderer2D::Close()
 	{
-		delete[] m_VertexPtr;
+		delete[] m_QuadVertexPtr;
 	}
 
 	void BatchRenderer2D::BeginScene(Camera& camera, const glm::mat4& transform)
 	{
 		Clear();
 
-		//m_Shader->Bind();
+		m_QuadShader->Bind();
+		m_TextShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = glm::inverse(transform);
@@ -188,7 +238,7 @@ namespace TerranEngine
 		if (!InCameraView(transform))
 			return;
 
-		if (!HasRoom()) 
+		if (!QuadBatchHasRoom()) 
 		{
 			// Begin New Batch
 			EndScene();
@@ -200,9 +250,9 @@ namespace TerranEngine
 		if (texture == nullptr)
 			texIndex = 0.0f;
 
-		for (size_t i = 1; i < m_TextureIndex; i++)
+		for (size_t i = 1; i < m_QuadTextureIndex; i++)
 		{
-			if (m_Textures[i] == texture)
+			if (m_QuadTextures[i] == texture)
 			{
 				texIndex = i;
 				break;
@@ -211,22 +261,22 @@ namespace TerranEngine
 
 		if (texIndex == -1)
 		{
-			texIndex = m_TextureIndex;
-			m_Textures[m_TextureIndex] = texture;
-			m_TextureIndex++;
+			texIndex = m_QuadTextureIndex;
+			m_QuadTextures[m_QuadTextureIndex] = texture;
+			m_QuadTextureIndex++;
 		}
 
 		for (size_t i = 0; i < 4; i++)
 		{
-			m_VertexPtr[m_VertexPtrIndex].Position = transform * m_VertexPositions[i];
-			m_VertexPtr[m_VertexPtrIndex].Color = color;
-			m_VertexPtr[m_VertexPtrIndex].TextureCoordinates = textureCoordinates[i];
-			m_VertexPtr[m_VertexPtrIndex].TextureIndex = texIndex;
+			m_QuadVertexPtr[m_QuadVertexPtrIndex].Position = transform * m_VertexPositions[i];
+			m_QuadVertexPtr[m_QuadVertexPtrIndex].Color = color;
+			m_QuadVertexPtr[m_QuadVertexPtrIndex].TextureCoordinates = textureCoordinates[i];
+			m_QuadVertexPtr[m_QuadVertexPtrIndex].TextureIndex = texIndex;
 
-			m_VertexPtrIndex++;
+			m_QuadVertexPtrIndex++;
 		}
 
-		m_IndexCount += 6;
+		m_QuadIndexCount += 6;
 	}
 
 	void BatchRenderer2D::AddText(glm::mat4& transform, const glm::vec4& color, Shared<Font> font, const std::string& text)
@@ -241,29 +291,32 @@ namespace TerranEngine
 		if (!InCameraView(transform))
 			return;
 
-		if (!HasRoom()) 
+		if (!TextBatchHasRoom()) 
 		{
 			// Begin new batch
 			EndScene();
 			Clear();
 		}
 
-		float texIndex = 0.0f;
+		float texIndex = -1;
 
-		for (size_t i = 1; i < m_TextureIndex; i++)
+		if (font == nullptr)
+			texIndex = 0.0f;
+
+		for (size_t i = 1; i < m_TextTextureIndex; i++)
 		{
-			if (m_Textures[i] == font->GetTexutre())
+			if (m_TextTextures[i] == font->GetTexutre())
 			{
 				texIndex = i;
 				break;
 			}
 		}
 
-		if (texIndex == 0.0f)
+		if (texIndex == -1)
 		{
-			texIndex = m_TextureIndex;
-			m_Textures[m_TextureIndex] = font->GetTexutre();
-			m_TextureIndex++;
+			texIndex = m_TextTextureIndex;
+			m_TextTextures[m_TextTextureIndex] = font->GetTexutre();
+			m_TextTextureIndex++;
 		}
 
 		glm::vec3 position;
@@ -310,15 +363,15 @@ namespace TerranEngine
 
 				for (size_t i = 0; i < 4; i++)
 				{
-					m_VertexPtr[m_VertexPtrIndex].Position = transform * vertexPositions[i];
-					m_VertexPtr[m_VertexPtrIndex].Color = color;
-					m_VertexPtr[m_VertexPtrIndex].TextureCoordinates = uvs[i];
-					m_VertexPtr[m_VertexPtrIndex].TextureIndex = texIndex;
+					m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * vertexPositions[i];
+					m_TextVertexPtr[m_TextVertexPtrIndex].Color = color;
+					m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = uvs[i];
+					m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
 
-					m_VertexPtrIndex++;
+					m_TextVertexPtrIndex++;
 				}
 
-				m_IndexCount += 6;
+				m_TextIndexCount += 6;
 
 				position.x += glyph->advance_x / 80.0f;
 			}
@@ -327,26 +380,35 @@ namespace TerranEngine
 
 	void BatchRenderer2D::EndScene()
 	{
-		if (m_IndexCount == 0)
-			return;
-		
-		m_Stats.VertexCount += m_VertexPtrIndex;
-		m_Stats.IndexCount +=  m_IndexCount;
-		m_Shader->Bind();
+		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_TextVertexPtrIndex;
+		m_Stats.IndexCount +=  m_QuadIndexCount + m_QuadIndexCount;
 
-		m_VertexArray->Bind();
-		m_VertexBuffer->SetData(m_VertexPtr, m_VertexPtrIndex * sizeof(Vertex));
+		if (m_QuadIndexCount)
+		{
+			m_QuadVAO->Bind();
+			m_QuadVBO->SetData(m_QuadVertexPtr, m_QuadVertexPtrIndex * sizeof(Vertex));
 
-		m_IndexBuffer->Bind();
+			for (size_t i = 0; i < m_QuadTextureIndex; i++)
+				m_QuadTextures[i]->Bind(i);
 
+			RenderCommand::Draw(m_QuadVAO, m_QuadIndexCount);
 
-		for (size_t i = 0; i < m_TextureIndex; i++)
-			m_Textures[i]->Bind(i);
+			m_Stats.DrawCalls++;
+		}
 
+		if (m_TextIndexCount) 
+		{
+			m_TextVAO->Bind();
+			m_TextVBO->SetData(m_TextVertexPtr, m_TextVertexPtrIndex * sizeof(Vertex));
 
-		RenderCommand::Draw(*m_VertexArray, m_IndexCount);
+			for (size_t i = 0; i < m_TextTextureIndex; i++)
+				m_TextTextures[i]->Bind(i);
 
-		m_Stats.DrawCalls++;
+			RenderCommand::Draw(m_TextVAO, m_TextIndexCount);
+
+			m_Stats.DrawCalls++;
+		}
+
 
 	}
 
@@ -354,7 +416,7 @@ namespace TerranEngine
 	{
 		if (m_Framebuffer->IsSwapChainTarget())
 		{
-			m_Shader->Unbind();
+			m_QuadShader->Unbind();
 
 			m_Framebuffer->BindColorAttachment();
 
@@ -363,7 +425,7 @@ namespace TerranEngine
 			m_FramebufferVBO->Bind();
 			m_FramebufferIBO->Bind();
 
-			RenderCommand::Draw(*m_FramebufferVAO, 6);
+			RenderCommand::Draw(m_FramebufferVAO, 6);
 
 			m_FramebufferShader->Unbind();
 			m_Framebuffer->UnbindColorAttachment();
@@ -372,15 +434,19 @@ namespace TerranEngine
 			m_FramebufferVBO->Unbind();
 			m_FramebufferIBO->Unbind();
 
-			m_Shader->Bind();
+			m_QuadShader->Bind();
 		}
 	}
 
 	void BatchRenderer2D::Clear()
 	{
-		m_VertexPtrIndex = 0;
-		m_IndexCount = 0;
-		m_TextureIndex = 1;
+		m_QuadVertexPtrIndex = 0;
+		m_QuadIndexCount = 0;
+		m_QuadTextureIndex = 1;
+
+		m_TextVertexPtrIndex = 0;
+		m_TextIndexCount = 0;
+		m_TextTextureIndex = 1;
 	}
 
 	// NOTE: This is (for now) only for orthographic cameras

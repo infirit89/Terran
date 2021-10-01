@@ -15,17 +15,17 @@ namespace TerranEngine
 		TextureSheet(char* filePath, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites);
 		TextureSheet(void* data, uint32_t textureWidth, uint32_t textureHeight, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites);
 
-		glm::vec2* GetUVS(int index) 
+		inline glm::vec2* GetUVS(int index) 
 		{
 			return m_UVS[index].data();
 		}
 
-		glm::vec2* operator[](int index) 
+		inline glm::vec2* operator[](int index)
 		{
 			return m_UVS[index].data();
 		}
 
-		const Texture& GetTexture() const { return m_Texture; }
+		 inline const Texture& GetTexture() const { return m_Texture; }
 
 	private:
 		void Init(uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites);

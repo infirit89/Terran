@@ -12,8 +12,8 @@ namespace TerranEngine
 		MouseMoveEvent(const float xpos, const float ypos) 
 			: m_XPos(xpos), m_YPos(ypos) {}
 
-		float GetX() const { return m_XPos; }
-		float GetY() const { return m_YPos; }
+		inline float GetX() const { return m_XPos; }
+		inline float GetY() const { return m_YPos; }
 
 		EVENT_CLASS_TYPE(MouseMoved)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
@@ -27,8 +27,8 @@ namespace TerranEngine
 		MouseScrollEvent(const float xoffset, const float yoffset) 
 			: m_XOffset(xoffset), m_YOffset(yoffset) {}
 
-		float GetXOffset() const { return m_XOffset; }
-		float GetYOffset() const { return m_YOffset; }
+		inline float GetXOffset() const { return m_XOffset; }
+		inline float GetYOffset() const { return m_YOffset; }
 
 		EVENT_CLASS_TYPE(MouseScrolled)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
@@ -43,7 +43,7 @@ namespace TerranEngine
 		MouseButtonEvent(const MouseButton buttonCode)
 			: m_ButtonCode(buttonCode) {}
 
-		MouseButton GetButton() const { return m_ButtonCode; }
+		inline MouseButton GetButton() const { return m_ButtonCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 	private:

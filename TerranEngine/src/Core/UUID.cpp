@@ -34,26 +34,6 @@ namespace TerranEngine
             (ch >= static_cast<char>('A') && ch <= static_cast<char>('F'));
     }
 
-    bool UUID::operator==(const UUID& other) const
-    {
-        return m_Data == other.m_Data;
-    }
-
-    bool UUID::operator!=(const UUID& other) const
-    {
-        return !(m_Data == other.m_Data);
-    }
-
-    bool UUID::operator<(const UUID& other) const
-    {
-        return m_Data < other.m_Data;
-    }
-
-    bool UUID::operator>(const UUID& other) const
-    {
-        return m_Data > other.m_Data;
-    }
-
     UUID UUID::FromString(const std::string& str)
     {
         size_t index = 0;

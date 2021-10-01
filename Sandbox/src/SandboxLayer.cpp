@@ -58,6 +58,8 @@ namespace TerranEngine
 		serializer.DesirializeJson("");
 
 		m_Scene = newScene;
+
+		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 40);
 	}
 
 	void SandboxLayer::OnAttach()
@@ -85,13 +87,13 @@ namespace TerranEngine
 		}
 		
 		if (Input::IsKeyPressed(Key::A))
-			m_CameraTransform.Position.x += 10 * time;
+			m_CameraTransform.Position.x += 0.1f * time;
 		else if (Input::IsKeyPressed(Key::D))
-			m_CameraTransform.Position.x -= 10 * time;
+			m_CameraTransform.Position.x -= 0.1f * time;
 		if (Input::IsKeyPressed(Key::W))
-			m_CameraTransform.Position.y += 10 * time;
+			m_CameraTransform.Position.y += 0.1f * time;
 		else if (Input::IsKeyPressed(Key::S))
-			m_CameraTransform.Position.y -= 10 * time;
+			m_CameraTransform.Position.y -= 0.1f * time;
 
 		if (Input::IsKeyPressed(Key::R))
 			m_CameraTransform.Rotation += 10 * time;
@@ -107,7 +109,15 @@ namespace TerranEngine
 		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		RenderCommand::Clear();
 		
-		m_Scene->Update();
+		//m_Scene->Update();
+
+		m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
+
+		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
+		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), { 1.0f, 1.0f, 0.0f, 1.0f }, m_Font, "Test");
+
+
+		m_Renderer->EndScene();
 
 		m_Renderer->GetFramebuffer()->Unbind();
 
@@ -234,9 +244,12 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
-		m_ZoomLevel += event.GetYOffset() * 0.01f;
-		auto& camComp = cameraEntity.GetComponent<CameraComponent>();
-		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		m_ZoomLevel += event.GetYOffset() * 0.001f;
+		
+		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+
+		//auto& camComp = m_Scene->GetPrimaryCamera().GetComponent<CameraComponent>();
+		//camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 		return false;
 	}

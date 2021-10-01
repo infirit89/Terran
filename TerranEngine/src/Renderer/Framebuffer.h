@@ -18,9 +18,9 @@ namespace TerranEngine
 
 		void Resize(uint32_t width, uint32_t height);
 
-		bool IsSwapChainTarget() { return m_SwapChainTarget; }
+		inline bool IsSwapChainTarget() { return m_SwapChainTarget; }
 
-		uint32_t GetColorAttachmentID() { return m_ColorAttachment; }
+		inline uint32_t GetColorAttachmentID() { return m_ColorAttachment; }
 
 		uint32_t Width, Height;
 	private:

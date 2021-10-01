@@ -10,14 +10,14 @@ namespace TerranEngine
 	public:
 
 		Entity() = default;
-		Entity(entt::entity& handle, Scene* scene) 
+		Entity(const entt::entity& handle, Scene* scene) 
 			: m_Handle(handle), m_Scene(scene)
 		{
 		}
 		~Entity() = default;
 
 		template<typename Component, typename... Args>
-		Component& AddComponent(Args&&... parameters)
+		inline Component& AddComponent(Args&&... parameters)
 		{
 			TR_ASSERT(!HasComponent<Component>(), "Entity already has component");
 
@@ -26,43 +26,43 @@ namespace TerranEngine
 		}
 
 		template<typename T>
-		T& GetComponent()
+		inline T& GetComponent() const
 		{
 			TR_ASSERT(HasComponent<T>(), "Entity doesn't have the component");
 			return m_Scene->m_Registry.get<T>(m_Handle);
 		}
 
 		template<typename Component>
-		void RemoveComponent()
+		inline void RemoveComponent()
 		{
 			TR_ASSERT(HasComponent<Component>(), "Entity doesn't have component");
 			m_Scene->m_Registry.remove<Component>(m_Handle);
 		}
 
 		template<typename Component>
-		bool HasComponent()
+		inline bool HasComponent() const
 		{
 			return m_Scene->m_Registry.all_of<Component>(m_Handle);
 		}
 
-		TransformComponent& GetTransform() 
+		inline TransformComponent& GetTransform()
 		{
 			return GetComponent<TransformComponent>();
 		}
 
-		UUID& GetID() 
+		inline UUID& GetID()
 		{
 			return GetComponent<TagComponent>().ID;
 		}
 
-		operator uint32_t() { return uint32_t(m_Handle); }
+		inline operator uint32_t() const { return uint32_t(m_Handle); }
 
-		bool operator==(const Entity& other) const 
+		inline bool operator==(const Entity& other) const 
 		{
 			return m_Handle == other.m_Handle && m_Scene == other.m_Scene;
 		}
 
-		bool operator!=(const Entity& other) const 
+		inline bool operator!=(const Entity& other) const 
 		{
 			return !(*this == other);
 		}

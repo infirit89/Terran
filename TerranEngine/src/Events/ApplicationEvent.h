@@ -22,8 +22,8 @@ namespace TerranEngine {
 		EVENT_CLASS_TYPE(WindowResized)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-		uint32_t GetWidth() { return m_Width; }
-		uint32_t GetHeight() { return m_Height; }
+		inline uint32_t GetWidth() { return m_Width; }
+		inline uint32_t GetHeight() { return m_Height; }
 	private:
 		uint32_t m_Width; uint32_t m_Height;
 	};

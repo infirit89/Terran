@@ -11,12 +11,27 @@ namespace TerranEngine
 		UUID();
 		UUID(const std::array<uint8_t, 16>& data);
 
-		std::array<uint8_t, 16> GetData() const { return m_Data; }
+		inline std::array<uint8_t, 16> GetData() const { return m_Data; }
 
-		bool operator==(const UUID& other) const;
-		bool operator!=(const UUID& other) const;
-		bool operator<(const UUID& other) const;
-		bool operator>(const UUID& other) const;
+		inline bool operator==(const UUID& other) const 
+		{
+			return m_Data == other.m_Data;
+		}
+
+		inline bool operator!=(const UUID& other) const 
+		{
+			return !(m_Data == other.m_Data);
+		}
+
+		inline bool operator<(const UUID& other) const 
+		{
+			return m_Data < other.m_Data;
+		}
+
+		inline bool operator>(const UUID& other) const 
+		{
+			return m_Data > other.m_Data;
+		}
 
 		static UUID FromString(const std::string& str);
 	private:

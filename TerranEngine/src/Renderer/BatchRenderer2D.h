@@ -43,29 +43,31 @@ namespace TerranEngine
 		~BatchRenderer2D();
 
 		void CreateFramebuffer(uint32_t width, uint32_t height, bool swapchainTarget);
-		Shared<Framebuffer> GetFramebuffer() { return m_Framebuffer; }
+		inline Shared<Framebuffer> GetFramebuffer() { return m_Framebuffer; }
 
 		void BeginScene(Camera& camera, const glm::mat4& transform);
+		void EndScene();
 
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture);
 		void AddQuad(glm::mat4& transform, const glm::vec4& color);
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4]);
 
 		void AddText(glm::mat4& transform, const glm::vec4& color, Shared<Font> font, const std::string& text);
-		void EndScene();
 
-		bool HasRoom() { return !(m_IndexCount >= m_MaxIndices) && !(m_TextureIndex >= m_MaxTextureSlots); }
+		inline bool QuadBatchHasRoom() { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
+		inline bool TextBatchHasRoom() { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 
 		void RenderToFramebuffer();
 
-		void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
-		BatchRendererStats GetStats() { return m_Stats; }
+		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
+		inline BatchRendererStats GetStats() { return m_Stats; }
 
-		void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
-		bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
+		inline void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
+		inline bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
 
 		static BatchRenderer2D* Get() { return m_Instance; }
 	private:
+
 		void Init(uint32_t batchSize);
 
 		void Close();
@@ -78,30 +80,58 @@ namespace TerranEngine
 
 
 	private:
+
+		// ******** Base stuffs ********
 		static BatchRenderer2D* m_Instance;
-
 		BatchRendererStats m_Stats;
-
 		glm::vec4 m_VertexPositions[4];
-
 		uint32_t m_MaxVertices, m_MaxIndices;
-
 		static const uint32_t m_MaxTextureSlots = 16;
+		// *****************************
 
-		uint32_t m_IndexCount = 0;
+		Shared<IndexBuffer>  m_IndexBuffer;
 
-		Shared<VertexArray>  m_VertexArray, m_FramebufferVAO;
-		Shared<VertexBuffer> m_VertexBuffer, m_FramebufferVBO;
-		Shared<IndexBuffer>  m_IndexBuffer, m_FramebufferIBO;
+		// ******** Quad ********
+		uint32_t m_QuadIndexCount = 0;
+		Shared<VertexArray>  m_QuadVAO;
+		Shared<VertexBuffer> m_QuadVBO;
 
-		Shared<Shader> m_Shader, m_FramebufferShader;
+		Shared<Shader> m_QuadShader;
 
-		Vertex* m_VertexPtr = nullptr;
+		Vertex* m_QuadVertexPtr = nullptr;
+		uint32_t m_QuadVertexPtrIndex = 0;
 
-		Shared<Texture> m_Textures[m_MaxTextureSlots];
+		Shared<Texture> m_QuadTextures[m_MaxTextureSlots];
+		uint32_t m_QuadTextureIndex = 1;
+		// **********************
+
+
+		// ******** Text ********
+		uint32_t m_TextIndexCount = 0;
+		Shared<VertexArray>  m_TextVAO;
+		Shared<VertexBuffer> m_TextVBO;
+
+		Shared<Shader> m_TextShader;
+
+		Vertex* m_TextVertexPtr = nullptr;
+		uint32_t m_TextVertexPtrIndex = 0;
+
+		Shared<Texture> m_TextTextures[m_MaxTextureSlots];
+		uint32_t m_TextTextureIndex = 1;
+		// **********************
+
+
+		// ******** Frame buffer ********
+		Shared<VertexArray> m_FramebufferVAO;
+		Shared<VertexBuffer> m_FramebufferVBO;
+		Shared<IndexBuffer> m_FramebufferIBO;
+		Shared<Shader> m_FramebufferShader;
 
 		Shared<Framebuffer> m_Framebuffer;
+		// ******************************
 
+
+		//  ******** Camera stuffs ********
 		struct CameraData
 		{
 			glm::mat4 Projection;
@@ -114,8 +144,7 @@ namespace TerranEngine
 
 		Shared<UniformBuffer> m_CameraBuffer;
 
-		uint32_t m_VertexPtrIndex = 0;
-		uint32_t m_TextureIndex = 1;
 		bool m_CullObjectsOutsideOfCamera = false;
+		// ********************************
 	};
 }
