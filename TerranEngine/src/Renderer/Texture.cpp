@@ -21,14 +21,14 @@ namespace TerranEngine
 		case TerranEngine::TextureType::RED:	return { GL_RED, GL_RED };
 		case TerranEngine::TextureType::GREEN:	return { GL_GREEN, GL_GREEN };
 		case TerranEngine::TextureType::BLUE:	return { GL_BLUE, GL_BLUE };
-		case TerranEngine::TextureType::RGB:	return { GL_RGB, GL_RGB8 };
-		case TerranEngine::TextureType::RGBA:	return { GL_RGBA, GL_RGBA8 };
+		case TerranEngine::TextureType::RGB:	return { GL_RGB8, GL_RGB };
+		case TerranEngine::TextureType::RGBA:	return { GL_RGBA8, GL_RGBA };
 		default:
 			TR_WARN("The texture type isn't supported");
 			break;
 		}
 
-		return { GL_RGB, GL_RGB8 };
+		return { GL_RGBA8, GL_RGBA };
 	}
 
 	struct NativeTexutreFilter

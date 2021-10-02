@@ -112,8 +112,8 @@ namespace TerranEngine
 
 		m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 
-		//m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
 		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), m_TextColor, m_Font, "Test test!12345345894506809@fuckmail.cok");
+		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
 
 		m_Renderer->EndScene();
