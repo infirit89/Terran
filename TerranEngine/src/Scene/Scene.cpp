@@ -59,7 +59,7 @@ namespace TerranEngine
 			auto& transformComponent = entity.GetComponent<TransformComponent>();
 			auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
 
-			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color, srComponent.Texture);
+			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color);
 		}
 
 		BatchRenderer2D::Get()->EndScene();

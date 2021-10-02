@@ -13,7 +13,7 @@ namespace TerranEngine
 {
 	BatchRenderer2D* BatchRenderer2D::m_Instance;
 
-	void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
+	static void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
 	{
 		pos = m[3];
 		for (int i = 0; i < 3; i++)
@@ -25,7 +25,7 @@ namespace TerranEngine
 		rot = glm::quat_cast(rotMtx);
 	}
 
-	void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
+	static void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
 	{
 		m = glm::translate(glm::mat4(1.0f), pos) *
 			glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
@@ -47,8 +47,8 @@ namespace TerranEngine
 	{
 		m_Framebuffer = CreateShared<Framebuffer>(width, height, swapchainTarget);
 
-		if (swapchainTarget) 
-		{
+// disabled temporarily, cause i dont fucking want to deal with the framebuffer rendering to the main color buffer
+#if 0
 			float pos[] =
 			{
 				-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -82,7 +82,8 @@ namespace TerranEngine
 			m_FramebufferShader->Unbind();
 		
 			m_QuadShader->Bind();
-		}
+#endif
+
 	}
 
 	void BatchRenderer2D::Init(uint32_t batchSize)
@@ -115,6 +116,8 @@ namespace TerranEngine
 		delete[] indices;
 		// ************************************
 
+		TextureParameters parameters;
+
 		uint16_t whiteTextureData = 0xffffffff;
 
 		// ******** Quad ******** 
@@ -145,7 +148,7 @@ namespace TerranEngine
 
 			m_QuadShader->Unbind();
 
-			m_QuadTextures[0] = CreateShared<Texture>(1, 1);
+			m_QuadTextures[0] = CreateShared<Texture>(1, 1, parameters);
 			m_QuadTextures[0]->SetData(&whiteTextureData);
 
 		}
@@ -180,7 +183,7 @@ namespace TerranEngine
 
 			m_TextShader->Unbind();
 
-			m_TextTextures[0] = CreateShared<Texture>(1, 1);
+			m_TextTextures[0] = CreateShared<Texture>(1, 1, parameters);
 			m_TextTextures[0]->SetData(&whiteTextureData);
 		}
 		// **********************
@@ -189,6 +192,10 @@ namespace TerranEngine
 		m_VertexPositions[1] = {  1.0f, -1.0f, 0.0f, 1.0f };
 		m_VertexPositions[2] = {  1.0f,  1.0f, 0.0f, 1.0f };
 		m_VertexPositions[3] = { -1.0f,  1.0f, 0.0f, 1.0f };
+
+
+		m_QuadShader->Bind();
+		m_TextShader->Bind();
 
 		m_CameraBuffer = CreateShared<UniformBuffer>(sizeof(CameraData), 0);
 	}
@@ -202,8 +209,8 @@ namespace TerranEngine
 	{
 		Clear();
 
-		m_QuadShader->Bind();
-		m_TextShader->Bind();
+		//	m_QuadShader->Bind();
+		//	m_TextShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = glm::inverse(transform);

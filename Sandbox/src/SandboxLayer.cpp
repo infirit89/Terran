@@ -11,8 +11,7 @@ namespace TerranEngine
 {
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer"), 
-		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f)),
-		m_TSheet("res/bruh2.png", 50, 50, 2)
+		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f))
 	{
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);
 
@@ -87,13 +86,13 @@ namespace TerranEngine
 		}
 		
 		if (Input::IsKeyPressed(Key::A))
-			m_CameraTransform.Position.x += 0.1f * time;
+			m_CameraTransform.Position.x += 10.0f * time;
 		else if (Input::IsKeyPressed(Key::D))
-			m_CameraTransform.Position.x -= 0.1f * time;
+			m_CameraTransform.Position.x -= 10.0f * time;
 		if (Input::IsKeyPressed(Key::W))
-			m_CameraTransform.Position.y += 0.1f * time;
+			m_CameraTransform.Position.y += 10.0f * time;
 		else if (Input::IsKeyPressed(Key::S))
-			m_CameraTransform.Position.y -= 0.1f * time;
+			m_CameraTransform.Position.y -= 10.0f * time;
 
 		if (Input::IsKeyPressed(Key::R))
 			m_CameraTransform.Rotation += 10 * time;
@@ -113,8 +112,8 @@ namespace TerranEngine
 
 		m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 
-		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
-		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), { 1.0f, 1.0f, 0.0f, 1.0f }, m_Font, "Test");
+		//m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
+		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), m_TextColor, m_Font, "Test test!12345345894506809@fuckmail.cok");
 
 
 		m_Renderer->EndScene();
@@ -177,6 +176,8 @@ namespace TerranEngine
 
 		ImGui::DragFloat3("Transform 1", (float*)&m_Transform1, 0.1f);
 		ImGui::DragFloat3("Transform 2", (float*)&m_Transform2, 0.1f);
+
+		ImGui::ColorEdit4("Color", (float*)&m_TextColor);
 		
 		ImGui::End();
 
@@ -244,7 +245,7 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
-		m_ZoomLevel += event.GetYOffset() * 0.001f;
+		m_ZoomLevel += event.GetYOffset() * 0.005f;
 		
 		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 

@@ -32,13 +32,10 @@ namespace TerranEngine {
 
 		glm::vec2 m_TexCoords[4];
 		
-		TextureSheet m_TSheet;
-
 		float m_ZoomLevel = 0.1f;
-
-		Shared<Texture> m_Texture;
 		
 		Shared<Font> m_Font;
+
 		float fps = 0.0f;
 
 		BatchRendererStats stats;
@@ -49,6 +46,8 @@ namespace TerranEngine {
 		glm::vec2 m_ViewportSize = {1080.0f, 790.0f};
 
 		glm::uvec2 m_Max = { 10.0f, 10.0f };
+
+		glm::vec4 m_TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		float m_Time = 0.0f;
 

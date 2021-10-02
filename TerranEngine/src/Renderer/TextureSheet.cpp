@@ -5,13 +5,13 @@
 namespace TerranEngine
 {
 	TextureSheet::TextureSheet(char* filePath, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites)
-		: m_Texture(filePath)
+		: m_Texture(filePath, {})
 	{
 		Init(spriteWidth, spriteHeight, numSprites);
 	}
 
 	TextureSheet::TextureSheet(void* data, uint32_t textureWidth, uint32_t textureHeight, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites)
-		: m_Texture(textureWidth, textureHeight)
+		: m_Texture(textureWidth, textureHeight, {})
 	{
 		m_Texture.SetData(data);
 

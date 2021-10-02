@@ -10,6 +10,8 @@
 #include "UniformBuffer.h"
 #include "Framebuffer.h"
 
+#include "RenderCommand.h"
+
 #include "Camera.h"
 #include "Core/Base.h"
 
@@ -80,7 +82,6 @@ namespace TerranEngine
 
 
 	private:
-
 		// ******** Base stuffs ********
 		static BatchRenderer2D* m_Instance;
 		BatchRendererStats m_Stats;

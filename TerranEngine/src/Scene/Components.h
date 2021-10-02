@@ -60,7 +60,6 @@ namespace TerranEngine
 	struct SpriteRendererComponent 
 	{
 		glm::vec4 Color;
-		Shared<Texture> Texture = nullptr;
 
 		SpriteRendererComponent()
 			: Color({ 1.0f, 1.0f, 1.0f, 1.0f })
