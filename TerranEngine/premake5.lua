@@ -46,8 +46,18 @@ project "TerranEngine"
     pchheader "trpch.h"
     pchsource "src/trpch.cpp"
 
+    disablewarnings 
+    {
+        "26451",
+        "26498",
+        "26495",
+        "26812",
+        "4267"
+    }
+
     defines 
     {
+        "_CRT_SECURE_NO_WARNINGS",
         "GLFW_INCLUDE_NONE"
     }
 

@@ -12,6 +12,9 @@
 #include "Renderer/Shader.h"
 #include "Renderer/RenderCommand.h"
 
+#pragma warning (push)
+#pragma warning (disable : 4244)
+
 namespace TerranEngine 
 {
 	Application* Application::m_Instance = nullptr;
@@ -50,7 +53,7 @@ namespace TerranEngine
 
 		while (m_Running)
 		{
-
+			// NOTE: think about changing frametime to be a double
 			frameTime = glfwGetTime();
 			float dt(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;
@@ -107,3 +110,4 @@ namespace TerranEngine
 		return false;
 	}
 }
+#pragma warning (pop)

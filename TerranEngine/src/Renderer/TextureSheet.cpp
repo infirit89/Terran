@@ -2,6 +2,9 @@
 
 #include "TextureSheet.h"
 
+#pragma warning (push)
+#pragma warning (disable : 4244)
+
 namespace TerranEngine
 {
 	TextureSheet::TextureSheet(char* filePath, uint32_t spriteWidth, uint32_t spriteHeight, uint16_t numSprites)
@@ -52,4 +55,4 @@ namespace TerranEngine
 		}
 	}
 }
-
+#pragma warning (pop)

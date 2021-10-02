@@ -2,6 +2,9 @@
 
 #include <functional>
 
+#pragma warning (push)
+#pragma warning (disable : 26812) 
+
 namespace TerranEngine 
 {
 	enum class EventType
@@ -65,3 +68,4 @@ virtual EventType GetType() const override { return GetStaticType(); }
 	};
 }
 
+#pragma warning (pop)

@@ -9,6 +9,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#pragma warning (push)
+#pragma warning (disable : 4305)
+#pragma warning (disable : 4309)
+
 namespace TerranEngine 
 {
 	BatchRenderer2D* BatchRenderer2D::m_Instance;
@@ -495,3 +499,4 @@ namespace TerranEngine
 		return m_CullObjectsOutsideOfCamera ? false : true;
 	}
 }
+#pragma warning (pop)

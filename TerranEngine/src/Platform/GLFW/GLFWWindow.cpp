@@ -11,6 +11,9 @@
 
 #include <stb_image.h>
 
+#pragma warning (push)
+#pragma warning (disable : 4244)
+
 namespace TerranEngine 
 {
 	GLFWWindow::GLFWWindow(WindowData data)
@@ -146,3 +149,4 @@ namespace TerranEngine
 		glfwTerminate();
 	}
 }
+#pragma warning (pop)

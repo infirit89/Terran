@@ -4,6 +4,9 @@
 
 #include <glad/glad.h>
 
+#pragma warning (push)
+#pragma warning (disable : 4312)
+
 namespace TerranEngine 
 {
 	VertexArray::VertexArray()
@@ -40,3 +43,5 @@ namespace TerranEngine
 		}
 	}
 }
+
+#pragma warning (pop)
