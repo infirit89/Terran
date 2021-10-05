@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Renderer/OrthographicCamera.h"
-#include "Renderer/Texture.h"
+#include "Graphics/OrthographicCamera.h"
+#include "Graphics/Texture.h"
 #include "Core/Base.h"
 #include "Core/UUID.h"
 
@@ -63,6 +63,16 @@ namespace TerranEngine
 
 		SpriteRendererComponent()
 			: Color({ 1.0f, 1.0f, 1.0f, 1.0f })
+		{}
+	};
+
+	struct CircleRendererComponent 
+	{
+		glm::vec4 Color;
+		float Thickness;
+
+		CircleRendererComponent() 
+			: Color({1.0f, 1.0f, 1.0f, 1.0f}), Thickness(1.0f)
 		{}
 	};
 

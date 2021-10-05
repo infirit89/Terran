@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Renderer/Font.h"
-#include "Renderer/Texture.h"
-#include "Renderer/Shader.h"
+#include "Graphics/Font.h"
+#include "Graphics/Texture.h"
+#include "Graphics/Shader.h"
 #include "Core/Base.h"
 
 #include <unordered_map>

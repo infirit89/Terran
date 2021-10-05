@@ -39,24 +39,24 @@ namespace TerranEngine
 		
 		m_Scene = CreateShared<Scene>();
 
-		/*testEntity = m_Scene->CreateEntity();
-		testEntity.AddComponent<SpriteRendererComponent>().Color = { 1.0f, 0.0f, 1.0f, 1.0f };
+		testEntity = m_Scene->CreateEntity();
+		testEntity.AddComponent<CircleRendererComponent>().Color = { 1.0f, 0.0f, 1.0f, 1.0f };
 
 		Entity tEntity = m_Scene->CreateEntity();
 		tEntity.GetComponent<TransformComponent>().Position = { 1.5f, 0.0f, 0.0f };
 		tEntity.AddComponent<SpriteRendererComponent>().Color = { 1.0f, 1.0f, 0.0f, 1.0f };
 
 		cameraEntity = m_Scene->CreateEntity();
-		cameraEntity.AddComponent<CameraComponent>().Camera = m_Camera;*/
+		cameraEntity.AddComponent<CameraComponent>().Camera = m_Camera;
 
 		m_SSerializer = SceneSerializer(m_Scene);
 
-		Shared<Scene> newScene = CreateShared<Scene>();
+		//Shared<Scene> newScene = CreateShared<Scene>();
 
-		SceneSerializer serializer(newScene);
-		serializer.DesirializeJson("");
+		//SceneSerializer serializer(newScene);
+		//serializer.DesirializeJson("");
 
-		m_Scene = newScene;
+		//m_Scene = newScene;
 
 		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 40);
 	}
@@ -108,15 +108,16 @@ namespace TerranEngine
 		RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		RenderCommand::Clear();
 		
-		//m_Scene->Update();
+		m_Scene->Update();
 
-		m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
+		//m_Renderer->BeginScene(m_Camera, m_CameraTransform.GetTransformMatrix());
 
-		m_Renderer->AddText(m_Transform1.GetTransformMatrix(), m_TextColor, m_Font, "Test test!12345345894506809@fuckmail.cok");
-		m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
+		//m_Renderer->AddText(m_Transform1.GetTransformMatrix(), m_TextColor, m_Font, "Test test!12345345894506809@fuckmail.cok");
+		//m_Renderer->AddQuad(m_Transform2.GetTransformMatrix(), { 1.0f, 1.0f, 1.0f, 1.0f });
 
+		//m_Renderer->AddFilledCircle(m_Transform1.GetTransformMatrix(), { 1.0f, 0.0f, 1.0f, 1.0f }, 1.0f);
 
-		m_Renderer->EndScene();
+		//m_Renderer->EndScene();
 
 		m_Renderer->GetFramebuffer()->Unbind();
 
@@ -247,10 +248,10 @@ namespace TerranEngine
 	{
 		m_ZoomLevel += event.GetYOffset() * 0.005f;
 		
-		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
-		//auto& camComp = m_Scene->GetPrimaryCamera().GetComponent<CameraComponent>();
-		//camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		auto& camComp = m_Scene->GetPrimaryCamera().GetComponent<CameraComponent>();
+		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 		return false;
 	}

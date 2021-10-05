@@ -1,5 +1,6 @@
 #version 420 core
 
+
 struct VS_OUT
 {
 	vec4	Color;

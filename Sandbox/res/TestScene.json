@@ -4,7 +4,7 @@
     "Entity 2": {
         "TagComponent": {
             "Tag": "Entity",
-            "ID": "986b40-a630-4647-a96b-d2cbc9372a32"
+            "ID": "558984aa-6ec6-4ade-b48e-b71f0c13832"
         },
         "TransformComponent": {
             "Position": {
@@ -25,8 +25,8 @@
         },
         "CameraComponent": {
             "Camera": {
-                "Width": 602.0,
-                "Height": 497.0,
+                "Width": 979.0,
+                "Height": 617.0,
                 "Depth": 20.0
             },
             "Primary": true
@@ -35,7 +35,7 @@
     "Entity 1": {
         "TagComponent": {
             "Tag": "Entity",
-            "ID": "f2f377c1-e3e9-4d9e-9ba1-3b3bafb4f0dc"
+            "ID": "8486a896-1ce8-4bbf-93a8-a444304a7ca"
         },
         "TransformComponent": {
             "Position": {
@@ -66,7 +66,7 @@
     "Entity 0": {
         "TagComponent": {
             "Tag": "Entity",
-            "ID": "8f33771-534-43a5-8862-87ccc8419b35"
+            "ID": "6944ee1b-fbb-42a4-847e-f9abebc8459"
         },
         "TransformComponent": {
             "Position": {
@@ -85,13 +85,14 @@
                 "Z": 0.0
             }
         },
-        "SpriteRendererComponent": {
+        "CircleRendererComponent": {
             "Color": {
                 "X": 1.0,
                 "Y": 0.0,
                 "Z": 1.0,
                 "W": 1.0
-            }
+            },
+            "Thickness": 1.0
         }
     }
 }

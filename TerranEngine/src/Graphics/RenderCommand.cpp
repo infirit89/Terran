@@ -91,24 +91,46 @@ namespace TerranEngine
 			glDisable(GL_DEPTH_TEST);
 	}
 
-	void RenderCommand::Draw(const Shared<VertexArray>& vertexArray, int numIndices)
+	static uint32_t ConvertRenderModeToNativeMode(RenderMode mode) 
 	{
+		switch (mode)
+		{
+		case TerranEngine::RenderMode::Points:
+		case TerranEngine::RenderMode::Lines:
+		case TerranEngine::RenderMode::LineLoop:
+		case TerranEngine::RenderMode::LineStrip:
+		case TerranEngine::RenderMode::Triangles:
+		case TerranEngine::RenderMode::TriangleStrip:
+		case TerranEngine::RenderMode::TriangleFan:
+			return GL_POINTS + (uint32_t)mode;
+		default:
+			TR_ERROR("Unsupported render mode");
+			break;
+		}
+
+		return GL_TRIANGLES;
+	}
+
+	void RenderCommand::Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices)
+	{
+		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+
 		vertexArray->GetIndexBuffer()->Bind();
 		vertexArray->Bind();
-		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void RenderCommand::DrawArrays(int numIndices)
 	{
 		glDrawArrays(GL_TRIANGLES, 0, numIndices);
 	}
+
 	int RenderCommand::GetMaxTextureSlots()
 	{
 		int maxTexSlots = 0;
 
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTexSlots);
-
-		return maxTexSlots;
+		return 16;
 	}
 }
 

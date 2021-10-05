@@ -67,7 +67,7 @@ namespace TerranEngine
 	}
 
 	Texture::Texture() 
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Name(nullptr) {}
+		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Name("") {}
 	
 	Texture::Texture(uint32_t width, uint32_t height, TextureParameters parameters) 
 		: m_TextureID(0), m_Width(width), m_Height(height), m_Channels(0), 

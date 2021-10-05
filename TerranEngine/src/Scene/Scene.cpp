@@ -2,7 +2,7 @@
 #include "Scene.h"
 
 #include "Components.h"
-#include "Renderer/BatchRenderer2D.h"
+#include "Graphics/BatchRenderer2D.h"
 #include "Entity.h"
 #include "Utils/ResourceManager.h"
 
@@ -60,6 +60,17 @@ namespace TerranEngine
 			auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
 
 			BatchRenderer2D::Get()->AddQuad(transformComponent.GetTransformMatrix(), srComponent.Color);
+		}
+
+		auto crView = m_Registry.view<CircleRendererComponent>();
+
+		for (auto e : crView)
+		{
+			Entity entity(e, this);
+			auto& transformComponent = entity.GetComponent<TransformComponent>();
+			auto& crComponent = entity.GetComponent<CircleRendererComponent>();
+
+			BatchRenderer2D::Get()->AddCircle(transformComponent.GetTransformMatrix(), crComponent.Color, crComponent.Thickness);
 		}
 
 		BatchRenderer2D::Get()->EndScene();

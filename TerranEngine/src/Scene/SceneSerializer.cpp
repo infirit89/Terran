@@ -125,6 +125,19 @@ namespace TerranEngine
 				} }
 			);
 		}
+
+		if (entity.HasComponent<CircleRendererComponent>()) 
+		{
+			auto& crComp = entity.GetComponent<CircleRendererComponent>();
+
+			j["Entity " + std::to_string(uint32_t(entity))].push_back(
+				{ "CircleRendererComponent",
+				{
+					SerializeVec4("Color", crComp.Color),
+					{ "Thickness", crComp.Thickness }
+				}}
+			);
+		}
 	}
 
 	void SceneSerializer::SerializeJson(const std::string& filePath)
@@ -181,6 +194,12 @@ namespace TerranEngine
 			if (jEntity.contains("SpriteRendererComponent"))
 			{
 				entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+			}
+
+			if (jEntity.contains("CircleRendererComponent")) 
+			{
+				entity.AddComponent<CircleRendererComponent>().Color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
+				entity.GetComponent<CircleRendererComponent>().Thickness = jEntity["CircleRendererComponent"]["Thickness"];
 			}
 		}
 	}

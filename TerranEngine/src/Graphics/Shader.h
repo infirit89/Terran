@@ -5,6 +5,8 @@
 
 #include <unordered_map>
 
+#include "RenderCommand.h"
+
 namespace TerranEngine 
 {
 	class Shader 
@@ -31,7 +33,7 @@ namespace TerranEngine
 		void UploadMat4(const char* name, glm::mat4x4 val);
 		void UploadIntArray(const char* name, uint32_t count, int val[]);
 
-		const std::string GetName() const { return m_Name; }
+		inline const std::string GetName() const { return m_Name; }
 
 	private:
 		int GetUniformLoc(const char* name);

@@ -5,6 +5,17 @@
 
 namespace TerranEngine 
 {
+	enum class RenderMode : uint32_t 
+	{
+		Points = 0,
+		Lines,
+		LineLoop,
+		LineStrip,
+		Triangles,
+		TriangleStrip,
+		TriangleFan,
+	};
+
 	class RenderCommand
 	{
 	public:
@@ -20,10 +31,8 @@ namespace TerranEngine
 
 		static void EnableDepthTesting(bool state);
 
-		static void Draw(const Shared<VertexArray>& vertexArray, int numIndices);
+		static void Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices);
 		static void DrawArrays(int numIndices);
-
 		static int GetMaxTextureSlots();
-
 	};
 }

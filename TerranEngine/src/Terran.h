@@ -18,15 +18,15 @@
 #include "ImGui/ImGuiLayer.h"
 
 /* ---- Graphics ---- */
-#include "Renderer/Buffer.h"
-#include "Renderer/OrthographicCamera.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/Shader.h"
-#include "Renderer/RenderCommand.h"
-#include "Renderer/Texture.h"
-#include "Renderer/BatchRenderer2D.h"
-#include "Renderer/TextureSheet.h"
-#include "Renderer/Font.h"
+#include "Graphics/Buffer.h"
+#include "Graphics/OrthographicCamera.h"
+#include "Graphics/VertexArray.h"
+#include "Graphics/Shader.h"
+#include "Graphics/RenderCommand.h"
+#include "Graphics/Texture.h"
+#include "Graphics/BatchRenderer2D.h"
+#include "Graphics/TextureSheet.h"
+#include "Graphics/Font.h"
 
 /* ---- Debugging ---- */
 #include "Utils/Debug/DebugTimer.h"
