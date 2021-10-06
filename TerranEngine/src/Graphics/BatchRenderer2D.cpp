@@ -148,7 +148,7 @@ namespace TerranEngine
 			for (size_t i = 0; i < maxTexSlots; i++)
 				sampler[i] = i;
 
-			m_QuadShader = CreateShared<Shader>("DefaultQuadShader", "res/shaders/Base/Quad/VertexShader.glsl", "res/shaders/Base/Quad/FragmentShader.glsl");
+			m_QuadShader = CreateShared<Shader>("DefaultQuadShader", "res/shaders/Base/Quad/QuadVertex.glsl", "res/shaders/Base/Quad/QuadFragment.glsl");
 
 			m_QuadShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
 			m_QuadShader->Unbind();

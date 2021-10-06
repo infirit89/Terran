@@ -6,11 +6,11 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Renderer/Buffer.h"
-#include "Renderer/VertexArray.h"
-
-#include "Renderer/Shader.h"
-#include "Renderer/RenderCommand.h"
+#include "Graphics/Buffer.h"
+#include "Graphics/VertexArray.h"
+		  
+#include "Graphics/Shader.h"
+#include "Graphics/RenderCommand.h"
 
 #pragma warning (push)
 #pragma warning (disable : 4244)
