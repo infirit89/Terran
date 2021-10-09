@@ -1,0 +1,98 @@
+{
+    "Scene": "Name",
+    "Entities": 3,
+    "Entity 2": {
+        "TagComponent": {
+            "Tag": "Entity",
+            "ID": "558984aa-6ec6-4ade-b48e-b71f0c13832"
+        },
+        "TransformComponent": {
+            "Position": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            },
+            "Scale": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "Rotation": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            }
+        },
+        "CameraComponent": {
+            "Camera": {
+                "Width": 979.0,
+                "Height": 617.0,
+                "Depth": 20.0
+            },
+            "Primary": true
+        }
+    },
+    "Entity 1": {
+        "TagComponent": {
+            "Tag": "Entity",
+            "ID": "8486a896-1ce8-4bbf-93a8-a444304a7ca"
+        },
+        "TransformComponent": {
+            "Position": {
+                "X": 1.5,
+                "Y": 0.0,
+                "Z": 0.0
+            },
+            "Scale": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "Rotation": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            }
+        },
+        "SpriteRendererComponent": {
+            "Color": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 0.0,
+                "W": 1.0
+            }
+        }
+    },
+    "Entity 0": {
+        "TagComponent": {
+            "Tag": "Entity",
+            "ID": "6944ee1b-fbb-42a4-847e-f9abebc8459"
+        },
+        "TransformComponent": {
+            "Position": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            },
+            "Scale": {
+                "X": 1.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "Rotation": {
+                "X": 0.0,
+                "Y": 0.0,
+                "Z": 0.0
+            }
+        },
+        "CircleRendererComponent": {
+            "Color": {
+                "X": 1.0,
+                "Y": 0.0,
+                "Z": 1.0,
+                "W": 1.0
+            },
+            "Thickness": 1.0
+        }
+    }
+}

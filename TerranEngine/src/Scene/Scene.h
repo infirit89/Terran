@@ -18,6 +18,8 @@ namespace TerranEngine
 		void Update();
 		void OnResize(float width, float height);
 
+		entt::registry& GetRegistry() { return m_Registry; }
+
 		Entity GetPrimaryCamera();
 
 	private:

@@ -1,7 +1,7 @@
 workspace "Terran"
 
     architecture "x86_64"
-    startproject "Sandbox"
+    startproject "TerranEditor"
     configurations 
     {
         "Debug",
@@ -21,3 +21,4 @@ group ""
 
 include "TerranEngine"
 include "Sandbox"
+include "TerranEditor"
