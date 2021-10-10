@@ -1,13 +1,16 @@
 #include "TerranEditorUI.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Terran.h"
 
+#include <imgui.h>
+#include <imgui_internal.h>
+
+#include <glm/gtc/type_ptr.hpp>
+
 namespace TerranEngine 
 {
-	void TerranEditorUI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
+    void TerranEditorUI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
 	{
         ImGui::PushID(label);
 
@@ -36,7 +39,6 @@ namespace TerranEngine
             value.x += io.MouseDelta.x * power;
         }
 
-        ImGui::PopStyleColor(3);
         ImGui::SameLine();
 
         cursorPos = ImGui::GetCursorPos();
@@ -47,9 +49,6 @@ namespace TerranEngine
         ImGui::PopItemWidth();
         ImGui::SameLine();
 
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
         ImGui::Button("Y", buttonSize);
         if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) 
         {
@@ -57,7 +56,6 @@ namespace TerranEngine
             value.y += io.MouseDelta.x * power;
         }
 
-        ImGui::PopStyleColor(3);
         ImGui::SameLine();
 
         cursorPos = ImGui::GetCursorPos();
@@ -68,9 +66,6 @@ namespace TerranEngine
         ImGui::PopItemWidth();
         ImGui::SameLine();
 
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
         ImGui::Button("Z", buttonSize);
         if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) 
         {

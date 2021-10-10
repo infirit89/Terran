@@ -6,6 +6,7 @@ namespace TerranEngine
 {
 	class PropertiesPanel 
 	{
+
 	public:
 		PropertiesPanel() = default;
 
