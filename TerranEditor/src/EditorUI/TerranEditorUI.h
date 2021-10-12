@@ -7,6 +7,8 @@ namespace TerranEngine
 	class TerranEditorUI 
 	{
 	public:
+		static void DrawColor4Control(const char* label, glm::vec4& value, float columnWidth = 100.0f);
+
 		static void DrawVec3Control(const char* label, glm::vec3& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
 	};
 }

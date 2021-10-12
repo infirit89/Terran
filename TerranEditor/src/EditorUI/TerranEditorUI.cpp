@@ -10,6 +10,35 @@
 
 namespace TerranEngine 
 {
+    void TerranEditorUI::DrawColor4Control(const char* label, glm::vec4& value, float columnWidth)
+    {
+        ImGui::PushID(label);
+
+        ImGui::Columns(2, NULL, false);
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+
+        ImGui::NextColumn();
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+        ImVec2 buttonSize = ImVec2{ ImGui::GetContentRegionAvailWidth(), 0.0f };
+
+        if (ImGui::ColorButton("##Color", ImVec4{ value.x, value.y, value.z, value.w }, 0, buttonSize))
+            ImGui::OpenPopup("picker");
+
+        if (ImGui::BeginPopup("picker"))
+        {
+
+            ImGui::ColorPicker4("##picker", glm::value_ptr(value));
+            ImGui::EndPopup();
+        }
+
+
+        ImGui::Columns(1);
+        ImGui::PopID();
+    }
+
     void TerranEditorUI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
 	{
         ImGui::PushID(label);

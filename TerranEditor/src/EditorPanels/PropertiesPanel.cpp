@@ -83,7 +83,7 @@ namespace TerranEngine
 
 				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component) 
 				{
-					ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+					TerranEditorUI::DrawColor4Control("Color", component.Color);
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();
