@@ -53,6 +53,8 @@ namespace TerranEngine
 		OrthographicCamera Camera;
 		bool Primary = true;
 
+		glm::vec4 BackgroundColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+
 		CameraComponent() = default;
 
 	};

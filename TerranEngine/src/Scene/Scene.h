@@ -15,6 +15,8 @@ namespace TerranEngine
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
 
+		void DestroyEntity(Entity entity);
+
 		void Update();
 		void OnResize(float width, float height);
 

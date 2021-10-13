@@ -39,6 +39,26 @@ namespace TerranEngine
                 // TODO: if entity is a parent than render a imgui tree
                 if (ImGui::Selectable(buf, m_Selected == entity))
                     m_Selected = entity;
+
+                if (ImGui::BeginPopupContextItem())
+                {
+                    if (ImGui::MenuItem("Delete entity")) 
+                    {
+                        m_Scene->DestroyEntity(entity);
+                        if (m_Selected == entity)
+                            m_Selected = {};
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+            }
+            if (ImGui::BeginPopupContextWindow(0, 1, false))
+            {
+                if (ImGui::MenuItem("Create an entity"))
+                    m_Scene->CreateEntity("Empty Entity");
+
+                ImGui::EndPopup();
             }
 
             if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())

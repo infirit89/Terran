@@ -105,9 +105,9 @@ namespace TerranEngine
 				{ "CameraComponent",
 				{
 					{"Camera", 
-					{	{"Width", camComp.Camera.GetWidth()},
-						{"Height", camComp.Camera.GetHeight()},
-						{"Depth", camComp.Camera.GetDepth()},
+					{	{"Size", camComp.Camera.GetOrthographicSize()},
+						{"Near", camComp.Camera.GetOrthographicNear()},
+						{"Far", camComp.Camera.GetOrthographicFar()},
 					}},
 					{"Primary", camComp.Primary}
 				} }
@@ -185,7 +185,10 @@ namespace TerranEngine
 			{
 				json jCamera = jEntity["CameraComponent"];
 
-				OrthographicCamera cam(jCamera["Camera"]["Width"], jCamera["Camera"]["Height"], jCamera["Camera"]["Depth"]);
+				OrthographicCamera cam;
+				cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
+				cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
+				cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
 
 				entity.AddComponent<CameraComponent>().Camera = cam;
 				entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];

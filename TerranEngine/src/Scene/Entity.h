@@ -66,6 +66,8 @@ namespace TerranEngine
 			return !(*this == other);
 		}
 
+		inline operator entt::entity() const { return m_Handle; }
+
 		inline operator bool() const { return m_Handle != entt::null; }
 
 	private:

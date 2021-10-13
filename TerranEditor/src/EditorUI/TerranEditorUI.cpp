@@ -24,23 +24,24 @@ namespace TerranEngine
 
         ImVec2 buttonSize = ImVec2{ ImGui::GetContentRegionAvailWidth(), 0.0f };
 
-        if (ImGui::ColorButton("##Color", ImVec4{ value.x, value.y, value.z, value.w }, 0, buttonSize))
+        if (ImGui::ColorButton("##colbutton", ImVec4{ value.r, value.g, value.b, value.a }, 0, buttonSize))
             ImGui::OpenPopup("picker");
 
         if (ImGui::BeginPopup("picker"))
         {
 
-            ImGui::ColorPicker4("##picker", glm::value_ptr(value));
+            ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
             ImGui::EndPopup();
         }
-
 
         ImGui::Columns(1);
         ImGui::PopID();
     }
 
-    void TerranEditorUI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
+    bool TerranEditorUI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
 	{
+        bool changed = false;
+
         ImGui::PushID(label);
 
         ImVec2 cursorPos;
@@ -72,9 +73,12 @@ namespace TerranEngine
 
         cursorPos = ImGui::GetCursorPos();
         ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-        ImGui::DragFloat("##DRX", &value.x, power, 0.0f, 0.0f, format);
+        if (ImGui::DragFloat("##DRX", &value.x, power, 0.0f, 0.0f, format))
+            changed = true;
+
         if (ImGui::IsItemHovered() || ImGui::IsItemActive())
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
         ImGui::PopItemWidth();
         ImGui::SameLine();
 
@@ -89,9 +93,12 @@ namespace TerranEngine
 
         cursorPos = ImGui::GetCursorPos();
         ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-        ImGui::DragFloat("##DRY", &value.y, power, 0.0f, 0.0f, format);
+        if (ImGui::DragFloat("##DRY", &value.y, power, 0.0f, 0.0f, format))
+            changed = true;
+
         if (ImGui::IsItemHovered() || ImGui::IsItemActive())
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
         ImGui::PopItemWidth();
         ImGui::SameLine();
 
@@ -107,7 +114,9 @@ namespace TerranEngine
 
         cursorPos = ImGui::GetCursorPos();
         ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-        ImGui::DragFloat("##DRZ", &value.z, power, 0.0f, 0.0f, format);
+        if (ImGui::DragFloat("##DRZ", &value.z, power, 0.0f, 0.0f, format))
+            changed = true;
+
         if (ImGui::IsItemHovered() || ImGui::IsItemActive())
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
@@ -116,6 +125,35 @@ namespace TerranEngine
         
         ImGui::Columns(1);
         ImGui::PopID();
+
+        return changed;
 	}
+
+    bool TerranEditorUI::DrawFloatControl(const char* label, float& value, float power, const char* format, float columnWidth)
+    {
+        bool changed = false;
+
+        ImGui::PushID(label);
+
+        ImGui::Columns(2, NULL, false);
+
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+        ImGui::NextColumn();
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+        if (ImGui::DragFloat("##val", &value, power, 0.0f, 0.0f, format))
+            changed = true;
+
+        if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+        ImGui::Columns(1);
+
+        ImGui::PopID();
+
+        return changed;
+    }
 }
 

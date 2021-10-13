@@ -68,22 +68,41 @@ namespace TerranEngine
 					memset(buf, 0, sizeof(buf));
 					strcpy_s(buf, sizeof(buf), tagComp.Name.c_str());
 
-					if (ImGui::InputText("##Tag", buf, sizeof(buf))) 
+					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 						tagComp.Name = buf;
 				}
 				ImGui::Separator();
 				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
 
-				DrawComponent<TransformComponent>("Transform", entity, [](auto& componenet) 
+				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& componenet)
 				{
 					TerranEditorUI::DrawVec3Control("Position", componenet.Position);
 					TerranEditorUI::DrawVec3Control("Rotation", componenet.Rotation);
 					TerranEditorUI::DrawVec3Control("Scale",	componenet.Scale);
 				}, false);
 
-				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component) 
+				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
 				{
 					TerranEditorUI::DrawColor4Control("Color", component.Color);
+				});
+
+				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
+				{
+						TerranEditorUI::DrawColor4Control("Background color", component.BackgroundColor);
+
+					float camSize = component.Camera.GetOrthographicSize();
+					if (TerranEditorUI::DrawFloatControl("Size", camSize))
+						component.Camera.SetOrthographicSize(camSize);
+
+					ImGui::Text("Clipping planes");
+
+					float camNear = component.Camera.GetOrthographicNear();
+					if (TerranEditorUI::DrawFloatControl("Near", camNear))
+						component.Camera.SetOrthographicNear(camNear);
+
+					float camFar = component.Camera.GetOrthographicFar();
+					if (TerranEditorUI::DrawFloatControl("Far", camFar))
+						component.Camera.SetOrthographicFar(camFar);
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();

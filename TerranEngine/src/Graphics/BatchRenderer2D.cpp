@@ -257,7 +257,7 @@ namespace TerranEngine
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = glm::inverse(transform);
 
-		m_CameraData.ProjectionSize = { camera.GetWidth(), camera.GetHeight(), camera.GetDepth() };
+		m_CameraData.ProjectionSize = { 0, 0, 0 };
 		m_CameraData.CameraPosition = transform[3];
 
 		m_CameraBuffer->Bind();

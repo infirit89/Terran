@@ -45,6 +45,7 @@ namespace TerranEngine
 		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+		glfwWindowHint(GLFW_MAXIMIZED, 1);
 
 		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name, NULL, NULL);
 

@@ -8,19 +8,20 @@
 namespace TerranEngine
 {
 	EditorLayer::EditorLayer()
-		: Layer("Editor"),
-        m_Camera(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f)
+		: Layer("Editor")
 	{
         m_Renderer = CreateUnique<BatchRenderer2D>(20000);
         m_Renderer->CreateFramebuffer(1280, 790, false);
 
         m_Scene = CreateShared<Scene>();
+        auto en = m_Scene->CreateEntity("Entity");
 
         auto e = m_Scene->CreateEntity("Test Entity");
         e.AddComponent<SpriteRendererComponent>();
 
         auto camera = m_Scene->CreateEntity("Camera");
         camera.AddComponent<CameraComponent>().Camera = m_Camera;
+
 
         m_SHierarchy = SceneHierarchy(m_Scene);
 
@@ -51,13 +52,20 @@ namespace TerranEngine
            m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
            m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
         }
-
+        
+        RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		RenderCommand::Clear();
 
         m_Renderer->ResetStats();
 
         m_Renderer->GetFramebuffer()->Bind();
-        RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        auto primaryCamera = m_Scene->GetPrimaryCamera();
+        glm::vec4 backgroundColor = glm::vec4(0.0f);
+
+        if(primaryCamera)
+            backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
+
+        RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
         RenderCommand::Clear();
 
         m_Scene->Update();
@@ -76,8 +84,6 @@ namespace TerranEngine
 
 	void EditorLayer::ShowDockspace() 
 	{
-        static bool opt_fullscreen = true;
-        static bool opt_padding = false;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
         static bool p_open = true;
@@ -85,21 +91,14 @@ namespace TerranEngine
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        if (opt_fullscreen)
-        {
-            const ImGuiViewport* viewport = ImGui::GetMainViewport();
-            ImGui::SetNextWindowPos(viewport->WorkPos);
-            ImGui::SetNextWindowSize(viewport->WorkSize);
-            ImGui::SetNextWindowViewport(viewport->ID);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-        }
-        else
-        {
-            dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
-        }
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
         // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
         // and handle the pass-thru hole, so we ask Begin() to not render a background.
@@ -111,14 +110,11 @@ namespace TerranEngine
         // all active windows docked into it will lose their parent and become undocked.
         // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
         // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-        if (!opt_padding)
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("Terran Editor", &p_open, window_flags);
-        if (!opt_padding)
-            ImGui::PopStyleVar();
+        ImGui::PopStyleVar();
 
-        if (opt_fullscreen)
-            ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(2);
 
         // DockSpace
         ImGuiIO& io = ImGui::GetIO();
@@ -130,20 +126,16 @@ namespace TerranEngine
 
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("Options"))
+            if (ImGui::BeginMenu("File"))
             {
                 // Disabling fullscreen would allow the window to be moved to the front of other windows,
                 // which we can't undo at the moment without finer window depth/z control.
-                ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
-                ImGui::MenuItem("Padding", NULL, &opt_padding);
-                ImGui::Separator();
 
-                if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoSplit; }
-                if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoResize; }
-                if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode; }
-                if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0)) { dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar; }
-                if (ImGui::MenuItem("Flag: PassthruCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0, opt_fullscreen)) { dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode; }
-                ImGui::Separator();
+                if (ImGui::MenuItem("Save")) 
+                {
+ //                   SceneSerializer sSerializer(m_Scene);
+ //                   sSerializer.SerializeJson()
+                }
 
                 ImGui::EndMenu();
             }
@@ -167,6 +159,7 @@ namespace TerranEngine
             m_ViewportSize = { regionAvail.x, regionAvail.y };
 
             uint32_t textureID = m_Renderer->GetFramebuffer()->GetColorAttachmentID();
+
             ImGui::Image((void*)textureID, regionAvail, { 0, 1 }, { 1, 0 });
 
             ImGui::End();
