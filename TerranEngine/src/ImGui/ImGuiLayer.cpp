@@ -39,8 +39,12 @@ namespace TerranEngine
 
 	void ImGuiLayer::OnDettach()
 	{
+
 		ImGui_ImplGlfw_Shutdown();
 		ImGui_ImplOpenGL3_Shutdown();
+//		ImGuiIO io = ImGui::GetIO();
+//		TR_TRACE(io.WantSaveIniSettings);
+//		ImGui::SaveIniSettingsToDisk("res/TerranEditorSettings.ini");
 
 		ImGui::DestroyContext();
 	}

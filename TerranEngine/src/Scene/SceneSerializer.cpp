@@ -156,14 +156,14 @@ namespace TerranEngine
 			SerializeEntity(j, entity);
 		});
 
-		std::ofstream ofs("res/TestScene.json");
+		std::ofstream ofs(filePath);
 
 		ofs << std::setw(4) << j << std::endl;
 	}
 
 	void SceneSerializer::DesirializeJson(const std::string& filePath)
 	{
-		std::ifstream ifs("res/TestScene.json");
+		std::ifstream ifs(filePath);
 
 		json j;
 		ifs >> j;

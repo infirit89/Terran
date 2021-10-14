@@ -5,6 +5,7 @@
 #include "Core/Log.h"
 #include "Core/Layer.h"
 #include "Core/Input.h"
+#include "Core/FileUtils.h"
 #include "Core/Base.h"
 #include "Core/UUID.h"
 
@@ -13,6 +14,9 @@
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/Event.h"
+
+/* ---- Utils ---- */
+//#include "Utils/FileUtils.h"
 
 /* ---- ImGui ---- */
 #include "ImGui/ImGuiLayer.h"

@@ -12,6 +12,8 @@
 #include "Graphics/Shader.h"
 #include "Graphics/RenderCommand.h"
 
+#include <imgui.h>
+
 #pragma warning (push)
 #pragma warning (disable : 4244)
 

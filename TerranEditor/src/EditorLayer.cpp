@@ -38,6 +38,8 @@ namespace TerranEngine
         config.MergeMode = true;
 
         io.Fonts->Build();
+
+        io.IniFilename = "res\\TerranEditorSettings.ini";
 	}
 
 	void EditorLayer::OnDettach()
@@ -46,8 +48,8 @@ namespace TerranEngine
 
 	void EditorLayer::Update(float& time)
 	{
-        if (m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
-            m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height)
+        if ((m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
+            m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height) && m_ViewportSize.x > 0 && m_ViewportSize.y > 0)
         {
            m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
            m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
@@ -80,7 +82,48 @@ namespace TerranEngine
 
 	void EditorLayer::OnEvent(Event& event)
 	{
+        EventDispatcher dispatcher(event);
+
+        dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnKeyPressedEvent));
 	}
+    
+    bool EditorLayer::OnKeyPressedEvent(KeyPressedEvent& kEvent)
+    {
+        bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+        bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+
+        if (kEvent.GetRepeatCount() > 0)
+            return false;
+
+        switch (kEvent.GetKeyCode())
+        {
+        case Key::S:
+        {
+            if (ctrlPressed) 
+            {
+                if (shiftPressed)
+                    SaveSceneAs();
+                else
+                    SaveScene();
+            }
+            break;
+        }
+        case Key::O:
+        {
+            if (ctrlPressed)
+                OpenScene();
+            break;
+        }
+        case Key::N:
+        {
+            if (ctrlPressed)
+                NewScene();
+            break;
+        }
+        }
+
+        return false;
+    }
 
 	void EditorLayer::ShowDockspace() 
 	{
@@ -131,11 +174,14 @@ namespace TerranEngine
                 // Disabling fullscreen would allow the window to be moved to the front of other windows,
                 // which we can't undo at the moment without finer window depth/z control.
 
-                if (ImGui::MenuItem("Save")) 
-                {
- //                   SceneSerializer sSerializer(m_Scene);
- //                   sSerializer.SerializeJson()
-                }
+                if (ImGui::MenuItem("Open", "Ctrl+O"))
+                    OpenScene();
+                if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+                    SaveSceneAs();
+                if (ImGui::MenuItem("Save", "Ctrl+S"))
+                    SaveScene();
+                if (ImGui::MenuItem("New", "Ctrl+N"))
+                    NewScene();
 
                 ImGui::EndMenu();
             }
@@ -181,28 +227,52 @@ namespace TerranEngine
             ImGui::End();
         }
 
-        ImGui::ShowDemoWindow();
-
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
-        
         m_SHierarchy.ImGuiRender();
         m_PropertiesPanel.ImGuiRender(m_SHierarchy.GetSelected());
-
-        //{
-        //    ImGui::Begin("Properties");
-        //    //float heightFromTop = 17.6f;
-
-        //    if (m_Selected)
-        //    {
-        //        if (m_Selected.HasComponent<TransformComponent>())
-        //        {
-        //            auto& transformComp = m_Selected.GetComponent<TransformComponent>();
-
-        //            TerranEditorUI::DrawVec3Control("Position", transformComp.Position);
-        //        }
-        //    }
-
-        //    ImGui::End();
-        //}
 	}
+
+    void EditorLayer::SaveSceneAs()
+    {
+        std::string scenePath = FileUtils::SaveFile("Terran Scene\0*.terran\0");
+        if (!scenePath.empty())
+        {
+            m_CurrentScenePath = scenePath;
+            SceneSerializer sSerializer(m_Scene);
+            sSerializer.SerializeJson(scenePath);
+        }
+    }
+
+    void EditorLayer::NewScene()
+    {
+        m_Scene = CreateShared<Scene>();
+        m_Scene->CreateEntity("Camera").AddComponent<CameraComponent>();
+        m_SHierarchy.SetScene(m_Scene);
+    }
+
+    void EditorLayer::OpenScene()
+    {
+        std::string scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");
+        if (!scenePath.empty())
+        {
+            m_CurrentScenePath = scenePath;
+            Shared<Scene> newScene = CreateShared<Scene>();
+            SceneSerializer sSerializer(newScene);
+            sSerializer.DesirializeJson(scenePath);
+            m_Scene = newScene;
+            m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+            m_SHierarchy.SetScene(m_Scene);
+        }
+    }
+
+    void EditorLayer::SaveScene()
+    {
+        if (m_CurrentScenePath.empty())
+            SaveSceneAs();
+        else 
+        {
+            SceneSerializer sSerializer(m_Scene);
+            sSerializer.SerializeJson(m_CurrentScenePath);
+        }
+    }
 }

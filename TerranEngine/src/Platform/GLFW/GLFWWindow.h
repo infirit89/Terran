@@ -32,6 +32,7 @@ namespace TerranEngine
 			uint32_t Width; uint32_t Height;
 			bool Vsync;
 			EventCallbackFn EventCallback;
+			const void* VideoMode;
 		};
 
 		bool m_Vsync;

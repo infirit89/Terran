@@ -41,12 +41,18 @@ namespace TerranEngine
 		m_WindowDataPtr.Width = data.Width;
 		m_WindowDataPtr.Height = data.Height;
 
+
 		int glfwSuccess = glfwInit();
 		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 		glfwWindowHint(GLFW_MAXIMIZED, 1);
 
+		GLFWmonitor* montitor = glfwGetPrimaryMonitor();
+		
+		const GLFWvidmode* vidMode = glfwGetVideoMode(montitor);
+
+		m_WindowDataPtr.VideoMode = vidMode;
 		m_Window = glfwCreateWindow(m_WindowDataPtr.Width, m_WindowDataPtr.Height, data.Name, NULL, NULL);
 
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
@@ -60,6 +66,19 @@ namespace TerranEngine
 		stbi_image_free(iconImages[1].pixels);
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
+
+		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int miximize) 
+		{
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+
+			if (miximize == 0)
+			{
+				float xpos = ((GLFWvidmode*)data.VideoMode)->width / 2 - data.Width / 2;
+				float ypos = ((GLFWvidmode*)data.VideoMode)->height / 2 - data.Height / 2;
+
+				glfwSetWindowPos(window, xpos, ypos);
+			}
+		});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);

@@ -21,6 +21,13 @@ namespace TerranEngine
 		void ImGuiRender() override;
 
 	private:
+		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
+
+		void SaveSceneAs();
+		void NewScene();
+		void OpenScene();
+		void SaveScene();
+
 		void ShowDockspace();
 
 		Shared<Scene> m_Scene;
@@ -38,6 +45,8 @@ namespace TerranEngine
 		
 
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
+
+		std::string m_CurrentScenePath = std::string();
 
 		float m_Frametime;
 	};

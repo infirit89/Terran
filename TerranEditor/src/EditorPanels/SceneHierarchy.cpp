@@ -56,7 +56,7 @@ namespace TerranEngine
             if (ImGui::BeginPopupContextWindow(0, 1, false))
             {
                 if (ImGui::MenuItem("Create an entity"))
-                    m_Scene->CreateEntity("Empty Entity");
+                    m_Scene->CreateEntity("Entity");
 
                 ImGui::EndPopup();
             }
