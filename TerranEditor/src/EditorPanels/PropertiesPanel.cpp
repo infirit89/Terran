@@ -84,11 +84,12 @@ namespace TerranEngine
 				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
 				{
 					TerranEditorUI::DrawColor4Control("Color", component.Color);
+					TerranEditorUI::DrawIntControl("Z index", component.ZIndex);
 				});
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
 				{
-						TerranEditorUI::DrawColor4Control("Background color", component.BackgroundColor);
+					TerranEditorUI::DrawColor4Control("Background color", component.BackgroundColor);
 
 					float camSize = component.Camera.GetOrthographicSize();
 					if (TerranEditorUI::DrawFloatControl("Size", camSize))

@@ -30,6 +30,8 @@ namespace TerranEngine
 
 		void ShowDockspace();
 
+		Entity m_RenderableEntity, m_Entity1, m_Entity2;
+
 		Shared<Scene> m_Scene;
 		Unique<BatchRenderer2D> m_Renderer;
 

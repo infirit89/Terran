@@ -14,10 +14,31 @@ namespace TerranEngine
         m_Renderer->CreateFramebuffer(1280, 790, false);
 
         m_Scene = CreateShared<Scene>();
-        auto en = m_Scene->CreateEntity("Entity");
 
-        auto e = m_Scene->CreateEntity("Test Entity");
-        e.AddComponent<SpriteRendererComponent>();
+        m_Entity1 = m_Scene->CreateEntity("Entity 1");
+
+        m_Entity2 = m_Scene->CreateEntity("Entity");
+        m_Entity2.AddComponent<RelationshipComponent>().Parent = m_Entity1;
+        m_RenderableEntity = m_Scene->CreateEntity("Test Entity");
+        m_RenderableEntity.AddComponent<SpriteRendererComponent>();
+        m_RenderableEntity.AddComponent<RelationshipComponent>().Parent = m_Entity1;
+
+        m_RenderableEntity.GetComponent<RelationshipComponent>().Prev = m_Entity2;
+        m_RenderableEntity.GetComponent<RelationshipComponent>().Prev.GetComponent<RelationshipComponent>().Next = m_RenderableEntity;
+
+        auto entity = m_Scene->CreateEntity("Bruuh");
+        entity.AddComponent<RelationshipComponent>().Parent = m_Entity1;
+        entity.GetComponent<RelationshipComponent>().Prev = m_RenderableEntity;
+        entity.GetComponent<RelationshipComponent>().Next = entity;
+
+        entity.GetComponent<RelationshipComponent>().Prev.GetComponent<RelationshipComponent>().Next = entity;
+
+        m_Entity1.AddComponent<RelationshipComponent>();
+        auto& parentComp = m_Entity1.GetComponent<RelationshipComponent>();
+        parentComp.First = m_Entity2;
+        parentComp.Next = m_RenderableEntity;
+        parentComp.Prev = entity;
+        parentComp.Children = 3;
 
         auto camera = m_Scene->CreateEntity("Camera");
         camera.AddComponent<CameraComponent>().Camera = m_Camera;
@@ -127,9 +148,7 @@ namespace TerranEngine
 
 	void EditorLayer::ShowDockspace() 
 	{
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-        static bool p_open = true;
+        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
 
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
@@ -143,18 +162,8 @@ namespace TerranEngine
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-        // and handle the pass-thru hole, so we ask Begin() to not render a background.
-        if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-            window_flags |= ImGuiWindowFlags_NoBackground;
-
-        // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-        // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-        // all active windows docked into it will lose their parent and become undocked.
-        // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-        // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-        ImGui::Begin("Terran Editor", &p_open, window_flags);
+        ImGui::Begin("Terran Editor", (bool*)true, window_flags);
         ImGui::PopStyleVar();
 
         ImGui::PopStyleVar(2);
@@ -171,9 +180,6 @@ namespace TerranEngine
         {
             if (ImGui::BeginMenu("File"))
             {
-                // Disabling fullscreen would allow the window to be moved to the front of other windows,
-                // which we can't undo at the moment without finer window depth/z control.
-
                 if (ImGui::MenuItem("Open", "Ctrl+O"))
                     OpenScene();
                 if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))

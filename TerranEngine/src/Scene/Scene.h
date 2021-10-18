@@ -2,7 +2,6 @@
 
 #include <entt.hpp>
 
-
 namespace TerranEngine 
 {
 	class Entity;

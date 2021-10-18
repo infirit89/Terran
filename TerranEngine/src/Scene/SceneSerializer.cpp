@@ -121,7 +121,8 @@ namespace TerranEngine
 			j["Entity " + std::to_string(uint32_t(entity))].push_back(
 				{ "SpriteRendererComponent",
 				{
-					SerializeVec4("Color", sprComp.Color)
+					SerializeVec4("Color", sprComp.Color),
+					{"ZIndex", sprComp.ZIndex}
 				} }
 			);
 		}

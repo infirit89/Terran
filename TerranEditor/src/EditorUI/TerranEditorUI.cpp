@@ -155,5 +155,34 @@ namespace TerranEngine
 
         return changed;
     }
+
+    bool TerranEditorUI::DrawIntControl(const char* label, int& value, float power, const char* format, float columnWidth)
+    {
+        bool changed = false;
+
+        ImGui::PushID(label);
+
+        ImGui::Columns(2, NULL, false);
+
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+        ImGui::NextColumn();
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+        if (ImGui::DragInt("##val", &value, power, 0.0f, 0.0f, format))
+            changed = true;
+
+        if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+        ImGui::Columns(1);
+
+        ImGui::PopID();
+
+        return changed;
+
+        return changed;
+    }
 }
 

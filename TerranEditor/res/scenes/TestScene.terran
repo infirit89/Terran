@@ -1,41 +1,10 @@
 {
     "Scene": "Name",
-    "Entities": 4,
-    "Entity 3": {
-        "TagComponent": {
-            "Tag": "Entity",
-            "ID": "87a2e6ba-d3d7-4b69-a811-f5daa4f821"
-        },
-        "TransformComponent": {
-            "Position": {
-                "X": 3.4000000953674316,
-                "Y": 0.0,
-                "Z": 0.0
-            },
-            "Scale": {
-                "X": 1.0,
-                "Y": 1.0,
-                "Z": 1.0
-            },
-            "Rotation": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
-            }
-        },
-        "SpriteRendererComponent": {
-            "Color": {
-                "X": 0.6168224215507507,
-                "Y": 0.22482311725616455,
-                "Z": 0.22482311725616455,
-                "W": 1.0
-            }
-        }
-    },
+    "Entities": 3,
     "Entity 2": {
         "TagComponent": {
             "Tag": "Camera",
-            "ID": "bb64696e-61c1-4145-9b49-27d4407b9aaf"
+            "ID": "ab50b460-b5ac-4ed1-a781-c8e0fc92b529"
         },
         "TransformComponent": {
             "Position": {
@@ -66,7 +35,7 @@
     "Entity 1": {
         "TagComponent": {
             "Tag": "Test Entity",
-            "ID": "0e41ae9-b91d-48bd-8226-1e8bd64bb1a"
+            "ID": "c417022-97dc-427e-ae2e-92f135c2a4a6"
         },
         "TransformComponent": {
             "Position": {
@@ -91,13 +60,14 @@
                 "Y": 1.0,
                 "Z": 1.0,
                 "W": 1.0
-            }
+            },
+            "ZIndex": 0
         }
     },
     "Entity 0": {
         "TagComponent": {
             "Tag": "Entity",
-            "ID": "f5e2f35f-7b94-45d-b57d-1af3d73e5f9"
+            "ID": "98c8b38c-d5a0-41d9-a7fa-96b6f57b27f8"
         },
         "TransformComponent": {
             "Position": {

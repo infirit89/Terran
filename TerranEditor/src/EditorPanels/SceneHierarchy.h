@@ -17,9 +17,11 @@ namespace TerranEngine
 		void SetClosed(bool closed);
 
 		void ImGuiRender();
-
+		
 
 	private:
+		void DrawEntityNode(Entity entity, bool isChild);
+
 		bool m_Closed = true;
 
 		Entity m_Selected = {};

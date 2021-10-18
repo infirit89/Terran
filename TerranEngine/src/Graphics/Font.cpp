@@ -2,6 +2,8 @@
 
 #include "Font.h"
 
+#include <freetype-gl.h>
+
 namespace TerranEngine 
 {
 	Font::Font(const char* fontName, uint32_t fontSize)

@@ -2,8 +2,8 @@
 #include "Scene.h"
 
 #include "Components.h"
-#include "Graphics/BatchRenderer2D.h"
 #include "Entity.h"
+#include "Graphics/BatchRenderer2D.h"
 #include "Utils/ResourceManager.h"
 
 namespace TerranEngine 
@@ -35,6 +35,11 @@ namespace TerranEngine
 
 	void Scene::Update()
 	{
+		m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
+		{
+			return lEntity.ZIndex < rEntity.ZIndex;
+		});
+
 		auto cameraView = m_Registry.view<CameraComponent>();
 		
 		Camera camera;

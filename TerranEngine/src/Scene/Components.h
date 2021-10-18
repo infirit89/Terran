@@ -13,11 +13,6 @@
 
 namespace TerranEngine 
 {
-	struct TestComponent 
-	{
-		float x, y;
-	};
-
 	struct TagComponent 
 	{
 		std::string Name;
@@ -34,11 +29,13 @@ namespace TerranEngine
 
 	struct TransformComponent 
 	{
-		glm::vec3 Position, Scale;
-		glm::vec3 Rotation;
+		glm::vec3 Position = { 0.0f, 0.0f, 0.0f }, Scale = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
 
-		TransformComponent(const glm::vec3& position = { 0.0f, 0.0f, 0.0f }, const glm::vec3& scale = { 1.0f, 1.0f, 1.0f }, const glm::vec3& rotation = { 0.0f, 0.0f, 0.0f })
-			: Position(position), Scale(scale), Rotation(rotation) {}
+		glm::vec3 LocalPosition = { 0.0f, 0.0f, 0.0f}, LocalScale = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+
+		TransformComponent() = default;
 
 		glm::mat4 GetTransformMatrix()
 		{
@@ -53,7 +50,7 @@ namespace TerranEngine
 		OrthographicCamera Camera;
 		bool Primary = true;
 
-		glm::vec4 BackgroundColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+		glm::vec4 BackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 		CameraComponent() = default;
 
@@ -61,25 +58,17 @@ namespace TerranEngine
 
 	struct SpriteRendererComponent 
 	{
-		glm::vec4 Color;
+		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		int ZIndex = 0;
 
-		SpriteRendererComponent()
-			: Color({ 1.0f, 1.0f, 1.0f, 1.0f })
-		{}
+		SpriteRendererComponent() = default;
 	};
 
 	struct CircleRendererComponent 
 	{
-		glm::vec4 Color;
-		float Thickness;
+		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float Thickness = 1.0f;
 
-		CircleRendererComponent() 
-			: Color({1.0f, 1.0f, 1.0f, 1.0f}), Thickness(1.0f)
-		{}
-	};
-
-	struct ScriptableComponent 
-	{
-
+		CircleRendererComponent() = default;
 	};
 }

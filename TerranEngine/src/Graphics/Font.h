@@ -1,6 +1,9 @@
 #pragma once
 
-#include <freetype-gl.h>
+//#include <freetype-gl.h>
+
+#include <texture-atlas.h>
+#include <texture-font.h>
 
 #include "Texture.h"
 #include "Core/Base.h"

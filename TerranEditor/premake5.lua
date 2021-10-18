@@ -18,7 +18,6 @@ project "TerranEditor"
         "%{wks.location}/TerranEngine/src/",
         "%{wks.location}/TerranEngine/vendor/",
         "%{wks.location}/TerranEngine/vendor/spdlog/include/",
-        "%{wks.location}/TerranEngine/vendor/GLAD/include/",
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",

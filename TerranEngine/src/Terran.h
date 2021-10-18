@@ -40,3 +40,4 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneSerializer.h"
+#include "Scene/RelationshipComponent.h"
