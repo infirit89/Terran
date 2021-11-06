@@ -22,6 +22,8 @@ namespace TerranEngine
 
 	void SceneHierarchy::ImGuiRender()
 	{
+        //TR_TRACE(m_Scene->GetRegistry().size());
+
         if(m_Closed)
         {
             ImGui::Begin("Hierarchy", &m_Closed, ImGuiWindowFlags_NoCollapse);
@@ -48,25 +50,27 @@ namespace TerranEngine
 
 	}
 
+    // poc code not final
+
     // TODO: god oh geez please fucking get rid of this mess, this huge pile of shit
 
-    void SceneHierarchy::DrawEntityNode(Entity entity, bool isChild)
+    bool SceneHierarchy::DrawEntityNode(Entity entity, bool isChild)
     {
         TagComponent& tagComp = entity.GetComponent<TagComponent>();
 
         // bruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuh
-        if (entity.HasComponent<RelationshipComponent>() && 
-            entity.GetComponent<RelationshipComponent>().Parent && 
+        if (entity.HasComponent<RelationshipComponent>() &&
+            entity.GetComponent<RelationshipComponent>().Parent &&
             !isChild)
-            return;
+            return false;
 
         ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
         flags |= ImGuiTreeNodeFlags_FramePadding;
 
         // TODO: clean up all this shit
 
-        if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children <= 0)
-            flags |= ImGuiTreeNodeFlags_NoButton;
+        //if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children <= 0)
+        //    flags |= ImGuiTreeNodeFlags_NoButton;
 
         ImGuiStyle& style = ImGui::GetStyle();
         ImGuiStyle orgStyle = style;
@@ -78,23 +82,28 @@ namespace TerranEngine
         style = orgStyle;
 
         if (ImGui::IsItemClicked())
-        {
             m_Selected = entity;
 
-            if (isChild)
-            {
-                m_Selected = entity;
-                TR_TRACE(m_Selected.GetComponent<TagComponent>().Name);
-            }
-        }
+
+        bool isDeleted = false;
+        
+        if (Input::IsKeyPressed(Key::Delete))
+            if (m_Selected == entity)
+                isDeleted = true;
 
         if (ImGui::BeginPopupContextItem())
         {
-            if (ImGui::MenuItem("Delete entity"))
+            if (ImGui::MenuItem("Delete entity")) 
+                isDeleted = true;
+
+            if (ImGui::MenuItem("Create Entity")) 
             {
-                m_Scene->DestroyEntity(entity);
-                if (m_Selected == entity)
-                    m_Selected = {};
+                auto entity = m_Scene->CreateEntity("Entity");
+
+                if (m_Selected) 
+                {
+                    m_Scene->AddChild(m_Selected, entity);
+                }
             }
 
             ImGui::EndPopup();
@@ -108,19 +117,34 @@ namespace TerranEngine
 
                 if (relComp.Children > 0)
                 {
-                    Entity currChild = relComp.First;
+                    Entity currChild = relComp.FirstChild;
 
                     for (size_t i = 0; i < relComp.Children; i++)
                     {
-                        DrawEntityNode(currChild, true);
-
-                        currChild = currChild.GetComponent<RelationshipComponent>().Next;
+                        relComp = entity.GetComponent<RelationshipComponent>();
+                        if (currChild && currChild.Valid())
+                        {
+                            if(!DrawEntityNode(currChild, true))
+                                currChild = currChild.GetComponent<RelationshipComponent>().Next;
+                        }
+                        else
+                            TR_ERROR("Not a valid child");
                     }
                 }
             }
 
             ImGui::TreePop();
         }
+
+        if (isDeleted)
+        {
+            m_Scene->DestroyEntity(entity);
+            if (m_Selected == entity)
+                m_Selected = {};
+
+            return true;
+        }
+
+        return false;
     }
 }
-

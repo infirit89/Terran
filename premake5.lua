@@ -8,6 +8,11 @@ workspace "Terran"
         "Release"
     }
 
+    flags 
+    {
+        "MultiProcessorCompile"
+    }
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"

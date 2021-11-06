@@ -18,28 +18,11 @@ namespace TerranEngine
         m_Entity1 = m_Scene->CreateEntity("Entity 1");
 
         m_Entity2 = m_Scene->CreateEntity("Entity");
-        m_Entity2.AddComponent<RelationshipComponent>().Parent = m_Entity1;
         m_RenderableEntity = m_Scene->CreateEntity("Test Entity");
         m_RenderableEntity.AddComponent<SpriteRendererComponent>();
-        m_RenderableEntity.AddComponent<RelationshipComponent>().Parent = m_Entity1;
-
-        m_RenderableEntity.GetComponent<RelationshipComponent>().Prev = m_Entity2;
-        m_RenderableEntity.GetComponent<RelationshipComponent>().Prev.GetComponent<RelationshipComponent>().Next = m_RenderableEntity;
-
+        
         auto entity = m_Scene->CreateEntity("Bruuh");
-        entity.AddComponent<RelationshipComponent>().Parent = m_Entity1;
-        entity.GetComponent<RelationshipComponent>().Prev = m_RenderableEntity;
-        entity.GetComponent<RelationshipComponent>().Next = entity;
-
-        entity.GetComponent<RelationshipComponent>().Prev.GetComponent<RelationshipComponent>().Next = entity;
-
-        m_Entity1.AddComponent<RelationshipComponent>();
-        auto& parentComp = m_Entity1.GetComponent<RelationshipComponent>();
-        parentComp.First = m_Entity2;
-        parentComp.Next = m_RenderableEntity;
-        parentComp.Prev = entity;
-        parentComp.Children = 3;
-
+        
         auto camera = m_Scene->CreateEntity("Camera");
         camera.AddComponent<CameraComponent>().Camera = m_Camera;
 
@@ -211,7 +194,7 @@ namespace TerranEngine
             m_ViewportSize = { regionAvail.x, regionAvail.y };
 
             uint32_t textureID = m_Renderer->GetFramebuffer()->GetColorAttachmentID();
-
+            
             ImGui::Image((void*)textureID, regionAvail, { 0, 1 }, { 1, 0 });
 
             ImGui::End();
@@ -258,6 +241,7 @@ namespace TerranEngine
     void EditorLayer::OpenScene()
     {
         std::string scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");
+
         if (!scenePath.empty())
         {
             m_CurrentScenePath = scenePath;

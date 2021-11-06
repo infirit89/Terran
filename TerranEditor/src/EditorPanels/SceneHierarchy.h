@@ -20,7 +20,7 @@ namespace TerranEngine
 		
 
 	private:
-		void DrawEntityNode(Entity entity, bool isChild);
+		bool DrawEntityNode(Entity entity, bool isChild);
 
 		bool m_Closed = true;
 

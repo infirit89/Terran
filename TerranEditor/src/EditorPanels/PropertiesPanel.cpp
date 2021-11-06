@@ -74,11 +74,17 @@ namespace TerranEngine
 				ImGui::Separator();
 				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
 
-				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& componenet)
+				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
 				{
-					TerranEditorUI::DrawVec3Control("Position", componenet.Position);
-					TerranEditorUI::DrawVec3Control("Rotation", componenet.Rotation);
-					TerranEditorUI::DrawVec3Control("Scale",	componenet.Scale);
+						if (TerranEditorUI::DrawVec3Control("Position", component.Position))
+							component.Dirty = true;
+
+						if (TerranEditorUI::DrawVec3Control("Rotation", component.Rotation))
+							component.Dirty = true;
+
+						if (TerranEditorUI::DrawVec3Control("Scale", component.Scale))
+							component.Dirty = true;
+
 				}, false);
 
 				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)

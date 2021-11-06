@@ -12,4 +12,6 @@ int main()
 	application->Run();
 
 	delete application;
+
+	return 0;
 }

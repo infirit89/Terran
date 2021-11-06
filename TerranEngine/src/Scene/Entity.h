@@ -40,16 +40,18 @@ namespace TerranEngine
 		template<typename Component>
 		inline bool HasComponent() const
 		{
+			//TR_ASSERT(Valid(), "Entity not valid");
 			return m_Scene->m_Registry.all_of<Component>(m_Handle);
 		}
 
+		inline bool Valid() const							{ return m_Scene->m_Registry.valid(m_Handle); }
 		inline UUID& GetID() const							{ return GetComponent<TagComponent>().ID; }
 		inline std::string& GetName() const					{ return GetComponent<TagComponent>().Name; }
 		inline TransformComponent& GetTransform() const		{ return GetComponent<TransformComponent>(); }
 
-		inline operator entt::entity() const				{ return m_Handle; }
-		inline operator uint32_t() const					{ return uint32_t(m_Handle); }
 		inline operator bool() const						{ return m_Handle != entt::null; }
+		inline operator uint32_t() const					{ return uint32_t(m_Handle); }
+		inline operator entt::entity() const				{ return m_Handle; }
 		inline bool operator!=(const Entity& other) const	{ return !(*this == other); }
 		inline bool operator==(const Entity& other) const	{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 

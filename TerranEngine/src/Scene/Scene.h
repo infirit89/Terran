@@ -19,6 +19,9 @@ namespace TerranEngine
 		void Update();
 		void OnResize(float width, float height);
 
+		// maybe move this method into the entity class ?
+		void AddChild(Entity parent, Entity child);
+
 		entt::registry& GetRegistry() { return m_Registry; }
 
 		Entity GetPrimaryCamera();
