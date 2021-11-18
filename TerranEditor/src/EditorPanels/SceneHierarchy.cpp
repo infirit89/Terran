@@ -22,17 +22,17 @@ namespace TerranEngine
 
 	void SceneHierarchy::ImGuiRender()
 	{
-        //TR_TRACE(m_Scene->GetRegistry().size());
-
         if(m_Closed)
         {
             ImGui::Begin("Hierarchy", &m_Closed, ImGuiWindowFlags_NoCollapse);
             
             auto view = m_Scene->GetRegistry().view<TagComponent>();
+            
             for (auto e : view)
             {
                 Entity entity(e, m_Scene.get());
                 DrawEntityNode(entity, false);
+
             }
             if (ImGui::BeginPopupContextWindow(0, 1, false))
             {
@@ -59,8 +59,7 @@ namespace TerranEngine
         TagComponent& tagComp = entity.GetComponent<TagComponent>();
 
         // bruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuh
-        if (entity.HasComponent<RelationshipComponent>() &&
-            entity.GetComponent<RelationshipComponent>().Parent &&
+        if (entity.HasParent() &&
             !isChild)
             return false;
 
@@ -102,7 +101,8 @@ namespace TerranEngine
 
                 if (m_Selected) 
                 {
-                    m_Scene->AddChild(m_Selected, entity);
+                    entity.SetParent(m_Selected);
+                    //m_Scene->AddChild(m_Selected, entity);
                 }
             }
 
@@ -115,21 +115,21 @@ namespace TerranEngine
             {
                 RelationshipComponent& relComp = entity.GetComponent<RelationshipComponent>();
 
-                if (relComp.Children > 0)
-                {
-                    Entity currChild = relComp.FirstChild;
+                TR_TRACE("Entity name: {0}, Child count: {1}", entity.GetName(), entity.GetChildCount());
 
-                    for (size_t i = 0; i < relComp.Children; i++)
+                for (auto eID : entity.GetChildren())
+                {
+                    auto currEntity = m_Scene->FindEntityWithUUID(eID);
+
+                    if (currEntity)
                     {
-                        relComp = entity.GetComponent<RelationshipComponent>();
-                        if (currChild && currChild.Valid())
+                        if (!DrawEntityNode(currEntity, true))
                         {
-                            if(!DrawEntityNode(currChild, true))
-                                currChild = currChild.GetComponent<RelationshipComponent>().Next;
+//                            TR_TRACE("Entity id {0}, Entity name {1}", (uint32_t)currEntity, currEntity.GetName());
                         }
-                        else
-                            TR_ERROR("Not a valid child");
                     }
+                    else
+                        TR_ERROR("Not a valid child");
                 }
             }
 
@@ -138,7 +138,7 @@ namespace TerranEngine
 
         if (isDeleted)
         {
-            m_Scene->DestroyEntity(entity);
+            m_Scene->DestroyEntity(entity, true);
             if (m_Selected == entity)
                 m_Selected = {};
 

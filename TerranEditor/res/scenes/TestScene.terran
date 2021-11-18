@@ -1,89 +1,239 @@
 {
     "Scene": "Name",
-    "Entities": 3,
-    "Entity 2": {
-        "TagComponent": {
-            "Tag": "Camera",
-            "ID": "ab50b460-b5ac-4ed1-a781-c8e0fc92b529"
-        },
-        "TransformComponent": {
-            "Position": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
+    "Entities": {
+        "Entity 77158a45-8463-4431-8624-bf5e9ef9d6e1": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "77158a45-8463-4431-8624-bf5e9ef9d6e1"
             },
-            "Scale": {
-                "X": 1.0,
-                "Y": 1.0,
-                "Z": 1.0
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
             },
-            "Rotation": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "8152497b-7720-46d0-841e-1ef52efe436c"
             }
         },
-        "CameraComponent": {
-            "Camera": {
-                "Size": 10.0,
-                "Near": -10.0,
-                "Far": 10.0
+        "Entity 8152497b-7720-46d0-841e-1ef52efe436c": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "8152497b-7720-46d0-841e-1ef52efe436c"
             },
-            "Primary": true
-        }
-    },
-    "Entity 1": {
-        "TagComponent": {
-            "Tag": "Test Entity",
-            "ID": "c417022-97dc-427e-ae2e-92f135c2a4a6"
-        },
-        "TransformComponent": {
-            "Position": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
             },
-            "Scale": {
-                "X": 1.0,
-                "Y": 1.0,
-                "Z": 1.0
-            },
-            "Rotation": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "77158a45-8463-4431-8624-bf5e9ef9d6e1"
+                ],
+                "Parent": "48e1629b-80db-471-b7cc-3c537d75cbe6"
             }
         },
-        "SpriteRendererComponent": {
-            "Color": {
-                "X": 1.0,
-                "Y": 1.0,
-                "Z": 1.0,
-                "W": 1.0
+        "Entity 2f6ae59-d91c-4be8-8c4f-81b51bd56a68": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "2f6ae59-d91c-4be8-8c4f-81b51bd56a68"
             },
-            "ZIndex": 0
-        }
-    },
-    "Entity 0": {
-        "TagComponent": {
-            "Tag": "Entity",
-            "ID": "98c8b38c-d5a0-41d9-a7fa-96b6f57b27f8"
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "48e1629b-80db-471-b7cc-3c537d75cbe6"
+            }
         },
-        "TransformComponent": {
-            "Position": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
+        "Entity 8c913752-1369-44df-af7-55262b8db3f5": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "8c913752-1369-44df-af7-55262b8db3f5"
             },
-            "Scale": {
-                "X": 1.0,
-                "Y": 1.0,
-                "Z": 1.0
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
             },
-            "Rotation": {
-                "X": 0.0,
-                "Y": 0.0,
-                "Z": 0.0
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity 64bf8aa9-3dcf-4242-a4ac-84b4b241ace8": {
+            "TagComponent": {
+                "Tag": "Bruuh",
+                "ID": "64bf8aa9-3dcf-4242-a4ac-84b4b241ace8"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            }
+        },
+        "Entity 7e13be4a-716e-42d-b85e-ef36c899325": {
+            "TagComponent": {
+                "Tag": "Test Entity",
+                "ID": "7e13be4a-716e-42d-b85e-ef36c899325"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            }
+        },
+        "Entity 85175c7-299d-4edd-b89a-df5be7abf1f": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "85175c7-299d-4edd-b89a-df5be7abf1f"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            }
+        },
+        "Entity 48e1629b-80db-471-b7cc-3c537d75cbe6": {
+            "TagComponent": {
+                "Tag": "Entity 1",
+                "ID": "48e1629b-80db-471-b7cc-3c537d75cbe6"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 2,
+                "Children": [
+                    "2f6ae59-d91c-4be8-8c4f-81b51bd56a68",
+                    "8152497b-7720-46d0-841e-1ef52efe436c"
+                ],
+                "Parent": "null"
             }
         }
     }

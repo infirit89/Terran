@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include "EditorUI/TerranEditorUI.h"
+#include "UI/TerranEditorUI.h"
 
 namespace TerranEngine
 {
@@ -28,6 +28,10 @@ namespace TerranEngine
 
 
         m_SHierarchy = SceneHierarchy(m_Scene);
+
+        auto foundEntity = m_Scene->FindEntityWithUUID(entity.GetID());
+        foundEntity.AddComponent<SpriteRendererComponent>();
+        //TR_TRACE(foundEntity.GetName());
 
 	}
 

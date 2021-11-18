@@ -124,7 +124,7 @@ namespace TerranEngine
 
 		uint16_t whiteTextureData = 0xffffffff;
 
-		int maxTexSlots = RenderCommand::GetMaxTextureSlots();
+		int maxTexSlots = 16; //RenderCommand::GetMaxTextureSlots();
 
 		// ******** Quad ******** 
 		{
@@ -175,7 +175,7 @@ namespace TerranEngine
 				{ GL_FLOAT, 4 },
 				{ GL_FLOAT, 2 },
 				{ GL_FLOAT, 1 }
-				});
+			});
 
 			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
 
@@ -261,7 +261,7 @@ namespace TerranEngine
 		m_CameraData.CameraPosition = transform[3];
 
 		m_CameraBuffer->Bind();
-		m_CameraBuffer->SetData(&m_CameraData, sizeof(CameraData) - (3 * sizeof(float)));
+		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData) - (3 * sizeof(float)));
 
 		m_QuadShader->Unbind();
 		m_TextShader->Unbind();

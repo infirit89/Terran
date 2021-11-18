@@ -9,6 +9,8 @@
 
 #include <entt.hpp>
 
+#include <vector>
+
 namespace TerranEngine 
 {
 	struct TagComponent 
@@ -30,11 +32,14 @@ namespace TerranEngine
 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f }, Scale = { 1.0f, 1.0f, 1.0f };
 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
 
-		TransformComponent() = default;
+		glm::vec3 LocalPosition = Position, LocalScale = Scale;
+		glm::vec3 LocalRotation = Rotation;
 
 		bool Dirty = true;
 
 		glm::mat4 TransformMatrix = glm::mat4(1.0f);
+
+		TransformComponent() = default;
 	};
 
 	struct CameraComponent 
@@ -62,5 +67,21 @@ namespace TerranEngine
 		float Thickness = 1.0f;
 
 		CircleRendererComponent() = default;
+	};
+
+	struct RelationshipComponent 
+	{
+		// Parent variables
+		UUID ParentID;
+		
+		std::vector<UUID> Children;
+
+		// maybe just have a list of children?
+		//UUID FirstChildID;
+		//UUID LastChildID;
+
+		//// Child variables
+		//UUID NextID;
+		//UUID PreviousID;
 	};
 }

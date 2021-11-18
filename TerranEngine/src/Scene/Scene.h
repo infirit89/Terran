@@ -1,6 +1,9 @@
 #pragma once
 
 #include <entt.hpp>
+#include "Core/UUID.h"
+#include <unordered_map>
+
 
 namespace TerranEngine 
 {
@@ -14,19 +17,22 @@ namespace TerranEngine
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
 
-		void DestroyEntity(Entity entity);
+		void DestroyEntity(Entity entity, bool first);
 
 		void Update();
 		void OnResize(float width, float height);
 
-		// maybe move this method into the entity class ?
-		void AddChild(Entity parent, Entity child);
+		Entity FindEntityWithUUID(const UUID& uuid);
+		Entity FindEntityWithName(const std::string& name);
 
 		entt::registry& GetRegistry() { return m_Registry; }
 
 		Entity GetPrimaryCamera();
 
+
+
 	private:
+		std::unordered_map<UUID, entt::entity> m_EntityMap;
 		entt::registry m_Registry;
 		friend class Entity;
 		friend class SceneSerializer;

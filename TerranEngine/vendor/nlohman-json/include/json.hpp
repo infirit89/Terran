@@ -21879,6 +21879,8 @@ namespace nlohmann
             }
             else
             {
+                std::cout << "cannot use erase() with " << std::string(type_name()) << '\n';
+
                 JSON_THROW(type_error::create(307, "cannot use erase() with " + std::string(type_name()), *this));
             }
         }

@@ -1,6 +1,6 @@
 #include "PropertiesPanel.h"
 
-#include "../EditorUI/TerranEditorUI.h"
+#include "../UI/TerranEditorUI.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -76,14 +76,14 @@ namespace TerranEngine
 
 				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
 				{
-						if (TerranEditorUI::DrawVec3Control("Position", component.Position))
-							component.Dirty = true;
+					if (TerranEditorUI::DrawVec3Control("Position", component.LocalPosition))
+						component.Dirty = true;
 
-						if (TerranEditorUI::DrawVec3Control("Rotation", component.Rotation))
-							component.Dirty = true;
+					if (TerranEditorUI::DrawVec3Control("Scale", component.LocalScale))
+						component.Dirty = true;
 
-						if (TerranEditorUI::DrawVec3Control("Scale", component.Scale))
-							component.Dirty = true;
+					if (TerranEditorUI::DrawVec3Control("Rotation", component.LocalRotation))
+						component.Dirty = true;
 
 				}, false);
 
@@ -91,6 +91,12 @@ namespace TerranEngine
 				{
 					TerranEditorUI::DrawColor4Control("Color", component.Color);
 					TerranEditorUI::DrawIntControl("Z index", component.ZIndex);
+				});
+
+				DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](CircleRendererComponent& component)
+				{
+					TerranEditorUI::DrawColor4Control("Color", component.Color);
+					TerranEditorUI::DrawFloatControl("Thickness", component.Thickness);
 				});
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
@@ -123,8 +129,15 @@ namespace TerranEngine
 				
 				if (ImGui::BeginPopup("AddComponent")) 
 				{
-					if (ImGui::MenuItem("Add Sprite Renderer"))
-						entity.AddComponent<SpriteRendererComponent>();
+					if(!entity.HasComponent<SpriteRendererComponent>())
+						if (ImGui::MenuItem("Sprite Renderer"))
+							entity.AddComponent<SpriteRendererComponent>();
+					if (!entity.HasComponent<CircleRendererComponent>())
+						if (ImGui::MenuItem("Circle Renderer"))
+							entity.AddComponent<CircleRendererComponent>();
+					if (!entity.HasComponent<CameraComponent>())
+						if (ImGui::MenuItem("Camera"))
+							entity.AddComponent<CameraComponent>();
 
 					ImGui::EndPopup();
 				}

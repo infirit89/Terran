@@ -23,9 +23,9 @@ namespace TerranEngine
 		return
 		{
 			name, { 
-				{"X", value.x},
-				{"Y", value.y},
-				{"Z", value.z}
+				{ "X", value.x },
+				{ "Y", value.y },
+				{ "Z", value.z }
 			}
 		};
 	}
@@ -49,13 +49,14 @@ namespace TerranEngine
 		return
 		{
 			name, {
-				{"X", value.x},
-				{"Y", value.y},
-				{"Z", value.z},
-				{"W", value.w}
+				{ "X", value.x },
+				{ "Y", value.y },
+				{ "Z", value.z },
+				{ "W", value.w }
 			}
 		};
 	}
+
 
 	static glm::vec4 DeserializeVec4(json& j, const std::string& name)
 	{
@@ -71,28 +72,42 @@ namespace TerranEngine
 
 		return vec;
 	}
+	
+
+	static json SerializeUUIDVector(const std::vector<UUID>& vec) 
+	{
+		if (vec.size() <= 0)
+			return NULL;
+
+		json result;
+
+		for (auto id : vec)
+			result.push_back(std::to_string(id));
+
+		return result;
+	}
 
 	static void SerializeEntity(json& j, Entity entity) 
 	{
 		TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
 
-		j["Entity " + std::to_string(uint32_t(entity))] =
+		json& jObject = j["Entity " + std::to_string(entity.GetID())] =
 		{
 			{"TagComponent", 
 			{
-				{"Tag", entity.GetComponent<TagComponent>().Name},
-				{"ID", std::to_string(entity.GetID())}
+				{ "Tag",	entity.GetComponent<TagComponent>().Name},
+				{ "ID",		std::to_string(entity.GetID())}
 			}}
 		};
 
 		if (entity.HasComponent<TransformComponent>()) 
 		{
-			j["Entity " + std::to_string(uint32_t(entity))].push_back(
+			jObject.push_back(
 				{"TransformComponent", 
 				{
-					SerializeVec3("Position", entity.GetTransform().Position),
-					SerializeVec3("Scale", entity.GetTransform().Scale),
-					SerializeVec3("Rotation", entity.GetTransform().Rotation)
+					SerializeVec3("Position",	entity.GetTransform().Position),
+					SerializeVec3("Scale",		entity.GetTransform().Scale),
+					SerializeVec3("Rotation",	entity.GetTransform().Rotation)
 				}}
 			);
 		}
@@ -101,15 +116,15 @@ namespace TerranEngine
 		{
 			auto& camComp = entity.GetComponent<CameraComponent>();
 
-			j["Entity " + std::to_string(uint32_t(entity))].push_back(
+			jObject.push_back(
 				{ "CameraComponent",
 				{
-					{"Camera", 
-					{	{"Size", camComp.Camera.GetOrthographicSize()},
-						{"Near", camComp.Camera.GetOrthographicNear()},
-						{"Far", camComp.Camera.GetOrthographicFar()},
+					{ "Camera", 
+					{	{ "Size",	camComp.Camera.GetOrthographicSize()},
+						{ "Near",	camComp.Camera.GetOrthographicNear()},
+						{ "Far",	camComp.Camera.GetOrthographicFar()},
 					}},
-					{"Primary", camComp.Primary}
+					{ "Primary", camComp.Primary}
 				} }
 			);
 		}
@@ -118,7 +133,7 @@ namespace TerranEngine
 		{
 			auto& sprComp = entity.GetComponent<SpriteRendererComponent>();
 
-			j["Entity " + std::to_string(uint32_t(entity))].push_back(
+			jObject.push_back(
 				{ "SpriteRendererComponent",
 				{
 					SerializeVec4("Color", sprComp.Color),
@@ -131,12 +146,28 @@ namespace TerranEngine
 		{
 			auto& crComp = entity.GetComponent<CircleRendererComponent>();
 
-			j["Entity " + std::to_string(uint32_t(entity))].push_back(
+			jObject.push_back(
 				{ "CircleRendererComponent",
 				{
 					SerializeVec4("Color", crComp.Color),
 					{ "Thickness", crComp.Thickness }
 				}}
+			);
+		}
+
+		if (entity.HasComponent<RelationshipComponent>()) 
+		{
+			auto& rlComp = entity.GetComponent<RelationshipComponent>();
+			
+			TR_TRACE(entity.GetName());
+
+			jObject.push_back(
+				{ "RelationshipComponent",
+				{
+					{ "ChildrenCount",   entity.GetChildCount() },
+					{ "Children",		 SerializeUUIDVector(rlComp.Children) },
+					{ "Parent",			 (entity.HasParent() ? std::to_string(rlComp.ParentID) : "null") },
+				} }
 			);
 		}
 	}
@@ -146,20 +177,87 @@ namespace TerranEngine
 		json j;
 
 		j["Scene"] =  "Name";
-		j["Entities"] = m_Scene->m_Registry.alive();
+		j.array({ "Entities" });
 
 		m_Scene->m_Registry.each([&](auto entityID)
 		{
 			Entity entity = { entityID, m_Scene.get() };
-//			if (!entity)
-//				return;
 
-			SerializeEntity(j, entity);
+			SerializeEntity(j["Entities"], entity);
 		});
 
 		std::ofstream ofs(filePath);
 
 		ofs << std::setw(4) << j << std::endl;
+	}
+	
+	static void DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
+	{
+		TR_ASSERT(jEntity.contains("TagComponent"), "Can't desirialize an entity that doesn't have a tag component");
+		UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
+		
+		if (scene->FindEntityWithUUID(uuid))
+			return;
+
+		std::string tag = jEntity["TagComponent"]["Tag"];
+
+		Entity entity = scene->CreateEntityWithUUID(tag, uuid);
+		auto& transform = entity.GetTransform();
+		transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
+		transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+		transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+
+		if (jEntity.contains("CameraComponent"))
+		{
+			json jCamera = jEntity["CameraComponent"];
+
+			OrthographicCamera cam;
+			cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
+			cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
+			cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
+
+			entity.AddComponent<CameraComponent>().Camera = cam;
+			entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];
+		}
+
+		if (jEntity.contains("SpriteRendererComponent"))
+		{
+			entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+		}
+
+		if (jEntity.contains("CircleRendererComponent"))
+		{
+			entity.AddComponent<CircleRendererComponent>().Color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
+			entity.GetComponent<CircleRendererComponent>().Thickness = jEntity["CircleRendererComponent"]["Thickness"];
+		}
+
+		if (jEntity.contains("RelationshipComponent"))
+		{
+			json jRelation = jEntity["RelationshipComponent"];
+
+			RelationshipComponent& rlComp = entity.AddComponent<RelationshipComponent>();
+
+			if (jRelation["ChildrenCount"] > 0) 
+			{
+				for (auto& id : jRelation["Children"])
+				{
+					if(!scene->FindEntityWithUUID(UUID::FromString(id)))
+						DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
+
+					Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
+
+					entity.AddChild(e);
+				}
+
+			}
+			if (jRelation["Parent"] != "null") 
+			{
+				if (!scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"]))) 
+					DesirializeEntity(jScene["Entity " + std::string(jRelation["Parent"])], jScene, scene);
+
+				entity.SetParentID(UUID::FromString(jRelation["Parent"]));
+			}
+		}
 	}
 
 	void SceneSerializer::DesirializeJson(const std::string& filePath)
@@ -169,42 +267,7 @@ namespace TerranEngine
 		json j;
 		ifs >> j;
 
-		for (size_t i = 0; i < j["Entities"]; i++)
-		{
-			json jEntity = j["Entity " + std::to_string(i)];
-			TR_ASSERT(jEntity.contains("TagComponent"), "Can't desirialize an entity that doesn't have a tag component");
-			std::string tag = jEntity["TagComponent"]["Tag"];
-			UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
-
-			Entity entity = m_Scene->CreateEntityWithUUID(tag, uuid);
-			auto& transform = entity.GetTransform();
-			transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
-			transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
-			transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
-
-			if (jEntity.contains("CameraComponent"))
-			{
-				json jCamera = jEntity["CameraComponent"];
-
-				OrthographicCamera cam;
-				cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
-				cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
-				cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
-
-				entity.AddComponent<CameraComponent>().Camera = cam;
-				entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];
-			}
-
-			if (jEntity.contains("SpriteRendererComponent"))
-			{
-				entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
-			}
-
-			if (jEntity.contains("CircleRendererComponent")) 
-			{
-				entity.AddComponent<CircleRendererComponent>().Color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
-				entity.GetComponent<CircleRendererComponent>().Thickness = jEntity["CircleRendererComponent"]["Thickness"];
-			}
-		}
+		for (auto jEntity : j["Entities"])
+			DesirializeEntity(jEntity, j["Entities"], m_Scene);
 	}
 }

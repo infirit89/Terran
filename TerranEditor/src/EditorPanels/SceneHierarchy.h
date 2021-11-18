@@ -4,6 +4,7 @@
 
 namespace TerranEngine 
 {
+
 	class SceneHierarchy 
 	{
 	public:

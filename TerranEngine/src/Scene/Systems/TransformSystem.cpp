@@ -2,7 +2,6 @@
 #include "TransformSystem.h"
 
 #include "Scene/Components.h"
-#include "Scene/RelationshipComponent.h"
 #include "Scene/Entity.h"
 
 #include "Scene/Scene.h"
@@ -16,59 +15,63 @@
 #include "Utils/Debug/DebugTimer.h"
 namespace TerranEngine 
 {
-	static void UpdateChild(Entity& entity)
+	static void UpdateChild(Entity entity)
 	{
-		TransformComponent& transfromComponent = entity.GetComponent<TransformComponent>();
-		RelationshipComponent& relationshipComponent = entity.GetComponent<RelationshipComponent>();
-
-		if (relationshipComponent.Parent)
+		TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
+		
+		if (entity.HasParent())
 		{
-			TransformComponent& parentTransform = relationshipComponent.Parent.GetTransform();
+			TransformComponent& parentTransform = entity.GetParent().GetTransform();
 
-			transfromComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transfromComponent.Position) *
-				glm::toMat4(glm::quat(transfromComponent.Rotation)) *
-				glm::scale(glm::mat4(1.0f), transfromComponent.Scale);
+			transformComponent.Position = transformComponent.LocalPosition + parentTransform.Position;
+			transformComponent.Rotation = transformComponent.LocalRotation + parentTransform.Rotation;
+			transformComponent.Scale = transformComponent.LocalScale * parentTransform.Scale;
 
-			transfromComponent.TransformMatrix *= parentTransform.TransformMatrix;	
-
-
+			transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
+				glm::toMat4(glm::quat(transformComponent.Rotation)) *
+				glm::scale(glm::mat4(1.0f), transformComponent.Scale);
 		}
 		else 
 		{
-			transfromComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transfromComponent.Position) *
-				glm::toMat4(glm::quat(transfromComponent.Rotation)) *
-				glm::scale(glm::mat4(1.0f), transfromComponent.Scale);
+			transformComponent.Position = transformComponent.LocalPosition;
+			transformComponent.Scale = transformComponent.LocalScale;
+			transformComponent.Rotation = transformComponent.LocalRotation;
+
+			transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
+				glm::toMat4(glm::quat(transformComponent.Rotation)) *
+				glm::scale(glm::mat4(1.0f), transformComponent.Scale);
 		}
-		transfromComponent.Dirty = false;
+		transformComponent.Dirty = false;
 
-		Entity currChild = relationshipComponent.FirstChild;
-
-		for (size_t i = 0; i < relationshipComponent.Children; i++)
+		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{
-			currChild.GetTransform().Dirty = true;
-			UpdateChild(currChild);
-			currChild = currChild.GetComponent<RelationshipComponent>().Next;
+			Entity currEntity = entity.GetChild(i);
+
+			currEntity.GetTransform().Dirty = true;
+			UpdateChild(currEntity);
 		}
 
 	}
 
 	void TransformSystem::Update(Scene* scene)
 	{
-		//DebugTimer timer;
-
 		auto transformView = scene->GetRegistry().view<TransformComponent>(entt::exclude<RelationshipComponent>);
 
 		for (auto e : transformView)
 		{
 			Entity entity(e, scene);
-			TransformComponent& transfromComponent = entity.GetComponent<TransformComponent>();
-			if (transfromComponent.Dirty) 
+			TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
+			if (transformComponent.Dirty)
 			{
-				transfromComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transfromComponent.Position) *
-										 glm::toMat4(glm::quat(transfromComponent.Rotation)) *
-										 glm::scale(glm::mat4(1.0f), transfromComponent.Scale);
+				transformComponent.Position = transformComponent.LocalPosition;
+				transformComponent.Scale = transformComponent.LocalScale;
+				transformComponent.Rotation = transformComponent.LocalRotation;
 
-				transfromComponent.Dirty = false;
+				transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
+										 glm::toMat4(glm::quat(transformComponent.Rotation)) *
+										 glm::scale(glm::mat4(1.0f), transformComponent.Scale);
+
+				transformComponent.Dirty = false;
 			}
 			else
 				break;

@@ -2,38 +2,35 @@
 
 #include <string>
 #include <array>
+#include <xhash>
 
 namespace TerranEngine 
 {
 	class UUID 
 	{
 	public:
-		UUID();
+		UUID(bool generate = true);
 		UUID(const std::array<uint8_t, 16>& data);
+		UUID(const UUID& other) = default;
+		static UUID& Empty() { return UUID(false); }
 
-		inline std::array<uint8_t, 16> GetData() const { return m_Data; }
+		const inline std::array<uint8_t, 16> GetData() const { return m_Data; }
+		inline std::array<uint8_t, 16> GetData() { return m_Data; }
 
-		inline bool operator==(const UUID& other) const 
-		{
-			return m_Data == other.m_Data;
-		}
+		const inline bool operator==(const UUID& other) const	{ return m_Data == other.m_Data; }
+		inline bool operator==(const UUID& other)				{ return m_Data == other.m_Data; }
 
-		inline bool operator!=(const UUID& other) const 
-		{
-			return !(m_Data == other.m_Data);
-		}
+		const inline bool operator!=(const UUID& other) const	{ return !(m_Data == other.m_Data); }
+		inline bool operator!=(const UUID& other)				{ return !(m_Data == other.m_Data); }
 
-		inline bool operator<(const UUID& other) const 
-		{
-			return m_Data < other.m_Data;
-		}
+		const inline bool operator<(const UUID& other) const	{ return m_Data < other.m_Data; }
+		inline bool operator<(const UUID& other)				{ return m_Data < other.m_Data; }
 
-		inline bool operator>(const UUID& other) const 
-		{
-			return m_Data > other.m_Data;
-		}
+		const inline bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
+		inline bool operator>(const UUID& other)				{ return m_Data > other.m_Data; }
 
-		static UUID FromString(const std::string& str);
+		static UUID& FromString(const std::string& str);
+
 	private:
 		void Generate();
 		std::array<uint8_t, 16> m_Data;
@@ -47,6 +44,24 @@ namespace TerranEngine
 #include <sstream>
 namespace std 
 {
+	template<>
+	struct hash<TerranEngine::UUID> 
+	{
+		size_t operator()(const TerranEngine::UUID& uuid) const 
+		{
+			std::hash<uint8_t> hash;
+
+			size_t result = 0;
+
+			std::array<uint8_t, 16> idArr = uuid.GetData();
+
+			for (size_t i = 0; i < idArr.size(); i++)
+				result = (result << 1) ^ hash(idArr[i]);
+
+			return result;
+		}
+	};
+
 	template<class CharT = char,
 		class Traits = std::char_traits<CharT>,
 		class Allocator = std::allocator<CharT>>

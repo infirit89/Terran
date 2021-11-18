@@ -124,13 +124,5 @@ namespace TerranEngine
 	{
 		glDrawArrays(GL_TRIANGLES, 0, numIndices);
 	}
-
-	int RenderCommand::GetMaxTextureSlots()
-	{
-		int maxTexSlots = 0;
-
-		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTexSlots);
-		return 16;
-	}
 }
 

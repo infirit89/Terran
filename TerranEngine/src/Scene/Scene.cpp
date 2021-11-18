@@ -2,12 +2,13 @@
 #include "Scene.h"
 
 #include "Components.h"
-#include "RelationshipComponent.h"
 #include "Entity.h"
 #include "Graphics/BatchRenderer2D.h"
 #include "Utils/ResourceManager.h"
 
 #include "Systems/TransformSystem.h"
+
+#include "Utils/Debug/DebugTimer.h"
 
 namespace TerranEngine 
 {
@@ -28,57 +29,43 @@ namespace TerranEngine
 		entity.AddComponent<TagComponent>(name.empty() ? "Entity" : name, uuid);
 		entity.AddComponent<TransformComponent>();
 		
+		m_EntityMap[uuid] = e;
+
 		return entity;
 	}
 
-	void Scene::DestroyEntity(Entity entity)
+	void Scene::DestroyEntity(Entity entity, bool first)
 	{
+		//DebugTimer timer;
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
 
-			if (relationshipComponent.Parent) 
+			if (first) 
 			{
-				Entity& parent = relationshipComponent.Parent;
-
-				parent.GetComponent<RelationshipComponent>().Children--;
-
-				if (parent.GetComponent<RelationshipComponent>().Children > 0) 
-				{
-					Entity& firstChild = relationshipComponent.Parent.GetComponent<RelationshipComponent>().FirstChild;
-
-					if (firstChild == entity)
-						firstChild = relationshipComponent.Next;
-					else
-						relationshipComponent.Previous = relationshipComponent.Next;
-				}
-				else 
-					parent.RemoveComponent<RelationshipComponent>();
+				if (entity.HasParent()) 
+					entity.GetParent().RemoveChild(entity, false);
 			}
 
-			Entity currChild = relationshipComponent.FirstChild;
-
-			for (size_t i = 0; i < relationshipComponent.Children; i++)
-			{
-				RelationshipComponent& tempRelComp = currChild.GetComponent<RelationshipComponent>();
-				m_Registry.destroy(currChild);
-
-				currChild = tempRelComp.Next;
-			}
+			for (auto eID : entity.GetChildren())
+				DestroyEntity(FindEntityWithUUID(eID), false);
 		}
+
+		auto entityIt = m_EntityMap.find(entity.GetID());
+		if (entityIt != m_EntityMap.end())
+			m_EntityMap.erase(entityIt);
 
 		m_Registry.destroy(entity);
 	}
 
 	void Scene::Update()
 	{
+		//DebugTimer timer;
+
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.Dirty && !rEntity.Dirty; });
 
 		TransformSystem::Update(this);
-
-		m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.ZIndex < rEntity.ZIndex; });
 
 		auto cameraView = m_Registry.view<CameraComponent>();
 		
@@ -96,8 +83,12 @@ namespace TerranEngine
 			{
 				camera = cameraComponent.Camera;
 				cameraTransform = transformComponent.TransformMatrix;
+				break;
 			}
 		}
+
+		m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
+		{ return lEntity.ZIndex < rEntity.ZIndex; });
 
 		auto srView = m_Registry.view<SpriteRendererComponent>();
 
@@ -124,6 +115,8 @@ namespace TerranEngine
 		}
 
 		BatchRenderer2D::Get()->EndScene();
+
+
 	}
 
 	void Scene::OnResize(float width, float height)
@@ -140,36 +133,17 @@ namespace TerranEngine
 		}
 	}
 
-	void Scene::AddChild(Entity parent, Entity child)
+	Entity Scene::FindEntityWithUUID(const UUID& uuid)
 	{
-		child.AddComponent<RelationshipComponent>().Parent = parent;
-		if (!parent.HasComponent<RelationshipComponent>())
-		{
-			RelationshipComponent& relationshipComponent = parent.AddComponent<RelationshipComponent>();
-			relationshipComponent.FirstChild = child;
-			relationshipComponent.Children++;
-			relationshipComponent.LastChild = child;
-		}
-		else
-		{
-			RelationshipComponent& relationshipComponent = parent.GetComponent<RelationshipComponent>();
+		if (m_EntityMap.find(uuid) != m_EntityMap.end())
+			return Entity(m_EntityMap[uuid], this);
 
-			if (!relationshipComponent.FirstChild)
-				relationshipComponent.FirstChild = child;
+		return { };
+	}
 
-			relationshipComponent.Children++;
-
-			Entity previousEntity;
-
-			if (relationshipComponent.LastChild)
-			{
-				previousEntity = relationshipComponent.LastChild;
-				previousEntity.GetComponent<RelationshipComponent>().Next = child;
-				child.GetComponent<RelationshipComponent>().Previous = previousEntity;
-			}
-
-			relationshipComponent.LastChild = child;
-		}
+	Entity Scene::FindEntityWithName(const std::string& name)
+	{
+		return Entity();
 	}
 
 	Entity Scene::GetPrimaryCamera()

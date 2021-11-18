@@ -3,10 +3,11 @@
 
 namespace TerranEngine
 {
-    UUID::UUID()
+    UUID::UUID(bool generate)
         : m_Data({ 0 })
     {
-        Generate();
+        if(generate)
+            Generate();
     }
 
     UUID::UUID(const std::array<uint8_t, 16>& data)
@@ -34,20 +35,20 @@ namespace TerranEngine
             (ch >= static_cast<char>('A') && ch <= static_cast<char>('F'));
     }
 
-    UUID UUID::FromString(const std::string& str)
+    UUID& UUID::FromString(const std::string& str)
     {
         size_t index = 0;
         bool firstDigit = true;
 
         std::array<uint8_t, 16> data{ {0} };
 
-        if (str.empty()) return {};
+        if (str.empty()) return UUID();
 
         for (size_t i = 0; i < str.size(); ++i)
         {
             if (str[i] == '-') continue;
 
-            if (index >= 16 || !IsHex(str[i])) return {};
+            if (index >= 16 || !IsHex(str[i])) return UUID();
 
             if (firstDigit)
             {
@@ -61,7 +62,11 @@ namespace TerranEngine
             }
         }
 
-        if (index < 15) return {};
+        if (index < 14) 
+        {
+            TR_ERROR("Invalid UUID!");
+            return UUID();
+        }
 
         return UUID{ data };
     }
