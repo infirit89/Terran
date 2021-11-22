@@ -14,10 +14,13 @@ namespace TerranEngine {
 		const char* Name;
 		uint32_t Width;
 		uint32_t Height;
-		std::array<std::string, 2> IconPaths;
+		std::array<std::string, 2> IconPaths = { "", "" };
+		bool Fullscren = false;
+		bool Maximized = true;
+		//bool VSync = true;
 
-		WindowData(const char* name = "Terran Application", uint32_t width = 1080, uint32_t height = 790, std::array<std::string, 2> iconPaths = { "", "" })
-			: Name(name), Width(width), Height(height), IconPaths(iconPaths) {}
+		WindowData(const char* name = "Terran Application", uint32_t width = 1080, uint32_t height = 790)
+			: Name(name), Width(width), Height(height) {}
 	};
 	
 	class Window 
@@ -37,6 +40,7 @@ namespace TerranEngine {
 		virtual void Update() = 0;	
 
 		static Unique<Window> Create(const WindowData& data = WindowData());
+
 
 		virtual void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) = 0;
 	};

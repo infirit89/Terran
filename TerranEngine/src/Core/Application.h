@@ -21,7 +21,8 @@ namespace TerranEngine {
 	class Application
 	{
 	public:
-		Application(const char* name, std::array<std::string, 2> iconPaths);
+		Application();
+		void Create(const WindowData& data);
 		virtual ~Application();
 		void PushLayer(Layer* layer);
 		void Close();
@@ -36,9 +37,6 @@ namespace TerranEngine {
 	private:
 		static Application* m_Instance;
 		LayerStack m_Stack;
-
-		const char* m_Name;
-		std::array<std::string, 2> m_IconPaths;
 
 		std::unique_ptr<Window> m_Window;
 

@@ -9,6 +9,12 @@
 #include <iomanip>
 #include <fstream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 using json = nlohmann::ordered_json;
 
 namespace TerranEngine 
@@ -105,9 +111,13 @@ namespace TerranEngine
 			jObject.push_back(
 				{"TransformComponent", 
 				{
-					SerializeVec3("Position",	entity.GetTransform().Position),
-					SerializeVec3("Scale",		entity.GetTransform().Scale),
-					SerializeVec3("Rotation",	entity.GetTransform().Rotation)
+					SerializeVec3("Position",		entity.GetTransform().Position),
+					SerializeVec3("Scale",			entity.GetTransform().Scale),
+					SerializeVec3("Rotation",		entity.GetTransform().Rotation),
+
+					SerializeVec3("LocalPosition",	entity.GetTransform().LocalPosition),
+					SerializeVec3("LocalScale",		entity.GetTransform().LocalScale),
+					SerializeVec3("LocalRotation",	entity.GetTransform().LocalRotation),
 				}}
 			);
 		}
@@ -202,10 +212,23 @@ namespace TerranEngine
 		std::string tag = jEntity["TagComponent"]["Tag"];
 
 		Entity entity = scene->CreateEntityWithUUID(tag, uuid);
-		auto& transform = entity.GetTransform();
-		transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
-		transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
-		transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+		
+		{
+			auto& transform = entity.GetTransform();
+			transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
+			transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+			transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+
+			transform.LocalPosition = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
+			transform.LocalScale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
+			transform.LocalRotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
+
+			transform.Dirty = false;
+
+			transform.TransformMatrix = glm::translate(glm::mat4(1.0f), transform.Position) *
+				glm::toMat4(glm::quat(transform.Rotation)) *
+				glm::scale(glm::mat4(1.0f), transform.Scale);
+		}
 
 		if (jEntity.contains("CameraComponent"))
 		{

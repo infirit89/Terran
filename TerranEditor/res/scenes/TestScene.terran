@@ -1,15 +1,15 @@
 {
     "Scene": "Name",
     "Entities": {
-        "Entity 77158a45-8463-4431-8624-bf5e9ef9d6e1": {
+        "Entity 15fd5e45-16-454e-b04-447e06c9d55": {
             "TagComponent": {
                 "Tag": "Entity",
-                "ID": "77158a45-8463-4431-8624-bf5e9ef9d6e1"
+                "ID": "15fd5e45-16-454e-b04-447e06c9d55"
             },
             "TransformComponent": {
                 "Position": {
-                    "X": 0.0,
-                    "Y": 0.0,
+                    "X": -1.899999976158142,
+                    "Y": 0.7999999523162842,
                     "Z": 0.0
                 },
                 "Scale": {
@@ -18,26 +18,50 @@
                     "Z": 1.0
                 },
                 "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": -1.899999976158142,
+                    "Y": -2.799999952316284,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
                 }
             },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 0.19416548311710358,
+                    "Y": 0.7289719581604004,
+                    "Z": 0.6539990305900574,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
             "RelationshipComponent": {
                 "ChildrenCount": 0,
                 "Children": 0,
-                "Parent": "8152497b-7720-46d0-841e-1ef52efe436c"
+                "Parent": "7afc47-aff9-469e-9340-dabd6d596df9"
             }
         },
-        "Entity 8152497b-7720-46d0-841e-1ef52efe436c": {
+        "Entity 6ff875b5-1acd-4ddb-b954-8646de22ba64": {
             "TagComponent": {
                 "Tag": "Entity",
-                "ID": "8152497b-7720-46d0-841e-1ef52efe436c"
+                "ID": "6ff875b5-1acd-4ddb-b954-8646de22ba64"
             },
             "TransformComponent": {
                 "Position": {
-                    "X": 0.0,
-                    "Y": 0.0,
+                    "X": -2.5,
+                    "Y": -2.8000001907348633,
                     "Z": 0.0
                 },
                 "Scale": {
@@ -46,6 +70,73 @@
                     "Z": 1.0
                 },
                 "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": -2.5,
+                    "Y": -6.400000095367432,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CircleRendererComponent": {
+                "Color": {
+                    "X": 0.8230764269828796,
+                    "Y": 0.8738317489624023,
+                    "Z": 0.09799982607364655,
+                    "W": 1.0
+                },
+                "Thickness": 1.0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "aab9bd2e-6f2-4f65-b099-ba169b21be0"
+            }
+        },
+        "Entity aab9bd2e-6f2-4f65-b099-ba169b21be0": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "aab9bd2e-6f2-4f65-b099-ba169b21be0"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
@@ -54,20 +145,20 @@
             "RelationshipComponent": {
                 "ChildrenCount": 1,
                 "Children": [
-                    "77158a45-8463-4431-8624-bf5e9ef9d6e1"
+                    "6ff875b5-1acd-4ddb-b954-8646de22ba64"
                 ],
-                "Parent": "48e1629b-80db-471-b7cc-3c537d75cbe6"
+                "Parent": "41f04729-d09e-42fb-bbab-8bb17d9f3666"
             }
         },
-        "Entity 2f6ae59-d91c-4be8-8c4f-81b51bd56a68": {
+        "Entity 41f04729-d09e-42fb-bbab-8bb17d9f3666": {
             "TagComponent": {
                 "Tag": "Entity",
-                "ID": "2f6ae59-d91c-4be8-8c4f-81b51bd56a68"
+                "ID": "41f04729-d09e-42fb-bbab-8bb17d9f3666"
             },
             "TransformComponent": {
                 "Position": {
                     "X": 0.0,
-                    "Y": 0.0,
+                    "Y": 3.5999999046325684,
                     "Z": 0.0
                 },
                 "Scale": {
@@ -76,6 +167,66 @@
                     "Z": 1.0
                 },
                 "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "aab9bd2e-6f2-4f65-b099-ba169b21be0"
+                ],
+                "Parent": "2e1cb09a-e6f8-4ae5-bd1b-439e6289dc74"
+            }
+        },
+        "Entity 18742ac6-ceb4-4646-98c0-339b8716461d": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "18742ac6-ceb4-4646-98c0-339b8716461d"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
@@ -84,13 +235,512 @@
             "RelationshipComponent": {
                 "ChildrenCount": 0,
                 "Children": 0,
-                "Parent": "48e1629b-80db-471-b7cc-3c537d75cbe6"
+                "Parent": "205f905c-8b35-488b-a850-b881dd6fe1"
             }
         },
-        "Entity 8c913752-1369-44df-af7-55262b8db3f5": {
+        "Entity cf4550e-776e-48ba-abbd-25f9b98a68f9": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "cf4550e-776e-48ba-abbd-25f9b98a68f9"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 4.800000190734863,
+                    "Y": 1.0999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 4.800000190734863,
+                    "Y": -2.5,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 0.1425451785326004,
+                    "Y": 0.17780271172523499,
+                    "Z": 0.5981308221817017,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "205f905c-8b35-488b-a850-b881dd6fe1"
+            }
+        },
+        "Entity 85c1b24d-efcf-4428-a08f-a651765fe780": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "85c1b24d-efcf-4428-a08f-a651765fe780"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": -0.8000001907348633,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": -4.400000095367432,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 0.8037382960319519,
+                    "Y": 0.330509215593338,
+                    "Z": 0.330509215593338,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a9d4de2b-b2a-437-a93f-1d70fabcdcc8"
+            }
+        },
+        "Entity a9d4de2b-b2a-437-a93f-1d70fabcdcc8": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a9d4de2b-b2a-437-a93f-1d70fabcdcc8"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "85c1b24d-efcf-4428-a08f-a651765fe780"
+                ],
+                "Parent": "5830cad-624-4955-a39c-878daeb08b2"
+            }
+        },
+        "Entity 49977695-60fe-4c33-a0be-c83de426446": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "49977695-60fe-4c33-a0be-c83de426446"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "7b46ebed-6d7f-41c8-b73b-3c2bae397eb1"
+            }
+        },
+        "Entity 8867ee10-6ba1-437d-a7bc-b0a168f7d24": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "8867ee10-6ba1-437d-a7bc-b0a168f7d24"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "7b46ebed-6d7f-41c8-b73b-3c2bae397eb1"
+            }
+        },
+        "Entity 5830cad-624-4955-a39c-878daeb08b2": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "5830cad-624-4955-a39c-878daeb08b2"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "a9d4de2b-b2a-437-a93f-1d70fabcdcc8"
+                ],
+                "Parent": "7b46ebed-6d7f-41c8-b73b-3c2bae397eb1"
+            }
+        },
+        "Entity 60ffe8cd-15d0-4d55-a38f-8562d6a5404f": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "60ffe8cd-15d0-4d55-a38f-8562d6a5404f"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity 7afc47-aff9-469e-9340-dabd6d596df9": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "7afc47-aff9-469e-9340-dabd6d596df9"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "15fd5e45-16-454e-b04-447e06c9d55"
+                ],
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity 1a212d66-a399-4a2f-9b24-ee7428e6ed35": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "1a212d66-a399-4a2f-9b24-ee7428e6ed35"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity 2e1cb09a-e6f8-4ae5-bd1b-439e6289dc74": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "2e1cb09a-e6f8-4ae5-bd1b-439e6289dc74"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "41f04729-d09e-42fb-bbab-8bb17d9f3666"
+                ],
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity 31add9a8-34c0-4514-a477-282993f0ab61": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "31add9a8-34c0-4514-a477-282993f0ab61"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity eec71dc2-d629-4093-848e-7e7fb8d810": {
             "TagComponent": {
                 "Tag": "Camera",
-                "ID": "8c913752-1369-44df-af7-55262b8db3f5"
+                "ID": "eec71dc2-d629-4093-848e-7e7fb8d810"
             },
             "TransformComponent": {
                 "Position": {
@@ -104,6 +754,21 @@
                     "Z": 1.0
                 },
                 "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
@@ -118,79 +783,15 @@
                 "Primary": true
             }
         },
-        "Entity 64bf8aa9-3dcf-4242-a4ac-84b4b241ace8": {
-            "TagComponent": {
-                "Tag": "Bruuh",
-                "ID": "64bf8aa9-3dcf-4242-a4ac-84b4b241ace8"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                }
-            },
-            "SpriteRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "ZIndex": 0
-            }
-        },
-        "Entity 7e13be4a-716e-42d-b85e-ef36c899325": {
-            "TagComponent": {
-                "Tag": "Test Entity",
-                "ID": "7e13be4a-716e-42d-b85e-ef36c899325"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                }
-            },
-            "SpriteRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "ZIndex": 0
-            }
-        },
-        "Entity 85175c7-299d-4edd-b89a-df5be7abf1f": {
+        "Entity 205f905c-8b35-488b-a850-b881dd6fe1": {
             "TagComponent": {
                 "Tag": "Entity",
-                "ID": "85175c7-299d-4edd-b89a-df5be7abf1f"
+                "ID": "205f905c-8b35-488b-a850-b881dd6fe1"
             },
             "TransformComponent": {
                 "Position": {
                     "X": 0.0,
-                    "Y": 0.0,
+                    "Y": 3.5999999046325684,
                     "Z": 0.0
                 },
                 "Scale": {
@@ -202,26 +803,18 @@
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
-                }
-            }
-        },
-        "Entity 48e1629b-80db-471-b7cc-3c537d75cbe6": {
-            "TagComponent": {
-                "Tag": "Entity 1",
-                "ID": "48e1629b-80db-471-b7cc-3c537d75cbe6"
-            },
-            "TransformComponent": {
-                "Position": {
+                },
+                "LocalPosition": {
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
                 },
-                "Scale": {
+                "LocalScale": {
                     "X": 1.0,
                     "Y": 1.0,
                     "Z": 1.0
                 },
-                "Rotation": {
+                "LocalRotation": {
                     "X": 0.0,
                     "Y": 0.0,
                     "Z": 0.0
@@ -230,8 +823,153 @@
             "RelationshipComponent": {
                 "ChildrenCount": 2,
                 "Children": [
-                    "2f6ae59-d91c-4be8-8c4f-81b51bd56a68",
-                    "8152497b-7720-46d0-841e-1ef52efe436c"
+                    "cf4550e-776e-48ba-abbd-25f9b98a68f9",
+                    "18742ac6-ceb4-4646-98c0-339b8716461d"
+                ],
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity 7b46ebed-6d7f-41c8-b73b-3c2bae397eb1": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "7b46ebed-6d7f-41c8-b73b-3c2bae397eb1"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 3,
+                "Children": [
+                    "5830cad-624-4955-a39c-878daeb08b2",
+                    "8867ee10-6ba1-437d-a7bc-b0a168f7d24",
+                    "49977695-60fe-4c33-a0be-c83de426446"
+                ],
+                "Parent": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            }
+        },
+        "Entity a0e6b151-9148-49f-a874-12724fc09baa": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a0e6b151-9148-49f-a874-12724fc09baa"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            }
+        },
+        "Entity 18a3e234-4089-49ca-b1da-5a70151ff96d": {
+            "TagComponent": {
+                "Tag": "Entity 1",
+                "ID": "18a3e234-4089-49ca-b1da-5a70151ff96d"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 3.5999999046325684,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CircleRendererComponent": {
+                "Color": {
+                    "X": 0.17936688661575317,
+                    "Y": 0.7009345889091492,
+                    "Z": 0.12446502596139908,
+                    "W": 1.0
+                },
+                "Thickness": 1.0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 7,
+                "Children": [
+                    "7b46ebed-6d7f-41c8-b73b-3c2bae397eb1",
+                    "205f905c-8b35-488b-a850-b881dd6fe1",
+                    "31add9a8-34c0-4514-a477-282993f0ab61",
+                    "2e1cb09a-e6f8-4ae5-bd1b-439e6289dc74",
+                    "1a212d66-a399-4a2f-9b24-ee7428e6ed35",
+                    "7afc47-aff9-469e-9340-dabd6d596df9",
+                    "60ffe8cd-15d0-4d55-a38f-8562d6a5404f"
                 ],
                 "Parent": "null"
             }

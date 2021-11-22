@@ -21,11 +21,15 @@ namespace TerranEngine
 {
 	Application* Application::m_Instance = nullptr;
 
-	Application::Application(const char* name, std::array<std::string, 2> iconPaths)
-		: m_Name(name), m_IconPaths(iconPaths)
+	Application::Application()
 	{
 		m_Instance = this;
-		m_Window = Window::Create(WindowData(name, 1080, 790, m_IconPaths));
+	}
+
+	void Application::Create(const WindowData& data)
+	{
+		m_Window = Window::Create(data);
+
 		RenderCommand::Init();
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
