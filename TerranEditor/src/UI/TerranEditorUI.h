@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace TerranEngine 
+namespace TerranEditor 
 {
 	class TerranEditorUI 
 	{

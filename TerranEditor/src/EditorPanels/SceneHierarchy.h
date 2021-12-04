@@ -2,9 +2,9 @@
 
 #include "Terran.h"
 
-namespace TerranEngine 
+namespace TerranEditor 
 {
-
+	using namespace TerranEngine;
 	class SceneHierarchy 
 	{
 	public:
@@ -21,7 +21,7 @@ namespace TerranEngine
 		
 
 	private:
-		bool DrawEntityNode(Entity entity, bool isChild);
+		void DrawEntityNode(Entity entity);
 
 		bool m_Closed = true;
 

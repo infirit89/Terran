@@ -24,4 +24,15 @@ namespace TerranEngine
 
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
+
+	glm::vec2 Input::GetMousePos() 
+	{
+		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
+
+		double xpos, ypos;
+
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		return { xpos, ypos };
+	}
 }

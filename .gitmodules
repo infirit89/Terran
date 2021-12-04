@@ -14,3 +14,6 @@
 [submodule "TerranEngine/vendor/freetype"]
 	path = TerranEngine/vendor/freetype
 	url = https://github.com/OKAY808/freetype
+[submodule "TerranEngine/vendor/ImGuizmo"]
+	path = TerranEngine/vendor/ImGuizmo
+	url = https://github.com/OKAY808/ImGuizmo

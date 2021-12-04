@@ -9,7 +9,7 @@
 
 #include <functional>
 
-namespace TerranEngine 
+namespace TerranEditor 
 {
 	template<typename Component>
 	using UIFunc = std::function<void(Component&)>;

@@ -58,65 +58,71 @@ namespace TerranEngine
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::Update()
+	void Scene::Update(const Camera& inCamera, const glm::mat4& inCameraTransfrom)
 	{
-		//DebugTimer timer;
-
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.Dirty && !rEntity.Dirty; });
 
 		TransformSystem::Update(this);
 
-		auto cameraView = m_Registry.view<CameraComponent>();
-		
 		Camera camera;
 		glm::mat4 cameraTransform;
 
-		for (auto e : cameraView)
+		if (inCamera.GetProjection() == glm::mat4(0.0f)) 
 		{
-			Entity entity(e, this);
-
-			auto& transformComponent = entity.GetComponent<TransformComponent>();
-			auto& cameraComponent = entity.GetComponent<CameraComponent>();
-
-			if (cameraComponent.Primary) 
+			auto cameraView = m_Registry.view<CameraComponent>();
+			for (auto e : cameraView)
 			{
-				camera = cameraComponent.Camera;
-				cameraTransform = transformComponent.TransformMatrix;
-				break;
+				Entity entity(e, this);
+
+				auto& transformComponent = entity.GetComponent<TransformComponent>();
+				auto& cameraComponent = entity.GetComponent<CameraComponent>();
+
+				if (cameraComponent.Primary) 
+				{
+					camera = cameraComponent.Camera;
+					cameraTransform = transformComponent.TransformMatrix;
+					break;
+				}
 			}
+		}
+		else 
+		{
+			camera = inCamera;
+			cameraTransform = inCameraTransfrom;
 		}
 
 		m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.ZIndex < rEntity.ZIndex; });
 
-		auto srView = m_Registry.view<SpriteRendererComponent>();
-
-		BatchRenderer2D::Get()->BeginScene(camera, cameraTransform);
-		for (auto e : srView)
+		if (camera.GetProjection() != glm::mat4(0.0f)) 
 		{
-			Entity entity(e, this);
+			auto srView = m_Registry.view<SpriteRendererComponent>();
 
-			auto& transformComponent = entity.GetComponent<TransformComponent>();
-			auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
+			BatchRenderer2D::Get()->BeginScene(camera, cameraTransform);
+			for (auto e : srView)
+			{
+				Entity entity(e, this);
 
-			BatchRenderer2D::Get()->AddQuad(transformComponent.TransformMatrix, srComponent.Color);
+				auto& transformComponent = entity.GetComponent<TransformComponent>();
+				auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
+
+				BatchRenderer2D::Get()->AddQuad(transformComponent.TransformMatrix, srComponent.Color);
+			}
+
+			auto crView = m_Registry.view<CircleRendererComponent>();
+
+			for (auto e : crView)
+			{
+				Entity entity(e, this);
+				auto& transformComponent = entity.GetComponent<TransformComponent>();
+				auto& crComponent = entity.GetComponent<CircleRendererComponent>();
+
+				BatchRenderer2D::Get()->AddCircle(transformComponent.TransformMatrix, crComponent.Color, crComponent.Thickness);
+			}
+
+			BatchRenderer2D::Get()->EndScene();
 		}
-
-		auto crView = m_Registry.view<CircleRendererComponent>();
-
-		for (auto e : crView)
-		{
-			Entity entity(e, this);
-			auto& transformComponent = entity.GetComponent<TransformComponent>();
-			auto& crComponent = entity.GetComponent<CircleRendererComponent>();
-
-			BatchRenderer2D::Get()->AddCircle(transformComponent.TransformMatrix, crComponent.Color, crComponent.Thickness);
-		}
-
-		BatchRenderer2D::Get()->EndScene();
-
-
 	}
 
 	void Scene::OnResize(float width, float height)

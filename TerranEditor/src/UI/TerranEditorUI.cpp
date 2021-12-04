@@ -8,7 +8,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-namespace TerranEngine 
+namespace TerranEditor 
 {
     void TerranEditorUI::DrawColor4Control(const char* label, glm::vec4& value, float columnWidth)
     {
@@ -179,8 +179,6 @@ namespace TerranEngine
         ImGui::Columns(1);
 
         ImGui::PopID();
-
-        return changed;
 
         return changed;
     }

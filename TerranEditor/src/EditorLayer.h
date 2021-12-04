@@ -5,8 +5,11 @@
 #include "EditorPanels/SceneHierarchy.h"
 #include "EditorPanels/PropertiesPanel.h"
 
-namespace TerranEngine
+#include "EditorCamera.h"
+
+namespace TerranEditor
 {
+	using namespace TerranEngine;
 	class EditorLayer : public Layer 
 	{
 	public:
@@ -35,6 +38,7 @@ namespace TerranEngine
 		Shared<Scene> m_Scene;
 		Unique<BatchRenderer2D> m_Renderer;
 
+		EditorCamera m_EditorCamera;
 
 		OrthographicCamera m_Camera;
 

@@ -4,10 +4,10 @@
 
 namespace TerranEngine
 {
-	class TerranEditor : public Application 
+	class TerranEditorApp : public Application 
 	{
 	public:
-		TerranEditor()
+		TerranEditorApp()
 			: Application()
 		{
 			WindowData data;
@@ -16,17 +16,17 @@ namespace TerranEngine
 			data.Height = 790;
 			Create(data);
 
-			PushLayer(new EditorLayer());
+			PushLayer(new TerranEditor::EditorLayer());
 		}
 
-		~TerranEditor()
+		~TerranEditorApp()
 		{
 
 		}
 	};
 
-	Application * CreateApplication()
+	Application* CreateApplication()
 	{
-		return new TerranEditor();
+		return new TerranEditorApp();
 	}
 }

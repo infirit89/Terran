@@ -29,6 +29,7 @@ namespace TerranEngine {
 
 		inline static Application* Get() { return m_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
+		inline ImGuiLayer& GetImGuiLayer() { return *m_ImGuiLayer; }
 	private:
 		void Run();
 		void OnEvent(Event& event);

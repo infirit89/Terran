@@ -4,6 +4,7 @@
 #include "Core/UUID.h"
 #include <unordered_map>
 
+#include "Graphics/Camera.h"
 
 namespace TerranEngine 
 {
@@ -19,7 +20,7 @@ namespace TerranEngine
 
 		void DestroyEntity(Entity entity, bool first);
 
-		void Update();
+		void Update(const Camera& inCamera = Camera(glm::mat4(0.0f)), const glm::mat4& inCameraTransfrom = glm::mat4(1.0f));
 		void OnResize(float width, float height);
 
 		Entity FindEntityWithUUID(const UUID& uuid);

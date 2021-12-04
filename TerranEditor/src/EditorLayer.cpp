@@ -5,10 +5,10 @@
 
 #include "UI/TerranEditorUI.h"
 
-namespace TerranEngine
+namespace TerranEditor
 {
 	EditorLayer::EditorLayer()
-		: Layer("Editor")
+		: Layer("Editor"), m_EditorCamera()
 	{
         m_Renderer = CreateUnique<BatchRenderer2D>(20000);
         m_Renderer->CreateFramebuffer(1280, 790, false);
@@ -61,6 +61,7 @@ namespace TerranEngine
         {
            m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
            m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+           m_EditorCamera.OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
         }
         
         RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -78,7 +79,9 @@ namespace TerranEngine
         RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
         RenderCommand::Clear();
 
-        m_Scene->Update();
+        m_EditorCamera.Update(time);
+
+        m_Scene->Update(m_EditorCamera, m_EditorCamera.GetView());
 
         m_Renderer->GetFramebuffer()->Unbind();
 
@@ -90,6 +93,7 @@ namespace TerranEngine
 
 	void EditorLayer::OnEvent(Event& event)
 	{
+        m_EditorCamera.OnEvent(event);
         EventDispatcher dispatcher(event);
 
         dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnKeyPressedEvent));
@@ -189,13 +193,18 @@ namespace TerranEngine
 	{
         ShowDockspace();
 
-        // Viewport
+        // Viewport window
         {
             ImGui::Begin("Viewport");
 
             ImVec2 regionAvail = ImGui::GetContentRegionAvail();
 
             m_ViewportSize = { regionAvail.x, regionAvail.y };
+
+            bool isFocused = ImGui::IsWindowFocused();
+            bool isHovered = ImGui::IsWindowHovered();
+
+            Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
             uint32_t textureID = m_Renderer->GetFramebuffer()->GetColorAttachmentID();
             

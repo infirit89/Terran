@@ -2,8 +2,9 @@
 
 #include "Terran.h"
 
-namespace TerranEngine 
+namespace TerranEditor 
 {
+	using namespace TerranEngine;
 	class PropertiesPanel 
 	{
 

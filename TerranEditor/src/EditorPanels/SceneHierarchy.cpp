@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-namespace TerranEngine 
+namespace TerranEditor 
 {
 	SceneHierarchy::SceneHierarchy(const Shared<Scene>& scene)
 	{
@@ -31,8 +31,9 @@ namespace TerranEngine
             for (auto e : view)
             {
                 Entity entity(e, m_Scene.get());
-                DrawEntityNode(entity, false);
 
+                if(!entity.HasParent())
+                    DrawEntityNode(entity);
             }
             if (ImGui::BeginPopupContextWindow(0, 1, false))
             {
@@ -54,22 +55,17 @@ namespace TerranEngine
 
     // TODO: god oh geez please fucking get rid of this mess, this huge pile of shit
 
-    bool SceneHierarchy::DrawEntityNode(Entity entity, bool isChild)
+    void SceneHierarchy::DrawEntityNode(Entity entity)
     {
         TagComponent& tagComp = entity.GetComponent<TagComponent>();
-
-        // bruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuh
-        if (entity.HasParent() &&
-            !isChild)
-            return false;
 
         ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
         flags |= ImGuiTreeNodeFlags_FramePadding;
 
         // TODO: clean up all this shit
 
-        //if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children <= 0)
-        //    flags |= ImGuiTreeNodeFlags_NoButton;
+        if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
+            flags |= ImGuiTreeNodeFlags_NoButton;
 
         ImGuiStyle& style = ImGui::GetStyle();
         ImGuiStyle orgStyle = style;
@@ -80,9 +76,8 @@ namespace TerranEngine
 
         style = orgStyle;
 
-        if (ImGui::IsItemClicked())
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
             m_Selected = entity;
-
 
         bool isDeleted = false;
         
@@ -100,10 +95,7 @@ namespace TerranEngine
                 auto entity = m_Scene->CreateEntity("Entity");
 
                 if (m_Selected) 
-                {
                     entity.SetParent(m_Selected);
-                    //m_Scene->AddChild(m_Selected, entity);
-                }
             }
 
             ImGui::EndPopup();
@@ -115,19 +107,12 @@ namespace TerranEngine
             {
                 RelationshipComponent& relComp = entity.GetComponent<RelationshipComponent>();
 
-                TR_TRACE("Entity name: {0}, Child count: {1}", entity.GetName(), entity.GetChildCount());
-
                 for (auto eID : entity.GetChildren())
                 {
                     auto currEntity = m_Scene->FindEntityWithUUID(eID);
 
                     if (currEntity)
-                    {
-                        if (!DrawEntityNode(currEntity, true))
-                        {
-//                            TR_TRACE("Entity id {0}, Entity name {1}", (uint32_t)currEntity, currEntity.GetName());
-                        }
-                    }
+                        DrawEntityNode(currEntity);
                     else
                         TR_ERROR("Not a valid child");
                 }
@@ -141,10 +126,6 @@ namespace TerranEngine
             m_Scene->DestroyEntity(entity, true);
             if (m_Selected == entity)
                 m_Selected = {};
-
-            return true;
         }
-
-        return false;
     }
 }
