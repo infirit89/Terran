@@ -1,9 +1,12 @@
 #include "EditorLayer.h"
+#include "UI/TerranEditorUI.h"
+
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <ImGuizmo.h>
 
-#include "UI/TerranEditorUI.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace TerranEditor
 {
@@ -191,6 +194,10 @@ namespace TerranEditor
 
 	void EditorLayer::ImGuiRender()
 	{
+        // BIG FAT FUCKING NOTE HERE: this is a temporary fix
+        // move the ImGui layer from the engine to the editor 
+        ImGuizmo::BeginFrame();
+
         ShowDockspace();
 
         // Viewport window
@@ -210,6 +217,40 @@ namespace TerranEditor
             
             ImGui::Image((void*)textureID, regionAvail, { 0, 1 }, { 1, 0 });
 
+
+            ImGuizmo::SetOrthographic(true);
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+            
+            glm::mat4 gridMatrix = glm::mat4(1.0f);
+            gridMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -1.0f)) *
+            glm::rotate(glm::mat4(1.0f), 45.0f, glm::vec3(1, 0, 0));
+
+            ImGuizmo::DrawGrid(glm::value_ptr(glm::inverse(m_EditorCamera.GetView())), glm::value_ptr(m_EditorCamera.GetProjection()),
+                glm::value_ptr(gridMatrix), 100.0f);
+
+            // Gizmos
+            m_Selected = m_SHierarchy.GetSelected();
+            if (m_Selected) 
+            {
+                auto& tc = m_Selected.GetComponent<TransformComponent>();
+                glm::mat4 transformMatrix = tc.TransformMatrix;
+
+                ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(m_EditorCamera.GetView())), glm::value_ptr(m_EditorCamera.GetProjection()),
+                    ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
+
+
+                ImGuizmo::ViewManipulate(glm::value_ptr(glm::inverse(m_EditorCamera.GetView())), 1, );
+
+                if (ImGuizmo::IsUsing()) 
+                {
+                    tc.LocalPosition = glm::vec3(transformMatrix[3]);
+
+                    tc.Dirty = true;
+                }
+                m_EditorCamera.SetBlockInput(ImGuizmo::IsUsing());
+
+            }
             ImGui::End();
         }
 

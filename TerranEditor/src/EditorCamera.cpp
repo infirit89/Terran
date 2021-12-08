@@ -18,8 +18,11 @@ namespace TerranEditor
 		glm::vec2 mouseDelta = (mousePos - m_OrigMousePos) * 0.002f;
 		m_OrigMousePos = mousePos;
 
-		if (Input::IsMouseButtonPressed(MouseButton::LeftButton)) 
-			PanCamera(mouseDelta);
+		if (!m_BlockInput) 
+		{
+			//if (Input::IsMouseButtonPressed(MouseButton::LeftButton)) 
+			//	PanCamera(mouseDelta);
+		}
 
 	}
 
@@ -35,15 +38,15 @@ namespace TerranEditor
 		m_ViewportWidth = width;
 		m_ViewportHeight = height;
 
-		m_AspectRatio = width / height;
+		m_AspectRatio = height / width;
 
 		RecalculateProjection();
 	}
 
 	void EditorCamera::RecalculateProjection() 
 	{
-		float width = (m_OrthoGraphicSize * m_AspectRatio * 0.5f);
-		float height = (m_OrthoGraphicSize * 0.5f);
+		float width = m_OrthoGraphicSize;
+		float height = (m_OrthoGraphicSize * m_AspectRatio);
 
 		m_ProjectionMatrix = glm::ortho(-width, width, -height, height, m_OrthographicNear, m_OrthographicFar);
 	}
@@ -60,9 +63,10 @@ namespace TerranEditor
 		if (m_CameraType == EditorCameraType::Orthographic)
 		{
 			m_OrthoGraphicSize -= delta * 0.8f;
+			RecalculateProjection();
 		}
 
-		RecalculateProjection();
+		//RecalculateView();
 	}
 
 	void EditorCamera::PanCamera(glm::vec2 delta)

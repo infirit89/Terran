@@ -26,6 +26,8 @@ namespace TerranEditor
 
 		void SetCameraType(EditorCameraType type) { m_CameraType = type; }
 
+		void SetBlockInput(bool block) { m_BlockInput = block; }
+
 		glm::mat4 GetView() { return m_ViewMatrix; }
 	private:
 		void RecalculateProjection();
@@ -51,5 +53,6 @@ namespace TerranEditor
 
 		float m_ViewportWidth = 1080.0f, m_ViewportHeight = 780.0f;
 
+		bool m_BlockInput = false;
 	};
 }

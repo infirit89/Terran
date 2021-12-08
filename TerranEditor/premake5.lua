@@ -11,6 +11,9 @@ project "TerranEditor"
     {
         "src/**.h",
         "src/**.cpp",
+
+        "vendor/ImGuizmo/ImGuizmo.h",
+        "vendor/ImGuizmo/ImGuizmo.cpp"
     }
 
     includedirs
@@ -21,7 +24,9 @@ project "TerranEditor"
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/"        
+        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
+        
+        "%{wks.location}/TerranEditor/vendor/ImGuizmo/"
     } 
 
     links 
