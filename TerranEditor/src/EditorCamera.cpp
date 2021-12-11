@@ -4,6 +4,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 namespace TerranEditor 
 {
 	EditorCamera::EditorCamera() 
@@ -20,9 +23,11 @@ namespace TerranEditor
 
 		if (!m_BlockInput) 
 		{
-			//if (Input::IsMouseButtonPressed(MouseButton::LeftButton)) 
-			//	PanCamera(mouseDelta);
+			if (Input::IsMouseButtonPressed(MouseButton::LeftButton)) 
+				PanCamera(mouseDelta);
 		}
+
+		RecalculateView();
 
 	}
 
@@ -38,17 +43,17 @@ namespace TerranEditor
 		m_ViewportWidth = width;
 		m_ViewportHeight = height;
 
-		m_AspectRatio = height / width;
+		m_AspectRatio = width / height;
 
 		RecalculateProjection();
 	}
 
 	void EditorCamera::RecalculateProjection() 
 	{
-		float width = m_OrthoGraphicSize;
-		float height = (m_OrthoGraphicSize * m_AspectRatio);
+		float width = (m_OrthoGraphicSize * m_AspectRatio * 0.5f) * 2;
+		float height = (m_OrthoGraphicSize * 0.5f) * 2;
 
-		m_ProjectionMatrix = glm::ortho(-width, width, -height, height, m_OrthographicNear, m_OrthographicFar);
+		m_ProjectionMatrix = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, m_OrthographicNear, m_OrthographicFar);
 	}
 
 	void EditorCamera::RecalculateView() 
@@ -63,18 +68,20 @@ namespace TerranEditor
 		if (m_CameraType == EditorCameraType::Orthographic)
 		{
 			m_OrthoGraphicSize -= delta * 0.8f;
+			if (m_OrthoGraphicSize < 1.0f) 
+			{
+				m_FocalPoint += GetForwardDirection();
+				m_OrthoGraphicSize = 1.0f;
+			}
+
 			RecalculateProjection();
 		}
-
-		//RecalculateView();
 	}
 
 	void EditorCamera::PanCamera(glm::vec2 delta)
 	{
 		m_FocalPoint.x += -delta.x * 0.03f * m_OrthoGraphicSize;
 		m_FocalPoint.y += delta.y * 0.03f * m_OrthoGraphicSize;
-
-		RecalculateView();
 	}
 
 	bool EditorCamera::OnMouseScroll(MouseScrollEvent& e) 
@@ -84,9 +91,14 @@ namespace TerranEditor
 		return false;
 	}
 
+	glm::vec3 EditorCamera::GetForwardDirection() 
+	{
+		return glm::rotate(glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), glm::vec3(0.0f, 0.0f, -1.0f));
+	}
+
 	glm::vec3 EditorCamera::CalculatePosition() 
 	{
-		return m_FocalPoint * -m_OrthoGraphicSize;
+		return m_FocalPoint - GetForwardDirection();
 	}
 	glm::vec2 EditorCamera::GetPanSpeed()
 	{

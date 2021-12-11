@@ -15,16 +15,11 @@ namespace TerranEditor
 		m_Selected = {};
 	}
 
-    void SceneHierarchy::SetClosed(bool closed)
-    {
-        m_Closed = closed;
-    }
-
 	void SceneHierarchy::ImGuiRender()
 	{
-        if(m_Closed)
+        if(m_Open)
         {
-            ImGui::Begin("Hierarchy", &m_Closed, ImGuiWindowFlags_NoCollapse);
+            ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
             
             auto view = m_Scene->GetRegistry().view<TagComponent>();
             

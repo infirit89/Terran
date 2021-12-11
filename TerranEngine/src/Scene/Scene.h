@@ -30,8 +30,6 @@ namespace TerranEngine
 
 		Entity GetPrimaryCamera();
 
-
-
 	private:
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 		entt::registry m_Registry;

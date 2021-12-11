@@ -59,12 +59,13 @@ namespace TerranEditor
 
 	void EditorLayer::Update(float& time)
 	{
-        if ((m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
-            m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height) && m_ViewportSize.x > 0 && m_ViewportSize.y > 0)
+        if ((m_SceneView.GetViewportSize().x != m_Renderer->GetFramebuffer()->Width ||
+            m_SceneView.GetViewportSize().y != m_Renderer->GetFramebuffer()->Height) && 
+            m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
         {
-           m_Renderer->GetFramebuffer()->Resize(m_ViewportSize.x, m_ViewportSize.y);
-           m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
-           m_EditorCamera.OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+           m_Renderer->GetFramebuffer()->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+           m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+           m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
         }
         
         RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -72,21 +73,26 @@ namespace TerranEditor
 
         m_Renderer->ResetStats();
 
-        m_Renderer->GetFramebuffer()->Bind();
-        auto primaryCamera = m_Scene->GetPrimaryCamera();
-        glm::vec4 backgroundColor = glm::vec4(0.0f);
+        if (m_SceneView.IsVisible()) 
+        {
+            m_Renderer->GetFramebuffer()->Bind();
+            auto primaryCamera = m_Scene->GetPrimaryCamera();
+            glm::vec4 backgroundColor = glm::vec4(0.0f);
 
-        if(primaryCamera)
-            backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
+            if(primaryCamera)
+                backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
 
-        RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-        RenderCommand::Clear();
+            RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+            RenderCommand::Clear();
 
-        m_EditorCamera.Update(time);
+            m_EditorCamera.Update(time);
 
-        m_Scene->Update(m_EditorCamera, m_EditorCamera.GetView());
+            m_Scene->Update(m_EditorCamera, m_EditorCamera.GetView());
 
-        m_Renderer->GetFramebuffer()->Unbind();
+            m_Renderer->GetFramebuffer()->Unbind();
+
+            m_SceneView.SetRenderTextureID(m_Renderer->GetFramebuffer()->GetColorAttachmentID());
+        }
 
         int frames = 1 / time;
 
@@ -186,6 +192,20 @@ namespace TerranEditor
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("View")) 
+            {
+                if (ImGui::MenuItem("Properties"))
+                    m_PropertiesPanel.SetOpen(true);
+
+                if (ImGui::MenuItem("Scene Hierarchy"))
+                    m_SHierarchy.SetOpen(true);
+
+                if (ImGui::MenuItem("Editor view"))
+                    m_SceneView.SetOpen(true);
+
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenuBar();
         }
 
@@ -200,64 +220,21 @@ namespace TerranEditor
 
         ShowDockspace();
 
-        // Viewport window
+        // NOTE: Make an editor setting for the selected window
+
         {
-            ImGui::Begin("Viewport");
-
-            ImVec2 regionAvail = ImGui::GetContentRegionAvail();
-
-            m_ViewportSize = { regionAvail.x, regionAvail.y };
-
-            bool isFocused = ImGui::IsWindowFocused();
-            bool isHovered = ImGui::IsWindowHovered();
-
-            Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
-
-            uint32_t textureID = m_Renderer->GetFramebuffer()->GetColorAttachmentID();
-            
-            ImGui::Image((void*)textureID, regionAvail, { 0, 1 }, { 1, 0 });
+            ImGui::Begin("Game view");
 
 
-            ImGuizmo::SetOrthographic(true);
-            ImGuizmo::SetDrawlist();
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-            
-            glm::mat4 gridMatrix = glm::mat4(1.0f);
-            gridMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -1.0f)) *
-            glm::rotate(glm::mat4(1.0f), 45.0f, glm::vec3(1, 0, 0));
-
-            ImGuizmo::DrawGrid(glm::value_ptr(glm::inverse(m_EditorCamera.GetView())), glm::value_ptr(m_EditorCamera.GetProjection()),
-                glm::value_ptr(gridMatrix), 100.0f);
-
-            // Gizmos
-            m_Selected = m_SHierarchy.GetSelected();
-            if (m_Selected) 
-            {
-                auto& tc = m_Selected.GetComponent<TransformComponent>();
-                glm::mat4 transformMatrix = tc.TransformMatrix;
-
-                ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(m_EditorCamera.GetView())), glm::value_ptr(m_EditorCamera.GetProjection()),
-                    ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
-
-
-                ImGuizmo::ViewManipulate(glm::value_ptr(glm::inverse(m_EditorCamera.GetView())), 1, );
-
-                if (ImGuizmo::IsUsing()) 
-                {
-                    tc.LocalPosition = glm::vec3(transformMatrix[3]);
-
-                    tc.Dirty = true;
-                }
-                m_EditorCamera.SetBlockInput(ImGuizmo::IsUsing());
-
-            }
             ImGui::End();
         }
+
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera);
 
         // Renderer stats
         {
             ImGui::Begin("Renderer Stats");
-
+            
             BatchRendererStats stats = m_Renderer->GetStats();
 
             ImGui::Text("Draw calls: %d", stats.DrawCalls);
@@ -266,6 +243,7 @@ namespace TerranEditor
             ImGui::Text("Total Index count: %d", stats.IndexCount);
 
             ImGui::Text("Frame Time: %f ms/frame", m_Frametime);
+
 
             ImGui::End();
         }
@@ -303,7 +281,7 @@ namespace TerranEditor
             SceneSerializer sSerializer(newScene);
             sSerializer.DesirializeJson(scenePath);
             m_Scene = newScene;
-            m_Scene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+            m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
             m_SHierarchy.SetScene(m_Scene);
         }

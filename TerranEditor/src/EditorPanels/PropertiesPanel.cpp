@@ -56,9 +56,9 @@ namespace TerranEditor
 
 	void PropertiesPanel::ImGuiRender(Entity& entity)
 	{
-		if(m_Closed)
+		if(m_Open)
 		{
-			ImGui::Begin("Properties", &m_Closed);
+			ImGui::Begin("Properties", &m_Open);
 			if (entity) 
 			{
 				if (entity.HasComponent<TagComponent>()) 

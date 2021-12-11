@@ -41,3 +41,6 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneSerializer.h"
+
+/* ---- Misc ---- */
+#include "Math/Math.h"

@@ -11,19 +11,20 @@ namespace TerranEditor
 		SceneHierarchy() = default;
 		SceneHierarchy(const Shared<Scene>& scene);
 
+		~SceneHierarchy() = default;
+
 		void SetScene(const Shared<Scene>& scene);
 
 		Entity& GetSelected() { return m_Selected; }
 
-		void SetClosed(bool closed);
-
+		void SetOpen(bool open) { m_Open = open; }
+		 
 		void ImGuiRender();
-		
 
 	private:
 		void DrawEntityNode(Entity entity);
 
-		bool m_Closed = true;
+		bool m_Open = true;
 
 		Entity m_Selected = {};
 		Shared<Scene> m_Scene;

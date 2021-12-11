@@ -10,11 +10,12 @@ namespace TerranEditor
 
 	public:
 		PropertiesPanel() = default;
+		~PropertiesPanel() = default;
 
 		void ImGuiRender(Entity& entity);
 
-		inline void SetClosed(bool closed) { m_Closed = closed; }
+		inline void SetOpen(bool open) { m_Open = open; }
 	private:
-		bool m_Closed = true;
+		bool m_Open = true;
 	};
 }

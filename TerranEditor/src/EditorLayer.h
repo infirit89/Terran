@@ -4,6 +4,7 @@
 
 #include "EditorPanels/SceneHierarchy.h"
 #include "EditorPanels/PropertiesPanel.h"
+#include "EditorPanels/SceneView.h"
 
 #include "EditorCamera.h"
 
@@ -47,10 +48,9 @@ namespace TerranEditor
 		// ***** Panels *****
 		SceneHierarchy m_SHierarchy;
 		PropertiesPanel m_PropertiesPanel;
-		// ******************
-		
+		SceneView m_SceneView;
 
-		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
+		// ******************
 
 		std::string m_CurrentScenePath = std::string();
 

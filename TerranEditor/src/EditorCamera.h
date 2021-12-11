@@ -38,6 +38,10 @@ namespace TerranEditor
 		glm::vec3 CalculatePosition();
 		glm::vec2 GetPanSpeed();
 
+		glm::vec3 GetForwardDirection();
+		glm::vec3 GetUpDirection();
+		glm::vec3 GetRightDirection();
+
 		glm::vec2 m_OrigMousePos{ 0.0f, 0.0f };
 
 		EditorCameraType m_CameraType = EditorCameraType::Orthographic;
@@ -45,7 +49,7 @@ namespace TerranEditor
 		glm::mat4 m_ViewMatrix = glm::mat4(1.0f);
 
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 m_FocalPoint = {0.0f, 0.0f, 0.0f};
+		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
 
 		float m_AspectRatio = 0.0f;
 		float m_OrthoGraphicSize = 10.0f;
