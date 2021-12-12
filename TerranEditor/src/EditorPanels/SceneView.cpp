@@ -59,9 +59,15 @@ namespace TerranEditor
                         tc.Dirty = true;
                     }
                 }
-                editorCamera.SetBlockInput(ImGuizmo::IsUsing());
 
             }
+
+            glm::vec2 windowPos = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
+            glm::vec2 mousePos = Input::GetMousePos();
+
+            editorCamera.SetBlockInput(ImGuizmo::IsUsing() || 
+                !(mousePos.x >= windowPos.x && mousePos.x <= windowPos.x + m_ViewportSize.x &&
+                  mousePos.y >= windowPos.y && mousePos.y <= windowPos.y + m_ViewportSize.y));
             ImGui::End();
         }
 	}

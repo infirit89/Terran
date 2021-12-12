@@ -16,7 +16,7 @@ namespace TerranEditor
 	class EditorCamera : public Camera
 	{
 	public:
-		EditorCamera();
+		EditorCamera(bool calculateVpMatrices = true);
 
 		void Update(float& time);
 
@@ -34,14 +34,14 @@ namespace TerranEditor
 		void RecalculateView();
 		void CameraZoom(float delta);
 		void PanCamera(glm::vec2 delta);
+
 		bool OnMouseScroll(MouseScrollEvent& e);
+		
 		glm::vec3 CalculatePosition();
 		glm::vec2 GetPanSpeed();
 
 		glm::vec3 GetForwardDirection();
-		glm::vec3 GetUpDirection();
-		glm::vec3 GetRightDirection();
-
+		
 		glm::vec2 m_OrigMousePos{ 0.0f, 0.0f };
 
 		EditorCameraType m_CameraType = EditorCameraType::Orthographic;

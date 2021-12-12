@@ -1,11 +1,9 @@
 #pragma once
 
-#include <entt.hpp>
+#include "Scene/Scene.h"
 
 namespace TerranEngine 
 {
-	class Scene;
-
 	class TransformSystem 
 	{
 	public:

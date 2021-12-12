@@ -21,7 +21,7 @@ namespace TerranEditor
         {
             ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
             
-            auto view = m_Scene->GetRegistry().view<TagComponent>();
+            auto view = m_Scene->GetEntitiesWith<TagComponent>();
             
             for (auto e : view)
             {

@@ -17,12 +17,14 @@ namespace TerranEditor
 
 		bool IsVisible() { return m_Visible; }
 
+		glm::vec2 GetViewportSize() { return m_ViewportSize; }
+
+		void SetRenderTextureID(uint32_t textureID) { m_RenderTextureID = textureID; }
 	private:
 		bool m_Open = true;
 		bool m_Visible = false;
 
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
-
 		uint32_t m_RenderTextureID;
 	};
 }

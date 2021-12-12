@@ -57,6 +57,8 @@ namespace TerranEngine
 	{
 		float frameTime = 0.0f; float lastFrameTime = 0.0f;
 
+		RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 		while (m_Running)
 		{
 			// NOTE: think about changing frametime to be a double
@@ -64,9 +66,9 @@ namespace TerranEngine
 			float dt(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;
 			
-
 			if (!m_Minimized)
 			{
+				RenderCommand::Clear();
 				for (Layer* layer : m_Stack.GetLayers())
 					layer->Update(dt);
 

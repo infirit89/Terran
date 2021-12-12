@@ -52,9 +52,6 @@ namespace TerranEngine
 
 		~BatchRenderer2D();
 
-		void CreateFramebuffer(uint32_t width, uint32_t height, bool swapchainTarget);
-		inline Shared<Framebuffer> GetFramebuffer() { return m_Framebuffer; }
-
 		void BeginScene(Camera& camera, const glm::mat4& transform);
 		void EndScene();
 
@@ -70,8 +67,6 @@ namespace TerranEngine
 		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 		inline bool CircleBatchHasRoom() const { return !(m_CircleIndexCount >= m_MaxIndices); }
 
-		void RenderToFramebuffer();
-
 		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		inline BatchRendererStats GetStats() { return m_Stats; }
 
@@ -86,6 +81,8 @@ namespace TerranEngine
 		void Close();
 		void Clear();
 
+		// NOTE: should move the fuck away from the batch renderer
+		// These don't belong here, put them in the scene renderer
 		bool InCameraView(glm::mat4& transform);
 		bool InCameraViewX(float x, float width);
 		bool InCameraViewY(float y, float height);
@@ -147,22 +144,13 @@ namespace TerranEngine
 		//uint32_t m_CircleTextureIndex = 1;
 		// ************************
 
-		// ******** Frame buffer ********
-		Shared<VertexArray> m_FramebufferVAO;
-		Shared<VertexBuffer> m_FramebufferVBO;
-		Shared<IndexBuffer> m_FramebufferIBO;
-		Shared<Shader> m_FramebufferShader;
-
-		Shared<Framebuffer> m_Framebuffer;
-		// ******************************
-
-
 		//  ******** Camera stuffs ********
 		struct CameraData
 		{
 			glm::mat4 Projection;
 			glm::mat4 View;
 
+			// Doesn't belong here
 			glm::vec3 ProjectionSize, CameraPosition;
 		};
 
@@ -170,6 +158,7 @@ namespace TerranEngine
 
 		Shared<UniformBuffer> m_CameraBuffer;
 
+		// Doesn't fucking belong here
 		bool m_CullObjectsOutsideOfCamera = false;
 		// ********************************
 	};

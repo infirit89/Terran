@@ -47,49 +47,6 @@ namespace TerranEngine
 		Close();
 	}
 
-	void BatchRenderer2D::CreateFramebuffer(uint32_t width, uint32_t height, bool swapchainTarget)
-	{
-		m_Framebuffer = CreateShared<Framebuffer>(width, height, swapchainTarget);
-
-// disabled temporarily, cause i dont fucking want to deal with the framebuffer rendering to the main color buffer
-#if 0
-			float pos[] =
-			{
-				-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-				 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-				 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-				-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
-			};
-			m_FramebufferVAO = CreateShared<VertexArray>();
-
-			m_FramebufferVBO = CreateShared<VertexBuffer>(pos, sizeof(pos));
-
-			m_FramebufferVAO->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 2 },
-			});
-
-			int indices[] =
-			{
-				0, 1, 2,
-				2, 3, 0
-			};
-
-			m_FramebufferIBO = CreateShared<IndexBuffer>(indices, sizeof(indices));
-
-			m_FramebufferVAO->Unbind();
-			m_FramebufferVBO->Unbind();
-			m_FramebufferIBO->Unbind();
-
-			m_QuadShader->Unbind();
-			m_FramebufferShader = CreateShared<Shader>("res/shaders/Base/Framebuffer/Framebuffershader.glsl");
-			m_FramebufferShader->Unbind();
-		
-			m_QuadShader->Bind();
-#endif
-
-	}
-
 	void BatchRenderer2D::Init(uint32_t batchSize)
 	{
 		m_MaxIndices = batchSize * 6;
@@ -511,32 +468,6 @@ namespace TerranEngine
 			m_Stats.DrawCalls++;
 
 			m_CircleShader->Unbind();
-		}
-	}
-
-	void BatchRenderer2D::RenderToFramebuffer()
-	{
-		if (m_Framebuffer->IsSwapChainTarget())
-		{
-			m_QuadShader->Unbind();
-
-			m_Framebuffer->BindColorAttachment();
-
-			m_FramebufferShader->Bind();
-
-			m_FramebufferVBO->Bind();
-			m_FramebufferIBO->Bind();
-
-			RenderCommand::Draw(RenderMode::Triangles, m_FramebufferVAO, 6);
-
-			m_FramebufferShader->Unbind();
-			m_Framebuffer->UnbindColorAttachment();
-
-			m_FramebufferVAO->Unbind();
-			m_FramebufferVBO->Unbind();
-			m_FramebufferIBO->Unbind();
-
-			m_QuadShader->Bind();
 		}
 	}
 

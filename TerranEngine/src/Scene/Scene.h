@@ -26,13 +26,15 @@ namespace TerranEngine
 		Entity FindEntityWithUUID(const UUID& uuid);
 		Entity FindEntityWithName(const std::string& name);
 
-		entt::registry& GetRegistry() { return m_Registry; }
+		template <typename... Args, typename... Exclude>
+		auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
 
 		Entity GetPrimaryCamera();
 
 	private:
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 		entt::registry m_Registry;
+
 		friend class Entity;
 		friend class SceneSerializer;
 	};

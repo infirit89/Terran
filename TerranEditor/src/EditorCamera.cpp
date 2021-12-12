@@ -9,10 +9,13 @@
 
 namespace TerranEditor 
 {
-	EditorCamera::EditorCamera() 
+	EditorCamera::EditorCamera(bool calculateVPMatrices) 
 	{
-		RecalculateView();
-		RecalculateProjection();
+		if (calculateVPMatrices) 
+		{
+			RecalculateView();
+			RecalculateProjection();
+		}
 	}
 
 	void EditorCamera::Update(float& time)

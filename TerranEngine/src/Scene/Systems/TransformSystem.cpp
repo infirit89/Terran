@@ -55,7 +55,7 @@ namespace TerranEngine
 
 	void TransformSystem::Update(Scene* scene)
 	{
-		auto transformView = scene->GetRegistry().view<TransformComponent>(entt::exclude<RelationshipComponent>);
+		auto transformView = scene->GetEntitiesWith<TransformComponent>(entt::exclude<RelationshipComponent>);
 
 		for (auto e : transformView)
 		{
@@ -78,7 +78,7 @@ namespace TerranEngine
 
 		}
 
-		auto hierarchicalTransformView = scene->GetRegistry().view<TransformComponent, RelationshipComponent>();
+		auto hierarchicalTransformView = scene->GetEntitiesWith<TransformComponent, RelationshipComponent>();
 		for (auto e : hierarchicalTransformView) 
 		{
 			Entity entity(e, scene);
