@@ -11,6 +11,7 @@
 		  
 #include "Graphics/Shader.h"
 #include "Graphics/RenderCommand.h"
+#include "Time.h"
 
 #include <imgui.h>
 
@@ -63,14 +64,14 @@ namespace TerranEngine
 		{
 			// NOTE: think about changing frametime to be a double
 			frameTime = glfwGetTime();
-			float dt(frameTime - lastFrameTime);
+			Time time = Time(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;
 			
 			if (!m_Minimized)
 			{
 				RenderCommand::Clear();
 				for (Layer* layer : m_Stack.GetLayers())
-					layer->Update(dt);
+					layer->Update(time);
 
 				m_ImGuiLayer->BeginFrame();
 				for (Layer* layer : m_Stack.GetLayers())

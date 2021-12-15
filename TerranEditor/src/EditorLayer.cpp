@@ -59,7 +59,7 @@ namespace TerranEditor
 	{
 	}
 
-	void EditorLayer::Update(float& time)
+	void EditorLayer::Update(Time& time)
 	{
         m_Renderer->ResetStats();
 
@@ -69,8 +69,8 @@ namespace TerranEditor
         {
             m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
             m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-            m_Scene->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
         }
+
         if (m_SceneView.IsVisible()) 
         {
 
@@ -94,6 +94,7 @@ namespace TerranEditor
                 m_GameView.GetViewportSize().y != m_GameViewFramebuffer->GetHeight()) &&
                 m_GameView.GetViewportSize().x > 0 && m_GameView.GetViewportSize().y > 0)
             {
+                m_Scene->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
             }
 
@@ -114,13 +115,15 @@ namespace TerranEditor
             m_GameView.SetRenderTextureID(m_GameViewFramebuffer->GetColorAttachmentID());
         }
 
-        m_Frametime = time * 1000.0f;
+        m_Frametime = time.GetDeltaTimeMS();
 	}
 
 
 	void EditorLayer::OnEvent(Event& event)
 	{
         m_EditorCamera.OnEvent(event);
+        m_SceneView.OnEvent(event);
+
         EventDispatcher dispatcher(event);
 
         dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnKeyPressedEvent));

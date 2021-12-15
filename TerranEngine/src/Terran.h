@@ -8,6 +8,7 @@
 #include "Core/FileUtils.h"
 #include "Core/Base.h"
 #include "Core/UUID.h"
+#include "Core/Time.h"
 
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"

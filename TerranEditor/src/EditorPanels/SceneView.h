@@ -22,10 +22,16 @@ namespace TerranEditor
 
 		void SetOpen(bool open) { m_Open = open; }
 
+		void OnEvent(Event& event);
+
 	private:
+		bool OnKeyPressed(KeyPressedEvent& e);
+
 		bool m_Open = true;
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 		uint32_t m_RenderTextureID = -1;
+
+		int m_GizmoType = 7;
 
 		bool m_Visible = false;
 

@@ -13,17 +13,27 @@ layout(location = 0) out vec4 color;
 
 void main() 
 {
-	const float r = 1.0;
-	//const float rInner = 1.0;
+//	const float r = 1.0;
+//	//const float rInner = 1.0;
+//
+//	float dist = length(fsIn.LocalPos);
+//	if(dist > r || dist < 1 - fsIn.Thickness)
+//		discard;
+//
+//	float alpha = 1.0 - smoothstep(1.0 - 0.01, 1.0, dist);
+//	alpha *= smoothstep(1.0 - fsIn.Thickness - 0.01, 1.0 - fsIn.Thickness, dist);
+//	color = fsIn.Color;
+//	color.a = fsIn.Color.a * alpha;
 
-	float dist = sqrt(dot(fsIn.LocalPos, fsIn.LocalPos));
-	if(dist > r || dist < 1 - fsIn.Thickness)
+	float distance = 1.0 - length(fsIn.LocalPos);
+	float circle = smoothstep(0.0, 0.001, distance);
+	circle *= smoothstep(fsIn.Thickness + 0.001, fsIn.Thickness, distance);
+
+	if(circle == 0.0)
 		discard;
 
-	float alpha = 1.0 - smoothstep(1.0 - 0.01, 1.0, dist);
-	alpha *= smoothstep(1.0 - fsIn.Thickness - 0.01, 1.0 - fsIn.Thickness, dist);
 	color = fsIn.Color;
-	color.a = fsIn.Color.a * alpha;
+	color.a *= circle;
 
 	//color = fsIn.Color;
 }

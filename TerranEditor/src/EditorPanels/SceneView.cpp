@@ -44,7 +44,7 @@ namespace TerranEditor
                 glm::mat4 transformMatrix = tc.TransformMatrix;
 
                 ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(editorCamera.GetView())), glm::value_ptr(editorCamera.GetProjection()),
-                    ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
+                    (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
 
                 if (ImGuizmo::IsUsing())
                 {
@@ -62,14 +62,44 @@ namespace TerranEditor
 
             }
 
-            glm::vec2 windowPos = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
-            glm::vec2 mousePos = Input::GetMousePos();
+            editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused);
 
-            editorCamera.SetBlockInput(ImGuizmo::IsUsing() || 
-                !(mousePos.x >= windowPos.x && mousePos.x <= windowPos.x + m_ViewportSize.x &&
-                  mousePos.y >= windowPos.y && mousePos.y <= windowPos.y + m_ViewportSize.y));
             ImGui::End();
         }
 	}
+    void SceneView::OnEvent(Event& event)
+    {
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneView::OnKeyPressed));
+    }
+
+    bool SceneView::OnKeyPressed(KeyPressedEvent& e)
+    {
+        bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+
+        if (e.GetRepeatCount() > 0)
+            return false;
+
+        switch (e.GetKeyCode())
+        {
+        case Key::Q: 
+        {
+            m_GizmoType = ImGuizmo::TRANSLATE;
+            break;
+        }
+        case Key::W:
+        {
+            m_GizmoType = ImGuizmo::ROTATE;
+            break;
+        }
+        case Key::E:
+        {
+            m_GizmoType = ImGuizmo::SCALE;
+            break;
+        }
+        }
+
+        return false;
+    }
 }
 

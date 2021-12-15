@@ -2,7 +2,7 @@
 
 #include "Graphics/Camera.h"
 #include "Events/MouseEvent.h"
-
+#include "Core/Time.h"
 
 namespace TerranEditor 
 {
@@ -16,9 +16,9 @@ namespace TerranEditor
 	class EditorCamera : public Camera
 	{
 	public:
-		EditorCamera(bool calculateVpMatrices = true);
+		EditorCamera();
 
-		void Update(float& time);
+		void Update(Time& time);
 
 		void OnEvent(Event& event);
 
@@ -33,15 +33,13 @@ namespace TerranEditor
 		void RecalculateProjection();
 		void RecalculateView();
 		void CameraZoom(float delta);
-		void PanCamera(glm::vec2 delta);
+		void PanCamera(glm::vec2 delta, Time& time);
 
 		bool OnMouseScroll(MouseScrollEvent& e);
 		
 		glm::vec3 CalculatePosition();
 		glm::vec2 GetPanSpeed();
 
-		glm::vec3 GetForwardDirection();
-		
 		glm::vec2 m_OrigMousePos{ 0.0f, 0.0f };
 
 		EditorCameraType m_CameraType = EditorCameraType::Orthographic;
