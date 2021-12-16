@@ -12,10 +12,51 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include "Utils/Debug/DebugTimer.h"
 namespace TerranEngine 
 {
-	static void UpdateChild(Entity entity)
+
+	TransformSystem::TransformSystem(Scene* scene)
+		: m_Scene(scene) 
+	{ }
+
+	void TransformSystem::Update()
+	{
+		//auto transformView = m_Scene->GetEntitiesWith<TransformComponent>(entt::exclude<RelationshipComponent>);
+		auto transformView = m_Scene->m_Registry.view<TransformComponent>(entt::exclude<RelationshipComponent>);
+
+		for (auto e : transformView)
+		{
+			Entity entity(e, m_Scene);
+			TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
+			if (transformComponent.Dirty)
+			{
+				transformComponent.Position = transformComponent.LocalPosition;
+				transformComponent.Scale = transformComponent.LocalScale;
+				transformComponent.Rotation = transformComponent.LocalRotation;
+
+				transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
+										 glm::toMat4(glm::quat(transformComponent.Rotation)) *
+										 glm::scale(glm::mat4(1.0f), transformComponent.Scale);
+
+				transformComponent.Dirty = false;
+			}
+			else
+				break;
+
+		}
+
+		//auto hierarchicalTransformView = m_Scene->GetEntitiesWith<TransformComponent, RelationshipComponent>();
+		auto hierarchicalTransformView = m_Scene->m_Registry.view<TransformComponent, RelationshipComponent>();
+
+		for (auto e : hierarchicalTransformView) 
+		{
+			Entity entity(e, m_Scene);
+			if (entity.GetTransform().Dirty) 
+				UpdateChild(entity);
+		}
+	}
+
+	void TransformSystem::UpdateChild(Entity entity)
 	{
 		TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
 		
@@ -51,39 +92,5 @@ namespace TerranEngine
 			UpdateChild(currEntity);
 		}
 
-	}
-
-	void TransformSystem::Update(Scene* scene)
-	{
-		auto transformView = scene->GetEntitiesWith<TransformComponent>(entt::exclude<RelationshipComponent>);
-
-		for (auto e : transformView)
-		{
-			Entity entity(e, scene);
-			TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
-			if (transformComponent.Dirty)
-			{
-				transformComponent.Position = transformComponent.LocalPosition;
-				transformComponent.Scale = transformComponent.LocalScale;
-				transformComponent.Rotation = transformComponent.LocalRotation;
-
-				transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
-										 glm::toMat4(glm::quat(transformComponent.Rotation)) *
-										 glm::scale(glm::mat4(1.0f), transformComponent.Scale);
-
-				transformComponent.Dirty = false;
-			}
-			else
-				break;
-
-		}
-
-		auto hierarchicalTransformView = scene->GetEntitiesWith<TransformComponent, RelationshipComponent>();
-		for (auto e : hierarchicalTransformView) 
-		{
-			Entity entity(e, scene);
-			if (entity.GetTransform().Dirty) 
-				UpdateChild(entity);
-		}
 	}
 }

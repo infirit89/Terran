@@ -15,10 +15,13 @@ namespace TerranEditor
 	{
         m_Renderer = CreateUnique<BatchRenderer2D>(20000);
         
-        m_SceneViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
-        m_GameViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
+        //m_SceneViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
+        //m_GameViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
 
         m_Scene = CreateShared<Scene>();
+
+        m_EditorSceneRenderer = CreateShared<SceneRenderer>();
+        m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
         m_Entity1 = m_Scene->CreateEntity("Entity 1");
 
@@ -33,10 +36,6 @@ namespace TerranEditor
 
 
         m_SHierarchy = SceneHierarchy(m_Scene);
-
-        auto foundEntity = m_Scene->FindEntityWithUUID(entity.GetID());
-        foundEntity.AddComponent<SpriteRendererComponent>();
-        //TR_TRACE(foundEntity.GetName());
 
 	}
 
@@ -63,56 +62,63 @@ namespace TerranEditor
 	{
         m_Renderer->ResetStats();
 
-        if ((m_SceneView.GetViewportSize().x != m_SceneViewFramebuffer->GetWidth() ||
-            m_SceneView.GetViewportSize().y != m_SceneViewFramebuffer->GetHeight()) && 
-            m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
-        {
-            m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-            m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-        }
+        m_EditorCamera.Update(time);
 
         if (m_SceneView.IsVisible()) 
         {
+            if ((m_SceneView.GetViewportSize().x != m_EditorSceneRenderer->GetViewportWidth() ||
+                m_SceneView.GetViewportSize().y != m_EditorSceneRenderer->GetViewportHeight()) &&
+                m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
+            {
+                m_EditorSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                //m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+            }
 
-            m_SceneViewFramebuffer->Bind();
+            //m_SceneViewFramebuffer->Bind();
 
-            RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            RenderCommand::Clear();
+            //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            //RenderCommand::Clear();
 
-            m_EditorCamera.Update(time);
 
-            m_Scene->Update(m_EditorCamera, m_EditorCamera.GetView());
+            m_Scene->Update();
+            m_Scene->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
 
-            m_SceneViewFramebuffer->Unbind();
+            //m_SceneViewFramebuffer->Unbind();
 
-            m_SceneView.SetRenderTextureID(m_SceneViewFramebuffer->GetColorAttachmentID());
+            m_SceneView.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
 
         if (m_GameView.IsVisible()) 
         {
-            if ((m_GameView.GetViewportSize().x != m_GameViewFramebuffer->GetWidth() ||
-                m_GameView.GetViewportSize().y != m_GameViewFramebuffer->GetHeight()) &&
+            if ((m_GameView.GetViewportSize().x != m_GameSceneRenderer->GetViewportWidth() ||
+                m_GameView.GetViewportSize().y != m_GameSceneRenderer->GetViewportHeight()) &&
                 m_GameView.GetViewportSize().x > 0 && m_GameView.GetViewportSize().y > 0)
             {
+                m_GameSceneRenderer->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 m_Scene->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
-                m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
+                //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
             }
 
-            m_GameViewFramebuffer->Bind();
+            //m_GameViewFramebuffer->Bind();
             auto primaryCamera = m_Scene->GetPrimaryCamera();
+
             glm::vec4 backgroundColor = glm::vec4(0.0f);
 
             if (primaryCamera)
                 backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
 
-            RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-            RenderCommand::Clear();
+            m_GameSceneRenderer->SetClearColor(backgroundColor);
+
+            //RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+            //RenderCommand::Clear();
 
             m_Scene->Update();
+            m_Scene->OnRender(m_GameSceneRenderer);
 
-            m_GameViewFramebuffer->Unbind();
+            //m_GameViewFramebuffer->Unbind();
 
-            m_GameView.SetRenderTextureID(m_GameViewFramebuffer->GetColorAttachmentID());
+            m_GameView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
 
         m_Frametime = time.GetDeltaTimeMS();
@@ -251,16 +257,24 @@ namespace TerranEditor
 
         // Renderer stats
         {
-            ImGui::Begin("Renderer Stats");
+            ImGui::Begin("Performance");
             
-            BatchRendererStats stats = m_Renderer->GetStats();
+            if (ImGui::TreeNode("Renderer stats")) 
+            {
+                BatchRendererStats stats = m_Renderer->GetStats();
+                ImGui::Indent(4.0f);
+                ImGui::Text("Draw calls: %d", stats.DrawCalls);
+                ImGui::Text("Total Quad count: %d", stats.GetQuadCount());
+                ImGui::Text("Total Vertex count: %d", stats.VertexCount);
+                ImGui::Text("Total Index count: %d", stats.IndexCount);
+                ImGui::Unindent(4.0f);
 
-            ImGui::Text("Draw calls: %d", stats.DrawCalls);
-            ImGui::Text("Total Quad count: %d", stats.GetQuadCount());
-            ImGui::Text("Total Vertex count: %d", stats.VertexCount);
-            ImGui::Text("Total Index count: %d", stats.IndexCount);
+                ImGui::TreePop();
+            }
 
-            ImGui::Text("Frame Time: %f ms/frame", m_Frametime);
+            ImGui::NewLine();
+            ImGui::Separator();
+            ImGui::Text("Frame Time: %.01f ms/frame", m_Frametime);
 
 
             ImGui::End();

@@ -37,11 +37,13 @@
 /* ---- Debugging ---- */
 #include "Utils/Debug/DebugTimer.h"
 
-/* ---- ECS ---- */
+/* ---- Scene ---- */
 #include "Scene/Scene.h"
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneSerializer.h"
+
+#include "Scene/Systems/SceneRenderer.h"
 
 /* ---- Misc ---- */
 #include "Math/Math.h"

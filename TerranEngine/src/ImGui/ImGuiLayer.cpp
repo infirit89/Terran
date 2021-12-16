@@ -26,7 +26,7 @@ namespace TerranEngine
 
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+		
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.DisplayResizeGrip = false;
 

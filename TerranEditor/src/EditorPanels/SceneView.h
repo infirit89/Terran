@@ -33,6 +33,9 @@ namespace TerranEditor
 
 		int m_GizmoType = 7;
 
+		glm::vec2 m_Position = { 0.0f, 0.0f };
+
+		bool m_WindowMoved = false;
 		bool m_Visible = false;
 
 	};

@@ -203,7 +203,7 @@ namespace TerranEngine
 		delete[] m_QuadVertexPtr;
 	}
 
-	void BatchRenderer2D::BeginScene(Camera& camera, const glm::mat4& transform)
+	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform)
 	{
 		Clear();
 
@@ -214,11 +214,11 @@ namespace TerranEngine
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = glm::inverse(transform);
 
-		m_CameraData.ProjectionSize = { 0, 0, 0 };
-		m_CameraData.CameraPosition = transform[3];
+		//m_CameraData.ProjectionSize = { 0, 0, 0 };
+		//m_CameraData.CameraPosition = transform[3];
 
 		m_CameraBuffer->Bind();
-		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData) - (3 * sizeof(float)));
+		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData));
 
 		m_QuadShader->Unbind();
 		m_TextShader->Unbind();
@@ -245,13 +245,13 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4])
 	{
-		if (!InCameraView(transform))
-			return;
+		//if (!InCameraView(transform))
+		//	return;
 
 		if (!QuadBatchHasRoom()) 
 		{
 			// Begin New Batch
-			EndScene();
+			EndFrame();
 			Clear();
 		}
 
@@ -298,13 +298,13 @@ namespace TerranEngine
 		* fix fucker
 		*/
 
-		if (!InCameraView(transform))
-			return;
+		//if (!InCameraView(transform))
+		//	return;
 
 		if (!TextBatchHasRoom()) 
 		{
 			// Begin new batch
-			EndScene();
+			EndFrame();
 			Clear();
 		}
 
@@ -397,7 +397,7 @@ namespace TerranEngine
 		if (!CircleBatchHasRoom())
 		{
 			// Begin New Batch
-			EndScene();
+			EndFrame();
 			Clear();
 		}
 
@@ -414,7 +414,7 @@ namespace TerranEngine
 		m_CircleIndexCount += 6;
 	}
 
-	void BatchRenderer2D::EndScene()
+	void BatchRenderer2D::EndFrame()
 	{
 		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_TextVertexPtrIndex + m_CircleVertexPtrIndex;
 		m_Stats.IndexCount +=  m_QuadIndexCount + m_TextIndexCount + m_CircleIndexCount;
@@ -485,6 +485,8 @@ namespace TerranEngine
 		m_CircleIndexCount = 0;
 	}
 
+	// This should be in the scene renderer
+#if 0
 	// NOTE: This is (for now) only for orthographic cameras
 
 	bool BatchRenderer2D::InCameraViewX(float x, float width) 
@@ -523,5 +525,6 @@ namespace TerranEngine
 
 		return m_CullObjectsOutsideOfCamera ? false : true;
 	}
+#endif
 }
 #pragma warning (pop)

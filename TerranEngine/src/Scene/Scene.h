@@ -9,6 +9,8 @@
 namespace TerranEngine 
 {
 	class Entity;
+	class SceneRenderer;
+	class TransformSystem;
 
 	class Scene 
 	{
@@ -20,8 +22,11 @@ namespace TerranEngine
 
 		void DestroyEntity(Entity entity, bool first);
 
-		void Update(const Camera& inCamera = Camera(glm::mat4(0.0f)), const glm::mat4& inCameraTransfrom = glm::mat4(1.0f));
+		void Update();
 		void OnResize(float width, float height);
+
+		void OnRender(Shared<SceneRenderer>& sceneRenderer);
+		void OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
 		Entity FindEntityWithUUID(const UUID& uuid);
 		Entity FindEntityWithName(const std::string& name);
@@ -32,10 +37,14 @@ namespace TerranEngine
 		Entity GetPrimaryCamera();
 
 	private:
+		Shared<TransformSystem> m_TransformSystem;
+
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 		entt::registry m_Registry;
 
+		friend class SceneRenderer;
 		friend class Entity;
 		friend class SceneSerializer;
+		friend class TransformSystem;
 	};
 }

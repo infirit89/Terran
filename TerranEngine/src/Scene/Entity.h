@@ -58,48 +58,39 @@ namespace TerranEngine
 
 			return m_Scene->m_Registry.all_of<Component>(m_Handle);
 		}
-
+		
+		// base stuffs
+		inline UUID& GetID()										{ return GetComponent<TagComponent>().ID; }
 		const inline bool Valid() const								{ return m_Scene->m_Registry.valid(m_Handle); }
 		const inline UUID& GetID() const							{ return GetComponent<TagComponent>().ID; }
-		inline UUID& GetID()										{ return GetComponent<TagComponent>().ID; }
-		const inline std::string& GetName() const					{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
 		inline std::string& GetName()								{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
+		const inline std::string& GetName() const					{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
+		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); }
 		const inline TransformComponent& GetTransform() const		{ return GetComponent<TransformComponent>(); }
-		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); } 
+		inline glm::mat4& GetTransformMat()							{ return GetTransform().TransformMatrix; }
+		const inline glm::mat4& GetTransformMat() const				{ return GetTransform().TransformMatrix; }
 
+		// operators
 		inline operator bool() const								{ return m_Handle != entt::null; }
 		inline operator uint32_t() const							{ return uint32_t(m_Handle); }
 		inline operator entt::entity() const						{ return m_Handle; }
 		inline bool operator==(const Entity& other) const			{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 		inline bool operator!=(const Entity& other) const			{ return !(*this == other); }
 
+		// relationship component sutffs
+		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false; }
+		const inline bool HasParent() const							{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false; }
+		const inline UUID& GetParentID() const						{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : UUID::Empty(); }
+		const inline size_t GetChildCount() const					{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : -1; }
 		inline std::vector<UUID>& GetChildren() const				{ return GetComponent<RelationshipComponent>().Children; }
+
+		
 		inline Entity GetChild(uint32_t index) const		
 		{ 
 			if (!HasComponent<RelationshipComponent>())
-				return {};
+				return { };
 
 			return m_Scene->FindEntityWithUUID(GetChildren()[index]); 
-		}
-
-		const inline size_t GetChildCount() const 
-		{ 
-			return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : -1; 
-		}
-
-		const inline UUID& GetParentID() const	
-		{ 
-			return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : UUID::Empty();
-		}
-
-		const inline bool HasParent() const 
-		{
-			return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false;
-		}
-
-		inline bool HasParent()
-		{
-			return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false;
 		}
 
 		inline void SetParentID(UUID& id) 

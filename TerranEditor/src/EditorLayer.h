@@ -54,10 +54,13 @@ namespace TerranEditor
 
 		// ******************
 
-		Unique<Framebuffer> m_SceneViewFramebuffer;
-		Unique<Framebuffer> m_GameViewFramebuffer;
+		//Unique<Framebuffer> m_SceneViewFramebuffer;
+		//Unique<Framebuffer> m_GameViewFramebuffer;
 
 		std::string m_CurrentScenePath = std::string();
+
+		Shared<SceneRenderer> m_GameSceneRenderer;
+		Shared<SceneRenderer> m_EditorSceneRenderer;
 
 		float m_Frametime;
 	};

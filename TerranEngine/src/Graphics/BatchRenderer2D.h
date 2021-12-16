@@ -52,8 +52,8 @@ namespace TerranEngine
 
 		~BatchRenderer2D();
 
-		void BeginScene(Camera& camera, const glm::mat4& transform);
-		void EndScene();
+		void BeginFrame(Camera& camera, const glm::mat4& transform);
+		void EndFrame();
 
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture);
 		void AddQuad(glm::mat4& transform, const glm::vec4& color);
@@ -70,8 +70,10 @@ namespace TerranEngine
 		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		inline BatchRendererStats GetStats() { return m_Stats; }
 
+#if 0
 		inline void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
 		inline bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
+#endif
 
 		static BatchRenderer2D* Get() { return m_Instance; }
 	private:
@@ -83,11 +85,13 @@ namespace TerranEngine
 
 		// NOTE: should move the fuck away from the batch renderer
 		// These don't belong here, put them in the scene renderer
+#if 0
 		bool InCameraView(glm::mat4& transform);
 		bool InCameraViewX(float x, float width);
 		bool InCameraViewY(float y, float height);
 		bool InCameraViewZ(float z, float depth);
 
+#endif
 
 	private:
 		// ******** Base stuffs ********
@@ -151,7 +155,7 @@ namespace TerranEngine
 			glm::mat4 View;
 
 			// Doesn't belong here
-			glm::vec3 ProjectionSize, CameraPosition;
+			//glm::vec3 ProjectionSize, CameraPosition;
 		};
 
 		CameraData m_CameraData;
@@ -159,7 +163,7 @@ namespace TerranEngine
 		Shared<UniformBuffer> m_CameraBuffer;
 
 		// Doesn't fucking belong here
-		bool m_CullObjectsOutsideOfCamera = false;
+		//bool m_CullObjectsOutsideOfCamera = false;
 		// ********************************
 	};
 }

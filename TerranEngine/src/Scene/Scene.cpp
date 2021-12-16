@@ -7,6 +7,7 @@
 #include "Utils/ResourceManager.h"
 
 #include "Systems/TransformSystem.h"
+#include "Systems/SceneRenderer.h"
 
 #include "Utils/Debug/DebugTimer.h"
 
@@ -14,6 +15,7 @@ namespace TerranEngine
 {
 	Scene::Scene()
 	{
+		m_TransformSystem = CreateShared<TransformSystem>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -58,71 +60,13 @@ namespace TerranEngine
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::Update(const Camera& inCamera, const glm::mat4& inCameraTransfrom)
+	void Scene::Update()
 	{
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.Dirty && !rEntity.Dirty; });
 
-		TransformSystem::Update(this);
+		m_TransformSystem->Update();
 
-		Camera camera;
-		glm::mat4 cameraTransform;
-
-		if (inCamera.GetProjection() == glm::mat4(0.0f)) 
-		{
-			auto cameraView = m_Registry.view<CameraComponent>();
-			for (auto e : cameraView)
-			{
-				Entity entity(e, this);
-
-				auto& transformComponent = entity.GetComponent<TransformComponent>();
-				auto& cameraComponent = entity.GetComponent<CameraComponent>();
-
-				if (cameraComponent.Primary) 
-				{
-					camera = cameraComponent.Camera;
-					cameraTransform = transformComponent.TransformMatrix;
-					break;
-				}
-			}
-		}
-		else 
-		{
-			camera = inCamera;
-			cameraTransform = inCameraTransfrom;
-		}
-
-		m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.ZIndex < rEntity.ZIndex; });
-
-		if (camera.GetProjection() != glm::mat4(0.0f)) 
-		{
-			auto srView = m_Registry.view<SpriteRendererComponent>();
-
-			BatchRenderer2D::Get()->BeginScene(camera, cameraTransform);
-			for (auto e : srView)
-			{
-				Entity entity(e, this);
-
-				auto& transformComponent = entity.GetComponent<TransformComponent>();
-				auto& srComponent = entity.GetComponent<SpriteRendererComponent>();
-
-				BatchRenderer2D::Get()->AddQuad(transformComponent.TransformMatrix, srComponent.Color);
-			}
-
-			auto crView = m_Registry.view<CircleRendererComponent>();
-
-			for (auto e : crView)
-			{
-				Entity entity(e, this);
-				auto& transformComponent = entity.GetComponent<TransformComponent>();
-				auto& crComponent = entity.GetComponent<CircleRendererComponent>();
-
-				BatchRenderer2D::Get()->AddCircle(transformComponent.TransformMatrix, crComponent.Color, crComponent.Thickness);
-			}
-
-			BatchRenderer2D::Get()->EndScene();
-		}
 	}
 
 	void Scene::OnResize(float width, float height)
@@ -132,11 +76,89 @@ namespace TerranEngine
 		for (auto e : cameraView)
 		{
 			Entity entity(e, this);
-
 			auto& cameraComponent = entity.GetComponent<CameraComponent>();
 
 			cameraComponent.Camera.SetViewport(width, height);
 		}
+	}
+
+	void Scene::OnRender(Shared<SceneRenderer>& sceneRenderer)
+	{
+		Entity primaryCamera = GetPrimaryCamera();
+
+		if (primaryCamera) 
+		{
+			sceneRenderer->SetScene(this);
+
+			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
+			glm::mat4& cameraTransform = primaryCamera.GetTransformMat();
+
+			sceneRenderer->BeginScene(camera, cameraTransform);
+			
+			// submit sprites
+			{
+				auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
+
+				for (auto e : spriteRendererView) 
+				{
+					Entity entity(e, this);
+
+					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+				
+					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetTransformMat());
+				}
+			}
+
+			// submit circles
+			{
+				auto circleRendererView = m_Registry.view<CircleRendererComponent>();
+
+				for (auto e : circleRendererView) 
+				{
+					Entity entity(e, this);
+					auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
+
+					sceneRenderer->SubmitCircle(circleRenderer, entity.GetTransformMat());
+				}
+
+			}
+
+			sceneRenderer->EndScene();
+		}
+	}
+
+	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
+	{
+		sceneRenderer->SetScene(this);
+		sceneRenderer->BeginScene(camera, cameraView);
+		
+		// submit sprites
+		{
+			auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
+
+			for (auto e : spriteRendererView)
+			{
+				Entity entity(e, this);
+				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+
+				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetTransformMat());
+			}
+		}
+
+		// submit circles
+		{
+			auto circleRendererView = m_Registry.view<CircleRendererComponent>();
+
+			for (auto e : circleRendererView)
+			{
+				Entity entity(e, this);
+				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
+
+				sceneRenderer->SubmitCircle(circleRenderer, entity.GetTransformMat());
+			}
+		}
+
+		sceneRenderer->EndScene();
 	}
 
 	Entity Scene::FindEntityWithUUID(const UUID& uuid)
@@ -149,7 +171,16 @@ namespace TerranEngine
 
 	Entity Scene::FindEntityWithName(const std::string& name)
 	{
-		return Entity();
+		auto tagView = m_Registry.view<TagComponent>();
+
+		for (auto e : tagView) 
+		{
+			Entity entity(e, this);
+			if (entity.GetName() == name)
+				return entity;
+		}
+
+		return { };
 	}
 
 	Entity Scene::GetPrimaryCamera()
@@ -159,13 +190,12 @@ namespace TerranEngine
 		for (auto e : cameraView)
 		{
 			Entity entity(e, this);
-
 			auto& cameraComponent = entity.GetComponent<CameraComponent>();
 
 			if (cameraComponent.Primary)
 				return entity;
 		}
 
-		return Entity(entt::entity{ entt::null }, this);
+		return { };
 	}
 }

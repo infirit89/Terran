@@ -13,6 +13,12 @@ namespace TerranEditor
         {
             ImGui::Begin("Scene view", &m_Open);
 
+            if (m_Position.x != ImGui::GetWindowPos().x || m_Position.y != ImGui::GetWindowPos().y) 
+            {
+                m_Position = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
+                m_WindowMoved = true;
+            }
+
             ImVec2 regionAvail = ImGui::GetContentRegionAvail();
 
             m_ViewportSize = { regionAvail.x, regionAvail.y };
@@ -29,13 +35,6 @@ namespace TerranEditor
             ImGuizmo::SetOrthographic(true);
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-
-            glm::mat4 gridMatrix = glm::mat4(1.0f);
-            gridMatrix =
-                glm::rotate(glm::mat4(1.0f), 45.0f, glm::vec3(1, 0, 0));
-
-            ImGuizmo::DrawGrid(glm::value_ptr(glm::inverse(editorCamera.GetView())), glm::value_ptr(editorCamera.GetProjection()),
-                glm::value_ptr(gridMatrix), 100.0f);
 
             // Gizmos
             if (selectedEntity)
@@ -59,12 +58,13 @@ namespace TerranEditor
                         tc.Dirty = true;
                     }
                 }
-
             }
 
-            editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused);
+            editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused || !isHovered || m_WindowMoved);
 
             ImGui::End();
+
+            m_WindowMoved = false;
         }
 	}
     void SceneView::OnEvent(Event& event)
