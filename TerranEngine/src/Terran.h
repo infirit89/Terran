@@ -35,7 +35,7 @@
 #include "Graphics/Camera.h"
 
 /* ---- Debugging ---- */
-#include "Utils/Debug/DebugTimer.h"
+#include "Utils/Debug/Profiler.h"
 
 /* ---- Scene ---- */
 #include "Scene/Scene.h"

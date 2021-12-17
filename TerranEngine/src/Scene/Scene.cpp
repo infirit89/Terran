@@ -9,7 +9,7 @@
 #include "Systems/TransformSystem.h"
 #include "Systems/SceneRenderer.h"
 
-#include "Utils/Debug/DebugTimer.h"
+#include "Utils/Debug/Profiler.h"
 
 namespace TerranEngine 
 {

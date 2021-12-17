@@ -4,15 +4,14 @@
 #include "Base.h"
 #include "Time.h"
 
-#include <GLFW/glfw3.h>
-
 #include "Graphics/Buffer.h"
-#include "Graphics/VertexArray.h"
-		  
+#include "Graphics/VertexArray.h"		  
 #include "Graphics/Shader.h"
 #include "Graphics/RenderCommand.h"
-#include "Time.h"
 
+#include "Utils/Debug/Profiler.h"
+
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 
 #pragma warning (push)
@@ -80,6 +79,8 @@ namespace TerranEngine
 			}
 
 			m_Window->Update();
+
+			Profiler::Get().ClearResults();
 		}
 	}
 

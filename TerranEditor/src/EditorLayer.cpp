@@ -60,6 +60,8 @@ namespace TerranEditor
 
 	void EditorLayer::Update(Time& time)
 	{
+        TR_PROFILE_FUNCN("EditorLayer::Update");
+
         m_Renderer->ResetStats();
 
         m_EditorCamera.Update(time);
@@ -79,7 +81,6 @@ namespace TerranEditor
 
             //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             //RenderCommand::Clear();
-
 
             m_Scene->Update();
             m_Scene->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
@@ -273,9 +274,10 @@ namespace TerranEditor
             }
 
             ImGui::NewLine();
-            ImGui::Separator();
             ImGui::Text("Frame Time: %.01f ms/frame", m_Frametime);
 
+            for (auto result : Profiler::Get().GetResults())
+                ImGui::Text("%s: %f ms", result.Name.c_str(), result.ElapsedTime);
 
             ImGui::End();
         }
