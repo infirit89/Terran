@@ -2,10 +2,10 @@
 
 #include "../UI/TerranEditorUI.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <imgui.h>
 #include <imgui_internal.h>
-
-#include <glm/gtc/type_ptr.hpp>
 
 #include <functional>
 
@@ -15,7 +15,7 @@ namespace TerranEditor
 	using UIFunc = std::function<void(Component&)>;
 
 	template<typename T>
-	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool closable = true)
+	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool removable = true)
 	{
 		if (entity.HasComponent<T>()) 
 		{
@@ -27,22 +27,27 @@ namespace TerranEditor
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 			bool treeOpen = ImGui::TreeNodeEx(label, treeFlags);
 
-			if (closable) 
+			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+
+			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+				ImGui::OpenPopup("ComponentSettings");
+
+			ImVec4 windowBGColor = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
+			windowBGColor.w = 1.0f;
+
+			ImGui::PushStyleColor(ImGuiCol_PopupBg, windowBGColor);
+			if (ImGui::BeginPopup("ComponentSettings")) 
 			{
-				ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+				if (ImGui::MenuItem("Reset"))
+					entity.GetComponent<T>() = T();
 
-				if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
-					ImGui::OpenPopup("ComponentSettings");
+				if (ImGui::MenuItem("Remove Component", (const char*)0, false, removable))
+					entity.RemoveComponent<T>();
 
-				if (ImGui::BeginPopup("ComponentSettings")) 
-				{
-					if (ImGui::MenuItem("Remove Component"))
-						entity.RemoveComponent<T>();
-
-					ImGui::EndPopup();
-				}
-
+				ImGui::EndPopup();
 			}
+			ImGui::PopStyleColor();
+
 			if (treeOpen)
 			{
 				func(component);
@@ -59,6 +64,7 @@ namespace TerranEditor
 		if(m_Open)
 		{
 			ImGui::Begin("Properties", &m_Open);
+			
 			if (entity) 
 			{
 				if (entity.HasComponent<TagComponent>()) 
@@ -145,6 +151,7 @@ namespace TerranEditor
 				ImGui::SetCursorPos(cursorPos);
 
 			}
+
 			ImGui::End();
 		}
 

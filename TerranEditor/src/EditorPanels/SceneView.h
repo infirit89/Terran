@@ -8,11 +8,13 @@ namespace TerranEditor
 	using namespace TerranEngine;
 	class SceneView
 	{
+		using OpenSceneFN = std::function<void(const char* scenePath, glm::vec2 viewPortSize)>;
 	public:
 		SceneView() = default;
 		~SceneView() = default;
 
-		void ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera);
+
+		void ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera, OpenSceneFN openSceneFN);
 
 		glm::vec2 GetViewportSize() { return m_ViewportSize; }
 

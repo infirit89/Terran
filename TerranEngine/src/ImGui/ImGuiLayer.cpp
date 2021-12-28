@@ -29,6 +29,9 @@ namespace TerranEngine
 		
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.DisplayResizeGrip = false;
+		style.AntiAliasedFill = true;
+		style.AntiAliasedLines = true;
+		style.AntiAliasedLinesUseTex = true;
 
 		ImGui::StyleColorsDark();
 
@@ -42,9 +45,6 @@ namespace TerranEngine
 
 		ImGui_ImplGlfw_Shutdown();
 		ImGui_ImplOpenGL3_Shutdown();
-//		ImGuiIO io = ImGui::GetIO();
-//		TR_TRACE(io.WantSaveIniSettings);
-//		ImGui::SaveIniSettingsToDisk("res/TerranEditorSettings.ini");
 
 		ImGui::DestroyContext();
 	}

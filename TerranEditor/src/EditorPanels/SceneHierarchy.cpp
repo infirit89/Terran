@@ -68,7 +68,7 @@ namespace TerranEditor
         style.FramePadding.y = 1.5f;
 
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tagComp.Name.c_str());
-
+        
         style = orgStyle;
 
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -112,7 +112,7 @@ namespace TerranEditor
                         TR_ERROR("Not a valid child");
                 }
             }
-
+            
             ImGui::TreePop();
         }
 

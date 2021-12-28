@@ -10,9 +10,13 @@
 
 namespace TerranEditor
 {
+    //extern const std::filesystem::path resPath;
+
 	EditorLayer::EditorLayer()
 		: Layer("Editor"), m_EditorCamera()
 	{
+        m_ContentPanel = ContentPanel(m_ResPath);
+
         m_Renderer = CreateUnique<BatchRenderer2D>(20000);
         
         //m_SceneViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
@@ -41,6 +45,8 @@ namespace TerranEditor
 
 	void EditorLayer::OnAttach()
 	{
+        TR_TRACE(std::filesystem::absolute(m_ResPath));
+
         ImGuiIO& io = ImGui::GetIO();
 
         ImFontConfig config;
@@ -248,13 +254,28 @@ namespace TerranEditor
 
         ShowDockspace();
 
+        ImGui::ShowDemoWindow();
+
         // NOTE: Make an editor setting for the selected window
         m_SHierarchy.ImGuiRender();
         m_Selected = m_SHierarchy.GetSelected();
 
         m_GameView.ImGuiRender();
         
-        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera);
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* scenePath, glm::vec2 viewPortSize) 
+        {
+            Shared<Scene> newScene = CreateShared<Scene>();
+            SceneSerializer sSerializer(newScene);
+            sSerializer.DesirializeJson(scenePath);
+            m_Scene = newScene;
+            m_Scene->OnResize(viewPortSize.x, viewPortSize.y);
+
+            m_SHierarchy.SetScene(m_Scene);
+        });
+
+        m_PropertiesPanel.ImGuiRender(m_Selected);
+
+        m_ContentPanel.ImGuiRender();
 
         // Renderer stats
         {
@@ -282,7 +303,6 @@ namespace TerranEditor
             ImGui::End();
         }
 
-        m_PropertiesPanel.ImGuiRender(m_Selected);
 	}
 
     void EditorLayer::SaveSceneAs()
@@ -306,10 +326,9 @@ namespace TerranEditor
     void EditorLayer::OpenScene()
     {
         std::string scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");
-
+        
         if (!scenePath.empty())
         {
-            m_CurrentScenePath = scenePath;
             Shared<Scene> newScene = CreateShared<Scene>();
             SceneSerializer sSerializer(newScene);
             sSerializer.DesirializeJson(scenePath);

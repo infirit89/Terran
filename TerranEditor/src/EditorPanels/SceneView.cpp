@@ -1,13 +1,15 @@
 #include "SceneView.h"
 
-#include <ImGui/imgui.h>
-#include <ImGuizmo.h>
+#include <functional>
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <ImGui/imgui.h>
+#include <ImGuizmo.h>
+
 namespace TerranEditor 
 {
-	void SceneView::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera)
+	void SceneView::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera, OpenSceneFN openSceneFN)
 	{
         if (m_Open) 
         {
@@ -60,6 +62,17 @@ namespace TerranEditor
                 }
             }
 
+            if (ImGui::BeginDragDropTarget()) 
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
+                {
+                    const char* entryPath = (const char*)payload->Data;
+                    openSceneFN(entryPath, m_ViewportSize);
+                }
+
+                ImGui::EndDragDropTarget();
+            }
+
             editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused || !isHovered || m_WindowMoved);
 
             ImGui::End();
@@ -67,6 +80,7 @@ namespace TerranEditor
             m_WindowMoved = false;
         }
 	}
+
     void SceneView::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);

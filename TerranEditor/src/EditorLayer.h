@@ -6,6 +6,7 @@
 #include "EditorPanels/PropertiesPanel.h"
 #include "EditorPanels/SceneView.h"
 #include "EditorPanels/GameView.h"
+#include "EditorPanels/ContentPanel.h"
 
 #include "EditorCamera.h"
 
@@ -30,7 +31,9 @@ namespace TerranEditor
 
 		void SaveSceneAs();
 		void NewScene();
+
 		void OpenScene();
+		
 		void SaveScene();
 
 		void ShowDockspace();
@@ -49,6 +52,7 @@ namespace TerranEditor
 		// ***** Panels *****
 		SceneHierarchy m_SHierarchy;
 		PropertiesPanel m_PropertiesPanel;
+		ContentPanel m_ContentPanel;
 		SceneView m_SceneView;
 		GameView m_GameView;
 
@@ -61,6 +65,8 @@ namespace TerranEditor
 
 		Shared<SceneRenderer> m_GameSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
+
+		const std::filesystem::path m_ResPath = "res";
 
 		float m_Frametime;
 	};

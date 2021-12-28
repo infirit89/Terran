@@ -38,7 +38,6 @@ namespace TerranEngine
 
 	void Scene::DestroyEntity(Entity entity, bool first)
 	{
-		//DebugTimer timer;
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();

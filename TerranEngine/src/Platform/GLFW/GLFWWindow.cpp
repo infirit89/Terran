@@ -45,11 +45,12 @@ namespace TerranEngine
 		int glfwSuccess = glfwInit();
 		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
+
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 
 		if(data.Maximized)
 			glfwWindowHint(GLFW_MAXIMIZED, 1);
-
+		
 		GLFWmonitor* montitor = glfwGetPrimaryMonitor();
 		
 		const GLFWvidmode* vidMode = glfwGetVideoMode(montitor);

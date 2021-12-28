@@ -110,6 +110,9 @@ namespace TerranEngine
 			m_QuadShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
 			m_QuadShader->Unbind();
 
+			parameters.MagFilter = TextureFilter::LINEAR;
+			parameters.MinFilter = TextureFilter::LINEAR;
+
 			m_QuadTextures[0] =	CreateShared<Texture>(1, 1, parameters);
 			m_QuadTextures[0]->SetData(&whiteTextureData);
 

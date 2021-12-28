@@ -43,6 +43,7 @@ namespace TerranEngine
 
 		inline const int GetWidth() const { return m_Width; }
 		inline const int GetHeight() const { return m_Height; }
+		inline const int GetTextureID() const { return m_TextureID; }
 
 		inline const std::string GetName() const { return m_Name; }
 

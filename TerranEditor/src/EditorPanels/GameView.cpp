@@ -11,7 +11,7 @@ namespace TerranEditor
         if (m_Open)
         {
             ImGui::Begin("Game view", &m_Open);
-
+            
             ImVec2 regionAvail = ImGui::GetContentRegionAvail();
 
             m_ViewportSize = { regionAvail.x, regionAvail.y };
