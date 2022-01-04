@@ -136,37 +136,40 @@ namespace TerranEngine
 		stbi_set_flip_vertically_on_load(1);
 		stbi_uc* pixels = stbi_load(filePath, &m_Width, &m_Height, &m_Channels, 0);
 
-		glGenTextures(1, &m_TextureID);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
-
-		switch (m_Channels)
+		if (pixels != nullptr) 
 		{
-			case 4: 
+			glGenTextures(1, &m_TextureID);
+			glBindTexture(GL_TEXTURE_2D, m_TextureID);
+
+			switch (m_Channels)
 			{
-				m_InternalFormat = GL_RGBA8;
-				m_DataFormat = GL_RGBA;
-				break;
+				case 4: 
+				{
+					m_InternalFormat = GL_RGBA8;
+					m_DataFormat = GL_RGBA;
+					break;
+				}
+				case 3: 
+				{
+					m_InternalFormat = GL_RGB8;
+					m_DataFormat = GL_RGB;
+					break;
+				}
+				default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
 			}
-			case 3: 
-			{
-				m_InternalFormat = GL_RGB8;
-				m_DataFormat = GL_RGB;
-				break;
-			}
-			default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
+
+
+			NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
+
+			glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
+			glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+
+			glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
+
+			stbi_image_free(pixels);
 		}
-
-
-		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
-
-		glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-		glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
-
-		glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
-
-		stbi_image_free(pixels);
 	}
 }

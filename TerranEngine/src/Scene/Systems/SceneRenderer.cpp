@@ -36,7 +36,7 @@ namespace TerranEngine
 	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform)
 	{
 		// TODO: frustum culling
-		BatchRenderer2D::Get()->AddQuad(transform, spriteRenderer.Color);
+		BatchRenderer2D::Get()->AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture);
 	}
 
 	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform)

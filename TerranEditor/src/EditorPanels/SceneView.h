@@ -8,7 +8,7 @@ namespace TerranEditor
 	using namespace TerranEngine;
 	class SceneView
 	{
-		using OpenSceneFN = std::function<void(const char* scenePath, glm::vec2 viewPortSize)>;
+		using OpenSceneFN = std::function<void(const char* filePath, glm::vec2 viewPortSize)>;
 	public:
 		SceneView() = default;
 		~SceneView() = default;

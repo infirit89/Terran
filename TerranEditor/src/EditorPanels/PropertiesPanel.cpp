@@ -8,6 +8,7 @@
 #include <imgui_internal.h>
 
 #include <functional>
+#include <filesystem>
 
 namespace TerranEditor 
 {
@@ -96,6 +97,40 @@ namespace TerranEditor
 				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
 				{
 					TerranEditorUI::DrawColor4Control("Color", component.Color);
+					
+					{
+						ImGui::PushID("TEXTURE_FIELD");
+						ImGui::Columns(2, NULL, false);
+						ImGui::SetColumnWidth(0, 100.0f);
+						ImGui::Text("Sprite");
+
+						ImGui::NextColumn();
+						ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+						char buf[256];
+						memset(buf, 0, sizeof(buf));
+						strcpy_s(buf, sizeof(buf), component.Texture == nullptr ? "None" : component.Texture->GetName().c_str());
+						ImGui::InputText("##TextureField", buf, sizeof(buf));
+
+						if (ImGui::BeginDragDropTarget()) 
+						{
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")) 
+							{
+								std::filesystem::path texturePath = (const char*)payload->Data;
+								std::string texturePathStr = texturePath.string();
+								TextureParameters parameters;
+								Shared<Texture> texture = CreateShared<Texture>(texturePathStr.c_str(), parameters);
+								component.Texture = texture;
+							}
+
+							ImGui::EndDragDropTarget();
+						}
+
+						ImGui::Columns(1);
+
+						ImGui::PopID();
+					}
+
 					TerranEditorUI::DrawIntControl("Z index", component.ZIndex);
 				});
 

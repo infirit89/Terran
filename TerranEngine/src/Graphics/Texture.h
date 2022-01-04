@@ -41,6 +41,7 @@ namespace TerranEngine
 
 		void SetData(void* data);
 
+		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
 		inline const int GetWidth() const { return m_Width; }
 		inline const int GetHeight() const { return m_Height; }
 		inline const int GetTextureID() const { return m_TextureID; }

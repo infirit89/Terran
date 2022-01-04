@@ -27,17 +27,8 @@ namespace TerranEditor
         m_EditorSceneRenderer = CreateShared<SceneRenderer>();
         m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
-        m_Entity1 = m_Scene->CreateEntity("Entity 1");
-
-        m_Entity2 = m_Scene->CreateEntity("Entity");
-        m_RenderableEntity = m_Scene->CreateEntity("Test Entity");
-        m_RenderableEntity.AddComponent<SpriteRendererComponent>();
-        
-        auto entity = m_Scene->CreateEntity("Bruuh");
-        
         auto camera = m_Scene->CreateEntity("Camera");
         camera.AddComponent<CameraComponent>().Camera = m_Camera;
-
 
         m_SHierarchy = SceneHierarchy(m_Scene);
 
@@ -262,11 +253,19 @@ namespace TerranEditor
 
         m_GameView.ImGuiRender();
         
-        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* scenePath, glm::vec2 viewPortSize) 
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
         {
+            std::filesystem::path scenePath = filePath;
+
+            if (scenePath.extension() != ".terran")
+            {
+                TR_ERROR("Couldn't load the file");
+                return;
+            }
+
             Shared<Scene> newScene = CreateShared<Scene>();
             SceneSerializer sSerializer(newScene);
-            sSerializer.DesirializeJson(scenePath);
+            sSerializer.DesirializeJson(scenePath.string());
             m_Scene = newScene;
             m_Scene->OnResize(viewPortSize.x, viewPortSize.y);
 
