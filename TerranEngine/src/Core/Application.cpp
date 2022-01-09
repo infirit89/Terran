@@ -44,10 +44,7 @@ namespace TerranEngine
 
 		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TestSandbox", "Class1");
 
-		Shared<Int> intParam = CreateShared<Int>(3);
-
-		
-		testClass->ExecuteStatic("Test3", { {intParam} });
+		testClass->ExecuteStatic("Test");
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 

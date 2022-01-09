@@ -17,12 +17,16 @@ namespace TerranEngine
 
 		void** args = parameterList.GetRawParams();
 		mono_runtime_invoke(m_MonoMethod, scriptObject == nullptr ? nullptr : scriptObject->GetNativeObject(), args, &error);
-
+		
+		// memory leak?
+		// whenever i try to delete the elements of the first row i get an invalid heap pointer error
 		delete[] args;
 
-		if (error != nullptr)
-			// TODO: should report the error name and code
-			TR_ERROR("error");
+		if (error != nullptr) 
+		{
+			MonoClass* klass = mono_object_get_class(error);
+			TR_ERROR("Exception {0} caused by {1} method", mono_class_get_name(klass), mono_method_get_name(m_MonoMethod));
+		}
 	}
 }
 

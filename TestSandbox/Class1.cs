@@ -6,7 +6,11 @@ namespace TestSandbox
     {
         public static void Test() 
         {
-            Console.WriteLine("Test");
+            // divide by zero exception:
+            int a = 10;
+            a -= 10;
+            int b = 10 / a;
+            Console.WriteLine(b);
         }
 
         public void Test2() 
