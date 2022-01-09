@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ScriptMethod.h"
+#include "ScriptObject.h"
 #include "Core/Base.h"
 
 #include <unordered_map>
@@ -14,7 +15,9 @@ namespace TerranEngine
 	public:
 		ScriptClass(MonoClass* monoClass);
 
-		void ExecuteStatic(const char* methodName);
+		Shared<ScriptObject> CreateInstance();
+
+		void ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList = {});
 
 	private:
 		MonoClass* m_MonoClass;

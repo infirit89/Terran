@@ -13,5 +13,10 @@ namespace TestSandbox
         {
             Console.WriteLine("Test 2");
         }
+
+        public static void Test3(int a) 
+        {
+            Console.WriteLine("Test 3: " + a);
+        }
     }
 }

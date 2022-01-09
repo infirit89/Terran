@@ -17,6 +17,8 @@ namespace TerranEngine
 		static void Init(const char* fileName);
 		static void CleanUp();
 
+		static inline MonoDomain* GetDomain() { return m_Domain; }
+
 		static Shared<ScriptClass> GetClass(const char* namespaceName, const char* className);
 	private:
 		static MonoDomain* m_Domain;

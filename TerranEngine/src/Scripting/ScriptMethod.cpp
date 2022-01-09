@@ -10,10 +10,15 @@ namespace TerranEngine
 	{
 	}
 
-	void ScriptMethod::Execute()
+	void ScriptMethod::Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList)
 	{
 		MonoObject* error;
-		mono_runtime_invoke(m_MonoMethod, nullptr, nullptr, &error);
+		size_t paramsSize = 0;
+
+		void** args = parameterList.GetRawParams();
+		mono_runtime_invoke(m_MonoMethod, scriptObject == nullptr ? nullptr : scriptObject->GetNativeObject(), args, &error);
+
+		delete[] args;
 
 		if (error != nullptr)
 			// TODO: should report the error name and code
