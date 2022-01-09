@@ -1,7 +1,6 @@
 #include "EditorLayer.h"
 #include "UI/TerranEditorUI.h"
 
-
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
@@ -17,8 +16,6 @@ namespace TerranEditor
 	{
         m_ContentPanel = ContentPanel(m_ResPath);
 
-        m_Renderer = CreateUnique<BatchRenderer2D>(20000);
-        
         //m_SceneViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
         //m_GameViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
 
@@ -36,8 +33,6 @@ namespace TerranEditor
 
 	void EditorLayer::OnAttach()
 	{
-        TR_TRACE(std::filesystem::absolute(m_ResPath));
-
         ImGuiIO& io = ImGui::GetIO();
 
         ImFontConfig config;
@@ -59,8 +54,7 @@ namespace TerranEditor
 	{
         TR_PROFILE_FUNCN("EditorLayer::Update");
 
-        m_Renderer->ResetStats();
-
+        BatchRenderer2D::Get()->ResetStats();
         m_EditorCamera.Update(time);
 
         if (m_SceneView.IsVisible()) 
@@ -282,7 +276,7 @@ namespace TerranEditor
             
             if (ImGui::TreeNode("Renderer stats")) 
             {
-                BatchRendererStats stats = m_Renderer->GetStats();
+                BatchRendererStats stats = BatchRenderer2D::Get()->GetStats();
                 ImGui::Indent(4.0f);
                 ImGui::Text("Draw calls: %d", stats.DrawCalls);
                 ImGui::Text("Total Quad count: %d", stats.GetQuadCount());

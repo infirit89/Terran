@@ -1,3 +1,4 @@
+mono_path = os.getenv("MONO_PATH")
 project "TerranEngine"
     kind "StaticLib"
     language "C++"
@@ -30,11 +31,18 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/entt/include/",
         "%{wks.location}/TerranEngine/vendor/freetype/include/",
         "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
-        "%{wks.location}/TerranEngine/vendor/nlohman-json/include/"
+        "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
+        "%{mono_path}/include/mono-2.0/"
     } 
+
+    libdirs 
+    {
+        "%{mono_path}/lib/"
+    }
 
     links 
     {
+        "%{mono_path}/lib/mono-2.0-sgen.lib",
         "GLFW",
         "ImGui",
         "GLAD",

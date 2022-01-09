@@ -14,7 +14,6 @@
 
 #include "ImGui/ImGuiLayer.h"
 
-
 int main();
 
 namespace TerranEngine {
@@ -41,13 +40,13 @@ namespace TerranEngine {
 		LayerStack m_Stack;
 
 		std::unique_ptr<Window> m_Window;
-
+		
 		bool m_Minimized = false;
 		bool m_Running = true;
 
 		ImGuiLayer* m_ImGuiLayer;
 		friend int ::main();
-
+		
 	};
 
 	Application* CreateApplication();

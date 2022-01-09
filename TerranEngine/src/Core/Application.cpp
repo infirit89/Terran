@@ -8,6 +8,11 @@
 #include "Graphics/VertexArray.h"		  
 #include "Graphics/Shader.h"
 #include "Graphics/RenderCommand.h"
+#include "Graphics/BatchRenderer2D.h"
+
+#include "Scripting/ScriptingEngine.h"
+#include "Scripting/ScriptMethod.h"
+#include "Scripting/ScriptClass.h"
 
 #include "Utils/Debug/Profiler.h"
 
@@ -21,6 +26,8 @@ namespace TerranEngine
 {
 	Application* Application::m_Instance = nullptr;
 
+	static Unique<BatchRenderer2D> s_Renderer;
+
 	Application::Application()
 	{
 		m_Instance = this;
@@ -31,6 +38,12 @@ namespace TerranEngine
 		m_Window = Window::Create(data);
 
 		RenderCommand::Init();
+		s_Renderer = CreateUnique<BatchRenderer2D>(20000);
+
+		ScriptingEngine::Init("res/TestSandbox.dll");
+
+		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TestSandbox", "Class1");
+		testClass->ExecuteStatic("Test");
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
@@ -102,6 +115,7 @@ namespace TerranEngine
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
+		ScriptingEngine::CleanUp();
 		return false;
 	}
 

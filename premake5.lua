@@ -15,6 +15,7 @@ workspace "Terran"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+
 group "Dependencies"
     include "TerranEngine/vendor/GLFW"
     include "TerranEngine/vendor/ImGui"

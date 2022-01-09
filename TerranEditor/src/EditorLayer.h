@@ -41,8 +41,7 @@ namespace TerranEditor
 		Entity m_RenderableEntity, m_Entity1, m_Entity2;
 
 		Shared<Scene> m_Scene;
-		Unique<BatchRenderer2D> m_Renderer;
-
+		
 		EditorCamera m_EditorCamera;
 
 		OrthographicCamera m_Camera;

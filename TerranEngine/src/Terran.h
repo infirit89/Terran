@@ -47,3 +47,6 @@
 
 /* ---- Misc ---- */
 #include "Math/Math.h"
+
+/* ---- Scripting ---- */
+#include "Scripting/ScriptingEngine.h"

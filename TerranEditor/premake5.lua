@@ -1,3 +1,4 @@
+mono_path = os.getenv("MONO_PATH")
 project "TerranEditor"
     kind "ConsoleApp"
     language "C++"
@@ -26,12 +27,19 @@ project "TerranEditor"
         "%{wks.location}/TerranEngine/vendor/entt/include/",
         "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
         
-        "%{wks.location}/TerranEditor/vendor/ImGuizmo/"
+        "%{wks.location}/TerranEditor/vendor/ImGuizmo/",
+        "%{mono_path}/include/mono-2.0/"
     } 
+
+    libdirs 
+    {
+        "%{mono_path}/lib/"
+    }
 
     links 
     {
-        "TerranEngine"
+        "TerranEngine",
+        "%{mono_path}/lib/mono-2.0-sgen.lib"
     }
 
     filter "system:windows"
