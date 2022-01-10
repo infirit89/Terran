@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "ScriptMethod.h"
+#include "ScriptObject.h"
 
 #include <mono/jit/jit.h>
 
@@ -19,7 +20,6 @@ namespace TerranEngine
 		mono_runtime_invoke(m_MonoMethod, scriptObject == nullptr ? nullptr : scriptObject->GetNativeObject(), args, &error);
 		
 		// memory leak?
-		// whenever i try to delete the elements of the first row i get an invalid heap pointer error
 		delete[] args;
 
 		if (error != nullptr) 

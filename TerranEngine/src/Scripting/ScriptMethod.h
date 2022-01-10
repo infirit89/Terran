@@ -2,23 +2,22 @@
 
 #include "Core/Base.h"
 
-#include "ScriptObject.h"
-
 #include <mono/metadata/debug-helpers.h>
 
 namespace TerranEngine 
 {
-	class Parameter 
+	class ScriptObject;
+	class ScriptParameter 
 	{
 	public:
-		Parameter() = default;
+		ScriptParameter() = default;
 
 		virtual void* getPtr() = 0;
 
-		virtual ~Parameter() = default;
+		virtual ~ScriptParameter() = default;
 	};
 
-	class Int : public Parameter
+	class Int : public ScriptParameter
 	{
 	public:
 		Int() = default;
@@ -40,7 +39,7 @@ namespace TerranEngine
 	{
 	public:
 		ScriptMethodParameterList() = default;
-		ScriptMethodParameterList(std::initializer_list<Shared<Parameter>> initList) 
+		ScriptMethodParameterList(const std::initializer_list<Shared<ScriptParameter>>& initList)
 			: m_Parameters(initList)
 		{}
 
@@ -52,7 +51,7 @@ namespace TerranEngine
 		void** GetRawParams() 
 		{
 			void** raw = new void*[m_Parameters.size()];
-			
+
 			for (size_t i = 0; i < m_Parameters.size(); i++)
 				raw[i] = m_Parameters[i]->getPtr();
 
@@ -60,7 +59,7 @@ namespace TerranEngine
 		}
 
 	private:
-		std::vector<Shared<Parameter>> m_Parameters;
+		std::vector<Shared<ScriptParameter>> m_Parameters;
 	};
 
 	class ScriptMethod 

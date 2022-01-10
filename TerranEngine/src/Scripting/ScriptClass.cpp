@@ -17,7 +17,10 @@ namespace TerranEngine
 
 	Shared<ScriptObject> ScriptClass::CreateInstance()
 	{
-		return CreateShared<ScriptObject>(mono_object_new(mono_domain_get(), m_MonoClass), m_Methods);
+		MonoObject* monoObject = mono_object_new(mono_domain_get(), m_MonoClass);
+		mono_runtime_object_init(monoObject);
+
+		return CreateShared<ScriptObject>(monoObject, m_Methods);
 	}
 
 	void ScriptClass::ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList)

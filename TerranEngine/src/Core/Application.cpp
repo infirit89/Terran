@@ -43,8 +43,14 @@ namespace TerranEngine
 		ScriptingEngine::Init("res/TestSandbox.dll");
 
 		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TestSandbox", "Class1");
+		Shared<ScriptObject> testObject = testClass->CreateInstance();
+		Shared<ScriptField> testField = testObject->GetField("test");
 
-		testClass->ExecuteStatic("Test");
+		TR_TRACE(testField->Get<int>());
+
+		testField->Set(10);
+
+		testObject->Execute("Test2");
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
