@@ -5,10 +5,25 @@
 
 namespace TerranEngine 
 {
+	enum class ScriptFieldType 
+	{
+		Unknown = 0,
+		Bool,
+		Int,
+		Char,
+		Float,
+		Double
+	};
+
 	class ScriptField 
 	{
 	public:
-		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
+		ScriptField(MonoClassField* monoField, MonoObject* monoObject, ScriptFieldType& fieldType);
+
+		inline const ScriptFieldType GetType() const 
+		{
+			return m_FieldType;
+		}
 
 		template <typename T>
 		void Set(T value) 
@@ -27,5 +42,6 @@ namespace TerranEngine
 	private:
 		MonoClassField* m_MonoField = nullptr;
 		MonoObject* m_MonoObject = nullptr;
+		ScriptFieldType m_FieldType;
 	};
 }

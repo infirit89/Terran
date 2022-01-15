@@ -6,8 +6,14 @@ namespace TestSandbox
     {
         int test = 8;
 
+        int test2 
+        {
+            get; set;
+        }
+
         Class1() 
         {
+            test2 = 10;
             Console.WriteLine("bruh from Class 1");
             Console.WriteLine("In Class 1 test = " + test);
         }

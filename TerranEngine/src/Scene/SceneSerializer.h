@@ -13,7 +13,9 @@ namespace TerranEngine
 
 		void SerializeJson(const std::string& filePath);
 
-		void DesirializeJson(const std::string& filePath);
+		static std::string ReadJson(const std::string& filePath);
+
+		bool DesirializeJson(const std::string& data);
 	private:
 
 		Shared<Scene> m_Scene;

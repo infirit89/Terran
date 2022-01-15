@@ -257,13 +257,19 @@ namespace TerranEditor
                 return;
             }
 
-            Shared<Scene> newScene = CreateShared<Scene>();
-            SceneSerializer sSerializer(newScene);
-            sSerializer.DesirializeJson(scenePath.string());
-            m_Scene = newScene;
-            m_Scene->OnResize(viewPortSize.x, viewPortSize.y);
+            std::string& jsonData = SceneSerializer::ReadJson(scenePath.string());
+            if (jsonData != "")
+            {
+                Shared<Scene> newScene = CreateShared<Scene>();
+                SceneSerializer sSerializer(newScene);
+                if (sSerializer.DesirializeJson(jsonData)) 
+                {
+                    m_Scene = newScene;
+                    m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
-            m_SHierarchy.SetScene(m_Scene);
+                    m_SHierarchy.SetScene(m_Scene);
+                }
+            }
         });
 
         m_PropertiesPanel.ImGuiRender(m_Selected);
@@ -322,13 +328,19 @@ namespace TerranEditor
         
         if (!scenePath.empty())
         {
-            Shared<Scene> newScene = CreateShared<Scene>();
-            SceneSerializer sSerializer(newScene);
-            sSerializer.DesirializeJson(scenePath);
-            m_Scene = newScene;
-            m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+            std::string& jsonData = SceneSerializer::ReadJson(scenePath);
+            if (jsonData != "")
+            {
+                Shared<Scene> newScene = CreateShared<Scene>();
+                SceneSerializer sSerializer(newScene);
+                if (sSerializer.DesirializeJson(jsonData))
+                {
+                    m_Scene = newScene;
+                    m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
-            m_SHierarchy.SetScene(m_Scene);
+                    m_SHierarchy.SetScene(m_Scene);
+                }
+            }
         }
     }
 

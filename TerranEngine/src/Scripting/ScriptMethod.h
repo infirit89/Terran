@@ -43,11 +43,6 @@ namespace TerranEngine
 			: m_Parameters(initList)
 		{}
 
-		void Insert(Shared<Int> intParam) 
-		{
-			m_Parameters.push_back(intParam);
-		}
-
 		void** GetRawParams() 
 		{
 			void** raw = new void*[m_Parameters.size()];

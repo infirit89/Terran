@@ -200,6 +200,25 @@ namespace TerranEngine
 
 		ofs << std::setw(4) << j << std::endl;
 	}
+
+	std::string SceneSerializer::ReadJson(const std::string& filePath)
+	{
+		std::ifstream ifs(filePath);
+
+		json j;
+
+		try
+		{
+			ifs >> j;
+		}
+		catch (const std::exception& ex)
+		{
+			TR_ERROR(ex.what());
+			return "";
+		}
+
+		return j.dump();
+	}
 	
 	static void DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
 	{
@@ -283,14 +302,21 @@ namespace TerranEngine
 		}
 	}
 
-	void SceneSerializer::DesirializeJson(const std::string& filePath)
+	bool SceneSerializer::DesirializeJson(const std::string& data)
 	{
-		std::ifstream ifs(filePath);
+		json j = json::parse(data);
 
-		json j;
-		ifs >> j;
+		try 
+		{
+			for (auto jEntity : j["Entities"])
+				DesirializeEntity(jEntity, j["Entities"], m_Scene);
+		}
+		catch (const std::exception& ex) 
+		{
+			TR_ERROR(ex.what());
+			return false;
+		}
 
-		for (auto jEntity : j["Entities"])
-			DesirializeEntity(jEntity, j["Entities"], m_Scene);
+		return true;
 	}
 }
