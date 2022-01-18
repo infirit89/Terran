@@ -7,20 +7,31 @@ namespace TerranEngine
 {
 	enum class ScriptFieldType 
 	{
-		Unknown = 0,
+		Unknown = -1,
+		None = 0,
 		Bool,
-		Int,
 		Char,
+		Int,
+		/*TODO: 
+			int8, int16, int64
+			uint8, uint16, uint32, uint64
+		*/ 
 		Float,
-		Double
+		Double,
+		String
 	};
 
 	class ScriptField 
 	{
 	public:
-		ScriptField(MonoClassField* monoField, MonoObject* monoObject, ScriptFieldType& fieldType);
+		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
 
-		inline const ScriptFieldType GetType() const 
+		inline const char* GetName() const 
+		{
+			return m_Name;
+		}
+
+		inline ScriptFieldType GetType() const 
 		{
 			return m_FieldType;
 		}
@@ -42,6 +53,7 @@ namespace TerranEngine
 	private:
 		MonoClassField* m_MonoField = nullptr;
 		MonoObject* m_MonoObject = nullptr;
-		ScriptFieldType m_FieldType;
+		const char* m_Name = nullptr;
+		ScriptFieldType m_FieldType = ScriptFieldType::None;
 	};
 }

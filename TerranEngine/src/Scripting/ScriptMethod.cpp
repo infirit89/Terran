@@ -11,6 +11,11 @@ namespace TerranEngine
 	{
 	}
 
+	ScriptMethod::~ScriptMethod()
+	{
+		mono_free_method(m_MonoMethod);
+	}
+
 	void ScriptMethod::Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList)
 	{
 		MonoObject* error;

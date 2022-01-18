@@ -3,3 +3,4 @@ C:\Users\georg\Documents\Projects\OKAY\github\Terran\TestSandbox\bin\Debug\TestS
 C:\Users\georg\Documents\Projects\OKAY\github\Terran\TestSandbox\obj\Debug\TestSandbox.csproj.CoreCompileInputs.cache
 C:\Users\georg\Documents\Projects\OKAY\github\Terran\TestSandbox\obj\Debug\TestSandbox.dll
 C:\Users\georg\Documents\Projects\OKAY\github\Terran\TestSandbox\obj\Debug\TestSandbox.pdb
+C:\Users\georg\Documents\Projects\OKAY\github\Terran\TestSandbox\obj\Debug\TestSandbox.csproj.AssemblyReference.cache

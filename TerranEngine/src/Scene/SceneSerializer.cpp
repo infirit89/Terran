@@ -40,7 +40,7 @@ namespace TerranEngine
 	{
 		glm::vec3 vec = glm::vec3(0.0f);
 
-		if (j.contains(name))
+		if (j.contains(name)) 
 		{
 			vec.x = j[name]["X"];
 			vec.y = j[name]["Y"];
@@ -203,12 +203,12 @@ namespace TerranEngine
 
 	std::string SceneSerializer::ReadJson(const std::string& filePath)
 	{
-		std::ifstream ifs(filePath);
-
 		json j;
 
 		try
 		{
+			std::ifstream ifs(filePath);
+
 			ifs >> j;
 		}
 		catch (const std::exception& ex)
@@ -220,96 +220,104 @@ namespace TerranEngine
 		return j.dump();
 	}
 	
-	static void DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
+	static bool DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
 	{
-		TR_ASSERT(jEntity.contains("TagComponent"), "Can't desirialize an entity that doesn't have a tag component");
-		UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
+		try
+		{
+			TR_ASSERT(jEntity.contains("TagComponent"), "Can't desirialize an entity that doesn't have a tag component");
+			UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
 		
-		if (scene->FindEntityWithUUID(uuid))
-			return;
+			if (scene->FindEntityWithUUID(uuid))
+				return true;
 
-		std::string tag = jEntity["TagComponent"]["Tag"];
+			std::string tag = jEntity["TagComponent"]["Tag"];
 
-		Entity entity = scene->CreateEntityWithUUID(tag, uuid);
-		
-		{
-			auto& transform = entity.GetTransform();
-			transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
-			transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
-			transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+			Entity entity = scene->CreateEntityWithUUID(tag, uuid);
 
-			transform.LocalPosition = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
-			transform.LocalScale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
-			transform.LocalRotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
-
-			transform.Dirty = false;
-
-			transform.TransformMatrix = glm::translate(glm::mat4(1.0f), transform.Position) *
-				glm::toMat4(glm::quat(transform.Rotation)) *
-				glm::scale(glm::mat4(1.0f), transform.Scale);
-		}
-
-		if (jEntity.contains("CameraComponent"))
-		{
-			json jCamera = jEntity["CameraComponent"];
-
-			OrthographicCamera cam;
-			cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
-			cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
-			cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
-
-			entity.AddComponent<CameraComponent>().Camera = cam;
-			entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];
-		}
-
-		if (jEntity.contains("SpriteRendererComponent"))
-		{
-			entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
-		}
-
-		if (jEntity.contains("CircleRendererComponent"))
-		{
-			entity.AddComponent<CircleRendererComponent>().Color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
-			entity.GetComponent<CircleRendererComponent>().Thickness = jEntity["CircleRendererComponent"]["Thickness"];
-		}
-
-		if (jEntity.contains("RelationshipComponent"))
-		{
-			json jRelation = jEntity["RelationshipComponent"];
-
-			RelationshipComponent& rlComp = entity.AddComponent<RelationshipComponent>();
-
-			if (jRelation["ChildrenCount"] > 0) 
 			{
-				for (auto& id : jRelation["Children"])
+				auto& transform = entity.GetTransform();
+				transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
+				transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+				transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+
+				transform.LocalPosition = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
+				transform.LocalScale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
+				transform.LocalRotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
+
+				transform.Dirty = false;
+
+				transform.TransformMatrix = glm::translate(glm::mat4(1.0f), transform.Position) *
+					glm::toMat4(glm::quat(transform.Rotation)) *
+					glm::scale(glm::mat4(1.0f), transform.Scale);
+			}
+
+			if (jEntity.contains("CameraComponent"))
+			{
+				json jCamera = jEntity["CameraComponent"];
+
+				OrthographicCamera cam;
+				cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
+				cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
+				cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
+
+				entity.AddComponent<CameraComponent>().Camera = cam;
+				entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];
+			}
+
+			if (jEntity.contains("SpriteRendererComponent"))
+				entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+
+			if (jEntity.contains("CircleRendererComponent"))
+			{
+				entity.AddComponent<CircleRendererComponent>().Color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
+				entity.GetComponent<CircleRendererComponent>().Thickness = jEntity["CircleRendererComponent"]["Thickness"];
+			}
+
+			if (jEntity.contains("RelationshipComponent"))
+			{
+				json jRelation = jEntity["RelationshipComponent"];
+
+				RelationshipComponent& rlComp = entity.AddComponent<RelationshipComponent>();
+
+				if (jRelation["ChildrenCount"] > 0)
 				{
-					if(!scene->FindEntityWithUUID(UUID::FromString(id)))
-						DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
+					for (auto& id : jRelation["Children"])
+					{
+						if (!scene->FindEntityWithUUID(UUID::FromString(id)))
+							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
 
-					Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
+						Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
 
-					entity.AddChild(e);
+						entity.AddChild(e);
+					}
 				}
+				if (jRelation["Parent"] != "null")
+				{
+					if (!scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"])))
+						DesirializeEntity(jScene["Entity " + std::string(jRelation["Parent"])], jScene, scene);
 
-			}
-			if (jRelation["Parent"] != "null") 
-			{
-				if (!scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"]))) 
-					DesirializeEntity(jScene["Entity " + std::string(jRelation["Parent"])], jScene, scene);
-
-				entity.SetParentID(UUID::FromString(jRelation["Parent"]));
+					entity.SetParentID(UUID::FromString(jRelation["Parent"]));
+				}
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			TR_ERROR(ex.what());
+			return false;
+		}
+		
+		return true;
 	}
 
 	bool SceneSerializer::DesirializeJson(const std::string& data)
 	{
-		json j = json::parse(data);
-
 		try 
 		{
+			json j = json::parse(data);
+			
 			for (auto jEntity : j["Entities"])
-				DesirializeEntity(jEntity, j["Entities"], m_Scene);
+				if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
+					return false;
 		}
 		catch (const std::exception& ex) 
 		{

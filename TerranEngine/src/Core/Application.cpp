@@ -46,6 +46,8 @@ namespace TerranEngine
 		Shared<ScriptObject> testObject = testClass->CreateInstance();
 		Shared<ScriptField> testField = testObject->GetField("test");
 
+		TR_TRACE("{0} {1}", testField->GetName(), testField->GetType());
+
 		TR_TRACE(testField->Get<int>());
 
 		testField->Set(10);
