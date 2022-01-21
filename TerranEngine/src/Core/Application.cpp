@@ -16,11 +16,14 @@
 
 #include "Utils/Debug/Profiler.h"
 
+#include "Scene/ComponentsScriptBindings.h"
+
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
 #pragma warning (push)
 #pragma warning (disable : 4244)
+
 
 namespace TerranEngine 
 {
@@ -40,19 +43,13 @@ namespace TerranEngine
 		RenderCommand::Init();
 		s_Renderer = CreateUnique<BatchRenderer2D>(20000);
 
-		ScriptingEngine::Init("res/TestSandbox.dll");
+		ScriptingEngine::Init("res/TerranScriptCore.dll");
+		
+		ComponentsBindings::Bind();
 
-		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TestSandbox", "Class1");
-		Shared<ScriptObject> testObject = testClass->CreateInstance();
-		Shared<ScriptField> testField = testObject->GetField("test");
+		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore", "Test");
 
-		TR_TRACE("{0} {1}", testField->GetName(), testField->GetType());
-
-		TR_TRACE(testField->Get<int>());
-
-		testField->Set(10);
-
-		testObject->Execute("Test2");
+		testClass->ExecuteStatic("Test1");
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 

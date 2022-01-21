@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ScriptString.h"
+
 #include <mono/metadata/class.h>
 #include <mono/metadata/object.h>
 
@@ -42,12 +44,28 @@ namespace TerranEngine
 			mono_field_set_value(m_MonoObject, m_MonoField, &value);
 		}
 
+		template <>
+		void Set<const char*>(const char* value) 
+		{
+			ScriptString string(value);
+			mono_field_set_value(m_MonoObject, m_MonoField, string.GetStringInternal());
+		}
+
 		template <typename T>
 		T Get() 
 		{
 			T value;
 			mono_field_get_value(m_MonoObject, m_MonoField, &value);
 			return value;
+		}
+
+		template <>
+		const char* Get<const char*>() 
+		{
+			MonoString* string = nullptr;
+
+			mono_field_get_value(m_MonoObject, m_MonoField, &string);
+			return ScriptString(string).GetUTF8Str();
 		}
 
 	private:

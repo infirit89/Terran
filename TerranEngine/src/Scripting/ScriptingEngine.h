@@ -20,6 +20,13 @@ namespace TerranEngine
 		static inline MonoDomain* GetDomain() { return m_Domain; }
 
 		static Shared<ScriptClass> GetClass(const char* namespaceName, const char* className);
+
+		template <typename Func>
+		static void BindInternalFunc(const char* funcName, Func func) 
+		{
+			mono_add_internal_call(funcName, func);
+		}
+
 	private:
 		static MonoDomain* m_Domain;
 		static MonoAssembly* m_Assembly;
