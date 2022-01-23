@@ -2,7 +2,6 @@
 #include "ComponentsScriptBindings.h"
 
 #include "Scripting/ScriptingEngine.h"
-#include "Scene.h"
 
 namespace TerranEngine 
 {

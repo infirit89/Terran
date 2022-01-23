@@ -10,13 +10,7 @@
 #include "Graphics/RenderCommand.h"
 #include "Graphics/BatchRenderer2D.h"
 
-#include "Scripting/ScriptingEngine.h"
-#include "Scripting/ScriptMethod.h"
-#include "Scripting/ScriptClass.h"
-
 #include "Utils/Debug/Profiler.h"
-
-#include "Scene/ComponentsScriptBindings.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -42,14 +36,6 @@ namespace TerranEngine
 
 		RenderCommand::Init();
 		s_Renderer = CreateUnique<BatchRenderer2D>(20000);
-
-		ScriptingEngine::Init("res/TerranScriptCore.dll");
-		
-		ComponentsBindings::Bind();
-
-		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore", "Test");
-
-		testClass->ExecuteStatic("Test1");
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
@@ -121,7 +107,6 @@ namespace TerranEngine
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
-		ScriptingEngine::CleanUp();
 		return false;
 	}
 

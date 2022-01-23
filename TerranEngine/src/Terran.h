@@ -42,11 +42,20 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneSerializer.h"
+#include "Scene/SceneManager.h"
 
 #include "Scene/Systems/SceneRenderer.h"
+
+#include "Scene/ComponentsScriptBindings.h"
+#include "Scene/EntityScriptBindings.h"
 
 /* ---- Misc ---- */
 #include "Math/Math.h"
 
 /* ---- Scripting ---- */
 #include "Scripting/ScriptingEngine.h"
+#include "Scripting/ScriptClass.h"
+#include "Scripting/ScriptField.h"
+#include "Scripting/ScriptMethod.h"
+#include "Scripting/ScriptObject.h"
+#include "Scripting/ScriptString.h"

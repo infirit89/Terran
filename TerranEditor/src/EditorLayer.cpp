@@ -29,6 +29,16 @@ namespace TerranEditor
 
         m_SHierarchy = SceneHierarchy(m_Scene);
 
+        SceneManager::CurrentScene = m_Scene;
+
+		ScriptingEngine::Init("res/TerranScriptCore.dll");
+
+		ComponentsBindings::Bind();
+		EntityBindings::Bind();
+
+		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore", "Test");
+
+		testClass->ExecuteStatic("Test1");
 	}
 
 	void EditorLayer::OnAttach()
@@ -48,6 +58,7 @@ namespace TerranEditor
 
 	void EditorLayer::OnDettach()
 	{
+        ScriptingEngine::CleanUp();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -268,6 +279,8 @@ namespace TerranEditor
                     m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
                     m_SHierarchy.SetScene(m_Scene);
+
+                    SceneManager::CurrentScene = m_Scene;
                 }
             }
         });
@@ -339,6 +352,8 @@ namespace TerranEditor
                     m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
                     m_SHierarchy.SetScene(m_Scene);
+
+                    SceneManager::CurrentScene = m_Scene;
                 }
             }
         }

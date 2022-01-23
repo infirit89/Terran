@@ -28,6 +28,7 @@ namespace TerranScriptCore
         }
 
         Vector3 Rotation;
+
         Vector3 Scale;
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -35,20 +36,5 @@ namespace TerranScriptCore
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void SetTransformPosition_Internal(in Vector3 position);
-    }
-
-    public class Test
-    {
-        public static void Test1() 
-        {
-            Transform transform = new Transform();
-
-            Console.WriteLine(transform.Position);
-
-            transform.Position = new Vector3(1.0f, 0.0f, 1.0f);
-
-            Console.WriteLine(transform.Position);
-
-        }
     }
 }

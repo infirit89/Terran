@@ -39,11 +39,14 @@ namespace TerranEngine
 		TR_ASSERT(m_Assembly, "Couldn't load the C# assembly");
 
 		m_Image = mono_assembly_get_image(m_Assembly);
+
+		TR_INFO("Successfuly loaded: {0}", fileName);
 	}
 
 	void ScriptingEngine::CleanUp()
 	{
 		mono_jit_cleanup(m_Domain);
+		TR_INFO("Deinitialized the scripting core");
 	}
 
 	Shared<ScriptClass> ScriptingEngine::GetClass(const char* namespaceName, const char* className)

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="src\Components.cs" />
     <Compile Include="src\Entity.cs" />
+    <Compile Include="src\Test.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
