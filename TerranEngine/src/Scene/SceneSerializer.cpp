@@ -187,7 +187,8 @@ namespace TerranEngine
 		json j;
 
 		j["Scene"] =  "Name";
-		j.array({ "Entities" });
+
+		j["Entities"] = {};
 
 		m_Scene->m_Registry.each([&](auto entityID)
 		{

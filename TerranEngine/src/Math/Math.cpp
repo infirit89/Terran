@@ -75,37 +75,5 @@ bool TerranEngine::Decompose(const glm::mat4& m, glm::vec3& pos, glm::vec3& eule
 		 eulerAngles.z = 0;
 	 }
 
-#if 0            // Make this function work with quaternions
-	int i, j, k = 0;
-	T root, trace = Row[0].x + Row[1].y + Row[2].z;
-	if (trace > static_cast<T>(0))
-	{
-		root = sqrt(trace + static_cast<T>(1.0));
-		Orientation.w = static_cast<T>(0.5) * root;
-		root = static_cast<T>(0.5) / root;
-		Orientation.x = root * (Row[1].z - Row[2].y);
-		Orientation.y = root * (Row[2].x - Row[0].z);
-		Orientation.z = root * (Row[0].y - Row[1].x);
-	} // End if > 0
-	else
-	{
-		static int Next[3] = { 1, 2, 0 };
-		i = 0;
-		if (Row[1].y > Row[0].x) i = 1;
-		if (Row[2].z > Row[i][i]) i = 2;
-		j = Next[i];
-		k = Next[j];
-
-		root = sqrt(Row[i][i] - Row[j][j] - Row[k][k] + static_cast<T>(1.0));
-
-		Orientation[i] = static_cast<T>(0.5) * root;
-		root = static_cast<T>(0.5) / root;
-		Orientation[j] = root * (Row[i][j] + Row[j][i]);
-		Orientation[k] = root * (Row[i][k] + Row[k][i]);
-		Orientation.w = root * (Row[j][k] - Row[k][j]);
-	} // End if <= 0
-
-#endif
-
     return true;
 }

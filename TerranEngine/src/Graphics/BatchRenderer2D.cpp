@@ -95,7 +95,7 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 4 },
 				{ GL_FLOAT, 2 },
-				{ GL_FLOAT, 1 }
+				{ GL_INT,	1 }
 			});
 
 			m_QuadVAO->AddIndexBuffer(m_IndexBuffer);
@@ -134,7 +134,7 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 4 },
 				{ GL_FLOAT, 2 },
-				{ GL_FLOAT, 1 }
+				{ GL_INT,	1 }
 			});
 
 			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
@@ -258,10 +258,10 @@ namespace TerranEngine
 			Clear();
 		}
 
-		float texIndex = -1;
+		int texIndex = -1;
 
 		if (texture == nullptr)
-			texIndex = 0.0f;
+			texIndex = 0;
 
 		for (size_t i = 1; i < m_QuadTextureIndex; i++)
 		{
@@ -311,10 +311,10 @@ namespace TerranEngine
 			Clear();
 		}
 
-		float texIndex = -1;
+		int texIndex = -1;
 
 		if (font == nullptr)
-			texIndex = 0.0f;
+			texIndex = 0;
 
 		for (size_t i = 1; i < m_TextTextureIndex; i++)
 		{

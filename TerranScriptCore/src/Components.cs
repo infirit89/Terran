@@ -1,40 +1,79 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace TerranScriptCore
 {
-    public class Component 
+    public class Component
     {
         public Entity entity;
     }
 
     public class Transform : Component
     {
-        public Vector3 Position 
+        public Vector3 Position
         {
             get
             {
-                Vector3 pos;
-                GetTransformPosition_Internal(out pos);
-
+                GetTransformPosition_Internal(entity.RuntimeID, out Vector3 pos);
                 return pos;
             }
 
-            set 
+            set
             {
-                SetTransformPosition_Internal(value);
+                SetTransformPosition_Internal(entity.RuntimeID, value);
             }
         }
 
-        Vector3 Rotation;
+        Vector3 Rotation
+        {
+            get
+            {
+                GetTransformRotation_Internal(entity.RuntimeID, out Vector3 rot);
+                return rot;
+            }
 
-        Vector3 Scale;
+            set
+            {
+                SetTransformRotation_Internal(entity.RuntimeID, value);
+            }
+        }
+
+        Vector3 Scale
+        {
+            get
+            {
+                GetTransformScale_Internal(entity.RuntimeID, out Vector3 scale);
+                return scale;
+            }
+
+            set
+            {
+                SetTransformScale_Internal(entity.RuntimeID, value);
+            }
+        }
+
+        // ---- position ----
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void GetTransformPosition_Internal(uint entityID, out Vector3 position);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformPosition_Internal(out Vector3 position);
+        static extern void SetTransformPosition_Internal(uint entityID, in Vector3 position);
+        // ------------------
+
+        // ---- rotation ----
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void GetTransformRotation_Internal(uint entityID, out Vector3 position);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformPosition_Internal(in Vector3 position);
+        static extern void SetTransformRotation_Internal(uint entityID, in Vector3 position);
+        // ------------------
+
+        // ---- scale ----
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void GetTransformScale_Internal(uint entityID, out Vector3 position);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void SetTransformScale_Internal(uint entityID, in Vector3 position);
+        // ---------------
     }
 }

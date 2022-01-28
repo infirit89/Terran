@@ -19,17 +19,8 @@ namespace TerranEditor
         //m_SceneViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
         //m_GameViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
 
-        m_Scene = CreateShared<Scene>();
-
-        m_EditorSceneRenderer = CreateShared<SceneRenderer>();
-        m_GameSceneRenderer = CreateShared<SceneRenderer>();
-
-        auto camera = m_Scene->CreateEntity("Camera");
-        camera.AddComponent<CameraComponent>().Camera = m_Camera;
-
-        m_SHierarchy = SceneHierarchy(m_Scene);
-
-        SceneManager::CurrentScene = m_Scene;
+		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
+		m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
 		ScriptingEngine::Init("res/TerranScriptCore.dll");
 
@@ -68,7 +59,7 @@ namespace TerranEditor
         BatchRenderer2D::Get()->ResetStats();
         m_EditorCamera.Update(time);
 
-        if (m_SceneView.IsVisible()) 
+        if (m_SceneView.IsVisible() && SceneManager::GetCurrentScene()) 
         {
             if ((m_SceneView.GetViewportSize().x != m_EditorSceneRenderer->GetViewportWidth() ||
                 m_SceneView.GetViewportSize().y != m_EditorSceneRenderer->GetViewportHeight()) &&
@@ -84,27 +75,27 @@ namespace TerranEditor
             //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             //RenderCommand::Clear();
 
-            m_Scene->Update();
-            m_Scene->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
+            SceneManager::GetCurrentScene()->Update();
+            SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
 
             //m_SceneViewFramebuffer->Unbind();
 
             m_SceneView.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
 
-        if (m_GameView.IsVisible()) 
+        if (m_GameView.IsVisible() && SceneManager::GetCurrentScene()) 
         {
             if ((m_GameView.GetViewportSize().x != m_GameSceneRenderer->GetViewportWidth() ||
                 m_GameView.GetViewportSize().y != m_GameSceneRenderer->GetViewportHeight()) &&
                 m_GameView.GetViewportSize().x > 0 && m_GameView.GetViewportSize().y > 0)
             {
                 m_GameSceneRenderer->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
-                m_Scene->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
+                SceneManager::GetCurrentScene()->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
             }
 
             //m_GameViewFramebuffer->Bind();
-            auto primaryCamera = m_Scene->GetPrimaryCamera();
+            auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
 
             glm::vec4 backgroundColor = glm::vec4(0.0f);
 
@@ -116,8 +107,8 @@ namespace TerranEditor
             //RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
             //RenderCommand::Clear();
 
-            m_Scene->Update();
-            m_Scene->OnRender(m_GameSceneRenderer);
+            SceneManager::GetCurrentScene()->Update();
+            SceneManager::GetCurrentScene()->OnRender(m_GameSceneRenderer);
 
             //m_GameViewFramebuffer->Unbind();
 
@@ -184,19 +175,25 @@ namespace TerranEditor
         // because it would be confusing to have two docking targets within each others.
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+        // set the dock space's position to that of the main viewport
         ImGui::SetNextWindowPos(viewport->WorkPos);
+
+        // set the dock space's size to that of the main viewport 
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        
         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("Terran Editor", (bool*)true, window_flags);
         ImGui::PopStyleVar();
 
-        ImGui::PopStyleVar(2);
+        //ImGui::PopStyleVar(2);
 
         // DockSpace
         ImGuiIO& io = ImGui::GetIO();
@@ -275,12 +272,10 @@ namespace TerranEditor
                 SceneSerializer sSerializer(newScene);
                 if (sSerializer.DesirializeJson(jsonData)) 
                 {
-                    m_Scene = newScene;
-                    m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    SceneManager::SetCurrentScene(newScene);
+                    SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
-                    m_SHierarchy.SetScene(m_Scene);
-
-                    SceneManager::CurrentScene = m_Scene;
+                    m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
                 }
             }
         });
@@ -323,16 +318,16 @@ namespace TerranEditor
         if (!scenePath.empty())
         {
             m_CurrentScenePath = scenePath;
-            SceneSerializer sSerializer(m_Scene);
+            SceneSerializer sSerializer(SceneManager::GetCurrentScene());
             sSerializer.SerializeJson(scenePath);
         }
     }
 
     void EditorLayer::NewScene()
     {
-        m_Scene = CreateShared<Scene>();
-        m_Scene->CreateEntity("Camera").AddComponent<CameraComponent>();
-        m_SHierarchy.SetScene(m_Scene);
+        SceneManager::SetCurrentScene(CreateShared<Scene>());
+        SceneManager::GetCurrentScene()->CreateEntity("Camera").AddComponent<CameraComponent>();
+        m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
     }
 
     void EditorLayer::OpenScene()
@@ -348,12 +343,10 @@ namespace TerranEditor
                 SceneSerializer sSerializer(newScene);
                 if (sSerializer.DesirializeJson(jsonData))
                 {
-                    m_Scene = newScene;
-                    m_Scene->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    SceneManager::SetCurrentScene(newScene);
+                    SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
-                    m_SHierarchy.SetScene(m_Scene);
-
-                    SceneManager::CurrentScene = m_Scene;
+                    m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
                 }
             }
         }
@@ -365,7 +358,7 @@ namespace TerranEditor
             SaveSceneAs();
         else 
         {
-            SceneSerializer sSerializer(m_Scene);
+            SceneSerializer sSerializer(SceneManager::GetCurrentScene());
             sSerializer.SerializeJson(m_CurrentScenePath);
         }
     }

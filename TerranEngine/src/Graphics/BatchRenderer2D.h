@@ -22,7 +22,7 @@ namespace TerranEngine
 		glm::vec3 Position;
 		glm::vec4 Color;
 		glm::vec2 TextureCoordinates;
-		float TextureIndex;
+		int TextureIndex;
 	};
 
 	struct CircleVertex 

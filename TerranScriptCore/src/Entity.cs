@@ -5,6 +5,14 @@ namespace TerranScriptCore
 {
     public class Entity
     {
+        internal uint RuntimeID 
+        {
+            get 
+            {
+                return m_RuntimeID;
+            }
+        }
+
         private uint m_RuntimeID;
 
         public Entity(uint id) 

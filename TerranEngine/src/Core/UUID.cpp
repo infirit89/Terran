@@ -35,7 +35,7 @@ namespace TerranEngine
             (ch >= static_cast<char>('A') && ch <= static_cast<char>('F'));
     }
 
-    UUID& UUID::FromString(const std::string& str)
+    UUID UUID::FromString(const std::string& str)
     {
         size_t index = 0;
         bool firstDigit = true;

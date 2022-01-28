@@ -16,6 +16,8 @@ namespace TerranEngine
         TransformComponent
     };
 
+    static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
+
     void EntityBindings::Bind()
     {
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Entity::HasComponent_Internal", HasComponent_Internal);
@@ -40,7 +42,13 @@ namespace TerranEngine
 
 		TR_TRACE("Entity ID: {0}", entityRuntimeID);
 
-        Entity entity((entt::entity)entityRuntimeID, SceneManager::CurrentScene.get());
+        if (!GetScenePtr()) 
+        {
+            TR_ERROR("No active scene loaded");
+            return false;
+        }
+
+        Entity entity((entt::entity)entityRuntimeID, GetScenePtr());
 
         switch (type)
         {
@@ -54,7 +62,14 @@ namespace TerranEngine
     void EntityBindings::AddComponent_Internal(uint32_t entityRuntimeID, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
-        Entity entity((entt::entity)entityRuntimeID, SceneManager::CurrentScene.get());
+
+		if (!GetScenePtr())
+		{
+			TR_ERROR("No active scene loaded");
+			return;
+		}
+
+        Entity entity((entt::entity)entityRuntimeID, GetScenePtr());
 
 		switch (type)
 		{
@@ -65,7 +80,14 @@ namespace TerranEngine
     void EntityBindings::RemoveComponent_Internal(uint32_t entityRuntimeID, MonoString* componentTypeStr)
     {
 		ComponentType type = GetComponentType(componentTypeStr);
-		Entity entity((entt::entity)entityRuntimeID, SceneManager::CurrentScene.get());
+
+		if (!GetScenePtr())
+		{
+			TR_ERROR("No active scene loaded");
+			return;
+		}
+
+		Entity entity((entt::entity)entityRuntimeID, GetScenePtr());
 
 		switch (type)
 		{

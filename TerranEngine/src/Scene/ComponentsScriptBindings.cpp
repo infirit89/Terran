@@ -1,17 +1,14 @@
 #include "trpch.h"
 #include "ComponentsScriptBindings.h"
 
+#include "SceneManager.h"
+#include "Entity.h"
+#include "Components.h"
+
 #include "Scripting/ScriptingEngine.h"
 
 namespace TerranEngine 
 {
-	struct Test 
-	{
-		glm::vec3 pos { 0.0f, 0.0f, 1.0f };
-	};
-
-	static Test test;
-
 	void ComponentsBindings::Bind()
 	{
 
@@ -19,16 +16,43 @@ namespace TerranEngine
 
 		ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::SetTransformPosition_Internal",
 			SetTransformPosition_Internal);
+
+		
+		ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::GetTransformRotation_Internal", GetTransformRotation_Internal);
+
+		ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::SetTransformRotation_Internal",
+			SetTransformRotation_Internal);
+
+
+		ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::GetTransformScale_Internal", GetTransformScale_Internal);
+
+		ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::SetTransformScale_Internal",
+			SetTransformScale_Internal);
+
 	}
 
-	void ComponentsBindings::SetTransformPosition_Internal(glm::vec3& position)
+	void ComponentsBindings::SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3& position)
 	{
-		test.pos = position;
 	}
 
-	void ComponentsBindings::GetTransformPosition_Internal(glm::vec3& position)
+	void ComponentsBindings::GetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3& position)
 	{
-		position = test.pos;
+	}
+
+	void ComponentsBindings::SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3& position)
+	{
+	}
+
+	void ComponentsBindings::GetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3& position)
+	{
+	}
+
+	void ComponentsBindings::SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3& position)
+	{
+	}
+
+	void ComponentsBindings::GetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3& position)
+	{
 	}
 }
 

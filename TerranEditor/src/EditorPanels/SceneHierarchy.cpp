@@ -21,25 +21,29 @@ namespace TerranEditor
         {
             ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
             
-            auto view = m_Scene->GetEntitiesWith<TagComponent>();
             
-            for (auto e : view)
+            if (m_Scene) 
             {
-                Entity entity(e, m_Scene.get());
+                auto view = m_Scene->GetEntitiesWith<TagComponent>();
 
-                if(!entity.HasParent())
-                    DrawEntityNode(entity);
+				for (auto e : view)
+				{
+					Entity entity(e, m_Scene.get());
+
+					if (!entity.HasParent())
+						DrawEntityNode(entity);
+				}
+				if (ImGui::BeginPopupContextWindow(0, 1, false))
+				{
+					if (ImGui::MenuItem("Create an entity"))
+						m_Scene->CreateEntity("Entity");
+
+					ImGui::EndPopup();
+				}
+
+				if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+					m_Selected = {};
             }
-            if (ImGui::BeginPopupContextWindow(0, 1, false))
-            {
-                if (ImGui::MenuItem("Create an entity"))
-                    m_Scene->CreateEntity("Entity");
-
-                ImGui::EndPopup();
-            }
-
-            if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
-                m_Selected = {};
 
             ImGui::End();
         }

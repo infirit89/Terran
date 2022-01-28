@@ -10,7 +10,7 @@ struct VS_OUT
 layout(location = 0) in VS_OUT fsIn;
 
 // TODO change this to an int
-layout(location = 2) in flat float f_TexIndex;
+layout(location = 2) in flat int f_TexIndex;
 
 layout(location = 0) out vec4 color;
 
@@ -19,7 +19,7 @@ uniform sampler2D u_Samplers[16];
 
 void main() 
 {
-	int index = int(f_TexIndex);
+	int index = f_TexIndex;
 
 	color = fsIn.Color;
 

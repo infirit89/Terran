@@ -38,7 +38,15 @@ namespace TerranEngine
 		for (auto element : m_Layout.GetElements())
 		{
 			glEnableVertexAttribArray(m_ElementIndex);
-			glVertexAttribPointer(m_ElementIndex, element.Count, element.Type, element.Normalised ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.Offset);
+			switch (element.Type)
+			{
+			case GL_INT:
+				glVertexAttribIPointer(m_ElementIndex, element.Count, element.Type, m_Layout.GetStride(), (const void*)element.Offset);
+				break;
+			case GL_FLOAT:
+				glVertexAttribPointer(m_ElementIndex, element.Count, element.Type, element.Normalised ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.Offset);
+				break;
+			}
 			m_ElementIndex++;
 		}
 	}

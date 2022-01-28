@@ -3,5 +3,5 @@
 
 namespace TerranEngine 
 {
-	Shared<Scene> SceneManager::CurrentScene;
+	Shared<Scene> SceneManager::m_CurrentScene;
 }

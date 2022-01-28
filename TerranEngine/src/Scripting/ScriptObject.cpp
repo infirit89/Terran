@@ -37,6 +37,8 @@ namespace TerranEngine
 			return m_Fields[hashedName];
 		else
 			TR_ERROR("No field with the corresponding name");
+
+		return nullptr;
 	}
 }
 

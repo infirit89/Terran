@@ -12,7 +12,7 @@ namespace TerranEngine
 		UUID(bool generate = true);
 		UUID(const std::array<uint8_t, 16>& data);
 		UUID(const UUID& other) = default;
-		static UUID& Empty() { return UUID(false); }
+		static UUID Empty() { return UUID(false); }
 
 		const inline std::array<uint8_t, 16> GetData() const { return m_Data; }
 		inline std::array<uint8_t, 16> GetData() { return m_Data; }
@@ -29,7 +29,7 @@ namespace TerranEngine
 		const inline bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
 		inline bool operator>(const UUID& other)				{ return m_Data > other.m_Data; }
 
-		static UUID& FromString(const std::string& str);
+		static UUID FromString(const std::string& str);
 
 	private:
 		void Generate();
