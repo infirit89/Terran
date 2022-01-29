@@ -111,10 +111,6 @@ namespace TerranEngine
 			jObject.push_back(
 				{"TransformComponent", 
 				{
-					SerializeVec3("Position",		entity.GetTransform().Position),
-					SerializeVec3("Scale",			entity.GetTransform().Scale),
-					SerializeVec3("Rotation",		entity.GetTransform().Rotation),
-
 					SerializeVec3("LocalPosition",	entity.GetTransform().LocalPosition),
 					SerializeVec3("LocalScale",		entity.GetTransform().LocalScale),
 					SerializeVec3("LocalRotation",	entity.GetTransform().LocalRotation),
@@ -199,7 +195,14 @@ namespace TerranEngine
 
 		std::ofstream ofs(filePath);
 
-		ofs << std::setw(4) << j << std::endl;
+		try
+		{
+			ofs << std::setw(4) << j << std::endl;
+		}
+		catch (const std::exception& e)
+		{
+			TR_ERROR(e.what());
+		}
 	}
 
 	std::string SceneSerializer::ReadJson(const std::string& filePath)
@@ -237,19 +240,11 @@ namespace TerranEngine
 
 			{
 				auto& transform = entity.GetTransform();
-				transform.Position = DeserializeVec3(jEntity["TransformComponent"], "Position");
-				transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
-				transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
 
 				transform.LocalPosition = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
 				transform.LocalScale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
 				transform.LocalRotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
 
-				transform.Dirty = false;
-
-				transform.TransformMatrix = glm::translate(glm::mat4(1.0f), transform.Position) *
-					glm::toMat4(glm::quat(transform.Rotation)) *
-					glm::scale(glm::mat4(1.0f), transform.Scale);
 			}
 
 			if (jEntity.contains("CameraComponent"))
@@ -286,6 +281,8 @@ namespace TerranEngine
 					{
 						if (!scene->FindEntityWithUUID(UUID::FromString(id)))
 							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
+
+						TR_TRACE("JSON ID: {0}, Terran ID: {1}", id.dump(), UUID::FromString(id));
 
 						Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
 

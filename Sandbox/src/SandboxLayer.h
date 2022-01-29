@@ -15,7 +15,7 @@ namespace TerranEngine {
 		void OnAttach() override;
 		void OnDettach() override;
 
-		void Update(float& time) override;
+		void Update(Time& time) override;
 
 		void OnEvent(Event& event) override;
 		void ImGuiRender() override;

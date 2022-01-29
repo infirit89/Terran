@@ -21,7 +21,6 @@ namespace TerranEditor
         {
             ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
             
-            
             if (m_Scene) 
             {
                 auto view = m_Scene->GetEntitiesWith<TagComponent>();
@@ -41,7 +40,7 @@ namespace TerranEditor
 					ImGui::EndPopup();
 				}
 
-				if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
 					m_Selected = {};
             }
 
@@ -50,19 +49,12 @@ namespace TerranEditor
 
 	}
 
-    // poc code not final
-
-    // TODO: god oh geez please fucking get rid of this mess, this huge pile of shit
-
     void SceneHierarchy::DrawEntityNode(Entity entity)
     {
         TagComponent& tagComp = entity.GetComponent<TagComponent>();
 
-        ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-        flags |= ImGuiTreeNodeFlags_FramePadding;
-
-        // TODO: clean up all this shit
-
+        ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+        
         if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
             flags |= ImGuiTreeNodeFlags_NoButton;
 
@@ -71,7 +63,7 @@ namespace TerranEditor
 
         style.FramePadding.y = 1.5f;
 
-        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tagComp.Name.c_str());
+        bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tagComp.Name.c_str());
         
         style = orgStyle;
 
@@ -86,9 +78,6 @@ namespace TerranEditor
 
         if (ImGui::BeginPopupContextItem())
         {
-            if (ImGui::MenuItem("Delete entity")) 
-                isDeleted = true;
-
             if (ImGui::MenuItem("Create Entity")) 
             {
                 auto entity = m_Scene->CreateEntity("Entity");
@@ -97,6 +86,9 @@ namespace TerranEditor
                     entity.SetParent(m_Selected);
             }
 
+            if (ImGui::MenuItem("Delete entity")) 
+                isDeleted = true;
+
             ImGui::EndPopup();
         }
 
@@ -104,8 +96,6 @@ namespace TerranEditor
         {
             if (entity.HasComponent<RelationshipComponent>())
             {
-                RelationshipComponent& relComp = entity.GetComponent<RelationshipComponent>();
-
                 for (auto eID : entity.GetChildren())
                 {
                     auto currEntity = m_Scene->FindEntityWithUUID(eID);

@@ -8,8 +8,15 @@ namespace TerranEngine
 	class SandboxApp : public Application 
 	{
 	public:
-		SandboxApp() : Application("Test", { "res/testicon.png" })
+		SandboxApp() : Application()
 		{
+			WindowData data;
+			data.Name = "Sandbox";
+			data.Width = 1080;
+			data.Height = 790;
+
+			Create(data);
+
 			PushLayer(new SandboxLayer());
 		}
 

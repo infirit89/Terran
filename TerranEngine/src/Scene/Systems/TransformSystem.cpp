@@ -6,6 +6,8 @@
 
 #include "Scene/Scene.h"
 
+#include "Utils/Debug/Profiler.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -14,51 +16,37 @@
 
 namespace TerranEngine 
 {
-
 	TransformSystem::TransformSystem(Scene* scene)
 		: m_Scene(scene) 
 	{ }
 
+	static glm::mat4 GetTransfromMatrix(TransformComponent& transform) 
+	{
+		return glm::translate(glm::mat4(1.0f), transform.Position) *
+			glm::toMat4(glm::quat(transform.Rotation)) *
+			glm::scale(glm::mat4(1.0f), transform.Scale);
+	}
+
 	void TransformSystem::Update()
 	{
-		//auto transformView = m_Scene->GetEntitiesWith<TransformComponent>(entt::exclude<RelationshipComponent>);
-		auto transformView = m_Scene->m_Registry.view<TransformComponent>(entt::exclude<RelationshipComponent>);
+		TR_PROFILE_FUNCN("TransformSystem::Update");
+
+		auto transformView = m_Scene->GetEntitiesWith<TransformComponent>();
 
 		for (auto e : transformView)
 		{
 			Entity entity(e, m_Scene);
-			TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
-			if (transformComponent.Dirty)
-			{
-				transformComponent.Position = transformComponent.LocalPosition;
-				transformComponent.Scale = transformComponent.LocalScale;
-				transformComponent.Rotation = transformComponent.LocalRotation;
 
-				transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
-										 glm::toMat4(glm::quat(transformComponent.Rotation)) *
-										 glm::scale(glm::mat4(1.0f), transformComponent.Scale);
-
-				transformComponent.Dirty = false;
-			}
+			if (entity.GetTransform().Dirty || (entity.HasParent() && (entity.GetParent().GetTransform().Dirty))) 
+				UpdateEntityTransform(entity);
 			else
 				break;
-
-		}
-
-		//auto hierarchicalTransformView = m_Scene->GetEntitiesWith<TransformComponent, RelationshipComponent>();
-		auto hierarchicalTransformView = m_Scene->m_Registry.view<TransformComponent, RelationshipComponent>();
-
-		for (auto e : hierarchicalTransformView) 
-		{
-			Entity entity(e, m_Scene);
-			if (entity.GetTransform().Dirty) 
-				UpdateChild(entity);
 		}
 	}
 
-	void TransformSystem::UpdateChild(Entity entity)
+	void TransformSystem::UpdateEntityTransform(Entity entity)
 	{
-		TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
+		TransformComponent& transformComponent = entity.GetTransform();
 		
 		if (entity.HasParent())
 		{
@@ -67,29 +55,26 @@ namespace TerranEngine
 			transformComponent.Position = transformComponent.LocalPosition + parentTransform.Position;
 			transformComponent.Rotation = transformComponent.LocalRotation + parentTransform.Rotation;
 			transformComponent.Scale = transformComponent.LocalScale * parentTransform.Scale;
-
-			transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
-				glm::toMat4(glm::quat(transformComponent.Rotation)) *
-				glm::scale(glm::mat4(1.0f), transformComponent.Scale);
 		}
 		else 
 		{
 			transformComponent.Position = transformComponent.LocalPosition;
-			transformComponent.Scale = transformComponent.LocalScale;
 			transformComponent.Rotation = transformComponent.LocalRotation;
-
-			transformComponent.TransformMatrix = glm::translate(glm::mat4(1.0f), transformComponent.Position) *
-				glm::toMat4(glm::quat(transformComponent.Rotation)) *
-				glm::scale(glm::mat4(1.0f), transformComponent.Scale);
+			transformComponent.Scale =	transformComponent.LocalScale;
 		}
+
+		transformComponent.WorldTransformMatrix = GetTransfromMatrix(transformComponent);
+		transformComponent.LocalTransformMatrix = glm::inverse(transformComponent.WorldTransformMatrix);
+
 		transformComponent.Dirty = false;
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{
+			TR_TRACE(entity.GetChildCount());
 			Entity currEntity = entity.GetChild(i);
 
 			currEntity.GetTransform().Dirty = true;
-			UpdateChild(currEntity);
+			UpdateEntityTransform(currEntity);
 		}
 
 	}

@@ -90,7 +90,7 @@ namespace TerranEngine
 			sceneRenderer->SetScene(this);
 
 			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
-			glm::mat4& cameraTransform = primaryCamera.GetTransformMat();
+			glm::mat4& cameraTransform = primaryCamera.GetWorldMatrix();
 
 			sceneRenderer->BeginScene(camera, cameraTransform);
 			
@@ -104,7 +104,7 @@ namespace TerranEngine
 
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 				
-					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetTransformMat());
+					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
 				}
 			}
 
@@ -117,7 +117,7 @@ namespace TerranEngine
 					Entity entity(e, this);
 					auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 
-					sceneRenderer->SubmitCircle(circleRenderer, entity.GetTransformMat());
+					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
 				}
 
 			}
@@ -140,7 +140,7 @@ namespace TerranEngine
 				Entity entity(e, this);
 				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 
-				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetTransformMat());
+				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
 			}
 		}
 
@@ -153,7 +153,7 @@ namespace TerranEngine
 				Entity entity(e, this);
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 
-				sceneRenderer->SubmitCircle(circleRenderer, entity.GetTransformMat());
+				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
 			}
 		}
 

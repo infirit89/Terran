@@ -17,12 +17,12 @@ namespace TerranEngine
 
     static unsigned char HexToChar(const char& ch) 
     {
-        if (ch >= static_cast<char>('0') && ch <= static_cast<char>('9'))
-            return ch - static_cast<char>('0');
-        if (ch >= static_cast<char>('a') && ch <= static_cast<char>('f'))
-            return 10 + ch - static_cast<char>('a');
-        if (ch >= static_cast<char>('A') && ch <= static_cast<char>('F'))
-            return 10 + ch - static_cast<char>('A');
+        if (ch >= '0' && ch <= '9')
+            return ch - '0';
+        if (ch >= 'a' && ch <= 'f')
+            return 10 + ch - 'a';
+        if (ch >= 'A' && ch <= 'F')
+            return 10 + ch - 'A';
 
         return 0;
     }
@@ -30,9 +30,9 @@ namespace TerranEngine
     static bool IsHex(const char& ch) 
     {
         return
-            (ch >= static_cast<char>('0') && ch <= static_cast<char>('9')) ||
-            (ch >= static_cast<char>('a') && ch <= static_cast<char>('f')) || 
-            (ch >= static_cast<char>('A') && ch <= static_cast<char>('F'));
+            (ch >= '0' && ch <= '9') ||
+            (ch >= 'a' && ch <= 'f') || 
+            (ch >= 'A' && ch <= 'F');
     }
 
     UUID UUID::FromString(const std::string& str)
@@ -42,30 +42,37 @@ namespace TerranEngine
 
         std::array<uint8_t, 16> data{ {0} };
 
-        if (str.empty()) return UUID();
+        if (str.empty()) 
+        {
+            TR_ERROR("Empty UUID!");
+            return UUID(false);
+        }
 
         for (size_t i = 0; i < str.size(); ++i)
         {
             if (str[i] == '-') continue;
 
-            if (index >= 16 || !IsHex(str[i])) return UUID();
+            if (index >= 16 || !IsHex(str[i])) return UUID(false);
 
             if (firstDigit)
             {
-                data[index] = HexToChar(str[i]) << 4;
+                data[index] = (uint8_t)(HexToChar(str[i]) << 4);
+
                 firstDigit = false;
             }
             else
             {
-                data[index++] |= HexToChar(str[i]);
+                data[index] |= (uint8_t)(HexToChar(str[i]));
+                index++;
+
                 firstDigit = true;
             }
         }
 
-        if (index < 14) 
+        if (index < 15) 
         {
             TR_ERROR("Invalid UUID!");
-            return UUID();
+            return UUID(false);
         }
 
         return UUID{ data };

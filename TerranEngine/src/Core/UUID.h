@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Log.h"
+
 #include <string>
 #include <array>
 #include <xhash>
@@ -28,11 +30,34 @@ namespace TerranEngine
 
 		const inline bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
 		inline bool operator>(const UUID& other)				{ return m_Data > other.m_Data; }
+		
+		bool Valid() 
+		{
+			std::array<uint8_t, 16> empty{ {0} };
+
+			return !(m_Data == empty);
+		}
 
 		static UUID FromString(const std::string& str);
 
 	private:
-		void Generate();
+		void Generate(); 
+		/*
+		* empty UUID:
+		* 1	 2  3  4    5  6    7  8    9  10   11 12 13 14 15 16
+		* 00 00 00 00 - 00 00 - 00 00 - 00 00 - 00 00 00 00 00 00
+		* 
+		* 1-4: time-low
+		* 5-6: time-mid
+		* 
+		* 7-8: time-high and version
+		* 
+		* 9: clock-seq and reserved
+		* 
+		* 10: clock-seq low
+		* 
+		* 11-16: node
+		*/
 		std::array<uint8_t, 16> m_Data;
 
 		template<typename OStream>
@@ -68,29 +93,25 @@ namespace std
 		std::basic_string<CharT, Traits, Allocator> to_string(TerranEngine::UUID const& id)
 	{
 		std::array<uint8_t, 16> idArr = id.GetData();
-
+		
 		std::basic_stringstream<CharT, Traits, Allocator> sstr;
-		sstr << std::hex
-			<< (int)idArr[0]
-			<< (int)idArr[1]
-			<< (int)idArr[2]
-			<< (int)idArr[3]
-			<< '-'
-			<< (int)idArr[4]
-			<< (int)idArr[5]
-			<< '-'
-			<< (int)idArr[6]
-			<< (int)idArr[7]
-			<< '-'
-			<< (int)idArr[8]
-			<< (int)idArr[9]
-			<< '-'
-			<< (int)idArr[10]
-			<< (int)idArr[11]
-			<< (int)idArr[12]
-			<< (int)idArr[13]
-			<< (int)idArr[14]
-			<< (int)idArr[15];
+
+		int ind = 0;
+		for (int i = 0; i < 19; i++)
+		{
+			if (i == 4 || i == 7 || i == 10 || i == 13) 
+			{
+				sstr << '-';
+				continue;
+			}
+
+			sstr << std::hex
+				<< (int)(idArr[ind] >> 4 & 0x0f)
+				<< (int)(idArr[ind] & 0x0f);
+
+			ind++;
+		}
+
 
 		return sstr.str();
 	};

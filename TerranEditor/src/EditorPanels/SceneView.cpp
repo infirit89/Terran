@@ -42,7 +42,7 @@ namespace TerranEditor
             if (selectedEntity)
             {
                 auto& tc = selectedEntity.GetComponent<TransformComponent>();
-                glm::mat4 transformMatrix = tc.TransformMatrix;
+                glm::mat4 transformMatrix = tc.WorldTransformMatrix;
 
                 ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(editorCamera.GetView())), glm::value_ptr(editorCamera.GetProjection()),
                     (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
@@ -51,11 +51,13 @@ namespace TerranEditor
                 {
                     glm::vec3 position, rotation, scale;
                     if (Decompose(transformMatrix, position, rotation, scale))
-                    {
-                        glm::vec3 deltaPosition = position - tc.Position;
+					{
+						glm::vec3 deltaPosition = position - tc.Position;
                         tc.LocalPosition += deltaPosition;
-                        tc.LocalRotation = rotation;
+
                         tc.LocalScale = scale;
+
+                        tc.LocalRotation = rotation;
 
                         tc.Dirty = true;
                     }

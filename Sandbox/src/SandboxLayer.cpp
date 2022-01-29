@@ -10,9 +10,25 @@
 namespace TerranEngine 
 {
 	SandboxLayer::SandboxLayer()
-		: Layer("Sandbox Layer"), 
-		m_Camera(Application::Get()->GetWindow().GetWidth() * 0.1f, Application::Get()->GetWindow().GetHeight() * 0.1f), m_Transform2(glm::vec3(0.5f, 0.0f, 0.0f))
+		: Layer("Sandbox Layer")
 	{
+		// id test code
+		for (int i = 0; i < 100000; i++)
+		{
+			UUID id = UUID();
+			std::string idStr = std::to_string(id);
+
+			UUID fromStr = UUID::FromString(idStr);
+
+			if (fromStr.Valid()) {
+				TR_INFO("{0}. Valid", i);
+			}
+			else {
+				TR_ASSERT(false, "Invalid ID: String: {0}, ID from str: {1}", idStr, fromStr);
+			}
+		}
+
+#if 0
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);
 
 		m_Renderer->CreateFramebuffer(1280, 790, false);
@@ -50,7 +66,8 @@ namespace TerranEngine
 		cameraEntity.AddComponent<CameraComponent>().Camera = m_Camera;
 
 		m_SSerializer = SceneSerializer(m_Scene);
-
+		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 40);
+#endif
 		//Shared<Scene> newScene = CreateShared<Scene>();
 
 		//SceneSerializer serializer(newScene);
@@ -58,7 +75,6 @@ namespace TerranEngine
 
 		//m_Scene = newScene;
 
-		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 40);
 	}
 
 	void SandboxLayer::OnAttach()
@@ -69,7 +85,7 @@ namespace TerranEngine
 	{
 	}
 
-	void SandboxLayer::Update(float& time)
+	void SandboxLayer::Update(Time& time)
 	{
 
 		/* Bit fat fucking note
@@ -77,7 +93,10 @@ namespace TerranEngine
 		* the framebuffer object doesn't work goddamn properly
 		* 1. blending is just fucking gone
 		*/ 
-		
+
+
+
+#if 0
 		if (m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
 			m_ViewportSize.y != m_Renderer->GetFramebuffer()->Height) 
 		{
@@ -125,6 +144,7 @@ namespace TerranEngine
 		int frames = 1 / time;
 
 		m_Time = time;
+#endif
 
 	}
 
@@ -138,6 +158,7 @@ namespace TerranEngine
 
 	void SandboxLayer::ImGuiRender()
 	{
+#if 0
 		static bool rendererStatsOpen = true;
 		static bool viewPortOpen = true;
 
@@ -195,10 +216,14 @@ namespace TerranEngine
 
 			ImGui::End();
 		}
+#endif
+
 	}
 
 	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
 	{
+#if 0
+
 		if (event.GetKeyCode() == Key::R)
 			TR_TRACE("pressed");
 
@@ -209,33 +234,35 @@ namespace TerranEngine
 
 		switch (event.GetKeyCode())
 		{
-			case Key::X: 
-			{
-				if (isCtrlPressed)
-					Application::Get()->Close();
-				break;
-			}
-			case Key::I: 
-			{
-				if (!m_Wireframe)
-					m_Wireframe = true;
-				else
-					m_Wireframe = false;
-				break;
-			}
-
-			case Key::S:
-				if(isCtrlPressed)
-					m_SSerializer.SerializeJson("");
-				break;
-			case Key::O:
-				if (isCtrlPressed) 
-				{
-
-				}
-				break;
+		case Key::X:
+		{
+			if (isCtrlPressed)
+				Application::Get()->Close();
+			break;
+		}
+		case Key::I:
+		{
+			if (!m_Wireframe)
+				m_Wireframe = true;
+			else
+				m_Wireframe = false;
+			break;
 		}
 
+		case Key::S:
+			if (isCtrlPressed)
+				m_SSerializer.SerializeJson("");
+			break;
+		case Key::O:
+			if (isCtrlPressed)
+			{
+
+			}
+			break;
+		}
+
+
+#endif
 		return false;
 	}
 
@@ -246,12 +273,15 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
+
+#if 0
 		m_ZoomLevel += event.GetYOffset() * 0.005f;
 		
 		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 		auto& camComp = m_Scene->GetPrimaryCamera().GetComponent<CameraComponent>();
 		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+#endif
 
 		return false;
 	}

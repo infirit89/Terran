@@ -12,7 +12,7 @@ namespace TerranEngine
 		void Update();
 
 	private:
-		void UpdateChild(Entity entity);
+		void UpdateEntityTransform(Entity entity);
 
 	private:
 		Scene* m_Scene;

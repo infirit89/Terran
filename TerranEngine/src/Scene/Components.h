@@ -29,15 +29,18 @@ namespace TerranEngine
 
 	struct TransformComponent 
 	{
-		glm::vec3 Position = { 0.0f, 0.0f, 0.0f }, Scale = { 1.0f, 1.0f, 1.0f };
-		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 LocalPosition =	{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 LocalRotation =	{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 LocalScale =		{ 1.0f, 1.0f, 1.0f };
 
-		glm::vec3 LocalPosition = Position, LocalScale = Scale;
-		glm::vec3 LocalRotation = Rotation;
+		glm::vec3 Position =	LocalPosition;
+		glm::vec3 Rotation =	LocalRotation;
+		glm::vec3 Scale =		LocalScale;
 
 		bool Dirty = true;
 
-		glm::mat4 TransformMatrix = glm::mat4(1.0f);
+		glm::mat4 WorldTransformMatrix = glm::mat4(1.0f);
+		glm::mat4 LocalTransformMatrix = glm::mat4(1.0f);
 
 		TransformComponent() = default;
 	};
@@ -73,17 +76,9 @@ namespace TerranEngine
 
 	struct RelationshipComponent 
 	{
-		// Parent variables
 		UUID ParentID;
 		
+		// list containing all the child ids
 		std::vector<UUID> Children;
-
-		// maybe just have a list of children?
-		//UUID FirstChildID;
-		//UUID LastChildID;
-
-		//// Child variables
-		//UUID NextID;
-		//UUID PreviousID;
 	};
 }

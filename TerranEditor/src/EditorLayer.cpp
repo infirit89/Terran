@@ -74,6 +74,13 @@ namespace TerranEditor
 
             //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             //RenderCommand::Clear();
+            /*Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test Entity");
+
+            if(entity) 
+            {
+                entity.GetTransform().LocalPosition.x += 5.0f;
+                entity.GetTransform().Dirty = true;
+            }*/
 
             SceneManager::GetCurrentScene()->Update();
             SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
@@ -115,6 +122,7 @@ namespace TerranEditor
             m_GameView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
 
+        m_FPS = 1 / time.GetDeltaTime();
         m_Frametime = time.GetDeltaTimeMS();
 	}
 
@@ -247,8 +255,6 @@ namespace TerranEditor
 
         ShowDockspace();
 
-        ImGui::ShowDemoWindow();
-
         // NOTE: Make an editor setting for the selected window
         m_SHierarchy.ImGuiRender();
         m_Selected = m_SHierarchy.GetSelected();
@@ -303,6 +309,7 @@ namespace TerranEditor
 
             ImGui::NewLine();
             ImGui::Text("Frame Time: %.01f ms/frame", m_Frametime);
+            ImGui::Text("FPS: %d", m_FPS);
 
             for (auto result : Profiler::Get().GetResults())
                 ImGui::Text("%s: %f ms", result.Name.c_str(), result.ElapsedTime);
