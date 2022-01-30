@@ -67,6 +67,9 @@ namespace TerranEngine
 }
 
 #include <sstream>
+#include <bitset>
+#include <iostream>
+
 namespace std 
 {
 	template<>
@@ -97,7 +100,7 @@ namespace std
 		std::basic_stringstream<CharT, Traits, Allocator> sstr;
 
 		int ind = 0;
-		for (int i = 0; i < 19; i++)
+		for (int i = 0; i < 20; i++)
 		{
 			if (i == 4 || i == 7 || i == 10 || i == 13) 
 			{
@@ -108,7 +111,7 @@ namespace std
 			sstr << std::hex
 				<< (int)(idArr[ind] >> 4 & 0x0f)
 				<< (int)(idArr[ind] & 0x0f);
-
+			
 			ind++;
 		}
 

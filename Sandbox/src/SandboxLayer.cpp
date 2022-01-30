@@ -13,19 +13,17 @@ namespace TerranEngine
 		: Layer("Sandbox Layer")
 	{
 		// id test code
-		for (int i = 0; i < 100000; i++)
+		for (int i = 0; i < 9000; i++)
 		{
 			UUID id = UUID();
 			std::string idStr = std::to_string(id);
 
 			UUID fromStr = UUID::FromString(idStr);
 
-			if (fromStr.Valid()) {
-				TR_INFO("{0}. Valid", i);
-			}
-			else {
+			if (fromStr.Valid() && id == fromStr)
+				TR_INFO("{0}. Valid; {1} == {2}", i, id, fromStr);
+			else 
 				TR_ASSERT(false, "Invalid ID: String: {0}, ID from str: {1}", idStr, fromStr);
-			}
 		}
 
 #if 0

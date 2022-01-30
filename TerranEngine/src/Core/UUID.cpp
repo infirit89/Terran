@@ -3,78 +3,72 @@
 
 namespace TerranEngine
 {
-    UUID::UUID(bool generate)
-        : m_Data({ 0 })
-    {
-        if(generate)
-            Generate();
-    }
+	UUID::UUID(bool generate)
+		: m_Data({ 0 })
+	{
+		if (generate)
+			Generate();
+	}
 
-    UUID::UUID(const std::array<uint8_t, 16>& data)
-        : m_Data(data)
-    {
-    }
+	UUID::UUID(const std::array<uint8_t, 16>& data)
+		: m_Data(data)
+	{
+	}
 
-    static unsigned char HexToChar(const char& ch) 
-    {
-        if (ch >= '0' && ch <= '9')
-            return ch - '0';
-        if (ch >= 'a' && ch <= 'f')
-            return 10 + ch - 'a';
-        if (ch >= 'A' && ch <= 'F')
-            return 10 + ch - 'A';
+	static unsigned char HexToChar(const char& ch)
+	{
+		if (ch >= '0' && ch <= '9')
+			return ch - '0';
+		if (ch >= 'a' && ch <= 'f')
+			return 10 + ch - 'a';
+		if (ch >= 'A' && ch <= 'F')
+			return 10 + ch - 'A';
 
-        return 0;
-    }
+		return 0;
+	}
 
-    static bool IsHex(const char& ch) 
-    {
-        return
-            (ch >= '0' && ch <= '9') ||
-            (ch >= 'a' && ch <= 'f') || 
-            (ch >= 'A' && ch <= 'F');
-    }
+	static bool IsHex(const char& ch)
+	{
+		return
+			(ch >= '0' && ch <= '9') ||
+			(ch >= 'a' && ch <= 'f') ||
+			(ch >= 'A' && ch <= 'F');
+	}
 
-    UUID UUID::FromString(const std::string& str)
-    {
-        size_t index = 0;
-        bool firstDigit = true;
+	UUID UUID::FromString(const std::string& str)
+	{
+		size_t index = 0;
 
-        std::array<uint8_t, 16> data{ {0} };
+		std::array<uint8_t, 16> data{ {0} };
 
-        if (str.empty()) 
-        {
-            TR_ERROR("Empty UUID!");
-            return UUID(false);
-        }
+		if (str.empty())
+		{
+			TR_ERROR("Empty UUID!");
+			return UUID(false);
+		}
 
-        for (size_t i = 0; i < str.size(); ++i)
-        {
-            if (str[i] == '-') continue;
+		for (size_t i = 0; i < str.size(); ++i)
+		{
+			if (str[i] == '-') continue;
 
-            if (index >= 16 || !IsHex(str[i])) return UUID(false);
+			if (index >= 16 || !IsHex(str[i]))
+			{
+				TR_ERROR("UUID not in hexidecimal format!");
+				return UUID(false);
+			}
 
-            if (firstDigit)
-            {
-                data[index] = (uint8_t)(HexToChar(str[i]) << 4);
+			data[index] = (uint8_t)(HexToChar(str[i]) << 4);
+			data[index] |= (uint8_t)(HexToChar(str[++i]));
 
-                firstDigit = false;
-            }
-            else
-            {
-                data[index] |= (uint8_t)(HexToChar(str[i]));
-                index++;
+			index++;
+		}
 
-                firstDigit = true;
-            }
-        }
+		if (index < 16)
+		{
+			TR_ERROR("Invalid UUID!");
+			return UUID(false);
+		}
 
-        if (index < 15) 
-        {
-            TR_ERROR("Invalid UUID!");
-            return UUID(false);
-        }
-
-        return UUID{ data };
-    }
+		return UUID{ data };
+	}
 }
