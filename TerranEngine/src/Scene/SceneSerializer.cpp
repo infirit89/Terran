@@ -282,8 +282,6 @@ namespace TerranEngine
 						if (!scene->FindEntityWithUUID(UUID::FromString(id)))
 							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
 
-						TR_TRACE("JSON ID: {0}, Terran ID: {1}", id.dump(), UUID::FromString(id));
-
 						Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
 
 						entity.AddChild(e);

@@ -25,13 +25,14 @@ namespace TerranEngine
 		mono_runtime_invoke(m_MonoMethod, scriptObject == nullptr ? nullptr : scriptObject->GetNativeObject(), args, &error);
 		
 		// memory leak?
-		delete[] args;
 
 		if (error != nullptr) 
 		{
 			MonoClass* klass = mono_object_get_class(error);
 			TR_ERROR("Exception {0} caused by {1} method", mono_class_get_name(klass), mono_method_get_name(m_MonoMethod));
 		}
+
+		delete[] args;
 	}
 }
 

@@ -24,8 +24,11 @@ namespace TerranEditor
 
 		ScriptingEngine::Init("res/TerranScriptCore.dll");
 
-		ComponentsBindings::Bind();
 		EntityBindings::Bind();
+		ComponentsBindings::Bind();
+
+        NewScene();
+        SceneManager::GetCurrentScene()->GetPrimaryCamera().GetTransform().Position.x = 10.0f;
 
 		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore", "Test");
 
@@ -44,7 +47,7 @@ namespace TerranEditor
 
         io.Fonts->Build();
 
-        io.IniFilename = "res\\TerranEditorSettings.ini";
+        io.IniFilename = "res/TerranEditorSettings.ini";
 	}
 
 	void EditorLayer::OnDettach()
@@ -74,13 +77,14 @@ namespace TerranEditor
 
             //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             //RenderCommand::Clear();
-            /*Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test Entity");
+            
+            Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test Entity");
 
             if(entity) 
             {
-                entity.GetTransform().LocalPosition.x += 5.0f;
+                entity.GetTransform().LocalPosition.x += .01f;
                 entity.GetTransform().Dirty = true;
-            }*/
+            }
 
             SceneManager::GetCurrentScene()->Update();
             SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());

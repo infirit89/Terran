@@ -24,6 +24,8 @@ namespace TerranEngine
 
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Entity::AddComponent_Internal", AddComponent_Internal);
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Entity::RemoveComponent_Internal", RemoveComponent_Internal);
+
+        ScriptingEngine::BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", FindEntityWithName_Internal);
     }
 
     static ComponentType GetComponentType(MonoString* componentTypeStr)
@@ -93,6 +95,12 @@ namespace TerranEngine
 		{
 		case ComponentType::TransformComponent: entity.RemoveComponent<TransformComponent>(); break;
 		}
+    }
+
+    uint32_t EntityBindings::FindEntityWithName_Internal(MonoString* monoName)
+    {
+        ScriptString name(monoName);
+        return (uint32_t)(SceneManager::GetCurrentScene()->FindEntityWithName(name.GetUTF8Str()));
     }
 }
 

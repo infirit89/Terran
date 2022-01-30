@@ -55,7 +55,7 @@ namespace TerranEngine
 		inline bool HasComponent() const
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
-
+			
 			return m_Scene->m_Registry.all_of<Component>(m_Handle);
 		}
 		
@@ -76,7 +76,7 @@ namespace TerranEngine
 		inline bool operator==(const Entity& other) const			{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 		inline bool operator!=(const Entity& other) const			{ return !(*this == other); }
 
-		// relationship component sutffs
+		// relationship component stuffs
 		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false; }
 		inline UUID GetParentID() const								{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : UUID::Empty(); }
 		inline size_t GetChildCount() const							{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }

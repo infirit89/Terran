@@ -15,7 +15,7 @@ namespace TerranEngine
 	{
 	}
 
-	static unsigned char HexToChar(const char& ch)
+	static unsigned char CharToHex(const char& ch)
 	{
 		if (ch >= '0' && ch <= '9')
 			return ch - '0';
@@ -25,14 +25,6 @@ namespace TerranEngine
 			return 10 + ch - 'A';
 
 		return 0;
-	}
-
-	static bool IsHex(const char& ch)
-	{
-		return
-			(ch >= '0' && ch <= '9') ||
-			(ch >= 'a' && ch <= 'f') ||
-			(ch >= 'A' && ch <= 'F');
 	}
 
 	UUID UUID::FromString(const std::string& str)
@@ -51,14 +43,14 @@ namespace TerranEngine
 		{
 			if (str[i] == '-') continue;
 
-			if (index >= 16 || !IsHex(str[i]))
+			if (index >= 16 || !isxdigit(str[i]))
 			{
 				TR_ERROR("UUID not in hexidecimal format!");
 				return UUID(false);
 			}
 
-			data[index] = (uint8_t)(HexToChar(str[i]) << 4);
-			data[index] |= (uint8_t)(HexToChar(str[++i]));
+			data[index] = (uint8_t)(CharToHex(str[i]) << 4);
+			data[index] |= (uint8_t)(CharToHex(str[++i]));
 
 			index++;
 		}

@@ -20,6 +20,16 @@ namespace TerranScriptCore
             m_RuntimeID = id;
         }
 
+        public static Entity FindWithName(string name) 
+        {
+            uint entityID = FindEntityWithName_Internal(name);
+
+            if (entityID != 0xFFFFF)
+                return new Entity(entityID);
+
+            return null;
+        }
+
         public void AddComponent<T>() where T : Component
         {
             AddComponent_Internal(m_RuntimeID, typeof(T).FullName);
@@ -35,6 +45,18 @@ namespace TerranScriptCore
             RemoveComponent_Internal(m_RuntimeID, typeof(T).FullName);
         }
 
+        public T GetComponent<T>() where T : Component, new() 
+        {
+            if (HasComponent<T>()) 
+            {
+                T component = new T();
+                component.entity = this; 
+                return component;
+            }
+
+            return null;
+        }
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern bool HasComponent_Internal(uint runtimeID, string componentTypeStr);
 
@@ -43,5 +65,8 @@ namespace TerranScriptCore
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void RemoveComponent_Internal(uint runtimeID, string componentTypeStr);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern uint FindEntityWithName_Internal(string name);
     }
 }

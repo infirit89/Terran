@@ -54,5 +54,3 @@ namespace TerranEngine
 }
 
 #endif // TR_WINDOWS_64
-
-

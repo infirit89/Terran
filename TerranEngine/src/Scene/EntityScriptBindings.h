@@ -15,5 +15,7 @@ namespace TerranEngine
 		static void AddComponent_Internal(uint32_t entityRuntimeID, MonoString* componentType);
 
 		static void RemoveComponent_Internal(uint32_t entityRuntimeID, MonoString* componentType);
+
+		static uint32_t FindEntityWithName_Internal(MonoString* monoName);
 	};
 }

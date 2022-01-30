@@ -12,6 +12,7 @@ namespace TerranEngine
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer")
 	{
+#if 0
 		// id test code
 		for (int i = 0; i < 9000; i++)
 		{
@@ -25,6 +26,13 @@ namespace TerranEngine
 			else 
 				TR_ASSERT(false, "Invalid ID: String: {0}, ID from str: {1}", idStr, fromStr);
 		}
+#endif
+
+		SceneManager::SetCurrentScene(CreateShared<Scene>());
+
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test");
+
+		entity.GetComponent<TransformComponent>();
 
 #if 0
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);

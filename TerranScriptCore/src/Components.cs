@@ -14,66 +14,101 @@ namespace TerranScriptCore
         {
             get
             {
-                GetTransformPosition_Internal(entity.RuntimeID, out Vector3 pos);
-                return pos;
+                if (entity != null) 
+                {
+                    GetTransformPosition_Internal(entity.RuntimeID, out Vector3 pos);
+                    return pos;
+                }
+
+                // TODO: log that the entity is null
+                return new Vector3(0.0f, 0.0f, 0.0f);
             }
 
             set
             {
-                SetTransformPosition_Internal(entity.RuntimeID, value);
+                if (entity != null) 
+                {
+                    SetTransformPosition_Internal(entity.RuntimeID, value);
+                    return;
+                }
+                // TODO: log that the entity is null
             }
         }
 
-        Vector3 Rotation
+        public Vector3 Rotation
         {
             get
             {
-                GetTransformRotation_Internal(entity.RuntimeID, out Vector3 rot);
-                return rot;
+                if (entity != null) 
+                {
+                    GetTransformRotation_Internal(entity.RuntimeID, out Vector3 rot);
+                    return rot;
+                }
+
+                // TODO: log that the entity is null
+                return new Vector3(0.0f, 0.0f, 0.0f);
             }
 
             set
             {
-                SetTransformRotation_Internal(entity.RuntimeID, value);
+                if (entity != null) 
+                {
+                    SetTransformRotation_Internal(entity.RuntimeID, value);
+                    return;
+                }
+
+                // TODO: log that the entity is null
             }
         }
 
-        Vector3 Scale
+        public Vector3 Scale
         {
             get
             {
-                GetTransformScale_Internal(entity.RuntimeID, out Vector3 scale);
-                return scale;
+                if (entity != null) 
+                {
+                    GetTransformScale_Internal(entity.RuntimeID, out Vector3 scale);
+                    return scale;
+                }
+
+                // TODO: log that the entity is null
+                return new Vector3(0.0f, 0.0f, 0.0f);
             }
 
             set
             {
-                SetTransformScale_Internal(entity.RuntimeID, value);
+                if (entity != null) 
+                {
+                    SetTransformScale_Internal(entity.RuntimeID, value);
+                    return;
+                }
+
+                // TODO: log that the entity is null
             }
         }
 
         // ---- position ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformPosition_Internal(uint entityID, out Vector3 position);
+        static extern void GetTransformPosition_Internal(uint entityID, out Vector3 outPosition);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformPosition_Internal(uint entityID, in Vector3 position);
+        static extern void SetTransformPosition_Internal(uint entityID, in Vector3 inPosition);
         // ------------------
 
         // ---- rotation ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformRotation_Internal(uint entityID, out Vector3 position);
+        static extern void GetTransformRotation_Internal(uint entityID, out Vector3 outRotation);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformRotation_Internal(uint entityID, in Vector3 position);
+        static extern void SetTransformRotation_Internal(uint entityID, in Vector3 inRotation);
         // ------------------
 
         // ---- scale ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformScale_Internal(uint entityID, out Vector3 position);
+        static extern void GetTransformScale_Internal(uint entityID, out Vector3 outScale);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformScale_Internal(uint entityID, in Vector3 position);
+        static extern void SetTransformScale_Internal(uint entityID, in Vector3 inScale);
         // ---------------
     }
 }

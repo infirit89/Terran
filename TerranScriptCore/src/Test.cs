@@ -6,15 +6,12 @@ namespace TerranScriptCore
     {
         public static void Test1() 
         {
-            Entity entity = new Entity(0);
-            
-            Console.WriteLine(entity.HasComponent<Transform>());
+            Entity entity = Entity.FindWithName("Camera");
 
-            entity.RemoveComponent<Transform>();
-            Console.WriteLine(entity.HasComponent<Transform>());
-
-            entity.AddComponent<Transform>();
-            Console.WriteLine(entity.HasComponent<Transform>());
+            if (entity != null)
+                Console.WriteLine(entity.GetComponent<Transform>().Position);
+            else
+                Console.WriteLine("Couldn't find the entity");
         }
     }
 }

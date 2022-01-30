@@ -70,7 +70,6 @@ namespace TerranEngine
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{
-			TR_TRACE(entity.GetChildCount());
 			Entity currEntity = entity.GetChild(i);
 
 			currEntity.GetTransform().Dirty = true;
