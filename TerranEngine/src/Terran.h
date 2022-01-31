@@ -46,9 +46,6 @@
 
 #include "Scene/Systems/SceneRenderer.h"
 
-#include "Scene/ComponentsScriptBindings.h"
-#include "Scene/EntityScriptBindings.h"
-
 /* ---- Misc ---- */
 #include "Math/Math.h"
 
@@ -59,3 +56,5 @@
 #include "Scripting/ScriptMethod.h"
 #include "Scripting/ScriptObject.h"
 #include "Scripting/ScriptString.h"
+
+#include "Scripting/ScriptBindings.h"

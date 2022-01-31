@@ -40,10 +40,14 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Components.cs" />
     <Compile Include="src\Entity.cs" />
+    <Compile Include="src\Log.cs" />
+    <Compile Include="src\Math\Vector2.cs" />
+    <Compile Include="src\Math\Vector3.cs" />
     <Compile Include="src\Test.cs" />
   </ItemGroup>
   <ItemGroup>

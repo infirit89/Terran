@@ -1,26 +1,26 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace TerranScriptCore
 {
     public class Entity
     {
-        internal uint RuntimeID 
+        internal uint runtimeID
         {
-            get 
-            {
-                return m_RuntimeID;
-            }
+            get => m_RuntimeID;
         }
 
         private uint m_RuntimeID;
 
+        public Transform transform;
+
         public Entity(uint id) 
         {
             m_RuntimeID = id;
-        }
+            transform = new Transform();
+            transform.entity = this;
+        } 
 
-        public static Entity FindWithName(string name) 
+        public static Entity FindWithName(string name)
         {
             uint entityID = FindEntityWithName_Internal(name);
 
@@ -30,27 +30,18 @@ namespace TerranScriptCore
             return null;
         }
 
-        public void AddComponent<T>() where T : Component
-        {
-            AddComponent_Internal(m_RuntimeID, typeof(T).FullName);
-        }
+        public void AddComponent<T>() where T : Component => AddComponent_Internal(m_RuntimeID, typeof(T).FullName);
 
-        public bool HasComponent<T>() where T : Component
-        {
-            return HasComponent_Internal(m_RuntimeID, typeof(T).FullName);
-        }
+        public bool HasComponent<T>() where T : Component => HasComponent_Internal(m_RuntimeID, typeof(T).FullName);
 
-        public void RemoveComponent<T>() where T : Component 
-        {
-            RemoveComponent_Internal(m_RuntimeID, typeof(T).FullName);
-        }
+        public void RemoveComponent<T>() where T : Component => RemoveComponent_Internal(m_RuntimeID, typeof(T).FullName);
 
-        public T GetComponent<T>() where T : Component, new() 
+        public T GetComponent<T>() where T : Component, new()
         {
-            if (HasComponent<T>()) 
+            if (HasComponent<T>())
             {
                 T component = new T();
-                component.entity = this; 
+                component.entity = this;
                 return component;
             }
 

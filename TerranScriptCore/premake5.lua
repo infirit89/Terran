@@ -19,7 +19,8 @@ project "TerranScriptCore"
     {
         "System",
         "System.Core",
-        "System.Numerics"
+        "System.Numerics",
+        "System.Runtime"
 
         -- todo: add more links if needed
     }

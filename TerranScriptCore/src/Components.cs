@@ -1,11 +1,38 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace TerranScriptCore
 {
     public class Component
     {
         public Entity entity;
+    }
+
+    public class Tag : Component 
+    {
+        public string Name 
+        {
+            get
+            {
+                if (entity != null) 
+                    return GetTagName_Internal(entity.runtimeID);
+
+                // TODO: log that the entity is null
+                return "";
+            }
+
+            set
+            {
+                if(entity != null)
+                    SetTagName_Internal(entity.runtimeID, value);
+
+                // TODO: log that the entity is null
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void SetTagName_Internal(uint entityID, in string inName);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern string GetTagName_Internal(uint entityID);
     }
 
     public class Transform : Component
@@ -16,7 +43,7 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    GetTransformPosition_Internal(entity.RuntimeID, out Vector3 pos);
+                    GetTransformPosition_Internal(entity.runtimeID, out Vector3 pos);
                     return pos;
                 }
 
@@ -28,7 +55,7 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    SetTransformPosition_Internal(entity.RuntimeID, value);
+                    SetTransformPosition_Internal(entity.runtimeID, value);
                     return;
                 }
                 // TODO: log that the entity is null
@@ -41,7 +68,7 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    GetTransformRotation_Internal(entity.RuntimeID, out Vector3 rot);
+                    GetTransformRotation_Internal(entity.runtimeID, out Vector3 rot);
                     return rot;
                 }
 
@@ -53,7 +80,7 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    SetTransformRotation_Internal(entity.RuntimeID, value);
+                    SetTransformRotation_Internal(entity.runtimeID, value);
                     return;
                 }
 
@@ -67,7 +94,7 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    GetTransformScale_Internal(entity.RuntimeID, out Vector3 scale);
+                    GetTransformScale_Internal(entity.runtimeID, out Vector3 scale);
                     return scale;
                 }
 
@@ -79,7 +106,7 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    SetTransformScale_Internal(entity.RuntimeID, value);
+                    SetTransformScale_Internal(entity.runtimeID, value);
                     return;
                 }
 

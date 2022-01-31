@@ -9,8 +9,6 @@
 
 namespace TerranEditor
 {
-    //extern const std::filesystem::path resPath;
-
 	EditorLayer::EditorLayer()
 		: Layer("Editor"), m_EditorCamera()
 	{
@@ -24,8 +22,7 @@ namespace TerranEditor
 
 		ScriptingEngine::Init("res/TerranScriptCore.dll");
 
-		EntityBindings::Bind();
-		ComponentsBindings::Bind();
+        ScriptBindings::Bind();
 
         NewScene();
         SceneManager::GetCurrentScene()->GetPrimaryCamera().GetTransform().Position.x = 10.0f;
