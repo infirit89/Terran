@@ -10,6 +10,8 @@ namespace TerranEngine
 	MonoAssembly* ScriptingEngine::m_Assembly;
 	MonoImage* ScriptingEngine::m_Image;
 
+	std::unordered_map<uint32_t, Shared<ScriptClass>> ScriptingEngine::m_Classes;
+
 	void ScriptingEngine::Init(const char* fileName)
 	{
 		char* monoPath = std::getenv("MONO_PATH");
@@ -49,8 +51,29 @@ namespace TerranEngine
 		TR_INFO("Deinitialized the scripting core");
 	}
 
-	Shared<ScriptClass> ScriptingEngine::GetClass(const char* namespaceName, const char* className)
+	Shared<ScriptClass> ScriptingEngine::GetClass(const std::string& moduleName)
 	{
-		return CreateShared<ScriptClass>(mono_class_from_name(m_Image, namespaceName, className));
+		std::hash<std::string> hasher;
+		uint32_t hashedName = hasher(moduleName);
+
+		if (m_Classes.find(hashedName) != m_Classes.end())
+			return m_Classes[hashedName];
+		
+		size_t dotPosition = moduleName.find_last_of(".");
+
+		std::string& namespaceName = moduleName.substr(0, dotPosition);
+		std::string& className = moduleName.substr(dotPosition + 1);
+		
+		MonoClass* klass = mono_class_from_name(m_Image, namespaceName.c_str(), className.c_str());
+
+		if (!klass) 
+		{
+			TR_ERROR("Class wasn't found");
+			return NULL;
+		}
+		Shared<ScriptClass> scriptClass = CreateShared<ScriptClass>(klass);
+		m_Classes[hashedName] = scriptClass;
+
+		return scriptClass;
 	}
 }

@@ -4,21 +4,25 @@ namespace TerranScriptCore
 {
     public class Entity
     {
-        internal uint runtimeID
-        {
-            get => m_RuntimeID;
-        }
 
-        private uint m_RuntimeID;
+        internal uint runtimeID;
 
         public Transform transform;
 
+
         public Entity(uint id) 
         {
-            m_RuntimeID = id;
+            runtimeID = id;
             transform = new Transform();
             transform.entity = this;
         } 
+
+        public Entity() 
+        {
+            runtimeID = 0;
+            transform = new Transform();
+            transform.entity = this;
+        }
 
         public static Entity FindWithName(string name)
         {
@@ -30,11 +34,11 @@ namespace TerranScriptCore
             return null;
         }
 
-        public void AddComponent<T>() where T : Component => AddComponent_Internal(m_RuntimeID, typeof(T).FullName);
+        public void AddComponent<T>() where T : Component => AddComponent_Internal(runtimeID, typeof(T).FullName);
 
-        public bool HasComponent<T>() where T : Component => HasComponent_Internal(m_RuntimeID, typeof(T).FullName);
+        public bool HasComponent<T>() where T : Component => HasComponent_Internal(runtimeID, typeof(T).FullName);
 
-        public void RemoveComponent<T>() where T : Component => RemoveComponent_Internal(m_RuntimeID, typeof(T).FullName);
+        public void RemoveComponent<T>() where T : Component => RemoveComponent_Internal(runtimeID, typeof(T).FullName);
 
         public T GetComponent<T>() where T : Component, new()
         {

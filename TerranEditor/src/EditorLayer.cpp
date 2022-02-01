@@ -27,9 +27,10 @@ namespace TerranEditor
         NewScene();
         SceneManager::GetCurrentScene()->GetPrimaryCamera().GetTransform().Position.x = 10.0f;
 
-		Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore", "Test");
+		/*Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore.Test");
 
-		testClass->ExecuteStatic("Test1");
+		testClass->ExecuteStatic("Test1");*/
+        SceneManager::GetCurrentScene()->GetPrimaryCamera().AddComponent<ScriptableComponent>("TerranScriptCore.TestScriptable");
 	}
 
 	void EditorLayer::OnAttach()

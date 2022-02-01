@@ -7,6 +7,24 @@ namespace TerranScriptCore
         public Entity entity;
     }
 
+    public class Scriptable : Component
+    {
+        protected Scriptable() 
+        {
+            entity = new Entity();
+            Log.Trace("created entity");
+        }
+
+        void SetEntityID(uint id) 
+        {
+            entity.runtimeID = id;
+            Log.Trace("set entity's id");
+        }
+
+        public virtual void Init() { }
+        public virtual void Update() { }
+    }
+
     public class Tag : Component 
     {
         public string Name 

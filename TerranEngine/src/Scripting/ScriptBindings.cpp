@@ -45,7 +45,8 @@ namespace TerranEngine
     {
         None = 0,
         TransformComponent,
-        TagComponent
+        TagComponent,
+        ScriptableComponent,
     };
 
     static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
@@ -58,6 +59,8 @@ namespace TerranEngine
             return ComponentType::TransformComponent;
         else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Tag") == 0)
             return ComponentType::TagComponent;
+        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Scriptable") == 0)
+            return ComponentType::ScriptableComponent;
 
         return ComponentType::None;
     }
@@ -78,6 +81,7 @@ namespace TerranEngine
         {
         case ComponentType::TransformComponent:     return entity.HasComponent<TransformComponent>();
         case ComponentType::TagComponent:           return entity.HasComponent<TagComponent>();
+        case ComponentType::ScriptableComponent:    return entity.HasComponent<ScriptableComponent>();
         }
 
 
@@ -98,8 +102,9 @@ namespace TerranEngine
 
         switch (type)
         {
-        case ComponentType::TransformComponent: entity.AddComponent<TransformComponent>(); break;
-        case ComponentType::TagComponent:       entity.AddComponent<TagComponent>(); break;
+        case ComponentType::TransformComponent:         entity.AddComponent<TransformComponent>(); break;
+        case ComponentType::TagComponent:               entity.AddComponent<TagComponent>(); break;
+        case ComponentType::ScriptableComponent:        entity.AddComponent<ScriptableComponent>(); break;
         }
     }
 
@@ -117,8 +122,9 @@ namespace TerranEngine
 
         switch (type)
         {
-        case ComponentType::TransformComponent: entity.RemoveComponent<TransformComponent>(); break;
-        case ComponentType::TagComponent:       entity.RemoveComponent<TagComponent>(); break;
+        case ComponentType::TransformComponent:     entity.RemoveComponent<TransformComponent>(); break;
+        case ComponentType::TagComponent:           entity.RemoveComponent<TagComponent>(); break;
+        case ComponentType::ScriptableComponent:    entity.RemoveComponent<ScriptableComponent>(); break;
         }
     }
 

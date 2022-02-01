@@ -8,11 +8,21 @@ namespace TerranEngine
 	ScriptClass::ScriptClass(MonoClass* monoClass)
 		: m_MonoClass(monoClass)
 	{
-		MonoMethod* method;
-		void* iter = nullptr;
 		std::hash<std::string> hasher;
-		while ((method = mono_class_get_methods(m_MonoClass, &iter)) != NULL) 
-			m_Methods[hasher(mono_method_get_name(method))] = CreateShared<ScriptMethod>(method);
+
+		while (monoClass != NULL)
+		{
+			MonoMethod* method;
+			void* iter = nullptr;
+			while ((method = mono_class_get_methods(monoClass, &iter)) != NULL)
+			{
+				uint32_t hashedName = hasher(mono_method_get_name(method));
+				if(m_Methods.find(hashedName) == m_Methods.end())
+					m_Methods[hashedName] = CreateShared<ScriptMethod>(method);
+			}
+
+			monoClass = mono_class_get_parent(monoClass);
+		}
 	}
 
 	Shared<ScriptObject> ScriptClass::CreateInstance()

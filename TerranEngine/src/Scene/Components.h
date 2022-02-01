@@ -5,6 +5,11 @@
 #include "Core/Base.h"
 #include "Core/UUID.h"
 
+#include "Scripting/ScriptObject.h"
+#include "Scripting/ScriptingEngine.h"
+
+#include "Utils/Debug/Profiler.h"
+
 #include <glm/glm.hpp>
 
 #include <entt.hpp>
@@ -80,5 +85,36 @@ namespace TerranEngine
 		
 		// list containing all the child ids
 		std::vector<UUID> Children;
+	};
+
+	struct ScriptableComponent 
+	{
+		ScriptableComponent() = default;
+
+		ScriptableComponent(const std::string& moduleName) 
+			: ModuleName(moduleName), RuntimeObject(ScriptingEngine::GetClass(moduleName)->CreateInstance()) { }
+
+		void OnCreate(uint32_t entityID) 
+		{
+			if (!m_Created) 
+			{
+				Shared<UInt32> entityIDParam = CreateShared<UInt32>(entityID);
+				RuntimeObject->Execute("SetEntityID", { entityIDParam });
+				RuntimeObject->Execute("Init");
+				m_Created = true;
+			}
+		}
+
+		void OnUpdate() 
+		{
+			TR_PROFILE_FUNCN("ScriptableComponent::OnUpdate");
+			RuntimeObject->Execute("Update");
+		}
+
+		std::string ModuleName;
+		Shared<ScriptObject> RuntimeObject;
+
+	private:
+		bool m_Created = false;
 	};
 }

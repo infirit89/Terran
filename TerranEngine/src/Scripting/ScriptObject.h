@@ -14,6 +14,8 @@ namespace TerranEngine
 	class ScriptObject 
 	{
 	public:
+		ScriptObject() = default;
+
 		ScriptObject(MonoObject* monoObject, std::unordered_map<uint32_t, Shared<ScriptMethod>>& methods);
 
 		void Execute(const char* methodName, ScriptMethodParameterList parameterList = {});

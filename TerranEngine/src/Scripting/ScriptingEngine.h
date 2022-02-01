@@ -6,6 +6,8 @@
 
 #include <mono/jit/jit.h>
 
+#include <unordered_map>
+
 namespace TerranEngine 
 {
 	class ScriptingEngine 
@@ -19,7 +21,7 @@ namespace TerranEngine
 
 		static inline MonoDomain* GetDomain() { return m_Domain; }
 
-		static Shared<ScriptClass> GetClass(const char* namespaceName, const char* className);
+		static Shared<ScriptClass> GetClass(const std::string& moduleName);
 
 		template <typename Func>
 		static void BindInternalFunc(const char* funcName, Func func) 
@@ -31,5 +33,7 @@ namespace TerranEngine
 		static MonoDomain* m_Domain;
 		static MonoAssembly* m_Assembly;
 		static MonoImage* m_Image;
+
+		static std::unordered_map<uint32_t, Shared<ScriptClass>> m_Classes;
 	};
 }

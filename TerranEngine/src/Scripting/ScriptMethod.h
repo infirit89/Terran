@@ -64,6 +64,22 @@ namespace TerranEngine
 		int m_Value;
 	};
 
+	class UInt32 : public ScriptParameter
+	{
+	public:
+		UInt32() = default;
+		UInt32(uint32_t value)
+			: m_Value(value) {}
+		UInt32(const UInt32& other) = default;
+
+		~UInt32() = default;
+
+		void* getPtr() override { return &m_Value; }
+
+	private:
+		uint32_t m_Value;
+	};
+
 	class Float : public ScriptParameter
 	{
 	public:
@@ -128,6 +144,7 @@ namespace TerranEngine
 		~ScriptMethod();
 
 		void Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList);
+
 	private:
 		MonoMethod* m_MonoMethod = nullptr;
 	};

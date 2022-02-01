@@ -1,0 +1,36 @@
+Scene Manager:
+    [x] Get the active Scene
+    [x] Set active scene
+
+fixing the Transform System (again):
+    [x] world matrix
+    [x] local matrix
+
+transform component bindings:
+    [ ] get and set the position, scale and rotation
+        [ ] use the runtime entt id to get an entity, then get the transform component with the corespoding variable
+    [ ] get and set the local position, local scale and local rotation 
+    [ ] get the local matrix and the world matrix
+
+0  1  2  3  4 5  6  7 8  9  10 11 12 13 14 15 16 17 18 19
+00 00 00 00 - 00 00 - 00 00 -  00 00 -  00 00 00 00 00 00
+
+0x97 0x0a 0x63 0x54 
+
+0xea 0x37 
+
+0x41 0x40 
+
+0xb6 0x11 
+
+0xd2 0x41 0x5f 0xdd 0xe6 0x6b
+
+Exception thrown at 0x000001B339F9129F in TerranEditor.exe: 0xC0000005: Access violation reading location 0x0000000000000010.
+
+// function for hashing strings
+u32 hash = some_offset;
+for char c in string:
+    hash *= some_prime_number;
+    hash ^= c;
+
+return hash;

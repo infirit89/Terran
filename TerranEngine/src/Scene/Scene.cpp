@@ -61,6 +61,20 @@ namespace TerranEngine
 
 	void Scene::Update()
 	{
+		TR_PROFILE_FUNCN("Scene::Update");
+
+		auto scriptableComponentView = m_Registry.view<ScriptableComponent>();
+
+		for (auto e : scriptableComponentView)
+		{
+			Entity entity(e, this);
+
+			ScriptableComponent& scriptableComponent = entity.GetComponent<ScriptableComponent>();
+
+			scriptableComponent.OnCreate(entity);
+			scriptableComponent.OnUpdate();
+		}
+
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.Dirty && !rEntity.Dirty; });
 
