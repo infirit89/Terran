@@ -83,14 +83,14 @@ namespace TerranEditor
 
 				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
 				{
-					if (TerranEditorUI::DrawVec3Control("Position", component.LocalPosition))
-						component.Dirty = true;
+					if (TerranEditorUI::DrawVec3Control("Position", component.Position))
+						component.IsDirty = true;
 
-					if (TerranEditorUI::DrawVec3Control("Scale", component.LocalScale))
-						component.Dirty = true;
+					if (TerranEditorUI::DrawVec3Control("Scale", component.Scale))
+						component.IsDirty = true;
 
-					if (TerranEditorUI::DrawVec3Control("Rotation", component.LocalRotation))
-						component.Dirty = true;
+					if (TerranEditorUI::DrawVec3Control("Rotation", component.Rotation))
+						component.IsDirty = true;
 
 				}, false);
 

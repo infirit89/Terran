@@ -1,13 +1,12 @@
 #include "trpch.h"
 #include "ScriptBindings.h"
 
-
 #include "ScriptString.h"
 #include "ScriptingEngine.h"
 
-#include "Scene/SceneManager.h"
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
+#include "Scene/SceneManager.h"
 
 namespace TerranEngine 
 {
@@ -19,20 +18,9 @@ namespace TerranEngine
 
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", FindEntityWithName_Internal);
 
-
-
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::GetTransformPosition_Internal", GetTransformPosition_Internal);
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::SetTransformPosition_Internal",
             SetTransformPosition_Internal);
-
-        ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::GetTransformRotation_Internal", GetTransformRotation_Internal);
-        ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::SetTransformRotation_Internal",
-            SetTransformRotation_Internal);
-
-        ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::GetTransformScale_Internal", GetTransformScale_Internal);
-        ScriptingEngine::BindInternalFunc("TerranScriptCore.Transform::SetTransformScale_Internal",
-            SetTransformScale_Internal);
-
 
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Tag::SetTagName_Internal", SetTagName_Internal);
         ScriptingEngine::BindInternalFunc("TerranScriptCore.Tag::GetTagName_Internal", GetTagName_Internal);
@@ -151,37 +139,58 @@ namespace TerranEngine
 		TR_ERROR("Invalid entity id");
 
     // ---- Transform ----
-    void ScriptBindings::SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3& Position)
+    void ScriptBindings::SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3 inPosition)
     {
-        SET_COMPONENT_VAR(Position, entityRuntimeID, TransformComponent);
+        Entity entity((entt::entity)entityRuntimeID, SceneManager::GetCurrentScene().get());
+        if (entity) 
+        {
+            entity.GetComponent<TransformComponent>().Position = inPosition; \
+            entity.GetComponent<TransformComponent>().IsDirty = true;
+        }
+        else
+            TR_ERROR("Invalid entity id");
     }
 
-    void ScriptBindings::GetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3& Position)
+    glm::vec3 ScriptBindings::GetTransformPosition_Internal(uint32_t entityRuntimeID)
     {
-        Position = { 0.0f, 0.0f, 0.0f };
-        GET_COMPONENT_VAR(Position, entityRuntimeID, TransformComponent);
+        Entity entity((entt::entity)entityRuntimeID, SceneManager::GetCurrentScene().get());
+        if (entity) 
+        {
+            glm::vec3 pos = entity.GetComponent<TransformComponent>().Position;
+            return pos;
+        }
+        else
+            TR_ERROR("Invalid entity id");
+
+        return { 0.0f, 0.0f, 0.0f };
     }
 
-    void ScriptBindings::SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3& Rotation)
+    void ScriptBindings::SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3 Rotation)
     {
         SET_COMPONENT_VAR(Rotation, entityRuntimeID, TransformComponent);
+        entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
-    void ScriptBindings::GetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3& Rotation)
+    glm::vec3 ScriptBindings::GetTransformRotation_Internal(uint32_t entityRuntimeID)
     {
-        Rotation = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
         GET_COMPONENT_VAR(Rotation, entityRuntimeID, TransformComponent);
+
+        return Rotation;
     }
 
-    void ScriptBindings::SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3& Scale)
+    void ScriptBindings::SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3 Scale)
     {
         SET_COMPONENT_VAR(Scale, entityRuntimeID, TransformComponent);
+        entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
-    void ScriptBindings::GetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3& Scale)
+    glm::vec3 ScriptBindings::GetTransformScale_Internal(uint32_t entityRuntimeID)
     {
-        Scale = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 Scale = { 0.0f, 0.0f, 0.0f };
         GET_COMPONENT_VAR(Scale, entityRuntimeID, TransformComponent);
+
+        return Scale;
     }
     // -------------------
 
@@ -203,7 +212,7 @@ namespace TerranEngine
     void ScriptBindings::Log_Internal(uint8_t logLevel, MonoString* monoMessage)
     {
         // TODO: for now it logs to the console,
-        // should make it log to a ui debug console inside the
+        // should make it log to a ui debug console inside the editor
         ScriptString message(monoMessage);
 
         switch (logLevel)
@@ -220,4 +229,3 @@ namespace TerranEngine
         }
     }
 }
-

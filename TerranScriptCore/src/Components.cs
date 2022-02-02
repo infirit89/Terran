@@ -9,20 +9,11 @@ namespace TerranScriptCore
 
     public class Scriptable : Component
     {
-        protected Scriptable() 
+        void SetEntity(uint id)
         {
-            entity = new Entity();
-            Log.Trace("created entity");
+            if (entity == null)
+                entity = new Entity(id);
         }
-
-        void SetEntityID(uint id) 
-        {
-            entity.runtimeID = id;
-            Log.Trace("set entity's id");
-        }
-
-        public virtual void Init() { }
-        public virtual void Update() { }
     }
 
     public class Tag : Component 
@@ -61,8 +52,9 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    GetTransformPosition_Internal(entity.runtimeID, out Vector3 pos);
-                    return pos;
+                    Vector3 outVec = GetTransformPosition_Internal(entity.runtimeID);
+                    Log.Trace("Out Vec: {0}", outVec);
+                    return outVec;
                 }
 
                 // TODO: log that the entity is null
@@ -73,8 +65,9 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    SetTransformPosition_Internal(entity.runtimeID, value);
-                    return;
+                    Log.Trace("Value: {0}", value);
+
+                    SetTransformPosition_Internal(entity.runtimeID, new Vector3(value.X, value.Y, value.Z));
                 }
                 // TODO: log that the entity is null
             }
@@ -85,10 +78,7 @@ namespace TerranScriptCore
             get
             {
                 if (entity != null) 
-                {
-                    GetTransformRotation_Internal(entity.runtimeID, out Vector3 rot);
-                    return rot;
-                }
+                    return GetTransformRotation_Internal(entity.runtimeID);
 
                 // TODO: log that the entity is null
                 return new Vector3(0.0f, 0.0f, 0.0f);
@@ -111,10 +101,7 @@ namespace TerranScriptCore
             get
             {
                 if (entity != null) 
-                {
-                    GetTransformScale_Internal(entity.runtimeID, out Vector3 scale);
-                    return scale;
-                }
+                    return GetTransformScale_Internal(entity.runtimeID);
 
                 // TODO: log that the entity is null
                 return new Vector3(0.0f, 0.0f, 0.0f);
@@ -134,26 +121,26 @@ namespace TerranScriptCore
 
         // ---- position ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformPosition_Internal(uint entityID, out Vector3 outPosition);
+        static extern Vector3 GetTransformPosition_Internal(uint entityID);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformPosition_Internal(uint entityID, in Vector3 inPosition);
+        static extern void SetTransformPosition_Internal(uint entityID, Vector3 inPosition);
         // ------------------
 
         // ---- rotation ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformRotation_Internal(uint entityID, out Vector3 outRotation);
+        static extern Vector3 GetTransformRotation_Internal(uint entityID);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformRotation_Internal(uint entityID, in Vector3 inRotation);
+        static extern void SetTransformRotation_Internal(uint entityID, Vector3 inRotation);
         // ------------------
 
         // ---- scale ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void GetTransformScale_Internal(uint entityID, out Vector3 outScale);
+        static extern Vector3 GetTransformScale_Internal(uint entityID);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformScale_Internal(uint entityID, in Vector3 inScale);
+        static extern void SetTransformScale_Internal(uint entityID, Vector3 inScale);
         // ---------------
     }
 }

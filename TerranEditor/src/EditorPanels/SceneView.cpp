@@ -53,13 +53,13 @@ namespace TerranEditor
                     if (Decompose(transformMatrix, position, rotation, scale))
 					{
 						glm::vec3 deltaPosition = position - tc.Position;
-                        tc.LocalPosition += deltaPosition;
+                        tc.Position += deltaPosition;
 
-                        tc.LocalScale = scale;
+                        tc.Scale = scale;
 
-                        tc.LocalRotation = rotation;
+                        tc.Rotation = rotation;
 
-                        tc.Dirty = true;
+                        tc.IsDirty = true;
                     }
                 }
             }

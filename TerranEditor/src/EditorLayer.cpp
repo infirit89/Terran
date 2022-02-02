@@ -14,9 +14,6 @@ namespace TerranEditor
 	{
         m_ContentPanel = ContentPanel(m_ResPath);
 
-        //m_SceneViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
-        //m_GameViewFramebuffer = CreateUnique<Framebuffer>(1280, 790);
-
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
 		m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
@@ -25,12 +22,12 @@ namespace TerranEditor
         ScriptBindings::Bind();
 
         NewScene();
-        SceneManager::GetCurrentScene()->GetPrimaryCamera().GetTransform().Position.x = 10.0f;
 
-		/*Shared<ScriptClass> testClass = ScriptingEngine::GetClass("TerranScriptCore.Test");
+        Entity testEntity = SceneManager::GetCurrentScene()->CreateEntity("Test");
 
-		testClass->ExecuteStatic("Test1");*/
-        SceneManager::GetCurrentScene()->GetPrimaryCamera().AddComponent<ScriptableComponent>("TerranScriptCore.TestScriptable");
+        testEntity.AddComponent<SpriteRendererComponent>();
+
+        testEntity.AddComponent<ScriptableComponent>("TerranScriptCore.TestScriptable");
 	}
 
 	void EditorLayer::OnAttach()
@@ -76,15 +73,7 @@ namespace TerranEditor
             //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             //RenderCommand::Clear();
             
-            Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test Entity");
-
-            if(entity) 
-            {
-                entity.GetTransform().LocalPosition.x += .01f;
-                entity.GetTransform().Dirty = true;
-            }
-
-            SceneManager::GetCurrentScene()->Update();
+            SceneManager::GetCurrentScene()->UpdateEditor();
             SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
 
             //m_SceneViewFramebuffer->Unbind();

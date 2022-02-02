@@ -111,9 +111,9 @@ namespace TerranEngine
 			jObject.push_back(
 				{"TransformComponent", 
 				{
-					SerializeVec3("LocalPosition",	entity.GetTransform().LocalPosition),
-					SerializeVec3("LocalScale",		entity.GetTransform().LocalScale),
-					SerializeVec3("LocalRotation",	entity.GetTransform().LocalRotation),
+					SerializeVec3("LocalPosition",	entity.GetTransform().Position),
+					SerializeVec3("LocalScale",		entity.GetTransform().Scale),
+					SerializeVec3("LocalRotation",	entity.GetTransform().Rotation),
 				}}
 			);
 		}
@@ -241,9 +241,9 @@ namespace TerranEngine
 			{
 				auto& transform = entity.GetTransform();
 
-				transform.LocalPosition = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
-				transform.LocalScale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
-				transform.LocalRotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
+				transform.Position = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
+				transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
+				transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
 
 			}
 

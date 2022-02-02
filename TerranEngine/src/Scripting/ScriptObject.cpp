@@ -6,15 +6,19 @@ namespace TerranEngine
 	ScriptObject::ScriptObject(MonoObject* monoObject, std::unordered_map<uint32_t, Shared<ScriptMethod>>& methods)
 		: m_MonoObject(monoObject), m_Methods(methods)
 	{
-		MonoClass* klass = mono_object_get_class(monoObject);
-
-		void* iter = nullptr;
-		MonoClassField* field;
 
 		std::hash<std::string> hasher;
 
-		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
-			m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, m_MonoObject);
+		MonoClass* klass = mono_object_get_class(m_MonoObject);
+		while (klass != NULL) 
+		{
+			MonoClassField* field;
+			void* iter = nullptr;
+			while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
+				m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, m_MonoObject);
+
+			klass = mono_class_get_parent(klass);
+		}
 	}
 
 	void ScriptObject::Execute(const char* methodName, ScriptMethodParameterList parameterList)
@@ -35,7 +39,7 @@ namespace TerranEngine
 
 		if (m_Fields.find(hashedName) != m_Fields.end())
 			return m_Fields[hashedName];
-		else
+		else 
 			TR_ERROR("No field with the corresponding name");
 
 		return nullptr;

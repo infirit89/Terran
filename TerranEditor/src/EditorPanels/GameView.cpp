@@ -25,6 +25,12 @@ namespace TerranEditor
 
             m_Visible = ImGui::IsItemVisible();
 
+            if (m_Temp && m_Visible)
+            {
+                m_Visible = false;
+                m_Temp = false;
+            }
+
             ImGui::End();
         }
 	}

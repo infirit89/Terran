@@ -24,6 +24,7 @@ namespace TerranEditor
 		bool m_Open = true;
 		bool m_Visible = false;
 
+		bool m_Temp = true;
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 		uint32_t m_RenderTextureID;
 	};

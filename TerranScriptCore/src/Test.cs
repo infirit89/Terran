@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace TerranScriptCore
 {
@@ -12,17 +11,20 @@ namespace TerranScriptCore
         }
     }
 
-    class TestScriptable : Scriptable 
+    public class TestScriptable : Scriptable 
     {
-        public override void Init()
+        public void Init()
         {
-            Log.Trace("bryh");
             Log.Trace(entity.HasComponent<Transform>());
         }
 
-        public override void Update()
+        public void Update()
         {
-            Log.Trace("Updated");
+            entity.GetComponent<Transform>().Position += new Vector3(0.1f, 0.0f, 0.0f);
+
+
+            Log.Trace("bruuh 2");
+            Log.Trace("Update: {0}", entity.transform.Position);
         }
     }
 }

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Graphics/OrthographicCamera.h"
-#include "Graphics/Texture.h"
 #include "Core/Base.h"
 #include "Core/UUID.h"
+
+#include "Graphics/Texture.h"
+#include "Graphics/OrthographicCamera.h"
 
 #include "Scripting/ScriptObject.h"
 #include "Scripting/ScriptingEngine.h"
@@ -34,15 +35,11 @@ namespace TerranEngine
 
 	struct TransformComponent 
 	{
-		glm::vec3 LocalPosition =	{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 LocalRotation =	{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 LocalScale =		{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 Position =	{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 Rotation =	{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 Scale =		{ 1.0f, 1.0f, 1.0f };
 
-		glm::vec3 Position =	LocalPosition;
-		glm::vec3 Rotation =	LocalRotation;
-		glm::vec3 Scale =		LocalScale;
-
-		bool Dirty = true;
+		bool IsDirty = true;
 
 		glm::mat4 WorldTransformMatrix = glm::mat4(1.0f);
 		glm::mat4 LocalTransformMatrix = glm::mat4(1.0f);
@@ -98,8 +95,9 @@ namespace TerranEngine
 		{
 			if (!m_Created) 
 			{
+				TR_TRACE("Created");
 				Shared<UInt32> entityIDParam = CreateShared<UInt32>(entityID);
-				RuntimeObject->Execute("SetEntityID", { entityIDParam });
+				RuntimeObject->Execute("SetEntity", { entityIDParam });
 				RuntimeObject->Execute("Init");
 				m_Created = true;
 			}

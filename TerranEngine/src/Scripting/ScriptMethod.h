@@ -141,7 +141,7 @@ namespace TerranEngine
 		ScriptMethod(MonoMethod* monoMethod);
 		ScriptMethod(const ScriptMethod& other) = default;
 
-		~ScriptMethod();
+		~ScriptMethod() = default;
 
 		void Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList);
 

@@ -10,14 +10,8 @@ namespace TerranEngine
 		: m_MonoMethod(monoMethod)
 	{
 		MonoClass* klass = mono_method_get_class(monoMethod);
-
 	}
 
-	ScriptMethod::~ScriptMethod()
-	{
-		if (m_MonoMethod) 
-			mono_free_method(m_MonoMethod);
-	}
 
 	void ScriptMethod::Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList)
 	{
@@ -30,7 +24,6 @@ namespace TerranEngine
 		// going to leave the "break when this exception occurs" on for now 
 		// if there's a problem in the future this may be the cause
 		mono_runtime_invoke(m_MonoMethod, scriptObject == nullptr ? nullptr : scriptObject->GetNativeObject(), args, &error);
-
 
 		if (error != nullptr) 
 		{

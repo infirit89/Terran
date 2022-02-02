@@ -20,7 +20,7 @@ namespace TerranEngine
 		: m_Scene(scene) 
 	{ }
 
-	static glm::mat4 GetTransfromMatrix(TransformComponent& transform) 
+	static glm::mat4 CalculateTransfromMatrix(TransformComponent& transform) 
 	{
 		return glm::translate(glm::mat4(1.0f), transform.Position) *
 			glm::toMat4(glm::quat(transform.Rotation)) *
@@ -37,7 +37,9 @@ namespace TerranEngine
 		{
 			Entity entity(e, m_Scene);
 
-			if (entity.GetTransform().Dirty || (entity.HasParent() && (entity.GetParent().GetTransform().Dirty))) 
+			// TODO: if the parent's transform is dirty that pass the parent as an argument to
+			// the UpdateEntityTransform function
+			if ((entity.GetTransform().IsDirty) || (entity.HasParent() && (entity.GetParent().GetTransform().IsDirty))) 
 				UpdateEntityTransform(entity);
 			else
 				break;
@@ -49,30 +51,19 @@ namespace TerranEngine
 		TransformComponent& transformComponent = entity.GetTransform();
 		
 		if (entity.HasParent())
-		{
-			TransformComponent& parentTransform = entity.GetParent().GetTransform();
-
-			transformComponent.Position = transformComponent.LocalPosition + parentTransform.Position;
-			transformComponent.Rotation = transformComponent.LocalRotation + parentTransform.Rotation;
-			transformComponent.Scale = transformComponent.LocalScale * parentTransform.Scale;
-		}
+			transformComponent.WorldTransformMatrix = CalculateTransfromMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
 		else 
-		{
-			transformComponent.Position = transformComponent.LocalPosition;
-			transformComponent.Rotation = transformComponent.LocalRotation;
-			transformComponent.Scale =	transformComponent.LocalScale;
-		}
+			transformComponent.WorldTransformMatrix = CalculateTransfromMatrix(transformComponent);
 
-		transformComponent.WorldTransformMatrix = GetTransfromMatrix(transformComponent);
 		transformComponent.LocalTransformMatrix = glm::inverse(transformComponent.WorldTransformMatrix);
 
-		transformComponent.Dirty = false;
+		transformComponent.IsDirty = false;
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{
 			Entity currEntity = entity.GetChild(i);
 
-			currEntity.GetTransform().Dirty = true;
+			currEntity.GetTransform().IsDirty = true;
 			UpdateEntityTransform(currEntity);
 		}
 

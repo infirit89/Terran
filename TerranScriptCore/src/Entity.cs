@@ -4,18 +4,9 @@ namespace TerranScriptCore
 {
     public class Entity
     {
-
-        internal uint runtimeID;
+        public uint runtimeID = 0xFFFFF;
 
         public Transform transform;
-
-
-        public Entity(uint id) 
-        {
-            runtimeID = id;
-            transform = new Transform();
-            transform.entity = this;
-        } 
 
         public Entity() 
         {
@@ -23,6 +14,13 @@ namespace TerranScriptCore
             transform = new Transform();
             transform.entity = this;
         }
+
+        internal Entity(uint id) 
+        {
+            runtimeID = id;
+            transform = new Transform();
+            transform.entity = this;
+        } 
 
         public static Entity FindWithName(string name)
         {

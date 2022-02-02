@@ -74,11 +74,6 @@ namespace TerranEngine
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartPoint;
 	};
 
-#ifdef TR_DEBUG
 	#define TR_PROFILE_FUNCN(name) ::TerranEngine::ProfileTimer timer##__LINE__(name)
 	#define TR_PROFILE_FUNC() TR_PROFILE_FUNCN(__func__)
-#else
-	#define TR_PROFILE_FUNCN(name)
-	#define TR_PROFILE_FUNC()
-#endif
 }

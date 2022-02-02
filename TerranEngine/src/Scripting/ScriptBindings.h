@@ -19,14 +19,14 @@ namespace TerranEngine
 		// ----------------
 
 		// ---- Transform component ----
-		static void SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3& inPosition);
-		static void GetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3& outPosition);
+		static void SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3 inPosition);
+		static glm::vec3 GetTransformPosition_Internal(uint32_t entityRuntimeID);
 
-		static void SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3& inRotation);
-		static void GetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3& outRotation);
+		static void SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3 inRotation);
+		static glm::vec3 GetTransformRotation_Internal(uint32_t entityRuntimeID);
 
-		static void SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3& inScale);
-		static void GetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3& outScale);
+		static void SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3 inScale);
+		static glm::vec3 GetTransformScale_Internal(uint32_t entityRuntimeID);
 		// -----------------------------
 
 		// ---- Tag component ----

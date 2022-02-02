@@ -23,6 +23,7 @@ namespace TerranEngine
 		void DestroyEntity(Entity entity, bool first);
 
 		void Update();
+		void UpdateEditor();
 		void OnResize(float width, float height);
 
 		void OnRender(Shared<SceneRenderer>& sceneRenderer);

@@ -76,10 +76,18 @@ namespace TerranEngine
 		}
 
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.Dirty && !rEntity.Dirty; });
+		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
 		m_TransformSystem->Update();
 
+	}
+
+	void Scene::UpdateEditor()
+	{
+		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
+			{ return lEntity.IsDirty && !rEntity.IsDirty; });
+
+		m_TransformSystem->Update();
 	}
 
 	void Scene::OnResize(float width, float height)
