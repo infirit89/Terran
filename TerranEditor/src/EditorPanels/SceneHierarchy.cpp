@@ -54,9 +54,11 @@ namespace TerranEditor
         TagComponent& tagComp = entity.GetComponent<TagComponent>();
 
         ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
-        
+
         if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
             flags |= ImGuiTreeNodeFlags_NoButton;
+        else
+            flags |= ImGuiTreeNodeFlags_DefaultOpen;
 
         ImGuiStyle& style = ImGui::GetStyle();
         ImGuiStyle orgStyle = style;

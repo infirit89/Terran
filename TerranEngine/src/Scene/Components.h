@@ -109,6 +109,9 @@ namespace TerranEngine
 			RuntimeObject->Execute("Update");
 		}
 
+		// NOTE: think about having an array of scripts so that one entity
+		// "can" have more than one script (because of the 1 component of a type per entity)
+
 		std::string ModuleName;
 		Shared<ScriptObject> RuntimeObject;
 

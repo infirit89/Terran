@@ -21,13 +21,6 @@ namespace TerranEditor
 
         ScriptBindings::Bind();
 
-        NewScene();
-
-        Entity testEntity = SceneManager::GetCurrentScene()->CreateEntity("Test");
-
-        testEntity.AddComponent<SpriteRendererComponent>();
-
-        testEntity.AddComponent<ScriptableComponent>("TerranScriptCore.TestScriptable");
 	}
 
 	void EditorLayer::OnAttach()

@@ -159,6 +159,20 @@ namespace TerranEditor
 						component.Camera.SetOrthographicFar(camFar);
 				});
 
+				DrawComponent<ScriptableComponent>("Scriptable", entity, [](ScriptableComponent& component) 
+				{
+					char buf[256];
+					memset(buf, 0, sizeof(buf));
+					strcpy_s(buf, sizeof(buf), component.ModuleName.c_str());
+
+					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
+					{
+						component.ModuleName = buf;
+
+						component.RuntimeObject = ScriptingEngine::GetClass(component.ModuleName)->CreateInstance();
+					}
+				});
+
 				ImVec2 cursorPos = ImGui::GetCursorPos();
 
 				ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvailWidth() / 4.0f, cursorPos.y += 5.0f });
@@ -179,6 +193,9 @@ namespace TerranEditor
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))
 							entity.AddComponent<CameraComponent>();
+					if (!entity.HasComponent<ScriptableComponent>())
+						if (ImGui::MenuItem("Scriptable"))
+							entity.AddComponent<ScriptableComponent>();
 
 					ImGui::EndPopup();
 				}
