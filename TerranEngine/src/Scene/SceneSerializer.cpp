@@ -178,9 +178,14 @@ namespace TerranEngine
 		}
 	}
 
+	// NOTE: temporary scene version should put it somewhere else, where it'd make more sense
+	static int sceneVersion = 0;
+
 	void SceneSerializer::SerializeJson(const std::string& filePath)
 	{
 		json j;
+
+		j["Version"] = sceneVersion;
 
 		j["Scene"] =  "Name";
 
@@ -311,9 +316,28 @@ namespace TerranEngine
 		{
 			json j = json::parse(data);
 			
-			for (auto jEntity : j["Entities"])
-				if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
+			// NOTE: bad version handling, this is a temporary fix, should think of a better one
+			if (!j.contains("Version"))
+			{
+				// TODO: shit error message should think of a better one
+				TR_ERROR("Couldn't find the version of the scene file");
+				return false;
+			}
+			else 
+			{
+				if(j["Version"] != sceneVersion) 
+				{
+					// TODO: shit error message should think of a better one
+					TR_ERROR("The version of the scene file doesn't match the current version");
 					return false;
+				}
+
+				for (auto jEntity : j["Entities"]) 
+				{
+					if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
+						return false;
+				}
+			}
 		}
 		catch (const std::exception& ex) 
 		{

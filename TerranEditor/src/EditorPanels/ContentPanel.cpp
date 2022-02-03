@@ -8,39 +8,21 @@ namespace TerranEditor
 		: m_AssetPath(resPath), m_CurrentPath(resPath)
 	{
 		TextureParameters params;
-		m_DirIcon = CreateShared<Texture>("res/temp_folder_icon_2.png", params);
-		m_FileIcon = CreateShared<Texture>("res/temp_file_icon.png", params);
+		m_DirIcon = CreateShared<Texture>("Resources/Textures/temp_folder_icon.png", params);
+		m_FileIcon = CreateShared<Texture>("Resources/Textures/temp_file_icon.png", params);
 	}
 
 	void ContentPanel::ImGuiRender()
 	{
 		if (m_Open) 
 		{
-			ImGui::Begin("Content", &m_Open);
-			
-			// loop through the directory entries
-			// if the entry is a file, display the file icon, else if it is a directory display the directory icon
-			// if its a directory make it clickable and when clicked append the name of the directory to the asset path
-			// if its a file make it a drag and drop source
+			if (!std::filesystem::exists(m_CurrentPath)) 
+			{
+				TR_ERROR("Asset path doesn't exist");
+				return;
+			}
 
-			// pseudo code
-			/*
-			* for(dir_entry in directory)
-			*	Texture texture
-			*	if(dir_entry is directory)
-			*		texture = directory_icon
-			*	else
-			*		texture = file_icon
-			* 
-			*	textureButton(texture)
-			* 
-			*	if(dir_entry is file)
-			*		SetUpDragDropSource
-			*	
-			*	if(dir_entry is directory)
-			*		if(textureButton is double clicked)
-			*			asset_path append dir_entry.name
-			*/
+			ImGui::Begin("Content", &m_Open);
 			
 			if (m_CurrentPath != std::filesystem::path(m_AssetPath))
 			{
@@ -57,6 +39,7 @@ namespace TerranEditor
 
 			ImGui::Columns(columnCount, (const char*)0, false);
 			
+			// for every entry in the current 
 			for (auto& dirEntry : std::filesystem::directory_iterator(m_CurrentPath))
 			{
 				const auto& entryPath = dirEntry.path();
@@ -67,6 +50,7 @@ namespace TerranEditor
 
 				ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
 
+				// if the entry is a directory then use the folder icon else use the file icon
 				ImGui::ImageButton((ImTextureID)(dirEntry.is_directory() ? m_DirIcon->GetTextureID() : m_FileIcon->GetTextureID()), 
 					{ cellSize + 10.0f, cellSize }, { 0, 1 }, { 1, 0 });
 
@@ -86,11 +70,14 @@ namespace TerranEditor
 				}
 
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && dirEntry.is_directory())
+					// if the entry is a folder and is clicked then concatinate that current path
+					// with the folder name
 					m_CurrentPath /= entryPath.filename();
 
 				float textWidth = ImGui::CalcTextSize(entryName.c_str()).x;
 				ImVec2 cursorPos = ImGui::GetCursorPos();
 
+				// some indent calculations, just did something that didn't look bad
 				float textIndent = ((cellSize + 20.0f) - textWidth) * 0.5f;
 				textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
 

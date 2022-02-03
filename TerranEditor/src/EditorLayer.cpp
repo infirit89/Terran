@@ -17,7 +17,7 @@ namespace TerranEditor
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
 		m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
-		ScriptingEngine::Init("res/TerranScriptCore.dll");
+		ScriptingEngine::Init("Resources/Scripts/TerranScriptCore.dll");
 
         ScriptBindings::Bind();
 
@@ -29,13 +29,13 @@ namespace TerranEditor
 
         ImFontConfig config;
 
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("res/fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
 
         config.MergeMode = true;
 
         io.Fonts->Build();
 
-        io.IniFilename = "res/TerranEditorSettings.ini";
+        io.IniFilename = "Resources/TerranEditorSettings.ini";
 	}
 
 	void EditorLayer::OnDettach()
@@ -174,8 +174,8 @@ namespace TerranEditor
         // set the dock space's size to that of the main viewport 
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::SetNextWindowViewport(viewport->ID);
-        //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         
@@ -185,7 +185,7 @@ namespace TerranEditor
         ImGui::Begin("Terran Editor", (bool*)true, window_flags);
         ImGui::PopStyleVar();
 
-        //ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(2);
 
         // DockSpace
         ImGuiIO& io = ImGui::GetIO();

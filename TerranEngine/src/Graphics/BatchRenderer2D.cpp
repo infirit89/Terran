@@ -105,7 +105,9 @@ namespace TerranEngine
 			for (size_t i = 0; i < maxTexSlots; i++)
 				sampler[i] = i;
 
-			m_QuadShader = CreateShared<Shader>("DefaultQuadShader", "res/shaders/Base/Quad/QuadVertex.glsl", "res/shaders/Base/Quad/QuadFragment.glsl");
+			m_QuadShader = CreateShared<Shader>("DefaultQuadShader", 
+												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
+												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
 
 			m_QuadShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
 			m_QuadShader->Unbind();
@@ -145,7 +147,9 @@ namespace TerranEngine
 			for (size_t i = 0; i < maxTexSlots; i++)
 				sampler[i] = i;
 
-			m_TextShader = CreateShared<Shader>("DefaultTextShader", "res/shaders/Base/Text/TextVertex.glsl", "res/shaders/Base/Text/TextFragment.glsl");
+			m_TextShader = CreateShared<Shader>("DefaultTextShader", 
+												"Resources/Shaders/Base/Text/TextVertex.glsl",
+												"Resources/Shaders/Base/Text/TextFragment.glsl");
 
 			m_TextShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
 
@@ -176,7 +180,9 @@ namespace TerranEngine
 
 			m_CircleVAO->AddIndexBuffer(m_IndexBuffer);
 
-			m_CircleShader = CreateShared<Shader>("DefaultCircleShader", "res/shaders/Base/Circle/CircleVertex.glsl", "res/shaders/Base/Circle/CircleFragment.glsl");
+			m_CircleShader = CreateShared<Shader>(	"DefaultCircleShader", 
+													"Resources/Shaders/Base/Circle/CircleVertex.glsl",
+													"Resources/Shaders/Base/Circle/CircleFragment.glsl");
 
 			m_CircleShader->Unbind();
 		}

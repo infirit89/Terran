@@ -69,6 +69,10 @@ namespace TerranEngine
 
 		return std::string();
 	}
+	std::string FileUtils::GetEnvVar(const char* name)
+	{
+		return std::string();
+	}
 }
 
 #endif

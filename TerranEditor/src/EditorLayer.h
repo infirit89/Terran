@@ -63,7 +63,7 @@ namespace TerranEditor
 		Shared<SceneRenderer> m_GameSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 
-		const std::filesystem::path m_ResPath = "res";
+		const std::filesystem::path m_ResPath = "Resources";
 
 		float m_Frametime = 0.0f;
 		int m_FPS = 0;

@@ -136,40 +136,43 @@ namespace TerranEngine
 		stbi_set_flip_vertically_on_load(1);
 		stbi_uc* pixels = stbi_load(filePath, &m_Width, &m_Height, &m_Channels, 0);
 
-		if (pixels != nullptr) 
+		if (pixels == nullptr)
 		{
-			glGenTextures(1, &m_TextureID);
-			glBindTexture(GL_TEXTURE_2D, m_TextureID);
-
-			switch (m_Channels)
-			{
-				case 4: 
-				{
-					m_InternalFormat = GL_RGBA8;
-					m_DataFormat = GL_RGBA;
-					break;
-				}
-				case 3: 
-				{
-					m_InternalFormat = GL_RGB8;
-					m_DataFormat = GL_RGB;
-					break;
-				}
-				default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
-			}
-
-
-			NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
-
-			stbi_image_free(pixels);
+			TR_ERROR("Couldn't load the texture with path: {0}", filePath);
+			return;
 		}
+
+		glGenTextures(1, &m_TextureID);
+		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+
+		switch (m_Channels)
+		{
+			case 4: 
+			{
+				m_InternalFormat = GL_RGBA8;
+				m_DataFormat = GL_RGBA;
+				break;
+			}
+			case 3: 
+			{
+				m_InternalFormat = GL_RGB8;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
+		}
+
+
+		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
+
+		stbi_image_free(pixels);
 	}
 }
