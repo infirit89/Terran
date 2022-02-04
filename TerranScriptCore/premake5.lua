@@ -7,20 +7,20 @@ project "TerranScriptCore"
 
     files 
     {
-        "src/**.cs"   
+        "Source/**.cs"   
     }
 
     includedirs 
     {
-        "src"
+        "Source"
     }
 
     links 
     {
         "System",
         "System.Core",
-        "System.Numerics",
-        "System.Runtime"
+        "System.Runtime",
+        "System.Numerics"
 
         -- todo: add more links if needed
     }
@@ -32,9 +32,16 @@ project "TerranScriptCore"
         defines "DEBUG"
         runtime "Debug"
         symbols "on"
+        
+        postbuildcommands  
+        {
+            "{COPY} %{prj.location}/bin/" .. outputdir .. "/TerranScriptCore.dll %{wks.location}/TerranEditor/Resources/Scripts"
+        }
 
     filter "configurations:Release"
         defines "RELEASE"
         runtime "Release"
         optimize "on"
+
+
  

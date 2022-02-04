@@ -69,10 +69,12 @@ namespace TerranEditor
 					}
 				}
 
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && dirEntry.is_directory())
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && dirEntry.is_directory()) 
+				{
 					// if the entry is a folder and is clicked then concatinate that current path
 					// with the folder name
 					m_CurrentPath /= entryPath.filename();
+				}
 
 				float textWidth = ImGui::CalcTextSize(entryName.c_str()).x;
 				ImVec2 cursorPos = ImGui::GetCursorPos();

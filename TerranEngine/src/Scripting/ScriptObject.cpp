@@ -10,15 +10,13 @@ namespace TerranEngine
 		std::hash<std::string> hasher;
 
 		MonoClass* klass = mono_object_get_class(m_MonoObject);
-		while (klass != NULL) 
-		{
-			MonoClassField* field;
-			void* iter = nullptr;
-			while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
-				m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, m_MonoObject);
+		
+		MonoClassField* field;
+		void* iter = nullptr;
 
-			klass = mono_class_get_parent(klass);
-		}
+		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
+			m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, m_MonoObject);
+
 	}
 
 	void ScriptObject::Execute(const char* methodName, ScriptMethodParameterList parameterList)
@@ -43,6 +41,31 @@ namespace TerranEngine
 			TR_ERROR("No field with the corresponding name");
 
 		return nullptr;
+	}
+
+	std::vector<Shared<ScriptField>> ScriptObject::GetFields()
+	{
+		std::vector<Shared<ScriptField>> fields;
+
+		fields.reserve(m_Fields.size());
+		for (auto it = m_Fields.begin(); it != m_Fields.end(); it++)
+			fields.push_back(it->second);
+
+		return fields;
+	}
+
+	std::vector<Shared<ScriptField>> ScriptObject::GetPublicFields()
+	{
+		std::vector<Shared<ScriptField>> fields;
+
+		fields.reserve(m_Fields.size());
+		for (auto it = m_Fields.begin(); it != m_Fields.end(); it++) 
+		{
+			if(it->second->GetVisibility() == ScirptFieldVisibility::Public)
+				fields.push_back(it->second);
+		}
+
+		return fields;
 	}
 }
 

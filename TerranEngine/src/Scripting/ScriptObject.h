@@ -23,6 +23,9 @@ namespace TerranEngine
 		inline MonoObject* GetNativeObject() const { return m_MonoObject; }
 
 		Shared<ScriptField> GetField(const char* fieldName);
+		std::vector<Shared<ScriptField>> GetFields();
+		std::vector<Shared<ScriptField>> GetPublicFields();
+
 	private:
 		MonoObject* m_MonoObject;
 

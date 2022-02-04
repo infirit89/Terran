@@ -106,7 +106,6 @@ namespace TerranEditor
             m_GameView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
 
-        m_FPS = 1 / time.GetDeltaTime();
         m_Frametime = time.GetDeltaTimeMS();
 	}
 
@@ -222,6 +221,12 @@ namespace TerranEditor
                 if (ImGui::MenuItem("Editor view"))
                     m_SceneView.SetOpen(true);
 
+                if (ImGui::MenuItem("Performance"))
+                    m_PerformanceOpen = true;
+
+                if (ImGui::MenuItem("Renderer Stats"))
+                    m_RendererStatsOpen = true;
+
                 ImGui::EndMenu();
             }
 
@@ -276,10 +281,10 @@ namespace TerranEditor
 
         // Renderer stats
         {
-            ImGui::Begin("Performance");
-            
-            if (ImGui::TreeNode("Renderer stats")) 
+            if (m_RendererStatsOpen) 
             {
+                ImGui::Begin("Renderer Stats", &m_RendererStatsOpen);
+            
                 BatchRendererStats stats = BatchRenderer2D::Get()->GetStats();
                 ImGui::Indent(4.0f);
                 ImGui::Text("Draw calls: %d", stats.DrawCalls);
@@ -288,17 +293,23 @@ namespace TerranEditor
                 ImGui::Text("Total Index count: %d", stats.IndexCount);
                 ImGui::Unindent(4.0f);
 
-                ImGui::TreePop();
+                ImGui::End();
             }
+        }
 
-            ImGui::NewLine();
-            ImGui::Text("Frame Time: %.01f ms/frame", m_Frametime);
-            ImGui::Text("FPS: %d", m_FPS);
+        // Performance
+        {
+            if (m_PerformanceOpen) 
+            {
+                ImGui::Begin("Performance", &m_PerformanceOpen);
 
-            for (auto result : Profiler::Get().GetResults())
-                ImGui::Text("%s: %f ms", result.Name.c_str(), result.ElapsedTime);
+                ImGui::Text("Frame Time: %.01f ms/frame", m_Frametime);
+            
+                for (auto result : Profiler::Get().GetResults())
+                    ImGui::Text("%s: %f ms", result.Name.c_str(), result.ElapsedTime);
 
-            ImGui::End();
+                ImGui::End();
+            }
         }
 
 	}

@@ -65,7 +65,9 @@ namespace TerranEditor
 
 		const std::filesystem::path m_ResPath = "Resources";
 
+		bool m_PerformanceOpen = true;
+		bool m_RendererStatsOpen = true;
+
 		float m_Frametime = 0.0f;
-		int m_FPS = 0;
 	};
 }

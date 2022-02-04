@@ -10,6 +10,7 @@ namespace TerranEngine
 	{
 		std::hash<std::string> hasher;
 
+		// NOTE: maybe change it to use method description
 		while (monoClass != NULL)
 		{
 			MonoMethod* method;

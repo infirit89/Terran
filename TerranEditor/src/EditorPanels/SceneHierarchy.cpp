@@ -32,10 +32,11 @@ namespace TerranEditor
 					if (!entity.HasParent())
 						DrawEntityNode(entity);
 				}
+
 				if (ImGui::BeginPopupContextWindow(0, 1, false))
 				{
 					if (ImGui::MenuItem("Create an entity"))
-						m_Scene->CreateEntity("Entity");
+						m_Selected = m_Scene->CreateEntity("Entity");
 
 					ImGui::EndPopup();
 				}
@@ -80,7 +81,7 @@ namespace TerranEditor
 
         if (ImGui::BeginPopupContextItem())
         {
-            if (ImGui::MenuItem("Create Entity")) 
+            if (ImGui::MenuItem("Create an Entity")) 
             {
                 auto entity = m_Scene->CreateEntity("Entity");
 

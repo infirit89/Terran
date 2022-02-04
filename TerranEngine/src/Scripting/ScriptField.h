@@ -23,20 +23,23 @@ namespace TerranEngine
 		String
 	};
 
+	enum class ScirptFieldVisibility 
+	{
+		None = 0,
+		Private,
+		Protected,
+		Internal,
+		Public
+	};
+
 	class ScriptField 
 	{
 	public:
 		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
 
-		inline const char* GetName() const 
-		{
-			return m_Name;
-		}
-
-		inline ScriptFieldType GetType() const 
-		{
-			return m_FieldType;
-		}
+		inline const char* GetName() const					{ return m_Name; }
+		inline ScriptFieldType GetType() const				{ return m_FieldType; }
+		inline ScirptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
 		template <typename T>
 		void Set(T value) 
@@ -73,5 +76,6 @@ namespace TerranEngine
 		MonoObject* m_MonoObject = nullptr;
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
+		ScirptFieldVisibility m_FieldVisibility = ScirptFieldVisibility::None;
 	};
 }

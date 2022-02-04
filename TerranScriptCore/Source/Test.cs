@@ -13,9 +13,15 @@ namespace TerranScriptCore
 
     public class TestScriptable : Scriptable 
     {
+        public int Test = 0;
+
         public void Init()
         {
             Log.Trace(entity.HasComponent<Transform>());
+            Log.Trace("Started");
+
+            Log.Trace(Test);
+
         }
 
         public void Update()

@@ -1,6 +1,5 @@
 #include "TerranEditorUI.h"
 
-
 #include "Terran.h"
 
 #include <imgui.h>
@@ -10,7 +9,7 @@
 
 namespace TerranEditor 
 {
-    void TerranEditorUI::DrawColor4Control(const char* label, glm::vec4& value, float columnWidth)
+    void UI::DrawColor4Control(const char* label, glm::vec4& value, float columnWidth)
     {
         ImGui::PushID(label);
 
@@ -38,7 +37,7 @@ namespace TerranEditor
         ImGui::PopID();
     }
 
-    bool TerranEditorUI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
+    bool UI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
 	{
         bool changed = false;
 
@@ -129,7 +128,7 @@ namespace TerranEditor
         return changed;
 	}
 
-    bool TerranEditorUI::DrawFloatControl(const char* label, float& value, float power, const char* format, float columnWidth)
+    bool UI::DrawFloatControl(const char* label, float& value, float power, const char* format, float columnWidth)
     {
         bool changed = false;
 
@@ -156,7 +155,7 @@ namespace TerranEditor
         return changed;
     }
 
-    bool TerranEditorUI::DrawIntControl(const char* label, int& value, float power, const char* format, float columnWidth)
+    bool UI::DrawIntControl(const char* label, int& value, float power, float columnWidth)
     {
         bool changed = false;
 
@@ -170,7 +169,7 @@ namespace TerranEditor
 
         ImGui::PushItemWidth(ImGui::CalcItemWidth());
 
-        if (ImGui::DragInt("##val", &value, power, 0.0f, 0.0f, format))
+        if (ImGui::DragInt("##val", &value, power, 0.0f, 0.0f))
             changed = true;
 
         if (ImGui::IsItemHovered() || ImGui::IsItemActive())

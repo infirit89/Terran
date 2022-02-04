@@ -39,16 +39,16 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Components.cs" />
-    <Compile Include="src\Entity.cs" />
-    <Compile Include="src\Log.cs" />
-    <Compile Include="src\Math\Vector2.cs" />
-    <Compile Include="src\Math\Vector3.cs" />
-    <Compile Include="src\Test.cs" />
+    <Compile Include="Source\Components.cs" />
+    <Compile Include="Source\Entity.cs" />
+    <Compile Include="Source\Log.cs" />
+    <Compile Include="Source\Math\Vector2.cs" />
+    <Compile Include="Source\Math\Vector3.cs" />
+    <Compile Include="Source\Test.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
@@ -60,4 +60,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>IF EXIST $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll\ (xcopy /Q /E /Y /I $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll $(SolutionDir)\TerranEditor\Resources\Scripts &gt; nul) ELSE (xcopy /Q /Y /I $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll $(SolutionDir)\TerranEditor\Resources\Scripts &gt; nul)</PostBuildEvent>
+  </PropertyGroup>
 </Project>
