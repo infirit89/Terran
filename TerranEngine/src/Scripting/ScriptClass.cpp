@@ -8,33 +8,45 @@ namespace TerranEngine
 	ScriptClass::ScriptClass(MonoClass* monoClass)
 		: m_MonoClass(monoClass)
 	{
-		std::hash<std::string> hasher;
-
-		// NOTE: maybe change it to use method description
-		while (monoClass != NULL)
-		{
-			MonoMethod* method;
-			void* iter = nullptr;
-			while ((method = mono_class_get_methods(monoClass, &iter)) != NULL)
-			{
-				uint32_t hashedName = hasher(mono_method_get_name(method));
-				if(m_Methods.find(hashedName) == m_Methods.end())
-					m_Methods[hashedName] = CreateShared<ScriptMethod>(method);
-			}
-
-			monoClass = mono_class_get_parent(monoClass);
-		}
 	}
 
-	Shared<ScriptObject> ScriptClass::CreateInstance()
+	uint32_t ScriptClass::CreateInstance()
 	{
 		MonoObject* monoObject = mono_object_new(mono_domain_get(), m_MonoClass);
 		mono_runtime_object_init(monoObject);
 
-		return CreateShared<ScriptObject>(monoObject, m_Methods);
+		uint32_t monoGCHandle = mono_gchandle_new(monoObject, true);
+
+		return monoGCHandle;
 	}
 
-	void ScriptClass::ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList)
+	Shared<ScriptMethod> ScriptClass::GetMethod(const char* methodSignature) 
+	{
+		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
+		if (!monoDesc)
+		{
+			TR_ERROR("Couldn't find a matching description ({0}) in the class {1}", methodSignature, mono_class_get_name(m_MonoClass));
+
+			return NULL;
+		}
+
+		MonoMethod* monoMethod = mono_method_desc_search_in_class(monoDesc, m_MonoClass);
+
+		if (!monoMethod)
+		{
+			TR_ERROR("Couldn't find the method with signature: {0} in class {1}", methodSignature, mono_class_get_name(m_MonoClass));
+			
+			return NULL;
+		}
+
+		Shared<ScriptMethod> method = CreateShared<ScriptMethod>(monoMethod);
+
+		mono_method_desc_free(monoDesc);
+
+		return method;
+	}
+
+	/*void ScriptClass::ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList)
 	{
 
 		std::hash<std::string> hasher;
@@ -43,6 +55,6 @@ namespace TerranEngine
 			m_Methods[hashedName]->Execute(nullptr, parameterList);
 		else
 			TR_ERROR("No method found with the corresponding name");
-	}
+	}*/
 }
 

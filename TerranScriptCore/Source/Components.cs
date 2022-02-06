@@ -9,11 +9,17 @@ namespace TerranScriptCore
 
     public class Scriptable : Component
     {
-        void SetEntity(uint id)
+        protected Scriptable() { }
+
+        internal Scriptable(uint id) 
         {
-            if (entity == null)
+            if (entity == null) 
                 entity = new Entity(id);
         }
+
+        public virtual void Init() { }
+
+        public virtual void Update() { }
     }
 
     public class Tag : Component 
@@ -53,7 +59,6 @@ namespace TerranScriptCore
                 if (entity != null) 
                 {
                     Vector3 outVec = GetTransformPosition_Internal(entity.runtimeID);
-                    Log.Trace("Out Vec: {0}", outVec);
                     return outVec;
                 }
 
@@ -65,8 +70,6 @@ namespace TerranScriptCore
             {
                 if (entity != null) 
                 {
-                    Log.Trace("Value: {0}", value);
-
                     SetTransformPosition_Internal(entity.runtimeID, new Vector3(value.X, value.Y, value.Z));
                 }
                 // TODO: log that the entity is null

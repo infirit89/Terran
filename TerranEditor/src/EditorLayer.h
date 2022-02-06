@@ -10,9 +10,12 @@
 
 #include "EditorCamera.h"
 
+#include "SceneState.h"
+
 namespace TerranEditor
 {
 	using namespace TerranEngine;
+
 	class EditorLayer : public Layer 
 	{
 	public:
@@ -38,6 +41,9 @@ namespace TerranEditor
 
 		void ShowDockspace();
 
+		void OnScenePlay();
+		void OnSceneStop();
+
 		Entity m_RenderableEntity, m_Entity1, m_Entity2;
 
 		EditorCamera m_EditorCamera;
@@ -51,7 +57,7 @@ namespace TerranEditor
 		PropertiesPanel m_PropertiesPanel;
 		ContentPanel m_ContentPanel;
 		SceneView m_SceneView;
-		GameView m_GameView;
+		//GameView m_GameView;
 
 		// ******************
 
@@ -69,5 +75,8 @@ namespace TerranEditor
 		bool m_RendererStatsOpen = true;
 
 		float m_Frametime = 0.0f;
+		SceneState m_SceneState = SceneState::Edit;
+
+		std::filesystem::path m_ScriptAssemblyPath;
 	};
 }

@@ -13,6 +13,7 @@ namespace TerranEditor
 	{
         if (m_Open) 
         {
+            
             ImGui::Begin("Scene view", &m_Open);
 
             if (m_Position.x != ImGui::GetWindowPos().x || m_Position.y != ImGui::GetWindowPos().y) 
@@ -39,7 +40,7 @@ namespace TerranEditor
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
             // Gizmos
-            if (selectedEntity)
+            if (selectedEntity && m_SceneState == SceneState::Edit)
             {
                 auto& tc = selectedEntity.GetComponent<TransformComponent>();
                 glm::mat4 transformMatrix = tc.WorldTransformMatrix;

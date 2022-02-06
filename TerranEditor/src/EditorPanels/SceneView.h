@@ -3,16 +3,18 @@
 #include "Terran.h"
 #include "../EditorCamera.h"
 
+#include "../SceneState.h"
+
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
+
 	class SceneView
 	{
 		using OpenSceneFN = std::function<void(const char* filePath, glm::vec2 viewPortSize)>;
 	public:
 		SceneView() = default;
 		~SceneView() = default;
-
 
 		void ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera, OpenSceneFN openSceneFN);
 
@@ -25,6 +27,8 @@ namespace TerranEditor
 		void SetOpen(bool open) { m_Open = open; }
 
 		void OnEvent(Event& event);
+
+		void SetSceneState(SceneState sceneState) { m_SceneState = sceneState; }
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
@@ -40,5 +44,6 @@ namespace TerranEditor
 		bool m_WindowMoved = false;
 		bool m_Visible = false;
 
+		SceneState m_SceneState = SceneState::Edit;
 	};
 }

@@ -15,12 +15,11 @@ namespace TerranEngine
 	public:
 		ScriptClass(MonoClass* monoClass);
 
-		Shared<ScriptObject> CreateInstance();
+		uint32_t CreateInstance();
 
-		void ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList = {});
+		Shared<ScriptMethod> GetMethod(const char* methodSignature);
 
 	private:
 		MonoClass* m_MonoClass;
-		std::unordered_map<uint32_t, Shared<ScriptMethod>> m_Methods;
 	};
 }

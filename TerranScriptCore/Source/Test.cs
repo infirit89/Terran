@@ -13,23 +13,14 @@ namespace TerranScriptCore
 
     public class TestScriptable : Scriptable 
     {
-        public int Test = 0;
+        public int Bruh = 0;
 
-        public void Init()
+        public override void Init()
         {
-            Log.Trace(entity.HasComponent<Transform>());
-            Log.Trace("Started");
-
-            Log.Trace(Test);
-
         }
 
-        public void Update()
+        public override void Update()
         {
-            entity.GetComponent<Transform>().Position += new Vector3(0.1f, 0.0f, 0.0f);
-
-            Log.Trace("bruuh 2");
-            Log.Trace("Update: {0}", entity.transform.Position);
         }
     }
 }

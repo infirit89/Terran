@@ -25,7 +25,7 @@ namespace TerranEngine
 	static ScirptFieldVisibility ConvertFieldVisibilty(MonoClassField* monofield) 
 	{
 		uint32_t visibility = mono_field_get_flags(monofield) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
-
+		
 		switch (visibility)
 		{
 		case MONO_FIELD_ATTR_PRIVATE:	return ScirptFieldVisibility::Private;

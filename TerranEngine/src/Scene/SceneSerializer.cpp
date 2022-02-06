@@ -93,6 +93,10 @@ namespace TerranEngine
 		return result;
 	}
 
+	static json SerializeFieldVector(const std::vector<Shared<ScriptField>>& fields) 
+	{
+	}
+
 	static void SerializeEntity(json& j, Entity entity) 
 	{
 		TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
@@ -165,14 +169,24 @@ namespace TerranEngine
 		{
 			auto& rlComp = entity.GetComponent<RelationshipComponent>();
 			
-			TR_TRACE(entity.GetName());
-
 			jObject.push_back(
 				{ "RelationshipComponent",
 				{
 					{ "ChildrenCount",   entity.GetChildCount() },
 					{ "Children",		 SerializeUUIDVector(rlComp.Children) },
 					{ "Parent",			 (entity.HasParent() ? std::to_string(rlComp.ParentID) : "null") },
+				} }
+			);
+		}
+
+		if (entity.HasComponent<ScriptComponent>()) 
+		{
+			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+
+			jObject.push_back(
+				{ "ScriptComponent",
+				{
+					{ "ModuleName", scriptComponent.ModuleName },
 				} }
 			);
 		}

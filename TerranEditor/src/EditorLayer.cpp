@@ -7,8 +7,12 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <filesystem>
+
 namespace TerranEditor
 {
+    static void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination);
+
 	EditorLayer::EditorLayer()
 		: Layer("Editor"), m_EditorCamera()
 	{
@@ -17,10 +21,15 @@ namespace TerranEditor
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
 		m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
-		ScriptingEngine::Init("Resources/Scripts/TerranScriptCore.dll");
+        NewScene();
+
+        m_ScriptAssemblyPath = "Resources/Scripts/";
+
+        CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll"), m_ScriptAssemblyPath);
+
+        ScriptEngine::Init("Resources/Scripts/TerranScriptCore.dll");
 
         ScriptBindings::Bind();
-
 	}
 
 	void EditorLayer::OnAttach()
@@ -40,7 +49,7 @@ namespace TerranEditor
 
 	void EditorLayer::OnDettach()
 	{
-        ScriptingEngine::CleanUp();
+        ScriptEngine::CleanUp();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -52,28 +61,65 @@ namespace TerranEditor
 
         if (m_SceneView.IsVisible() && SceneManager::GetCurrentScene()) 
         {
-            if ((m_SceneView.GetViewportSize().x != m_EditorSceneRenderer->GetViewportWidth() ||
-                m_SceneView.GetViewportSize().y != m_EditorSceneRenderer->GetViewportHeight()) &&
-                m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
-            {
-                m_EditorSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-                //m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-                m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-            }
-
             //m_SceneViewFramebuffer->Bind();
 
             //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             //RenderCommand::Clear();
-            
-            SceneManager::GetCurrentScene()->UpdateEditor();
-            SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
+            switch (m_SceneState) 
+            {
+            case SceneState::Edit: 
+            {
+                if ((m_SceneView.GetViewportSize().x != m_EditorSceneRenderer->GetViewportWidth() ||
+                    m_SceneView.GetViewportSize().y != m_EditorSceneRenderer->GetViewportHeight()) &&
+                    m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
+                {
+                    m_EditorSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    //m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                }
+
+                SceneManager::GetCurrentScene()->UpdateEditor();
+                SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
+
+                m_SceneView.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+
+                break;
+            }
+            case SceneState::Play: 
+            {
+                if ((m_SceneView.GetViewportSize().x != m_GameSceneRenderer->GetViewportWidth() ||
+                    m_SceneView.GetViewportSize().y != m_GameSceneRenderer->GetViewportHeight()) &&
+                    m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
+                {
+                    m_GameSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
+                }
+
+                auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
+
+                glm::vec4 backgroundColor = glm::vec4(0.0f);
+
+                if (primaryCamera)
+                    backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
+
+                m_GameSceneRenderer->SetClearColor(backgroundColor);
+
+                SceneManager::GetCurrentScene()->Update();
+                SceneManager::GetCurrentScene()->OnRender(m_GameSceneRenderer);
+
+                m_SceneView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+
+                break;
+            }
+            }
 
             //m_SceneViewFramebuffer->Unbind();
 
-            m_SceneView.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+            
         }
 
+#if 0
         if (m_GameView.IsVisible() && SceneManager::GetCurrentScene()) 
         {
             if ((m_GameView.GetViewportSize().x != m_GameSceneRenderer->GetViewportWidth() ||
@@ -105,6 +151,7 @@ namespace TerranEditor
 
             m_GameView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
+#endif
 
         m_Frametime = time.GetDeltaTimeMS();
 	}
@@ -161,7 +208,7 @@ namespace TerranEditor
 	void EditorLayer::ShowDockspace() 
 	{
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
-
+            
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -193,7 +240,7 @@ namespace TerranEditor
             ImGuiID dockspace_id = ImGui::GetID("TerranEditorDockspace");
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
         }
-
+        
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
@@ -230,11 +277,41 @@ namespace TerranEditor
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Tools")) 
+            {
+                if (ImGui::MenuItem("Reload C# Assembly")) 
+                {
+                    ScriptEngine::UnloadDomain();
+                    
+                    CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), m_ScriptAssemblyPath.string());
+
+                    ScriptEngine::NewDomain();
+
+                    if (SceneManager::GetCurrentScene())
+                        SceneManager::GetCurrentScene()->InitializeScriptComponents();
+                }
+
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenuBar();
         }
 
         ImGui::End();
 	}
+
+    void EditorLayer::OnScenePlay()
+    {
+        // TODO: copy the current scene
+        m_SceneState = SceneState::Play;
+        SceneManager::GetCurrentScene()->StartRuntime();
+    }
+
+    void EditorLayer::OnSceneStop()
+    {
+        m_SceneState = SceneState::Edit;
+        SceneManager::GetCurrentScene()->StopRuntime();
+    }
 
 	void EditorLayer::ImGuiRender()
 	{
@@ -248,7 +325,9 @@ namespace TerranEditor
         m_SHierarchy.ImGuiRender();
         m_Selected = m_SHierarchy.GetSelected();
 
-        m_GameView.ImGuiRender();
+        m_SceneView.SetSceneState(m_SceneState);
+
+        //m_GameView.ImGuiRender();
         
         m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
         {
@@ -312,6 +391,22 @@ namespace TerranEditor
             }
         }
 
+        {
+            // NOTE: temporary toolbar
+            ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration);
+
+            ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2));
+
+            if (ImGui::Button(m_SceneState == SceneState::Edit ? "Play" : "Stop"))
+            {
+                if (m_SceneState == SceneState::Edit)
+                    OnScenePlay();
+                else if (m_SceneState == SceneState::Play)
+                    OnSceneStop();
+            }
+
+            ImGui::End();
+        }
 	}
 
     void EditorLayer::SaveSceneAs()
@@ -328,7 +423,10 @@ namespace TerranEditor
     void EditorLayer::NewScene()
     {
         SceneManager::SetCurrentScene(CreateShared<Scene>());
-        SceneManager::GetCurrentScene()->CreateEntity("Camera").AddComponent<CameraComponent>();
+        CameraComponent& cameraComponent = SceneManager::GetCurrentScene()->CreateEntity("Camera").AddComponent<CameraComponent>();
+
+        // TODO: should add an on component added function
+        cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
         m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
     }
 
@@ -363,5 +461,20 @@ namespace TerranEditor
             SceneSerializer sSerializer(SceneManager::GetCurrentScene());
             sSerializer.SerializeJson(m_CurrentScenePath);
         }
+    }
+
+    void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination)
+    {
+        if (std::filesystem::exists(source)) 
+        {
+            if (std::filesystem::exists(destination / source.filename()))
+                std::filesystem::remove(destination / source.filename());
+
+            std::error_code errCode;
+            std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing, errCode);
+
+            TR_TRACE(errCode.message());
+        }
+            
     }
 }

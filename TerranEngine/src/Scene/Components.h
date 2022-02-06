@@ -7,7 +7,7 @@
 #include "Graphics/OrthographicCamera.h"
 
 #include "Scripting/ScriptObject.h"
-#include "Scripting/ScriptingEngine.h"
+#include "Scripting/ScriptEngine.h"
 
 #include "Utils/Debug/Profiler.h"
 
@@ -84,21 +84,23 @@ namespace TerranEngine
 		std::vector<UUID> Children;
 	};
 
-	struct ScriptableComponent 
+	struct ScriptComponent 
 	{
-		ScriptableComponent() = default;
+		ScriptComponent() = default;
 
-		ScriptableComponent(const std::string& moduleName) 
-			: ModuleName(moduleName), RuntimeObject(ScriptingEngine::GetClass(moduleName)->CreateInstance()) { }
+		ScriptComponent(const std::string& moduleName) 
+			: ModuleName(moduleName)
+		{
+			
+		}
 
 		void OnCreate(uint32_t entityID) 
 		{
 			if (!m_Created) 
 			{
-				TR_TRACE("Created");
 				Shared<UInt32> entityIDParam = CreateShared<UInt32>(entityID);
-				RuntimeObject->Execute("SetEntity", { entityIDParam });
-				RuntimeObject->Execute("Init");
+				m_Contructor->Invoke(RuntimeObject, { entityIDParam });
+				m_InitMethod->Invoke(RuntimeObject);
 				m_Created = true;
 			}
 		}
@@ -106,7 +108,12 @@ namespace TerranEngine
 		void OnUpdate() 
 		{
 			TR_PROFILE_FUNCN("ScriptableComponent::OnUpdate");
-			RuntimeObject->Execute("Update");
+			m_UpdateMethod->Invoke(RuntimeObject);
+		}
+
+		void Stop() 
+		{
+			m_Created = false;
 		}
 
 		// NOTE: think about having an array of scripts so that one entity
@@ -116,6 +123,12 @@ namespace TerranEngine
 		Shared<ScriptObject> RuntimeObject;
 
 	private:
+		Shared<ScriptMethod> m_Contructor;
+		Shared<ScriptMethod> m_InitMethod;
+		Shared<ScriptMethod> m_UpdateMethod;
+
 		bool m_Created = false;
+
+		friend class ScriptEngine;
 	};
 }

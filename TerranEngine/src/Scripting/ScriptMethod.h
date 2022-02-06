@@ -7,6 +7,7 @@
 namespace TerranEngine 
 {
 	class ScriptObject;
+
 	class ScriptParameter 
 	{
 	public:
@@ -138,13 +139,14 @@ namespace TerranEngine
 	class ScriptMethod 
 	{
 	public:
+		ScriptMethod() = default;
 		ScriptMethod(MonoMethod* monoMethod);
 		ScriptMethod(const ScriptMethod& other) = default;
 
 		~ScriptMethod() = default;
 
-		void Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList);
-
+		void Invoke(Shared<ScriptObject> scriptObject, ScriptMethodParameterList parameterList = {});
+		
 	private:
 		MonoMethod* m_MonoMethod = nullptr;
 	};

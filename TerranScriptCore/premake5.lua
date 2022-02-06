@@ -35,7 +35,7 @@ project "TerranScriptCore"
         
         postbuildcommands  
         {
-            "{COPY} %{prj.location}/bin/" .. outputdir .. "/TerranScriptCore.dll %{wks.location}/TerranEditor/Resources/Scripts"
+            "{COPY} %{prj.location}/bin/" .. outputdir .. "/TerranScriptCore.dll %{wks.location}/TerranEditor/Resources/Scripts/Temp"
         }
 
     filter "configurations:Release"

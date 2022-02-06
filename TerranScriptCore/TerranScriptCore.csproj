@@ -61,6 +61,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll\ (xcopy /Q /E /Y /I $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll $(SolutionDir)\TerranEditor\Resources\Scripts &gt; nul) ELSE (xcopy /Q /Y /I $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll $(SolutionDir)\TerranEditor\Resources\Scripts &gt; nul)</PostBuildEvent>
+    <PostBuildEvent>IF EXIST $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll\ (xcopy /Q /E /Y /I $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll $(SolutionDir)\TerranEditor\Resources\Scripts\Temp &gt; nul) ELSE (xcopy /Q /Y /I $(ProjectDir)\bin\Debug-windows-x86_64\TerranScriptCore.dll $(SolutionDir)\TerranEditor\Resources\Scripts\Temp &gt; nul)</PostBuildEvent>
   </PropertyGroup>
 </Project>

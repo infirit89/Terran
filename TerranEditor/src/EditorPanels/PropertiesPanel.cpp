@@ -22,6 +22,8 @@ namespace TerranEditor
 		{
 			auto& component = entity.GetComponent<T>();
 
+			bool removedComponent = false;
+
 			ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
 
 			ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
@@ -43,7 +45,7 @@ namespace TerranEditor
 					entity.GetComponent<T>() = T();
 
 				if (ImGui::MenuItem("Remove Component", (const char*)0, false, removable))
-					entity.RemoveComponent<T>();
+					removedComponent = true;
 
 				ImGui::EndPopup();
 			}
@@ -54,6 +56,9 @@ namespace TerranEditor
 				func(component);
 				ImGui::TreePop();
 			}
+
+			if(removedComponent)
+				entity.RemoveComponent<T>();
 
 			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImGui::SetCursorPosY(cursorPos.y + 4.0f);
@@ -159,7 +164,7 @@ namespace TerranEditor
 						component.Camera.SetOrthographicFar(camFar);
 				});
 
-				DrawComponent<ScriptableComponent>("Scriptable", entity, [](ScriptableComponent& component) 
+				DrawComponent<ScriptComponent>("Scriptable", entity, [](ScriptComponent& component) 
 				{
 					char buf[256];
 					memset(buf, 0, sizeof(buf));
@@ -168,8 +173,7 @@ namespace TerranEditor
 					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 					{
 						component.ModuleName = buf;
-
-						component.RuntimeObject = ScriptingEngine::GetClass(component.ModuleName)->CreateInstance();
+						ScriptEngine::InitializeEntity(component);
 					}
 
 					if (component.RuntimeObject) 
@@ -213,9 +217,9 @@ namespace TerranEditor
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))
 							entity.AddComponent<CameraComponent>();
-					if (!entity.HasComponent<ScriptableComponent>())
+					if (!entity.HasComponent<ScriptComponent>())
 						if (ImGui::MenuItem("Scriptable"))
-							entity.AddComponent<ScriptableComponent>();
+							entity.AddComponent<ScriptComponent>();
 
 					ImGui::EndPopup();
 				}

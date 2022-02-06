@@ -35,6 +35,7 @@ namespace TerranEngine
 	class ScriptField 
 	{
 	public:
+		ScriptField() = default;
 		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
 
 		inline const char* GetName() const					{ return m_Name; }

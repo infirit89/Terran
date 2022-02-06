@@ -3,7 +3,7 @@
 
 namespace TerranEngine 
 {
-	std::string FileUtils::GetEnvVar(const char* name) 
+	std::string FileUtils::GetEnvironmentVariable(const char* name)
 	{
 		return std::getenv(name);
 	}

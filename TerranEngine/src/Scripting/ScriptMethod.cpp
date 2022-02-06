@@ -7,13 +7,9 @@
 namespace TerranEngine 
 {
 	ScriptMethod::ScriptMethod(MonoMethod* monoMethod)
-		: m_MonoMethod(monoMethod)
-	{
-		MonoClass* klass = mono_method_get_class(monoMethod);
-	}
+		: m_MonoMethod(monoMethod) { }
 
-
-	void ScriptMethod::Execute(ScriptObject* scriptObject, ScriptMethodParameterList parameterList)
+	void ScriptMethod::Invoke(Shared<ScriptObject> scriptObject, ScriptMethodParameterList parameterList)
 	{
 		MonoObject* error;
 		size_t paramsSize = 0;

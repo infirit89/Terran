@@ -3,31 +3,27 @@
 
 namespace TerranEngine 
 {
-	ScriptObject::ScriptObject(MonoObject* monoObject, std::unordered_map<uint32_t, Shared<ScriptMethod>>& methods)
-		: m_MonoObject(monoObject), m_Methods(methods)
+	ScriptObject::ScriptObject(uint32_t monoGCHandle)
+		: m_MonoGCHandle(monoGCHandle)
 	{
-
 		std::hash<std::string> hasher;
 
-		MonoClass* klass = mono_object_get_class(m_MonoObject);
+		MonoObject* monoObject = (MonoObject*)GetNativeObject();
+
+		MonoClass* klass = mono_object_get_class(monoObject);
 		
 		MonoClassField* field;
 		void* iter = nullptr;
 
 		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
-			m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, m_MonoObject);
-
+			m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, monoObject);
 	}
 
-	void ScriptObject::Execute(const char* methodName, ScriptMethodParameterList parameterList)
+	ScriptObject::~ScriptObject()
 	{
-		std::hash<std::string> hasher;
-		uint32_t hashedName = hasher(methodName);
-
-		if (m_Methods.find(hashedName) != m_Methods.end())
-			m_Methods[hashedName]->Execute(this, parameterList);
-		else
-			TR_ERROR("No method found with the corresponding name");
+		TR_INFO("Mono object released");
+		mono_gchandle_free(m_MonoGCHandle);
+		m_MonoGCHandle = 0;
 	}
 
 	Shared<ScriptField> ScriptObject::GetField(const char* fieldName)
@@ -66,6 +62,15 @@ namespace TerranEngine
 		}
 
 		return fields;
+	}
+
+	inline void* ScriptObject::GetNativeObject() const
+	{
+		MonoObject* obj = mono_gchandle_get_target(m_MonoGCHandle);
+
+		if (obj == NULL) TR_ERROR("Script object is null");
+
+		return obj;
 	}
 }
 

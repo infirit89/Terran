@@ -38,7 +38,7 @@ namespace TerranEditor
 			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
 
 			ImGui::Columns(columnCount, (const char*)0, false);
-			
+
 			// for every entry in the current 
 			for (auto& dirEntry : std::filesystem::directory_iterator(m_CurrentPath))
 			{

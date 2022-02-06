@@ -7,8 +7,6 @@
 
 #include <unordered_map>
 
-#include <mono/metadata/object.h>
-
 namespace TerranEngine 
 {
 	class ScriptObject 
@@ -16,20 +14,20 @@ namespace TerranEngine
 	public:
 		ScriptObject() = default;
 
-		ScriptObject(MonoObject* monoObject, std::unordered_map<uint32_t, Shared<ScriptMethod>>& methods);
-
-		void Execute(const char* methodName, ScriptMethodParameterList parameterList = {});
-
-		inline MonoObject* GetNativeObject() const { return m_MonoObject; }
+		ScriptObject(uint32_t monoGCHandle);
+		~ScriptObject();
 
 		Shared<ScriptField> GetField(const char* fieldName);
 		std::vector<Shared<ScriptField>> GetFields();
 		std::vector<Shared<ScriptField>> GetPublicFields();
 
 	private:
-		MonoObject* m_MonoObject;
+		inline void* GetNativeObject() const;
+
+	private:
+		uint32_t m_MonoGCHandle;
 
 		std::unordered_map<uint32_t, Shared<ScriptField>> m_Fields;
-		std::unordered_map<uint32_t, Shared<ScriptMethod>> m_Methods;
+		friend class ScriptMethod;
 	};
 }

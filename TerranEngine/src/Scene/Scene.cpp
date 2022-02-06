@@ -11,6 +11,8 @@
 
 #include "Utils/Debug/Profiler.h"
 
+#include "Scripting/ScriptEngine.h"
+
 namespace TerranEngine 
 {
 	Scene::Scene()
@@ -59,17 +61,33 @@ namespace TerranEngine
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::Update()
+	void Scene::StartRuntime()
 	{
-		TR_PROFILE_FUNCN("Scene::Update");
+	}
 
-		auto scriptableComponentView = m_Registry.view<ScriptableComponent>();
+	void Scene::StopRuntime()
+	{
+		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
 
-			ScriptableComponent& scriptableComponent = entity.GetComponent<ScriptableComponent>();
+			entity.GetComponent<ScriptComponent>().Stop();
+		}
+	}
+
+	void Scene::Update()
+	{
+		TR_PROFILE_FUNCN("Scene::Update");
+
+		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptableComponentView)
+		{
+			Entity entity(e, this);
+
+			ScriptComponent& scriptableComponent = entity.GetComponent<ScriptComponent>();
 
 			scriptableComponent.OnCreate(entity);
 			scriptableComponent.OnUpdate();
@@ -202,6 +220,17 @@ namespace TerranEngine
 		}
 
 		return { };
+	}
+
+	void Scene::InitializeScriptComponents()
+	{
+		auto scriptComponents = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptComponents)
+		{
+			Entity entity(e, this);
+			ScriptEngine::InitializeEntity(entity.GetComponent<ScriptComponent>());
+		}
 	}
 
 	Entity Scene::GetPrimaryCamera()

@@ -50,7 +50,7 @@
 #include "Math/Math.h"
 
 /* ---- Scripting ---- */
-#include "Scripting/ScriptingEngine.h"
+#include "Scripting/ScriptEngine.h"
 #include "Scripting/ScriptClass.h"
 #include "Scripting/ScriptField.h"
 #include "Scripting/ScriptMethod.h"
