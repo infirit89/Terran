@@ -21,9 +21,9 @@ namespace TerranEngine
 
 	ScriptObject::~ScriptObject()
 	{
-		TR_INFO("Mono object released");
-		mono_gchandle_free(m_MonoGCHandle);
-		m_MonoGCHandle = 0;
+		//TR_INFO("Mono object released");
+		//mono_gchandle_free(m_MonoGCHandle);
+		//m_MonoGCHandle = 0;
 	}
 
 	Shared<ScriptField> ScriptObject::GetField(const char* fieldName)

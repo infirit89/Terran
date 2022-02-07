@@ -22,6 +22,7 @@ namespace TerranScriptCore
 
         public override void Update()
         {
+            Log.Trace("updated");
             entity.GetComponent<Transform>().Position += new Vector3(0.1f, 0.0f, 0.0f);
         }
     }

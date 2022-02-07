@@ -1,12 +1,13 @@
 #pragma once
 
-#include "ScriptMethod.h"
-#include "ScriptObject.h"
 #include "Core/Base.h"
 
-#include <unordered_map>
+#include "ScriptMethod.h"
+#include "ScriptObject.h"
 
 #include <mono/metadata/class.h>
+
+#include <unordered_map>
 
 namespace TerranEngine 
 {
@@ -15,7 +16,7 @@ namespace TerranEngine
 	public:
 		ScriptClass(MonoClass* monoClass);
 
-		uint32_t CreateInstance();
+		Shared<ScriptObject> CreateInstance();
 
 		Shared<ScriptMethod> GetMethod(const char* methodSignature);
 

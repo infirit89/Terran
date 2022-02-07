@@ -10,14 +10,14 @@ namespace TerranEngine
 	{
 	}
 
-	uint32_t ScriptClass::CreateInstance()
+	Shared<ScriptObject> ScriptClass::CreateInstance()
 	{
 		MonoObject* monoObject = mono_object_new(mono_domain_get(), m_MonoClass);
 		mono_runtime_object_init(monoObject);
 
 		uint32_t monoGCHandle = mono_gchandle_new(monoObject, true);
-
-		return monoGCHandle;
+		
+		return CreateShared<ScriptObject>(monoGCHandle);
 	}
 
 	Shared<ScriptMethod> ScriptClass::GetMethod(const char* methodSignature) 

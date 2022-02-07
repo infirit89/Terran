@@ -175,7 +175,7 @@ namespace TerranEngine
 			return;
 		}
 
-		scriptComponent.RuntimeObject = CreateShared<ScriptObject>(klass->CreateInstance());
+		scriptComponent.RuntimeObject = klass->CreateInstance();
 
 		scriptComponent.m_Contructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
 		Shared<UInt32> entityIDParam = CreateShared<UInt32>(entity);
