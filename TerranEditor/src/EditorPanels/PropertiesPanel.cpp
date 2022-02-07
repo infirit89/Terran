@@ -164,7 +164,7 @@ namespace TerranEditor
 						component.Camera.SetOrthographicFar(camFar);
 				});
 
-				DrawComponent<ScriptComponent>("Scriptable", entity, [](ScriptComponent& component) 
+				DrawComponent<ScriptComponent>("Scriptable", entity, [=](ScriptComponent& component) 
 				{
 					char buf[256];
 					memset(buf, 0, sizeof(buf));
@@ -173,7 +173,7 @@ namespace TerranEditor
 					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 					{
 						component.ModuleName = buf;
-						ScriptEngine::InitializeEntity(component);
+						ScriptEngine::InitializeEntity(entity, SceneManager::GetCurrentScene());
 					}
 
 					if (component.RuntimeObject) 

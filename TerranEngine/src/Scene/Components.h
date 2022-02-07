@@ -94,12 +94,10 @@ namespace TerranEngine
 			
 		}
 
-		void OnCreate(uint32_t entityID) 
+		void OnCreate() 
 		{
 			if (!m_Created) 
 			{
-				Shared<UInt32> entityIDParam = CreateShared<UInt32>(entityID);
-				m_Contructor->Invoke(RuntimeObject, { entityIDParam });
 				m_InitMethod->Invoke(RuntimeObject);
 				m_Created = true;
 			}

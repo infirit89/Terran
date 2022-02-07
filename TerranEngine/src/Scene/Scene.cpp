@@ -89,7 +89,7 @@ namespace TerranEngine
 
 			ScriptComponent& scriptableComponent = entity.GetComponent<ScriptComponent>();
 
-			scriptableComponent.OnCreate(entity);
+			scriptableComponent.OnCreate();
 			scriptableComponent.OnUpdate();
 		}
 
@@ -222,7 +222,7 @@ namespace TerranEngine
 		return { };
 	}
 
-	void Scene::InitializeScriptComponents()
+	/*void Scene::InitializeScriptComponents()
 	{
 		auto scriptComponents = m_Registry.view<ScriptComponent>();
 
@@ -231,7 +231,7 @@ namespace TerranEngine
 			Entity entity(e, this);
 			ScriptEngine::InitializeEntity(entity.GetComponent<ScriptComponent>());
 		}
-	}
+	}*/
 
 	Entity Scene::GetPrimaryCamera()
 	{

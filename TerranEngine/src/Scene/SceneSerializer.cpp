@@ -3,17 +3,19 @@
 #include "SceneSerializer.h"
 #include "Entity.h"
 
-#include <json.hpp>
-#include <glm/glm.hpp>
+#include "Scripting/ScriptEngine.h"
 
-#include <iomanip>
+#include <json.hpp>
+
 #include <fstream>
+#include <iomanip>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+
 
 using json = nlohmann::ordered_json;
 
@@ -87,14 +89,33 @@ namespace TerranEngine
 
 		json result;
 
-		for (auto id : vec)
+		for (const auto& id : vec)
 			result.push_back(std::to_string(id));
 
 		return result;
 	}
 
-	static json SerializeFieldVector(const std::vector<Shared<ScriptField>>& fields) 
+	static void SerializeField(json& j, const Shared<ScriptObject>& scriptObject) 
 	{
+		if (!scriptObject)
+			return;
+
+		if (scriptObject->GetPublicFields().size() <= 0)
+			return;
+
+		for (const auto& field : scriptObject->GetPublicFields())
+		{
+			switch (field->GetType())
+			{
+			case ScriptFieldType::Bool:		j[field->GetName()] = field->Get<bool>(); break;
+			case ScriptFieldType::Char:		j[field->GetName()] = field->Get<char>(); break;
+			case ScriptFieldType::Int:		j[field->GetName()] = field->Get<int>(); break;
+			case ScriptFieldType::Float:	j[field->GetName()] = field->Get<float>(); break;
+			case ScriptFieldType::Double:	j[field->GetName()] = field->Get<double>(); break;
+			
+			default:						TR_ERROR("Unsupported field type"); break;
+			}
+		}
 	}
 
 	static void SerializeEntity(json& j, Entity entity) 
@@ -187,8 +208,12 @@ namespace TerranEngine
 				{ "ScriptComponent",
 				{
 					{ "ModuleName", scriptComponent.ModuleName },
+
+					{ "Fields", {} }
 				} }
 			);
+
+			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.RuntimeObject);
 		}
 	}
 
@@ -312,6 +337,36 @@ namespace TerranEngine
 						DesirializeEntity(jScene["Entity " + std::string(jRelation["Parent"])], jScene, scene);
 
 					entity.SetParentID(UUID::FromString(jRelation["Parent"]));
+				}
+			}
+
+			if (jEntity.contains("ScriptComponent")) 
+			{
+				json jScriptComponent = jEntity["ScriptComponent"];
+
+				ScriptComponent& scriptComponent = entity.AddComponent<ScriptComponent>();
+
+				scriptComponent.ModuleName = jScriptComponent["ModuleName"];
+
+				ScriptEngine::InitializeEntity(entity, scene);
+
+				if (jScriptComponent["Fields"] != "null" && scriptComponent.RuntimeObject) 
+				{
+					if (jScriptComponent["Fields"].size() != scriptComponent.RuntimeObject->GetPublicFields().size())
+						TR_ERROR("Desirializing scene: Script Component field size mismatch!");
+					else 
+					{
+						for (auto& field : scriptComponent.RuntimeObject->GetPublicFields()) 
+						{
+							switch (field->GetType())
+							{
+							case ScriptFieldType::Bool: field->Set<bool>(jScriptComponent["Fields"][field->GetName()]); break;
+							//case ScriptFieldType::Char: field->Set<char>(jScriptComponent["Fields"][field->GetName()]); break;
+							case ScriptFieldType::Int:	field->Set<int>(jScriptComponent["Fields"][field->GetName()]); break;
+								
+							}
+						}
+					}
 				}
 			}
 		}

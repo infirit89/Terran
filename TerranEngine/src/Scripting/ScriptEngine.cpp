@@ -163,20 +163,26 @@ namespace TerranEngine
 		return method;
 	}
 
-	void ScriptEngine::InitializeEntity(ScriptComponent& scriptable)
+	void ScriptEngine::InitializeEntity(uint32_t entityID, Shared<Scene> scene)
 	{
-		Shared<ScriptClass> klass = ScriptEngine::GetClass(scriptable.ModuleName);
+		Entity entity((entt::entity)entityID, scene.get());
+
+		ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
+		Shared<ScriptClass> klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
 		if (!klass) 
 		{
-			TR_ERROR("Couldn't find the class: {0}", scriptable.ModuleName);
+			TR_ERROR("Couldn't find the class: {0}", scriptComponent.ModuleName);
 			return;
 		}
 
-		scriptable.RuntimeObject = CreateShared<ScriptObject>(klass->CreateInstance());
+		scriptComponent.RuntimeObject = CreateShared<ScriptObject>(klass->CreateInstance());
 
-		scriptable.m_Contructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
-		scriptable.m_InitMethod = klass->GetMethod(":Init()");
-		scriptable.m_UpdateMethod = klass->GetMethod(":Update()");
+		scriptComponent.m_Contructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
+		Shared<UInt32> entityIDParam = CreateShared<UInt32>(entity);
+		scriptComponent.m_Contructor->Invoke(scriptComponent.RuntimeObject, { entityIDParam });
+
+		scriptComponent.m_InitMethod = klass->GetMethod(":Init()");
+		scriptComponent.m_UpdateMethod = klass->GetMethod(":Update()");
 	}
 
 	static MonoAssembly* LoadAssembly(const char* fileName) 

@@ -2,6 +2,9 @@
 
 #include "Core/Log.h"
 #include "Core/Base.h"
+
+#include "Scene/Scene.h"
+
 #include "ScriptClass.h"
 
 namespace TerranEngine 
@@ -22,6 +25,6 @@ namespace TerranEngine
 
 		static Shared<ScriptClass> GetClass(const std::string& moduleName);
 
-		static void InitializeEntity(ScriptComponent& scriptable);
+		static void InitializeEntity(uint32_t entityID, Shared<Scene> scene);
 	};
 }

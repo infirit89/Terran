@@ -93,8 +93,6 @@ namespace TerranEngine
 
     static bool HasComponent_Internal(uint32_t entityRuntimeID, MonoString* componentTypeStr)
     {
-        TR_TRACE("get component");
-
         ComponentType type = GetComponentType(componentTypeStr);
 
         if (!GetScenePtr())

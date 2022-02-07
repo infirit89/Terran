@@ -281,14 +281,18 @@ namespace TerranEditor
             {
                 if (ImGui::MenuItem("Reload C# Assembly")) 
                 {
+                    SaveScene();
+
                     ScriptEngine::UnloadDomain();
                     
                     CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), m_ScriptAssemblyPath.string());
 
                     ScriptEngine::NewDomain();
 
-                    if (SceneManager::GetCurrentScene())
-                        SceneManager::GetCurrentScene()->InitializeScriptComponents();
+                    OpenScene();
+
+                    /*if (SceneManager::GetCurrentScene())
+                        SceneManager::GetCurrentScene()->InitializeScriptComponents();*/
                 }
 
                 ImGui::EndMenu();
@@ -432,7 +436,7 @@ namespace TerranEditor
 
     void EditorLayer::OpenScene()
     {
-        std::string scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");
+        std::string scenePath = m_CurrentScenePath.empty() ? FileUtils::OpenFile("Terran Scene\0*.terran\0") : m_CurrentScenePath;
         
         if (!scenePath.empty())
         {
@@ -449,6 +453,8 @@ namespace TerranEditor
                     m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
                 }
             }
+
+            m_CurrentScenePath = scenePath;
         }
     }
 

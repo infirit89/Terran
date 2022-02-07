@@ -35,8 +35,6 @@ namespace TerranEngine
 		Entity FindEntityWithUUID(const UUID& uuid);
 		Entity FindEntityWithName(const std::string& name);
 
-		void InitializeScriptComponents();
-
 		template <typename... Args, typename... Exclude>
 		auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
 
