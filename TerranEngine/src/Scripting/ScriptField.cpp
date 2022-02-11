@@ -34,6 +34,7 @@ namespace TerranEngine
 		case MONO_FIELD_ATTR_PUBLIC:	return ScirptFieldVisibility::Public;
 		}
 
+		return ScirptFieldVisibility::None;
 	}
 
 	ScriptField::ScriptField(MonoClassField* monoField, MonoObject* monoObject)

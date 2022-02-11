@@ -3,6 +3,8 @@
 #include "Core/Base.h"
 #include "Scene.h"
 
+#include <filesystem>
+
 namespace TerranEngine 
 {
 	class SceneSerializer 
@@ -11,9 +13,9 @@ namespace TerranEngine
 		SceneSerializer() = default;
 		SceneSerializer(const Shared<Scene>& scene);
 
-		void SerializeJson(const std::string& filePath);
+		void SerializeJson(const std::filesystem::path& scenePath);
 
-		static std::string ReadJson(const std::string& filePath);
+		static std::string ReadJson(const std::filesystem::path& scenePath);
 
 		bool DesirializeJson(const std::string& data);
 	private:

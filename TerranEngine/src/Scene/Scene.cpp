@@ -63,18 +63,20 @@ namespace TerranEngine
 
 	void Scene::StartRuntime()
 	{
+		m_RuntimeStarted = true;
+
+		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptbleComponentView)
+		{
+			Entity entity(e, this);
+			ScriptEngine::StartScriptable(entity);
+		}
 	}
 
 	void Scene::StopRuntime()
 	{
-		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
-
-		for (auto e : scriptableComponentView)
-		{
-			Entity entity(e, this);
-
-			entity.GetComponent<ScriptComponent>().Stop();
-		}
+		m_RuntimeStarted = false;
 	}
 
 	void Scene::Update()
@@ -86,11 +88,7 @@ namespace TerranEngine
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
-
-			ScriptComponent& scriptableComponent = entity.GetComponent<ScriptComponent>();
-
-			scriptableComponent.OnCreate();
-			scriptableComponent.OnUpdate();
+			ScriptEngine::UpdateScriptable(entity);
 		}
 
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
@@ -248,4 +246,28 @@ namespace TerranEngine
 
 		return { };
 	}
+
+	/*template<typename T>
+	void Scene::OnComponentRemoved(Entity entity, T& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemoved<ScriptComponent>(Entity entity, ScriptComponent& component) 
+	{
+
+	}
+
+	template<typename T>
+	void Scene::OnComponentAdded(Entity entity, T& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
+	{
+		if (m_RuntimeStarted)
+			ScriptEngine::StartScriptable(entity);
+	}*/
+
 }

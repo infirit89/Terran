@@ -41,6 +41,7 @@ namespace TerranEngine
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
 			TR_ASSERT(HasComponent<Component>(), "Entity doesn't have component");
+
 			m_Scene->m_Registry.remove<Component>(m_Handle);
 		}
 

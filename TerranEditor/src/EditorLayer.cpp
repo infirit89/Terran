@@ -290,9 +290,6 @@ namespace TerranEditor
                     ScriptEngine::NewDomain();
 
                     OpenScene();
-
-                    /*if (SceneManager::GetCurrentScene())
-                        SceneManager::GetCurrentScene()->InitializeScriptComponents();*/
                 }
 
                 ImGui::EndMenu();
@@ -333,29 +330,9 @@ namespace TerranEditor
 
         //m_GameView.ImGuiRender();
         
-        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
         {
-            std::filesystem::path scenePath = filePath;
-
-            if (scenePath.extension() != ".terran")
-            {
-                TR_ERROR("Couldn't load the file");
-                return;
-            }
-
-            std::string& jsonData = SceneSerializer::ReadJson(scenePath.string());
-            if (jsonData != "")
-            {
-                Shared<Scene> newScene = CreateShared<Scene>();
-                SceneSerializer sSerializer(newScene);
-                if (sSerializer.DesirializeJson(jsonData)) 
-                {
-                    SceneManager::SetCurrentScene(newScene);
-                    SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-
-                    m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
-                }
-            }
+            OpenScene(filePath, viewportSize);
         });
 
         m_PropertiesPanel.ImGuiRender(m_Selected);
@@ -397,7 +374,7 @@ namespace TerranEditor
 
         {
             // NOTE: temporary toolbar
-            ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration);
+            ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
 
             ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2));
 
@@ -415,7 +392,7 @@ namespace TerranEditor
 
     void EditorLayer::SaveSceneAs()
     {
-        std::string scenePath = FileUtils::SaveFile("Terran Scene\0*.terran\0");
+        std::filesystem::path scenePath = FileUtils::SaveFile("Terran Scene\0*.terran\0");
         if (!scenePath.empty())
         {
             m_CurrentScenePath = scenePath;
@@ -436,11 +413,24 @@ namespace TerranEditor
 
     void EditorLayer::OpenScene()
     {
-        std::string scenePath = m_CurrentScenePath.empty() ? FileUtils::OpenFile("Terran Scene\0*.terran\0") : m_CurrentScenePath;
+        std::filesystem::path scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");
         
-        if (!scenePath.empty())
+        OpenScene(scenePath, m_SceneView.GetViewportSize());
+    }
+
+    void EditorLayer::OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize)
+    {
+        std::filesystem::path path = scenePath.empty() ? m_CurrentScenePath : scenePath;
+
+        if (!path.empty()) 
         {
-            std::string& jsonData = SceneSerializer::ReadJson(scenePath);
+            if (scenePath.extension() != ".terran")
+            {
+                TR_ERROR("Couldn't load the file");
+                return;
+            }
+
+            std::string& jsonData = SceneSerializer::ReadJson(scenePath.string());
             if (jsonData != "")
             {
                 Shared<Scene> newScene = CreateShared<Scene>();
@@ -448,13 +438,13 @@ namespace TerranEditor
                 if (sSerializer.DesirializeJson(jsonData))
                 {
                     SceneManager::SetCurrentScene(newScene);
-                    SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+                    SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
 
                     m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+
+                    m_CurrentScenePath = scenePath;
                 }
             }
-
-            m_CurrentScenePath = scenePath;
         }
     }
 

@@ -25,6 +25,9 @@ namespace TerranEngine
 
 		static Shared<ScriptClass> GetClass(const std::string& moduleName);
 
-		static void InitializeEntity(uint32_t entityID, Shared<Scene> scene);
+		static void InitializeEntity(Entity entity);
+
+		static void StartScriptable(Entity entity);
+		static void UpdateScriptable(Entity entity);
 	};
 }

@@ -213,14 +213,14 @@ namespace TerranEngine
 				} }
 			);
 
-			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.RuntimeObject);
+			//SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.RuntimeObject);
 		}
 	}
 
 	// NOTE: temporary scene version should put it somewhere else, where it'd make more sense
 	static int sceneVersion = 0;
 
-	void SceneSerializer::SerializeJson(const std::string& filePath)
+	void SceneSerializer::SerializeJson(const std::filesystem::path& scenePath)
 	{
 		json j;
 
@@ -237,7 +237,7 @@ namespace TerranEngine
 			SerializeEntity(j["Entities"], entity);
 		});
 
-		std::ofstream ofs(filePath);
+		std::ofstream ofs(scenePath);
 
 		try
 		{
@@ -249,13 +249,13 @@ namespace TerranEngine
 		}
 	}
 
-	std::string SceneSerializer::ReadJson(const std::string& filePath)
+	std::string SceneSerializer::ReadJson(const std::filesystem::path& scenePath)
 	{
 		json j;
 
 		try
 		{
-			std::ifstream ifs(filePath);
+			std::ifstream ifs(scenePath);
 
 			ifs >> j;
 		}
@@ -348,26 +348,26 @@ namespace TerranEngine
 
 				scriptComponent.ModuleName = jScriptComponent["ModuleName"];
 
-				ScriptEngine::InitializeEntity(entity, scene);
+				ScriptEngine::InitializeEntity(entity);
 
-				if (jScriptComponent["Fields"] != "null" && scriptComponent.RuntimeObject) 
-				{
-					if (jScriptComponent["Fields"].size() != scriptComponent.RuntimeObject->GetPublicFields().size())
-						TR_ERROR("Desirializing scene: Script Component field size mismatch!");
-					else 
-					{
-						for (auto& field : scriptComponent.RuntimeObject->GetPublicFields()) 
-						{
-							switch (field->GetType())
-							{
-							case ScriptFieldType::Bool: field->Set<bool>(jScriptComponent["Fields"][field->GetName()]); break;
-							//case ScriptFieldType::Char: field->Set<char>(jScriptComponent["Fields"][field->GetName()]); break;
-							case ScriptFieldType::Int:	field->Set<int>(jScriptComponent["Fields"][field->GetName()]); break;
-								
-							}
-						}
-					}
-				}
+				//if (jScriptComponent["Fields"] != "null" && scriptComponent.RuntimeObject) 
+				//{
+				//	if (jScriptComponent["Fields"].size() != scriptComponent.RuntimeObject->GetPublicFields().size())
+				//		TR_ERROR("Desirializing scene: Script Component field size mismatch!");
+				//	else 
+				//	{
+				//		for (auto& field : scriptComponent.RuntimeObject->GetPublicFields()) 
+				//		{
+				//			switch (field->GetType())
+				//			{
+				//			case ScriptFieldType::Bool: field->Set<bool>(jScriptComponent["Fields"][field->GetName()]); break;
+				//			//case ScriptFieldType::Char: field->Set<char>(jScriptComponent["Fields"][field->GetName()]); break;
+				//			case ScriptFieldType::Int:	field->Set<int>(jScriptComponent["Fields"][field->GetName()]); break;
+				//				
+				//			}
+				//		}
+				//	}
+				//}
 			}
 		}
 		catch (const std::exception& ex)

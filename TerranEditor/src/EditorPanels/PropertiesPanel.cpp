@@ -173,10 +173,10 @@ namespace TerranEditor
 					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 					{
 						component.ModuleName = buf;
-						ScriptEngine::InitializeEntity(entity, SceneManager::GetCurrentScene());
+						ScriptEngine::InitializeEntity(entity);
 					}
 
-					if (component.RuntimeObject) 
+					/*if (component.RuntimeObject) 
 					{
 						std::vector<Shared<ScriptField>> fields = component.RuntimeObject->GetPublicFields();
 
@@ -193,7 +193,7 @@ namespace TerranEditor
 								break;
 							}
 						}
-					}
+					}*/
 
 				});
 

@@ -41,9 +41,16 @@ namespace TerranEngine
 		Entity GetPrimaryCamera();
 
 	private:
+		
+	private:
+		// TODO: add scene name and UUID
+
+		bool m_RuntimeStarted = false;
+
 		Shared<TransformSystem> m_TransformSystem;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
+
 		entt::registry m_Registry;
 
 		friend class SceneRenderer;

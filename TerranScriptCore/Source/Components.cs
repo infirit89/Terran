@@ -16,10 +16,6 @@ namespace TerranScriptCore
             if (entity == null) 
                 entity = new Entity(id);
         }
-
-        public virtual void Init() { }
-
-        public virtual void Update() { }
     }
 
     public class Tag : Component 

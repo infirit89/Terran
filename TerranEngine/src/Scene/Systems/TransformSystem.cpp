@@ -41,6 +41,7 @@ namespace TerranEngine
 			// the UpdateEntityTransform function
 
 			Entity parent = entity.GetParent();
+
 			if ((entity.GetTransform().IsDirty))
 				UpdateEntityTransform(entity);
 			else if (parent)
