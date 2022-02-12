@@ -16,7 +16,7 @@ namespace TerranEngine
 		void* iter = nullptr;
 
 		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
-			m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, monoObject);
+			m_Fields[hasher(mono_field_get_name(field))] = CreateShared<ScriptField>(field, m_MonoGCHandle);
 	}
 
 	ScriptObject::~ScriptObject()
@@ -34,7 +34,7 @@ namespace TerranEngine
 		if (m_Fields.find(hashedName) != m_Fields.end())
 			return m_Fields[hashedName];
 		else 
-			TR_ERROR("No field with the corresponding name");
+			TR_WARN("No field with the corresponding name");
 
 		return nullptr;
 	}

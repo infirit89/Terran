@@ -37,11 +37,49 @@ namespace TerranEngine
 		return ScirptFieldVisibility::None;
 	}
 
-	ScriptField::ScriptField(MonoClassField* monoField, MonoObject* monoObject)
-		: m_MonoField(monoField), m_MonoObject(monoObject)
+	ScriptField::ScriptField(void* monoField, uint32_t monoObjectGCHandle)
+		: m_MonoField(monoField), m_MonoObjectGCHandle(monoObjectGCHandle)
 	{
-		m_Name = mono_field_get_name(m_MonoField);
-		m_FieldType = ConvertFieldType(mono_field_get_type(m_MonoField));
-		m_FieldVisibility = ConvertFieldVisibilty(m_MonoField);
+		m_Name = mono_field_get_name((MonoClassField*)m_MonoField);
+		m_FieldType = ConvertFieldType(mono_field_get_type((MonoClassField*)m_MonoField));
+		m_FieldVisibility = ConvertFieldVisibilty((MonoClassField*)m_MonoField);
+	}
+
+	void ScriptField::SetValue(void* value)
+	{
+		mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
+	}
+
+	void ScriptField::GetValue(void* result)
+	{
+		mono_field_get_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, result);
+	}
+
+	const char* ScriptField::GetValue()
+	{
+		if (m_FieldType != ScriptFieldType::String) 
+		{
+			TR_ERROR("Can't get the string value of a non-string field");
+			return "";
+		}
+
+		MonoString* string = nullptr;
+
+		mono_field_get_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, &string);
+
+		return ScriptString(string).GetUTF8Str();
+	}
+
+	void ScriptField::SetValue(const char* value)
+	{
+		if (m_FieldType != ScriptFieldType::String)
+		{
+			TR_ERROR("Can't set the string value of a non-string field");
+			return;
+		}
+
+		ScriptString string((const char*)value);
+
+		mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, string.GetStringInternal());
 	}
 }

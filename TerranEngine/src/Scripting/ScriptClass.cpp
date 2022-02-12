@@ -25,7 +25,7 @@ namespace TerranEngine
 		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
 		if (!monoDesc)
 		{
-			TR_ERROR("Couldn't find a matching description ({0}) in the class {1}", methodSignature, mono_class_get_name(m_MonoClass));
+			TR_WARN("Couldn't create the method description with method signature: {0}", methodSignature);
 
 			return NULL;
 		}
@@ -34,7 +34,7 @@ namespace TerranEngine
 
 		if (!monoMethod)
 		{
-			TR_ERROR("Couldn't find the method with signature: {0} in class {1}", methodSignature, mono_class_get_name(m_MonoClass));
+			TR_WARN("Couldn't find the method with signature: {0} in class {1}", methodSignature, mono_class_get_name(m_MonoClass));
 			
 			return NULL;
 		}
@@ -45,16 +45,5 @@ namespace TerranEngine
 
 		return method;
 	}
-
-	/*void ScriptClass::ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList)
-	{
-
-		std::hash<std::string> hasher;
-		uint32_t hashedName = hasher(methodName);
-		if (m_Methods.find(hashedName) != m_Methods.end())
-			m_Methods[hashedName]->Execute(nullptr, parameterList);
-		else
-			TR_ERROR("No method found with the corresponding name");
-	}*/
 }
 

@@ -213,7 +213,7 @@ namespace TerranEngine
 		return method;
 	}
 
-	void ScriptEngine::InitializeEntity(Entity entity)
+	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
 		ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
 		Shared<ScriptClass> klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
@@ -233,6 +233,14 @@ namespace TerranEngine
 		instance.Constructor->Invoke(instance.Object, args);
 
 		s_ScriptableInstanceMap[entity.GetID()] = instance;
+
+		scriptComponent.PublicFields = instance.Object->GetPublicFields();
+	}
+
+	void ScriptEngine::UninitalizeScriptable(Entity entity)
+	{
+		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end())
+			s_ScriptableInstanceMap.erase(entity.GetID());
 	}
 
 	void ScriptEngine::StartScriptable(Entity entity) 

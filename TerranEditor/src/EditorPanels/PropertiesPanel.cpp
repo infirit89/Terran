@@ -170,30 +170,32 @@ namespace TerranEditor
 					memset(buf, 0, sizeof(buf));
 					strcpy_s(buf, sizeof(buf), component.ModuleName.c_str());
 
-					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
+					if (ImGui::InputText("##ModuleName", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 					{
 						component.ModuleName = buf;
 						ScriptEngine::InitializeEntity(entity);
 					}
 
-					/*if (component.RuntimeObject) 
+					if (!component.PublicFields.empty()) 
 					{
-						std::vector<Shared<ScriptField>> fields = component.RuntimeObject->GetPublicFields();
-
-						for (auto field : fields)
+						for (auto field : component.PublicFields)
 						{
+							// TODO: add more types
 							switch (field->GetType())
 							{
 							case ScriptFieldType::Int:
-								int value = field->Get<int>();
+							{
+								int value = 0;
+								field->GetValue(&value);
 
 								if (UI::DrawIntControl(field->GetName(), value))
-									field->Set(value);
+									field->SetValue(&value);
 
 								break;
 							}
+							}
 						}
-					}*/
+					}
 
 				});
 

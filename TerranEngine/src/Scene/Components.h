@@ -6,8 +6,7 @@
 #include "Graphics/Texture.h"
 #include "Graphics/OrthographicCamera.h"
 
-#include "Scripting/ScriptObject.h"
-#include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptField.h"
 
 #include "Utils/Debug/Profiler.h"
 
@@ -98,5 +97,7 @@ namespace TerranEngine
 		// "can" have more than one script (because of the 1 component of a type per entity)
 
 		std::string ModuleName;
+
+		std::vector<Shared<ScriptField>> PublicFields;
 	};
 }
