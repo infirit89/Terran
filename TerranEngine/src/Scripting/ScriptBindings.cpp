@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "ScriptBindings.h"
 
+#include "Core/Input.h"
+
 #include "ScriptString.h"
 #include "ScriptEngine.h"
 
@@ -42,6 +44,10 @@ namespace TerranEngine
     static void Log_Internal(uint8_t logLevel, MonoString* monoMessage);
     // ---------------
 
+    // ---- Input ----
+    static bool KeyPressed_Internal(uint32_t keyCode);
+    // ---------------
+
     template <typename Func>
     static void BindInternalFunc(const char* funcName, Func func)
     {
@@ -65,6 +71,8 @@ namespace TerranEngine
 
 
         BindInternalFunc("TerranScriptCore.Log::Log_Internal", Log_Internal);
+
+        BindInternalFunc("TerranScriptCore.Input::KeyPressed_Internal", KeyPressed_Internal);
     }
 
     enum class ComponentType
@@ -253,5 +261,10 @@ namespace TerranEngine
             TR_ERROR(message.GetUTF8Str());
             break;
         }
+    }
+
+    static bool KeyPressed_Internal(uint32_t keyCode) 
+    {
+        return Input::IsKeyPressed((Key)keyCode);
     }
 }

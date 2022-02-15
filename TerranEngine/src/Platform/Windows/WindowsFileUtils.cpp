@@ -12,8 +12,7 @@
 
 namespace TerranEngine 
 {
-
-	std::string FileUtils::OpenFile(const char* filter) 
+	std::filesystem::path FileUtils::OpenFile(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
 
@@ -38,10 +37,10 @@ namespace TerranEngine
 		if (GetOpenFileNameA(&ofn))
 			return ofn.lpstrFile;
 
-		return std::string();
+		return "";
 	}
 
-	std::string FileUtils::SaveFile(const char* filter) 
+	std::filesystem::path FileUtils::SaveFile(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
 
@@ -67,8 +66,7 @@ namespace TerranEngine
 		if (GetSaveFileNameA(&ofn))
 			return ofn.lpstrFile;
 
-		return std::string();
+		return "";
 	}
 }
-
 #endif

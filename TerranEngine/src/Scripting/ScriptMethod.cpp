@@ -9,12 +9,10 @@ namespace TerranEngine
 	ScriptMethod::ScriptMethod(MonoMethod* monoMethod)
 		: m_MonoMethod(monoMethod) { }
 
-	void ScriptMethod::Invoke(Shared<ScriptObject> scriptObject, ScriptMethodParameterList parameterList)
+	void ScriptMethod::Invoke(Shared<ScriptObject> scriptObject, void** args)
 	{
 		MonoObject* error;
 		size_t paramsSize = 0;
-
-		void** args = parameterList.GetRawParams();
 
 		// NOTE: this causes an access violation when a null reference occurs on the c# side
 		// going to leave the "break when this exception occurs" on for now 
@@ -27,7 +25,5 @@ namespace TerranEngine
 			TR_ERROR("Exception {0} caused by {1} method", mono_class_get_name(klass), mono_method_get_name(m_MonoMethod));
 		}
 
-		// memory leak?
-		delete[] args;
 	}
 }

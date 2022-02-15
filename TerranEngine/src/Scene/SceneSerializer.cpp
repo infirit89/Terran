@@ -95,23 +95,50 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, const Shared<ScriptObject>& scriptObject) 
+	static void SerializeField(json& j, const std::vector<Shared<ScriptField>>& scriptFields) 
 	{
-		if (!scriptObject)
+		if (scriptFields.empty())
 			return;
 
-		if (scriptObject->GetPublicFields().size() <= 0)
-			return;
-
-		for (const auto& field : scriptObject->GetPublicFields())
+		for (const auto& field : scriptFields)
 		{
 			switch (field->GetType())
 			{
-			case ScriptFieldType::Bool:		j[field->GetName()] = field->Get<bool>(); break;
-			case ScriptFieldType::Char:		j[field->GetName()] = field->Get<char>(); break;
-			case ScriptFieldType::Int:		j[field->GetName()] = field->Get<int>(); break;
-			case ScriptFieldType::Float:	j[field->GetName()] = field->Get<float>(); break;
-			case ScriptFieldType::Double:	j[field->GetName()] = field->Get<double>(); break;
+			case ScriptFieldType::Bool: 
+			{
+				bool value = false;
+				field->GetValue(&value);
+				j[field->GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Char: 
+			{
+				char value = ' ';
+				field->GetValue(&value);
+				j[field->GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int: 
+			{
+				int value = 0;
+				field->GetValue(&value);
+				j[field->GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Float: 
+			{
+				float value = 0.0f;
+				field->GetValue(&value);
+				j[field->GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Double: 
+			{
+				double value = 0.0;
+				field->GetValue(&value);
+				j[field->GetName()] = value;
+				break;
+			}
 			
 			default:						TR_ERROR("Unsupported field type"); break;
 			}
@@ -213,14 +240,14 @@ namespace TerranEngine
 				} }
 			);
 
-			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.RuntimeObject);
+			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.PublicFields);
 		}
 	}
 
 	// NOTE: temporary scene version should put it somewhere else, where it'd make more sense
 	static int sceneVersion = 0;
 
-	void SceneSerializer::SerializeJson(const std::string& filePath)
+	void SceneSerializer::SerializeJson(const std::filesystem::path& scenePath)
 	{
 		json j;
 
@@ -237,7 +264,7 @@ namespace TerranEngine
 			SerializeEntity(j["Entities"], entity);
 		});
 
-		std::ofstream ofs(filePath);
+		std::ofstream ofs(scenePath);
 
 		try
 		{
@@ -249,13 +276,13 @@ namespace TerranEngine
 		}
 	}
 
-	std::string SceneSerializer::ReadJson(const std::string& filePath)
+	std::string SceneSerializer::ReadJson(const std::filesystem::path& scenePath)
 	{
 		json j;
 
 		try
 		{
-			std::ifstream ifs(filePath);
+			std::ifstream ifs(scenePath);
 
 			ifs >> j;
 		}
@@ -348,22 +375,31 @@ namespace TerranEngine
 
 				scriptComponent.ModuleName = jScriptComponent["ModuleName"];
 
-				ScriptEngine::InitializeEntity(entity, scene);
+				ScriptEngine::InitializeScriptable(entity);
 
-				if (jScriptComponent["Fields"] != "null" && scriptComponent.RuntimeObject) 
+				if (jScriptComponent["Fields"] != "null") 
 				{
-					if (jScriptComponent["Fields"].size() != scriptComponent.RuntimeObject->GetPublicFields().size())
+					if (jScriptComponent["Fields"].size() != scriptComponent.PublicFields.size())
 						TR_ERROR("Desirializing scene: Script Component field size mismatch!");
 					else 
 					{
-						for (auto& field : scriptComponent.RuntimeObject->GetPublicFields()) 
+						for (auto& field : scriptComponent.PublicFields) 
 						{
+							// TODO: add more types
 							switch (field->GetType())
 							{
-							case ScriptFieldType::Bool: field->Set<bool>(jScriptComponent["Fields"][field->GetName()]); break;
-							//case ScriptFieldType::Char: field->Set<char>(jScriptComponent["Fields"][field->GetName()]); break;
-							case ScriptFieldType::Int:	field->Set<int>(jScriptComponent["Fields"][field->GetName()]); break;
-								
+							case ScriptFieldType::Bool:
+							{
+								bool value = jScriptComponent["Fields"][field->GetName()];
+								field->SetValue(&value); 
+								break;
+							}
+							case ScriptFieldType::Int:	
+							{
+								int value = jScriptComponent["Fields"][field->GetName()];
+								field->SetValue(&value); 
+								break;
+							}
 							}
 						}
 					}

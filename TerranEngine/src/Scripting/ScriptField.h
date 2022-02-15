@@ -2,9 +2,6 @@
 
 #include "ScriptString.h"
 
-#include <mono/metadata/class.h>
-#include <mono/metadata/object.h>
-
 namespace TerranEngine 
 {
 	enum class ScriptFieldType 
@@ -36,45 +33,21 @@ namespace TerranEngine
 	{
 	public:
 		ScriptField() = default;
-		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
+		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
 
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
 		inline ScirptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
-		template <typename T>
-		void Set(T value) 
-		{
-			mono_field_set_value(m_MonoObject, m_MonoField, &value);
-		}
+		void SetValue(void* value);
+		void GetValue(void* result);
 
-		template <>
-		void Set<const char*>(const char* value) 
-		{
-			ScriptString string(value);
-			mono_field_set_value(m_MonoObject, m_MonoField, string.GetStringInternal());
-		}
-
-		template <typename T>
-		T Get() 
-		{
-			T value;
-			mono_field_get_value(m_MonoObject, m_MonoField, &value);
-			return value;
-		}
-
-		template <>
-		const char* Get<const char*>() 
-		{
-			MonoString* string = nullptr;
-
-			mono_field_get_value(m_MonoObject, m_MonoField, &string);
-			return ScriptString(string).GetUTF8Str();
-		}
+		const char* GetValue();
+		void SetValue(const char* value);
 
 	private:
-		MonoClassField* m_MonoField = nullptr;
-		MonoObject* m_MonoObject = nullptr;
+		void* m_MonoField = nullptr;
+		uint32_t m_MonoObjectGCHandle = 0;
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScirptFieldVisibility m_FieldVisibility = ScirptFieldVisibility::None;

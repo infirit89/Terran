@@ -1,0 +1,75 @@
+{
+    "Version": 0,
+    "Scene": "Name",
+    "Entities": {
+        "Entity c5ce05e7-e480-4ec2-8342-264798f80f9b": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "c5ce05e7-e480-4ec2-8342-264798f80f9b"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": -3.3663558959960938,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.TestScriptable",
+                "Fields": {
+                    "test": 7
+                }
+            }
+        },
+        "Entity b658efba-e472-4b70-b18b-e607a1626de1": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "b658efba-e472-4b70-b18b-e607a1626de1"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

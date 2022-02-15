@@ -40,6 +40,8 @@ namespace TerranEngine
 
 	void Scene::DestroyEntity(Entity entity, bool first)
 	{
+		ScriptEngine::UninitalizeScriptable(entity);
+
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
@@ -63,18 +65,20 @@ namespace TerranEngine
 
 	void Scene::StartRuntime()
 	{
+		m_RuntimeStarted = true;
+
+		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptbleComponentView)
+		{
+			Entity entity(e, this);
+			ScriptEngine::StartScriptable(entity);
+		}
 	}
 
 	void Scene::StopRuntime()
 	{
-		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
-
-		for (auto e : scriptableComponentView)
-		{
-			Entity entity(e, this);
-
-			entity.GetComponent<ScriptComponent>().Stop();
-		}
+		m_RuntimeStarted = false;
 	}
 
 	void Scene::Update()
@@ -86,11 +90,11 @@ namespace TerranEngine
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
+			// NOTE: in case an entity is created during the runtime we want to start that entity's script
+			if (!entity.GetComponent<ScriptComponent>().Started)
+				ScriptEngine::StartScriptable(entity);
 
-			ScriptComponent& scriptableComponent = entity.GetComponent<ScriptComponent>();
-
-			scriptableComponent.OnCreate();
-			scriptableComponent.OnUpdate();
+			ScriptEngine::UpdateScriptable(entity);
 		}
 
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
@@ -225,7 +229,6 @@ namespace TerranEngine
 	Entity Scene::GetPrimaryCamera()
 	{
 		auto cameraView = m_Registry.view<CameraComponent>();
-
 		for (auto e : cameraView)
 		{
 			Entity entity(e, this);

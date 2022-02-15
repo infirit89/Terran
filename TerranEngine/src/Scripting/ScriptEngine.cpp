@@ -17,6 +17,8 @@
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/debug-helpers.h>
 #include <mono/metadata/mono-gc.h>
+#include <mono/metadata/mono-debug.h>
+#include <mono/utils/mono-logger.h>
 
 #include <unordered_map>
 
@@ -36,6 +38,37 @@ namespace TerranEngine
 	static MonoAssembly* LoadAssembly(const char* fileName);
 	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly);
 
+	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data);
+
+	static Shared<ScriptMethod> GetMethodFromImage(MonoImage* image, const char* methodSignature);
+
+	struct ScriptableInstance 
+	{
+		Shared<ScriptObject> Object;
+		Shared<ScriptMethod> Constructor;
+		Shared<ScriptMethod> InitMethod;
+		Shared<ScriptMethod> UpdateMethod;
+
+		void GetMethods(const Shared<ScriptClass>& scriptClass) 
+		{
+			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
+
+			InitMethod = scriptClass->GetMethod(":Init()");
+			UpdateMethod = scriptClass->GetMethod(":Update()");
+		}
+	};
+
+	static std::unordered_map<UUID, ScriptableInstance> s_ScriptableInstanceMap;
+
+	static ScriptableInstance GetInstance(const UUID& uuid) 
+	{
+		if (s_ScriptableInstanceMap.find(uuid) != s_ScriptableInstanceMap.end())
+			return s_ScriptableInstanceMap[uuid];
+
+
+		return { };
+	}
+
 	void ScriptEngine::Init(const char* fileName)
 	{
 		s_AssemblyPath = fileName;
@@ -46,7 +79,17 @@ namespace TerranEngine
 
 		mono_set_dirs(libPath.c_str(), etcPath.c_str());
 
-		s_CoreDomain = mono_jit_init("ScriptAssemblyJIT");
+#ifdef TR_DEBUG
+
+		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+
+		mono_trace_set_level_string("debug");
+
+		mono_trace_set_log_handler(OnLogMono, nullptr);
+
+#endif
+
+		s_CoreDomain = mono_jit_init("CoreDomain");
 		
 		if (!s_CoreDomain)
 		{
@@ -65,7 +108,7 @@ namespace TerranEngine
 
 	void ScriptEngine::NewDomain() 
 	{
-		s_NewDomain = mono_domain_create_appdomain("ScriptAssembly", NULL);
+		s_NewDomain = mono_domain_create_appdomain("ScriptAssemblyDomain", NULL);
 		
 		if (!mono_domain_set(s_NewDomain, false)) 
 		{
@@ -112,6 +155,12 @@ namespace TerranEngine
 
 	Shared<ScriptClass> ScriptEngine::GetClass(const std::string& moduleName)
 	{
+		if (!s_CurrentImage)
+		{
+			TR_ERROR("Can't locate the class {0}, as there is no loaded script image", moduleName);
+			return NULL;
+		}
+
 		std::hash<std::string> hasher;
 		uint32_t hashedName = hasher(moduleName);
 
@@ -123,6 +172,7 @@ namespace TerranEngine
 		std::string& namespaceName = moduleName.substr(0, dotPosition);
 		std::string& className = moduleName.substr(dotPosition + 1);
 		
+		// NOTE: Access violation when the script assembly isn't loaded
 		MonoClass* klass = mono_class_from_name(s_CurrentImage, namespaceName.c_str(), className.c_str());
 
 		if (!klass) 
@@ -137,7 +187,7 @@ namespace TerranEngine
 	}
 
 
-	Shared<ScriptMethod> GetMethodFromImage(MonoImage* image, const char* methodSignature)
+	static Shared<ScriptMethod> GetMethodFromImage(MonoImage* image, const char* methodSignature)
 	{
 		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
 		if (!monoDesc)
@@ -163,10 +213,8 @@ namespace TerranEngine
 		return method;
 	}
 
-	void ScriptEngine::InitializeEntity(uint32_t entityID, Shared<Scene> scene)
+	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
-		Entity entity((entt::entity)entityID, scene.get());
-
 		ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
 		Shared<ScriptClass> klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
 		if (!klass) 
@@ -175,14 +223,42 @@ namespace TerranEngine
 			return;
 		}
 
-		scriptComponent.RuntimeObject = klass->CreateInstance();
+		ScriptableInstance instance;
+		instance.Object = klass->CreateInstance();
+		instance.GetMethods(klass);
 
-		scriptComponent.m_Contructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
-		Shared<UInt32> entityIDParam = CreateShared<UInt32>(entity);
-		scriptComponent.m_Contructor->Invoke(scriptComponent.RuntimeObject, { entityIDParam });
+		uint32_t entityID = entity;
+		void* args[] = { &entityID };
 
-		scriptComponent.m_InitMethod = klass->GetMethod(":Init()");
-		scriptComponent.m_UpdateMethod = klass->GetMethod(":Update()");
+		instance.Constructor->Invoke(instance.Object, args);
+
+		s_ScriptableInstanceMap[entity.GetID()] = instance;
+
+		scriptComponent.PublicFields = instance.Object->GetPublicFields();
+	}
+
+	void ScriptEngine::UninitalizeScriptable(Entity entity)
+	{
+		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end())
+			s_ScriptableInstanceMap.erase(entity.GetID());
+	}
+
+	void ScriptEngine::StartScriptable(Entity entity) 
+	{
+		ScriptableInstance instace = GetInstance(entity.GetID());
+
+		entity.GetComponent<ScriptComponent>().Started = true;
+
+		if (instace.InitMethod)
+			instace.InitMethod->Invoke(instace.Object, nullptr);
+	}
+
+	void ScriptEngine::UpdateScriptable(Entity entity) 
+	{
+		ScriptableInstance instance = GetInstance(entity.GetID());
+
+		if (instance.UpdateMethod)
+			instance.UpdateMethod->Invoke(instance.Object, nullptr);
 	}
 
 	static MonoAssembly* LoadAssembly(const char* fileName) 
@@ -209,5 +285,18 @@ namespace TerranEngine
 		}
 
 		return newImage;
+	}
+
+	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data) 
+	{
+		if (log_level != nullptr) 
+		{
+			if (strcmp(log_level, "info") == 0)
+				TR_INFO("Domain: {0}; Message: {1}", log_domain, message);
+			else if(strcmp(log_level, "debug") == 0)
+				TR_TRACE("Domain: {0}; Message: {1}", log_domain, message);
+			else
+				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", log_domain, message, log_level);
+		}
 	}
 }

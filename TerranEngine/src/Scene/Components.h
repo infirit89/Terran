@@ -6,8 +6,7 @@
 #include "Graphics/Texture.h"
 #include "Graphics/OrthographicCamera.h"
 
-#include "Scripting/ScriptObject.h"
-#include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptField.h"
 
 #include "Utils/Debug/Profiler.h"
 
@@ -93,40 +92,14 @@ namespace TerranEngine
 		{
 			
 		}
-
-		void OnCreate() 
-		{
-			if (!m_Created) 
-			{
-				m_InitMethod->Invoke(RuntimeObject);
-				m_Created = true;
-			}
-		}
-
-		void OnUpdate() 
-		{
-			TR_PROFILE_FUNCN("ScriptableComponent::OnUpdate");
-			m_UpdateMethod->Invoke(RuntimeObject);
-		}
-
-		void Stop() 
-		{
-			m_Created = false;
-		}
-
+		
 		// NOTE: think about having an array of scripts so that one entity
 		// "can" have more than one script (because of the 1 component of a type per entity)
 
 		std::string ModuleName;
-		Shared<ScriptObject> RuntimeObject;
 
-	private:
-		Shared<ScriptMethod> m_Contructor;
-		Shared<ScriptMethod> m_InitMethod;
-		Shared<ScriptMethod> m_UpdateMethod;
+		std::vector<Shared<ScriptField>> PublicFields;
 
-		bool m_Created = false;
-
-		friend class ScriptEngine;
+		bool Started = false;
 	};
 }

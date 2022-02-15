@@ -36,6 +36,7 @@ namespace TerranEditor
 		void NewScene();
 
 		void OpenScene();
+		void OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize);
 		
 		void SaveScene();
 
@@ -64,12 +65,8 @@ namespace TerranEditor
 		//Unique<Framebuffer> m_SceneViewFramebuffer;
 		//Unique<Framebuffer> m_GameViewFramebuffer;
 
-		std::string m_CurrentScenePath = std::string();
-
 		Shared<SceneRenderer> m_GameSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
-
-		const std::filesystem::path m_ResPath = "Resources";
 
 		bool m_PerformanceOpen = true;
 		bool m_RendererStatsOpen = true;
@@ -77,6 +74,8 @@ namespace TerranEditor
 		float m_Frametime = 0.0f;
 		SceneState m_SceneState = SceneState::Edit;
 
+		std::filesystem::path m_CurrentScenePath;
+		const std::filesystem::path m_ResPath = "Resources";
 		std::filesystem::path m_ScriptAssemblyPath;
 	};
 }

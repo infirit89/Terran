@@ -1,4 +1,4 @@
-#include "TerranEditorUI.h"
+#include "UI.h"
 
 #include "Terran.h"
 
@@ -174,6 +174,31 @@ namespace TerranEditor
 
         if (ImGui::IsItemHovered() || ImGui::IsItemActive())
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+        ImGui::Columns(1);
+
+        ImGui::PopID();
+
+        return changed;
+    }
+
+    bool UI::DrawBoolControl(const char* label, bool& value, float columnWidth)
+    {
+        bool changed = false;
+
+        ImGui::PushID(label);
+
+        ImGui::Columns(2, NULL, false);
+
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+        ImGui::NextColumn();
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+        changed = ImGui::Checkbox("##val", &value);
+
+        if (changed) TR_TRACE("changed");
 
         ImGui::Columns(1);
 
