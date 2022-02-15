@@ -45,16 +45,5 @@ namespace TerranEngine
 
 		return method;
 	}
-
-	/*void ScriptClass::ExecuteStatic(const char* methodName, ScriptMethodParameterList parameterList)
-	{
-
-		std::hash<std::string> hasher;
-		uint32_t hashedName = hasher(methodName);
-		if (m_Methods.find(hashedName) != m_Methods.end())
-			m_Methods[hashedName]->Execute(nullptr, parameterList);
-		else
-			TR_ERROR("No method found with the corresponding name");
-	}*/
 }
 

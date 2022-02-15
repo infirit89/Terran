@@ -61,10 +61,6 @@ namespace TerranEditor
 
         if (m_SceneView.IsVisible() && SceneManager::GetCurrentScene()) 
         {
-            //m_SceneViewFramebuffer->Bind();
-
-            //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            //RenderCommand::Clear();
             switch (m_SceneState) 
             {
             case SceneState::Edit: 
@@ -74,7 +70,6 @@ namespace TerranEditor
                     m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
                 {
                     m_EditorSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-                    //m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
                     m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
                 }
 
@@ -93,7 +88,6 @@ namespace TerranEditor
                 {
                     m_GameSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
                     SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-                    //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 }
 
                 auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
@@ -113,9 +107,6 @@ namespace TerranEditor
                 break;
             }
             }
-
-            //m_SceneViewFramebuffer->Unbind();
-
             
         }
 
@@ -128,10 +119,8 @@ namespace TerranEditor
             {
                 m_GameSceneRenderer->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 SceneManager::GetCurrentScene()->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
-                //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
             }
 
-            //m_GameViewFramebuffer->Bind();
             auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
 
             glm::vec4 backgroundColor = glm::vec4(0.0f);
@@ -141,13 +130,8 @@ namespace TerranEditor
 
             m_GameSceneRenderer->SetClearColor(backgroundColor);
 
-            //RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-            //RenderCommand::Clear();
-
             SceneManager::GetCurrentScene()->Update();
             SceneManager::GetCurrentScene()->OnRender(m_GameSceneRenderer);
-
-            //m_GameViewFramebuffer->Unbind();
 
             m_GameView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
@@ -209,8 +193,7 @@ namespace TerranEditor
 	{
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
             
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-        // because it would be confusing to have two docking targets within each others.
+        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -290,9 +273,6 @@ namespace TerranEditor
                     ScriptEngine::NewDomain();
 
                     OpenScene();
-
-                    /*if (SceneManager::GetCurrentScene())
-                        SceneManager::GetCurrentScene()->InitializeScriptComponents();*/
                 }
 
                 ImGui::EndMenu();
@@ -319,7 +299,7 @@ namespace TerranEditor
 
 	void EditorLayer::ImGuiRender()
 	{
-        // BIG FAT FUCKING NOTE HERE: this is a temporary fix
+        // NOTE : this is a temporary fix
         // move the ImGui layer from the engine to the editor 
         ImGuizmo::BeginFrame();
 
@@ -331,8 +311,6 @@ namespace TerranEditor
 
         m_SceneView.SetSceneState(m_SceneState);
 
-        //m_GameView.ImGuiRender();
-        
         m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
         {
             std::filesystem::path scenePath = filePath;

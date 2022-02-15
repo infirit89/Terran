@@ -222,17 +222,6 @@ namespace TerranEngine
 		return { };
 	}
 
-	/*void Scene::InitializeScriptComponents()
-	{
-		auto scriptComponents = m_Registry.view<ScriptComponent>();
-
-		for (auto e : scriptComponents)
-		{
-			Entity entity(e, this);
-			ScriptEngine::InitializeEntity(entity.GetComponent<ScriptComponent>());
-		}
-	}*/
-
 	Entity Scene::GetPrimaryCamera()
 	{
 		auto cameraView = m_Registry.view<CameraComponent>();

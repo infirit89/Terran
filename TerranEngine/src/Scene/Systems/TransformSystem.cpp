@@ -37,9 +37,6 @@ namespace TerranEngine
 		{
 			Entity entity(e, m_Scene);
 
-			// TODO: if the parent's transform is dirty that pass the parent as an argument to
-			// the UpdateEntityTransform function
-
 			Entity parent = entity.GetParent();
 			if ((entity.GetTransform().IsDirty))
 				UpdateEntityTransform(entity);

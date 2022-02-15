@@ -70,6 +70,7 @@ namespace TerranEngine
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
 
+		// setup event callbacks
 		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int miximize) 
 		{
 			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);

@@ -178,30 +178,17 @@ namespace TerranEngine
 		TR_ERROR("Invalid entity id");
 
     // ---- Transform ----
-    static void SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3 inPosition)
+    static void SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3 Position)
     {
-        Entity entity((entt::entity)entityRuntimeID, SceneManager::GetCurrentScene().get());
-        if (entity) 
-        {
-            entity.GetComponent<TransformComponent>().Position = inPosition; \
-            entity.GetComponent<TransformComponent>().IsDirty = true;
-        }
-        else
-            TR_ERROR("Invalid entity id");
+        SET_COMPONENT_VAR(Position, entityRuntimeID, TransformComponent);
     }
 
     static glm::vec3 GetTransformPosition_Internal(uint32_t entityRuntimeID)
     {
-        Entity entity((entt::entity)entityRuntimeID, SceneManager::GetCurrentScene().get());
-        if (entity) 
-        {
-            glm::vec3 pos = entity.GetComponent<TransformComponent>().Position;
-            return pos;
-        }
-        else
-            TR_ERROR("Invalid entity id");
+        glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+        GET_COMPONENT_VAR(Position, entityRuntimeID, TransformComponent);
 
-        return { 0.0f, 0.0f, 0.0f };
+        return Position;
     }
 
     static void SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3 Rotation)
