@@ -247,6 +247,8 @@ namespace TerranEngine
 	{
 		ScriptableInstance instace = GetInstance(entity.GetID());
 
+		entity.GetComponent<ScriptComponent>().Started = true;
+
 		if (instace.InitMethod)
 			instace.InitMethod->Invoke(instace.Object, nullptr);
 	}

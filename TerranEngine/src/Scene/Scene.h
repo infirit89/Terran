@@ -39,7 +39,6 @@ namespace TerranEngine
 		auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
 
 		Entity GetPrimaryCamera();
-
 	private:
 		
 	private:

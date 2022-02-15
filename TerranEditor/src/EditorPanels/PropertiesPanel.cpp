@@ -1,6 +1,6 @@
 #include "PropertiesPanel.h"
 
-#include "../UI/TerranEditorUI.h"
+#include "../UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -164,7 +164,7 @@ namespace TerranEditor
 						component.Camera.SetOrthographicFar(camFar);
 				});
 
-				DrawComponent<ScriptComponent>("Scriptable", entity, [=](ScriptComponent& component) 
+				DrawComponent<ScriptComponent>("Script", entity, [=](ScriptComponent& component) 
 				{
 					char buf[256];
 					memset(buf, 0, sizeof(buf));
@@ -173,7 +173,7 @@ namespace TerranEditor
 					if (ImGui::InputText("##ModuleName", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 					{
 						component.ModuleName = buf;
-						ScriptEngine::InitializeEntity(entity);
+						ScriptEngine::InitializeScriptable(entity);
 					}
 
 					if (!component.PublicFields.empty()) 
@@ -183,12 +183,32 @@ namespace TerranEditor
 							// TODO: add more types
 							switch (field->GetType())
 							{
+							case ScriptFieldType::Bool:
+							{
+								bool value = 0;
+								field->GetValue(&value);
+
+								if (UI::DrawBoolControl(field->GetName(), value))
+									field->SetValue(&value);
+
+								break;
+							}
 							case ScriptFieldType::Int:
 							{
 								int value = 0;
 								field->GetValue(&value);
 
 								if (UI::DrawIntControl(field->GetName(), value))
+									field->SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Float:
+							{
+								float value = 0.0f;
+								field->GetValue(&value);
+
+								if (UI::DrawFloatControl(field->GetName(), value))
 									field->SetValue(&value);
 
 								break;
@@ -220,7 +240,7 @@ namespace TerranEditor
 						if (ImGui::MenuItem("Camera"))
 							entity.AddComponent<CameraComponent>();
 					if (!entity.HasComponent<ScriptComponent>())
-						if (ImGui::MenuItem("Scriptable"))
+						if (ImGui::MenuItem("Script"))
 							entity.AddComponent<ScriptComponent>();
 
 					ImGui::EndPopup();

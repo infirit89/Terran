@@ -1,5 +1,5 @@
 #include "EditorLayer.h"
-#include "UI/TerranEditorUI.h"
+#include "UI/UI.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -61,10 +61,6 @@ namespace TerranEditor
 
         if (m_SceneView.IsVisible() && SceneManager::GetCurrentScene()) 
         {
-            //m_SceneViewFramebuffer->Bind();
-
-            //RenderCommand::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            //RenderCommand::Clear();
             switch (m_SceneState) 
             {
             case SceneState::Edit: 
@@ -74,7 +70,6 @@ namespace TerranEditor
                     m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
                 {
                     m_EditorSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-                    //m_SceneViewFramebuffer->Resize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
                     m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
                 }
 
@@ -93,7 +88,6 @@ namespace TerranEditor
                 {
                     m_GameSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
                     SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-                    //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 }
 
                 auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
@@ -114,9 +108,6 @@ namespace TerranEditor
             }
             }
 
-            //m_SceneViewFramebuffer->Unbind();
-
-            
         }
 
 #if 0
@@ -128,10 +119,8 @@ namespace TerranEditor
             {
                 m_GameSceneRenderer->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
                 SceneManager::GetCurrentScene()->OnResize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
-                //m_GameViewFramebuffer->Resize(m_GameView.GetViewportSize().x, m_GameView.GetViewportSize().y);
             }
 
-            //m_GameViewFramebuffer->Bind();
             auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
 
             glm::vec4 backgroundColor = glm::vec4(0.0f);
@@ -141,13 +130,8 @@ namespace TerranEditor
 
             m_GameSceneRenderer->SetClearColor(backgroundColor);
 
-            //RenderCommand::SetClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-            //RenderCommand::Clear();
-
             SceneManager::GetCurrentScene()->Update();
             SceneManager::GetCurrentScene()->OnRender(m_GameSceneRenderer);
-
-            //m_GameViewFramebuffer->Unbind();
 
             m_GameView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
         }
@@ -398,6 +382,8 @@ namespace TerranEditor
             m_CurrentScenePath = scenePath;
             SceneSerializer sSerializer(SceneManager::GetCurrentScene());
             sSerializer.SerializeJson(scenePath);
+
+            m_CurrentScenePath = scenePath;
         }
     }
 

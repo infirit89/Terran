@@ -13,12 +13,13 @@ namespace TerranScriptCore
 
     public class TestScriptable : Scriptable 
     {
-        public int iTest = 100;
-        public bool bTest = true;
+        public void Init() 
+        {
+            Log.Warn("start");
+        }
 
         public void Update()
         {
-            entity.GetComponent<Transform>().Position += new Vector3(0.1f, 0.0f, 0.0f);
         }
     }
 }

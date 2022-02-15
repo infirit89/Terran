@@ -14,8 +14,8 @@ namespace TerranEngine {
 		Button8			= 7,
 
 		LeftButton		= Button1,
-		MiddleButton	= Button2,
-		RightButton		= Button3
+		MiddleButton	= Button3,
+		RightButton		= Button2
 
 	};
 }

@@ -40,6 +40,8 @@ namespace TerranEngine
 
 	void Scene::DestroyEntity(Entity entity, bool first)
 	{
+		ScriptEngine::UninitalizeScriptable(entity);
+
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
@@ -88,6 +90,10 @@ namespace TerranEngine
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
+			// NOTE: in case an entity is created during the runtime we want to start that entity's script
+			if (!entity.GetComponent<ScriptComponent>().Started)
+				ScriptEngine::StartScriptable(entity);
+
 			ScriptEngine::UpdateScriptable(entity);
 		}
 
@@ -219,22 +225,9 @@ namespace TerranEngine
 
 		return { };
 	}
-
-	/*void Scene::InitializeScriptComponents()
-	{
-		auto scriptComponents = m_Registry.view<ScriptComponent>();
-
-		for (auto e : scriptComponents)
-		{
-			Entity entity(e, this);
-			ScriptEngine::InitializeEntity(entity.GetComponent<ScriptComponent>());
-		}
-	}*/
-
 	Entity Scene::GetPrimaryCamera()
 	{
 		auto cameraView = m_Registry.view<CameraComponent>();
-
 		for (auto e : cameraView)
 		{
 			Entity entity(e, this);
@@ -246,28 +239,4 @@ namespace TerranEngine
 
 		return { };
 	}
-
-	/*template<typename T>
-	void Scene::OnComponentRemoved(Entity entity, T& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentRemoved<ScriptComponent>(Entity entity, ScriptComponent& component) 
-	{
-
-	}
-
-	template<typename T>
-	void Scene::OnComponentAdded(Entity entity, T& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
-	{
-		if (m_RuntimeStarted)
-			ScriptEngine::StartScriptable(entity);
-	}*/
-
 }

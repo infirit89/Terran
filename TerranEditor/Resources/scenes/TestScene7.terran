@@ -1,0 +1,67 @@
+{
+    "Version": 0,
+    "Scene": "Name",
+    "Entities": {
+        "Entity a0583a35-d745-4149-bfbe-3bd210dee66e": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a0583a35-d745-4149-bfbe-3bd210dee66e"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 3.7999985218048096,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.TestScriptable",
+                "Fields": {
+                    "iTest": 100,
+                    "bTest": true
+                }
+            }
+        },
+        "Entity c87a02d3-a09d-4f63-93b1-e236edde8096": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "c87a02d3-a09d-4f63-93b1-e236edde8096"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

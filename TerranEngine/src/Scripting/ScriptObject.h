@@ -17,6 +17,8 @@ namespace TerranEngine
 		ScriptObject(uint32_t monoGCHandle);
 		~ScriptObject();
 
+		void Uninitialize();
+
 		Shared<ScriptField> GetField(const char* fieldName);
 		std::vector<Shared<ScriptField>> GetFields();
 		std::vector<Shared<ScriptField>> GetPublicFields();
