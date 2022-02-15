@@ -92,6 +92,8 @@ namespace TerranEngine
 	void Application::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
+
+		// NOTE: should also pause the engine while it's unfocused
 		dispatcher.Dispatch<WindowCloseEvent>(TR_EVENT_BIND_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(TR_EVENT_BIND_FN(Application::OnWindowResize));
 

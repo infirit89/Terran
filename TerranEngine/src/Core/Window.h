@@ -39,8 +39,8 @@ namespace TerranEngine {
 
 		virtual void Update() = 0;	
 
+		// NOTE: Using this, because I plan to be able to support other windowing libraries
 		static Unique<Window> Create(const WindowData& data = WindowData());
-
 
 		virtual void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) = 0;
 	};

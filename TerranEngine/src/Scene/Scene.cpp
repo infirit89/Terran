@@ -225,6 +225,7 @@ namespace TerranEngine
 
 		return { };
 	}
+
 	Entity Scene::GetPrimaryCamera()
 	{
 		auto cameraView = m_Registry.view<CameraComponent>();

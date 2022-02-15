@@ -494,8 +494,9 @@ namespace TerranEngine
 		m_CircleIndexCount = 0;
 	}
 
-	// This should be in the scene renderer
 #if 0
+	// HUGE NOTE: This should be in the scene renderer
+	
 	// NOTE: This is (for now) only for orthographic cameras
 
 	bool BatchRenderer2D::InCameraViewX(float x, float width) 

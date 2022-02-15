@@ -71,6 +71,7 @@ namespace TerranEngine
 		inline BatchRendererStats GetStats() { return m_Stats; }
 
 #if 0
+		// Doesn't belong here, should put in scene renderer
 		inline void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
 		inline bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
 #endif
@@ -154,7 +155,7 @@ namespace TerranEngine
 			glm::mat4 Projection;
 			glm::mat4 View;
 
-			// Doesn't belong here
+			// Doesn't belong here, should put in the scene renderer
 			//glm::vec3 ProjectionSize, CameraPosition;
 		};
 
@@ -162,7 +163,7 @@ namespace TerranEngine
 
 		Shared<UniformBuffer> m_CameraBuffer;
 
-		// Doesn't fucking belong here
+		// Doesn't fucking belong here, should put in scene renderer
 		//bool m_CullObjectsOutsideOfCamera = false;
 		// ********************************
 	};

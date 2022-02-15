@@ -107,7 +107,6 @@ namespace TerranEditor
                 break;
             }
             }
-
         }
 
 #if 0
@@ -193,8 +192,7 @@ namespace TerranEditor
 	{
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
             
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-        // because it would be confusing to have two docking targets within each others.
+        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -300,7 +298,7 @@ namespace TerranEditor
 
 	void EditorLayer::ImGuiRender()
 	{
-        // BIG FAT FUCKING NOTE HERE: this is a temporary fix
+        // NOTE : this is a temporary fix
         // move the ImGui layer from the engine to the editor 
         ImGuizmo::BeginFrame();
 
@@ -312,9 +310,7 @@ namespace TerranEditor
 
         m_SceneView.SetSceneState(m_SceneState);
 
-        //m_GameView.ImGuiRender();
-        
-        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
         {
             OpenScene(filePath, viewportSize);
         });
