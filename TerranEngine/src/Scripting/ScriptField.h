@@ -34,6 +34,9 @@ namespace TerranEngine
 	public:
 		ScriptField() = default;
 		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
+		
+		ScriptField(const ScriptField& other) = default;
+		~ScriptField() = default;
 
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }

@@ -19,9 +19,14 @@ namespace TerranEditor
 
 		void SetOpen(bool open) { m_Open = open; }
 		 
+
+		void OnEvent(Event& event);
+
 		void ImGuiRender();
 
 	private:
+		bool OnKeyPressed(KeyPressedEvent& e);
+
 		void DrawEntityNode(Entity entity);
 
 		bool m_Open = true;

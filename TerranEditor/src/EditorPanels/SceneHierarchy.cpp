@@ -15,7 +15,13 @@ namespace TerranEditor
 		m_Selected = {};
 	}
 
-	void SceneHierarchy::ImGuiRender()
+    void SceneHierarchy::OnEvent(Event& event)
+    {
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneHierarchy::OnKeyPressed));
+    }
+
+    void SceneHierarchy::ImGuiRender()
 	{
         if(m_Open)
         {
@@ -49,6 +55,43 @@ namespace TerranEditor
         }
 
 	}
+
+    bool SceneHierarchy::OnKeyPressed(KeyPressedEvent& e)
+    {
+        bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+        bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+
+        if (e.GetRepeatCount() > 0)
+            return false;
+
+        switch (e.GetKeyCode())
+        {
+        case Key::D:
+            if (ctrlPressed) 
+            {
+                if (m_Selected)
+                    m_Scene->DuplicateEntity(m_Selected);
+            }
+
+            break;
+
+        case Key::N:
+            if (ctrlPressed && shiftPressed)
+            {
+                auto entity = m_Scene->CreateEntity();
+
+                if (m_Selected)
+                    entity.SetParent(m_Selected);
+                else
+                    m_Selected = entity;
+
+                return true;
+            }
+
+            break;
+        }
+        return false;
+    }
 
     void SceneHierarchy::DrawEntityNode(Entity entity)
     {
@@ -91,6 +134,12 @@ namespace TerranEditor
 
             if (ImGui::MenuItem("Delete entity")) 
                 isDeleted = true;
+
+            if (ImGui::MenuItem("Duplicate")) 
+            {
+                if(m_Selected)
+                    m_Scene->DuplicateEntity(m_Selected);
+            }
 
             ImGui::EndPopup();
         }

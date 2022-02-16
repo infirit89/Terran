@@ -20,7 +20,7 @@ namespace TerranEngine
 		: m_Scene(scene) 
 	{ }
 
-	static glm::mat4 CalculateTransfromMatrix(TransformComponent& transform) 
+	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform) 
 	{
 		return glm::translate(glm::mat4(1.0f), transform.Position) *
 			glm::toMat4(glm::quat(transform.Rotation)) *
@@ -41,7 +41,7 @@ namespace TerranEngine
 
 			if ((entity.GetTransform().IsDirty))
 				UpdateEntityTransform(entity);
-			else if (parent)
+			else if (parent && parent.GetTransform().IsDirty)
 				UpdateEntityTransform(parent);
 			else
 				break;
@@ -52,10 +52,13 @@ namespace TerranEngine
 	{
 		TransformComponent& transformComponent = entity.GetTransform();
 		
-		if (entity.HasParent())
-			transformComponent.WorldTransformMatrix = CalculateTransfromMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
-		else 
-			transformComponent.WorldTransformMatrix = CalculateTransfromMatrix(transformComponent);
+		if (entity.GetTransform().IsDirty) 
+		{
+			if (entity.HasParent())
+				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
+			else 
+				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent);
+		}
 
 		transformComponent.LocalTransformMatrix = glm::inverse(transformComponent.WorldTransformMatrix);
 

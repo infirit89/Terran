@@ -23,7 +23,7 @@ namespace TerranEngine
 
 		static std::string GetAssemblyPath();
 
-		static Shared<ScriptClass> GetClass(const std::string& moduleName);
+		static ScriptClass GetClass(const std::string& moduleName);
 
 		static void InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);

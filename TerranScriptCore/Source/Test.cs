@@ -20,6 +20,8 @@ namespace TerranScriptCore
 
         public void Update()
         {
+            if (Input.KeyPressed(KeyCode.A))
+                Log.Trace("test");
         }
     }
 }

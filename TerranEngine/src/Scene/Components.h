@@ -98,7 +98,7 @@ namespace TerranEngine
 
 		std::string ModuleName;
 
-		std::vector<Shared<ScriptField>> PublicFields;
+		std::vector<ScriptField> PublicFields;
 
 		bool Started = false;
 	};

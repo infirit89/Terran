@@ -11,6 +11,7 @@ namespace TerranEngine {
 	{
 	public:
 		static bool IsKeyPressed(Key key);
+
 		static bool IsMouseButtonPressed(MouseButton button);
 
 		static glm::vec2 GetMousePos();

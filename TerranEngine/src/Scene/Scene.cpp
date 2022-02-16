@@ -240,4 +240,47 @@ namespace TerranEngine
 
 		return { };
 	}
+
+	template<typename Component>
+	static void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry) 
+	{
+		if (srcRegistry.all_of<Component>(srcHandle)) 
+		{
+			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
+		}
+	}
+
+	template<typename Component>
+	static void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry)
+	{
+		CopyComponent<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
+	}
+
+	Entity Scene::DuplicateEntity(Entity srcEntity)
+	{
+		Entity dstEntity = CreateEntity(srcEntity.GetName() + " Copy");
+
+		CopyComponent<TransformComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
+		// NOTE: cant copy relationship components this way, have to copy all the children
+		//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
+
+		if (dstEntity.HasComponent<ScriptComponent>()) 
+		{
+			ScriptEngine::InitializeScriptable(dstEntity);
+
+			if (m_RuntimeStarted)
+				ScriptEngine::StartScriptable(dstEntity);
+
+		}
+		return dstEntity;
+	}
+
+	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
+	{
+		return Shared<Scene>();
+	}
 }

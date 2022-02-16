@@ -56,8 +56,13 @@ virtual EventType GetType() const override { return GetStaticType(); }
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{
-				m_Event.isHandled |= func((T&)m_Event);
-				return true;
+				if (!m_Event.isHandled) 
+				{
+					m_Event.isHandled |= func((T&)m_Event);
+					return true;
+				}
+
+				return false;
 			}
 
 			return false;

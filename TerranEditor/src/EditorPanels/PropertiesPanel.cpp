@@ -178,38 +178,38 @@ namespace TerranEditor
 
 					if (!component.PublicFields.empty()) 
 					{
-						for (auto field : component.PublicFields)
+						for (auto& field : component.PublicFields)
 						{
 							// TODO: add more types
-							switch (field->GetType())
+							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
 							{
 								bool value = 0;
-								field->GetValue(&value);
+								field.GetValue(&value);
 
-								if (UI::DrawBoolControl(field->GetName(), value))
-									field->SetValue(&value);
+								if (UI::DrawBoolControl(field.GetName(), value))
+									field.SetValue(&value);
 
 								break;
 							}
 							case ScriptFieldType::Int:
 							{
 								int value = 0;
-								field->GetValue(&value);
+								field.GetValue(&value);
 
-								if (UI::DrawIntControl(field->GetName(), value))
-									field->SetValue(&value);
+								if (UI::DrawIntControl(field.GetName(), value))
+									field.SetValue(&value);
 
 								break;
 							}
 							case ScriptFieldType::Float:
 							{
 								float value = 0.0f;
-								field->GetValue(&value);
+								field.GetValue(&value);
 
-								if (UI::DrawFloatControl(field->GetName(), value))
-									field->SetValue(&value);
+								if (UI::DrawFloatControl(field.GetName(), value))
+									field.SetValue(&value);
 
 								break;
 							}

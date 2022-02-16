@@ -144,6 +144,7 @@ namespace TerranEditor
 	{
         m_EditorCamera.OnEvent(event);
         m_SceneView.OnEvent(event);
+        m_SHierarchy.OnEvent(event);
 
         EventDispatcher dispatcher(event);
 
@@ -310,7 +311,7 @@ namespace TerranEditor
 
         m_SceneView.SetSceneState(m_SceneState);
 
-        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
         {
             OpenScene(filePath, viewportSize);
         });

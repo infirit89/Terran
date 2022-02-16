@@ -13,7 +13,7 @@ namespace TerranEngine
 
 		int state = glfwGetKey(window, (uint32_t)key);
 
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
+		return state == GLFW_REPEAT || state == GLFW_PRESS;
 	}
 
 	bool Input::IsMouseButtonPressed(MouseButton button)
