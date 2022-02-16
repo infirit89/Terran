@@ -310,7 +310,7 @@ namespace TerranEditor
 
         m_SceneView.SetSceneState(m_SceneState);
 
-        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewPortSize) 
+        m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
         {
             OpenScene(filePath, viewportSize);
         });
