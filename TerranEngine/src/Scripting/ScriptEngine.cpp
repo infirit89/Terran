@@ -33,28 +33,28 @@ namespace TerranEngine
 	
 	static const char* s_AssemblyPath;
 
-	static std::unordered_map<uint32_t, Shared<ScriptClass>> s_Classes;
+	static std::unordered_map<uint32_t, ScriptClass> s_Classes;
 
 	static MonoAssembly* LoadAssembly(const char* fileName);
 	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly);
 
 	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data);
 
-	static Shared<ScriptMethod> GetMethodFromImage(MonoImage* image, const char* methodSignature);
+	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature);
 
 	struct ScriptableInstance 
 	{
-		Shared<ScriptObject> Object;
-		Shared<ScriptMethod> Constructor;
-		Shared<ScriptMethod> InitMethod;
-		Shared<ScriptMethod> UpdateMethod;
+		ScriptObject Object;
+		ScriptMethod Constructor;
+		ScriptMethod InitMethod;
+		ScriptMethod UpdateMethod;
 
-		void GetMethods(const Shared<ScriptClass>& scriptClass) 
+		void GetMethods(ScriptClass& scriptClass) 
 		{
-			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
+			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
 
-			InitMethod = scriptClass->GetMethod(":Init()");
-			UpdateMethod = scriptClass->GetMethod(":Update()");
+			InitMethod = scriptClass.GetMethod(":Init()");
+			UpdateMethod = scriptClass.GetMethod(":Update()");
 		}
 	};
 
@@ -153,7 +153,7 @@ namespace TerranEngine
 		}
 	}
 
-	Shared<ScriptClass> ScriptEngine::GetClass(const std::string& moduleName)
+	ScriptClass ScriptEngine::GetClass(const std::string& moduleName)
 	{
 		if (!s_CurrentImage)
 		{
@@ -180,14 +180,14 @@ namespace TerranEngine
 			TR_ERROR("Class wasn't found");
 			return NULL;
 		}
-		Shared<ScriptClass> scriptClass = CreateShared<ScriptClass>(klass);
+		ScriptClass scriptClass(klass);
 		s_Classes[hashedName] = scriptClass;
 
 		return scriptClass;
 	}
 
 
-	static Shared<ScriptMethod> GetMethodFromImage(MonoImage* image, const char* methodSignature)
+	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature)
 	{
 		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
 		if (!monoDesc)
@@ -206,41 +206,51 @@ namespace TerranEngine
 			return NULL;
 		}
 
-		Shared<ScriptMethod> method = CreateShared<ScriptMethod>(monoMethod);
-
 		mono_method_desc_free(monoDesc);
 
-		return method;
+		return ScriptMethod(monoMethod);
 	}
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
 		ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
-		Shared<ScriptClass> klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
-		if (!klass) 
+		ScriptClass klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
+		if (!klass.GetNativeClassPtr()) 
 		{
 			TR_ERROR("Couldn't find the class: {0}", scriptComponent.ModuleName);
 			return;
 		}
 
 		ScriptableInstance instance;
-		instance.Object = klass->CreateInstance();
+		instance.Object = klass.CreateInstance();
 		instance.GetMethods(klass);
+		
 
-		uint32_t entityID = entity;
-		void* args[] = { &entityID };
+		const uint8_t* idData = entity.GetID().GetRaw();
 
-		instance.Constructor->Invoke(instance.Object, args);
+		MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
+		uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
+
+		memcpy(dst, idData, 16 * sizeof(uint8_t));
+
+		void* args[] = { monoArray };
+
+		TR_TRACE(entity.GetID());
+
+		instance.Constructor.Invoke(instance.Object, args);
 
 		s_ScriptableInstanceMap[entity.GetID()] = instance;
 
-		scriptComponent.PublicFields = instance.Object->GetPublicFields();
+		scriptComponent.PublicFields = instance.Object.GetPublicFields();
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
-		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end())
+		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end()) 
+		{
+			s_ScriptableInstanceMap[entity.GetID()].Object.Uninitialize();
 			s_ScriptableInstanceMap.erase(entity.GetID());
+		}
 	}
 
 	void ScriptEngine::StartScriptable(Entity entity) 
@@ -249,16 +259,16 @@ namespace TerranEngine
 
 		entity.GetComponent<ScriptComponent>().Started = true;
 
-		if (instace.InitMethod)
-			instace.InitMethod->Invoke(instace.Object, nullptr);
+		if (instace.InitMethod.GetNativeMethodPtr())
+			instace.InitMethod.Invoke(instace.Object, nullptr);
 	}
 
 	void ScriptEngine::UpdateScriptable(Entity entity) 
 	{
 		ScriptableInstance instance = GetInstance(entity.GetID());
 
-		if (instance.UpdateMethod)
-			instance.UpdateMethod->Invoke(instance.Object, nullptr);
+		if (instance.UpdateMethod.GetNativeMethodPtr())
+			instance.UpdateMethod.Invoke(instance.Object, nullptr);
 	}
 
 	static MonoAssembly* LoadAssembly(const char* fileName) 

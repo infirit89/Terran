@@ -13,23 +13,24 @@ namespace TerranEngine
 	{
 	public:
 		ScriptObject() = default;
-
 		ScriptObject(uint32_t monoGCHandle);
+
+		ScriptObject(const ScriptObject& other) = default;
 		~ScriptObject();
 
 		void Uninitialize();
 
-		Shared<ScriptField> GetField(const char* fieldName);
-		std::vector<Shared<ScriptField>> GetFields();
-		std::vector<Shared<ScriptField>> GetPublicFields();
+		ScriptField GetField(const char* fieldName);
+		std::vector<ScriptField> GetFields();
+		std::vector<ScriptField> GetPublicFields();
 
 	private:
-		inline void* GetNativeObject() const;
+		void* GetNativeObject() const;
 
 	private:
 		uint32_t m_MonoGCHandle;
 
-		std::unordered_map<uint32_t, Shared<ScriptField>> m_Fields;
+		std::unordered_map<uint32_t, ScriptField> m_Fields;
 		friend class ScriptMethod;
 	};
 }

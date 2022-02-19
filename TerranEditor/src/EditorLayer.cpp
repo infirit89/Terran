@@ -21,7 +21,14 @@ namespace TerranEditor
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
 		m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
-        NewScene();
+        m_EditorScene = CreateShared<Scene>();
+        CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
+
+        // TODO: should add an on component added function
+        cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+        SceneManager::SetCurrentScene(m_EditorScene);
+
+        m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 
         m_ScriptAssemblyPath = "Resources/Scripts/";
 
@@ -144,6 +151,7 @@ namespace TerranEditor
 	{
         m_EditorCamera.OnEvent(event);
         m_SceneView.OnEvent(event);
+        m_SHierarchy.OnEvent(event);
 
         EventDispatcher dispatcher(event);
 
@@ -287,6 +295,13 @@ namespace TerranEditor
     {
         // TODO: copy the current scene
         m_SceneState = SceneState::Play;
+        SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
+        //SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+
+        m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+
+        TR_TRACE(SceneManager::GetCurrentScene().get());
+
         SceneManager::GetCurrentScene()->StartRuntime();
     }
 
@@ -294,6 +309,8 @@ namespace TerranEditor
     {
         m_SceneState = SceneState::Edit;
         SceneManager::GetCurrentScene()->StopRuntime();
+        SceneManager::SetCurrentScene(m_EditorScene);
+        m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
     }
 
 	void EditorLayer::ImGuiRender()

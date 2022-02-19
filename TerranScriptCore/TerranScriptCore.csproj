@@ -50,6 +50,7 @@
     <Compile Include="Source\Math\Vector2.cs" />
     <Compile Include="Source\Math\Vector3.cs" />
     <Compile Include="Source\Test.cs" />
+    <Compile Include="Source\UUID.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

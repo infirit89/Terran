@@ -86,6 +86,9 @@ namespace TerranEditor
 				ImGui::Separator();
 				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
 
+
+				//TR_TRACE("Entity: {0}, Position: x: {1}, y: {2}, z: {3}", entity.GetName(), entity.GetTransform().Position.x, entity.GetTransform().Position.y, entity.GetTransform().Position.z);
+
 				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
 				{
 					if (UI::DrawVec3Control("Position", component.Position))
@@ -178,38 +181,38 @@ namespace TerranEditor
 
 					if (!component.PublicFields.empty()) 
 					{
-						for (auto field : component.PublicFields)
+						for (auto& field : component.PublicFields)
 						{
 							// TODO: add more types
-							switch (field->GetType())
+							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
 							{
 								bool value = 0;
-								field->GetValue(&value);
+								field.GetValue(&value);
 
-								if (UI::DrawBoolControl(field->GetName(), value))
-									field->SetValue(&value);
+								if (UI::DrawBoolControl(field.GetName(), value))
+									field.SetValue(&value);
 
 								break;
 							}
 							case ScriptFieldType::Int:
 							{
 								int value = 0;
-								field->GetValue(&value);
+								field.GetValue(&value);
 
-								if (UI::DrawIntControl(field->GetName(), value))
-									field->SetValue(&value);
+								if (UI::DrawIntControl(field.GetName(), value))
+									field.SetValue(&value);
 
 								break;
 							}
 							case ScriptFieldType::Float:
 							{
 								float value = 0.0f;
-								field->GetValue(&value);
+								field.GetValue(&value);
 
-								if (UI::DrawFloatControl(field->GetName(), value))
-									field->SetValue(&value);
+								if (UI::DrawFloatControl(field.GetName(), value))
+									field.SetValue(&value);
 
 								break;
 							}

@@ -37,16 +37,21 @@ namespace TerranEngine
 
 		template <typename... Args, typename... Exclude>
 		auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
+		
+		std::unordered_map<UUID, entt::entity>& GetEntityMap() { return m_EntityMap; }
 
 		Entity GetPrimaryCamera();
+
+		Entity DuplicateEntity(Entity srcEntity);
+
+		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
+
 	private:
 		
 	private:
 		// TODO: add scene name and UUID
 
 		bool m_RuntimeStarted = false;
-
-		Shared<TransformSystem> m_TransformSystem;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 

@@ -14,11 +14,17 @@ namespace TerranEngine
 	class ScriptClass 
 	{
 	public:
+		ScriptClass() = default;
 		ScriptClass(MonoClass* monoClass);
 
-		Shared<ScriptObject> CreateInstance();
+		ScriptClass(const ScriptClass& other) = default;
+		~ScriptClass() = default;
 
-		Shared<ScriptMethod> GetMethod(const char* methodSignature);
+		ScriptObject CreateInstance();
+
+		ScriptMethod GetMethod(const char* methodSignature);
+
+		inline MonoClass* GetNativeClassPtr() const { return m_MonoClass; }
 
 	private:
 		MonoClass* m_MonoClass;

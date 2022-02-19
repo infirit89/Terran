@@ -95,52 +95,52 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, const std::vector<Shared<ScriptField>>& scriptFields) 
+	static void SerializeField(json& j, std::vector<ScriptField>& scriptFields) 
 	{
 		if (scriptFields.empty())
 			return;
 
-		for (const auto& field : scriptFields)
+		for (auto& field : scriptFields)
 		{
-			switch (field->GetType())
+			switch (field.GetType())
 			{
 			case ScriptFieldType::Bool: 
 			{
 				bool value = false;
-				field->GetValue(&value);
-				j[field->GetName()] = value;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Char: 
 			{
 				char value = ' ';
-				field->GetValue(&value);
-				j[field->GetName()] = value;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int: 
 			{
 				int value = 0;
-				field->GetValue(&value);
-				j[field->GetName()] = value;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Float: 
 			{
 				float value = 0.0f;
-				field->GetValue(&value);
-				j[field->GetName()] = value;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Double: 
 			{
 				double value = 0.0;
-				field->GetValue(&value);
-				j[field->GetName()] = value;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
 				break;
 			}
 			
-			default:						TR_ERROR("Unsupported field type"); break;
+			default:	TR_ERROR("Unsupported field type"); break;
 			}
 		}
 	}
@@ -386,18 +386,18 @@ namespace TerranEngine
 						for (auto& field : scriptComponent.PublicFields) 
 						{
 							// TODO: add more types
-							switch (field->GetType())
+							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
 							{
-								bool value = jScriptComponent["Fields"][field->GetName()];
-								field->SetValue(&value); 
+								bool value = jScriptComponent["Fields"][field.GetName()];
+								field.SetValue(&value); 
 								break;
 							}
 							case ScriptFieldType::Int:	
 							{
-								int value = jScriptComponent["Fields"][field->GetName()];
-								field->SetValue(&value); 
+								int value = jScriptComponent["Fields"][field.GetName()];
+								field.SetValue(&value); 
 								break;
 							}
 							}

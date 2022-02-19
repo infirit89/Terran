@@ -65,6 +65,9 @@ namespace TerranEditor
 		//Unique<Framebuffer> m_SceneViewFramebuffer;
 		//Unique<Framebuffer> m_GameViewFramebuffer;
 
+		Shared<Scene> m_EditorScene;
+		Shared<Scene> m_ActiveScene;
+
 		Shared<SceneRenderer> m_GameSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 

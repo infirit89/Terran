@@ -16,32 +16,28 @@
 
 namespace TerranEngine 
 {
-	TransformSystem::TransformSystem(Scene* scene)
-		: m_Scene(scene) 
-	{ }
-
-	static glm::mat4 CalculateTransfromMatrix(TransformComponent& transform) 
+	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform) 
 	{
 		return glm::translate(glm::mat4(1.0f), transform.Position) *
 			glm::toMat4(glm::quat(transform.Rotation)) *
 			glm::scale(glm::mat4(1.0f), transform.Scale);
 	}
 
-	void TransformSystem::Update()
+	void TransformSystem::Update(Scene* scene)
 	{
 		TR_PROFILE_FUNCN("TransformSystem::Update");
 
-		auto transformView = m_Scene->GetEntitiesWith<TransformComponent>();
+		auto transformView = scene->GetEntitiesWith<TransformComponent>();
 
 		for (auto e : transformView)
 		{
-			Entity entity(e, m_Scene);
+			Entity entity(e, scene);
 
 			Entity parent = entity.GetParent();
 
 			if ((entity.GetTransform().IsDirty))
 				UpdateEntityTransform(entity);
-			else if (parent)
+			else if (parent && parent.GetTransform().IsDirty)
 				UpdateEntityTransform(parent);
 			else
 				break;
@@ -52,10 +48,15 @@ namespace TerranEngine
 	{
 		TransformComponent& transformComponent = entity.GetTransform();
 		
-		if (entity.HasParent())
-			transformComponent.WorldTransformMatrix = CalculateTransfromMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
-		else 
-			transformComponent.WorldTransformMatrix = CalculateTransfromMatrix(transformComponent);
+		TR_TRACE("updated");
+
+		if (entity.GetTransform().IsDirty) 
+		{
+			if (entity.HasParent())
+				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
+			else 
+				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent);
+		}
 
 		transformComponent.LocalTransformMatrix = glm::inverse(transformComponent.WorldTransformMatrix);
 

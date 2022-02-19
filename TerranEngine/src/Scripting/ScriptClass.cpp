@@ -10,17 +10,17 @@ namespace TerranEngine
 	{
 	}
 
-	Shared<ScriptObject> ScriptClass::CreateInstance()
+	ScriptObject ScriptClass::CreateInstance()
 	{
 		MonoObject* monoObject = mono_object_new(mono_domain_get(), m_MonoClass);
 		mono_runtime_object_init(monoObject);
 
 		uint32_t monoGCHandle = mono_gchandle_new(monoObject, true);
 		
-		return CreateShared<ScriptObject>(monoGCHandle);
+		return ScriptObject(monoGCHandle);
 	}
 
-	Shared<ScriptMethod> ScriptClass::GetMethod(const char* methodSignature) 
+	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) 
 	{
 		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
 		if (!monoDesc)
@@ -39,11 +39,9 @@ namespace TerranEngine
 			return NULL;
 		}
 
-		Shared<ScriptMethod> method = CreateShared<ScriptMethod>(monoMethod);
-
 		mono_method_desc_free(monoDesc);
 
-		return method;
+		return ScriptMethod(monoMethod);
 	}
 }
 
