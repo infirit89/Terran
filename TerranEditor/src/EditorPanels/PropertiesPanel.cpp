@@ -86,6 +86,9 @@ namespace TerranEditor
 				ImGui::Separator();
 				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
 
+
+				//TR_TRACE("Entity: {0}, Position: x: {1}, y: {2}, z: {3}", entity.GetName(), entity.GetTransform().Position.x, entity.GetTransform().Position.y, entity.GetTransform().Position.z);
+
 				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
 				{
 					if (UI::DrawVec3Control("Position", component.Position))

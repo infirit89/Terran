@@ -13,31 +13,32 @@
 #include "glm/glm.hpp"
 
 #include <mono/jit/jit.h>
+#include <mono/metadata/object.h>
 
 namespace TerranEngine 
 {
     // ---- Entity ----
-    static bool HasComponent_Internal(uint32_t entityRuntimeID, MonoString* componentType);
-    static void AddComponent_Internal(uint32_t entityRuntimeID, MonoString* componentType);
-    static void RemoveComponent_Internal(uint32_t entityRuntimeID, MonoString* componentType);
+    static bool HasComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentType);
+    static void AddComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentType);
+    static void RemoveComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentType);
 
-    static uint32_t FindEntityWithName_Internal(MonoString* monoName);
+    static MonoArray* FindEntityWithName_Internal(MonoString* monoName);
     // ----------------
 
     // ---- Transform component ----
-    static void SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3 inPosition);
-    static glm::vec3 GetTransformPosition_Internal(uint32_t entityRuntimeID);
+    static void SetTransformPosition_Internal(MonoArray* entityRuntimeID, glm::vec3 inPosition);
+    static glm::vec3 GetTransformPosition_Internal(MonoArray* entityRuntimeID);
 
-    static void SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3 inRotation);
-    static glm::vec3 GetTransformRotation_Internal(uint32_t entityRuntimeID);
+    static void SetTransformRotation_Internal(MonoArray* entityRuntimeID, glm::vec3 inRotation);
+    static glm::vec3 GetTransformRotation_Internal(MonoArray* entityRuntimeID);
 
-    static void SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3 inScale);
-    static glm::vec3 GetTransformScale_Internal(uint32_t entityRuntimeID);
+    static void SetTransformScale_Internal(MonoArray* entityRuntimeID, glm::vec3 inScale);
+    static glm::vec3 GetTransformScale_Internal(MonoArray* entityRuntimeID);
     // -----------------------------
 
     // ---- Tag component ----
-    static void SetTagName_Internal(uint32_t entityRuntimeID, MonoString* inName);
-    static MonoString* GetTagName_Internal(uint32_t entityRuntimeID);
+    static void SetTagName_Internal(MonoArray* entityRuntimeID, MonoString* inName);
+    static MonoString* GetTagName_Internal(MonoArray* entityRuntimeID);
     // -----------------------
 
     // ---- Utils ----
@@ -85,6 +86,22 @@ namespace TerranEngine
 
     static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
 
+    static UUID GetUUIDFromMonoArray(MonoArray* monoArray) 
+    {
+        std::array<uint8_t, 16> uuidData = { {0} };
+
+        if (mono_array_length(monoArray) != 16)
+        {
+            TR_ERROR("Invalid array");
+            return UUID(uuidData);
+        }
+
+        const uint8_t* src = mono_array_addr(monoArray, uint8_t, 0);
+        memcpy(uuidData._Elems, src, 16 * sizeof(uint8_t));
+
+        return UUID(uuidData);
+    }
+
     static ComponentType GetComponentType(MonoString* componentTypeStr)
     {
         ScriptString string(componentTypeStr);
@@ -99,7 +116,7 @@ namespace TerranEngine
         return ComponentType::None;
     }
 
-    static bool HasComponent_Internal(uint32_t entityRuntimeID, MonoString* componentTypeStr)
+    static bool HasComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
 
@@ -109,7 +126,8 @@ namespace TerranEngine
             return false;
         }
 
-        Entity entity((entt::entity)entityRuntimeID, GetScenePtr());
+        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         switch (type)
         {
@@ -123,7 +141,7 @@ namespace TerranEngine
         return false;
     }
 
-    static void AddComponent_Internal(uint32_t entityRuntimeID, MonoString* componentTypeStr)
+    static void AddComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
 
@@ -133,7 +151,8 @@ namespace TerranEngine
             return;
         }
 
-        Entity entity((entt::entity)entityRuntimeID, GetScenePtr());
+        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         switch (type)
         {
@@ -143,7 +162,7 @@ namespace TerranEngine
         }
     }
 
-    static void RemoveComponent_Internal(uint32_t entityRuntimeID, MonoString* componentTypeStr)
+    static void RemoveComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
 
@@ -153,7 +172,8 @@ namespace TerranEngine
             return;
         }
 
-        Entity entity((entt::entity)entityRuntimeID, GetScenePtr());
+        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         switch (type)
         {
@@ -163,15 +183,24 @@ namespace TerranEngine
         }
     }
 
-    static uint32_t FindEntityWithName_Internal(MonoString* monoName)
+    static MonoArray* FindEntityWithName_Internal(MonoString* monoName)
     {
         ScriptString name(monoName);
-        return (uint32_t)(SceneManager::GetCurrentScene()->FindEntityWithName(name.GetUTF8Str()));
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName(name.GetUTF8Str());
+
+        MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
+        const uint8_t* uuidData = entity.GetID().GetRaw();
+        uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
+
+        memcpy(dst, uuidData, 16 * sizeof(uint8_t));
+
+        return monoArray;
     }
 
 // bullshit?
 #define SET_COMPONENT_VAR(var, entityID, componentType)\
-	Entity entity((entt::entity)entityID, SceneManager::GetCurrentScene().get());\
+    UUID entityUUID = GetUUIDFromMonoArray(entityID);\
+    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
 	if(entity)\
 		entity.GetComponent<componentType>().var = var;\
 	else\
@@ -179,33 +208,48 @@ namespace TerranEngine
 
 // bullshit #2? 
 #define GET_COMPONENT_VAR(var, entityID, componentType)\
-	Entity entity((entt::entity)entityID, SceneManager::GetCurrentScene().get());\
+    UUID entityUUID = GetUUIDFromMonoArray(entityID);\
+    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
 	if(entity)\
 		var = entity.GetComponent<componentType>().var;\
 	else\
 		TR_ERROR("Invalid entity id");
 
     // ---- Transform ----
-    static void SetTransformPosition_Internal(uint32_t entityRuntimeID, glm::vec3 Position)
+    static void SetTransformPosition_Internal(MonoArray* entityRuntimeID, glm::vec3 inPosition)
     {
-        SET_COMPONENT_VAR(Position, entityRuntimeID, TransformComponent);
+        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+
+        if (entity) 
+        {
+            entity.GetComponent<TransformComponent>().Position = inPosition; 
+            entity.GetComponent<TransformComponent>().IsDirty = true;
+        }
+        else
+            TR_ERROR("Invalid entity id");
     }
 
-    static glm::vec3 GetTransformPosition_Internal(uint32_t entityRuntimeID)
+    static glm::vec3 GetTransformPosition_Internal(MonoArray* entityRuntimeID)
     {
-        glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
-        GET_COMPONENT_VAR(Position, entityRuntimeID, TransformComponent);
+        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
-        return Position;
+        if (entity)
+            return entity.GetComponent<TransformComponent>().Position;
+        else
+            TR_ERROR("Invalid entity id");
+
+        return { 0.0f, 0.0f, 0.0f };
     }
 
-    static void SetTransformRotation_Internal(uint32_t entityRuntimeID, glm::vec3 Rotation)
+    static void SetTransformRotation_Internal(MonoArray* entityRuntimeID, glm::vec3 Rotation)
     {
         SET_COMPONENT_VAR(Rotation, entityRuntimeID, TransformComponent);
         entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
-    static glm::vec3 GetTransformRotation_Internal(uint32_t entityRuntimeID)
+    static glm::vec3 GetTransformRotation_Internal(MonoArray* entityRuntimeID)
     {
         glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
         GET_COMPONENT_VAR(Rotation, entityRuntimeID, TransformComponent);
@@ -213,13 +257,13 @@ namespace TerranEngine
         return Rotation;
     }
 
-    static void SetTransformScale_Internal(uint32_t entityRuntimeID, glm::vec3 Scale)
+    static void SetTransformScale_Internal(MonoArray* entityRuntimeID, glm::vec3 Scale)
     {
         SET_COMPONENT_VAR(Scale, entityRuntimeID, TransformComponent);
         entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
-    static glm::vec3 GetTransformScale_Internal(uint32_t entityRuntimeID)
+    static glm::vec3 GetTransformScale_Internal(MonoArray* entityRuntimeID)
     {
         glm::vec3 Scale = { 0.0f, 0.0f, 0.0f };
         GET_COMPONENT_VAR(Scale, entityRuntimeID, TransformComponent);
@@ -228,7 +272,7 @@ namespace TerranEngine
     }
     // -------------------
 
-    static void SetTagName_Internal(uint32_t entityRuntimeID, MonoString* inName) 
+    static void SetTagName_Internal(MonoArray* entityRuntimeID, MonoString* inName)
     {
         ScriptString nameStr(inName);
         const char* Name = nameStr.GetUTF8Str();
@@ -236,7 +280,7 @@ namespace TerranEngine
         SET_COMPONENT_VAR(Name, entityRuntimeID, TagComponent);
     }
 
-    static MonoString* GetTagName_Internal(uint32_t entityRuntimeID)
+    static MonoString* GetTagName_Internal(MonoArray* entityRuntimeID)
     {
         std::string Name = "";
         GET_COMPONENT_VAR(Name, entityRuntimeID, TagComponent);

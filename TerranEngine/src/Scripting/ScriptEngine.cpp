@@ -51,7 +51,7 @@ namespace TerranEngine
 
 		void GetMethods(ScriptClass& scriptClass) 
 		{
-			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(uint)");
+			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
 
 			InitMethod = scriptClass.GetMethod(":Init()");
 			UpdateMethod = scriptClass.GetMethod(":Update()");
@@ -224,9 +224,18 @@ namespace TerranEngine
 		ScriptableInstance instance;
 		instance.Object = klass.CreateInstance();
 		instance.GetMethods(klass);
+		
 
-		uint32_t entityID = entity;
-		void* args[] = { &entityID };
+		const uint8_t* idData = entity.GetID().GetRaw();
+
+		MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
+		uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
+
+		memcpy(dst, idData, 16 * sizeof(uint8_t));
+
+		void* args[] = { monoArray };
+
+		TR_TRACE(entity.GetID());
 
 		instance.Constructor.Invoke(instance.Object, args);
 
@@ -237,8 +246,11 @@ namespace TerranEngine
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
-		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end())
+		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end()) 
+		{
+			s_ScriptableInstanceMap[entity.GetID()].Object.Uninitialize();
 			s_ScriptableInstanceMap.erase(entity.GetID());
+		}
 	}
 
 	void ScriptEngine::StartScriptable(Entity entity) 

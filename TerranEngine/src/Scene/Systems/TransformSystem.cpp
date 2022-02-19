@@ -16,10 +16,6 @@
 
 namespace TerranEngine 
 {
-	TransformSystem::TransformSystem(Scene* scene)
-		: m_Scene(scene) 
-	{ }
-
 	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform) 
 	{
 		return glm::translate(glm::mat4(1.0f), transform.Position) *
@@ -27,15 +23,15 @@ namespace TerranEngine
 			glm::scale(glm::mat4(1.0f), transform.Scale);
 	}
 
-	void TransformSystem::Update()
+	void TransformSystem::Update(Scene* scene)
 	{
 		TR_PROFILE_FUNCN("TransformSystem::Update");
 
-		auto transformView = m_Scene->GetEntitiesWith<TransformComponent>();
+		auto transformView = scene->GetEntitiesWith<TransformComponent>();
 
 		for (auto e : transformView)
 		{
-			Entity entity(e, m_Scene);
+			Entity entity(e, scene);
 
 			Entity parent = entity.GetParent();
 
@@ -52,6 +48,8 @@ namespace TerranEngine
 	{
 		TransformComponent& transformComponent = entity.GetTransform();
 		
+		TR_TRACE("updated");
+
 		if (entity.GetTransform().IsDirty) 
 		{
 			if (entity.HasParent())

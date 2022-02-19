@@ -7,14 +7,9 @@ namespace TerranEngine
 	class TransformSystem 
 	{
 	public:
-		TransformSystem(Scene* scene);
-
-		void Update();
+		static void Update(Scene* scene);
 
 	private:
-		void UpdateEntityTransform(Entity entity);
-
-	private:
-		Scene* m_Scene;
+		static void UpdateEntityTransform(Entity entity);
 	};
 }

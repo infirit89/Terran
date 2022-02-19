@@ -17,7 +17,6 @@ namespace TerranEngine
 {
 	Scene::Scene()
 	{
-		m_TransformSystem = CreateShared<TransformSystem>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -100,8 +99,7 @@ namespace TerranEngine
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
-		m_TransformSystem->Update();
-
+		TransformSystem::Update(this);
 	}
 
 	void Scene::UpdateEditor()
@@ -109,7 +107,7 @@ namespace TerranEngine
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
 			{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
-		m_TransformSystem->Update();
+		TransformSystem::Update(this);
 	}
 
 	void Scene::OnResize(float width, float height)
@@ -281,6 +279,25 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
-		return Shared<Scene>();
+		Shared<Scene> scene = CreateShared<Scene>();
+
+		auto tagView = srcScene->GetEntitiesWith<TagComponent>();
+
+		for (auto e : tagView)
+		{
+			Entity srcEntity(e, srcScene.get());
+
+			Entity dstEntity = scene->CreateEntityWithUUID(srcEntity.GetName(), srcEntity.GetID());
+
+			CopyComponent<TransformComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<CameraComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			// NOTE: cant copy relationship components this way, have to copy all the children
+			//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
+			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+		}
+
+		return scene;
 	}
 }

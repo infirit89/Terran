@@ -40,8 +40,6 @@ namespace TerranEngine
 		
 		std::unordered_map<UUID, entt::entity>& GetEntityMap() { return m_EntityMap; }
 
-		entt::registry& GetRegistry() { return m_Registry; }
-
 		Entity GetPrimaryCamera();
 
 		Entity DuplicateEntity(Entity srcEntity);
@@ -54,8 +52,6 @@ namespace TerranEngine
 		// TODO: add scene name and UUID
 
 		bool m_RuntimeStarted = false;
-
-		Shared<TransformSystem> m_TransformSystem;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 
