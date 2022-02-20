@@ -58,13 +58,16 @@ namespace TerranEngine
 		}
 	};
 
-	static std::unordered_map<UUID, ScriptableInstance> s_ScriptableInstanceMap;
+	static std::unordered_map<UUID,std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
 
-	static ScriptableInstance GetInstance(const UUID& uuid) 
+	static ScriptableInstance GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
-		if (s_ScriptableInstanceMap.find(uuid) != s_ScriptableInstanceMap.end())
-			return s_ScriptableInstanceMap[uuid];
+		if (s_ScriptableInstanceMap.find(sceneUUID) != s_ScriptableInstanceMap.end()) 
+		{
+			if (s_ScriptableInstanceMap[sceneUUID].find(entityUUID) != s_ScriptableInstanceMap[sceneUUID].end())
+				return s_ScriptableInstanceMap[sceneUUID][entityUUID];
 
+		}
 
 		return { };
 	}
@@ -213,49 +216,105 @@ namespace TerranEngine
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
-		ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
-		ScriptClass klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
-		if (!klass.GetNativeClassPtr()) 
+		if (s_ScriptableInstanceMap.find(entity.GetID()) == s_ScriptableInstanceMap.end())
 		{
-			TR_ERROR("Couldn't find the class: {0}", scriptComponent.ModuleName);
-			return;
+			ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
+			ScriptClass klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
+			if (!klass.GetNativeClassPtr())
+			{
+				TR_WARN("Couldn't find the class: {0}", scriptComponent.ModuleName);
+				return;
+			}
+
+			ScriptableInstance instance;
+			instance.Object = klass.CreateInstance();
+			instance.GetMethods(klass);
+
+
+			const uint8_t* idData = entity.GetID().GetRaw();
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
+			uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
+
+			memcpy(dst, idData, 16 * sizeof(uint8_t));
+
+			void* args[] = { monoArray };
+
+			TR_TRACE(entity.GetID());
+
+			instance.Constructor.Invoke(instance.Object, args);
+
+			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
+
+			if (scriptComponent.PublicFields.empty())
+				scriptComponent.PublicFields = instance.Object.GetPublicFields();
+			else
+			{
+				if (scriptComponent.PublicFields.size() != instance.Object.GetPublicFields().size())
+				{
+					TR_ERROR("Field size mismatch");
+					return;
+				}
+
+				for (size_t i = 0; i < scriptComponent.PublicFields.size(); i++)
+				{
+					switch (scriptComponent.PublicFields[i].GetType())
+					{
+					case ScriptFieldType::Bool:
+					{
+						bool value = false;
+						scriptComponent.PublicFields[i].GetValue(&value);
+
+						instance.Object.GetPublicFields()[i].SetValue(&value);
+						break;
+					}
+					case ScriptFieldType::Int:
+					{
+						int value = 0;
+						scriptComponent.PublicFields[i].GetValue(&value);
+
+						instance.Object.GetPublicFields()[i].SetValue(&value);
+						break;
+					}
+					case ScriptFieldType::Float:
+					{
+						float value = 0.0f;
+						scriptComponent.PublicFields[i].GetValue(&value);
+
+						instance.Object.GetPublicFields()[i].SetValue(&value);
+						break;
+					}
+					case ScriptFieldType::Double:
+					{
+						double value = 0.0;
+						scriptComponent.PublicFields[i].GetValue(&value);
+
+						instance.Object.GetPublicFields()[i].SetValue(&value);
+						break;
+					}
+					}
+				}
+
+				scriptComponent.PublicFields = instance.Object.GetPublicFields();
+			}
 		}
-
-		ScriptableInstance instance;
-		instance.Object = klass.CreateInstance();
-		instance.GetMethods(klass);
-		
-
-		const uint8_t* idData = entity.GetID().GetRaw();
-
-		MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
-		uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
-
-		memcpy(dst, idData, 16 * sizeof(uint8_t));
-
-		void* args[] = { monoArray };
-
-		TR_TRACE(entity.GetID());
-
-		instance.Constructor.Invoke(instance.Object, args);
-
-		s_ScriptableInstanceMap[entity.GetID()] = instance;
-
-		scriptComponent.PublicFields = instance.Object.GetPublicFields();
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
-		if (s_ScriptableInstanceMap.find(entity.GetID()) != s_ScriptableInstanceMap.end()) 
+		if (s_ScriptableInstanceMap.find(entity.GetSceneID()) != s_ScriptableInstanceMap.end()) 
 		{
-			s_ScriptableInstanceMap[entity.GetID()].Object.Uninitialize();
-			s_ScriptableInstanceMap.erase(entity.GetID());
+			if (s_ScriptableInstanceMap[entity.GetSceneID()].find(entity.GetID()) != s_ScriptableInstanceMap[entity.GetSceneID()].end()) 
+			{
+				s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()].Object.Uninitialize();
+				s_ScriptableInstanceMap[entity.GetSceneID()].erase(entity.GetID());
+			}
 		}
 	}
 
 	void ScriptEngine::StartScriptable(Entity entity) 
 	{
-		ScriptableInstance instace = GetInstance(entity.GetID());
+		ScriptableInstance instace = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		entity.GetComponent<ScriptComponent>().Started = true;
 
@@ -265,7 +324,7 @@ namespace TerranEngine
 
 	void ScriptEngine::UpdateScriptable(Entity entity) 
 	{
-		ScriptableInstance instance = GetInstance(entity.GetID());
+		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		if (instance.UpdateMethod.GetNativeMethodPtr())
 			instance.UpdateMethod.Invoke(instance.Object, nullptr);

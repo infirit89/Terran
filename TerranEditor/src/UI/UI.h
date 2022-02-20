@@ -1,6 +1,9 @@
 #pragma once
 
+#include <imgui.h>
 #include <glm/glm.hpp>
+
+#include <string>
 
 namespace TerranEditor 
 {
@@ -16,5 +19,7 @@ namespace TerranEditor
 		static bool DrawIntControl(const char* label, int& value, float power = 0.1f, float columnWidth = 100.0f);
 
 		static bool DrawBoolControl(const char* label, bool& value, float columnWidth = 100.0f);
+
+		static bool DrawStringControl(const char* label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
 	};
 }

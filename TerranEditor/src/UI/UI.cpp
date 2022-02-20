@@ -198,10 +198,40 @@ namespace TerranEditor
 
         changed = ImGui::Checkbox("##val", &value);
 
-        if (changed) TR_TRACE("changed");
-
         ImGui::Columns(1);
 
+        ImGui::PopID();
+
+        return changed;
+    }
+
+    bool UI::DrawStringControl(const char* label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
+    {
+        bool changed = false;
+
+        ImGui::PushID(label);
+
+        ImGui::Columns(2, NULL, false);
+
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+        ImGui::NextColumn();
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+        char* buf = new char[maxBufSize];
+
+        memset(buf, 0, maxBufSize);
+
+        strcpy_s(buf, maxBufSize, value.c_str());
+
+        if (ImGui::InputText("##val", buf, maxBufSize, flags))
+        {
+            value = buf;
+            changed = true;
+        }
+
+        ImGui::Columns(1);
         ImGui::PopID();
 
         return changed;

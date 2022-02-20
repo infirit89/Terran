@@ -48,8 +48,6 @@ namespace TerranEngine
 	{
 		TransformComponent& transformComponent = entity.GetTransform();
 		
-		TR_TRACE("updated");
-
 		if (entity.GetTransform().IsDirty) 
 		{
 			if (entity.HasParent())

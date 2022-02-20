@@ -167,17 +167,14 @@ namespace TerranEditor
 						component.Camera.SetOrthographicFar(camFar);
 				});
 
-				DrawComponent<ScriptComponent>("Script", entity, [=](ScriptComponent& component) 
+				DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component) 
 				{
 					char buf[256];
 					memset(buf, 0, sizeof(buf));
 					strcpy_s(buf, sizeof(buf), component.ModuleName.c_str());
-
-					if (ImGui::InputText("##ModuleName", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
-					{
-						component.ModuleName = buf;
+					
+					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
 						ScriptEngine::InitializeScriptable(entity);
-					}
 
 					if (!component.PublicFields.empty()) 
 					{

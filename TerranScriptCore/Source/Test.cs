@@ -13,12 +13,16 @@ namespace TerranScriptCore
 
     public class TestScriptable : Scriptable 
     {
+        public float Test = 1.0f;
+
         public void Init() 
         {
         }
 
         public void Update()
         {
+            Log.Trace(Test);
+
             if (Input.KeyPressed(KeyCode.W))
                 entity.transform.Position += new Vector3(0.0f, 0.1f, 0.0f);
             else if (Input.KeyPressed(KeyCode.S))

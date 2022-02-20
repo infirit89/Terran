@@ -12,7 +12,19 @@ namespace TerranEngine
 		switch (type)
 		{
 		case MONO_TYPE_BOOLEAN:		return ScriptFieldType::Bool;
+
+		// signed integer types
+		case MONO_TYPE_I1:			return ScriptFieldType::Int8;
+		case MONO_TYPE_I2:			return ScriptFieldType::Int16;
 		case MONO_TYPE_I4:			return ScriptFieldType::Int;
+		case MONO_TYPE_I8:			return ScriptFieldType::Int64;
+
+		// unsigned integer types
+		case MONO_TYPE_U1:			return ScriptFieldType::UInt8;
+		case MONO_TYPE_U2:			return ScriptFieldType::Uint16;
+		case MONO_TYPE_U4:			return ScriptFieldType::UInt;
+		case MONO_TYPE_U8:			return ScriptFieldType::UInt64;
+
 		case MONO_TYPE_R4:			return ScriptFieldType::Float;
 		case MONO_TYPE_R8:			return ScriptFieldType::Double;
 		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
@@ -52,6 +64,12 @@ namespace TerranEngine
 
 	void ScriptField::GetValue(void* result)
 	{
+		if (mono_gchandle_get_target(m_MonoObjectGCHandle) == nullptr)
+			TR_ERROR("Couldnt find the object");
+
+		if (m_MonoField == nullptr)
+			TR_ERROR("Mono field is null");
+
 		mono_field_get_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, result);
 	}
 

@@ -15,7 +15,10 @@ namespace TerranEngine
 	class Scene 
 	{
 	public:
+		
 		Scene();
+		
+		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
@@ -46,10 +49,14 @@ namespace TerranEngine
 
 		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
 
+		UUID& GetID() { return m_ID; }
+
 	private:
 		
 	private:
 		// TODO: add scene name and UUID
+
+		UUID m_ID;
 
 		bool m_RuntimeStarted = false;
 

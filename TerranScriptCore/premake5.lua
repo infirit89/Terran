@@ -43,5 +43,10 @@ project "TerranScriptCore"
         runtime "Release"
         optimize "on"
 
+        postbuildcommands  
+        {
+            "{COPY} %{prj.location}/bin/" .. outputdir .. "/TerranScriptCore.dll %{wks.location}/TerranEditor/Resources/Scripts/Temp"
+        }
+
 
  

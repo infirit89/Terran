@@ -11,10 +11,13 @@ namespace TerranEngine
 		Bool,
 		Char,
 		Int,
-		/*TODO: 
-			int8, int16, int64
-			uint8, uint16, uint32, uint64
-		*/ 
+		Int8,
+		Int16,
+		Int64,
+		UInt8,
+		Uint16,
+		UInt,
+		UInt64,
 		Float,
 		Double,
 		String

@@ -296,7 +296,7 @@ namespace TerranEditor
         // TODO: copy the current scene
         m_SceneState = SceneState::Play;
         SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
-        //SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+        SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
         m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 
