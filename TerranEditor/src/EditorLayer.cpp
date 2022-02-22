@@ -271,15 +271,20 @@ namespace TerranEditor
             {
                 if (ImGui::MenuItem("Reload C# Assembly")) 
                 {
-                    SaveScene();
-
                     ScriptEngine::UnloadDomain();
                     
                     CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), m_ScriptAssemblyPath.string());
 
                     ScriptEngine::NewDomain();
+                    
+                    auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
 
-                    OpenScene();
+                    for (auto e : scriptView)
+                    {
+                        Entity entity(e, SceneManager::GetCurrentScene().get());
+
+                        ScriptEngine::InitializeScriptable(entity);
+                    }
                 }
 
                 ImGui::EndMenu();

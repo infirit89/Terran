@@ -59,18 +59,43 @@ namespace TerranEngine
 
 	void ScriptField::SetValue(void* value)
 	{
+		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
+		MonoClassField* monoField = (MonoClassField*)m_MonoField;
+
+		if (monoObject == nullptr) 
+		{
+			TR_ERROR("Couldn't set the value of field {0} because the object that it corresponds to is no longer valid", m_Name);
+			return;
+		}
+
+		if (monoField == nullptr) 
+		{
+			TR_ERROR("Couldn't set the value of field {0} because it wasn't found", m_Name);
+			return;
+		}
+
 		mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
 	}
 
 	void ScriptField::GetValue(void* result)
 	{
-		if (mono_gchandle_get_target(m_MonoObjectGCHandle) == nullptr)
+		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
+		MonoClassField* monoField = (MonoClassField*)m_MonoField;
+
+		if (monoObject == nullptr)
+		{
 			TR_ERROR("Couldnt find the object");
+			return;
+		}
 
-		if (m_MonoField == nullptr)
+
+		if (monoField == nullptr)
+		{
 			TR_ERROR("Mono field is null");
+			return;
+		}
 
-		mono_field_get_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, result);
+		mono_field_get_value(monoObject, monoField, result);
 	}
 
 	const char* ScriptField::GetValue()

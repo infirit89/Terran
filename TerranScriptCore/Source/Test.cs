@@ -17,12 +17,12 @@ namespace TerranScriptCore
 
         public void Init() 
         {
+            Log.Trace("started");
+            Log.Trace(Test);
         }
 
         public void Update()
         {
-            Log.Trace(Test);
-
             if (Input.KeyPressed(KeyCode.W))
                 entity.transform.Position += new Vector3(0.0f, 0.1f, 0.0f);
             else if (Input.KeyPressed(KeyCode.S))

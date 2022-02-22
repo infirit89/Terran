@@ -58,7 +58,7 @@ namespace TerranEngine
 		}
 	};
 
-	static std::unordered_map<UUID,std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
+	static std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
 
 	static ScriptableInstance GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
