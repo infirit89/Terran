@@ -164,7 +164,7 @@ namespace TerranEngine
 
 
 		glfwMakeContextCurrent(m_Window);
-		SetVsync(true);
+		SetVsync(data.VSync);
 	}
 
 	void GLFWWindow::Close()

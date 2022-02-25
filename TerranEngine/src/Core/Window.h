@@ -17,7 +17,7 @@ namespace TerranEngine {
 		std::array<std::string, 2> IconPaths = { "", "" };
 		bool Fullscren = false;
 		bool Maximized = true;
-		//bool VSync = true;
+		bool VSync = true;
 
 		WindowData(const char* name = "Terran Application", uint32_t width = 1080, uint32_t height = 790)
 			: Name(name), Width(width), Height(height) {}

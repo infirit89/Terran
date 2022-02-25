@@ -52,6 +52,8 @@ namespace TerranEngine
 	ScriptField::ScriptField(void* monoField, uint32_t monoObjectGCHandle)
 		: m_MonoField(monoField), m_MonoObjectGCHandle(monoObjectGCHandle)
 	{
+		memset(&m_CachedData, 0, sizeof(m_CachedData));
+
 		m_Name = mono_field_get_name((MonoClassField*)m_MonoField);
 		m_FieldType = ConvertFieldType(mono_field_get_type((MonoClassField*)m_MonoField));
 		m_FieldVisibility = ConvertFieldVisibilty((MonoClassField*)m_MonoField);
@@ -83,19 +85,60 @@ namespace TerranEngine
 		MonoClassField* monoField = (MonoClassField*)m_MonoField;
 
 		if (monoObject == nullptr)
-		{
 			TR_ERROR("Couldnt find the object");
-			return;
-		}
 
 
 		if (monoField == nullptr)
-		{
 			TR_ERROR("Mono field is null");
-			return;
+		
+		switch (m_FieldType)
+		{
+		case TerranEngine::ScriptFieldType::Bool: 
+		{
+			if (monoObject != nullptr && monoField != nullptr) 
+			{
+				mono_field_get_value(monoObject, monoField, result);
+				m_CachedData.bValue = *(bool*)result;
+			}
+
+			*(bool*)result = m_CachedData.bValue;
+			break;
+		}
+		case TerranEngine::ScriptFieldType::Int:
+		{
+			if (monoObject != nullptr && monoField != nullptr)
+			{
+				mono_field_get_value(monoObject, monoField, result);
+				m_CachedData.iValue = *(int*)result;
+			}
+
+			*(int*)result = m_CachedData.iValue;
+			break;
+		}
+		case TerranEngine::ScriptFieldType::Float:
+		{
+			if (monoObject != nullptr && monoField != nullptr)
+			{
+				mono_field_get_value(monoObject, monoField, result);
+				m_CachedData.dValue = *(float*)result;
+			}
+
+			*(float*)result = m_CachedData.dValue;
+			break;
+		}
+		case TerranEngine::ScriptFieldType::Double:
+		{
+			if (monoObject != nullptr && monoField != nullptr)
+			{
+				mono_field_get_value(monoObject, monoField, result);
+				m_CachedData.dValue = *(double*)result;
+			}
+
+			*(double*)result = m_CachedData.dValue;
+			break;
+		}
 		}
 
-		mono_field_get_value(monoObject, monoField, result);
 	}
 
 	const char* ScriptField::GetValue()

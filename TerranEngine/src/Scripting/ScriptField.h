@@ -34,6 +34,14 @@ namespace TerranEngine
 
 	class ScriptField 
 	{
+		union FieldCacheData 
+		{
+
+			double dValue;
+			int64_t iValue;
+			bool bValue;
+		};
+
 	public:
 		ScriptField() = default;
 		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
@@ -51,11 +59,15 @@ namespace TerranEngine
 		const char* GetValue();
 		void SetValue(const char* value);
 
+		FieldCacheData GetCachedData() { return m_CachedData; }
+
 	private:
 		void* m_MonoField = nullptr;
 		uint32_t m_MonoObjectGCHandle = 0;
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScirptFieldVisibility m_FieldVisibility = ScirptFieldVisibility::None;
+
+		FieldCacheData m_CachedData;
 	};
 }

@@ -150,6 +150,15 @@ namespace TerranEngine
 			}
 			mono_gc_collect(mono_gc_max_generation());
 
+			auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+
+			for (auto e : scriptView)
+			{
+				Entity entity(e, SceneManager::GetCurrentScene().get());
+
+				UninitalizeScriptable(entity);
+			}
+
 			mono_domain_unload(s_NewDomain);
 
 			s_Classes.clear();
@@ -230,7 +239,6 @@ namespace TerranEngine
 			instance.Object = klass.CreateInstance();
 			instance.GetMethods(klass);
 
-
 			const uint8_t* idData = entity.GetID().GetRaw();
 
 			MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
@@ -262,32 +270,28 @@ namespace TerranEngine
 					{
 					case ScriptFieldType::Bool:
 					{
-						bool value = false;
-						scriptComponent.PublicFields[i].GetValue(&value);
+						bool value = scriptComponent.PublicFields[i].GetCachedData().bValue;
 
 						instance.Object.GetPublicFields()[i].SetValue(&value);
 						break;
 					}
 					case ScriptFieldType::Int:
 					{
-						int value = 0;
-						scriptComponent.PublicFields[i].GetValue(&value);
+						int value = scriptComponent.PublicFields[i].GetCachedData().iValue;
 
 						instance.Object.GetPublicFields()[i].SetValue(&value);
 						break;
 					}
 					case ScriptFieldType::Float:
 					{
-						float value = 0.0f;
-						scriptComponent.PublicFields[i].GetValue(&value);
+						float value = scriptComponent.PublicFields[i].GetCachedData().dValue;
 
 						instance.Object.GetPublicFields()[i].SetValue(&value);
 						break;
 					}
 					case ScriptFieldType::Double:
 					{
-						double value = 0.0;
-						scriptComponent.PublicFields[i].GetValue(&value);
+						double value = scriptComponent.PublicFields[i].GetCachedData().dValue;
 
 						instance.Object.GetPublicFields()[i].SetValue(&value);
 						break;

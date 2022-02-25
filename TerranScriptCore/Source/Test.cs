@@ -17,7 +17,7 @@ namespace TerranScriptCore
 
         public void Init() 
         {
-            Log.Trace("started");
+            Log.Warn("started");
             Log.Trace(Test);
         }
 
