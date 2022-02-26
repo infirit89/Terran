@@ -7,6 +7,7 @@
 #include "EditorPanels/SceneView.h"
 #include "EditorPanels/GameView.h"
 #include "EditorPanels/ContentPanel.h"
+#include "EditorPanels/ECSPanel.h"
 
 #include "EditorCamera.h"
 
@@ -58,6 +59,7 @@ namespace TerranEditor
 		PropertiesPanel m_PropertiesPanel;
 		ContentPanel m_ContentPanel;
 		SceneView m_SceneView;
+		ECSPanel m_ECSPanel;
 		//GameView m_GameView;
 
 		// ******************

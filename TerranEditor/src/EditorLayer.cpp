@@ -22,13 +22,16 @@ namespace TerranEditor
 		m_GameSceneRenderer = CreateShared<SceneRenderer>();
 
         m_EditorScene = CreateShared<Scene>();
-        CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
+        Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
+        TR_TRACE((uint32_t)cameraEntity);
+        CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
 
         // TODO: should add an on component added function
         cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
         SceneManager::SetCurrentScene(m_EditorScene);
 
         m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+        m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 
         m_ScriptAssemblyPath = "Resources/Scripts/";
 
@@ -255,7 +258,7 @@ namespace TerranEditor
                 if (ImGui::MenuItem("Scene Hierarchy"))
                     m_SHierarchy.SetOpen(true);
 
-                if (ImGui::MenuItem("Editor view"))
+                if (ImGui::MenuItem("Editor View"))
                     m_SceneView.SetOpen(true);
 
                 if (ImGui::MenuItem("Performance"))
@@ -263,6 +266,9 @@ namespace TerranEditor
 
                 if (ImGui::MenuItem("Renderer Stats"))
                     m_RendererStatsOpen = true;
+
+                if (ImGui::MenuItem("ECS Panel"))
+                    m_ECSPanel.SetOpen(true);
 
                 ImGui::EndMenu();
             }
@@ -304,6 +310,7 @@ namespace TerranEditor
         SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 
         m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+        m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 
         TR_TRACE(SceneManager::GetCurrentScene().get());
 
@@ -316,6 +323,7 @@ namespace TerranEditor
         SceneManager::GetCurrentScene()->StopRuntime();
         SceneManager::SetCurrentScene(m_EditorScene);
         m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+        m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
     }
 
 	void EditorLayer::ImGuiRender()
@@ -332,6 +340,7 @@ namespace TerranEditor
 
         m_SceneView.SetSceneState(m_SceneState);
 
+
         m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
         {
             OpenScene(filePath, viewportSize);
@@ -340,6 +349,8 @@ namespace TerranEditor
         m_PropertiesPanel.ImGuiRender(m_Selected);
 
         m_ContentPanel.ImGuiRender();
+
+        m_ECSPanel.ImGuiRender();
 
         // Renderer stats
         {
@@ -413,6 +424,7 @@ namespace TerranEditor
         // TODO: should add an on component added function
         cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
         m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+        m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
     }
 
     void EditorLayer::OpenScene()
@@ -445,6 +457,7 @@ namespace TerranEditor
                     SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
 
                     m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+                    m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 
                     m_CurrentScenePath = scenePath;
                 }

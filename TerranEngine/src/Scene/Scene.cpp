@@ -219,9 +219,9 @@ namespace TerranEngine
 		sceneRenderer->EndScene();
 	}
 
-	Entity Scene::FindEntityWithUUID(const UUID& uuid)
+	Entity Scene::FindEntityWithUUID(UUID uuid)
 	{
-		if (m_EntityMap.find(uuid) != m_EntityMap.end())
+		if (m_EntityMap.find(uuid) != m_EntityMap.end()) 
 			return Entity(m_EntityMap[uuid], this);
 
 		return { };
@@ -282,6 +282,16 @@ namespace TerranEngine
 		// NOTE: cant copy relationship components this way, have to copy all the children
 		//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
+
+
+		if (srcEntity.HasComponent<RelationshipComponent>()) 
+		{
+			Entity parent = srcEntity.GetParent();
+
+			// TODO: copy children
+
+			dstEntity.SetParent(parent);
+		}
 
 		if (dstEntity.HasComponent<ScriptComponent>()) 
 		{

@@ -35,7 +35,7 @@ namespace TerranEngine
 		void OnRender(Shared<SceneRenderer>& sceneRenderer);
 		void OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
-		Entity FindEntityWithUUID(const UUID& uuid);
+		Entity FindEntityWithUUID(UUID uuid);
 		Entity FindEntityWithName(const std::string& name);
 
 		template <typename... Args, typename... Exclude>

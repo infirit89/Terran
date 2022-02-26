@@ -43,6 +43,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Player.cs" />
     <Compile Include="Source\Components.cs" />
     <Compile Include="Source\Entity.cs" />
     <Compile Include="Source\Input\Input.cs" />
