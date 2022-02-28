@@ -50,7 +50,15 @@ project "TerranEditor"
         runtime "Debug"
         symbols "on"
 
+        postbuildcommands  
+        {
+            -- todo: copy the pdb
+            "{COPY} %{wks.location}/TerranEngine/vendor/mono/mono-2.0-sgen.dll %{prj.location}/bin/" .. outputdir
+        }
+
     filter "configurations:Release"
         defines "TR_RELEASE"
         runtime "Release"
         optimize "on"
+
+        -- todo: copy in release mode
