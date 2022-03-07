@@ -3,7 +3,6 @@
 
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
-
 #include "Scene/Scene.h"
 
 #include "Utils/Debug/Profiler.h"
@@ -67,6 +66,5 @@ namespace TerranEngine
 			currEntity.GetTransform().IsDirty = true;
 			UpdateEntityTransform(currEntity);
 		}
-
 	}
 }

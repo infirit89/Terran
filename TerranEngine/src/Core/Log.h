@@ -1,10 +1,13 @@
 #pragma once
 
+#include "UUID.h"
+
+#include <glm/glm.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 
 #include <memory>
-#include "UUID.h"
 
 namespace TerranEngine 
 {
@@ -37,6 +40,18 @@ namespace TerranEngine
 		}
 
 		return os;
+	}
+
+	template<typename OStream>
+	OStream& operator<<(OStream& os, const glm::vec2& vec) 
+	{
+		return os << vec.x << ", " << vec.y;
+	}
+
+	template<typename OStream>
+	OStream& operator<<(OStream& os, const glm::vec3& vec)
+	{
+		return os << vec.x << ", " << vec.y;
 	}
 
 #define TR_TRACE(...) ::TerranEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)

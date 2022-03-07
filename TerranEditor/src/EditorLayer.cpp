@@ -485,7 +485,7 @@ namespace TerranEditor
 
             std::error_code errCode;
             std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing, errCode);
-
+            
             TR_TRACE(errCode.message());
         }
             

@@ -194,7 +194,6 @@ namespace TerranEngine
 		m_VertexPositions[2] = {  1.0f,  1.0f, 0.0f, 1.0f };
 		m_VertexPositions[3] = { -1.0f,  1.0f, 0.0f, 1.0f };
 
-
 		m_QuadShader->Bind();
 		m_TextShader->Bind();
 		m_CircleShader->Bind();
@@ -238,10 +237,10 @@ namespace TerranEngine
 	{
 		glm::vec2 textureCoords[4] = 
 		{
-			glm::vec2(0.0f, 0.0f),
-			glm::vec2(1.0f, 0.0f),
-			glm::vec2(1.0f, 1.0f),
-			glm::vec2(0.0f, 1.0f),
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f },
 		};
 
 		AddQuad(transform, color, texture, textureCoords);
@@ -355,10 +354,10 @@ namespace TerranEngine
 
 				glm::vec2 uvs[4] =
 				{
-					glm::vec2(glyph->s0, glyph->t0),
-					glm::vec2(glyph->s1, glyph->t0),
-					glm::vec2(glyph->s1, glyph->t1),
-					glm::vec2(glyph->s0, glyph->t1),
+					{ glyph->s0, glyph->t0 },
+					{ glyph->s1, glyph->t0 },
+					{ glyph->s1, glyph->t1 },
+					{ glyph->s0, glyph->t1 },
 				};
 
 				if (i > 0)
