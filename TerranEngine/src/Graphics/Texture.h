@@ -21,8 +21,8 @@ namespace TerranEngine
 	{
 		TextureType TextureType = TextureType::RGBA;
 
-		TextureFilter MinFilter = TextureFilter::NEAREST;
-		TextureFilter MagFilter = TextureFilter::NEAREST;
+		TextureFilter MinFilter = TextureFilter::LINEAR;
+		TextureFilter MagFilter = TextureFilter::LINEAR;
 
 		// TODO: add wrapping modes
 	};

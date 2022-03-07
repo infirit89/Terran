@@ -15,6 +15,11 @@ namespace TerranEngine
 		MonoClassField* field;
 		void* iter = nullptr;
 
+		MonoClassField* testField = mono_class_get_field_from_name(klass, "Test");
+
+		if (testField != nullptr)
+			TR_TRACE("found");
+
 		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
 			m_Fields[hasher(mono_field_get_name(field))] = ScriptField(field, m_MonoGCHandle);
 	}

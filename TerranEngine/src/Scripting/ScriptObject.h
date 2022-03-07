@@ -22,7 +22,7 @@ namespace TerranEngine
 
 		ScriptField GetField(const char* fieldName);
 		std::vector<ScriptField> GetFields();
-		std::vector<ScriptField> GetPublicFields();
+		std::unordered_map<uint32_t, ScriptField> GetFieldMap();
 
 	private:
 		void* GetNativeObject() const;
@@ -30,7 +30,7 @@ namespace TerranEngine
 	private:
 		uint32_t m_MonoGCHandle;
 
-		std::unordered_map<uint32_t, ScriptField> m_Fields;
+		std::unordered_map<uint32_t, ScriptField> m_PublicFields;
 		friend class ScriptMethod;
 	};
 }

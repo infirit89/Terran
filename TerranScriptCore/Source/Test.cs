@@ -13,8 +13,12 @@ namespace TerranScriptCore
 
     public class TestScriptable : Scriptable 
     {
+        public float Test = 1.0f;
+
         public void Init() 
         {
+            Log.Warn("started");
+            Log.Trace(Test);
         }
 
         public void Update()

@@ -1,0 +1,1896 @@
+{
+    "Version": 0,
+    "Scene": "Name",
+    "Entities": {
+        "Entity 3b3d665a-8118-431d-8394-84b6c8d2cafb": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "3b3d665a-8118-431d-8394-84b6c8d2cafb"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "3c27a03e-0ab8-4d13-8a6e-87ffc184d429"
+            }
+        },
+        "Entity e98ae2c2-3a5f-40c8-9b92-acaa0d508338": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "e98ae2c2-3a5f-40c8-9b92-acaa0d508338"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "3c27a03e-0ab8-4d13-8a6e-87ffc184d429"
+            }
+        },
+        "Entity cbaf2ade-9ee7-4972-af32-60a457037784": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "cbaf2ade-9ee7-4972-af32-60a457037784"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "3c27a03e-0ab8-4d13-8a6e-87ffc184d429"
+            }
+        },
+        "Entity 693a7e75-d3c5-4e81-bd1a-f0a627122d9a": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "693a7e75-d3c5-4e81-bd1a-f0a627122d9a"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "c784061c-8ebd-458a-8b7f-80bc8db6f0cd"
+            }
+        },
+        "Entity 1f0a7618-affd-48b8-85ad-adff78919aa0": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "1f0a7618-affd-48b8-85ad-adff78919aa0"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "c784061c-8ebd-458a-8b7f-80bc8db6f0cd"
+            }
+        },
+        "Entity caca5590-5ab4-4334-88bf-4fc020234c38": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "caca5590-5ab4-4334-88bf-4fc020234c38"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "c784061c-8ebd-458a-8b7f-80bc8db6f0cd"
+            }
+        },
+        "Entity ff7ea2ff-0d3e-4000-ab41-fd1750499d37": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "ff7ea2ff-0d3e-4000-ab41-fd1750499d37"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "f5b71ef3-2361-4dad-a749-7c15e4be494d"
+            }
+        },
+        "Entity 4b75dca5-811b-4085-a93e-5ef273fe9290": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "4b75dca5-811b-4085-a93e-5ef273fe9290"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "f5b71ef3-2361-4dad-a749-7c15e4be494d"
+            }
+        },
+        "Entity 3efa2343-c65a-4801-a2ee-7335d0894198": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "3efa2343-c65a-4801-a2ee-7335d0894198"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "f5b71ef3-2361-4dad-a749-7c15e4be494d"
+            }
+        },
+        "Entity a7c5dbac-a6fb-468a-bd7c-3051344ebe3b": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a7c5dbac-a6fb-468a-bd7c-3051344ebe3b"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "f5b71ef3-2361-4dad-a749-7c15e4be494d"
+            }
+        },
+        "Entity 466b6387-4976-4c6d-ab96-c066a5a65c7d": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "466b6387-4976-4c6d-ab96-c066a5a65c7d"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "f5b71ef3-2361-4dad-a749-7c15e4be494d"
+            }
+        },
+        "Entity 23522aad-7501-48f7-95bc-4b6cd4fa6fad": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "23522aad-7501-48f7-95bc-4b6cd4fa6fad"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9068b798-e8e2-4645-bbee-80762f8a26e4"
+            }
+        },
+        "Entity c6ddd629-63f1-44c4-a586-e5bd1d4f61a5": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "c6ddd629-63f1-44c4-a586-e5bd1d4f61a5"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9068b798-e8e2-4645-bbee-80762f8a26e4"
+            }
+        },
+        "Entity 9068b798-e8e2-4645-bbee-80762f8a26e4": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "9068b798-e8e2-4645-bbee-80762f8a26e4"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": -1.4891228675842285,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 2,
+                "Children": [
+                    "c6ddd629-63f1-44c4-a586-e5bd1d4f61a5",
+                    "23522aad-7501-48f7-95bc-4b6cd4fa6fad"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity c1af5516-4fee-47ba-9766-28d4e1f41f88": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "c1af5516-4fee-47ba-9766-28d4e1f41f88"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "24669161-85f3-4016-adaa-5cc99984ba76"
+            }
+        },
+        "Entity efb657ba-7585-407f-9283-7b22e36861f7": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "efb657ba-7585-407f-9283-7b22e36861f7"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "24669161-85f3-4016-adaa-5cc99984ba76"
+            }
+        },
+        "Entity 9a9c1a7d-1fb2-42cd-bf31-193a93e3a3f0": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "9a9c1a7d-1fb2-42cd-bf31-193a93e3a3f0"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "24669161-85f3-4016-adaa-5cc99984ba76"
+            }
+        },
+        "Entity 7fdab950-1d7d-4159-bdf0-81bd72efc1cd": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "7fdab950-1d7d-4159-bdf0-81bd72efc1cd"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "24669161-85f3-4016-adaa-5cc99984ba76"
+            }
+        },
+        "Entity 24669161-85f3-4016-adaa-5cc99984ba76": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "24669161-85f3-4016-adaa-5cc99984ba76"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 2.3966946601867676,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 4,
+                "Children": [
+                    "7fdab950-1d7d-4159-bdf0-81bd72efc1cd",
+                    "9a9c1a7d-1fb2-42cd-bf31-193a93e3a3f0",
+                    "efb657ba-7585-407f-9283-7b22e36861f7",
+                    "c1af5516-4fee-47ba-9766-28d4e1f41f88"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 8bdcd20f-0cab-4872-ac05-dbb82c502d5a": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "8bdcd20f-0cab-4872-ac05-dbb82c502d5a"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a7cc191a-9980-488e-8307-508e9cc9a345"
+            }
+        },
+        "Entity a10946d0-d836-490b-a724-ea6977607c76": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a10946d0-d836-490b-a724-ea6977607c76"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a7cc191a-9980-488e-8307-508e9cc9a345"
+            }
+        },
+        "Entity 79a551e9-37ac-4052-a7ca-e700b98173f9": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "79a551e9-37ac-4052-a7ca-e700b98173f9"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a7cc191a-9980-488e-8307-508e9cc9a345"
+            }
+        },
+        "Entity a7cc191a-9980-488e-8307-508e9cc9a345": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a7cc191a-9980-488e-8307-508e9cc9a345"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 3.7514424324035645,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 3,
+                "Children": [
+                    "79a551e9-37ac-4052-a7ca-e700b98173f9",
+                    "a10946d0-d836-490b-a724-ea6977607c76",
+                    "8bdcd20f-0cab-4872-ac05-dbb82c502d5a"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 9652683e-a373-43dc-9a0c-545b7c6da17a": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "9652683e-a373-43dc-9a0c-545b7c6da17a"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "4d1eb309-879c-455c-a46b-57f240f87587"
+            }
+        },
+        "Entity 9fee3da9-19f4-4347-9369-1f6ae5dae71e": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "9fee3da9-19f4-4347-9369-1f6ae5dae71e"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "4d1eb309-879c-455c-a46b-57f240f87587"
+            }
+        },
+        "Entity a965a179-70a9-47d2-b6c4-a3228ebdaf9b": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a965a179-70a9-47d2-b6c4-a3228ebdaf9b"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "4d1eb309-879c-455c-a46b-57f240f87587"
+            }
+        },
+        "Entity 69740be1-ff85-4763-a4a0-05249407f686": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "69740be1-ff85-4763-a4a0-05249407f686"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "4d1eb309-879c-455c-a46b-57f240f87587"
+            }
+        },
+        "Entity 4d1eb309-879c-455c-a46b-57f240f87587": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "4d1eb309-879c-455c-a46b-57f240f87587"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": -4.481684684753418,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 4,
+                "Children": [
+                    "69740be1-ff85-4763-a4a0-05249407f686",
+                    "a965a179-70a9-47d2-b6c4-a3228ebdaf9b",
+                    "9fee3da9-19f4-4347-9369-1f6ae5dae71e",
+                    "9652683e-a373-43dc-9a0c-545b7c6da17a"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 17ab0cf5-02e2-45f3-be1e-ae2f296cfb6a": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "17ab0cf5-02e2-45f3-be1e-ae2f296cfb6a"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            }
+        },
+        "Entity cc1ee3ec-8b22-4be2-92d1-ec8acdee89cf": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "cc1ee3ec-8b22-4be2-92d1-ec8acdee89cf"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            }
+        },
+        "Entity 8d502223-bab7-4bd0-b27a-010da9369ccd": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "8d502223-bab7-4bd0-b27a-010da9369ccd"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            }
+        },
+        "Entity 8f7fd167-8e95-4b87-9e0b-fdc623ea39f9": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "8f7fd167-8e95-4b87-9e0b-fdc623ea39f9"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            }
+        },
+        "Entity 4378515e-e786-4d0b-924e-ed73fc0ec612": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "4378515e-e786-4d0b-924e-ed73fc0ec612"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            }
+        },
+        "Entity 5fe04be5-f645-423b-ad38-ffb99823705c": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "5fe04be5-f645-423b-ad38-ffb99823705c"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            }
+        },
+        "Entity a2769a53-198b-45af-a4aa-3c83a94864b1": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a2769a53-198b-45af-a4aa-3c83a94864b1"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 3.135747194290161,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 6,
+                "Children": [
+                    "5fe04be5-f645-423b-ad38-ffb99823705c",
+                    "4378515e-e786-4d0b-924e-ed73fc0ec612",
+                    "8f7fd167-8e95-4b87-9e0b-fdc623ea39f9",
+                    "8d502223-bab7-4bd0-b27a-010da9369ccd",
+                    "cc1ee3ec-8b22-4be2-92d1-ec8acdee89cf",
+                    "17ab0cf5-02e2-45f3-be1e-ae2f296cfb6a"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 73f36eb0-fd2c-4691-b667-f72e45289c7c": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "73f36eb0-fd2c-4691-b667-f72e45289c7c"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity ea07d39a-bfce-475d-a1ae-04eb15bacab8": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "ea07d39a-bfce-475d-a1ae-04eb15bacab8"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity a4da339b-9e7e-46a2-8cc2-c5a3b7b8ede0": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a4da339b-9e7e-46a2-8cc2-c5a3b7b8ede0"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity a5c49320-63df-4f79-ba6d-6c5d6e554720": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a5c49320-63df-4f79-ba6d-6c5d6e554720"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 80957d46-1e37-4fb8-bf90-c192d293f55e": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "80957d46-1e37-4fb8-bf90-c192d293f55e"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity a6a7db6b-2148-46e4-a022-8c47e69d9ebf": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "a6a7db6b-2148-46e4-a022-8c47e69d9ebf"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 758e8e27-8922-4deb-88be-009662234324": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "758e8e27-8922-4deb-88be-009662234324"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 410fb7b6-7cc2-44e1-a7e6-9fdc797552e7": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "410fb7b6-7cc2-44e1-a7e6-9fdc797552e7"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 18351fa7-0653-4ccd-8057-f102a333fc38": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "18351fa7-0653-4ccd-8057-f102a333fc38"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity e139f24f-f958-4110-9183-7b198af45d84": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "e139f24f-f958-4110-9183-7b198af45d84"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 1423bc43-830f-40dd-9d6c-d6061ad0afde": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "1423bc43-830f-40dd-9d6c-d6061ad0afde"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 8bd0ac19-42e3-4fb9-bccd-0351dea4f5b4": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "8bd0ac19-42e3-4fb9-bccd-0351dea4f5b4"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 301bdf1f-974c-4980-aeca-4675fc9be989": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "301bdf1f-974c-4980-aeca-4675fc9be989"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity e942eeb3-da50-44b4-95cd-766a0d89e4df": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "e942eeb3-da50-44b4-95cd-766a0d89e4df"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity f5b71ef3-2361-4dad-a749-7c15e4be494d": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "f5b71ef3-2361-4dad-a749-7c15e4be494d"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 5,
+                "Children": [
+                    "466b6387-4976-4c6d-ab96-c066a5a65c7d",
+                    "a7c5dbac-a6fb-468a-bd7c-3051344ebe3b",
+                    "3efa2343-c65a-4801-a2ee-7335d0894198",
+                    "4b75dca5-811b-4085-a93e-5ef273fe9290",
+                    "ff7ea2ff-0d3e-4000-ab41-fd1750499d37"
+                ],
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity f4a9336e-c5e1-478e-abc3-cb146af85a00": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "f4a9336e-c5e1-478e-abc3-cb146af85a00"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 0a0d7dfb-c901-4d60-abb0-20ef8a8799f6": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "0a0d7dfb-c901-4d60-abb0-20ef8a8799f6"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 2b60b9a7-b415-46c0-94e1-9e0573080f10": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "2b60b9a7-b415-46c0-94e1-9e0573080f10"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 3c27a03e-0ab8-4d13-8a6e-87ffc184d429": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "3c27a03e-0ab8-4d13-8a6e-87ffc184d429"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 3,
+                "Children": [
+                    "cbaf2ade-9ee7-4972-af32-60a457037784",
+                    "e98ae2c2-3a5f-40c8-9b92-acaa0d508338",
+                    "3b3d665a-8118-431d-8394-84b6c8d2cafb"
+                ],
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity c718586f-7c0b-4073-a300-1a1146ef899b": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "c718586f-7c0b-4073-a300-1a1146ef899b"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 76610717-4b3d-4332-ab89-88c068e25c84": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "76610717-4b3d-4332-ab89-88c068e25c84"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity e6f7954a-763e-43c6-9752-344774214cff": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "e6f7954a-763e-43c6-9752-344774214cff"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 54e907b5-849c-4f56-9d45-1f0a7b3eaf82": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "54e907b5-849c-4f56-9d45-1f0a7b3eaf82"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity c784061c-8ebd-458a-8b7f-80bc8db6f0cd": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "c784061c-8ebd-458a-8b7f-80bc8db6f0cd"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 3,
+                "Children": [
+                    "caca5590-5ab4-4334-88bf-4fc020234c38",
+                    "1f0a7618-affd-48b8-85ad-adff78919aa0",
+                    "693a7e75-d3c5-4e81-bd1a-f0a627122d9a"
+                ],
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 5f5d2c18-a3f0-476a-9944-b3b0b4663716": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "5f5d2c18-a3f0-476a-9944-b3b0b4663716"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity c0092a64-e08c-4fc3-831c-eb7bbd6963e2": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "c0092a64-e08c-4fc3-831c-eb7bbd6963e2"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 9684186c-fb70-4801-b0c7-30472215149b": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "9684186c-fb70-4801-b0c7-30472215149b"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 5d7f847b-7761-4649-a013-8e48a14cd875": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "5d7f847b-7761-4649-a013-8e48a14cd875"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            }
+        },
+        "Entity 9a37a4d7-f676-4cda-aba0-cb2f48b131c7": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "9a37a4d7-f676-4cda-aba0-cb2f48b131c7"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": -1.9329960346221924,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 28,
+                "Children": [
+                    "5d7f847b-7761-4649-a013-8e48a14cd875",
+                    "9684186c-fb70-4801-b0c7-30472215149b",
+                    "c0092a64-e08c-4fc3-831c-eb7bbd6963e2",
+                    "5f5d2c18-a3f0-476a-9944-b3b0b4663716",
+                    "c784061c-8ebd-458a-8b7f-80bc8db6f0cd",
+                    "54e907b5-849c-4f56-9d45-1f0a7b3eaf82",
+                    "e6f7954a-763e-43c6-9752-344774214cff",
+                    "76610717-4b3d-4332-ab89-88c068e25c84",
+                    "c718586f-7c0b-4073-a300-1a1146ef899b",
+                    "3c27a03e-0ab8-4d13-8a6e-87ffc184d429",
+                    "2b60b9a7-b415-46c0-94e1-9e0573080f10",
+                    "0a0d7dfb-c901-4d60-abb0-20ef8a8799f6",
+                    "f4a9336e-c5e1-478e-abc3-cb146af85a00",
+                    "f5b71ef3-2361-4dad-a749-7c15e4be494d",
+                    "e942eeb3-da50-44b4-95cd-766a0d89e4df",
+                    "301bdf1f-974c-4980-aeca-4675fc9be989",
+                    "8bd0ac19-42e3-4fb9-bccd-0351dea4f5b4",
+                    "1423bc43-830f-40dd-9d6c-d6061ad0afde",
+                    "e139f24f-f958-4110-9183-7b198af45d84",
+                    "18351fa7-0653-4ccd-8057-f102a333fc38",
+                    "410fb7b6-7cc2-44e1-a7e6-9fdc797552e7",
+                    "758e8e27-8922-4deb-88be-009662234324",
+                    "a6a7db6b-2148-46e4-a022-8c47e69d9ebf",
+                    "80957d46-1e37-4fb8-bf90-c192d293f55e",
+                    "a5c49320-63df-4f79-ba6d-6c5d6e554720",
+                    "a4da339b-9e7e-46a2-8cc2-c5a3b7b8ede0",
+                    "ea07d39a-bfce-475d-a1ae-04eb15bacab8",
+                    "73f36eb0-fd2c-4691-b667-f72e45289c7c"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 5a9a7feb-7e08-4d9d-8f7e-49e384f70164": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "5a9a7feb-7e08-4d9d-8f7e-49e384f70164"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

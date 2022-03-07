@@ -3,7 +3,6 @@
 
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
-
 #include "Scene/Scene.h"
 
 #include "Utils/Debug/Profiler.h"
@@ -48,8 +47,6 @@ namespace TerranEngine
 	{
 		TransformComponent& transformComponent = entity.GetTransform();
 		
-		TR_TRACE("updated");
-
 		if (entity.GetTransform().IsDirty) 
 		{
 			if (entity.HasParent())
@@ -69,6 +66,5 @@ namespace TerranEngine
 			currEntity.GetTransform().IsDirty = true;
 			UpdateEntityTransform(currEntity);
 		}
-
 	}
 }

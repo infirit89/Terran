@@ -15,7 +15,10 @@ namespace TerranEngine
 	class Scene 
 	{
 	public:
+		
 		Scene();
+		
+		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
@@ -32,7 +35,7 @@ namespace TerranEngine
 		void OnRender(Shared<SceneRenderer>& sceneRenderer);
 		void OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
-		Entity FindEntityWithUUID(const UUID& uuid);
+		Entity FindEntityWithUUID(UUID uuid);
 		Entity FindEntityWithName(const std::string& name);
 
 		template <typename... Args, typename... Exclude>
@@ -46,10 +49,14 @@ namespace TerranEngine
 
 		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
 
+		UUID& GetID() { return m_ID; }
+
 	private:
 		
 	private:
 		// TODO: add scene name and UUID
+
+		UUID m_ID;
 
 		bool m_RuntimeStarted = false;
 

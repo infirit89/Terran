@@ -45,5 +45,8 @@ namespace TerranEditor
 		bool m_Visible = false;
 
 		SceneState m_SceneState = SceneState::Edit;
+
+		bool m_UseSnapping = false;
+		glm::vec3 m_Snap = { 2.0f, 2.0f, 2.0f };
 	};
 }

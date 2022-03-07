@@ -17,6 +17,19 @@ namespace TerranEngine
 {
 	Scene::Scene()
 	{
+		m_ID = UUID();
+	}
+
+	Scene::~Scene()
+	{
+		auto scriptView = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptView)
+		{
+			Entity entity(e, this);
+
+			ScriptEngine::UninitalizeScriptable(entity);
+		}
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -71,6 +84,7 @@ namespace TerranEngine
 		for (auto e : scriptbleComponentView)
 		{
 			Entity entity(e, this);
+			ScriptEngine::InitializeScriptable(entity);
 			ScriptEngine::StartScriptable(entity);
 		}
 	}
@@ -90,8 +104,11 @@ namespace TerranEngine
 		{
 			Entity entity(e, this);
 			// NOTE: in case an entity is created during the runtime we want to start that entity's script
-			if (!entity.GetComponent<ScriptComponent>().Started)
+			if (!entity.GetComponent<ScriptComponent>().Started) 
+			{
+				ScriptEngine::InitializeScriptable(entity);
 				ScriptEngine::StartScriptable(entity);
+			}
 
 			ScriptEngine::UpdateScriptable(entity);
 		}
@@ -105,7 +122,7 @@ namespace TerranEngine
 	void Scene::UpdateEditor()
 	{
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
-			{ return lEntity.IsDirty && !rEntity.IsDirty; });
+		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
 		TransformSystem::Update(this);
 	}
@@ -202,9 +219,9 @@ namespace TerranEngine
 		sceneRenderer->EndScene();
 	}
 
-	Entity Scene::FindEntityWithUUID(const UUID& uuid)
+	Entity Scene::FindEntityWithUUID(UUID uuid)
 	{
-		if (m_EntityMap.find(uuid) != m_EntityMap.end())
+		if (m_EntityMap.find(uuid) != m_EntityMap.end()) 
 			return Entity(m_EntityMap[uuid], this);
 
 		return { };
@@ -265,6 +282,16 @@ namespace TerranEngine
 		// NOTE: cant copy relationship components this way, have to copy all the children
 		//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
+
+
+		if (srcEntity.HasComponent<RelationshipComponent>()) 
+		{
+			Entity parent = srcEntity.GetParent();
+
+			// TODO: copy children
+
+			dstEntity.SetParent(parent);
+		}
 
 		if (dstEntity.HasComponent<ScriptComponent>()) 
 		{

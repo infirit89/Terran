@@ -14,6 +14,7 @@ namespace TerranEngine
 			data.Name = "Terran";
 			data.Width = 1080;
 			data.Height = 790;
+			data.VSync = true;
 			Create(data);
 
 			PushLayer(new TerranEditor::EditorLayer());

@@ -39,6 +39,12 @@ namespace TerranEditor
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
+            bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
+            if (altPressed)
+                m_UseSnapping = true;
+            else
+                m_UseSnapping = false;
+
             // Gizmos
             if (selectedEntity && m_SceneState == SceneState::Edit)
             {
@@ -46,7 +52,7 @@ namespace TerranEditor
                 glm::mat4 transformMatrix = tc.WorldTransformMatrix;
 
                 ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(editorCamera.GetView())), glm::value_ptr(editorCamera.GetProjection()),
-                    (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
+                    (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
 
                 if (ImGuizmo::IsUsing())
                 {
