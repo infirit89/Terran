@@ -27,6 +27,6 @@ namespace TerranEngine
 		inline MonoClass* GetNativeClassPtr() const { return m_MonoClass; }
 
 	private:
-		MonoClass* m_MonoClass;
+		MonoClass* m_MonoClass = nullptr;
 	};
 }

@@ -171,12 +171,29 @@ namespace TerranEditor
 
 				DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component) 
 				{
-					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
-						ScriptEngine::InitializeScriptable(entity);
+					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) 
+					{
+						if (ScriptEngine::ClassExists(component.ModuleName)) 
+						{
+							ScriptEngine::InitializeScriptable(entity);
+							component.ClassExists = true;
+						}
+						else
+							component.ClassExists = false;
+					}
+
+					if (!component.ClassExists) 
+					{
+						ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+						ImGui::Text("The class could not be found");
+
+						ImGui::PopStyleColor();
+					}
 
 					if (!component.PublicFields.empty()) 
 					{
-						for (auto& field : component.PublicFields)
+						for (auto& [hashedName, field] : component.PublicFields)
 						{
 							// TODO: add more types
 							switch (field.GetType())

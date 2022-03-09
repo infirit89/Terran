@@ -15,9 +15,14 @@
 
 namespace TerranEngine 
 {
+
 	Scene::Scene()
 	{
 		m_ID = UUID();
+
+		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
+
+		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
 	}
 
 	Scene::~Scene()
@@ -30,6 +35,10 @@ namespace TerranEngine
 
 			ScriptEngine::UninitalizeScriptable(entity);
 		}
+
+		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
+
+		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -326,5 +335,19 @@ namespace TerranEngine
 		}
 
 		return scene;
+	}
+
+	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+	{
+		Entity entity(entityHandle, this);
+
+		ScriptEngine::InitializeScriptable(entity);
+	}
+
+	void Scene::OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+	{
+		Entity entity(entityHandle, this);
+
+		ScriptEngine::UninitalizeScriptable(entity);
 	}
 }

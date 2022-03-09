@@ -23,15 +23,6 @@ namespace TerranEngine
 		String
 	};
 
-	enum class ScirptFieldVisibility 
-	{
-		None = 0,
-		Private,
-		Protected,
-		Internal,
-		Public
-	};
-
 	class ScriptField 
 	{
 		union FieldCacheData 
@@ -51,7 +42,6 @@ namespace TerranEngine
 
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
-		inline ScirptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
 		void SetValue(void* value);
 		void GetValue(void* result);
@@ -66,7 +56,6 @@ namespace TerranEngine
 		uint32_t m_MonoObjectGCHandle = 0;
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
-		ScirptFieldVisibility m_FieldVisibility = ScirptFieldVisibility::None;
 
 		FieldCacheData m_CachedData;
 	};

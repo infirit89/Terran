@@ -95,12 +95,12 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, std::vector<ScriptField>& scriptFields) 
+	static void SerializeField(json& j, std::unordered_map<uint32_t, ScriptField>& scriptFields) 
 	{
 		if (scriptFields.empty())
 			return;
 
-		for (auto& field : scriptFields)
+		for (auto& [hashedName, field] : scriptFields)
 		{
 			switch (field.GetType())
 			{
@@ -383,7 +383,7 @@ namespace TerranEngine
 						TR_ERROR("Desirializing scene: Script Component field size mismatch!");
 					else 
 					{
-						for (auto& field : scriptComponent.PublicFields) 
+						for (auto& [hashedName, field] : scriptComponent.PublicFields) 
 						{
 							// TODO: add more types
 							switch (field.GetType())

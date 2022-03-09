@@ -25,6 +25,8 @@ namespace TerranEngine
 
 		static ScriptClass GetClass(const std::string& moduleName);
 
+		static bool ClassExists(const std::string& moduleName);
+
 		static void InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 

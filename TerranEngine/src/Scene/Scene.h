@@ -52,7 +52,9 @@ namespace TerranEngine
 		UUID& GetID() { return m_ID; }
 
 	private:
-		
+		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
 	private:
 		// TODO: add scene name and UUID
 
