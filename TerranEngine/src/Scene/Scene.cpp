@@ -280,7 +280,7 @@ namespace TerranEngine
 		CopyComponent<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
 	}
 
-	Entity Scene::DuplicateEntity(Entity srcEntity)
+	Entity Scene::DuplicateEntity(Entity srcEntity, Entity parent)
 	{
 		Entity dstEntity = CreateEntity(srcEntity.GetName() + " Copy");
 
@@ -288,18 +288,23 @@ namespace TerranEngine
 		CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
-		// NOTE: cant copy relationship components this way, have to copy all the children
-		//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
 
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
-			Entity parent = srcEntity.GetParent();
-
 			// TODO: copy children
+			for (int i = 0; i < srcEntity.GetChildCount(); i++)
+			{
+				Entity childEntity = srcEntity.GetChild(i);
+				DuplicateEntity(childEntity, dstEntity);
+			}
 
-			dstEntity.SetParent(parent);
+			if(!parent)
+				parent = srcEntity.GetParent();
+
+			if(parent)
+				dstEntity.SetParent(parent);
 		}
 
 		if (dstEntity.HasComponent<ScriptComponent>()) 
@@ -313,6 +318,11 @@ namespace TerranEngine
 		return dstEntity;
 	}
 
+	Entity Scene::DuplicateEntity(Entity srcEntity)
+	{
+		return DuplicateEntity(srcEntity, {});
+	}
+
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
 		Shared<Scene> scene = CreateShared<Scene>();
@@ -324,13 +334,18 @@ namespace TerranEngine
 			Entity srcEntity(e, srcScene.get());
 
 			Entity dstEntity = scene->CreateEntityWithUUID(srcEntity.GetName(), srcEntity.GetID());
+		}
+
+		for (auto e : tagView)
+		{
+			Entity srcEntity(e, srcScene.get());
+			Entity dstEntity = scene->FindEntityWithUUID(srcEntity.GetID());
 
 			CopyComponent<TransformComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CameraComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-			// NOTE: cant copy relationship components this way, have to copy all the children
-			//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
+			CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 

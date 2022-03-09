@@ -45,6 +45,7 @@ namespace TerranEngine
 
 		Entity GetPrimaryCamera();
 
+		Entity DuplicateEntity(Entity srcEntity, Entity parent);
 		Entity DuplicateEntity(Entity srcEntity);
 
 		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
