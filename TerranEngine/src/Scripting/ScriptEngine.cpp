@@ -240,6 +240,15 @@ namespace TerranEngine
 				return;
 			}
 
+			ScriptClass parentKlass = klass.GetParent();
+			if ((!parentKlass.GetNativeClassPtr()) ||
+				(strcmp(parentKlass.GetName(), "Scriptable") != 0 && strcmp(parentKlass.GetNamespace(), "TerranScriptCore") != 0))
+			{
+				// TODO: display error in ui
+				TR_WARN("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
+				return;
+			}
+
 			ScriptableInstance instance;
 			instance.Object = klass.CreateInstance();
 			instance.GetMethods(klass);
@@ -273,7 +282,15 @@ namespace TerranEngine
 				}
 			}
 
-			scriptComponent.PublicFields = instance.Object.GetFieldMap();
+			for (auto& it : instance.Object.GetFieldOrder())
+			{
+				ScriptField field = instance.Object.GetFieldMap().at(it);
+
+				scriptComponent.FieldOrder.emplace_back(it);
+				scriptComponent.PublicFields.emplace(it, std::move(field));
+			}
+
+			//scriptComponent.PublicFields = instance.Object.GetFieldMap();
 		}
 	}
 

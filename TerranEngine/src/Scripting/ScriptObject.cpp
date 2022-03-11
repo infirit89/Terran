@@ -26,8 +26,16 @@ namespace TerranEngine
 		{
 			uint32_t fieldVisibilty = mono_field_get_flags(field) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 
-			if(fieldVisibilty == MONO_FIELD_ATTR_PUBLIC)
-				m_PublicFields[hasher(mono_field_get_name(field))] = ScriptField(field, m_MonoGCHandle);
+			if (fieldVisibilty == MONO_FIELD_ATTR_PUBLIC) 
+			{
+				uint32_t hashedName = hasher(mono_field_get_name(field));
+				ScriptField scriptField(field, m_MonoGCHandle);
+				
+				TR_TRACE(mono_field_get_name(field));
+
+				m_FieldOrder.emplace_back(hashedName);
+				m_PublicFields.emplace(hashedName, std::move(scriptField));
+			}
 
 		}
 	}

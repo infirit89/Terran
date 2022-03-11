@@ -35,6 +35,7 @@ namespace TerranEditor
 
         ImGui::Columns(1);
         ImGui::PopID();
+
     }
 
     bool UI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
@@ -230,6 +231,35 @@ namespace TerranEditor
             value = buf;
             changed = true;
         }
+
+        ImGui::Columns(1);
+        ImGui::PopID();
+
+        return changed;
+    }
+
+    bool UI::DrawScalar(const char* label, ImGuiDataType type, void* value, float power, const char* format, float columnWidth)
+    {
+        bool changed = false;
+
+        ImGui::PushID(label);
+
+        ImGui::Columns(2, NULL, false);
+
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+        ImGui::NextColumn();
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+        float min = 0.0f;
+        float max = 0.0f;
+
+        if (ImGui::DragScalar("##val", type, value, power, &min, &max, format, NULL))
+            changed = true;
+
+        if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
         ImGui::Columns(1);
         ImGui::PopID();

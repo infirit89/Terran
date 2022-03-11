@@ -95,13 +95,15 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, std::unordered_map<uint32_t, ScriptField>& scriptFields) 
+	static void SerializeField(json& j, ScriptComponent& scriptComponent) 
 	{
-		if (scriptFields.empty())
+		if (scriptComponent.PublicFields.empty())
 			return;
 
-		for (auto& [hashedName, field] : scriptFields)
+		for (auto& hashedName : scriptComponent.FieldOrder)
 		{
+			ScriptField field = scriptComponent.PublicFields.at(hashedName);
+
 			switch (field.GetType())
 			{
 			case ScriptFieldType::Bool: 
@@ -240,7 +242,7 @@ namespace TerranEngine
 				} }
 			);
 
-			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.PublicFields);
+			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent);
 		}
 	}
 

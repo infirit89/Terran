@@ -22,13 +22,15 @@ namespace TerranEngine
 
 		ScriptField GetPublicField(const char* fieldName);
 		const std::unordered_map<uint32_t, ScriptField>& GetFieldMap() const { return m_PublicFields; };
+		const std::vector<uint32_t>& GetFieldOrder() const { return m_FieldOrder; }
 
 	private:
 		void* GetNativeObject() const;
 
 	private:
 		uint32_t m_MonoGCHandle;
-
+		
+		std::vector<uint32_t> m_FieldOrder;
 		std::unordered_map<uint32_t, ScriptField> m_PublicFields;
 		friend class ScriptMethod;
 	};

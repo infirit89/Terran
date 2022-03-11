@@ -193,8 +193,10 @@ namespace TerranEditor
 
 					if (!component.PublicFields.empty()) 
 					{
-						for (auto& [hashedName, field] : component.PublicFields)
+						for (auto& hashedName : component.FieldOrder)
 						{
+							ScriptField field = component.PublicFields.at(hashedName);
+
 							// TODO: add more types
 							switch (field.GetType())
 							{
@@ -223,7 +225,17 @@ namespace TerranEditor
 								float value = 0.0f;
 								field.GetValue(&value);
 
-								if (UI::DrawFloatControl(field.GetName(), value))
+								if (UI::DrawFloatControl(field.GetName(), value, 0.1f, "%.2f"))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Double:
+							{
+								double value = 0.0f;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_Double, &value, 0.1f, "%.4f"))
 									field.SetValue(&value);
 
 								break;
