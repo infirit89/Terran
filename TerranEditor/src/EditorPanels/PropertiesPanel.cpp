@@ -195,7 +195,7 @@ namespace TerranEditor
 					{
 						for (auto& hashedName : component.FieldOrder)
 						{
-							ScriptField field = component.PublicFields.at(hashedName);
+							ScriptField& field = component.PublicFields.at(hashedName);
 
 							// TODO: add more types
 							switch (field.GetType())

@@ -329,10 +329,7 @@ namespace TerranEditor
 	void EditorLayer::ImGuiRender()
 	{
         // NOTE : this is a temporary fix
-        // move the ImGui layer from the engine to the editor 
-
-        ImGui::ShowDemoWindow();
-
+        // move the ImGui layer from the engine to the editor
         ImGuizmo::BeginFrame();
 
         ShowDockspace();

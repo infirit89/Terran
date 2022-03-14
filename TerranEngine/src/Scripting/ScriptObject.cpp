@@ -31,8 +31,6 @@ namespace TerranEngine
 				uint32_t hashedName = hasher(mono_field_get_name(field));
 				ScriptField scriptField(field, m_MonoGCHandle);
 				
-				TR_TRACE(mono_field_get_name(field));
-
 				m_FieldOrder.emplace_back(hashedName);
 				m_PublicFields.emplace(hashedName, std::move(scriptField));
 			}

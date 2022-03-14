@@ -28,7 +28,6 @@ namespace TerranEditor
 		}
 
 		RecalculateView();
-
 	}
 
 	void EditorCamera::OnEvent(Event& event) 

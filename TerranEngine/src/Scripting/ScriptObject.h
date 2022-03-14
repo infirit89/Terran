@@ -21,7 +21,7 @@ namespace TerranEngine
 		void Uninitialize();
 
 		ScriptField GetPublicField(const char* fieldName);
-		const std::unordered_map<uint32_t, ScriptField>& GetFieldMap() const { return m_PublicFields; };
+		std::unordered_map<uint32_t, ScriptField>& GetFieldMap() { return m_PublicFields; };
 		const std::vector<uint32_t>& GetFieldOrder() const { return m_FieldOrder; }
 
 	private:

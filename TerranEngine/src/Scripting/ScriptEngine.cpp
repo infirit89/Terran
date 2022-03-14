@@ -272,29 +272,51 @@ namespace TerranEngine
 				{
 					if (instance.Object.GetFieldMap().find(hashedName) != instance.Object.GetFieldMap().end()) 
 					{
-						ScriptField objectField = instance.Object.GetFieldMap().at(hashedName);
+						ScriptField& objectField = instance.Object.GetFieldMap().at(hashedName);
 
 						if (objectField.GetType() == field.GetType()) 
 						{
-							// TODO: set the object field;
+							switch (field.GetType())
+							{
+							case ScriptFieldType::Bool:
+							{
+								bool value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::Int:
+							{
+								int value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::Float:
+							{
+								float value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::Double:
+							{
+								double value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							}
 						}
 					}
 				}
 			}
 
-			for (auto& it : instance.Object.GetFieldOrder())
-			{
-				ScriptField field = instance.Object.GetFieldMap().at(it);
-
-				scriptComponent.FieldOrder.emplace_back(it);
-				scriptComponent.PublicFields.emplace(it, std::move(field));
-			}
-
-			//scriptComponent.PublicFields = instance.Object.GetFieldMap();
+			scriptComponent.FieldOrder = instance.Object.GetFieldOrder();
+			scriptComponent.PublicFields = instance.Object.GetFieldMap();
 		}
 	}
 
-	// BIG FAT FUCKING NOTE: The object doesn't get uninitialized when the script component is removed from and entity
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
 		if (s_ScriptableInstanceMap.find(entity.GetSceneID()) != s_ScriptableInstanceMap.end()) 
