@@ -39,6 +39,7 @@ namespace TerranEngine
 			double dValue;
 			int64_t iValue;
 			bool bValue;
+			void* ptr;
 
 			// TODO: add string
 
@@ -56,6 +57,7 @@ namespace TerranEngine
 
 			operator float()	{ return static_cast<float>(dValue); }
 			operator double()	{ return static_cast<double>(dValue); }
+			operator const char* () { return static_cast<const char*>(ptr); }
 		};
 
 	public:

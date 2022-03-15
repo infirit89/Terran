@@ -43,6 +43,8 @@ namespace TerranEngine
 		case MONO_FIELD_ATTR_FAMILY:	return ScriptFieldVisiblity::Protected;
 		case MONO_FIELD_ATTR_ASSEMBLY:	return ScriptFieldVisiblity::Internal;
 		}
+
+		return ScriptFieldVisiblity::Unknown;
 	}
 
 	ScriptField::ScriptField(void* monoField, uint32_t monoObjectGCHandle)
@@ -245,14 +247,27 @@ namespace TerranEngine
 
 	void ScriptField::SetValue(const char* value)
 	{
+		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
+		MonoClassField* monoField = (MonoClassField*)m_MonoField;
+
+		if (monoObject == nullptr)
+			TR_ERROR("Couldnt find the object");
+
+		if (monoField == nullptr)
+			TR_ERROR("Mono field is null");
+
 		if (m_FieldType != ScriptFieldType::String)
 		{
 			TR_ERROR("Can't set the string value of a non-string field");
 			return;
 		}
-
+		
 		ScriptString string((const char*)value);
 
-		mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, string.GetStringInternal());
+		if (monoField != nullptr && monoObject != nullptr) 
+		{
+			mono_field_set_value(monoObject, monoField, string.GetStringInternal());
+			//m_CachedData.ptr = string.GetUTF8Str();
+		}
 	}
 }

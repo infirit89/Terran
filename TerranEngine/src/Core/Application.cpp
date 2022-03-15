@@ -69,7 +69,7 @@ namespace TerranEngine
 		{
 			// NOTE: think about changing frametime to be a double
 			frameTime = glfwGetTime();
-			Time time = Time(frameTime - lastFrameTime);
+			Time time(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;
 			
 			if (!m_Minimized)
