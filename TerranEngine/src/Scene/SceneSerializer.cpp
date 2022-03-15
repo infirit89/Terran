@@ -115,14 +115,63 @@ namespace TerranEngine
 			}
 			case ScriptFieldType::Char: 
 			{
-				char value = ' ';
+				char value = NULL;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int8:
+			{
+				int8_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int16:
+			{
+				int16_t value = 0;
 				field.GetValue(&value);
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int: 
 			{
-				int value = 0;
+				int32_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int64:
+			{
+				int64_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt8:
+			{
+				uint8_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt16:
+			{
+				uint16_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt:
+			{
+				uint32_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt64:
+			{
+				uint64_t value = 0;
 				field.GetValue(&value);
 				j[field.GetName()] = value;
 				break;

@@ -100,7 +100,7 @@ namespace TerranEditor
     {
         bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 
-        if (e.GetRepeatCount() > 0)
+        if (e.GetRepeatCount() > 0 || m_SceneState == SceneState::Play)
             return false;
 
         switch (e.GetKeyCode())

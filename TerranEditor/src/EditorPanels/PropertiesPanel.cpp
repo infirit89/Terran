@@ -197,7 +197,6 @@ namespace TerranEditor
 						{
 							ScriptField& field = component.PublicFields.at(hashedName);
 
-							// TODO: add more types
 							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
@@ -210,12 +209,82 @@ namespace TerranEditor
 
 								break;
 							}
-							case ScriptFieldType::Int:
+							case ScriptFieldType::Int8:
 							{
-								int value = 0;
+								int8_t value = 0;
 								field.GetValue(&value);
 
-								if (UI::DrawIntControl(field.GetName(), value))
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S8, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Int16:
+							{
+								int16_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S16, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Int:
+							{
+								int32_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S32, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Int64:
+							{
+								int64_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S64, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt8:
+							{
+								uint8_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U8, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt16:
+							{
+								uint16_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U16, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt:
+							{
+								uint32_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U32, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt64:
+							{
+								uint64_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U64, &value))
 									field.SetValue(&value);
 
 								break;
@@ -243,7 +312,6 @@ namespace TerranEditor
 							}
 						}
 					}
-
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();

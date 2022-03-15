@@ -17,24 +17,16 @@ namespace TerranEngine
 		MonoClassField* field;
 		void* iter = nullptr;
 
-		MonoClassField* testField = mono_class_get_field_from_name(klass, "Test");
-
-		if (testField != nullptr)
-			TR_TRACE("found");
-
 		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
 		{
-			uint32_t fieldVisibilty = mono_field_get_flags(field) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
-
-			if (fieldVisibilty == MONO_FIELD_ATTR_PUBLIC) 
+			uint32_t hashedName = hasher(mono_field_get_name(field));
+			ScriptField scriptField(field, m_MonoGCHandle);
+			
+			if (scriptField.GetVisibility() == ScriptFieldVisiblity::Public) 
 			{
-				uint32_t hashedName = hasher(mono_field_get_name(field));
-				ScriptField scriptField(field, m_MonoGCHandle);
-				
 				m_FieldOrder.emplace_back(hashedName);
 				m_PublicFields.emplace(hashedName, std::move(scriptField));
 			}
-
 		}
 	}
 

@@ -34,6 +34,16 @@ namespace TerranEngine
 		return ScriptFieldType::None;
 	}
 
+	static ScriptFieldVisiblity ConvertFieldVisibility(uint32_t accessMask) 
+	{
+		switch (accessMask)
+		{
+		case MONO_FIELD_ATTR_PRIVATE:	return ScriptFieldVisiblity::Private;
+		case MONO_FIELD_ATTR_PUBLIC:	return ScriptFieldVisiblity::Public;
+		case MONO_FIELD_ATTR_FAMILY:	return ScriptFieldVisiblity::Protected;
+		case MONO_FIELD_ATTR_ASSEMBLY:	return ScriptFieldVisiblity::Internal;
+		}
+	}
 
 	ScriptField::ScriptField(void* monoField, uint32_t monoObjectGCHandle)
 		: m_MonoField(monoField), m_MonoObjectGCHandle(monoObjectGCHandle)
@@ -42,6 +52,18 @@ namespace TerranEngine
 
 		m_Name = mono_field_get_name((MonoClassField*)m_MonoField);
 		m_FieldType = ConvertFieldType(mono_field_get_type((MonoClassField*)m_MonoField));
+
+		uint32_t accessMask = mono_field_get_flags((MonoClassField*)m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
+		m_FieldVisibility = ConvertFieldVisibility(accessMask);
+	}
+
+	template<typename T, typename CachedDataType>
+	static void ExtractFieldData(void* result, CachedDataType& cachedData, MonoObject* monoObject, MonoClassField* monoField)
+	{
+		if (monoObject != nullptr && monoField != nullptr)
+			cachedData = *(T*)result;
+
+		*(T*)result = cachedData;
 	}
 
 	void ScriptField::SetValue(void* value)
@@ -50,69 +72,73 @@ namespace TerranEngine
 		MonoClassField* monoField = (MonoClassField*)m_MonoField;
 
 		if (monoObject == nullptr) 
-		{
 			TR_ERROR("Couldn't set the value of field {0} because the object that it corresponds to is no longer valid", m_Name);
-			return;
-		}
 
 		if (monoField == nullptr) 
-		{
 			TR_ERROR("Couldn't set the value of field {0} because it wasn't found", m_Name);
-			return;
-		}
 		
+		if (monoObject != nullptr && monoField != nullptr)
+			mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
+
+		// bad bad bad bad bad bad bad bad bad bad bad bad
 		switch (m_FieldType)
 		{
 		case TerranEngine::ScriptFieldType::Bool:
 		{
-			if (monoObject != nullptr && monoField != nullptr)
-			{
-				mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
-				m_CachedData.bValue = *(bool*)value;
-			}
-
+			ExtractFieldData<bool>(value, m_CachedData.bValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::Int8:
+		{
+			ExtractFieldData<int8_t>(value, m_CachedData.iValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::Int16:
+		{
+			ExtractFieldData<int16_t>(value, m_CachedData.iValue, monoObject, monoField);
 			break;
 		}
 		case TerranEngine::ScriptFieldType::Int:
 		{
-			if (monoObject != nullptr && monoField != nullptr)
-			{
-				mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
-				m_CachedData.iValue = *(int*)value;
-			}
-
+			ExtractFieldData<int32_t>(value, m_CachedData.iValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::Int64:
+		{
+			ExtractFieldData<int64_t>(value, m_CachedData.iValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::UInt8:
+		{
+			ExtractFieldData<uint8_t>(value, m_CachedData.iValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::UInt16:
+		{
+			ExtractFieldData<uint16_t>(value, m_CachedData.iValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::UInt:
+		{
+			ExtractFieldData<uint32_t>(value, m_CachedData.iValue, monoObject, monoField);
+			break;
+		}
+		case TerranEngine::ScriptFieldType::UInt64:
+		{
+			ExtractFieldData<uint64_t>(value, m_CachedData.iValue, monoObject, monoField);
 			break;
 		}
 		case TerranEngine::ScriptFieldType::Float:
 		{
-			if (monoObject != nullptr && monoField != nullptr)
-			{
-				mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
-				m_CachedData.dValue = *(float*)value;
-			}
-
+			ExtractFieldData<float>(value, m_CachedData.dValue, monoObject, monoField);
 			break;
 		}
 		case TerranEngine::ScriptFieldType::Double:
 		{
-			if (monoObject != nullptr && monoField != nullptr)
-			{
-				mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
-				m_CachedData.dValue = *(double*)value;
-			}
-
+			ExtractFieldData<double>(value, m_CachedData.dValue, monoObject, monoField);
 			break;
 		}
 		}
-	}
-
-	template<typename T, typename CachedDataType>
-	static void ExtractFieldData(void* result, CachedDataType& cachedData, MonoObject* monoObject, MonoClassField* monoField) 
-	{
-		if (monoObject != nullptr && monoField != nullptr)
-			cachedData = *(T*)result;
-
-		*(T*)result = cachedData;
 	}
 
 	void ScriptField::GetValue(void* result)
@@ -129,7 +155,8 @@ namespace TerranEngine
 		
 		if (monoObject != nullptr && monoField != nullptr)
 			mono_field_get_value(monoObject, monoField, result);
-
+		
+		// very terrible
 		switch (m_FieldType)
 		{
 		// ---- Boolean ----
@@ -199,7 +226,6 @@ namespace TerranEngine
 		}
 		// ------------------------
 		}
-
 	}
 
 	const char* ScriptField::GetValue()

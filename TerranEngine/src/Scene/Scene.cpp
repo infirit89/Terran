@@ -187,7 +187,6 @@ namespace TerranEngine
 
 					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
 				}
-
 			}
 
 			sceneRenderer->EndScene();

@@ -22,6 +22,16 @@ namespace TerranEngine
 		String
 	};
 
+	enum class ScriptFieldVisiblity 
+	{
+		Unknown,
+		Private,
+		Public,
+		Protected,
+		Internal
+	};
+
+	// NOTE: templates?
 	class ScriptField 
 	{
 		union FieldCacheData 
@@ -57,6 +67,7 @@ namespace TerranEngine
 
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
+		inline ScriptFieldVisiblity GetVisibility() const					{ return m_FieldVisibility; }
 
 		void SetValue(void* value);
 		void GetValue(void* result);
@@ -71,7 +82,10 @@ namespace TerranEngine
 		uint32_t m_MonoObjectGCHandle = 0;
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
+		ScriptFieldVisiblity m_FieldVisibility = ScriptFieldVisiblity::Unknown;
 
+		// NOTE: think about putting this in the script engine
+		// a field shouldn't store this data
 		FieldCacheData m_CachedData;
 	};
 }
