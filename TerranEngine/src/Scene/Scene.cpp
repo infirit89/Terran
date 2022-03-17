@@ -3,15 +3,16 @@
 
 #include "Components.h"
 #include "Entity.h"
+
 #include "Graphics/BatchRenderer2D.h"
-#include "Utils/ResourceManager.h"
 
 #include "Systems/TransformSystem.h"
 #include "Systems/SceneRenderer.h"
 
-#include "Utils/Debug/Profiler.h"
-
 #include "Scripting/ScriptEngine.h"
+
+#include "Utils/Debug/Profiler.h"
+#include "Utils/ResourceManager.h"
 
 namespace TerranEngine 
 {

@@ -59,6 +59,14 @@ namespace TerranEngine
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
 	}
 
+	ScriptField::~ScriptField() 
+	{
+		if (m_FieldType == ScriptFieldType::String)
+			delete[] (char*)m_CachedData.ptr;
+
+		TR_TRACE("script field destroyed");
+	}
+
 	template<typename T, typename CachedDataType>
 	static void ExtractFieldData(void* result, CachedDataType& cachedData, MonoObject* monoObject, MonoClassField* monoField)
 	{
@@ -263,10 +271,22 @@ namespace TerranEngine
 		}
 		
 		ScriptString string((const char*)value);
-
 		if (monoField != nullptr && monoObject != nullptr) 
 		{
 			mono_field_set_value(monoObject, monoField, string.GetStringInternal());
+
+			// NOTE: this is even a havier incentive to move the cached data the fuck away from
+			// the script field
+			
+			// the cached data should be set only before an assembly reload or scene copy
+			if (m_CachedData.ptr) 
+				delete[] (char*)m_CachedData.ptr;
+
+			size_t strLength = strlen(string.GetUTF8Str());
+			m_CachedData.ptr = new char[strLength + 1];
+
+			strcpy((char*)m_CachedData.ptr, string.GetUTF8Str());
+			((char*)m_CachedData.ptr)[strLength] = '\0';
 			//m_CachedData.ptr = string.GetUTF8Str();
 		}
 	}

@@ -7,7 +7,7 @@ namespace TerranScriptCore
     {
         public int Test = 1;
         public bool Test1 = false;
-
+        public string TestStr = "Hello";
         public bool Bruh2 = true;
 
         // Runs when the entity in the current scene, that has this script is started

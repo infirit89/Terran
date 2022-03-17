@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Base.h"
-
 #include "ScriptMethod.h"
 #include "ScriptObject.h"
+
+#include "Core/Base.h"
 
 #include <mono/metadata/class.h>
 

@@ -1,11 +1,11 @@
 #pragma once
 
+#include "ScriptClass.h"
+
 #include "Core/Log.h"
 #include "Core/Base.h"
 
 #include "Scene/Scene.h"
-
-#include "ScriptClass.h"
 
 namespace TerranEngine 
 {

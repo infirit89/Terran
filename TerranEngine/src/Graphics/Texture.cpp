@@ -1,11 +1,11 @@
 #include "trpch.h"
-
 #include "Texture.h"
 
 #include "Utils/Debug/Profiler.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>
+
 #include <filesystem>
 
 namespace TerranEngine 

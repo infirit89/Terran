@@ -1,5 +1,4 @@
 #include "trpch.h"
-
 #include "TextureSheet.h"
 
 #pragma warning (push)

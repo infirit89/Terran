@@ -2,8 +2,6 @@
 
 #include "Buffer.h"
 
-#include <memory>
-
 namespace TerranEngine 
 {
 	class VertexArray 

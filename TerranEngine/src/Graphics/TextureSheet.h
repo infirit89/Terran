@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
-#include <array>
+#include "Texture.h"
 
 #include <glm/glm.hpp>
 
-#include "Texture.h"
+#include <vector>
+#include <array>
 
 namespace TerranEngine 
 {

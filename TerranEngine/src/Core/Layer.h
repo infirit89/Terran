@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Events/Event.h"
 #include "Time.h"
+
+#include "Events/Event.h"
 
 namespace TerranEngine {
 

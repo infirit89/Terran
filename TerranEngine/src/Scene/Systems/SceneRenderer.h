@@ -1,15 +1,13 @@
 #pragma once
 
 #include "Core/Base.h"
-#include "Graphics/Framebuffer.h"
 
+#include "Graphics/Framebuffer.h"
 #include "Graphics/Camera.h"
+#include "Graphics/Texture.h"
 
 #include "Scene/Components.h"
-
 #include "Scene/Scene.h"
-
-#include "Graphics/Texture.h"
 
 namespace TerranEngine 
 {

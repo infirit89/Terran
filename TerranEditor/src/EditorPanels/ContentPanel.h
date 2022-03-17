@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Terran.h"
+
 #include <filesystem>
 
 namespace TerranEditor 

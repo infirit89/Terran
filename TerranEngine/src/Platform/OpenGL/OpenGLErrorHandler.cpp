@@ -1,5 +1,4 @@
 #include "trpch.h"
-
 #include "OpenGLErrorHandler.h"
 
 namespace TerranEngine 

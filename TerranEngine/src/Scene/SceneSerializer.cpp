@@ -7,15 +7,13 @@
 
 #include <json.hpp>
 
-#include <fstream>
-#include <iomanip>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <fstream>
+#include <iomanip>
 
 using json = nlohmann::ordered_json;
 

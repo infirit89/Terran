@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "Buffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
@@ -9,11 +7,11 @@
 #include "Font.h"
 #include "UniformBuffer.h"
 #include "Framebuffer.h"
-
-#include "RenderCommand.h"
-
 #include "Camera.h"
+
 #include "Core/Base.h"
+
+#include <glm/glm.hpp>
 
 namespace TerranEngine 
 {

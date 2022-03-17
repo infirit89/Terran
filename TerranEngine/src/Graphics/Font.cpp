@@ -1,5 +1,4 @@
 #include "trpch.h"
-
 #include "Font.h"
 
 #include <freetype-gl.h>

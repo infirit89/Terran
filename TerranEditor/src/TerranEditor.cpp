@@ -1,6 +1,6 @@
-#include "Core/EntryPoint.h"
-
 #include "EditorLayer.h"
+
+#include "Core/EntryPoint.h"
 
 namespace TerranEngine
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Base.h"
-
 #include "ScriptMethod.h"
 #include "ScriptField.h"
+
+#include "Core/Base.h"
 
 #include <unordered_map>
 

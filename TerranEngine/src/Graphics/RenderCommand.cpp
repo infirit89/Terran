@@ -1,6 +1,6 @@
 #include "trpch.h"
-
 #include "RenderCommand.h"
+
 #include "Platform/OpenGL/OpenGLErrorHandler.h"
 
 #include <glad/glad.h>

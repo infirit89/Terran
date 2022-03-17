@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
 
 namespace TerranEngine 
 {

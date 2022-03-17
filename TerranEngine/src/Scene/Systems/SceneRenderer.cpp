@@ -28,7 +28,6 @@ namespace TerranEngine
 		*  also add circle sorting
 		*/
 
-
 		m_Scene->m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.ZIndex < rEntity.ZIndex; });
 	}

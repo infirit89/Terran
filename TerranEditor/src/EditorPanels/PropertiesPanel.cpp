@@ -309,6 +309,15 @@ namespace TerranEditor
 
 								break;
 							}
+							case ScriptFieldType::String: 
+							{
+								std::string value = field.GetValue();
+
+								if (UI::DrawStringControl(field.GetName(), value))
+									field.SetValue(value.c_str());
+
+								break;
+							}
 							}
 						}
 					}

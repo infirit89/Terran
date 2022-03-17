@@ -1,11 +1,11 @@
 #include "SceneView.h"
 
-#include <functional>
-
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ImGui/imgui.h>
 #include <ImGuizmo.h>
+
+#include <functional>
 
 namespace TerranEditor 
 {

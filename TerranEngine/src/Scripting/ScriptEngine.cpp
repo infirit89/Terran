@@ -1,11 +1,11 @@
 #include "trpch.h"
 #include "ScriptEngine.h"
 
-#include "Core/Log.h"
-#include "Core/FileUtils.h"
-
 #include "ScriptString.h"
 #include "ScriptBindings.h"
+
+#include "Core/Log.h"
+#include "Core/FileUtils.h"
 
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
@@ -305,6 +305,12 @@ namespace TerranEngine
 
 								objectField.SetValue(&value);
 								break;
+							}
+							case ScriptFieldType::String: 
+							{
+								std::string value = (char*)field.GetCachedData().ptr;
+
+								objectField.SetValue(value.c_str());
 							}
 							}
 						}

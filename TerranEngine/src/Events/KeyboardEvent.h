@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Core/KeyCodes.h"
 #include "Event.h"
+
+#include "Core/KeyCodes.h"
 
 namespace TerranEngine 
 {

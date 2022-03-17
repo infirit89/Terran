@@ -1,10 +1,12 @@
 #pragma once
 
-#include <entt.hpp>
 #include "Core/UUID.h"
-#include <unordered_map>
 
 #include "Graphics/Camera.h"
+
+#include <entt.hpp>
+
+#include <unordered_map>
 
 namespace TerranEngine 
 {
@@ -17,7 +19,6 @@ namespace TerranEngine
 	public:
 		
 		Scene();
-		
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());

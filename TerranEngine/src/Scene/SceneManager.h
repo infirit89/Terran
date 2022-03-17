@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Scene.h"
+
 #include "Core/Base.h"
 
-#include "Scene.h"
 
 namespace TerranEngine 
 {

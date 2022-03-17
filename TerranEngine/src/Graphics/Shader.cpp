@@ -1,8 +1,8 @@
 #include "trpch.h"
-
 #include "Shader.h"
 
 #include <glad/glad.h>
+
 #include <filesystem>
 
 namespace TerranEngine 
@@ -167,11 +167,13 @@ namespace TerranEngine
 			int length;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
-			char* message = (char*)alloca(length * sizeof(char));
+			char* message = (char*)malloc(length * sizeof(char));
 
 			glGetShaderInfoLog(shader, length, &length, message);
 
 			TR_ASSERT(false, message);
+
+			free(message);
 
 			return 0;
 		}
@@ -192,6 +194,8 @@ namespace TerranEngine
 			//find end of line
 			size_t eol = shaderSource.find("\r\n", pos);
 			TR_ASSERT(eol != std::string::npos, "Syntax error");
+
+			// gett the shader type
 			size_t begin = pos + typeTokenLength + 1;
 			std::string type = shaderSource.substr(begin, eol - begin);
 			TR_ASSERT(GetShaderType(type), "Invalid shader type specified.");
@@ -199,6 +203,7 @@ namespace TerranEngine
 			size_t nextLinePos = shaderSource.find_first_not_of("\r\n", eol);
 			TR_ASSERT(nextLinePos != std::string::npos, "Syntax error");
 
+			// find next #type token 
 			pos = shaderSource.find(typeToken, nextLinePos);
 
 			shaderSources[GetShaderType(type)] = shaderSource.substr(nextLinePos, pos - nextLinePos);
@@ -231,8 +236,8 @@ namespace TerranEngine
 	{
 		m_SProgram = glCreateProgram();
 
-		unsigned int vertShader = CreateShader(vertexSource, GL_VERTEX_SHADER);
-		unsigned int fragShader = CreateShader(fragmentSource, GL_FRAGMENT_SHADER);
+		uint32_t vertShader = CreateShader(vertexSource, GL_VERTEX_SHADER);
+		uint32_t fragShader = CreateShader(fragmentSource, GL_FRAGMENT_SHADER);
 
 		glAttachShader(m_SProgram, vertShader);
 		glAttachShader(m_SProgram, fragShader);
