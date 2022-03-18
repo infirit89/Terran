@@ -42,38 +42,6 @@ namespace TerranEngine
 
 	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature);
 
-	union ScriptFieldData 
-	{
-		double dValue;
-		int64_t iValue;
-		bool bValue;
-		void* ptr;
-
-		// TODO: add string
-
-		operator bool() { return bValue; }
-
-		operator int8_t() { return static_cast<int8_t>(iValue); }
-		operator int16_t() { return static_cast<int16_t>(iValue); }
-		operator int32_t() { return static_cast<int32_t>(iValue); }
-		operator int64_t() { return static_cast<int64_t>(iValue); }
-
-		operator uint8_t() { return static_cast<uint8_t>(iValue); }
-		operator uint16_t() { return static_cast<uint16_t>(iValue); }
-		operator uint32_t() { return static_cast<uint32_t>(iValue); }
-		operator uint64_t() { return static_cast<uint64_t>(iValue); }
-
-		operator float() { return static_cast<float>(dValue); }
-		operator double() { return static_cast<double>(dValue); }
-		operator const char* () { return static_cast<const char*>(ptr); }
-	};
-
-	struct ScriptFieldBackup 
-	{
-		ScriptFieldData Data;
-		ScriptFieldType Type;
-	};
-
 	struct ScriptableInstance 
 	{
 		ScriptObject Object;
@@ -95,8 +63,6 @@ namespace TerranEngine
 	static std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
 
 	static std::unordered_map<UUID, std::unordered_map<std::string, ScriptFieldBackup>> s_ScriptFieldBackup;
-
-	static void GetCurrentFieldStates(std::unordered_map<UUID, std::unordered_map<std::string, ScriptFieldBackup>>& scriptFieldBackup, const UUID& sceneID);
 
 	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
@@ -178,6 +144,8 @@ namespace TerranEngine
 	{
 		if (s_NewDomain != s_CoreDomain) 
 		{
+			SetCurrentFieldStates(SceneManager::GetCurrentScene()->GetID());
+
 			mono_domain_set(s_CoreDomain, false);
 
 			if (!mono_domain_finalize(s_NewDomain, 2000))
@@ -302,53 +270,107 @@ namespace TerranEngine
 
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
-			if (!scriptComponent.PublicFields.empty()) 
+			if (!s_ScriptFieldBackup.empty()) 
 			{
-				for (auto& [hashedName, field] : scriptComponent.PublicFields)
+				std::unordered_map<std::string, ScriptFieldBackup> fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
+				for (auto& [fieldName, field] : fieldBackup)
 				{
+					std::hash<std::string> hasher;
+					uint32_t hashedName = hasher(fieldName);
 					if (instance.Object.GetFieldMap().find(hashedName) != instance.Object.GetFieldMap().end()) 
 					{
 						ScriptField& objectField = instance.Object.GetFieldMap().at(hashedName);
 
-						if (objectField.GetType() == field.GetType()) 
+						if (objectField.GetType() == field.Type) 
 						{
-							//switch (field.GetType())
-							//{
-							//case ScriptFieldType::Bool:
-							//{
-							//	//bool value = field.GetCachedData();
+							switch (field.Type)
+							{
+							case ScriptFieldType::Bool: 
+							{
+								bool value = field.Data;
 
-							//	objectField.SetValue(&value);
-							//	break;
-							//}
-							//case ScriptFieldType::Int:
-							//{
-							//	int value = field.GetCachedData();
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int8:
+							{
+								int8_t value = field.Data;
 
-							//	objectField.SetValue(&value);
-							//	break;
-							//}
-							//case ScriptFieldType::Float:
-							//{
-							//	float value = field.GetCachedData();
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int16:
+							{
+								int16_t value = field.Data;
 
-							//	objectField.SetValue(&value);
-							//	break;
-							//}
-							//case ScriptFieldType::Double:
-							//{
-							//	double value = field.GetCachedData();
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int:
+							{
+								int32_t value = field.Data;
 
-							//	objectField.SetValue(&value);
-							//	break;
-							//}
-							//case ScriptFieldType::String: 
-							//{
-							//	std::string value = (char*)field.GetCachedData().ptr;
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int64:
+							{
+								int64_t value = field.Data;
 
-							//	objectField.SetValue(value.c_str());
-							//}
-							//}
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt8:
+							{
+								uint8_t value = field.Data;
+
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt16:
+							{
+								uint16_t value = field.Data;
+
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt:
+							{
+								uint32_t value = field.Data;
+
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt64:
+							{
+								uint64_t value = field.Data;
+
+								objectField.SetData(value);
+								break;
+							}
+
+							case ScriptFieldType::Float: 
+							{
+								float value = field.Data;
+
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Double: 
+							{
+								double value = field.Data;
+
+								objectField.SetData(value);
+								break;
+							}
+							case ScriptFieldType::String: 
+							{
+								const char* value = field.Data;
+
+								objectField.SetData<const char*>(value);
+								break;
+							}
+							}
 						}
 					}
 				}
@@ -356,6 +378,25 @@ namespace TerranEngine
 
 			scriptComponent.FieldOrder = instance.Object.GetFieldOrder();
 			scriptComponent.PublicFields = instance.Object.GetFieldMap();
+
+			auto scriptFieldBackupCpy = s_ScriptFieldBackup;
+			for(auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
+			{
+				auto fieldBackupCpy = fieldBackupMap;
+				for (auto& [fieldName, field] : fieldBackupCpy)
+				{
+					if (field.Type == ScriptFieldType::String) 
+					{
+						if (field.Data.ptr)
+							delete[] field.Data.ptr;
+					}
+
+					// TODO: if field type is string, delete ptr
+					fieldBackupMap.erase(fieldName);
+				}
+
+				s_ScriptFieldBackup.erase(entityID);
+			}
 		}
 	}
 
@@ -387,6 +428,68 @@ namespace TerranEngine
 
 		if (instance.UpdateMethod.GetNativeMethodPtr())
 			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+	}
+
+	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
+	{
+		if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end())
+		{
+			std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
+
+			for (auto& [id, scriptableInstance] : entityInstanceMap)
+			{
+				UUID entityID = id;
+				std::unordered_map<std::string, ScriptFieldBackup> fieldBackupMap;
+
+				for (auto& [fieldName, field] : scriptableInstance.Object.GetFieldMap())
+				{
+					ScriptFieldBackup fieldBackup;
+					fieldBackup.Type = field.GetType();
+					switch (field.GetType())
+					{
+					case ScriptFieldType::Int8:
+					case ScriptFieldType::Int16:
+					case ScriptFieldType::Int:
+					case ScriptFieldType::Int64:
+					case ScriptFieldType::UInt8:
+					case ScriptFieldType::UInt16:
+					case ScriptFieldType::UInt:
+					case ScriptFieldType::UInt64:
+					{
+						fieldBackup.Data.iValue = field.GetData<int64_t>();
+						break;
+					}
+					case ScriptFieldType::Float:
+					case ScriptFieldType::Double:
+					{
+						fieldBackup.Data.dValue = field.GetData<double>();
+						break;
+					}
+					case ScriptFieldType::Bool:
+					{
+						fieldBackup.Data.bValue = field.GetData<bool>();
+						break;
+					}
+					case ScriptFieldType::String: 
+					{
+						const char* tempVal = field.GetData<const char*>();
+						size_t tempValLength = strlen(tempVal);
+
+						fieldBackup.Data.ptr = new char[tempValLength + 1];
+
+						strcpy((char*)fieldBackup.Data.ptr, tempVal);
+
+						((char*)fieldBackup.Data.ptr)[tempValLength] = '\0';
+					}
+					}
+
+					fieldBackupMap.emplace(field.GetName(), std::move(fieldBackup));
+				}
+
+				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
+			}
+		}
+
 	}
 
 	static MonoAssembly* LoadAssembly(const char* fileName) 
@@ -425,25 +528,6 @@ namespace TerranEngine
 				TR_TRACE("Domain: {0}; Message: {1}", log_domain, message);
 			else
 				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", log_domain, message, log_level);
-		}
-	}
-
-	static void GetCurrentFieldStates(std::unordered_map<UUID, std::unordered_map<std::string, ScriptFieldBackup>>& scriptFieldBackup, const UUID& sceneID)
-	{
-		if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end()) 
-		{
-			std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
-
-			for (auto& [id, scriptableInstance] : entityInstanceMap)
-			{
-				UUID entityID = id;
-				std::unordered_map<std::string, ScriptFieldBackup> fieldBackup;
-
-				for (auto& [fieldName, field] : scriptableInstance.Object.GetFieldMap())
-				{
-
-				}
-			}
 		}
 	}
 }
