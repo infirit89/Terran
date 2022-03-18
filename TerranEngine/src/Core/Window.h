@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Events/Event.h"
-
 #include "Base.h"
+
+#include "Events/Event.h"
 
 #include <string>
 #include <array>

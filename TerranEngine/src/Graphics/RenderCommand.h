@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VertexArray.h"
+
 #include "Core/Base.h"
 
 namespace TerranEngine 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Terran.h"
+
 #include "../EditorCamera.h"
 
 #include "../SceneState.h"

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Base.h"
-
 #include "ScriptMethod.h"
 #include "ScriptField.h"
+
+#include "Core/Base.h"
 
 #include <unordered_map>
 
@@ -20,16 +20,17 @@ namespace TerranEngine
 
 		void Uninitialize();
 
-		ScriptField GetField(const char* fieldName);
-		std::vector<ScriptField> GetFields();
-		std::unordered_map<uint32_t, ScriptField> GetFieldMap();
+		ScriptField GetPublicField(const char* fieldName);
+		std::unordered_map<uint32_t, ScriptField>& GetFieldMap() { return m_PublicFields; };
+		const std::vector<uint32_t>& GetFieldOrder() const { return m_FieldOrder; }
 
 	private:
 		void* GetNativeObject() const;
 
 	private:
 		uint32_t m_MonoGCHandle;
-
+		
+		std::vector<uint32_t> m_FieldOrder;
 		std::unordered_map<uint32_t, ScriptField> m_PublicFields;
 		friend class ScriptMethod;
 	};

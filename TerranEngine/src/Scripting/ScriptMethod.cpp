@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "ScriptMethod.h"
+
 #include "ScriptObject.h"
 
 #include <mono/jit/jit.h>

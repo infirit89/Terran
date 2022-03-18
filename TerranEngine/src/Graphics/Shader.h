@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
+#include "RenderCommand.h"
+
 #include <glm/mat4x4.hpp>
 
+#include <string>
 #include <unordered_map>
-
-#include "RenderCommand.h"
 
 namespace TerranEngine 
 {

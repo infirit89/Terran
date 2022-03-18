@@ -2,10 +2,10 @@
     "Version": 0,
     "Scene": "Name",
     "Entities": {
-        "Entity 9ca4382b-12f5-44de-8193-a52b875b6561": {
+        "Entity c9bd3d1a-86f3-4933-8bd2-69b1618c804a": {
             "TagComponent": {
                 "Tag": "Entity",
-                "ID": "9ca4382b-12f5-44de-8193-a52b875b6561"
+                "ID": "c9bd3d1a-86f3-4933-8bd2-69b1618c804a"
             },
             "TransformComponent": {
                 "LocalPosition": {
@@ -27,17 +27,16 @@
             "ScriptComponent": {
                 "ModuleName": "TerranScriptCore.TestScriptable",
                 "Fields": {
-                    "iTest": 100,
-                    "bTest": true,
-                    "dTest": 1.2,
-                    "fTest": 4.5
+                    "Test": -2.799999952316284,
+                    "Test1": 4000,
+                    "Bruh2": false
                 }
             }
         },
-        "Entity 4060132f-e3a5-4478-836f-987e280ae3a2": {
+        "Entity 55010779-805b-4f88-b6d6-43b25e3e9c03": {
             "TagComponent": {
                 "Tag": "Camera",
-                "ID": "4060132f-e3a5-4478-836f-987e280ae3a2"
+                "ID": "55010779-805b-4f88-b6d6-43b25e3e9c03"
             },
             "TransformComponent": {
                 "LocalPosition": {

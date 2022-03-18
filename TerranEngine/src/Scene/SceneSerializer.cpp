@@ -7,15 +7,13 @@
 
 #include <json.hpp>
 
-#include <fstream>
-#include <iomanip>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <fstream>
+#include <iomanip>
 
 using json = nlohmann::ordered_json;
 
@@ -95,13 +93,15 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, std::vector<ScriptField>& scriptFields) 
+	static void SerializeField(json& j, ScriptComponent& scriptComponent) 
 	{
-		if (scriptFields.empty())
+		if (scriptComponent.PublicFields.empty())
 			return;
 
-		for (auto& field : scriptFields)
+		for (auto& hashedName : scriptComponent.FieldOrder)
 		{
+			ScriptField field = scriptComponent.PublicFields.at(hashedName);
+
 			switch (field.GetType())
 			{
 			case ScriptFieldType::Bool: 
@@ -113,14 +113,63 @@ namespace TerranEngine
 			}
 			case ScriptFieldType::Char: 
 			{
-				char value = ' ';
+				char value = NULL;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int8:
+			{
+				int8_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int16:
+			{
+				int16_t value = 0;
 				field.GetValue(&value);
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int: 
 			{
-				int value = 0;
+				int32_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::Int64:
+			{
+				int64_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt8:
+			{
+				uint8_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt16:
+			{
+				uint16_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt:
+			{
+				uint32_t value = 0;
+				field.GetValue(&value);
+				j[field.GetName()] = value;
+				break;
+			}
+			case ScriptFieldType::UInt64:
+			{
+				uint64_t value = 0;
 				field.GetValue(&value);
 				j[field.GetName()] = value;
 				break;
@@ -240,7 +289,7 @@ namespace TerranEngine
 				} }
 			);
 
-			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent.PublicFields);
+			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent);
 		}
 	}
 
@@ -294,7 +343,104 @@ namespace TerranEngine
 
 		return j.dump();
 	}
-	
+
+	static void DesirializeScriptable(Entity entity, json& jScriptComponent) 
+	{
+		ScriptComponent& scriptComponent = entity.AddComponent<ScriptComponent>();
+
+		scriptComponent.ModuleName = jScriptComponent["ModuleName"];
+
+		ScriptEngine::InitializeScriptable(entity);
+
+		if (jScriptComponent["Fields"] != "null")
+		{
+			for (auto& [hashedName, field] : scriptComponent.PublicFields)
+			{
+				if (jScriptComponent["Fields"].contains(field.GetName()))
+				{
+					json jScriptFieldValue = jScriptComponent["Fields"][field.GetName()];
+
+					try 
+					{
+						switch (field.GetType())
+						{
+						case ScriptFieldType::Bool:
+						{
+							bool value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::Int64:
+						{
+							int64_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::Int:
+						{
+							int32_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::Int16:
+						{
+							int16_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::Int8:
+						{
+							int8_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::UInt64:
+						{
+							uint64_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::UInt:
+						{
+							uint32_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::UInt16:
+						{
+							uint16_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::UInt8:
+						{
+							uint8_t value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::Float:
+						{
+							float value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						case ScriptFieldType::Double:
+						{
+							double value = jScriptFieldValue;
+							field.SetValue(&value);
+							break;
+						}
+						}
+					}
+					catch (const std::exception& ex) 
+					{
+						TR_ERROR(ex.what());
+					}
+				}
+			}
+		}
+	}
+
 	static bool DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
 	{
 		try
@@ -371,39 +517,7 @@ namespace TerranEngine
 			{
 				json jScriptComponent = jEntity["ScriptComponent"];
 
-				ScriptComponent& scriptComponent = entity.AddComponent<ScriptComponent>();
-
-				scriptComponent.ModuleName = jScriptComponent["ModuleName"];
-
-				ScriptEngine::InitializeScriptable(entity);
-
-				if (jScriptComponent["Fields"] != "null") 
-				{
-					if (jScriptComponent["Fields"].size() != scriptComponent.PublicFields.size())
-						TR_ERROR("Desirializing scene: Script Component field size mismatch!");
-					else 
-					{
-						for (auto& field : scriptComponent.PublicFields) 
-						{
-							// TODO: add more types
-							switch (field.GetType())
-							{
-							case ScriptFieldType::Bool:
-							{
-								bool value = jScriptComponent["Fields"][field.GetName()];
-								field.SetValue(&value); 
-								break;
-							}
-							case ScriptFieldType::Int:	
-							{
-								int value = jScriptComponent["Fields"][field.GetName()];
-								field.SetValue(&value); 
-								break;
-							}
-							}
-						}
-					}
-				}
+				DesirializeScriptable(entity, jScriptComponent);
 			}
 		}
 		catch (const std::exception& ex)

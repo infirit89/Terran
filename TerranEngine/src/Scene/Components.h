@@ -97,9 +97,11 @@ namespace TerranEngine
 		// "can" have more than one script (because of the 1 component of a type per entity)
 
 		std::string ModuleName;
-
-		std::vector<ScriptField> PublicFields;
-
+		
+		std::vector<uint32_t> FieldOrder;
+		std::unordered_map<uint32_t, ScriptField> PublicFields;
+		
+		bool ClassExists = true;
 		bool Started = false;
 	};
 }

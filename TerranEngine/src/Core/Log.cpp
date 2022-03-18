@@ -5,7 +5,7 @@
 
 namespace TerranEngine 
 {
-	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
+	Shared<spdlog::logger> Log::s_CoreLogger;
 	void Log::Init() 
 	{
 		spdlog::set_pattern("%^[%T] %n: %v%$");

@@ -8,6 +8,8 @@ namespace TerranEngine
 	ScriptClass::ScriptClass(MonoClass* monoClass)
 		: m_MonoClass(monoClass)
 	{
+		m_ClassName = mono_class_get_name(m_MonoClass);
+		m_Namespace = mono_class_get_namespace(m_MonoClass);
 	}
 
 	ScriptObject ScriptClass::CreateInstance()
@@ -16,7 +18,7 @@ namespace TerranEngine
 		mono_runtime_object_init(monoObject);
 
 		uint32_t monoGCHandle = mono_gchandle_new(monoObject, true);
-		
+
 		return ScriptObject(monoGCHandle);
 	}
 
@@ -42,6 +44,13 @@ namespace TerranEngine
 		mono_method_desc_free(monoDesc);
 
 		return ScriptMethod(monoMethod);
+	}
+
+	ScriptClass ScriptClass::GetParent()
+	{
+		MonoClass* monoClass = mono_class_get_parent(m_MonoClass);
+
+		return ScriptClass(monoClass);
 	}
 }
 

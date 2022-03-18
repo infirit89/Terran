@@ -1,4 +1,5 @@
 #include "EditorLayer.h"
+
 #include "UI/UI.h"
 
 #include <imgui.h>
@@ -329,7 +330,7 @@ namespace TerranEditor
 	void EditorLayer::ImGuiRender()
 	{
         // NOTE : this is a temporary fix
-        // move the ImGui layer from the engine to the editor 
+        // move the ImGui layer from the engine to the editor
         ImGuizmo::BeginFrame();
 
         ShowDockspace();
@@ -339,7 +340,6 @@ namespace TerranEditor
         m_Selected = m_SHierarchy.GetSelected();
 
         m_SceneView.SetSceneState(m_SceneState);
-
 
         m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
         {

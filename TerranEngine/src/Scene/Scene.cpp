@@ -3,21 +3,27 @@
 
 #include "Components.h"
 #include "Entity.h"
+
 #include "Graphics/BatchRenderer2D.h"
-#include "Utils/ResourceManager.h"
 
 #include "Systems/TransformSystem.h"
 #include "Systems/SceneRenderer.h"
 
-#include "Utils/Debug/Profiler.h"
-
 #include "Scripting/ScriptEngine.h"
+
+#include "Utils/Debug/Profiler.h"
+#include "Utils/ResourceManager.h"
 
 namespace TerranEngine 
 {
+
 	Scene::Scene()
 	{
 		m_ID = UUID();
+
+		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
+
+		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
 	}
 
 	Scene::~Scene()
@@ -30,6 +36,10 @@ namespace TerranEngine
 
 			ScriptEngine::UninitalizeScriptable(entity);
 		}
+
+		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
+
+		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -178,7 +188,6 @@ namespace TerranEngine
 
 					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
 				}
-
 			}
 
 			sceneRenderer->EndScene();
@@ -271,7 +280,7 @@ namespace TerranEngine
 		CopyComponent<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
 	}
 
-	Entity Scene::DuplicateEntity(Entity srcEntity)
+	Entity Scene::DuplicateEntity(Entity srcEntity, Entity parent)
 	{
 		Entity dstEntity = CreateEntity(srcEntity.GetName() + " Copy");
 
@@ -279,18 +288,23 @@ namespace TerranEngine
 		CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
-		// NOTE: cant copy relationship components this way, have to copy all the children
-		//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
 
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
-			Entity parent = srcEntity.GetParent();
-
 			// TODO: copy children
+			for (int i = 0; i < srcEntity.GetChildCount(); i++)
+			{
+				Entity childEntity = srcEntity.GetChild(i);
+				DuplicateEntity(childEntity, dstEntity);
+			}
 
-			dstEntity.SetParent(parent);
+			if(!parent)
+				parent = srcEntity.GetParent();
+
+			if(parent)
+				dstEntity.SetParent(parent);
 		}
 
 		if (dstEntity.HasComponent<ScriptComponent>()) 
@@ -304,6 +318,11 @@ namespace TerranEngine
 		return dstEntity;
 	}
 
+	Entity Scene::DuplicateEntity(Entity srcEntity)
+	{
+		return DuplicateEntity(srcEntity, {});
+	}
+
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
 		Shared<Scene> scene = CreateShared<Scene>();
@@ -315,16 +334,35 @@ namespace TerranEngine
 			Entity srcEntity(e, srcScene.get());
 
 			Entity dstEntity = scene->CreateEntityWithUUID(srcEntity.GetName(), srcEntity.GetID());
+		}
+
+		for (auto e : tagView)
+		{
+			Entity srcEntity(e, srcScene.get());
+			Entity dstEntity = scene->FindEntityWithUUID(srcEntity.GetID());
 
 			CopyComponent<TransformComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CameraComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-			// NOTE: cant copy relationship components this way, have to copy all the children
-			//CopyComponent<RelationshipComponent>(srcEntity, dstEntity, m_Registry);
+			CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
 		return scene;
+	}
+
+	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+	{
+		Entity entity(entityHandle, this);
+
+		ScriptEngine::InitializeScriptable(entity);
+	}
+
+	void Scene::OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+	{
+		Entity entity(entityHandle, this);
+
+		ScriptEngine::UninitalizeScriptable(entity);
 	}
 }

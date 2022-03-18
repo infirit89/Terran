@@ -2,17 +2,16 @@
 
 #include "LayerStack.h"
 #include "Window.h"
+#include "Log.h"
 
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 
+#include "ImGui/ImGuiLayer.h"
+
 #include <string>
 #include <memory>
 #include <array>
-
-#include "Log.h"
-
-#include "ImGui/ImGuiLayer.h"
 
 int main();
 

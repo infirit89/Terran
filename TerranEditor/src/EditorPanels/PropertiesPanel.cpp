@@ -171,14 +171,32 @@ namespace TerranEditor
 
 				DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component) 
 				{
-					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
-						ScriptEngine::InitializeScriptable(entity);
+					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) 
+					{
+						if (ScriptEngine::ClassExists(component.ModuleName)) 
+						{
+							ScriptEngine::InitializeScriptable(entity);
+							component.ClassExists = true;
+						}
+						else
+							component.ClassExists = false;
+					}
+
+					if (!component.ClassExists) 
+					{
+						ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+						ImGui::Text("The class could not be found");
+
+						ImGui::PopStyleColor();
+					}
 
 					if (!component.PublicFields.empty()) 
 					{
-						for (auto& field : component.PublicFields)
+						for (auto& hashedName : component.FieldOrder)
 						{
-							// TODO: add more types
+							ScriptField& field = component.PublicFields.at(hashedName);
+
 							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
@@ -191,12 +209,82 @@ namespace TerranEditor
 
 								break;
 							}
-							case ScriptFieldType::Int:
+							case ScriptFieldType::Int8:
 							{
-								int value = 0;
+								int8_t value = 0;
 								field.GetValue(&value);
 
-								if (UI::DrawIntControl(field.GetName(), value))
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S8, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Int16:
+							{
+								int16_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S16, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Int:
+							{
+								int32_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S32, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Int64:
+							{
+								int64_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S64, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt8:
+							{
+								uint8_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U8, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt16:
+							{
+								uint16_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U16, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt:
+							{
+								uint32_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U32, &value))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::UInt64:
+							{
+								uint64_t value = 0;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U64, &value))
 									field.SetValue(&value);
 
 								break;
@@ -206,15 +294,33 @@ namespace TerranEditor
 								float value = 0.0f;
 								field.GetValue(&value);
 
-								if (UI::DrawFloatControl(field.GetName(), value))
+								if (UI::DrawFloatControl(field.GetName(), value, 0.1f, "%.2f"))
 									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::Double:
+							{
+								double value = 0.0f;
+								field.GetValue(&value);
+
+								if (UI::DrawScalar(field.GetName(), ImGuiDataType_Double, &value, 0.1f, "%.4f"))
+									field.SetValue(&value);
+
+								break;
+							}
+							case ScriptFieldType::String: 
+							{
+								std::string value = field.GetValue();
+
+								if (UI::DrawStringControl(field.GetName(), value))
+									field.SetValue(value.c_str());
 
 								break;
 							}
 							}
 						}
 					}
-
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();

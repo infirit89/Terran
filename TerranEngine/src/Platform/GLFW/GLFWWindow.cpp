@@ -1,12 +1,12 @@
 #include "trpch.h"
-
 #include "GLFWWindow.h"
+
+#include "Core/Assert.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
 
-#include "Core/Assert.h"
 #include "Platform/OpenGL/OpenGLErrorHandler.h"
 
 #include <stb_image.h>
@@ -60,6 +60,8 @@ namespace TerranEngine
 
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
 
+		// NOTE: bad bad bad very bad
+#if 0
 		GLFWimage iconImages[2];
 		iconImages[0].pixels = stbi_load(data.IconPaths[0].c_str(), &iconImages[0].width, &iconImages[0].height, 0, 4);
 		iconImages[1].pixels = stbi_load(data.IconPaths[1].c_str(), &iconImages[1].width, &iconImages[1].height, 0, 4);
@@ -67,6 +69,7 @@ namespace TerranEngine
 		glfwSetWindowIcon(m_Window, 2, iconImages);
 		stbi_image_free(iconImages[0].pixels);
 		stbi_image_free(iconImages[1].pixels);
+#endif
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
 

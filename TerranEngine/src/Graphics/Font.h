@@ -1,12 +1,12 @@
 #pragma once
 
 //#include <freetype-gl.h>
+#include "Texture.h"
+
+#include "Core/Base.h"
 
 #include <texture-atlas.h>
 #include <texture-font.h>
-
-#include "Texture.h"
-#include "Core/Base.h"
 
 namespace TerranEngine 
 {

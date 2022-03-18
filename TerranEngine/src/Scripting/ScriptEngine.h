@@ -1,11 +1,11 @@
 #pragma once
 
+#include "ScriptClass.h"
+
 #include "Core/Log.h"
 #include "Core/Base.h"
 
 #include "Scene/Scene.h"
-
-#include "ScriptClass.h"
 
 namespace TerranEngine 
 {
@@ -24,6 +24,8 @@ namespace TerranEngine
 		static std::string GetAssemblyPath();
 
 		static ScriptClass GetClass(const std::string& moduleName);
+
+		static bool ClassExists(const std::string& moduleName);
 
 		static void InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <stdint.h>
 #include <glm/glm.hpp>
+
+#include <stdint.h>
 
 namespace TerranEditor 
 {

@@ -1,10 +1,12 @@
 #pragma once
 
-#include <entt.hpp>
 #include "Core/UUID.h"
-#include <unordered_map>
 
 #include "Graphics/Camera.h"
+
+#include <entt.hpp>
+
+#include <unordered_map>
 
 namespace TerranEngine 
 {
@@ -17,7 +19,6 @@ namespace TerranEngine
 	public:
 		
 		Scene();
-		
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
@@ -45,6 +46,7 @@ namespace TerranEngine
 
 		Entity GetPrimaryCamera();
 
+		Entity DuplicateEntity(Entity srcEntity, Entity parent);
 		Entity DuplicateEntity(Entity srcEntity);
 
 		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
@@ -52,7 +54,9 @@ namespace TerranEngine
 		UUID& GetID() { return m_ID; }
 
 	private:
-		
+		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
 	private:
 		// TODO: add scene name and UUID
 

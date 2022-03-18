@@ -4,9 +4,8 @@
 
 namespace TerranEngine 
 {
-	enum class ScriptFieldType 
+	enum class ScriptFieldType
 	{
-		Unknown = -1,
 		None = 0,
 		Bool,
 		Char,
@@ -15,7 +14,7 @@ namespace TerranEngine
 		Int16,
 		Int64,
 		UInt8,
-		Uint16,
+		UInt16,
 		UInt,
 		UInt64,
 		Float,
@@ -23,23 +22,42 @@ namespace TerranEngine
 		String
 	};
 
-	enum class ScirptFieldVisibility 
+	enum class ScriptFieldVisiblity 
 	{
-		None = 0,
+		Unknown,
 		Private,
+		Public,
 		Protected,
-		Internal,
-		Public
+		Internal
 	};
 
+	// NOTE: templates?
 	class ScriptField 
 	{
 		union FieldCacheData 
 		{
-
 			double dValue;
 			int64_t iValue;
 			bool bValue;
+			void* ptr;
+
+			// TODO: add string
+
+			operator bool()		{ return bValue; }
+
+			operator int8_t()	{ return static_cast<int8_t>(iValue); }
+			operator int16_t()	{ return static_cast<int16_t>(iValue); }
+			operator int32_t()	{ return static_cast<int32_t>(iValue); }
+			operator int64_t()	{ return static_cast<int64_t>(iValue); }
+
+			operator uint8_t()	{ return static_cast<uint8_t>(iValue); }
+			operator uint16_t() { return static_cast<uint16_t>(iValue); }
+			operator uint32_t() { return static_cast<uint32_t>(iValue); }
+			operator uint64_t() { return static_cast<uint64_t>(iValue); }
+
+			operator float()	{ return static_cast<float>(dValue); }
+			operator double()	{ return static_cast<double>(dValue); }
+			operator const char* () { return static_cast<const char*>(ptr); }
 		};
 
 	public:
@@ -47,11 +65,11 @@ namespace TerranEngine
 		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
 		
 		ScriptField(const ScriptField& other) = default;
-		~ScriptField() = default;
+		~ScriptField();
 
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
-		inline ScirptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
+		inline ScriptFieldVisiblity GetVisibility() const					{ return m_FieldVisibility; }
 
 		void SetValue(void* value);
 		void GetValue(void* result);
@@ -66,8 +84,10 @@ namespace TerranEngine
 		uint32_t m_MonoObjectGCHandle = 0;
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
-		ScirptFieldVisibility m_FieldVisibility = ScirptFieldVisibility::None;
+		ScriptFieldVisiblity m_FieldVisibility = ScriptFieldVisiblity::Unknown;
 
+		// NOTE: think about putting this in the script engine
+		// a field shouldn't store this data
 		FieldCacheData m_CachedData;
 	};
 }

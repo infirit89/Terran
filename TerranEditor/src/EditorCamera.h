@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Graphics/Camera.h"
-#include "Events/MouseEvent.h"
 #include "Core/Time.h"
+
+#include "Graphics/Camera.h"
+
+#include "Events/MouseEvent.h"
 
 namespace TerranEditor 
 {

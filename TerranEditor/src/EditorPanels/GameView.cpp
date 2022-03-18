@@ -1,7 +1,8 @@
 #include "GameView.h"
 
-#include <ImGui/imgui.h>
 #include "Terran.h"
+
+#include <ImGui/imgui.h>
 
 namespace TerranEditor 
 {

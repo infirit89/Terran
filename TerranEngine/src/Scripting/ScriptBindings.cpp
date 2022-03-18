@@ -1,16 +1,16 @@
 #include "trpch.h"
 #include "ScriptBindings.h"
 
-#include "Core/Input.h"
-
 #include "ScriptString.h"
 #include "ScriptEngine.h"
+
+#include "Core/Input.h"
 
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/object.h>

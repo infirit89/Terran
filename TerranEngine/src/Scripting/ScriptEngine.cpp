@@ -1,11 +1,11 @@
 #include "trpch.h"
 #include "ScriptEngine.h"
 
-#include "Core/Log.h"
-#include "Core/FileUtils.h"
-
 #include "ScriptString.h"
 #include "ScriptBindings.h"
+
+#include "Core/Log.h"
+#include "Core/FileUtils.h"
 
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
@@ -58,18 +58,19 @@ namespace TerranEngine
 		}
 	};
 
+	static ScriptableInstance s_EmptyInstance;
+
 	static std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
 
-	static ScriptableInstance GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
+	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
 		if (s_ScriptableInstanceMap.find(sceneUUID) != s_ScriptableInstanceMap.end()) 
 		{
 			if (s_ScriptableInstanceMap[sceneUUID].find(entityUUID) != s_ScriptableInstanceMap[sceneUUID].end())
 				return s_ScriptableInstanceMap[sceneUUID][entityUUID];
-
 		}
 
-		return { };
+		return s_EmptyInstance;
 	}
 
 	void ScriptEngine::Init(const char* fileName)
@@ -170,7 +171,7 @@ namespace TerranEngine
 		if (!s_CurrentImage)
 		{
 			TR_ERROR("Can't locate the class {0}, as there is no loaded script image", moduleName);
-			return NULL;
+			return ScriptClass();
 		}
 
 		std::hash<std::string> hasher;
@@ -190,7 +191,7 @@ namespace TerranEngine
 		if (!klass) 
 		{
 			TR_ERROR("Class wasn't found");
-			return NULL;
+			return ScriptClass();
 		}
 		ScriptClass scriptClass(klass);
 		s_Classes[hashedName] = scriptClass;
@@ -198,6 +199,10 @@ namespace TerranEngine
 		return scriptClass;
 	}
 
+	bool ScriptEngine::ClassExists(const std::string& moduleName)
+	{
+		return GetClass(moduleName).GetNativeClassPtr() != nullptr;
+	}
 
 	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature)
 	{
@@ -235,6 +240,15 @@ namespace TerranEngine
 				return;
 			}
 
+			ScriptClass parentKlass = klass.GetParent();
+			if ((!parentKlass.GetNativeClassPtr()) ||
+				(strcmp(parentKlass.GetName(), "Scriptable") != 0 && strcmp(parentKlass.GetNamespace(), "TerranScriptCore") != 0))
+			{
+				// TODO: display error in ui
+				TR_WARN("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
+				return;
+			}
+
 			ScriptableInstance instance;
 			instance.Object = klass.CreateInstance();
 			instance.GetMethods(klass);
@@ -248,59 +262,64 @@ namespace TerranEngine
 
 			void* args[] = { monoArray };
 
-			TR_TRACE(entity.GetID());
-
 			instance.Constructor.Invoke(instance.Object, args);
 
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
-			if (scriptComponent.PublicFields.empty())
-				scriptComponent.PublicFields = instance.Object.GetPublicFields();
-			else
+			if (!scriptComponent.PublicFields.empty()) 
 			{
-				if (scriptComponent.PublicFields.size() != instance.Object.GetPublicFields().size())
+				for (auto& [hashedName, field] : scriptComponent.PublicFields)
 				{
-					TR_ERROR("Field size mismatch");
-					return;
+					if (instance.Object.GetFieldMap().find(hashedName) != instance.Object.GetFieldMap().end()) 
+					{
+						ScriptField& objectField = instance.Object.GetFieldMap().at(hashedName);
+
+						if (objectField.GetType() == field.GetType()) 
+						{
+							switch (field.GetType())
+							{
+							case ScriptFieldType::Bool:
+							{
+								bool value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::Int:
+							{
+								int value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::Float:
+							{
+								float value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::Double:
+							{
+								double value = field.GetCachedData();
+
+								objectField.SetValue(&value);
+								break;
+							}
+							case ScriptFieldType::String: 
+							{
+								std::string value = (char*)field.GetCachedData().ptr;
+
+								objectField.SetValue(value.c_str());
+							}
+							}
+						}
+					}
 				}
-
-				for (size_t i = 0; i < scriptComponent.PublicFields.size(); i++)
-				{
-					switch (scriptComponent.PublicFields[i].GetType())
-					{
-					case ScriptFieldType::Bool:
-					{
-						bool value = scriptComponent.PublicFields[i].GetCachedData().bValue;
-
-						instance.Object.GetPublicFields()[i].SetValue(&value);
-						break;
-					}
-					case ScriptFieldType::Int:
-					{
-						int value = scriptComponent.PublicFields[i].GetCachedData().iValue;
-
-						instance.Object.GetPublicFields()[i].SetValue(&value);
-						break;
-					}
-					case ScriptFieldType::Float:
-					{
-						float value = scriptComponent.PublicFields[i].GetCachedData().dValue;
-
-						instance.Object.GetPublicFields()[i].SetValue(&value);
-						break;
-					}
-					case ScriptFieldType::Double:
-					{
-						double value = scriptComponent.PublicFields[i].GetCachedData().dValue;
-
-						instance.Object.GetPublicFields()[i].SetValue(&value);
-						break;
-					}
-					}
-				}
-
-				scriptComponent.PublicFields = instance.Object.GetPublicFields();
 			}
+
+			scriptComponent.FieldOrder = instance.Object.GetFieldOrder();
+			scriptComponent.PublicFields = instance.Object.GetFieldMap();
 		}
 	}
 

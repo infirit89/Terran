@@ -3,11 +3,12 @@
 
 #include "RenderCommand.h"
 
-#include <glad/glad.h>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <glad/glad.h>
 
 #pragma warning (push)
 #pragma warning (disable : 4305)
@@ -83,6 +84,11 @@ namespace TerranEngine
 
 		int maxTexSlots = 16; //RenderCommand::GetMaxTextureSlots();
 
+		int* sampler = new int[maxTexSlots];
+
+		for (size_t i = 0; i < maxTexSlots; i++)
+			sampler[i] = i;
+
 		// ******** Quad ******** 
 		{
 			m_QuadVertexPtr = new QuadVertex[m_MaxVertices];
@@ -100,11 +106,6 @@ namespace TerranEngine
 
 			m_QuadVAO->AddIndexBuffer(m_IndexBuffer);
 
-			int* sampler = new int[maxTexSlots];
-
-			for (size_t i = 0; i < maxTexSlots; i++)
-				sampler[i] = i;
-
 			m_QuadShader = CreateShared<Shader>("DefaultQuadShader", 
 												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
 												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
@@ -117,8 +118,6 @@ namespace TerranEngine
 
 			m_QuadTextures[0] =	CreateShared<Texture>(1, 1, parameters);
 			m_QuadTextures[0]->SetData(&whiteTextureData);
-
-			delete[] sampler;
 
 		}
 		// **********************
@@ -141,12 +140,6 @@ namespace TerranEngine
 
 			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
 
-
-			int* sampler = new int[maxTexSlots];
-
-			for (size_t i = 0; i < maxTexSlots; i++)
-				sampler[i] = i;
-
 			m_TextShader = CreateShared<Shader>("DefaultTextShader", 
 												"Resources/Shaders/Base/Text/TextVertex.glsl",
 												"Resources/Shaders/Base/Text/TextFragment.glsl");
@@ -157,8 +150,6 @@ namespace TerranEngine
 
 			m_TextTextures[0] = CreateShared<Texture>(1, 1, parameters);
 			m_TextTextures[0]->SetData(&whiteTextureData);
-
-			delete[] sampler;
 		}
 		// **********************
 
@@ -204,11 +195,15 @@ namespace TerranEngine
 		m_TextShader->Unbind();
 		m_CircleShader->Unbind();
 
+		delete[] sampler;
+
 	}
 
 	void BatchRenderer2D::Close()
 	{
 		delete[] m_QuadVertexPtr;
+		delete[] m_TextVertexPtr;
+		delete[] m_CircleVertexPtr;
 	}
 
 	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform)
