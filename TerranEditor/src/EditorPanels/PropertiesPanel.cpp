@@ -201,120 +201,109 @@ namespace TerranEditor
 							{
 							case ScriptFieldType::Bool:
 							{
-								bool value = 0;
-								field.GetValue(&value);
+								bool value = field.GetData<bool>();
 
 								if (UI::DrawBoolControl(field.GetName(), value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::Int8:
 							{
-								int8_t value = 0;
-								field.GetValue(&value);
+								int8_t value = field.GetData<int8_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S8, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::Int16:
 							{
-								int16_t value = 0;
-								field.GetValue(&value);
+								int16_t value = field.GetData<int16_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S16, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::Int:
 							{
-								int32_t value = 0;
-								field.GetValue(&value);
+								int32_t value = field.GetData<int32_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S32, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::Int64:
 							{
-								int64_t value = 0;
-								field.GetValue(&value);
+								int64_t value = field.GetData<int64_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S64, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::UInt8:
 							{
-								uint8_t value = 0;
-								field.GetValue(&value);
+								uint8_t value = field.GetData<uint8_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U8, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::UInt16:
 							{
-								uint16_t value = 0;
-								field.GetValue(&value);
+								uint16_t value = field.GetData<uint16_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U16, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::UInt:
 							{
-								uint32_t value = 0;
-								field.GetValue(&value);
+								uint32_t value = field.GetData<uint32_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U32, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::UInt64:
 							{
-								uint64_t value = 0;
-								field.GetValue(&value);
+								uint64_t value = field.GetData<uint64_t>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U64, &value))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::Float:
 							{
-								float value = 0.0f;
-								field.GetValue(&value);
+								float value = field.GetData<float>();
 
 								if (UI::DrawFloatControl(field.GetName(), value, 0.1f, "%.2f"))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::Double:
 							{
-								double value = 0.0f;
-								field.GetValue(&value);
+								double value = field.GetData<double>();
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_Double, &value, 0.1f, "%.4f"))
-									field.SetValue(&value);
+									field.SetData(value);
 
 								break;
 							}
 							case ScriptFieldType::String: 
 							{
-								std::string value = field.GetValue();
+								std::string value = field.GetData<const char*>();
 
 								if (UI::DrawStringControl(field.GetName(), value))
-									field.SetValue(value.c_str());
+									field.SetData<const char*>(value.c_str());
 
 								break;
 							}

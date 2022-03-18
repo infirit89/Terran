@@ -106,85 +106,73 @@ namespace TerranEngine
 			{
 			case ScriptFieldType::Bool: 
 			{
-				bool value = false;
-				field.GetValue(&value);
+				bool value = field.GetData<bool>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Char: 
 			{
-				char value = NULL;
-				field.GetValue(&value);
+				char value = field.GetData<char>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int8:
 			{
-				int8_t value = 0;
-				field.GetValue(&value);
+				int8_t value = field.GetData<int8_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int16:
 			{
-				int16_t value = 0;
-				field.GetValue(&value);
+				int16_t value = field.GetData<int16_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int: 
 			{
-				int32_t value = 0;
-				field.GetValue(&value);
+				int32_t value = field.GetData<int32_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Int64:
 			{
-				int64_t value = 0;
-				field.GetValue(&value);
+				int64_t value = field.GetData<int64_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::UInt8:
 			{
-				uint8_t value = 0;
-				field.GetValue(&value);
+				uint8_t value = field.GetData<uint8_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::UInt16:
 			{
-				uint16_t value = 0;
-				field.GetValue(&value);
+				uint16_t value = field.GetData<uint16_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::UInt:
 			{
-				uint32_t value = 0;
-				field.GetValue(&value);
+				uint32_t value = field.GetData<uint32_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::UInt64:
 			{
-				uint64_t value = 0;
-				field.GetValue(&value);
+				uint64_t value = field.GetData<uint64_t>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Float: 
 			{
-				float value = 0.0f;
-				field.GetValue(&value);
+				float value = field.GetData<float>();
 				j[field.GetName()] = value;
 				break;
 			}
 			case ScriptFieldType::Double: 
 			{
-				double value = 0.0;
-				field.GetValue(&value);
+				double value = field.GetData<double>();
 				j[field.GetName()] = value;
 				break;
 			}
@@ -367,67 +355,68 @@ namespace TerranEngine
 						case ScriptFieldType::Bool:
 						{
 							bool value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
+							//field.SetValue(&value);
 							break;
 						}
 						case ScriptFieldType::Int64:
 						{
 							int64_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::Int:
 						{
 							int32_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::Int16:
 						{
 							int16_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::Int8:
 						{
 							int8_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::UInt64:
 						{
 							uint64_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::UInt:
 						{
 							uint32_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::UInt16:
 						{
 							uint16_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::UInt8:
 						{
 							uint8_t value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::Float:
 						{
 							float value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						case ScriptFieldType::Double:
 						{
 							double value = jScriptFieldValue;
-							field.SetValue(&value);
+							field.SetData(value);
 							break;
 						}
 						}

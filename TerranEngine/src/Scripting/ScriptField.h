@@ -34,32 +34,6 @@ namespace TerranEngine
 	// NOTE: templates?
 	class ScriptField 
 	{
-		union FieldCacheData 
-		{
-			double dValue;
-			int64_t iValue;
-			bool bValue;
-			void* ptr;
-
-			// TODO: add string
-
-			operator bool()		{ return bValue; }
-
-			operator int8_t()	{ return static_cast<int8_t>(iValue); }
-			operator int16_t()	{ return static_cast<int16_t>(iValue); }
-			operator int32_t()	{ return static_cast<int32_t>(iValue); }
-			operator int64_t()	{ return static_cast<int64_t>(iValue); }
-
-			operator uint8_t()	{ return static_cast<uint8_t>(iValue); }
-			operator uint16_t() { return static_cast<uint16_t>(iValue); }
-			operator uint32_t() { return static_cast<uint32_t>(iValue); }
-			operator uint64_t() { return static_cast<uint64_t>(iValue); }
-
-			operator float()	{ return static_cast<float>(dValue); }
-			operator double()	{ return static_cast<double>(dValue); }
-			operator const char* () { return static_cast<const char*>(ptr); }
-		};
-
 	public:
 		ScriptField() = default;
 		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
@@ -71,13 +45,38 @@ namespace TerranEngine
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
 		inline ScriptFieldVisiblity GetVisibility() const					{ return m_FieldVisibility; }
 
-		void SetValue(void* value);
-		void GetValue(void* result);
+		void SetDataRaw(void* value);
+		void GetDataRaw(void* result);
 
-		const char* GetValue();
-		void SetValue(const char* value);
+		const char* GetDataStringRaw();
+		void SetDataStringRaw(const char* value);
 
-		FieldCacheData GetCachedData() { return m_CachedData; }
+		template<typename T>
+		T GetData() 
+		{
+			T value;
+			GetDataRaw(&value);
+			return value;
+		}
+
+		template<typename T>
+		void SetData(T value) 
+		{
+			SetDataRaw(&value);
+		}
+
+		template<>
+		const char* GetData<const char*>() 
+		{
+			const char* value = GetDataStringRaw();
+			return value;
+		}
+
+		template<>
+		void SetData<const char*>(const char* value) 
+		{
+			SetDataStringRaw(value);
+		}
 
 	private:
 		void* m_MonoField = nullptr;
@@ -85,9 +84,5 @@ namespace TerranEngine
 		const char* m_Name = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScriptFieldVisiblity m_FieldVisibility = ScriptFieldVisiblity::Unknown;
-
-		// NOTE: think about putting this in the script engine
-		// a field shouldn't store this data
-		FieldCacheData m_CachedData;
 	};
 }
