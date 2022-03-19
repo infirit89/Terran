@@ -19,7 +19,8 @@ namespace TerranEngine
 		UInt64,
 		Float,
 		Double,
-		String
+		String,
+		Vector2
 	};
 
 	enum class ScriptFieldVisiblity 
@@ -77,6 +78,8 @@ namespace TerranEngine
 		{
 			SetDataStringRaw(value);
 		}
+
+		// NOTE: maybe marshal vec2 and vec3
 
 	private:
 		void* m_MonoField = nullptr;

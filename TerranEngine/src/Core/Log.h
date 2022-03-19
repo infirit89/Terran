@@ -49,7 +49,8 @@ namespace TerranEngine
 	template<typename OStream>
 	OStream& operator<<(OStream& os, const glm::vec2& vec) 
 	{
-		return os << vec.x << ", " << vec.y;
+		os << vec.x << ", " << vec.y;
+		return os;
 	}
 
 	template<typename OStream>

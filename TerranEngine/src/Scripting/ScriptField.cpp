@@ -29,6 +29,19 @@ namespace TerranEngine
 		case MONO_TYPE_R8:			return ScriptFieldType::Double;
 		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
 		case MONO_TYPE_STRING:		return ScriptFieldType::String;
+		case MONO_TYPE_VALUETYPE: 
+		{
+			MonoClass* typeClass = mono_class_from_mono_type(monoType);
+			const char* typeClassTypeName = mono_class_get_name(typeClass);
+			const char* typeClassNamespace = mono_class_get_namespace(typeClass);
+
+			// TODO: string comparing is slow, think of a better way to do this
+			if (strcmp(typeClassNamespace, "TerranScriptCore") == 0) 
+			{
+				if (strcmp(typeClassTypeName, "Vector2") == 0)
+					return ScriptFieldType::Vector2;
+			}
+		}
 		}
 
 		return ScriptFieldType::None;

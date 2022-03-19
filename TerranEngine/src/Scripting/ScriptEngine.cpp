@@ -370,6 +370,12 @@ namespace TerranEngine
 								objectField.SetData<const char*>(value);
 								break;
 							}
+							case ScriptFieldType::Vector2: 
+							{
+								glm::vec2 value = field.Data;
+								objectField.SetData(value);
+								break;
+							}
 							}
 						}
 					}
@@ -388,10 +394,14 @@ namespace TerranEngine
 					if (field.Type == ScriptFieldType::String) 
 					{
 						if (field.Data.ptr)
-							delete[] field.Data.ptr;
+							delete[] (char*)field.Data.ptr;
+					}
+					else if (field.Type == ScriptFieldType::Vector2) 
+					{
+						if (field.Data.ptr)
+							delete (glm::vec2*)field.Data.ptr;
 					}
 
-					// TODO: if field type is string, delete ptr
 					fieldBackupMap.erase(fieldName);
 				}
 
@@ -480,6 +490,18 @@ namespace TerranEngine
 						strcpy((char*)fieldBackup.Data.ptr, tempVal);
 
 						((char*)fieldBackup.Data.ptr)[tempValLength] = '\0';
+						break;
+					}
+					case ScriptFieldType::Vector2: 
+					{
+						glm::vec2 tempVal = field.GetData<glm::vec2>();
+
+						fieldBackup.Data.ptr = new glm::vec2;
+
+						((glm::vec2*)fieldBackup.Data.ptr)->x = tempVal.x;
+						((glm::vec2*)fieldBackup.Data.ptr)->y = tempVal.y;
+
+						break;
 					}
 					}
 
