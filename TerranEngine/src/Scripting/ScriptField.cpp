@@ -40,6 +40,8 @@ namespace TerranEngine
 			{
 				if (strcmp(typeClassTypeName, "Vector2") == 0)
 					return ScriptFieldType::Vector2;
+				if (strcmp(typeClassTypeName, "Vector3") == 0)
+					return ScriptFieldType::Vector3;
 			}
 		}
 		}

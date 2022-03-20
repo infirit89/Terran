@@ -3,6 +3,7 @@
 
 #include "ScriptString.h"
 #include "ScriptBindings.h"
+#include "ScriptMarshal.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -257,14 +258,9 @@ namespace TerranEngine
 			instance.Object = klass.CreateInstance();
 			instance.GetMethods(klass);
 
-			const uint8_t* idData = entity.GetID().GetRaw();
+			MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 
-			MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
-			uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
-
-			memcpy(dst, idData, 16 * sizeof(uint8_t));
-
-			void* args[] = { monoArray };
+			void* args[] = { uuidArray };
 
 			instance.Constructor.Invoke(instance.Object, args);
 
@@ -376,6 +372,12 @@ namespace TerranEngine
 								objectField.SetData(value);
 								break;
 							}
+							case ScriptFieldType::Vector3:
+							{
+								glm::vec3 value = field.Data;
+								objectField.SetData(value);
+								break;
+							}
 							}
 						}
 					}
@@ -400,6 +402,11 @@ namespace TerranEngine
 					{
 						if (field.Data.ptr)
 							delete (glm::vec2*)field.Data.ptr;
+					}
+					else if (field.Type == ScriptFieldType::Vector3) 
+					{
+						if(field.Data.ptr)
+							delete (glm::vec3*)field.Data.ptr;
 					}
 
 					fieldBackupMap.erase(fieldName);
@@ -500,6 +507,18 @@ namespace TerranEngine
 
 						((glm::vec2*)fieldBackup.Data.ptr)->x = tempVal.x;
 						((glm::vec2*)fieldBackup.Data.ptr)->y = tempVal.y;
+
+						break;
+					}
+					case ScriptFieldType::Vector3:
+					{
+						glm::vec3 tempVal = field.GetData<glm::vec3>();
+
+						fieldBackup.Data.ptr = new glm::vec3;
+
+						((glm::vec3*)fieldBackup.Data.ptr)->x = tempVal.x;
+						((glm::vec3*)fieldBackup.Data.ptr)->y = tempVal.y;
+						((glm::vec3*)fieldBackup.Data.ptr)->z = tempVal.z;
 
 						break;
 					}

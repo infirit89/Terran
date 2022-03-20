@@ -36,6 +36,16 @@ namespace TerranScriptCore
             return null;
         }
 
+        public static Entity FindWithID(UUID id) 
+        {
+            byte[] entityID = FindEntityWithID_Internal(id);
+
+            if (entityID != null)
+                return new Entity(entityID);
+
+            return null;
+        }
+
         public void AddComponent<T>() where T : Component => AddComponent_Internal(id.Data, typeof(T).FullName);
 
         public bool HasComponent<T>() where T : Component => HasComponent_Internal(id.Data, typeof(T).FullName);
@@ -65,5 +75,9 @@ namespace TerranScriptCore
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern byte[] FindEntityWithName_Internal(string name);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern byte[] FindEntityWithID_Internal(UUID id);
+        
     }
 }

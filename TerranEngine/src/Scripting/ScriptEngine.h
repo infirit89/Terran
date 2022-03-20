@@ -36,6 +36,7 @@ namespace TerranEngine
 		operator double() { return static_cast<double>(dValue); }
 		operator const char* () { return static_cast<const char*>(ptr); }
 		operator glm::vec2() { return *static_cast<glm::vec2*>(ptr); }
+		operator glm::vec3() { return *static_cast<glm::vec3*>(ptr); }
 	};
 
 	struct ScriptFieldBackup

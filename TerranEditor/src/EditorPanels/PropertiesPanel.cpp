@@ -313,6 +313,17 @@ namespace TerranEditor
 								
 								if (UI::DrawVec2Control(field.GetName(), value))
 									field.SetData<glm::vec2>(value);
+
+								break;
+							}
+							case ScriptFieldType::Vector3: 
+							{
+								glm::vec3 value = field.GetData<glm::vec3>();
+
+								if (UI::DrawVec3Control(field.GetName(), value))
+									field.SetData<glm::vec3>(value);
+
+								break;
 							}
 							}
 						}

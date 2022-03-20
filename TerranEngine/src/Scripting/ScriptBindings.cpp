@@ -3,6 +3,7 @@
 
 #include "ScriptString.h"
 #include "ScriptEngine.h"
+#include "ScriptMarshal.h"
 
 #include "Core/Input.h"
 
@@ -18,27 +19,28 @@
 namespace TerranEngine 
 {
     // ---- Entity ----
-    static bool HasComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentType);
-    static void AddComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentType);
-    static void RemoveComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentType);
+    static bool HasComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
+    static void AddComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
+    static void RemoveComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
 
     static MonoArray* FindEntityWithName_Internal(MonoString* monoName);
+    static MonoArray* FindEntityWithID_Internal(MonoArray* monoIDArray);
     // ----------------
 
     // ---- Transform component ----
-    static void SetTransformPosition_Internal(MonoArray* entityRuntimeID, glm::vec3 inPosition);
-    static glm::vec3 GetTransformPosition_Internal(MonoArray* entityRuntimeID);
+    static void SetTransformPosition_Internal(MonoArray* entityUUIDArr, glm::vec3 inPosition);
+    static glm::vec3 GetTransformPosition_Internal(MonoArray* entityUUIDArr);
 
-    static void SetTransformRotation_Internal(MonoArray* entityRuntimeID, glm::vec3 inRotation);
-    static glm::vec3 GetTransformRotation_Internal(MonoArray* entityRuntimeID);
+    static void SetTransformRotation_Internal(MonoArray* entityUUIDArr, glm::vec3 inRotation);
+    static glm::vec3 GetTransformRotation_Internal(MonoArray* entityUUIDArr);
 
-    static void SetTransformScale_Internal(MonoArray* entityRuntimeID, glm::vec3 inScale);
-    static glm::vec3 GetTransformScale_Internal(MonoArray* entityRuntimeID);
+    static void SetTransformScale_Internal(MonoArray* entityUUIDArr, glm::vec3 inScale);
+    static glm::vec3 GetTransformScale_Internal(MonoArray* entityUUIDArr);
     // -----------------------------
 
     // ---- Tag component ----
-    static void SetTagName_Internal(MonoArray* entityRuntimeID, MonoString* inName);
-    static MonoString* GetTagName_Internal(MonoArray* entityRuntimeID);
+    static void SetTagName_Internal(MonoArray* entityUUIDArr, MonoString* inName);
+    static MonoString* GetTagName_Internal(MonoArray* entityUUIDArr);
     // -----------------------
 
     // ---- Utils ----
@@ -62,6 +64,8 @@ namespace TerranEngine
         BindInternalFunc("TerranScriptCore.Entity::RemoveComponent_Internal", RemoveComponent_Internal);
 
         BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", FindEntityWithName_Internal);
+        BindInternalFunc("TerranScriptCore.Entity::FindEntityWithID_Internal", FindEntityWithID_Internal);
+
 
         BindInternalFunc("TerranScriptCore.Transform::GetTransformPosition_Internal", GetTransformPosition_Internal);
         BindInternalFunc("TerranScriptCore.Transform::SetTransformPosition_Internal",
@@ -86,37 +90,19 @@ namespace TerranEngine
 
     static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
 
-    static UUID GetUUIDFromMonoArray(MonoArray* monoArray) 
-    {
-        std::array<uint8_t, 16> uuidData = { {0} };
-
-        if (mono_array_length(monoArray) != 16)
-        {
-            TR_ERROR("Invalid array");
-            return UUID(uuidData);
-        }
-
-        const uint8_t* src = mono_array_addr(monoArray, uint8_t, 0);
-        memcpy(uuidData._Elems, src, 16 * sizeof(uint8_t));
-
-        return UUID(uuidData);
-    }
-
     static ComponentType GetComponentType(MonoString* componentTypeStr)
     {
         ScriptString string(componentTypeStr);
 
-        if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Transform") == 0)
-            return ComponentType::TransformComponent;
-        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Tag") == 0)
-            return ComponentType::TagComponent;
-        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Scriptable") == 0)
-            return ComponentType::ScriptableComponent;
+        if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Transform") == 0)         return ComponentType::TransformComponent;
+        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Tag") == 0)          return ComponentType::TagComponent;
+        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Scriptable") == 0)   return ComponentType::ScriptableComponent;
 
         return ComponentType::None;
     }
-
-    static bool HasComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentTypeStr)
+    
+    // TODO: change this to a MonoType
+    static bool HasComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
 
@@ -126,7 +112,7 @@ namespace TerranEngine
             return false;
         }
 
-        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
         Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         switch (type)
@@ -136,12 +122,11 @@ namespace TerranEngine
         case ComponentType::ScriptableComponent:    return entity.HasComponent<ScriptComponent>();
         }
 
-
         TR_ERROR("No component with the corresponding type exists");
         return false;
     }
 
-    static void AddComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentTypeStr)
+    static void AddComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
 
@@ -151,7 +136,7 @@ namespace TerranEngine
             return;
         }
 
-        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
         Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         switch (type)
@@ -162,7 +147,7 @@ namespace TerranEngine
         }
     }
 
-    static void RemoveComponent_Internal(MonoArray* entityRuntimeID, MonoString* componentTypeStr)
+    static void RemoveComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
     {
         ComponentType type = GetComponentType(componentTypeStr);
 
@@ -172,7 +157,7 @@ namespace TerranEngine
             return;
         }
 
-        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
         Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         switch (type)
@@ -186,20 +171,21 @@ namespace TerranEngine
     static MonoArray* FindEntityWithName_Internal(MonoString* monoName)
     {
         ScriptString name(monoName);
+
         Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName(name.GetUTF8Str());
 
-        MonoArray* monoArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
-        const uint8_t* uuidData = entity.GetID().GetRaw();
-        uint8_t* dst = mono_array_addr(monoArray, uint8_t, 0);
+        if (entity) 
+        {
+            MonoArray* monoArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+            return monoArray;
+        }
 
-        memcpy(dst, uuidData, 16 * sizeof(uint8_t));
-
-        return monoArray;
+        return nullptr;
     }
 
 // bullshit?
 #define SET_COMPONENT_VAR(var, entityID, componentType)\
-    UUID entityUUID = GetUUIDFromMonoArray(entityID);\
+    UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityID);\
     Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
 	if(entity)\
 		entity.GetComponent<componentType>().var = var;\
@@ -208,7 +194,7 @@ namespace TerranEngine
 
 // bullshit #2? 
 #define GET_COMPONENT_VAR(var, entityID, componentType)\
-    UUID entityUUID = GetUUIDFromMonoArray(entityID);\
+    UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityID);\
     Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
 	if(entity)\
 		var = entity.GetComponent<componentType>().var;\
@@ -216,9 +202,9 @@ namespace TerranEngine
 		TR_ERROR("Invalid entity id");
 
     // ---- Transform ----
-    static void SetTransformPosition_Internal(MonoArray* entityRuntimeID, glm::vec3 inPosition)
+    static void SetTransformPosition_Internal(MonoArray* entityUUIDArr, glm::vec3 inPosition)
     {
-        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
         Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         if (entity) 
@@ -230,9 +216,9 @@ namespace TerranEngine
             TR_ERROR("Invalid entity id");
     }
 
-    static glm::vec3 GetTransformPosition_Internal(MonoArray* entityRuntimeID)
+    static glm::vec3 GetTransformPosition_Internal(MonoArray* entityUUIDArr)
     {
-        UUID entityUUID = GetUUIDFromMonoArray(entityRuntimeID);
+        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
         Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
 
         if (entity)
@@ -243,47 +229,47 @@ namespace TerranEngine
         return { 0.0f, 0.0f, 0.0f };
     }
 
-    static void SetTransformRotation_Internal(MonoArray* entityRuntimeID, glm::vec3 Rotation)
+    static void SetTransformRotation_Internal(MonoArray* entityUUIDArr, glm::vec3 Rotation)
     {
-        SET_COMPONENT_VAR(Rotation, entityRuntimeID, TransformComponent);
+        SET_COMPONENT_VAR(Rotation, entityUUIDArr, TransformComponent);
         entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
-    static glm::vec3 GetTransformRotation_Internal(MonoArray* entityRuntimeID)
+    static glm::vec3 GetTransformRotation_Internal(MonoArray* entityUUIDArr)
     {
         glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-        GET_COMPONENT_VAR(Rotation, entityRuntimeID, TransformComponent);
+        GET_COMPONENT_VAR(Rotation, entityUUIDArr, TransformComponent);
 
         return Rotation;
     }
 
-    static void SetTransformScale_Internal(MonoArray* entityRuntimeID, glm::vec3 Scale)
+    static void SetTransformScale_Internal(MonoArray* entityUUIDArr, glm::vec3 Scale)
     {
-        SET_COMPONENT_VAR(Scale, entityRuntimeID, TransformComponent);
+        SET_COMPONENT_VAR(Scale, entityUUIDArr, TransformComponent);
         entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
-    static glm::vec3 GetTransformScale_Internal(MonoArray* entityRuntimeID)
+    static glm::vec3 GetTransformScale_Internal(MonoArray* entityUUIDArr)
     {
         glm::vec3 Scale = { 0.0f, 0.0f, 0.0f };
-        GET_COMPONENT_VAR(Scale, entityRuntimeID, TransformComponent);
+        GET_COMPONENT_VAR(Scale, entityUUIDArr, TransformComponent);
 
         return Scale;
     }
     // -------------------
 
-    static void SetTagName_Internal(MonoArray* entityRuntimeID, MonoString* inName)
+    static void SetTagName_Internal(MonoArray* entityUUIDArr, MonoString* inName)
     {
         ScriptString nameStr(inName);
         const char* Name = nameStr.GetUTF8Str();
 
-        SET_COMPONENT_VAR(Name, entityRuntimeID, TagComponent);
+        SET_COMPONENT_VAR(Name, entityUUIDArr, TagComponent);
     }
 
-    static MonoString* GetTagName_Internal(MonoArray* entityRuntimeID)
+    static MonoString* GetTagName_Internal(MonoArray* entityUUIDArr)
     {
         std::string Name = "";
-        GET_COMPONENT_VAR(Name, entityRuntimeID, TagComponent);
+        GET_COMPONENT_VAR(Name, entityUUIDArr, TagComponent);
         return ScriptString(Name.c_str()).GetStringInternal();
     }
 
@@ -310,5 +296,20 @@ namespace TerranEngine
     static bool KeyPressed_Internal(uint32_t keyCode) 
     {
         return Input::IsKeyPressed((Key)keyCode);
+    }
+
+    static MonoArray* FindEntityWithID_Internal(MonoArray* monoIDArray) 
+    {
+        UUID id = ScriptMarshal::MonoArrayToUUID(monoIDArray);
+
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+        if (entity) 
+        {
+            MonoArray* idArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+            return idArray;
+        }
+
+        return nullptr;
     }
 }

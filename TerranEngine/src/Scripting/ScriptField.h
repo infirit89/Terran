@@ -20,7 +20,8 @@ namespace TerranEngine
 		Float,
 		Double,
 		String,
-		Vector2
+		Vector2,
+		Vector3
 	};
 
 	enum class ScriptFieldVisiblity 
