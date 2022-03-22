@@ -17,6 +17,9 @@ namespace TerranEngine
 	public:
 		static void Init();
 		static inline Shared<spdlog::logger> GetCoreLogger() { return s_CoreLogger; }
+		
+		static inline Shared<spdlog::logger> GetClientLogger() { return s_ClientLogger; }
+		static inline void SetClientLogger(Shared<spdlog::logger> logger) { s_ClientLogger = logger; }
 	private:
 		static Shared<spdlog::logger> s_CoreLogger;
 
@@ -71,4 +74,9 @@ namespace TerranEngine
 #define TR_ERROR(...) ::TerranEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
 
 // TODO: client log macros
+#define TR_CLIENT_TRACE(...) ::TerranEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define TR_CLIENT_INFO(...) ::TerranEngine::Log::GetClientLogger()->info(__VA_ARGS__)
+#define TR_CLIENT_WARN(...) ::TerranEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define TR_CLIENT_ERROR(...) ::TerranEngine::Log::GetClientLogger()->error(__VA_ARGS__)
+
 }

@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "UI/UI.h"
+#include "EditorConsoleSink.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -10,6 +11,8 @@
 
 #include <filesystem>
 
+#include <spdlog/sinks/basic_file_sink.h>
+
 namespace TerranEditor
 {
     static void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination);
@@ -17,6 +20,21 @@ namespace TerranEditor
 	EditorLayer::EditorLayer()
 		: Layer("Editor"), m_EditorCamera()
 	{
+        std::vector<spdlog::sink_ptr> clientSinks
+        {
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/TERRAN_EDITOR.log", true),
+            std::make_shared<EditorConsoleSink>()
+
+        };
+
+        clientSinks[0]->set_pattern("%^[%T] %n: %v%$");
+        clientSinks[1]->set_pattern("%^[%T] %n: %v%$");
+
+        Shared<spdlog::logger> clientLogger = CreateShared<spdlog::logger>("Console", clientSinks.begin(), clientSinks.end());
+        clientLogger->set_level(spdlog::level::trace);
+
+        Log::SetClientLogger(clientLogger);
+
         m_ContentPanel = ContentPanel(m_ResPath);
 
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
@@ -41,6 +59,17 @@ namespace TerranEditor
         ScriptEngine::Init("Resources/Scripts/TerranScriptCore.dll");
 
         ScriptBindings::Bind();
+
+        TR_CLIENT_ERROR("Test error");
+        TR_CLIENT_ERROR("Test error");
+        TR_CLIENT_INFO("Info");
+        TR_CLIENT_ERROR("Test error");
+        TR_CLIENT_WARN("Test warning");
+        TR_CLIENT_INFO("Info");
+        TR_CLIENT_ERROR("Test error");
+        TR_CLIENT_INFO("Info");
+        TR_CLIENT_INFO("Info");
+        TR_CLIENT_INFO("Info");
 	}
 
 	void EditorLayer::OnAttach()
@@ -271,6 +300,9 @@ namespace TerranEditor
                 if (ImGui::MenuItem("ECS Panel"))
                     m_ECSPanel.SetOpen(true);
 
+                if (ImGui::MenuItem("Logger"))
+                    m_LogPanel.SetOpen(true);
+
                 ImGui::EndMenu();
             }
 
@@ -335,8 +367,6 @@ namespace TerranEditor
 
         ShowDockspace();
 
-        ImGui::ShowDemoWindow();
-
         // NOTE: Make an editor setting for the selected window
         m_SHierarchy.ImGuiRender();
         m_Selected = m_SHierarchy.GetSelected();
@@ -353,6 +383,8 @@ namespace TerranEditor
         m_ContentPanel.ImGuiRender();
 
         m_ECSPanel.ImGuiRender();
+
+        m_LogPanel.ImGuiRender();
 
         // Renderer stats
         {
