@@ -41,11 +41,16 @@ namespace TerranEditor
 		if (ImGui::Button("Clear"))
 			ClearMessageBuffer();
 
+		ImGui::SameLine();
+
+		ImGui::Checkbox("Auto scroll", &m_AutoScroll);
+
 		ImGui::Separator();
 		
-		
+		ImGui::BeginChild("MessageRegion", { 0, 0 }, false, ImGuiWindowFlags_HorizontalScrollbar);
 		if (ImGui::BeginTable("log_table", 1))
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
 			for (size_t i = 0; i < m_TextBuffer.size(); i++)
 			{
 				ImGui::TableNextRow();
@@ -99,8 +104,15 @@ namespace TerranEditor
 				ImGui::Unindent(4.0f);
 			}
 
+			ImGui::PopStyleVar();
+
 			ImGui::EndTable();
+
+			if (m_AutoScroll && ImGui::GetScrollY() == ImGui::GetScrollMaxY())
+				ImGui::SetScrollHereY(1.0f);
+
 		}
+		ImGui::EndChild();
 
 		ImGui::End();
 	}

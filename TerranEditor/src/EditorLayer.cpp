@@ -22,7 +22,7 @@ namespace TerranEditor
 	{
         std::vector<spdlog::sink_ptr> clientSinks
         {
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/TERRAN_EDITOR.log", true),
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Terran_Editor.log", true),
             std::make_shared<EditorConsoleSink>()
 
         };

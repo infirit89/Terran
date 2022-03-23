@@ -282,13 +282,13 @@ namespace TerranEngine
         switch (logLevel)
         {
         case 1 << 0:
-            TR_TRACE(message.GetUTF8Str());
+            TR_CLIENT_TRACE(message.GetUTF8Str());
             break;
         case 1 << 1:
-            TR_WARN(message.GetUTF8Str());
+            TR_CLIENT_WARN(message.GetUTF8Str());
             break;
         case 1 << 2:
-            TR_ERROR(message.GetUTF8Str());
+            TR_CLIENT_ERROR(message.GetUTF8Str());
             break;
         }
     }

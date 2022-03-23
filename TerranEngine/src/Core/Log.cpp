@@ -26,7 +26,7 @@ namespace TerranEngine
 
 		std::vector<spdlog::sink_ptr> clientSinks
 		{
-			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/TerranClient.log", true)
+			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Terran_Client.log", true)
 		};
 
 		clientSinks[0]->set_pattern("%^[%T] %n: %v%$");

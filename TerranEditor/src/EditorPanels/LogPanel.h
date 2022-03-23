@@ -40,6 +40,7 @@ namespace TerranEditor
 	private:
 		std::vector<LogMessage> m_TextBuffer;
 		bool m_Open = true;
+		bool m_AutoScroll = true;
 		static LogPanel* s_Instance;
 		Shared<Texture> m_ErrorTexture;
 		Shared<Texture> m_WarnTexture;
