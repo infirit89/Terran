@@ -27,26 +27,18 @@ project "TerranScriptCore"
 
     filter "system:windows"
         systemversion "latest"
+        postbuildcommands  
+        {
+            ("{COPY} %{prj.location}/bin/Debug-%{cfg.system}-%{cfg.architecture} %{wks.location}/TerranEditor/Resources/Scripts/Temp")
+        }
 
     filter "configurations:Debug"
         defines "DEBUG"
         runtime "Debug"
         symbols "on"
-        
-        postbuildcommands  
-        {
-            "{COPY} %{prj.location}/bin/" .. outputdir .. "/TerranScriptCore.dll %{wks.location}/TerranEditor/Resources/Scripts/Temp"
-        }
 
     filter "configurations:Release"
         defines "RELEASE"
         runtime "Release"
         optimize "on"
-
-        postbuildcommands  
-        {
-            "{COPY} %{prj.location}/bin/" .. outputdir .. "/TerranScriptCore.dll %{wks.location}/TerranEditor/Resources/Scripts/Temp"
-        }
-
-
- 
+        

@@ -176,6 +176,18 @@ namespace TerranEngine
 				j[field.GetName()] = value;
 				break;
 			}
+			case ScriptFieldType::Vector3: 
+			{
+				glm::vec3 value = field.GetData<glm::vec3>();
+				json jVec3 = {
+								{ "X", value.x },
+								{ "Y", value.y },
+								{ "Z", value.z }
+							};
+
+				j[field.GetName()] = jVec3;
+				break;
+			}
 			
 			default:	TR_ERROR("Unsupported field type"); break;
 			}
@@ -418,6 +430,11 @@ namespace TerranEngine
 							double value = jScriptFieldValue;
 							field.SetData(value);
 							break;
+						}
+						case ScriptFieldType::Vector3: 
+						{
+							glm::vec3 value = DeserializeVec3(jScriptComponent["Fields"], field.GetName());
+							field.SetData(value);
 						}
 						}
 					}

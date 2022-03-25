@@ -79,8 +79,9 @@ namespace TerranEngine
 	void ScriptEngine::Init(const char* fileName)
 	{
 		s_AssemblyPath = fileName;
-		std::string monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
-		
+		//std::string monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
+		std::string monoPath = "Resources/Mono/";
+
 		std::string libPath = monoPath + "lib";
 		std::string etcPath = monoPath + "etc";
 

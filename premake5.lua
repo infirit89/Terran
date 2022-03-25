@@ -3,6 +3,7 @@ workspace "Terran"
 
     architecture "x86_64"
     startproject "TerranEditor"
+    
     configurations 
     {
         "Debug",

@@ -1,0 +1,359 @@
+{
+    "Version": 0,
+    "Scene": "Name",
+    "Entities": {
+        "Entity b9966432-d8da-4c3f-ac48-32ddd387146d": {
+            "TagComponent": {
+                "Tag": "Game Manager",
+                "ID": "b9966432-d8da-4c3f-ac48-32ddd387146d"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.GameManager",
+                "Fields": {
+                    "ballCenter": {
+                        "X": 0.0,
+                        "Y": 0.0,
+                        "Z": 0.0
+                    }
+                }
+            }
+        },
+        "Entity b81e27c1-2abe-4670-9231-b8fb89befa07": {
+            "TagComponent": {
+                "Tag": "Bottom Wall",
+                "ID": "b81e27c1-2abe-4670-9231-b8fb89befa07"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.4527130722999573,
+                    "Y": -5.165289402008057,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 10.386409759521484,
+                    "Y": 0.1829487681388855,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "19943e11-3c63-40ba-8055-5ce807cccd08"
+            }
+        },
+        "Entity 2eca530b-fc41-44cb-9250-0f407216ba78": {
+            "TagComponent": {
+                "Tag": "Right Wall",
+                "ID": "2eca530b-fc41-44cb-9250-0f407216ba78"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 9.53593635559082,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 5.671428203582764,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "19943e11-3c63-40ba-8055-5ce807cccd08"
+            }
+        },
+        "Entity c46a4adb-2d0e-47d2-9f4d-9851996d1e5b": {
+            "TagComponent": {
+                "Tag": "Left Wall",
+                "ID": "c46a4adb-2d0e-47d2-9f4d-9851996d1e5b"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": -9.507472038269043,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 5.671428203582764,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "19943e11-3c63-40ba-8055-5ce807cccd08"
+            }
+        },
+        "Entity 19943e11-3c63-40ba-8055-5ce807cccd08": {
+            "TagComponent": {
+                "Tag": "Play Field",
+                "ID": "19943e11-3c63-40ba-8055-5ce807cccd08"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 4,
+                "Children": [
+                    "c46a4adb-2d0e-47d2-9f4d-9851996d1e5b",
+                    "2eca530b-fc41-44cb-9250-0f407216ba78",
+                    "96391e87-d69d-439f-8876-f5601b45db7a",
+                    "b81e27c1-2abe-4670-9231-b8fb89befa07"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 96391e87-d69d-439f-8876-f5601b45db7a": {
+            "TagComponent": {
+                "Tag": "Top Wall",
+                "ID": "96391e87-d69d-439f-8876-f5601b45db7a"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.4527130722999573,
+                    "Y": 5.082645893096924,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 10.386409759521484,
+                    "Y": 0.1829487681388855,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "19943e11-3c63-40ba-8055-5ce807cccd08"
+            }
+        },
+        "Entity 7de07c30-064c-463b-bf0f-1b611c9c9f32": {
+            "TagComponent": {
+                "Tag": "Ball",
+                "ID": "7de07c30-064c-463b-bf0f-1b611c9c9f32"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 0.20000000298023224,
+                    "Y": 0.20000000298023224,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.Ball",
+                "Fields": null
+            }
+        },
+        "Entity c4b8582d-53cc-4a54-b488-8742980369a3": {
+            "TagComponent": {
+                "Tag": "Player 1",
+                "ID": "c4b8582d-53cc-4a54-b488-8742980369a3"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": -7.660387992858887,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 0.25714296102523804,
+                    "Y": 1.2222212553024292,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.Player1",
+                "Fields": null
+            }
+        },
+        "Entity fbee41fe-a028-428e-831a-d5b5b9530966": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "fbee41fe-a028-428e-831a-d5b5b9530966"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.199999809265137,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity e4eab733-b8d1-4172-9cd9-afde193ea985": {
+            "TagComponent": {
+                "Tag": "Player 2",
+                "ID": "e4eab733-b8d1-4172-9cd9-afde193ea985"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 7.7462968826293945,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 0.25714296102523804,
+                    "Y": 1.2222212553024292,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.Player2",
+                "Fields": null
+            }
+        }
+    }
+}

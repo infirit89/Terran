@@ -68,8 +68,13 @@ namespace TerranEngine
 
 
         BindInternalFunc("TerranScriptCore.Transform::GetTransformPosition_Internal", GetTransformPosition_Internal);
-        BindInternalFunc("TerranScriptCore.Transform::SetTransformPosition_Internal",
-            SetTransformPosition_Internal);
+        BindInternalFunc("TerranScriptCore.Transform::SetTransformPosition_Internal", SetTransformPosition_Internal);
+
+        BindInternalFunc("TerranScriptCore.Transform::GetTransformRotation_Internal", GetTransformRotation_Internal);
+        BindInternalFunc("TerranScriptCore.Transform::SetTransformRotation_Internal", SetTransformRotation_Internal);
+
+        BindInternalFunc("TerranScriptCore.Transform::GetTransformScale_Internal", GetTransformScale_Internal);
+        BindInternalFunc("TerranScriptCore.Transform::SetTransformScale_Internal", SetTransformScale_Internal);
 
         BindInternalFunc("TerranScriptCore.Tag::SetTagName_Internal", SetTagName_Internal);
         BindInternalFunc("TerranScriptCore.Tag::GetTagName_Internal", GetTagName_Internal);

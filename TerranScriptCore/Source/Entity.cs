@@ -9,6 +9,12 @@ namespace TerranScriptCore
             get => id;
         }
 
+        public string Name 
+        {
+            get => GetComponent<Tag>().Name;
+            set => GetComponent<Tag>().Name = value;
+        }
+
         private UUID id;
         public Transform transform;
 

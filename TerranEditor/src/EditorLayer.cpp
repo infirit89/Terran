@@ -59,17 +59,6 @@ namespace TerranEditor
         ScriptEngine::Init("Resources/Scripts/TerranScriptCore.dll");
 
         ScriptBindings::Bind();
-
-        TR_CLIENT_ERROR("Test error");
-        TR_CLIENT_ERROR("Test error");
-        TR_CLIENT_INFO("Info");
-        TR_CLIENT_ERROR("Test error");
-        TR_CLIENT_WARN("Test warning");
-        TR_CLIENT_INFO("Info");
-        TR_CLIENT_ERROR("Test error");
-        TR_CLIENT_INFO("Info");
-        TR_CLIENT_INFO("Info");
-        TR_CLIENT_INFO("Info");
 	}
 
 	void EditorLayer::OnAttach()
@@ -294,6 +283,9 @@ namespace TerranEditor
                 if (ImGui::MenuItem("Performance"))
                     m_PerformanceOpen = true;
 
+                if (ImGui::MenuItem("Content Browser"))
+                    m_ContentPanel.SetOpen(true);
+
                 if (ImGui::MenuItem("Renderer Stats"))
                     m_RendererStatsOpen = true;
 
@@ -487,9 +479,11 @@ namespace TerranEditor
                 SceneSerializer sSerializer(newScene);
                 if (sSerializer.DesirializeJson(jsonData))
                 {
-                    SceneManager::SetCurrentScene(newScene);
-                    SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
+                    m_EditorScene = newScene;
+                    m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
+                    //SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
 
+                    SceneManager::SetCurrentScene(newScene);
                     m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
                     m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 
