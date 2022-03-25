@@ -285,85 +285,72 @@ namespace TerranEngine
 							case ScriptFieldType::Bool: 
 							{
 								bool value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int8:
 							{
 								int8_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int16:
 							{
 								int16_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int:
 							{
 								int32_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int64:
 							{
 								int64_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt8:
 							{
 								uint8_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt16:
 							{
 								uint16_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt:
 							{
 								uint32_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt64:
 							{
 								uint64_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
-
 							case ScriptFieldType::Float: 
 							{
 								float value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Double: 
 							{
 								double value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::String: 
 							{
 								const char* value = field.Data;
-
 								objectField.SetData<const char*>(value);
 								break;
 							}
@@ -387,34 +374,6 @@ namespace TerranEngine
 
 			scriptComponent.FieldOrder = instance.Object.GetFieldOrder();
 			scriptComponent.PublicFields = instance.Object.GetFieldMap();
-
-			auto scriptFieldBackupCpy = s_ScriptFieldBackup;
-			for(auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
-			{
-				auto fieldBackupCpy = fieldBackupMap;
-				for (auto& [fieldName, field] : fieldBackupCpy)
-				{
-					if (field.Type == ScriptFieldType::String) 
-					{
-						if (field.Data.ptr)
-							delete[] (char*)field.Data.ptr;
-					}
-					else if (field.Type == ScriptFieldType::Vector2) 
-					{
-						if (field.Data.ptr)
-							delete (glm::vec2*)field.Data.ptr;
-					}
-					else if (field.Type == ScriptFieldType::Vector3) 
-					{
-						if(field.Data.ptr)
-							delete (glm::vec3*)field.Data.ptr;
-					}
-
-					fieldBackupMap.erase(fieldName);
-				}
-
-				s_ScriptFieldBackup.erase(entityID);
-			}
 		}
 	}
 
@@ -446,6 +405,50 @@ namespace TerranEngine
 
 		if (instance.UpdateMethod.GetNativeMethodPtr())
 			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+	}
+
+	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
+	{
+		ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
+
+		return instance.Object;
+	}
+
+	void ScriptEngine::ClearFieldBackupMap()
+	{
+		auto scriptFieldBackupCpy = s_ScriptFieldBackup;
+		for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
+		{
+			auto fieldBackupCpy = fieldBackupMap;
+			for (auto& [fieldName, field] : fieldBackupCpy)
+			{
+				switch (field.Type)
+				{
+				case ScriptFieldType::String:
+				{
+					if (field.Data.ptr)
+						delete[](char*)field.Data.ptr;
+					break;
+				}
+				case ScriptFieldType::Vector2:
+				{
+					if (field.Data.ptr)
+						delete (glm::vec2*)field.Data.ptr;
+					break;
+				}
+				case ScriptFieldType::Vector3:
+				{
+					if (field.Data.ptr)
+						delete (glm::vec3*)field.Data.ptr;
+					break;
+				}
+				}
+
+				fieldBackupMap.erase(fieldName);
+			}
+
+			s_ScriptFieldBackup.erase(entityID);
+		}
 	}
 
 	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)

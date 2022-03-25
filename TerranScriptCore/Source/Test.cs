@@ -2,6 +2,38 @@
 
 namespace TerranScriptCore
 {
+    public class TestScript : Scriptable 
+    {
+        private TestScriptable m_TestScriptable;
+        private TestScript m_TestScript;
+
+        void Init() 
+        {
+            Entity entity = Entity.FindWithName("Test Entity");
+
+            m_TestScriptable = entity.GetComponent<TestScriptable>();
+            m_TestScript = entity.GetComponent<TestScript>();
+
+            if (m_TestScript == null)
+                Log.Trace("test script is fucking null bastard");
+
+            if (m_TestScriptable == null)
+                Log.Trace("null bitch");
+            else 
+            {
+                Log.Trace(m_TestScriptable.Bruh2);
+                Log.Trace(m_TestScriptable.TestStr);
+            }
+
+            Entity entity2 = Entity.FindWithName("Test 2");
+            entity2.AddComponent<TestScriptable>();
+        }
+
+        void Update() 
+        {
+        }
+    }
+
     // Test script
     public class TestScriptable : Scriptable
     {
@@ -23,6 +55,14 @@ namespace TerranScriptCore
             Log.Trace(TestVec);
             Log.Trace(TestVec3);
             Log.Trace(Test);
+
+            if (entity.HasComponent<TestScriptable>())
+                Log.Trace("yes");
+             
+            if (entity.HasComponent<TestScript>())
+                Log.Trace("no");
+
+            //entity.GetComponent<TestScriptable>();
         }
 
         public void Update()

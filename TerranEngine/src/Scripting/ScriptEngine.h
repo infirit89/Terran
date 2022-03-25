@@ -67,6 +67,10 @@ namespace TerranEngine
 		static void StartScriptable(Entity entity);
 		static void UpdateScriptable(Entity entity);
 
+		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
+
+		static void ClearFieldBackupMap();
+
 		static void SetCurrentFieldStates(const UUID& sceneID);
 	};
 }

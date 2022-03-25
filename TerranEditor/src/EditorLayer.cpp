@@ -218,6 +218,26 @@ namespace TerranEditor
         return false;
     }
 
+    static void ReloadScriptAssembly(const std::filesystem::path& scriptAssemblyPath) 
+    {
+        ScriptEngine::UnloadDomain();
+
+        CopyAssembly((scriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), scriptAssemblyPath.string());
+
+        ScriptEngine::NewDomain();
+
+        auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+
+        for (auto e : scriptView)
+        {
+            Entity entity(e, SceneManager::GetCurrentScene().get());
+
+            ScriptEngine::InitializeScriptable(entity);
+        }
+
+        ScriptEngine::ClearFieldBackupMap();
+    }
+
 	void EditorLayer::ShowDockspace() 
 	{
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
@@ -300,23 +320,8 @@ namespace TerranEditor
 
             if (ImGui::BeginMenu("Tools")) 
             {
-                if (ImGui::MenuItem("Reload C# Assembly")) 
-                {
-                    ScriptEngine::UnloadDomain();
-                    
-                    CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), m_ScriptAssemblyPath.string());
-
-                    ScriptEngine::NewDomain();
-                    
-                    auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
-
-                    for (auto e : scriptView)
-                    {
-                        Entity entity(e, SceneManager::GetCurrentScene().get());
-
-                        ScriptEngine::InitializeScriptable(entity);
-                    }
-                }
+                if (ImGui::MenuItem("Reload C# Assembly"))
+                    ReloadScriptAssembly(m_ScriptAssemblyPath);
 
                 ImGui::EndMenu();
             }

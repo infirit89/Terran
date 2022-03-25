@@ -351,6 +351,8 @@ namespace TerranEngine
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
+		ScriptEngine::ClearFieldBackupMap();
+
 		return scene;
 	}
 

@@ -22,6 +22,7 @@ namespace TerranEngine
     static bool HasComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
     static void AddComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
     static void RemoveComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
+    static MonoObject* GetScriptableComponent_Internal(MonoArray* entityUUIDArr, MonoString* moduleName);
 
     static MonoArray* FindEntityWithName_Internal(MonoString* monoName);
     static MonoArray* FindEntityWithID_Internal(MonoArray* monoIDArray);
@@ -62,6 +63,7 @@ namespace TerranEngine
         BindInternalFunc("TerranScriptCore.Entity::HasComponent_Internal", HasComponent_Internal);
         BindInternalFunc("TerranScriptCore.Entity::AddComponent_Internal", AddComponent_Internal);
         BindInternalFunc("TerranScriptCore.Entity::RemoveComponent_Internal", RemoveComponent_Internal);
+        BindInternalFunc("TerranScriptCore.Entity::GetScriptableComponent_Internal", GetScriptableComponent_Internal);
 
         BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", FindEntityWithName_Internal);
         BindInternalFunc("TerranScriptCore.Entity::FindEntityWithID_Internal", FindEntityWithID_Internal);
@@ -99,9 +101,17 @@ namespace TerranEngine
     {
         ScriptString string(componentTypeStr);
 
-        if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Transform") == 0)         return ComponentType::TransformComponent;
-        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Tag") == 0)          return ComponentType::TagComponent;
-        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Scriptable") == 0)   return ComponentType::ScriptableComponent;
+        if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Transform") == 0)
+            return ComponentType::TransformComponent;
+        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Tag") == 0)
+            return ComponentType::TagComponent;
+        else 
+        {
+            ScriptClass parent = ScriptEngine::GetClass(string.GetUTF8Str()).GetParent();
+
+            if (strcmp(parent.GetName(), "Scriptable") == 0)
+                return ComponentType::ScriptableComponent;
+        }
 
         return ComponentType::None;
     }
@@ -124,7 +134,17 @@ namespace TerranEngine
         {
         case ComponentType::TransformComponent:     return entity.HasComponent<TransformComponent>();
         case ComponentType::TagComponent:           return entity.HasComponent<TagComponent>();
-        case ComponentType::ScriptableComponent:    return entity.HasComponent<ScriptComponent>();
+        case ComponentType::ScriptableComponent: 
+        {
+            if (entity.HasComponent<ScriptComponent>()) 
+            {
+                auto& scComponent = entity.GetComponent<ScriptComponent>();
+                ScriptString string(componentTypeStr);
+
+                return scComponent.ModuleName == string.GetUTF8Str();
+            }
+            return false;
+        }  
         }
 
         TR_ERROR("No component with the corresponding type exists");
@@ -148,7 +168,13 @@ namespace TerranEngine
         {
         case ComponentType::TransformComponent:         entity.AddComponent<TransformComponent>(); break;
         case ComponentType::TagComponent:               entity.AddComponent<TagComponent>(); break;
-        case ComponentType::ScriptableComponent:        entity.AddComponent<ScriptComponent>(); break;
+        case ComponentType::ScriptableComponent: 
+        {
+            ScriptString sString(componentTypeStr);
+            entity.AddComponent<ScriptComponent>(sString.GetUTF8Str());
+
+            break;
+        }
         }
     }
 
@@ -171,6 +197,21 @@ namespace TerranEngine
         case ComponentType::TagComponent:           entity.RemoveComponent<TagComponent>(); break;
         case ComponentType::ScriptableComponent:    entity.RemoveComponent<ScriptComponent>(); break;
         }
+    }
+
+    static MonoObject* GetScriptableComponent_Internal(MonoArray* entityUUIDArr, MonoString* moduleName) 
+    {
+        if (!GetScenePtr())
+        {
+            TR_ERROR("No active scene!");
+            return nullptr;
+        }
+
+        UUID uuid = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(uuid);
+        ScriptObject scriptObject = ScriptEngine::GetScriptInstanceScriptObject(entity.GetSceneID(), entity.GetID());
+
+        return (MonoObject*)scriptObject.GetNativeObject();
     }
 
     static MonoArray* FindEntityWithName_Internal(MonoString* monoName)
