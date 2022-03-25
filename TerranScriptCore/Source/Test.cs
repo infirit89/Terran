@@ -10,11 +10,18 @@ namespace TerranScriptCore
         public string TestStr = "Hello";
         public bool Bruh2 = true;
 
+        public Vector2 TestVec = new Vector2(1.0f, 0.7f);
+        public Vector2 TestVec2 = new Vector2(1.0f, 0.7f);
+        public Vector3 TestVec3 = new Vector3(-10.3f, -123.456f, 100.34f);
+        public bool Bruh3 = true;
+
         // Runs when the entity in the current scene, that has this script is started
         public void Init() 
         {
             // Prints statements, for test
-            Log.Warn("started");
+            //Log.Warn("started");
+            Log.Trace(TestVec);
+            Log.Trace(TestVec3);
             Log.Trace(Test);
         }
 

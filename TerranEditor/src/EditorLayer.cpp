@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "UI/UI.h"
+#include "EditorConsoleSink.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -10,6 +11,8 @@
 
 #include <filesystem>
 
+#include <spdlog/sinks/basic_file_sink.h>
+
 namespace TerranEditor
 {
     static void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination);
@@ -17,6 +20,21 @@ namespace TerranEditor
 	EditorLayer::EditorLayer()
 		: Layer("Editor"), m_EditorCamera()
 	{
+        std::vector<spdlog::sink_ptr> clientSinks
+        {
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Terran_Editor.log", true),
+            std::make_shared<EditorConsoleSink>()
+
+        };
+
+        clientSinks[0]->set_pattern("%^[%T] %n: %v%$");
+        clientSinks[1]->set_pattern("%^[%T] %n: %v%$");
+
+        Shared<spdlog::logger> clientLogger = CreateShared<spdlog::logger>("Console", clientSinks.begin(), clientSinks.end());
+        clientLogger->set_level(spdlog::level::trace);
+
+        Log::SetClientLogger(clientLogger);
+
         m_ContentPanel = ContentPanel(m_ResPath);
 
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
@@ -265,11 +283,17 @@ namespace TerranEditor
                 if (ImGui::MenuItem("Performance"))
                     m_PerformanceOpen = true;
 
+                if (ImGui::MenuItem("Content Browser"))
+                    m_ContentPanel.SetOpen(true);
+
                 if (ImGui::MenuItem("Renderer Stats"))
                     m_RendererStatsOpen = true;
 
                 if (ImGui::MenuItem("ECS Panel"))
                     m_ECSPanel.SetOpen(true);
+
+                if (ImGui::MenuItem("Logger"))
+                    m_LogPanel.SetOpen(true);
 
                 ImGui::EndMenu();
             }
@@ -351,6 +375,8 @@ namespace TerranEditor
         m_ContentPanel.ImGuiRender();
 
         m_ECSPanel.ImGuiRender();
+
+        m_LogPanel.ImGuiRender();
 
         // Renderer stats
         {
@@ -453,9 +479,11 @@ namespace TerranEditor
                 SceneSerializer sSerializer(newScene);
                 if (sSerializer.DesirializeJson(jsonData))
                 {
-                    SceneManager::SetCurrentScene(newScene);
-                    SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
+                    m_EditorScene = newScene;
+                    m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
+                    //SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
 
+                    SceneManager::SetCurrentScene(newScene);
                     m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
                     m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 

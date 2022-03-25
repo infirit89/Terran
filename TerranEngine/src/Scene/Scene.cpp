@@ -94,7 +94,7 @@ namespace TerranEngine
 		for (auto e : scriptbleComponentView)
 		{
 			Entity entity(e, this);
-			ScriptEngine::InitializeScriptable(entity);
+			//ScriptEngine::InitializeScriptable(entity);
 			ScriptEngine::StartScriptable(entity);
 		}
 	}
@@ -325,6 +325,8 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
+		ScriptEngine::SetCurrentFieldStates(srcScene->GetID());
+
 		Shared<Scene> scene = CreateShared<Scene>();
 
 		auto tagView = srcScene->GetEntitiesWith<TagComponent>();

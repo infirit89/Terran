@@ -29,6 +29,21 @@ namespace TerranEngine
 		case MONO_TYPE_R8:			return ScriptFieldType::Double;
 		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
 		case MONO_TYPE_STRING:		return ScriptFieldType::String;
+		case MONO_TYPE_VALUETYPE: 
+		{
+			MonoClass* typeClass = mono_class_from_mono_type(monoType);
+			const char* typeClassTypeName = mono_class_get_name(typeClass);
+			const char* typeClassNamespace = mono_class_get_namespace(typeClass);
+
+			// TODO: string comparing is slow, think of a better way to do this
+			if (strcmp(typeClassNamespace, "TerranScriptCore") == 0) 
+			{
+				if (strcmp(typeClassTypeName, "Vector2") == 0)
+					return ScriptFieldType::Vector2;
+				if (strcmp(typeClassTypeName, "Vector3") == 0)
+					return ScriptFieldType::Vector3;
+			}
+		}
 		}
 
 		return ScriptFieldType::None;
@@ -50,8 +65,6 @@ namespace TerranEngine
 	ScriptField::ScriptField(void* monoField, uint32_t monoObjectGCHandle)
 		: m_MonoField(monoField), m_MonoObjectGCHandle(monoObjectGCHandle)
 	{
-		memset(&m_CachedData, 0, sizeof(m_CachedData));
-
 		m_Name = mono_field_get_name((MonoClassField*)m_MonoField);
 		m_FieldType = ConvertFieldType(mono_field_get_type((MonoClassField*)m_MonoField));
 
@@ -61,10 +74,6 @@ namespace TerranEngine
 
 	ScriptField::~ScriptField() 
 	{
-		if (m_FieldType == ScriptFieldType::String)
-			delete[] (char*)m_CachedData.ptr;
-
-		TR_TRACE("script field destroyed");
 	}
 
 	template<typename T, typename CachedDataType>
@@ -76,169 +85,48 @@ namespace TerranEngine
 		*(T*)result = cachedData;
 	}
 
-	void ScriptField::SetValue(void* value)
+	void ScriptField::SetDataRaw(void* value)
 	{
 		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
 		MonoClassField* monoField = (MonoClassField*)m_MonoField;
 
 		if (monoObject == nullptr) 
+		{
 			TR_ERROR("Couldn't set the value of field {0} because the object that it corresponds to is no longer valid", m_Name);
+			return;
+		}
 
 		if (monoField == nullptr) 
+		{
 			TR_ERROR("Couldn't set the value of field {0} because it wasn't found", m_Name);
+			return;
+		}
 		
 		if (monoObject != nullptr && monoField != nullptr)
 			mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
-
-		// bad bad bad bad bad bad bad bad bad bad bad bad
-		switch (m_FieldType)
-		{
-		case TerranEngine::ScriptFieldType::Bool:
-		{
-			ExtractFieldData<bool>(value, m_CachedData.bValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int8:
-		{
-			ExtractFieldData<int8_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int16:
-		{
-			ExtractFieldData<int16_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int:
-		{
-			ExtractFieldData<int32_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int64:
-		{
-			ExtractFieldData<int64_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt8:
-		{
-			ExtractFieldData<uint8_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt16:
-		{
-			ExtractFieldData<uint16_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt:
-		{
-			ExtractFieldData<uint32_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt64:
-		{
-			ExtractFieldData<uint64_t>(value, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Float:
-		{
-			ExtractFieldData<float>(value, m_CachedData.dValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Double:
-		{
-			ExtractFieldData<double>(value, m_CachedData.dValue, monoObject, monoField);
-			break;
-		}
-		}
 	}
 
-	void ScriptField::GetValue(void* result)
+	void ScriptField::GetDataRaw(void* result)
 	{
 		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
 		MonoClassField* monoField = (MonoClassField*)m_MonoField;
 
-		if (monoObject == nullptr)
+		if (monoObject == nullptr) 
+		{
 			TR_ERROR("Couldnt find the object");
+			return;
+		}
 
-
-		if (monoField == nullptr)
+		if (monoField == nullptr) 
+		{
 			TR_ERROR("Mono field is null");
+			return;
+		}
 		
-		if (monoObject != nullptr && monoField != nullptr)
-			mono_field_get_value(monoObject, monoField, result);
-		
-		// very terrible
-		switch (m_FieldType)
-		{
-		// ---- Boolean ----
-		case TerranEngine::ScriptFieldType::Bool: 
-		{
-			ExtractFieldData<bool>(result, m_CachedData.bValue, monoObject, monoField);
-			break;
-		}
-		// -----------------
-		
-		// ---- Signed integers ----
-		case TerranEngine::ScriptFieldType::Int8:
-		{
-			ExtractFieldData<int8_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int16:
-		{
-			ExtractFieldData<int16_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int:
-		{
-			ExtractFieldData<int32_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Int64:
-		{
-			ExtractFieldData<int64_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		// -------------------------
-		
-		// ---- Unsigned integers ----
-		case TerranEngine::ScriptFieldType::UInt8:
-		{
-			ExtractFieldData<uint8_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt16:
-		{
-			ExtractFieldData<uint16_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt:
-		{
-			ExtractFieldData<uint32_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::UInt64:
-		{
-			ExtractFieldData<uint64_t>(result, m_CachedData.iValue, monoObject, monoField);
-			break;
-		}
-		// ---------------------------
-		
-		// ---- Floating point ----
-		case TerranEngine::ScriptFieldType::Float:
-		{
-			ExtractFieldData<float>(result, m_CachedData.dValue, monoObject, monoField);
-			break;
-		}
-		case TerranEngine::ScriptFieldType::Double:
-		{
-			ExtractFieldData<double>(result, m_CachedData.dValue, monoObject, monoField);
-			break;
-		}
-		// ------------------------
-		}
+		mono_field_get_value(monoObject, monoField, result);	
 	}
 
-	const char* ScriptField::GetValue()
+	const char* ScriptField::GetDataStringRaw()
 	{
 		if (m_FieldType != ScriptFieldType::String) 
 		{
@@ -253,16 +141,22 @@ namespace TerranEngine
 		return ScriptString(string).GetUTF8Str();
 	}
 
-	void ScriptField::SetValue(const char* value)
+	void ScriptField::SetDataStringRaw(const char* value)
 	{
 		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
 		MonoClassField* monoField = (MonoClassField*)m_MonoField;
 
-		if (monoObject == nullptr)
+		if (monoObject == nullptr) 
+		{
 			TR_ERROR("Couldnt find the object");
+			return;
+		}
 
-		if (monoField == nullptr)
+		if (monoField == nullptr) 
+		{
 			TR_ERROR("Mono field is null");
+			return;
+		}
 
 		if (m_FieldType != ScriptFieldType::String)
 		{
@@ -271,23 +165,7 @@ namespace TerranEngine
 		}
 		
 		ScriptString string((const char*)value);
-		if (monoField != nullptr && monoObject != nullptr) 
-		{
-			mono_field_set_value(monoObject, monoField, string.GetStringInternal());
+		mono_field_set_value(monoObject, monoField, string.GetStringInternal());
 
-			// NOTE: this is even a havier incentive to move the cached data the fuck away from
-			// the script field
-			
-			// the cached data should be set only before an assembly reload or scene copy
-			if (m_CachedData.ptr) 
-				delete[] (char*)m_CachedData.ptr;
-
-			size_t strLength = strlen(string.GetUTF8Str());
-			m_CachedData.ptr = new char[strLength + 1];
-
-			strcpy((char*)m_CachedData.ptr, string.GetUTF8Str());
-			((char*)m_CachedData.ptr)[strLength] = '\0';
-			//m_CachedData.ptr = string.GetUTF8Str();
-		}
 	}
 }
