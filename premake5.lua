@@ -1,7 +1,9 @@
+
 workspace "Terran"
 
     architecture "x86_64"
     startproject "TerranEditor"
+    
     configurations 
     {
         "Debug",
@@ -14,7 +16,6 @@ workspace "Terran"
     }
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-
 
 group "Dependencies"
     include "TerranEngine/vendor/GLFW"

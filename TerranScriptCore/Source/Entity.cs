@@ -9,6 +9,12 @@ namespace TerranScriptCore
             get => id;
         }
 
+        public string Name 
+        {
+            get => GetComponent<Tag>().Name;
+            set => GetComponent<Tag>().Name = value;
+        }
+
         private UUID id;
         public Transform transform;
 
@@ -29,6 +35,16 @@ namespace TerranScriptCore
         public static Entity FindWithName(string name)
         {
             byte[] entityID = FindEntityWithName_Internal(name);
+
+            if (entityID != null)
+                return new Entity(entityID);
+
+            return null;
+        }
+
+        public static Entity FindWithID(UUID id) 
+        {
+            byte[] entityID = FindEntityWithID_Internal(id);
 
             if (entityID != null)
                 return new Entity(entityID);
@@ -65,5 +81,9 @@ namespace TerranScriptCore
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern byte[] FindEntityWithName_Internal(string name);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern byte[] FindEntityWithID_Internal(UUID id);
+        
     }
 }

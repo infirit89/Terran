@@ -9,7 +9,7 @@ namespace TerranScriptCore
 
     public class Scriptable : Component
     {
-        protected Scriptable() { }
+        public Scriptable() { }
 
         internal Scriptable(byte[] id) 
         {
