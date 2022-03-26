@@ -50,12 +50,16 @@ namespace TerranEngine
 		ScriptMethod InitMethod;
 		ScriptMethod UpdateMethod;
 
+		ScriptMethod PhysicsBeginContact;
+
 		void GetMethods(ScriptClass& scriptClass) 
 		{
 			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
 
 			InitMethod = scriptClass.GetMethod(":Init()");
 			UpdateMethod = scriptClass.GetMethod(":Update()");
+
+			PhysicsBeginContact = scriptClass.GetMethod(":BeginContact(Entity)");
 		}
 	};
 
@@ -405,6 +409,20 @@ namespace TerranEngine
 
 		if (instance.UpdateMethod.GetNativeMethodPtr())
 			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+	}
+
+	void ScriptEngine::PhysicsBeginContact(Entity collider, Entity collidee)
+	{
+		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
+
+		if (instance.PhysicsBeginContact.GetNativeMethodPtr()) 
+		{
+			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+
+			void* args[] = { monoUuidArr };
+
+			instance.PhysicsBeginContact.Invoke(instance.Object, args);
+		}
 	}
 
 	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)

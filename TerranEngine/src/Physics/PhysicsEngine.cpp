@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "PhysicsEngine.h"
+#include "ContatctListener.h"
 
 #include "Scene/SceneManager.h"
 
@@ -8,7 +9,8 @@
 namespace TerranEngine 
 {
 	b2World* PhysicsEngine::s_PhysicsWorld = nullptr;
-	
+	static ContactListener s_Listener;
+
 	void PhysicsEngine::CreatePhysicsWorld(const glm::vec2& gravity)
 	{
 		if (s_PhysicsWorld)
@@ -19,6 +21,8 @@ namespace TerranEngine
 
 		b2Vec2 b2Gravity = { gravity.x, gravity.y };
 		s_PhysicsWorld = new b2World(b2Gravity);
+
+		s_PhysicsWorld->SetContactListener(&s_Listener);
 	}
 
 	void PhysicsEngine::CleanUpPhysicsWorld()
@@ -76,7 +80,19 @@ namespace TerranEngine
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 0.5f;
 
+		const UUID& id = entity.GetID();
+
+		TR_TRACE(id);
+
+		//memcpy(&fixtureDef.userData.pointer, id.GetRaw(), 16 * sizeof(uint8_t));
+
+		fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
+
 		((b2Body*)rididbody.RuntimeBody)->CreateFixture(&fixtureDef);
+	}
+
+	void PhysicsEngine::CreateCircleCollider(Entity entity)
+	{
 	}
 
 	void PhysicsEngine::Update(Time time)

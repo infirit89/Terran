@@ -16,10 +16,12 @@ namespace TerranEngine
 
 		static void CreateRigidbody(Entity entity);
 		static void CreateBoxCollider(Entity entity);
+		static void CreateCircleCollider(Entity entity);
 
 		static void Update(Time time);
 
 	private:
 		static b2World* s_PhysicsWorld;
+		//static ContactListener s_Listener;
 	};
 }

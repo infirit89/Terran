@@ -67,6 +67,8 @@ namespace TerranEngine
 		static void StartScriptable(Entity entity);
 		static void UpdateScriptable(Entity entity);
 
+		static void PhysicsBeginContact(Entity collider, Entity collidee);
+
 		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 
 		static void ClearFieldBackupMap();

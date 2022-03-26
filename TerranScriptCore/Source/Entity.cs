@@ -25,7 +25,7 @@ namespace TerranScriptCore
             transform.entity = this;
         }
 
-        internal Entity(byte[] uuidData)
+        public Entity(byte[] uuidData)
         {
             id = new UUID(uuidData);
             transform = new Transform();

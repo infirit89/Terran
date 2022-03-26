@@ -24,6 +24,30 @@ namespace TerranEngine
 	{
 	}
 
+	static json SerializeVec2(const std::string& name, const glm::vec2& value) 
+	{
+		return
+		{
+			name, {
+				{ "X", value.x },
+				{ "Y", value.y },
+			}
+		};
+	}
+
+	static glm::vec2 DeserializeVec2(json& j, const std::string& name)
+	{
+		glm::vec2 vec = glm::vec2(0.0f);
+
+		if (j.contains(name))
+		{
+			vec.x = j[name]["X"];
+			vec.y = j[name]["Y"];
+		}
+
+		return vec;
+	}
+
 	static json SerializeVec3(const std::string& name, const glm::vec3& value)
 	{
 		return
@@ -291,6 +315,31 @@ namespace TerranEngine
 
 			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent);
 		}
+
+		if (entity.HasComponent<Rigidbody2DComponent>()) 
+		{
+			auto& rbComponent = entity.GetComponent<Rigidbody2DComponent>();
+
+			jObject.push_back(
+				{ "Rigibody2D",
+				{
+					{ "BodyType", (int)rbComponent.BodyType },
+					{ "FixedRotation", rbComponent.FixedRotation }
+				} }
+			);
+		}
+
+		if (entity.HasComponent<BoxCollider2DComponent>()) 
+		{
+			auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
+			jObject.push_back(
+				{ "BoxCollider2D",
+				{
+					SerializeVec2("Size", bcComponent.Size)
+				} }
+			);
+		}
 	}
 
 	// NOTE: temporary scene version should put it somewhere else, where it'd make more sense
@@ -524,6 +573,25 @@ namespace TerranEngine
 				json jScriptComponent = jEntity["ScriptComponent"];
 
 				DesirializeScriptable(entity, jScriptComponent);
+			}
+
+			if (jEntity.contains("Rigibody2D")) 
+			{
+				json jRigidbody2DComponent = jEntity["Rigibody2D"];
+
+				Rigidbody2DComponent rbComponent = entity.AddComponent<Rigidbody2DComponent>();
+
+				rbComponent.BodyType = (RigidbodyBodyType)jRigidbody2DComponent["BodyType"];
+				rbComponent.FixedRotation = jRigidbody2DComponent["FixedRotation"];
+			}
+
+			if (jEntity.contains("BoxCollider2D")) 
+			{
+				json jBoxCollider2DComponent = jEntity["BoxCollider2D"];
+
+				BoxCollider2DComponent& bcComponent = entity.AddComponent<BoxCollider2DComponent>();
+
+				bcComponent.Size = DeserializeVec2(jBoxCollider2DComponent, "Size");
 			}
 		}
 		catch (const std::exception& ex)

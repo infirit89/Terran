@@ -75,5 +75,10 @@ namespace TerranScriptCore
                 // if s is pressed move the entity down one unit
                 entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);
         }
+
+        void BeginContact(Entity entity)
+        {
+            Log.Trace("test");
+        }
     }
 }
