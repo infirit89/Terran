@@ -17,3 +17,6 @@
 [submodule "TerranEditor/vendor/ImGuizmo"]
 	path = TerranEditor/vendor/ImGuizmo
 	url = https://github.com/OKAY808/ImGuizmo
+[submodule "TerranEngine/vendor/Box2D"]
+	path = TerranEngine/vendor/Box2D
+	url = https://github.com/OKAY808/box2d
