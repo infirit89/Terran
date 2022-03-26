@@ -11,6 +11,8 @@
 
 #include "Scripting/ScriptEngine.h"
 
+#include "Physics/PhysicsEngine.h"
+
 #include "Utils/Debug/Profiler.h"
 #include "Utils/ResourceManager.h"
 
@@ -89,6 +91,20 @@ namespace TerranEngine
 	{
 		m_RuntimeStarted = true;
 
+		PhysicsEngine::CreatePhysicsWorld({ 0.0f, -9.8f });
+
+		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
+
+		for (auto e: rigidbodyView)
+		{
+			Entity entity(e, this);
+
+			PhysicsEngine::CreateRigidbody(entity);
+
+			if (entity.HasComponent<BoxCollider2DComponent>())
+				PhysicsEngine::CreateBoxCollider(entity);
+		}
+
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
@@ -102,13 +118,16 @@ namespace TerranEngine
 	void Scene::StopRuntime()
 	{
 		m_RuntimeStarted = false;
+		PhysicsEngine::CleanUpPhysicsWorld();
 	}
 
-	void Scene::Update()
+	void Scene::Update(Time time)
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
+
+		PhysicsEngine::Update(time);
 
 		for (auto e : scriptableComponentView)
 		{
@@ -289,7 +308,8 @@ namespace TerranEngine
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
-
+		CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
@@ -349,6 +369,8 @@ namespace TerranEngine
 			CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
 		ScriptEngine::ClearFieldBackupMap();

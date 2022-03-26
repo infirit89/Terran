@@ -128,7 +128,7 @@ namespace TerranEditor
 
                 m_GameSceneRenderer->SetClearColor(backgroundColor);
 
-                SceneManager::GetCurrentScene()->Update();
+                SceneManager::GetCurrentScene()->Update(time);
                 SceneManager::GetCurrentScene()->OnRender(m_GameSceneRenderer);
 
                 m_SceneView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());

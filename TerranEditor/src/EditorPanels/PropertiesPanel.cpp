@@ -330,6 +330,34 @@ namespace TerranEditor
 					}
 				});
 
+				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](Rigidbody2DComponent& rbComponent) 
+				{
+					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+					const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
+
+					if (ImGui::BeginCombo("Body Type", currentBodyType)) 
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							const bool is_selected = (bodyTypeNames[i] == currentBodyType);
+							if (ImGui::Selectable(bodyTypeNames[i], is_selected))
+								rbComponent.BodyType = (RigidbodyBodyType)i;
+
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}
+
+						ImGui::EndCombo();
+					}
+
+					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
+				});
+
+				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 
+				{
+					UI::DrawVec2Control("Size", bcComponent.Size);
+				});
+
 				ImVec2 cursorPos = ImGui::GetCursorPos();
 
 				ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvailWidth() / 4.0f, cursorPos.y += 5.0f });
@@ -344,15 +372,26 @@ namespace TerranEditor
 					if(!entity.HasComponent<SpriteRendererComponent>())
 						if (ImGui::MenuItem("Sprite Renderer"))
 							entity.AddComponent<SpriteRendererComponent>();
+
 					if (!entity.HasComponent<CircleRendererComponent>())
 						if (ImGui::MenuItem("Circle Renderer"))
 							entity.AddComponent<CircleRendererComponent>();
+
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))
 							entity.AddComponent<CameraComponent>();
+
 					if (!entity.HasComponent<ScriptComponent>())
 						if (ImGui::MenuItem("Script"))
 							entity.AddComponent<ScriptComponent>();
+
+					if (!entity.HasComponent<Rigidbody2DComponent>())
+						if (ImGui::MenuItem("Rigidbody 2D"))
+							entity.AddComponent<Rigidbody2DComponent>();
+
+					if (!entity.HasComponent<BoxCollider2DComponent>())
+						if (ImGui::MenuItem("Box Collider 2D"))
+							entity.AddComponent<BoxCollider2DComponent>();
 
 					ImGui::EndPopup();
 				}

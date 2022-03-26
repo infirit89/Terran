@@ -47,7 +47,7 @@ namespace TerranScriptCore
         public Vector3 TestVec3 = new Vector3(-10.3f, -123.456f, 100.34f);
         public bool Bruh3 = true;
 
-        // Runs when the entity in the current scene, that has this script is started
+        // Runs when the entity in the current scene, that has this script, is started
         public void Init() 
         {
             // Prints statements, for test

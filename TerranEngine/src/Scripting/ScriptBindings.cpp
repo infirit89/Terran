@@ -147,7 +147,6 @@ namespace TerranEngine
         }  
         }
 
-        TR_ERROR("No component with the corresponding type exists");
         return false;
     }
 

@@ -180,10 +180,10 @@ namespace TerranEngine
 		// ************************
 
 
-		m_VertexPositions[0] = { -1.0f, -1.0f, 0.0f, 1.0f };
-		m_VertexPositions[1] = {  1.0f, -1.0f, 0.0f, 1.0f };
-		m_VertexPositions[2] = {  1.0f,  1.0f, 0.0f, 1.0f };
-		m_VertexPositions[3] = { -1.0f,  1.0f, 0.0f, 1.0f };
+		m_VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		m_VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		m_VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		m_VertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
 		m_QuadShader->Bind();
 		m_TextShader->Bind();
@@ -409,7 +409,7 @@ namespace TerranEngine
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Position = transform * m_VertexPositions[i];
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Thickness = thickness;
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Color = color;
-			m_CircleVertexPtr[m_CircleVertexPtrIndex].LocalPosition = glm::vec2(m_VertexPositions[i].x, m_VertexPositions[i].y);
+			m_CircleVertexPtr[m_CircleVertexPtrIndex].LocalPosition = glm::vec2(m_VertexPositions[i].x, m_VertexPositions[i].y) * 2.0f;
 
 			m_CircleVertexPtrIndex++;
 		}

@@ -104,4 +104,26 @@ namespace TerranEngine
 		bool ClassExists = true;
 		bool Started = false;
 	};
+
+	enum class RigidbodyBodyType 
+	{
+		Static = 0,
+		Dynamic,
+		Kinematic
+	};
+
+	struct Rigidbody2DComponent 
+	{
+		Rigidbody2DComponent() = default;
+
+		RigidbodyBodyType BodyType = RigidbodyBodyType::Dynamic;
+		bool FixedRotation = false;
+
+		void* RuntimeBody;
+	};
+
+	struct BoxCollider2DComponent 
+	{
+		glm::vec2 Size = { 0.5f, 0.5f };
+	};
 }
