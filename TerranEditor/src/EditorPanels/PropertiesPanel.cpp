@@ -334,20 +334,34 @@ namespace TerranEditor
 				{
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
 					const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
-
-					if (ImGui::BeginCombo("Body Type", currentBodyType)) 
+					
+					// rigidbody body type selection
 					{
-						for (int i = 0; i < 3; i++)
-						{
-							const bool is_selected = (bodyTypeNames[i] == currentBodyType);
-							if (ImGui::Selectable(bodyTypeNames[i], is_selected))
-								rbComponent.BodyType = (RigidbodyBodyType)i;
+						ImGui::Columns(2, nullptr, false);
+						ImGui::SetColumnWidth(0, 100.0f);
+						ImGui::Text("Body Type");
 
-							if (is_selected)
-								ImGui::SetItemDefaultFocus();
+						ImGui::NextColumn();
+						ImGui::PushItemWidth(ImGui::CalcItemWidth());
+
+						if (ImGui::BeginCombo("##body_type", currentBodyType)) 
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								const bool is_selected = (bodyTypeNames[i] == currentBodyType);
+								if (ImGui::Selectable(bodyTypeNames[i], is_selected))
+									rbComponent.BodyType = (RigidbodyBodyType)i;
+
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+							}
+
+							ImGui::EndCombo();
 						}
 
-						ImGui::EndCombo();
+						ImGui::PopItemWidth();
+						ImGui::Columns(1);
+
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
@@ -356,6 +370,12 @@ namespace TerranEditor
 				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 
 				{
 					UI::DrawVec2Control("Size", bcComponent.Size);
+				});
+
+				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](CircleCollider2DComponent& ccComponent) 
+				{
+					UI::DrawVec2Control("Offset", ccComponent.Offset);
+					UI::DrawFloatControl("Radius", ccComponent.Radius);
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();
@@ -392,6 +412,10 @@ namespace TerranEditor
 					if (!entity.HasComponent<BoxCollider2DComponent>())
 						if (ImGui::MenuItem("Box Collider 2D"))
 							entity.AddComponent<BoxCollider2DComponent>();
+
+					if (!entity.HasComponent<CircleCollider2DComponent>())
+						if (ImGui::MenuItem("Circle Collider 2D"))
+							entity.AddComponent<CircleCollider2DComponent>();
 
 					ImGui::EndPopup();
 				}

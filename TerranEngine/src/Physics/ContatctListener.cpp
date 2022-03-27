@@ -37,8 +37,6 @@ namespace TerranEngine
 
 		if (entityA && entityB) 
 			ScriptEngine::PhysicsBeginContact(entityA, entityB);
-
-		TR_TRACE("Contact has begun");
 	}
 
 	void ContactListener::EndContact(b2Contact* contact)

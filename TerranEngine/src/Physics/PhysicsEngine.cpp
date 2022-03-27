@@ -69,7 +69,7 @@ namespace TerranEngine
 
 	void PhysicsEngine::CreateBoxCollider(Entity entity)
 	{
-		auto& rididbody = entity.GetComponent<Rigidbody2DComponent>();
+		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
 		auto& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 
 		b2PolygonShape shape;
@@ -77,22 +77,40 @@ namespace TerranEngine
 
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &shape;
+
+		// TODO: temporary constants for now; create a physics material
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 0.5f;
 
 		const UUID& id = entity.GetID();
 
-		TR_TRACE(id);
-
-		//memcpy(&fixtureDef.userData.pointer, id.GetRaw(), 16 * sizeof(uint8_t));
-
 		fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
 
-		((b2Body*)rididbody.RuntimeBody)->CreateFixture(&fixtureDef);
+		((b2Body*)rigidbody.RuntimeBody)->CreateFixture(&fixtureDef);
 	}
 
 	void PhysicsEngine::CreateCircleCollider(Entity entity)
 	{
+		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
+		auto& circleCollider = entity.GetComponent<CircleCollider2DComponent>();
+
+		b2CircleShape shape;
+
+		shape.m_p.Set(circleCollider.Offset.x, circleCollider.Offset.y);
+		shape.m_radius = entity.GetTransform().Scale.x * circleCollider.Radius;
+
+		b2FixtureDef fixtureDef;
+		fixtureDef.shape = &shape;
+
+		// TODO: temporary constants for now; create a physics material
+		fixtureDef.density = 1.0f;
+		fixtureDef.friction = 0.5f;
+
+		const UUID& id = entity.GetID();
+
+		fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
+
+		((b2Body*)rigidbody.RuntimeBody)->CreateFixture(&fixtureDef);
 	}
 
 	void PhysicsEngine::Update(Time time)

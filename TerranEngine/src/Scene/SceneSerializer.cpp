@@ -340,6 +340,19 @@ namespace TerranEngine
 				} }
 			);
 		}
+
+		if (entity.HasComponent<CircleCollider2DComponent>())
+		{
+			auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
+			jObject.push_back(
+				{ "CircleCollider2D",
+				{
+					SerializeVec2("Offset", ccComponent.Offset),
+					{ "Radius", ccComponent.Radius }
+				} }
+			);
+		}
 	}
 
 	// NOTE: temporary scene version should put it somewhere else, where it'd make more sense
@@ -592,6 +605,16 @@ namespace TerranEngine
 				BoxCollider2DComponent& bcComponent = entity.AddComponent<BoxCollider2DComponent>();
 
 				bcComponent.Size = DeserializeVec2(jBoxCollider2DComponent, "Size");
+			}
+
+			if (jEntity.contains("CircleCollider2D")) 
+			{
+				json jCircleCollider2DComponent = jEntity["CircleCollider2D"];
+
+				CircleCollider2DComponent& ccComponent = entity.AddComponent<CircleCollider2DComponent>();
+
+				ccComponent.Offset = DeserializeVec2(jCircleCollider2DComponent, "Offset");
+				ccComponent.Radius = jCircleCollider2DComponent["Radius"];
 			}
 		}
 		catch (const std::exception& ex)

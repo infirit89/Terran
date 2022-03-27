@@ -103,6 +103,8 @@ namespace TerranEngine
 
 			if (entity.HasComponent<BoxCollider2DComponent>())
 				PhysicsEngine::CreateBoxCollider(entity);
+			else if (entity.HasComponent<CircleCollider2DComponent>())
+				PhysicsEngine::CreateCircleCollider(entity);
 		}
 
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
@@ -310,6 +312,7 @@ namespace TerranEngine
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
@@ -371,6 +374,7 @@ namespace TerranEngine
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
 		ScriptEngine::ClearFieldBackupMap();
