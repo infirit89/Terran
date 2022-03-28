@@ -37,6 +37,8 @@ namespace TerranEngine
 
     static void SetTransformScale_Internal(MonoArray* entityUUIDArr, glm::vec3 inScale);
     static glm::vec3 GetTransformScale_Internal(MonoArray* entityUUIDArr);
+
+    static bool IsDirty_Internal(MonoArray* entityUUIDArr);
     // -----------------------------
 
     // ---- Tag component ----
@@ -60,6 +62,7 @@ namespace TerranEngine
 
     void ScriptBindings::Bind()
     {
+        // ---- entity -----
         BindInternalFunc("TerranScriptCore.Entity::HasComponent_Internal", HasComponent_Internal);
         BindInternalFunc("TerranScriptCore.Entity::AddComponent_Internal", AddComponent_Internal);
         BindInternalFunc("TerranScriptCore.Entity::RemoveComponent_Internal", RemoveComponent_Internal);
@@ -67,8 +70,9 @@ namespace TerranEngine
 
         BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", FindEntityWithName_Internal);
         BindInternalFunc("TerranScriptCore.Entity::FindEntityWithID_Internal", FindEntityWithID_Internal);
+        // -----------------
 
-
+        // ---- transform ----
         BindInternalFunc("TerranScriptCore.Transform::GetTransformPosition_Internal", GetTransformPosition_Internal);
         BindInternalFunc("TerranScriptCore.Transform::SetTransformPosition_Internal", SetTransformPosition_Internal);
 
@@ -77,14 +81,22 @@ namespace TerranEngine
 
         BindInternalFunc("TerranScriptCore.Transform::GetTransformScale_Internal", GetTransformScale_Internal);
         BindInternalFunc("TerranScriptCore.Transform::SetTransformScale_Internal", SetTransformScale_Internal);
+        
+        BindInternalFunc("TerranScriptCore.Transform::IsDirty_Internal", IsDirty_Internal);
+        // -------------------
 
+        // ---- tag ----
         BindInternalFunc("TerranScriptCore.Tag::SetTagName_Internal", SetTagName_Internal);
         BindInternalFunc("TerranScriptCore.Tag::GetTagName_Internal", GetTagName_Internal);
+        // -------------
 
-
+        // ---- misc ----
         BindInternalFunc("TerranScriptCore.Log::Log_Internal", Log_Internal);
+        // --------------
 
+        // ---- input -----
         BindInternalFunc("TerranScriptCore.Input::KeyPressed_Internal", KeyPressed_Internal);
+        // ----------------
     }
 
     enum class ComponentType
@@ -247,37 +259,28 @@ namespace TerranEngine
 		TR_ERROR("Invalid entity id");
 
     // ---- Transform ----
-    static void SetTransformPosition_Internal(MonoArray* entityUUIDArr, glm::vec3 inPosition)
+    static void SetTransformPosition_Internal(MonoArray* entityUUIDArr, glm::vec3 Position)
     {
-        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+        SET_COMPONENT_VAR(Position, entityUUIDArr, TransformComponent);
 
-        if (entity) 
-        {
-            entity.GetComponent<TransformComponent>().Position = inPosition; 
+        if (entity)  
             entity.GetComponent<TransformComponent>().IsDirty = true;
-        }
-        else
-            TR_ERROR("Invalid entity id");
     }
 
     static glm::vec3 GetTransformPosition_Internal(MonoArray* entityUUIDArr)
     {
-        UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+        glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+        GET_COMPONENT_VAR(Position, entityUUIDArr, TransformComponent);
 
-        if (entity)
-            return entity.GetComponent<TransformComponent>().Position;
-        else
-            TR_ERROR("Invalid entity id");
-
-        return { 0.0f, 0.0f, 0.0f };
+        return Position;
     }
 
     static void SetTransformRotation_Internal(MonoArray* entityUUIDArr, glm::vec3 Rotation)
     {
         SET_COMPONENT_VAR(Rotation, entityUUIDArr, TransformComponent);
-        entity.GetComponent<TransformComponent>().IsDirty = true;
+        
+        if(entity)
+            entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
     static glm::vec3 GetTransformRotation_Internal(MonoArray* entityUUIDArr)
@@ -291,7 +294,9 @@ namespace TerranEngine
     static void SetTransformScale_Internal(MonoArray* entityUUIDArr, glm::vec3 Scale)
     {
         SET_COMPONENT_VAR(Scale, entityUUIDArr, TransformComponent);
-        entity.GetComponent<TransformComponent>().IsDirty = true;
+
+        if(entity)
+            entity.GetComponent<TransformComponent>().IsDirty = true;
     }
 
     static glm::vec3 GetTransformScale_Internal(MonoArray* entityUUIDArr)
@@ -301,6 +306,22 @@ namespace TerranEngine
 
         return Scale;
     }
+
+    static bool IsDirty_Internal(MonoArray* entityUUIDArr)
+    {
+        UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+
+        Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+        if (entity)
+        {
+            auto& transform = entity.GetTransform();
+            return transform.IsDirty;
+        }
+
+        return false;
+    }
+
     // -------------------
 
     static void SetTagName_Internal(MonoArray* entityUUIDArr, MonoString* inName)

@@ -61,8 +61,6 @@ namespace TerranScriptCore
              
             if (entity.HasComponent<TestScript>())
                 Log.Trace("no");
-
-            //entity.GetComponent<TestScriptable>();
         }
 
         public void Update()
@@ -76,9 +74,14 @@ namespace TerranScriptCore
                 entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);
         }
 
-        void BeginContact(Entity entity)
+        void OnCollisionBegin(Entity entity)
         {
-            Log.Trace("test");
+            Log.Trace("Begin contact");
+        }
+
+        void OnCollisionEnd(Entity entity) 
+        {
+            Log.Trace("End contact");
         }
     }
 }

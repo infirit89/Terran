@@ -41,6 +41,21 @@ namespace TerranEngine
 
 	void ContactListener::EndContact(b2Contact* contact)
 	{
+		const b2Fixture* collidee = contact->GetFixtureA();
+
+		const b2Fixture* collider = contact->GetFixtureB();
+
+		b2FixtureUserData userDataA = collidee->GetUserData();
+		b2FixtureUserData userDataB = collider->GetUserData();
+
+		Entity entityA = GetEntityFromB2DFixtureUserData(userDataA);
+		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
+
+		TR_TRACE(entityA.GetName());
+
+		if (entityA && entityB)
+			ScriptEngine::PhysicsEndContact(entityA, entityB);
+
 	}
 
 	void ContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)

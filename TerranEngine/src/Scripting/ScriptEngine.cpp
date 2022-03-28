@@ -51,6 +51,7 @@ namespace TerranEngine
 		ScriptMethod UpdateMethod;
 
 		ScriptMethod PhysicsBeginContact;
+		ScriptMethod PhysicsEndContact;
 
 		void GetMethods(ScriptClass& scriptClass) 
 		{
@@ -59,7 +60,8 @@ namespace TerranEngine
 			InitMethod = scriptClass.GetMethod(":Init()");
 			UpdateMethod = scriptClass.GetMethod(":Update()");
 
-			PhysicsBeginContact = scriptClass.GetMethod(":BeginContact(Entity)");
+			PhysicsBeginContact = scriptClass.GetMethod(":OnCollisionBegin(Entity)");
+			PhysicsEndContact = scriptClass.GetMethod(":OnCollisionEnd(Entity)");
 		}
 	};
 
@@ -422,6 +424,20 @@ namespace TerranEngine
 			void* args[] = { monoUuidArr };
 
 			instance.PhysicsBeginContact.Invoke(instance.Object, args);
+		}
+	}
+
+	void ScriptEngine::PhysicsEndContact(Entity collider, Entity collidee)
+	{
+		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
+
+		if (instance.PhysicsEndContact.GetNativeMethodPtr())
+		{
+			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+
+			void* args[] = { monoUuidArr };
+
+			instance.PhysicsEndContact.Invoke(instance.Object, args);
 		}
 	}
 

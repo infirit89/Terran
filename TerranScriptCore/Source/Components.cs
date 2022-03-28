@@ -7,6 +7,23 @@ namespace TerranScriptCore
         public Entity entity;
     }
 
+
+    public class Rigidbody2D : Component 
+    {
+        public bool FixedRotation 
+        {
+            get => IsFixedRotation_Internal(entity.ID.Data);
+            set => SetFixedRotation_Internal(entity.ID.Data, value);
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern bool IsFixedRotation_Internal(byte[] entityUUID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void SetFixedRotation_Internal(byte[] entityUUID, bool fixedRotation);
+    }
+
+    // ---- Scriptable ----
     public class Scriptable : Component
     {
         public Scriptable() { }
@@ -17,7 +34,9 @@ namespace TerranScriptCore
                 entity = new Entity(id);
         }
     }
+    // --------------------
 
+    // ---- Tag ----
     public class Tag : Component 
     {
         public string Name 
@@ -45,7 +64,10 @@ namespace TerranScriptCore
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern string GetTagName_Internal(byte[] entityID);
     }
+    // -------------
 
+
+    // ---- Transform ----
     public class Transform : Component
     {
         public Vector3 Position
@@ -118,6 +140,11 @@ namespace TerranScriptCore
             }
         }
 
+        bool IsDirty 
+        {
+            get => IsDirty_Internal(entity.ID.Data);
+        }
+
         // ---- position ----
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern Vector3 GetTransformPosition_Internal(byte[] entityID);
@@ -141,5 +168,8 @@ namespace TerranScriptCore
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void SetTransformScale_Internal(byte[] entityID, Vector3 inScale);
         // ---------------
+
+        static extern bool IsDirty_Internal(byte[] entityID);
     }
+    // -------------------
 }
