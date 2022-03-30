@@ -59,12 +59,12 @@ bool TerranEngine::Decompose(const glm::mat4& m, glm::vec3& pos, glm::vec3& eule
 	// get the rotations out.
 	 eulerAngles.y = asin(-Row[0][2]);
 	 if (cos(eulerAngles.y) != 0) {
-	     eulerAngles.x = atan2(Row[1][2], Row[2][2]);
-	     eulerAngles.z = atan2(Row[0][1], Row[0][0]);
+		 eulerAngles.x = atan2(Row[1][2], Row[2][2]);
+		 eulerAngles.z = atan2(Row[0][1], Row[0][0]);
 	 } else {
 		 eulerAngles.x = atan2(-Row[2][0], Row[1][1]);
 		 eulerAngles.z = 0;
 	 }
 
-    return true;
+	return true;
 }

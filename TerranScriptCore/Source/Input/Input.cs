@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace TerranScriptCore
 {
-    enum KeyCode : UInt32
-    {
+	enum KeyCode : UInt32
+	{
 		Space = 32,
 		Apostrophe = 39,
 		Comma = 44,
@@ -127,12 +127,12 @@ namespace TerranScriptCore
 		Menu = 348
 	}
 
-    class Input
-    {
+	class Input
+	{
 
-        public static bool KeyPressed(KeyCode keyCode) => KeyPressed_Internal((UInt32)keyCode);
+		public static bool KeyPressed(KeyCode keyCode) => KeyPressed_Internal((UInt32)keyCode);
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern bool KeyPressed_Internal(UInt32 keyCode);
-    }
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern bool KeyPressed_Internal(UInt32 keyCode);
+	}
 }

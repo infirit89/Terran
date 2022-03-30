@@ -15,21 +15,21 @@ namespace TerranEditor
 		m_Selected = {};
 	}
 
-    void SceneHierarchy::OnEvent(Event& event)
-    {
-        EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneHierarchy::OnKeyPressed));
-    }
-
-    void SceneHierarchy::ImGuiRender()
+	void SceneHierarchy::OnEvent(Event& event)
 	{
-        if(m_Open)
-        {
-            ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
-            
-            if (m_Scene) 
-            {
-                auto view = m_Scene->GetEntitiesWith<TagComponent>();
+		EventDispatcher dispatcher(event);
+		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneHierarchy::OnKeyPressed));
+	}
+
+	void SceneHierarchy::ImGuiRender()
+	{
+		if(m_Open)
+		{
+			ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
+			
+			if (m_Scene) 
+			{
+				auto view = m_Scene->GetEntitiesWith<TagComponent>();
 
 				for (auto e : view)
 				{
@@ -49,124 +49,124 @@ namespace TerranEditor
 
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
 					m_Selected = {};
-            }
+			}
 
-            ImGui::End();
-        }
+			ImGui::End();
+		}
 
 	}
 
-    bool SceneHierarchy::OnKeyPressed(KeyPressedEvent& e)
-    {
-        bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
-        bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+	bool SceneHierarchy::OnKeyPressed(KeyPressedEvent& e)
+	{
+		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 
-        if (e.GetRepeatCount() > 0)
-            return false;
+		if (e.GetRepeatCount() > 0)
+			return false;
 
-        switch (e.GetKeyCode())
-        {
-        case Key::D:
-            if (ctrlPressed) 
-            {
-                if (m_Selected)
-                    m_Scene->DuplicateEntity(m_Selected);
-            }
+		switch (e.GetKeyCode())
+		{
+		case Key::D:
+			if (ctrlPressed) 
+			{
+				if (m_Selected)
+					m_Scene->DuplicateEntity(m_Selected);
+			}
 
-            break;
+			break;
 
-        case Key::N:
-            if (ctrlPressed && shiftPressed)
-            {
-                auto entity = m_Scene->CreateEntity();
+		case Key::N:
+			if (ctrlPressed && shiftPressed)
+			{
+				auto entity = m_Scene->CreateEntity();
 
-                if (m_Selected)
-                    entity.SetParent(m_Selected);
-                else
-                    m_Selected = entity;
+				if (m_Selected)
+					entity.SetParent(m_Selected);
+				else
+					m_Selected = entity;
 
-                return true;
-            }
+				return true;
+			}
 
-            break;
-        }
-        return false;
-    }
+			break;
+		}
+		return false;
+	}
 
-    void SceneHierarchy::DrawEntityNode(Entity entity)
-    {
-        TagComponent& tagComp = entity.GetComponent<TagComponent>();
+	void SceneHierarchy::DrawEntityNode(Entity entity)
+	{
+		TagComponent& tagComp = entity.GetComponent<TagComponent>();
 
-        ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+		ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
 
-        if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
-            flags |= ImGuiTreeNodeFlags_NoButton;
-        else
-            flags |= ImGuiTreeNodeFlags_DefaultOpen;
+		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
+			flags |= ImGuiTreeNodeFlags_NoButton;
+		else
+			flags |= ImGuiTreeNodeFlags_DefaultOpen;
 
-        ImGuiStyle& style = ImGui::GetStyle();
-        ImGuiStyle orgStyle = style;
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImGuiStyle orgStyle = style;
 
-        style.FramePadding.y = 1.5f;
+		style.FramePadding.y = 1.5f;
 
-        bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tagComp.Name.c_str());
-        
-        style = orgStyle;
+		bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tagComp.Name.c_str());
+		
+		style = orgStyle;
 
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
-            m_Selected = entity;
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
+			m_Selected = entity;
 
-        bool isDeleted = false;
-        
-        if (Input::IsKeyPressed(Key::Delete))
-            if (m_Selected == entity)
-                isDeleted = true;
+		bool isDeleted = false;
+		
+		if (Input::IsKeyPressed(Key::Delete))
+			if (m_Selected == entity)
+				isDeleted = true;
 
-        if (ImGui::BeginPopupContextItem())
-        {
-            if (ImGui::MenuItem("Create an Entity")) 
-            {
-                auto entity = m_Scene->CreateEntity("Entity");
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Create an Entity")) 
+			{
+				auto entity = m_Scene->CreateEntity("Entity");
 
-                if (m_Selected) 
-                    entity.SetParent(m_Selected);
-            }
+				if (m_Selected) 
+					entity.SetParent(m_Selected);
+			}
 
-            if (ImGui::MenuItem("Delete entity")) 
-                isDeleted = true;
+			if (ImGui::MenuItem("Delete entity")) 
+				isDeleted = true;
 
-            if (ImGui::MenuItem("Duplicate")) 
-            {
-                if(m_Selected)
-                    m_Scene->DuplicateEntity(m_Selected);
-            }
+			if (ImGui::MenuItem("Duplicate")) 
+			{
+				if(m_Selected)
+					m_Scene->DuplicateEntity(m_Selected);
+			}
 
-            ImGui::EndPopup();
-        }
+			ImGui::EndPopup();
+		}
 
-        if (opened)
-        {
-            if (entity.HasComponent<RelationshipComponent>())
-            {
-                for (auto eID : entity.GetChildren())
-                {
-                    auto currEntity = m_Scene->FindEntityWithUUID(eID);
+		if (opened)
+		{
+			if (entity.HasComponent<RelationshipComponent>())
+			{
+				for (auto eID : entity.GetChildren())
+				{
+					auto currEntity = m_Scene->FindEntityWithUUID(eID);
 
-                    if (currEntity)
-                        DrawEntityNode(currEntity);
-                    else
-                        TR_ERROR("Not a valid child");
-                }
-            }
-            
-            ImGui::TreePop();
-        }
+					if (currEntity)
+						DrawEntityNode(currEntity);
+					else
+						TR_ERROR("Not a valid child");
+				}
+			}
+			
+			ImGui::TreePop();
+		}
 
-        if (isDeleted)
-        {
-            m_Scene->DestroyEntity(entity, true);
-            if (m_Selected == entity)
-                m_Selected = {};
-        }
-    }
+		if (isDeleted)
+		{
+			m_Scene->DestroyEntity(entity, true);
+			if (m_Selected == entity)
+				m_Selected = {};
+		}
+	}
 }
