@@ -66,6 +66,9 @@ namespace TerranEngine
 	{
 		ScriptEngine::UninitalizeScriptable(entity);
 
+		if (entity.HasComponent<Rigidbody2DComponent>())
+			PhysicsEngine::DestroyRigidbody(entity);
+
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();

@@ -7,7 +7,6 @@ namespace TerranScriptCore
 		public Entity entity;
 	}
 
-
 	public enum Rigidbody2DAwakeState : byte
 	{
 		Sleep = 0,
@@ -35,6 +34,10 @@ namespace TerranScriptCore
 			set => SetGravityScale_Internal(entity.ID.Data, value);
 		}
 
+		public void ApplyForce(Vector2 force, Vector2 position) => ApplyForce_Internal(entity.ID.Data, force, position);
+
+		public void ApplyForceAtCenter(Vector2 force) => ApplyForceAtCenter_Internal(entity.ID.Data, force);
+
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		static extern bool IsFixedRotation_Internal(byte[] entityUUID);
 
@@ -52,6 +55,42 @@ namespace TerranScriptCore
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		static extern void SetGravityScale_Internal(byte[] entityUUID, float gravityScale);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void ApplyForce_Internal(byte[] entityUUID, Vector2 force, Vector2 position);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void ApplyForceAtCenter_Internal(byte[] entityUUID, Vector2 force);
+	}
+
+	public class Collider2D : Component 
+	{
+		public bool IsSensor 
+		{
+			get => IsSensor_Internal(entity.ID.Data);
+			set => SetSensor_Internal(entity.ID.Data, value);
+		}
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern bool IsSensor_Internal(byte[] entityUUID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetSensor_Internal(byte[] entityUUID, bool isSensor);
+	}
+
+	public class BoxCollider2D : Collider2D 
+	{
+		public Vector2 Size 
+		{
+			get => GetSize_Internal(entity.ID.Data);
+			set => SetSize_Internal(entity.ID.Data, value);
+		}
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern Vector2 GetSize_Internal(byte[] entityUUID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetSize_Internal(byte[] entityUUID, Vector2 size);
 	}
 
 	// ---- Scriptable ----
@@ -200,6 +239,7 @@ namespace TerranScriptCore
 		static extern void SetTransformScale_Internal(byte[] entityID, Vector3 inScale);
 		// ---------------
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		static extern bool IsDirty_Internal(byte[] entityID);
 	}
 	// -------------------

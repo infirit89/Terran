@@ -21,8 +21,8 @@ namespace TerranScriptCore
 				Log.Trace("null bitch");
 			else 
 			{
-				Log.Trace(m_TestScriptable.Bruh2);
-				Log.Trace(m_TestScriptable.TestStr);
+				//Log.Trace(m_TestScriptable.Bruh2);
+				//Log.Trace(m_TestScriptable.TestStr);
 			}
 
 			Entity entity2 = Entity.FindWithName("Test 2");
@@ -43,6 +43,7 @@ namespace TerranScriptCore
 		public void Init() 
 		{
 			rb = entity.GetComponent<Rigidbody2D>();
+			rb.ApplyForceAtCenter(new Vector2(10.0f, 100.0f));
 		}
 
 		public void Update()

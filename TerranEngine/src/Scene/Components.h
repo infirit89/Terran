@@ -133,11 +133,16 @@ namespace TerranEngine
 
 	struct BoxCollider2DComponent 
 	{
+		BoxCollider2DComponent() = default;
+
 		glm::vec2 Size = { 0.5f, 0.5f };
+		bool IsSensor = false;
 	};
 
 	struct CircleCollider2DComponent 
 	{
+		CircleCollider2DComponent() = default;
+
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Radius = 0.5f;
 	};

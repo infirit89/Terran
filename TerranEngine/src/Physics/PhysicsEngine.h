@@ -15,6 +15,8 @@ namespace TerranEngine
 		static void CleanUpPhysicsWorld();
 
 		static void CreateRigidbody(Entity entity);
+		static void DestroyRigidbody(Entity entity);
+
 		static void CreateBoxCollider(Entity entity);
 		static void CreateCircleCollider(Entity entity);
 
@@ -22,6 +24,5 @@ namespace TerranEngine
 
 	private:
 		static b2World* s_PhysicsWorld;
-		//static ContactListener s_Listener;
 	};
 }

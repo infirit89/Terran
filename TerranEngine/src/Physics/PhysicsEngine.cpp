@@ -73,6 +73,13 @@ namespace TerranEngine
 		rigidbody.RuntimeBody = body;
 	}
 
+	void PhysicsEngine::DestroyRigidbody(Entity entity)
+	{
+		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
+		s_PhysicsWorld->DestroyBody((b2Body*)rigidbody.RuntimeBody);
+		rigidbody.RuntimeBody = nullptr;
+	}
+
 	void PhysicsEngine::CreateBoxCollider(Entity entity)
 	{
 		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
@@ -87,6 +94,8 @@ namespace TerranEngine
 		// TODO: temporary constants for now; create a physics material
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 0.5f;
+
+		fixtureDef.isSensor = boxCollider.IsSensor;
 
 		const UUID& id = entity.GetID();
 

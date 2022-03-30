@@ -16,6 +16,8 @@
 #include <mono/jit/jit.h>
 #include <mono/metadata/object.h>
 
+#include <box2d/box2d.h>
+
 namespace TerranEngine 
 {
 	// ---- Entity ----
@@ -47,6 +49,8 @@ namespace TerranEngine
 	// -----------------------
 
 	// ---- Physics ----
+
+	// ---- Rigidbody 2D ----
 	static bool IsFixedRotation_Internal(MonoArray* entityUUIDArr);
 	static void SetFixedRotation_Internal(MonoArray* entityUUIDArr, bool fixedRotation);
 
@@ -55,6 +59,21 @@ namespace TerranEngine
 
 	static float GetGravityScale_Internal(MonoArray* entityUUIDArr);
 	static void SetGravityScale_Internal(MonoArray* entityUUIDArr, float gravityScale);
+
+	static void ApplyForce_Internal(MonoArray* entityUUIDArr, glm::vec2 force, glm::vec2 position);
+	static void ApplyForceAtCenter_Internal(MonoArray* entityUUIDArr, glm::vec2 force);
+	// ----------------------
+	
+	// ---- Collider 2D ----
+	static bool IsSensor_Internal(MonoArray* entityUUIDArr);
+	static void SetSensor_Internal(MonoArray* entityUUIDArr, bool isSensor);
+	// ---------------------
+
+	// ---- Box Collider 2D ----
+	static glm::vec2 GetSize_Internal(MonoArray* entityUUIDArr);
+	static void SetSize_Internal(MonoArray* entityUUIDArr, glm::vec2 size);
+	// -------------------------
+
 	// ------------------
 
 	// ---- Utils ----
@@ -102,14 +121,32 @@ namespace TerranEngine
 		// -------------
 
 		// ---- physics ----
-		BindInternalFunc("TerranScriptCore.Rigidbody2D::IsFixedRotation_Internal", IsFixedRotation_Internal);
-		BindInternalFunc("TerranScriptCore.Rigidbody2D::SetFixedRotation_Internal", SetFixedRotation_Internal);
+		{
+			// ---- rigidbody 2d ----
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::IsFixedRotation_Internal", IsFixedRotation_Internal);
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::SetFixedRotation_Internal", SetFixedRotation_Internal);
 
-		BindInternalFunc("TerranScriptCore.Rigidbody2D::GetAwakeState_Internal", GetAwakeState_Internal);
-		BindInternalFunc("TerranScriptCore.Rigidbody2D::SetAwakeState_Internal", SetAwakeState_Internal);
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::GetAwakeState_Internal", GetAwakeState_Internal);
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::SetAwakeState_Internal", SetAwakeState_Internal);
 
-		BindInternalFunc("TerranScriptCore.Rigidbody2D::GetGravityScale_Internal", GetGravityScale_Internal);
-		BindInternalFunc("TerranScriptCore.Rigidbody2D::SetGravityScale_Internal", SetGravityScale_Internal);
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::GetGravityScale_Internal", GetGravityScale_Internal);
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::SetGravityScale_Internal", SetGravityScale_Internal);
+
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::ApplyForce_Internal", ApplyForce_Internal);
+			BindInternalFunc("TerranScriptCore.Rigidbody2D::ApplyForceAtCenter_Internal", ApplyForceAtCenter_Internal);
+			// ----------------------
+
+			// ---- collider 2d ----
+			BindInternalFunc("TerranScriptCore.Collider2D::IsSensor_Internal", IsSensor_Internal);
+			BindInternalFunc("TerranScriptCore.Collider2D::SetSensor_Internal", SetSensor_Internal);
+			// ---------------------
+
+			// ---- box collider 2d ----
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::GetSize_Internal", GetSize_Internal);
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::SetSize_Internal", SetSize_Internal);
+			// -------------------------
+		}
+
 		// -----------------
 
 		// ---- misc ----
@@ -412,6 +449,60 @@ namespace TerranEngine
 		SET_COMPONENT_VAR(GravityScale, entityUUIDArr, Rigidbody2DComponent);
 	}
 
+	static void ApplyForce_Internal(MonoArray* entityUUIDArr, glm::vec2 force, glm::vec2 position)
+	{
+		void* RuntimeBody = nullptr;
+
+		GET_COMPONENT_VAR(RuntimeBody, entityUUIDArr, Rigidbody2DComponent);
+
+		if (RuntimeBody) 
+		{
+			b2Body* body = (b2Body*)RuntimeBody;
+			body->ApplyForce({ force.x, force.y }, { position.x, position.y }, true);
+		}
+
+	}
+
+	static void ApplyForceAtCenter_Internal(MonoArray* entityUUIDArr, glm::vec2 force) 
+	{
+		void* RuntimeBody = nullptr;
+
+		GET_COMPONENT_VAR(RuntimeBody, entityUUIDArr, Rigidbody2DComponent);
+
+		if (RuntimeBody) 
+		{
+			b2Body* body = (b2Body*)RuntimeBody;
+			body->ApplyForceToCenter({ force.x, force.y }, true);
+		}
+	}
+
+	static bool IsSensor_Internal(MonoArray* entityUUIDArr) 
+	{
+		bool IsSensor = false;
+
+		GET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
+
+		return IsSensor;
+	}
+
+	static void SetSensor_Internal(MonoArray* entityUUIDArr, bool IsSensor) 
+	{
+		SET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
+	}
+
+	static glm::vec2 GetSize_Internal(MonoArray* entityUUIDArr) 
+	{
+		glm::vec2 Size = { 0.0f, 0.0f };
+
+		GET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+
+		return Size;
+	}
+
+	static void SetSize_Internal(MonoArray* entityUUIDArr, glm::vec2 Size) 
+	{
+		SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+	}
 
 	static void Log_Internal(uint8_t logLevel, MonoString* monoMessage)
 	{
