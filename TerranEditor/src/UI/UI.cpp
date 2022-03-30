@@ -326,13 +326,13 @@ namespace TerranEditor
         : m_TableInfo(tableInfo)
     {
         // NOTE: this is a very fucking bad
-        //char* tableID = new char[strlen(name) + 2];
+        char tableID[256];
 
-        //tableID[0] = '#';
-        //strcat(tableID, name);
-        //tableID[strlen(name)] = '\0';
+        tableID[0] = '#';
+        strcpy_s(tableID + 1, sizeof(tableID) - 1, name);
+        tableID[strlen(name) + 1] = '\0';
 
-        ImGui::Columns(tableInfo.columnCount, nullptr, tableInfo.border);
+        ImGui::Columns(tableInfo.columnCount, tableID, tableInfo.border);
         ImGui::SetColumnWidth(0, tableInfo.firstColumnWidth);
         ImGui::Text(name);
         ImGui::NextColumn();
@@ -342,7 +342,6 @@ namespace TerranEditor
         else
             ImGui::PushItemWidth(ImGui::CalcItemWidth());
 
-        //delete[] tableID;
     }
 
     UI::ScopedVarTable::~ScopedVarTable()
@@ -351,6 +350,8 @@ namespace TerranEditor
             ImGui::PopItemWidth();
 
         ImGui::Columns(1);
+
+        //delete[] m_TableID;
     }
 
     UI::ScopedStyleColor::ScopedStyleColor(std::initializer_list<StyleColor> styleColorList)

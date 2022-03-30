@@ -126,6 +126,7 @@ namespace TerranEngine
 		RigidbodyBodyType BodyType = RigidbodyBodyType::Dynamic;
 		bool FixedRotation = false;
 		RigidbodyAwakeState AwakeState = RigidbodyAwakeState::Awake;
+		float GravityScale = 1.0f;
 
 		void* RuntimeBody;
 	};

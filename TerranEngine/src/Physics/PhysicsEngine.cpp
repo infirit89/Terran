@@ -57,11 +57,12 @@ namespace TerranEngine
 
 		b2BodyDef bodyDef;
 		bodyDef.type = ConvertToB2DBodyType(rigidbody.BodyType);
+
 		bodyDef.fixedRotation = rigidbody.FixedRotation;
 		bodyDef.position.Set(entity.GetTransform().Position.x, entity.GetTransform().Position.y);
-
 		bodyDef.angle = entity.GetTransform().Rotation.z;
 
+		bodyDef.gravityScale = rigidbody.GravityScale;
 		bodyDef.awake = (bool)rigidbody.AwakeState;
 
 		if (rigidbody.AwakeState == RigidbodyAwakeState::NeverSleep) 

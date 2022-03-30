@@ -383,6 +383,8 @@ namespace TerranEditor
 						}
 
 					}
+
+					UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale);
 				});
 
 				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 

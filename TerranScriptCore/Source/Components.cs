@@ -29,6 +29,12 @@ namespace TerranScriptCore
             set => SetAwakeState_Internal(entity.ID.Data, (byte)value);
         }
 
+        public float GravityScale
+        {
+            get => GetGravityScale_Internal(entity.ID.Data);
+            set => SetGravityScale_Internal(entity.ID.Data, value);
+        }
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern bool IsFixedRotation_Internal(byte[] entityUUID);
 
@@ -40,6 +46,12 @@ namespace TerranScriptCore
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void SetAwakeState_Internal(byte[] entityUUID, byte awakeState);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern float GetGravityScale_Internal(byte[] entityUUID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void SetGravityScale_Internal(byte[] entityUUID, float gravityScale);
     }
 
     // ---- Scriptable ----
