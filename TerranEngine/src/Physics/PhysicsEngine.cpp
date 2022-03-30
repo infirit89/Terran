@@ -62,6 +62,11 @@ namespace TerranEngine
 
 		bodyDef.angle = entity.GetTransform().Rotation.z;
 
+		bodyDef.awake = (bool)rigidbody.AwakeState;
+
+		if (rigidbody.AwakeState == RigidbodyAwakeState::NeverSleep) 
+			bodyDef.allowSleep = false;
+
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
 
 		rigidbody.RuntimeBody = body;

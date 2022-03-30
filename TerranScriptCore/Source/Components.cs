@@ -8,6 +8,13 @@ namespace TerranScriptCore
     }
 
 
+    public enum Rigidbody2DAwakeState : byte
+    {
+        Sleep = 0,
+        Awake,
+        NeverSleep
+    }
+
     public class Rigidbody2D : Component 
     {
         public bool FixedRotation 
@@ -16,11 +23,23 @@ namespace TerranScriptCore
             set => SetFixedRotation_Internal(entity.ID.Data, value);
         }
 
+        public Rigidbody2DAwakeState AwakeState 
+        {
+            get => (Rigidbody2DAwakeState)GetAwakeState_Internal(entity.ID.Data);
+            set => SetAwakeState_Internal(entity.ID.Data, (byte)value);
+        }
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern bool IsFixedRotation_Internal(byte[] entityUUID);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void SetFixedRotation_Internal(byte[] entityUUID, bool fixedRotation);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern byte GetAwakeState_Internal(byte[] entityUUID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        static extern void SetAwakeState_Internal(byte[] entityUUID, byte awakeState);
     }
 
     // ---- Scriptable ----

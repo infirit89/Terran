@@ -112,12 +112,20 @@ namespace TerranEngine
 		Kinematic
 	};
 
+	enum class RigidbodyAwakeState 
+	{
+		Sleep = 0,
+		Awake,
+		NeverSleep
+	};
+
 	struct Rigidbody2DComponent 
 	{
 		Rigidbody2DComponent() = default;
 
 		RigidbodyBodyType BodyType = RigidbodyBodyType::Dynamic;
 		bool FixedRotation = false;
+		RigidbodyAwakeState AwakeState = RigidbodyAwakeState::Awake;
 
 		void* RuntimeBody;
 	};

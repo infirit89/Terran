@@ -46,6 +46,14 @@ namespace TerranEngine
     static MonoString* GetTagName_Internal(MonoArray* entityUUIDArr);
     // -----------------------
 
+    // ---- Physics ----
+    static bool IsFixedRotation_Internal(MonoArray* entityUUIDArr);
+    static void SetFixedRotation_Internal(MonoArray* entityUUIDArr, bool fixedRotation);
+
+    static uint8_t GetAwakeState_Internal(MonoArray* entityUUIDArr);
+    static void SetAwakeState_Internal(MonoArray* entityUUIDArr, uint8_t awakeState);
+    // ------------------
+
     // ---- Utils ----
     static void Log_Internal(uint8_t logLevel, MonoString* monoMessage);
     // ---------------
@@ -86,9 +94,17 @@ namespace TerranEngine
         // -------------------
 
         // ---- tag ----
-        BindInternalFunc("TerranScriptCore.Tag::SetTagName_Internal", SetTagName_Internal);
         BindInternalFunc("TerranScriptCore.Tag::GetTagName_Internal", GetTagName_Internal);
+        BindInternalFunc("TerranScriptCore.Tag::SetTagName_Internal", SetTagName_Internal);
         // -------------
+
+        // ---- physics ----
+        BindInternalFunc("TerranScriptCore.Rigidbody2D::IsFixedRotation_Internal", IsFixedRotation_Internal);
+        BindInternalFunc("TerranScriptCore.Rigidbody2D::SetFixedRotation_Internal", SetFixedRotation_Internal);
+
+        BindInternalFunc("TerranScriptCore.Rigidbody2D::GetAwakeState_Internal", GetAwakeState_Internal);
+        BindInternalFunc("TerranScriptCore.Rigidbody2D::SetAwakeState_Internal", SetAwakeState_Internal);
+        // -----------------
 
         // ---- misc ----
         BindInternalFunc("TerranScriptCore.Log::Log_Internal", Log_Internal);
@@ -105,6 +121,7 @@ namespace TerranEngine
         TransformComponent,
         TagComponent,
         ScriptableComponent,
+        Rigibody2DComponent
     };
 
     static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
@@ -117,6 +134,8 @@ namespace TerranEngine
             return ComponentType::TransformComponent;
         else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Tag") == 0)
             return ComponentType::TagComponent;
+        else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Rigidbody2D") == 0)
+            return ComponentType::Rigibody2DComponent;
         else 
         {
             ScriptClass parent = ScriptEngine::GetClass(string.GetUTF8Str()).GetParent();
@@ -146,6 +165,7 @@ namespace TerranEngine
         {
         case ComponentType::TransformComponent:     return entity.HasComponent<TransformComponent>();
         case ComponentType::TagComponent:           return entity.HasComponent<TagComponent>();
+        case ComponentType::Rigibody2DComponent:    return entity.HasComponent<Rigidbody2DComponent>();
         case ComponentType::ScriptableComponent: 
         {
             if (entity.HasComponent<ScriptComponent>()) 
@@ -179,6 +199,7 @@ namespace TerranEngine
         {
         case ComponentType::TransformComponent:         entity.AddComponent<TransformComponent>(); break;
         case ComponentType::TagComponent:               entity.AddComponent<TagComponent>(); break;
+        case ComponentType::Rigibody2DComponent:        entity.AddComponent<Rigidbody2DComponent>(); break;
         case ComponentType::ScriptableComponent: 
         {
             ScriptString sString(componentTypeStr);
@@ -206,7 +227,8 @@ namespace TerranEngine
         {
         case ComponentType::TransformComponent:     entity.RemoveComponent<TransformComponent>(); break;
         case ComponentType::TagComponent:           entity.RemoveComponent<TagComponent>(); break;
-        case ComponentType::ScriptableComponent:    entity.RemoveComponent<ScriptComponent>(); break;
+        case ComponentType::ScriptableComponent:    entity.RemoveComponent<ScriptComponent>();  break;
+        case ComponentType::Rigibody2DComponent:    entity.RemoveComponent<Rigidbody2DComponent>(); break;
         }
     }
 
@@ -337,6 +359,35 @@ namespace TerranEngine
         std::string Name = "";
         GET_COMPONENT_VAR(Name, entityUUIDArr, TagComponent);
         return ScriptString(Name.c_str()).GetStringInternal();
+    }
+    
+    static bool IsFixedRotation_Internal(MonoArray* entityUUIDArr) 
+    {
+        bool FixedRotation = false;
+        GET_COMPONENT_VAR(FixedRotation, entityUUIDArr, Rigidbody2DComponent);
+
+        return FixedRotation;
+    }
+
+    static void SetFixedRotation_Internal(MonoArray* entityUUIDArr, bool FixedRotation) 
+    {
+        SET_COMPONENT_VAR(FixedRotation, entityUUIDArr, Rigidbody2DComponent);
+    }
+
+    static uint8_t GetAwakeState_Internal(MonoArray* entityUUIDArr) 
+    {
+        RigidbodyAwakeState AwakeState = RigidbodyAwakeState::Awake;
+
+        GET_COMPONENT_VAR(AwakeState, entityUUIDArr, Rigidbody2DComponent);
+
+        return (uint8_t)AwakeState;
+    }
+
+    static void SetAwakeState_Internal(MonoArray* entityUUIDArr, uint8_t awakeState) 
+    {
+        RigidbodyAwakeState AwakeState = (RigidbodyAwakeState)awakeState;
+
+        SET_COMPONENT_VAR(AwakeState, entityUUIDArr, Rigidbody2DComponent);
     }
 
     static void Log_Internal(uint8_t logLevel, MonoString* monoMessage)

@@ -37,30 +37,12 @@ namespace TerranScriptCore
     // Test script
     public class TestScriptable : Scriptable
     {
-        public int Test = 1;
-        public bool Test1 = false;
-        public string TestStr = "Hello";
-        public bool Bruh2 = true;
-
-        public Vector2 TestVec = new Vector2(1.0f, 0.7f);
-        public Vector2 TestVec2 = new Vector2(1.0f, 0.7f);
-        public Vector3 TestVec3 = new Vector3(-10.3f, -123.456f, 100.34f);
-        public bool Bruh3 = true;
+        private Rigidbody2D rb;
 
         // Runs when the entity in the current scene, that has this script, is started
         public void Init() 
         {
-            // Prints statements, for test
-            //Log.Warn("started");
-            Log.Trace(TestVec);
-            Log.Trace(TestVec3);
-            Log.Trace(Test);
-
-            if (entity.HasComponent<TestScriptable>())
-                Log.Trace("yes");
-             
-            if (entity.HasComponent<TestScript>())
-                Log.Trace("no");
+            rb = entity.GetComponent<Rigidbody2D>();
         }
 
         public void Update()

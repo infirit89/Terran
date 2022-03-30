@@ -60,6 +60,10 @@ namespace TerranEditor
 				return LogMessageLevel::Error;
 				break;
 			}
+
+			TR_ASSERT(false, "Invalid message type!");
+
+			return LogMessageLevel::Info;
 		}
 
 		std::vector<LogMessage> m_MessageBuffer;

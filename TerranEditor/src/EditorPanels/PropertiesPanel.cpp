@@ -332,17 +332,14 @@ namespace TerranEditor
 
 				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](Rigidbody2DComponent& rbComponent) 
 				{
-					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
-					const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
-					
+					UI::ScopedVarTable::TableInfo tableInfo;
+
 					// rigidbody body type selection
 					{
-						ImGui::Columns(2, nullptr, false);
-						ImGui::SetColumnWidth(0, 100.0f);
-						ImGui::Text("Body Type");
-
-						ImGui::NextColumn();
-						ImGui::PushItemWidth(ImGui::CalcItemWidth());
+						const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+						const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
+						
+						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
 
 						if (ImGui::BeginCombo("##body_type", currentBodyType)) 
 						{
@@ -358,13 +355,34 @@ namespace TerranEditor
 
 							ImGui::EndCombo();
 						}
-
-						ImGui::PopItemWidth();
-						ImGui::Columns(1);
-
+						
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
+
+					// rigidbody awake state selection 
+					{
+						const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+						const char* currentAwakeState = awakeStateNames[(int)rbComponent.AwakeState];
+
+						UI::ScopedVarTable awakeStateTable("Awake State", tableInfo);
+
+						if (ImGui::BeginCombo("##awake_state", currentAwakeState))
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								const bool is_selected = (awakeStateNames[i] == currentAwakeState);
+								if (ImGui::Selectable(awakeStateNames[i], is_selected))
+									rbComponent.AwakeState = (RigidbodyAwakeState)i;
+
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+							}
+
+							ImGui::EndCombo();
+						}
+
+					}
 				});
 
 				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 
