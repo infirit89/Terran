@@ -23,6 +23,8 @@ namespace TerranEngine
 		virtual void* GetNativeWindow() { return m_Window; }
 
 		inline void SetEventCallbackFN(const EventCallbackFn& eventCallbackFN) override { m_WindowDataPtr.EventCallback = eventCallbackFN; }
+
+		void SetTitle(const char* title) override;
 	private:
 		void InitWindow(WindowData data);
 		void Close();

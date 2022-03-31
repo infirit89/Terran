@@ -24,6 +24,7 @@ namespace TerranEngine
 
 		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform);
 		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform);
+		void SubmitLine(LineRendererComponent& lineRenderer);
 
 		uint32_t GetViewportWidth() { return m_Width; }
 		uint32_t GetViewportHeight() { return m_Height; }

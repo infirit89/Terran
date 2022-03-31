@@ -150,6 +150,14 @@ namespace TerranEditor
 					UI::DrawFloatControl("Thickness", component.Thickness);
 				});
 
+				DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer) 
+				{
+					UI::DrawColor4Control("Color", lineRenderer.Color);
+					UI::DrawFloatControl("Thickness", lineRenderer.Thickness);
+					UI::DrawVec3Control("Point 1", lineRenderer.Point1);
+					UI::DrawVec3Control("Point 2", lineRenderer.Point2);
+				});
+
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
 				{
 					UI::DrawColor4Control("Background color", component.BackgroundColor);
@@ -416,6 +424,10 @@ namespace TerranEditor
 					if (!entity.HasComponent<CircleRendererComponent>())
 						if (ImGui::MenuItem("Circle Renderer"))
 							entity.AddComponent<CircleRendererComponent>();
+
+					if (!entity.HasComponent<LineRendererComponent>())
+						if (ImGui::MenuItem("Line Renderer"))
+							entity.AddComponent<LineRendererComponent>();
 
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))

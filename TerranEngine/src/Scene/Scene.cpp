@@ -213,7 +213,7 @@ namespace TerranEngine
 					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
 				}
 			}
-
+			
 			sceneRenderer->EndScene();
 		}
 	}
@@ -246,6 +246,19 @@ namespace TerranEngine
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 
 				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
+			}
+		}
+
+		// submit lines
+		{
+			auto lineRendererView = m_Registry.view<LineRendererComponent>();
+			for (auto e : lineRendererView)
+			{
+				Entity entity(e, this);
+
+				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
+
+				sceneRenderer->SubmitLine(lineRenderer);
 			}
 		}
 

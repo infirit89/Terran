@@ -1,7 +1,10 @@
 #include "trpch.h"
 #include "SceneRenderer.h"
 
+#include "Core/Input.h"
+
 #include "Graphics/BatchRenderer2D.h"
+
 
 namespace TerranEngine 
 {
@@ -18,6 +21,10 @@ namespace TerranEngine
 	void SceneRenderer::BeginScene(Camera& camera, glm::mat4& cameraTransform)
 	{
 		m_Framebuffer->Bind();
+		
+		if(Input::IsKeyPressed(Key::F))
+			RenderCommand::WireframeMode(true);
+
 		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
 		RenderCommand::Clear();
 
@@ -44,6 +51,11 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness);
 	}
 
+	void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer)
+	{
+		BatchRenderer2D::Get()->AddLine(lineRenderer.Point1, lineRenderer.Point2, lineRenderer.Color, lineRenderer.Thickness);
+	}
+
 	void SceneRenderer::EndScene()
 	{
 		// TODO: draw grid
@@ -54,6 +66,8 @@ namespace TerranEngine
 		m_Framebuffer->Unbind();
 
 		m_BegunScene = false;
+
+		RenderCommand::WireframeMode(false);
 	}
 
 	void SceneRenderer::OnResize(uint32_t width, uint32_t height)

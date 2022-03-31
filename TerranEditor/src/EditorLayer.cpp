@@ -364,6 +364,8 @@ namespace TerranEditor
 
 		ShowDockspace();
 
+		ImGui::ShowDemoWindow();
+
 		// NOTE: Make an editor setting for the selected window
 		m_SHierarchy.ImGuiRender();
 		m_Selected = m_SHierarchy.GetSelected();

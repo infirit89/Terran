@@ -75,6 +75,17 @@ namespace TerranEngine
 		CircleRendererComponent() = default;
 	};
 
+	struct LineRendererComponent 
+	{
+		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float Thickness = 1.0f;
+
+		glm::vec3 Point1 = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 Point2 = { 0.0f, 0.0f, 1.0f };
+
+		LineRendererComponent() = default;
+	};
+
 	struct RelationshipComponent 
 	{
 		UUID ParentID;
