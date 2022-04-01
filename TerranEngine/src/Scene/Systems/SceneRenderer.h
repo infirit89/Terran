@@ -26,6 +26,8 @@ namespace TerranEngine
 		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform);
 		void SubmitLine(LineRendererComponent& lineRenderer);
 
+		void SubmitDebugRectangle(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
+
 		uint32_t GetViewportWidth() { return m_Width; }
 		uint32_t GetViewportHeight() { return m_Height; }
 

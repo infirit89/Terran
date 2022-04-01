@@ -86,7 +86,7 @@ namespace TerranEngine
 		auto& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 
 		b2PolygonShape shape;
-		shape.SetAsBox(entity.GetTransform().Scale.x * boxCollider.Size.x, entity.GetTransform().Scale.y * boxCollider.Size.y);
+		shape.SetAsBox(entity.GetTransform().Scale.x * boxCollider.Size.x * 0.5f, entity.GetTransform().Scale.y * boxCollider.Size.y * 0.5f);
 
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &shape;
@@ -112,7 +112,7 @@ namespace TerranEngine
 		b2CircleShape shape;
 
 		shape.m_p.Set(circleCollider.Offset.x, circleCollider.Offset.y);
-		shape.m_radius = entity.GetTransform().Scale.x * circleCollider.Radius;
+		shape.m_radius = entity.GetTransform().Scale.x * circleCollider.Radius * 0.5f;
 
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &shape;

@@ -146,7 +146,7 @@ namespace TerranEngine
 	{
 		BoxCollider2DComponent() = default;
 
-		glm::vec2 Size = { 0.5f, 0.5f };
+		glm::vec2 Size = { 1.0f, 1.0f };
 		bool IsSensor = false;
 	};
 
@@ -155,6 +155,6 @@ namespace TerranEngine
 		CircleCollider2DComponent() = default;
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
-		float Radius = 0.5f;
+		float Radius = 1.0f;
 	};
 }

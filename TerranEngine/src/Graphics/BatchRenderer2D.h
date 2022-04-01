@@ -37,7 +37,6 @@ namespace TerranEngine
 		float Thickness;
 		glm::vec4 Color;
 		glm::vec2 Normal;
-		//glm::mat4 ModelMatrix;
 	};
 
 	struct BatchRendererStats
@@ -71,6 +70,8 @@ namespace TerranEngine
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
+
+		void AddRectUnfilled(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
 
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
 		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }

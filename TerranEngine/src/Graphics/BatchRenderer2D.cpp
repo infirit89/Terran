@@ -458,9 +458,6 @@ namespace TerranEngine
 			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
 			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
 			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
-			//m_LineVertexPtr[m_LineVertexPtrIndex].ModelMatrix = 
-
-			//TR_TRACE("Normal 1: X: {0}, Y: {1}", m_LineVertexPtr[m_LineVertexPtrIndex].Normal.x, m_LineVertexPtr[m_LineVertexPtrIndex].Normal.y);
 
 			m_LineVertexPtrIndex++;
 
@@ -470,8 +467,6 @@ namespace TerranEngine
 
 			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
 
-			//TR_TRACE("Normal 2: X: {0}, Y: {1}", m_LineVertexPtr[m_LineVertexPtrIndex].Normal.x, m_LineVertexPtr[m_LineVertexPtrIndex].Normal.y);
-
 			m_LineVertexPtrIndex++;
 
 			m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
@@ -479,8 +474,6 @@ namespace TerranEngine
 			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
 
 			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
-
-			//TR_TRACE("Normal 2: X: {0}, Y: {1}", m_LineVertexPtr[m_LineVertexPtrIndex].Normal.x, m_LineVertexPtr[m_LineVertexPtrIndex].Normal.y);
 
 			m_LineVertexPtrIndex++;
 
@@ -490,12 +483,18 @@ namespace TerranEngine
 
 			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
 
-			//TR_TRACE("Normal 2: X: {0}, Y: {1}", m_LineVertexPtr[m_LineVertexPtrIndex].Normal.x, m_LineVertexPtr[m_LineVertexPtrIndex].Normal.y);
-
 			m_LineVertexPtrIndex++;
 
 
 		m_LineIndexCount += 6;
+	}
+
+	void BatchRenderer2D::AddRectUnfilled(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
+	{
+		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
 	}
 
 	void BatchRenderer2D::EndFrame()

@@ -15,6 +15,7 @@
 
 #include "Utils/Debug/Profiler.h"
 #include "Utils/ResourceManager.h"
+#include "Utils/Utils.h"
 
 namespace TerranEngine 
 {
@@ -259,6 +260,26 @@ namespace TerranEngine
 				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
 
 				sceneRenderer->SubmitLine(lineRenderer);
+			}
+		}
+		
+		// submit debug rectangles
+		{
+			auto boxCollider2DView = m_Registry.view<BoxCollider2DComponent>();
+
+			for (auto e : boxCollider2DView)
+			{
+				Entity entity(e, this);
+
+				auto& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
+				auto& transform = entity.GetTransform();
+
+				const glm::vec4 color = Utils::NormalizeColor4({ 0.0f, 255.0f, 0.0f, 255.0f });
+				const float thickness = 0.02f;
+
+				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
+
+				sceneRenderer->SubmitDebugRectangle(transform.Position, size, color, thickness);
 			}
 		}
 

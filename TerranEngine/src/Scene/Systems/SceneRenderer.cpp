@@ -56,6 +56,11 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddLine(lineRenderer.Point1, lineRenderer.Point2, lineRenderer.Color, lineRenderer.Thickness);
 	}
 
+	void SceneRenderer::SubmitDebugRectangle(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
+	{
+		BatchRenderer2D::Get()->AddRectUnfilled(position, size, color, thickness);
+	}
+
 	void SceneRenderer::EndScene()
 	{
 		// TODO: draw grid
