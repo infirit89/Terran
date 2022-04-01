@@ -17,6 +17,8 @@
 #include "Utils/ResourceManager.h"
 #include "Utils/Utils.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace TerranEngine 
 {
 
@@ -186,7 +188,7 @@ namespace TerranEngine
 			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
 			glm::mat4& cameraTransform = primaryCamera.GetWorldMatrix();
 
-			sceneRenderer->BeginScene(camera, cameraTransform);
+			sceneRenderer->BeginScene(camera, cameraTransform, true);
 			
 			// submit sprites
 			{
@@ -222,7 +224,7 @@ namespace TerranEngine
 	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		sceneRenderer->SetScene(this);
-		sceneRenderer->BeginScene(camera, cameraView);
+		sceneRenderer->BeginScene(camera, cameraView, false);
 		
 		// submit sprites
 		{
@@ -274,12 +276,46 @@ namespace TerranEngine
 				auto& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 				auto& transform = entity.GetTransform();
 
-				const glm::vec4 color = Utils::NormalizeColor4({ 0.0f, 255.0f, 0.0f, 255.0f });
+				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				const float thickness = 0.02f;
+				
+				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
+				const glm::vec3 position = { transform.Position.x, transform.Position.y, 1.0f };
+
+				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) * 
+											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
+											glm::scale(glm::mat4(1.0f), size);
+
+				sceneRenderer->SubmitDebugRectangle(transformMatrix, color, thickness);
+			}
+		}
+
+		// submit debug circles
+		{
+			auto circleCollider2DView = m_Registry.view<CircleCollider2DComponent>();
+
+			for (auto e : circleCollider2DView)
+			{
+				Entity entity(e, this);
+
+				auto& circleCollider = entity.GetComponent<CircleCollider2DComponent>();
+				auto& transform = entity.GetTransform();
+
+				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
+				const glm::vec3 size = transform.Scale * circleCollider.Radius;
+				const glm::vec3 position = { transform.Position.x + circleCollider.Offset.x, transform.Position.y + circleCollider.Offset.y, 1.0f };
 
-				sceneRenderer->SubmitDebugRectangle(transform.Position, size, color, thickness);
+				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) * 
+											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
+											glm::scale(glm::mat4(1.0f), size);
+
+				CircleRendererComponent circleRenderer;
+				circleRenderer.Color = color;
+				circleRenderer.Thickness = thickness;
+
+				sceneRenderer->SubmitCircle(circleRenderer, transformMatrix);
 			}
 		}
 

@@ -58,7 +58,7 @@ namespace TerranEngine
 
 		~BatchRenderer2D();
 
-		void BeginFrame(Camera& camera, const glm::mat4& transform);
+		void BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView);
 		void EndFrame();
 
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture);
@@ -71,7 +71,8 @@ namespace TerranEngine
 
 		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
 
-		void AddRectUnfilled(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
+		void AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
+		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
 		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }

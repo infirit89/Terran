@@ -18,7 +18,7 @@ namespace TerranEngine
 		m_Scene = scene;
 	}
 
-	void SceneRenderer::BeginScene(Camera& camera, glm::mat4& cameraTransform)
+	void SceneRenderer::BeginScene(Camera& camera, glm::mat4& cameraTransform, bool invereTransform)
 	{
 		m_Framebuffer->Bind();
 		
@@ -28,7 +28,7 @@ namespace TerranEngine
 		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
 		RenderCommand::Clear();
 
-		BatchRenderer2D::Get()->BeginFrame(camera, cameraTransform);
+		BatchRenderer2D::Get()->BeginFrame(camera, cameraTransform, invereTransform);
 		m_BegunScene = true;
 
 		/* TODO: better sorting
@@ -56,9 +56,9 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddLine(lineRenderer.Point1, lineRenderer.Point2, lineRenderer.Color, lineRenderer.Thickness);
 	}
 
-	void SceneRenderer::SubmitDebugRectangle(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
+	void SceneRenderer::SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
-		BatchRenderer2D::Get()->AddRectUnfilled(position, size, color, thickness);
+		BatchRenderer2D::Get()->AddRect(transform, color, thickness);
 	}
 
 	void SceneRenderer::EndScene()

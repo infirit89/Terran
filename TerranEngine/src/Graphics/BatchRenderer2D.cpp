@@ -229,7 +229,7 @@ namespace TerranEngine
 		delete[] m_LineVertexPtr;
 	}
 
-	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform)
+	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView)
 	{
 		Clear();
 
@@ -239,7 +239,10 @@ namespace TerranEngine
 		m_LineShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
-		m_CameraData.View = glm::inverse(transform);
+		m_CameraData.View = transform;
+
+		if (inverseView)
+			m_CameraData.View = glm::inverse(m_CameraData.View);
 
 		//m_CameraData.ProjectionSize = { 0, 0, 0 };
 		//m_CameraData.CameraPosition = transform[3];
@@ -489,7 +492,20 @@ namespace TerranEngine
 		m_LineIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddRectUnfilled(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
+	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
+	{
+		glm::vec3 linePositions[4];
+
+		for (size_t i = 0; i < 4; i++)
+			linePositions[i] = transform * m_VertexPositions[i];
+
+		AddLine(linePositions[0], linePositions[1], color, thickness);
+		AddLine(linePositions[1], linePositions[2], color, thickness);
+		AddLine(linePositions[2], linePositions[3], color, thickness);
+		AddLine(linePositions[3], linePositions[0], color, thickness);
+	}
+
+	void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
 	{
 		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
 		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);

@@ -36,6 +36,9 @@ namespace TerranEditor
 			m_Visible = ImGui::IsItemVisible();
 
 			ImGuizmo::SetOrthographic(true);
+
+			ImGuizmo::BeginFrame();
+
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
@@ -51,8 +54,8 @@ namespace TerranEditor
 				auto& tc = selectedEntity.GetComponent<TransformComponent>();
 				glm::mat4 transformMatrix = tc.WorldTransformMatrix;
 
-				ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(editorCamera.GetView())), glm::value_ptr(editorCamera.GetProjection()),
-					(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
+				ImGuizmo::Manipulate(glm::value_ptr(editorCamera.GetView()), glm::value_ptr(editorCamera.GetProjection()),
+					(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::WORLD, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
 
 				if (ImGuizmo::IsUsing())
 				{

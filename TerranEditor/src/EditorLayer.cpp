@@ -360,7 +360,7 @@ namespace TerranEditor
 	{
 		// NOTE : this is a temporary fix
 		// move the ImGui layer from the engine to the editor
-		ImGuizmo::BeginFrame();
+		
 
 		ShowDockspace();
 

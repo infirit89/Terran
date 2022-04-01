@@ -10,8 +10,8 @@ namespace TerranEditor
 {
 	EditorCamera::EditorCamera() 
 	{
-		RecalculateView();
 		RecalculateProjection();
+		RecalculateView();
 	}
 
 	void EditorCamera::Update(Time& time)
@@ -22,11 +22,14 @@ namespace TerranEditor
 
 		if (!m_BlockInput) 
 		{
-			if (Input::IsMouseButtonPressed(MouseButton::MiddleButton)) 
+			if (Input::IsMouseButtonPressed(MouseButton::MiddleButton))
 				PanCamera(mouseDelta, time);
 		}
 
-		RecalculateView();
+		if(m_ViewDirty)
+			RecalculateView();
+
+		m_ViewDirty = false;
 	}
 
 	void EditorCamera::OnEvent(Event& event) 
@@ -48,10 +51,10 @@ namespace TerranEditor
 
 	void EditorCamera::RecalculateProjection() 
 	{
-		float width = (m_OrthoGraphicSize * m_AspectRatio * 0.5f) * 2;
-		float height = (m_OrthoGraphicSize * 0.5f) * 2;
+		float orthRight = (m_OrthoGraphicSize * m_AspectRatio * 0.5f);
+		float orthoTop = (m_OrthoGraphicSize * 0.5f);
 
-		m_ProjectionMatrix = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, m_OrthographicNear, m_OrthographicFar);
+		m_ProjectionMatrix = glm::ortho(-orthRight, orthRight, -orthoTop, orthoTop, m_OrthographicNear, m_OrthographicFar);
 	}
 
 	void EditorCamera::RecalculateView() 
@@ -73,8 +76,9 @@ namespace TerranEditor
 
 	void EditorCamera::PanCamera(glm::vec2 delta, Time& time)
 	{
-		m_FocalPoint.x += delta.x * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMS();
-		m_FocalPoint.y += -delta.y * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMS();
+		m_FocalPoint.x += -delta.x * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMS();
+		m_FocalPoint.y += delta.y * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMS();
+		m_ViewDirty = true;
 	}
 
 	bool EditorCamera::OnMouseScroll(MouseScrollEvent& e) 
@@ -87,9 +91,5 @@ namespace TerranEditor
 	glm::vec3 EditorCamera::CalculatePosition() 
 	{
 		return m_FocalPoint;
-	}
-	glm::vec2 EditorCamera::GetPanSpeed()
-	{
-		return glm::vec2();
 	}
 }
