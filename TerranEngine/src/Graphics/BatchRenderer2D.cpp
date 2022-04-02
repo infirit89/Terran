@@ -457,39 +457,51 @@ namespace TerranEngine
 
 		glm::vec3 lineNormal = glm::cross(point1, point2);
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
-			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
-			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
 
-			m_LineVertexPtrIndex++;
+		m_LineVertexPtrIndex++;
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
-			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
 
-			m_LineVertexPtrIndex++;
+		m_LineVertexPtrIndex++;
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
-			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
 
-			m_LineVertexPtrIndex++;
+		m_LineVertexPtrIndex++;
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
-			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
 
-			m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
 
-			m_LineVertexPtrIndex++;
+		m_LineVertexPtrIndex++;
 
 
 		m_LineIndexCount += 6;
+	}
+
+	void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
+	{
+		int timesToAdd = pointCount / 2;
+
+		for (size_t i = 0; i < timesToAdd; i++) 
+		{
+			int ind = i + 1 * i;
+
+			AddLine(points[ind], points[ind + 1], color, thickness);
+		}
 	}
 
 	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)

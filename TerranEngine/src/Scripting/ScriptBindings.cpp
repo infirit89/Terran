@@ -63,17 +63,29 @@ namespace TerranEngine
 	static void ApplyForce_Internal(MonoArray* entityUUIDArr, glm::vec2 force, glm::vec2 position);
 	static void ApplyForceAtCenter_Internal(MonoArray* entityUUIDArr, glm::vec2 force);
 	// ----------------------
-	
-	// ---- Collider 2D ----
-	static bool IsSensor_Internal(MonoArray* entityUUIDArr);
-	static void SetSensor_Internal(MonoArray* entityUUIDArr, bool isSensor);
-	// ---------------------
 
 	// ---- Box Collider 2D ----
-	static glm::vec2 GetSize_Internal(MonoArray* entityUUIDArr);
-	static void SetSize_Internal(MonoArray* entityUUIDArr, glm::vec2 size);
+	static void GetBoxOffset_Internal(MonoArray* entityUUIDArr, glm::vec2& offset);
+	static void SetBoxOffset_Internal(MonoArray* entityUUIDArr, glm::vec2 offset);
+
+	static void GetBoxSize_Internal(MonoArray* entityUUIDArr, glm::vec2& size);
+	static void SetBoxSize_Internal(MonoArray* entityUUIDArr, glm::vec2 size);
+
+	static bool IsBoxSensor_Internal(MonoArray* entityUUIDArr);
+	static void SetBoxSensor_Internal(MonoArray* entityUUIDArr, bool isSensor);
 	// -------------------------
 
+	// ---- Circle Collider 2D ----
+	static void GetCircleOffset_Internal(MonoArray* entityUUIDArr, glm::vec2& offset);
+	static void SetCircleOffset_Internal(MonoArray* entityUUIDArr, glm::vec2 offset);
+
+	static float GetCircleRadius_Internal(MonoArray* entityUUIDArr);
+	static void SetCircleRadius_Internal(MonoArray* entityUUIDArr, float radius);
+
+	static bool IsCircleSensor_Internal(MonoArray* entityUUIDArr);
+	static void SetCircleSensor_Internal(MonoArray* entityUUIDArr, bool isSensor);
+	// ----------------------------
+	
 	// ------------------
 
 	// ---- Utils ----
@@ -136,15 +148,28 @@ namespace TerranEngine
 			BindInternalFunc("TerranScriptCore.Rigidbody2D::ApplyForceAtCenter_Internal", ApplyForceAtCenter_Internal);
 			// ----------------------
 
-			// ---- collider 2d ----
-			BindInternalFunc("TerranScriptCore.Collider2D::IsSensor_Internal", IsSensor_Internal);
-			BindInternalFunc("TerranScriptCore.Collider2D::SetSensor_Internal", SetSensor_Internal);
-			// ---------------------
-
 			// ---- box collider 2d ----
-			BindInternalFunc("TerranScriptCore.BoxCollider2D::GetSize_Internal", GetSize_Internal);
-			BindInternalFunc("TerranScriptCore.BoxCollider2D::SetSize_Internal", SetSize_Internal);
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::GetOffset_Internal", GetBoxOffset_Internal);
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::SetOffset_Internal", SetBoxOffset_Internal);
+
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::GetSize_Internal", GetBoxSize_Internal);
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::SetSize_Internal", SetBoxSize_Internal);
+
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::IsSensor_Internal", IsBoxSensor_Internal);
+			BindInternalFunc("TerranScriptCore.BoxCollider2D::SetSensor_Internal", SetBoxSensor_Internal);
 			// -------------------------
+
+			// ---- circle collider 2d ----
+			BindInternalFunc("TerranScriptCore.CircleCollider2D::GetOffset_Internal", GetCircleOffset_Internal);
+			BindInternalFunc("TerranScriptCore.CircleCollider2D::SetOffset_Internal", SetCircleOffset_Internal);
+
+			BindInternalFunc("TerranScriptCore.CircleCollider2D::GetRadius_Internal", GetCircleRadius_Internal);
+			BindInternalFunc("TerranScriptCore.CircleCollider2D::SetRadius_Internal", SetCircleRadius_Internal);
+
+			BindInternalFunc("TerranScriptCore.CircleCollider2D::IsSensor_Internal", IsCircleSensor_Internal);
+			BindInternalFunc("TerranScriptCore.CircleCollider2D::SetSensor_Internal", SetCircleSensor_Internal);
+
+			// -----------------------------
 		}
 
 		// -----------------
@@ -164,7 +189,10 @@ namespace TerranEngine
 		TransformComponent,
 		TagComponent,
 		ScriptableComponent,
-		Rigibody2DComponent
+		Rigibody2DComponent,
+		Collider2DComponent,
+		BoxCollider2DComponent,
+		CircleCollider2DComponent
 	};
 
 	static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
@@ -179,6 +207,12 @@ namespace TerranEngine
 			return ComponentType::TagComponent;
 		else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Rigidbody2D") == 0)
 			return ComponentType::Rigibody2DComponent;
+		else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.Collider2D") == 0)
+			return ComponentType::Collider2DComponent;
+		else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.BoxCollider2D") == 0)
+			return ComponentType::BoxCollider2DComponent;
+		else if (strcmp(string.GetUTF8Str(), "TerranScriptCore.CircleCollider2D") == 0)
+			return ComponentType::CircleCollider2DComponent;
 		else 
 		{
 			ScriptClass parent = ScriptEngine::GetClass(string.GetUTF8Str()).GetParent();
@@ -206,9 +240,12 @@ namespace TerranEngine
 
 		switch (type)
 		{
-		case ComponentType::TransformComponent:     return entity.HasComponent<TransformComponent>();
-		case ComponentType::TagComponent:           return entity.HasComponent<TagComponent>();
-		case ComponentType::Rigibody2DComponent:    return entity.HasComponent<Rigidbody2DComponent>();
+		case ComponentType::TransformComponent:			return entity.HasComponent<TransformComponent>();
+		case ComponentType::TagComponent:				return entity.HasComponent<TagComponent>();
+		case ComponentType::Rigibody2DComponent:		return entity.HasComponent<Rigidbody2DComponent>();
+		case ComponentType::Collider2DComponent:		return entity.HasComponent<BoxCollider2DComponent>() || entity.HasComponent<CircleCollider2DComponent>();
+		case ComponentType::BoxCollider2DComponent:		return entity.HasComponent<BoxCollider2DComponent>();
+		case ComponentType::CircleCollider2DComponent:	return entity.HasComponent<CircleCollider2DComponent>();
 		case ComponentType::ScriptableComponent: 
 		{
 			if (entity.HasComponent<ScriptComponent>()) 
@@ -243,6 +280,8 @@ namespace TerranEngine
 		case ComponentType::TransformComponent:         entity.AddComponent<TransformComponent>(); break;
 		case ComponentType::TagComponent:               entity.AddComponent<TagComponent>(); break;
 		case ComponentType::Rigibody2DComponent:        entity.AddComponent<Rigidbody2DComponent>(); break;
+		case ComponentType::BoxCollider2DComponent:		entity.AddComponent<BoxCollider2DComponent>(); break;
+		case ComponentType::CircleCollider2DComponent:	entity.AddComponent<CircleCollider2DComponent>(); break;
 		case ComponentType::ScriptableComponent: 
 		{
 			ScriptString sString(componentTypeStr);
@@ -268,10 +307,12 @@ namespace TerranEngine
 
 		switch (type)
 		{
-		case ComponentType::TransformComponent:     entity.RemoveComponent<TransformComponent>(); break;
-		case ComponentType::TagComponent:           entity.RemoveComponent<TagComponent>(); break;
-		case ComponentType::ScriptableComponent:    entity.RemoveComponent<ScriptComponent>();  break;
-		case ComponentType::Rigibody2DComponent:    entity.RemoveComponent<Rigidbody2DComponent>(); break;
+		case ComponentType::TransformComponent:			entity.RemoveComponent<TransformComponent>(); break;
+		case ComponentType::TagComponent:				entity.RemoveComponent<TagComponent>(); break;
+		case ComponentType::ScriptableComponent:		entity.RemoveComponent<ScriptComponent>();  break;
+		case ComponentType::Rigibody2DComponent:		entity.RemoveComponent<Rigidbody2DComponent>(); break;
+		case ComponentType::BoxCollider2DComponent:		entity.RemoveComponent<BoxCollider2DComponent>(); break;
+		case ComponentType::CircleCollider2DComponent:	entity.RemoveComponent<CircleCollider2DComponent>(); break;
 		}
 	}
 
@@ -476,32 +517,82 @@ namespace TerranEngine
 		}
 	}
 
-	static bool IsSensor_Internal(MonoArray* entityUUIDArr) 
+	static void GetBoxOffset_Internal(MonoArray* entityUUIDArr, glm::vec2& offset)
+	{
+		glm::vec2 Offset = { 0.0f, 0.0f };
+		GET_COMPONENT_VAR(Offset, entityUUIDArr, BoxCollider2DComponent);
+		offset = Offset;
+	}
+
+	static void SetBoxOffset_Internal(MonoArray* entityUUIDArr, glm::vec2 offset)
+	{
+		glm::vec2 Offset = offset;
+		SET_COMPONENT_VAR(Offset, entityUUIDArr, BoxCollider2DComponent);
+	}
+
+	static void GetCircleOffset_Internal(MonoArray* entityUUIDArr, glm::vec2& offset) 
+	{
+		glm::vec2 Offset = { 0.0f, 0.0f };
+		GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
+		offset = Offset;
+	}
+
+	static void SetCircleOffset_Internal(MonoArray* entityUUIDArr, glm::vec2 offset) 
+	{
+		glm::vec2 Offset = offset;
+		SET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
+	}
+
+	static void GetBoxSize_Internal(MonoArray* entityUUIDArr, glm::vec2& size) 
+	{
+		glm::vec2 Size = { 0.0f, 0.0f };
+		GET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+		size = Size;
+	}
+
+	static void SetBoxSize_Internal(MonoArray* entityUUIDArr, glm::vec2 size) 
+	{
+		glm::vec2 Size = size;
+		SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+	}
+
+	static float GetCircleRadius_Internal(MonoArray* entityUUIDArr) 
+	{
+		float Radius = 0.0f;
+		GET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
+		return Radius;
+	}
+
+	static void SetCircleRadius_Internal(MonoArray* entityUUIDArr, float radius) 
+	{
+		float Radius = radius;
+		SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
+	}
+
+	static bool IsBoxSensor_Internal(MonoArray* entityUUIDArr) 
 	{
 		bool IsSensor = false;
-
 		GET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
-
 		return IsSensor;
 	}
 
-	static void SetSensor_Internal(MonoArray* entityUUIDArr, bool IsSensor) 
+	static void SetBoxSensor_Internal(MonoArray* entityUUIDArr, bool isSensor) 
 	{
+		bool IsSensor = isSensor;
 		SET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
 	}
 
-	static glm::vec2 GetSize_Internal(MonoArray* entityUUIDArr) 
+	static bool IsCircleSensor_Internal(MonoArray* entityUUIDArr) 
 	{
-		glm::vec2 Size = { 0.0f, 0.0f };
-
-		GET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
-
-		return Size;
+		bool IsSensor = false;
+		GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
+		return IsSensor;
 	}
 
-	static void SetSize_Internal(MonoArray* entityUUIDArr, glm::vec2 Size) 
+	static void SetCircleSensor_Internal(MonoArray* entityUUIDArr, bool isSensor) 
 	{
-		SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+		bool IsSensor = isSensor;
+		SET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
 	}
 
 	static void Log_Internal(uint8_t logLevel, MonoString* monoMessage)

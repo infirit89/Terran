@@ -307,7 +307,7 @@ namespace TerranEditor
 			ScopedVarTable floatTable(label, tableInfo);
 
 			float min = 0.0f;
-			float max = 0.0f;
+			float max = 50.0f;
 
 			if (ImGui::DragScalar("##val", type, value, power, &min, &max, format, NULL))
 				changed = true;

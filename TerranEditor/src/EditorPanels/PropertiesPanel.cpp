@@ -154,8 +154,34 @@ namespace TerranEditor
 				{
 					UI::DrawColor4Control("Color", lineRenderer.Color);
 					UI::DrawFloatControl("Thickness", lineRenderer.Thickness);
-					UI::DrawVec3Control("Point 1", lineRenderer.Point1);
-					UI::DrawVec3Control("Point 2", lineRenderer.Point2);
+
+					int origPointCount = lineRenderer.PointCount;
+
+					if (UI::DrawIntControl("Point Count", lineRenderer.PointCount))
+					{
+						// TODO: copy points to a temporary array, realocate points, copy the temporary array to points
+						/*glm::vec3* tempArr = new glm::vec3[origPointCount];
+						memcpy(tempArr, lineRenderer.Points, origPointCount);
+
+						delete[] */
+
+						if(lineRenderer.Points)
+							lineRenderer.Points = (glm::vec3*)realloc(lineRenderer.Points, lineRenderer.PointCount * sizeof(glm::vec3));
+
+						if (lineRenderer.PointCount > origPointCount)
+						{
+							for (size_t i = 0; i < lineRenderer.PointCount - origPointCount; i++)
+								lineRenderer.Points[i + origPointCount] = { 0.0f, 0.0f, 0.0f };
+						}
+					}
+
+					for (size_t i = 0; i < lineRenderer.PointCount; i++)
+					{
+						std::string formatedLabel = fmt::format("Point {0}", i + 1);
+
+						UI::DrawVec3Control(formatedLabel.c_str(), lineRenderer.Points[i]);
+					}
+
 				});
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
@@ -397,13 +423,18 @@ namespace TerranEditor
 
 				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 
 				{
+					UI::DrawVec2Control("Offset", bcComponent.Offset);
 					UI::DrawVec2Control("Size", bcComponent.Size);
+
+					UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor);
 				});
 
 				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](CircleCollider2DComponent& ccComponent) 
 				{
 					UI::DrawVec2Control("Offset", ccComponent.Offset);
 					UI::DrawFloatControl("Radius", ccComponent.Radius);
+
+					UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor);
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();

@@ -33,8 +33,6 @@ namespace TerranEngine
 		Entity entityA = GetEntityFromB2DFixtureUserData(userDataA);
 		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
 
-		TR_TRACE(entityA.GetName());
-
 		if (entityA && entityB) 
 			ScriptEngine::PhysicsBeginContact(entityA, entityB);
 	}
@@ -50,8 +48,6 @@ namespace TerranEngine
 
 		Entity entityA = GetEntityFromB2DFixtureUserData(userDataA);
 		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
-
-		TR_TRACE(entityA.GetName());
 
 		if (entityA && entityB)
 			ScriptEngine::PhysicsEndContact(entityA, entityB);

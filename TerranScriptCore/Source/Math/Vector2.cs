@@ -6,7 +6,6 @@ namespace TerranScriptCore
 	// based on TMath's TVector2 class
 	// https://github.com/OKAY808/TMath
 
-	[StructLayout(LayoutKind.Sequential)]
 	public struct Vector2 : IEquatable<Vector2>
 	{
 		public float X;
@@ -25,15 +24,8 @@ namespace TerranScriptCore
 
 		public Vector2(int x, int y)
 		{
-
 			X = x;
 			Y = y;
-		}
-
-		public Vector2(double x, double y)
-		{
-			X = (float)x;
-			Y = (float)y;
 		}
 
 		public static Vector2 Zero = new Vector2(0, 0);
@@ -44,25 +36,17 @@ namespace TerranScriptCore
 		public static Vector2 Left = new Vector2(-1, 0);
 		public static Vector2 Right = new Vector2(1, 0);
 		public static double Dot(in Vector2 a, in Vector2 b) => (a.X * b.X) + (a.Y * b.Y);
-		public void Set(int x, int y) { X = x; Y = y; }
-
-		public void Set(float x, float y) { X = x; Y = y; }
-
-		public void Set(double x, double y) { X = (float)x; Y = (float)y; }
-
+		
 		public static Vector2 Add(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X + vec2.X, vec1.Y + vec2.Y);
 		public static Vector2 Subtract(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X - vec2.X, vec1.Y - vec2.Y);
 
 		public static Vector2 Multiply(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X * vec2.X, vec1.Y * vec2.Y);
-		public static Vector2 Multiply(Vector2 vec1, double scalar) => new Vector2(vec1.X * scalar, vec1.Y * scalar);
 		public static Vector2 Multiply(Vector2 vec1, float scalar) => new Vector2(vec1.X * scalar, vec1.Y * scalar);
 		public static Vector2 Multiply(Vector2 vec1, int scalar) => new Vector2(vec1.X * scalar, vec1.Y * scalar);
 
 		public static Vector2 Divide(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X / vec2.X, vec1.Y / vec2.Y);
-		public static Vector2 Divide(Vector2 vec1, double scalar) => new Vector2(vec1.X / scalar, vec1.Y / scalar);
 		public static Vector2 Divide(Vector2 vec1, float scalar) => new Vector2(vec1.X / scalar, vec1.Y / scalar);
 		public static Vector2 Divide(Vector2 vec1, int scalar) => new Vector2(vec1.X / scalar, vec1.Y / scalar);
-
 
 		public static bool operator ==(Vector2 a, Vector2 b) => ((a.X == b.X) && (a.Y == b.Y));
 
@@ -75,11 +59,9 @@ namespace TerranScriptCore
 		public static Vector2 operator -(Vector2 a, Vector2 b) => Subtract(a, b);
 
 		public static Vector2 operator *(Vector2 a, Vector2 b) => Multiply(a, b);
-		public static Vector2 operator *(Vector2 a, double b) => Multiply(a, b);
 		public static Vector2 operator *(Vector2 a, float b) => Multiply(a, b);
 		public static Vector2 operator *(Vector2 a, int b) => Multiply(a, b);
 
-		public static Vector2 operator /(Vector2 a, double b) => Divide(a, b);
 		public static Vector2 operator /(Vector2 a, float b) => Divide(a, b);
 		public static Vector2 operator /(Vector2 a, int b) => Divide(a, b);
 		public static Vector2 operator /(Vector2 a, Vector2 b) => Divide(a, b);

@@ -80,10 +80,24 @@ namespace TerranEngine
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float Thickness = 1.0f;
 
-		glm::vec3 Point1 = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Point2 = { 0.0f, 0.0f, 1.0f };
+		int PointCount = 2;
+		glm::vec3* Points;
+		//glm::vec3 Point1 = { 0.0f, 0.0f, 0.0f };
+		//glm::vec3 Point2 = { 0.0f, 0.0f, 1.0f };
 
-		LineRendererComponent() = default;
+		LineRendererComponent() 
+		{
+			Points = new glm::vec3[PointCount];
+
+			Points[0] = { 0.0f, 0.0f, 0.0f };
+			Points[1] = { 0.0f, 0.0f, 1.0f };
+		}
+
+		~LineRendererComponent() 
+		{
+			delete[] Points;
+		}
+
 	};
 
 	struct RelationshipComponent 
@@ -146,6 +160,7 @@ namespace TerranEngine
 	{
 		BoxCollider2DComponent() = default;
 
+		glm::vec2 Offset = { 0.0f, 0.0f };
 		glm::vec2 Size = { 1.0f, 1.0f };
 		bool IsSensor = false;
 	};
@@ -156,5 +171,6 @@ namespace TerranEngine
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Radius = 1.0f;
+		bool IsSensor = false;
 	};
 }

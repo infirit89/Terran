@@ -22,6 +22,7 @@ namespace TerranEngine
 		if (mono_array_length(uuidArray) != 16) 
 		{
 			TR_ERROR("Mono UUID array is invalid");
+			TR_TRACE(mono_array_length(uuidArray));
 			return UUID(false);
 		}
 

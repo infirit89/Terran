@@ -63,34 +63,111 @@ namespace TerranScriptCore
 		static extern void ApplyForceAtCenter_Internal(byte[] entityUUID, Vector2 force);
 	}
 
-	public class Collider2D : Component 
+	public abstract class Collider2D : Component 
 	{
-		public bool IsSensor 
+		public Vector2 Offset 
 		{
-			get => IsSensor_Internal(entity.ID.Data);
-			set => SetSensor_Internal(entity.ID.Data, value);
+			get => GetOffset();
+			set => SetOffset(value);
 		}
 
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern bool IsSensor_Internal(byte[] entityUUID);
+		public bool IsSensor 
+		{
+			get => IsSensorF();
+			set => SetSensor(value);
+		}
 
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetSensor_Internal(byte[] entityUUID, bool isSensor);
+		protected abstract Vector2 GetOffset();
+		protected abstract void SetOffset(Vector2 offset);
+
+		protected abstract bool IsSensorF();
+		protected abstract void SetSensor(bool isSensor);
 	}
 
 	public class BoxCollider2D : Collider2D 
 	{
 		public Vector2 Size 
 		{
-			get => GetSize_Internal(entity.ID.Data);
+			get 
+			{
+				Vector2 size;
+				GetSize_Internal(entity.ID.Data, out size);
+				return size;
+			}
+
 			set => SetSize_Internal(entity.ID.Data, value);
 		}
 
+		protected override Vector2 GetOffset() 
+		{
+			Vector2 offset;
+			GetOffset_Internal(entity.ID.Data, out offset);
+			return offset;
+		}
+
+		protected override void SetOffset(Vector2 offset) => SetOffset_Internal(entity.ID.Data, offset);
+
+		protected override bool IsSensorF() => IsSensor_Internal(entity.ID.Data);
+
+		protected override void SetSensor(bool isSensor) => SetSensor_Internal(entity.ID.Data, isSensor);
+		
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern Vector2 GetSize_Internal(byte[] entityUUID);
+		static extern void GetSize_Internal(byte[] entityID, out Vector2 outSize);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetSize_Internal(byte[] entityUUID, Vector2 size);
+		static extern void SetSize_Internal(byte[] entityID, Vector2 size);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void GetOffset_Internal(byte[] entityID, out Vector2 outOffset);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetOffset_Internal(byte[] entityUUID, Vector2 offset);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern bool IsSensor_Internal(byte[] entityUUID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetSensor_Internal(byte[] entityUUID, bool isSensor);
+    }
+
+    public class CircleCollider2D : Collider2D
+    {
+		public float Radius 
+		{
+			get => GetRadius_Internal(entity.ID.Data);
+			set => SetRadius_Internal(entity.ID.Data, value);
+		}
+
+        protected override Vector2 GetOffset()
+        {
+			Vector2 offset;
+			GetOffset_Internal(entity.ID.Data, out offset);
+			return offset;
+        }
+
+		protected override void SetOffset(Vector2 offset) => SetOffset_Internal(entity.ID.Data, offset);
+
+		protected override bool IsSensorF() => IsSensor_Internal(entity.ID.Data);
+
+		protected override void SetSensor(bool isSensor) => SetSensor_Internal(entity.ID.Data, isSensor);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern float GetRadius_Internal(byte[] entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetRadius_Internal(byte[] entityID, float radius);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void GetOffset_Internal(byte[] entityID, out Vector2 outVec);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetOffset_Internal(byte[] entityUUID, Vector2 offset);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern bool IsSensor_Internal(byte[] entityUUID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void SetSensor_Internal(byte[] entityUUID, bool isSensor);
 	}
 
 	// ---- Scriptable ----

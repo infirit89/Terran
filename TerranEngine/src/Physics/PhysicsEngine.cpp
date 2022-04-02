@@ -6,6 +6,8 @@
 
 #include <box2d/box2d.h>
 
+#include <glm/gtx/transform.hpp>
+
 namespace TerranEngine 
 {
 	b2World* PhysicsEngine::s_PhysicsWorld = nullptr;
@@ -86,7 +88,29 @@ namespace TerranEngine
 		auto& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 
 		b2PolygonShape shape;
-		shape.SetAsBox(entity.GetTransform().Scale.x * boxCollider.Size.x * 0.5f, entity.GetTransform().Scale.y * boxCollider.Size.y * 0.5f);
+		//shape.SetAsBox(entity.GetTransform().Scale.x * boxCollider.Size.x * 0.5f, entity.GetTransform().Scale.y * boxCollider.Size.y * 0.5f);
+
+		const glm::vec3 size = { entity.GetTransform().Scale.x * boxCollider.Size.x, entity.GetTransform().Scale.y * boxCollider.Size.y, 1.0f };
+		const glm::vec3 position = { boxCollider.Offset.x, boxCollider.Offset.y, 0.0f };
+
+		glm::mat4 transformMat = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), size);
+
+		glm::vec4 positions[4] = {
+			{ -0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f,  0.5f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f, 0.0f, 1.0f }
+		};
+
+		b2Vec2 vertices[4];
+
+		for (size_t i = 0; i < 4; i++) 
+		{
+			glm::vec3 vertexPos = transformMat * positions[i];
+			vertices[i] = { vertexPos.x, vertexPos.y };
+		}
+		
+		shape.Set(vertices, 4);
 
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &shape;
@@ -120,6 +144,8 @@ namespace TerranEngine
 		// TODO: temporary constants for now; create a physics material
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 0.5f;
+
+		fixtureDef.isSensor = circleCollider.IsSensor;
 
 		const UUID& id = entity.GetID();
 

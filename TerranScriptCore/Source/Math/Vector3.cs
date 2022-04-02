@@ -43,7 +43,6 @@ namespace TerranScriptCore
 		public static Vector3 Multiply(Vector3 vec1, float scalar) => new Vector3(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
 		public static Vector3 Multiply(Vector3 vec1, int scalar) => new Vector3(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
 
-
 		public static Vector3 Add(Vector3 vec1, Vector3 vec2)
 		{
 			return new Vector3(vec1.X + vec2.X, vec1.Y + vec2.Y, vec1.Z + vec2.Z);

@@ -280,7 +280,7 @@ namespace TerranEngine
 				const float thickness = 0.02f;
 				
 				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
-				const glm::vec3 position = { transform.Position.x, transform.Position.y, 1.0f };
+				const glm::vec3 position = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
 
 				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) * 
 											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 

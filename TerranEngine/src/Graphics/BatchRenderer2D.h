@@ -70,6 +70,7 @@ namespace TerranEngine
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
+		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);
 
 		void AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
 		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
