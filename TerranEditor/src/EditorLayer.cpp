@@ -185,6 +185,8 @@ namespace TerranEditor
 		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 
+		//if (Input::IsKeyPressed(Key::C)) Input::SetCursorState(CursorState::Hand);
+
 		if (kEvent.GetRepeatCount() > 0)
 			return false;
 
@@ -360,11 +362,11 @@ namespace TerranEditor
 	{
 		// NOTE : this is a temporary fix
 		// move the ImGui layer from the engine to the editor
-		
+		ImGuizmo::SetOrthographic(true);
+
+		ImGuizmo::BeginFrame();
 
 		ShowDockspace();
-
-		ImGui::ShowDemoWindow();
 
 		// NOTE: Make an editor setting for the selected window
 		m_SHierarchy.ImGuiRender();
@@ -456,6 +458,7 @@ namespace TerranEditor
 
 		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+		cameraComponent.Primary = true;
 		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 	}
@@ -488,8 +491,7 @@ namespace TerranEditor
 				{
 					m_EditorScene = newScene;
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
-					//SceneManager::GetCurrentScene()->OnResize(viewportSize.x, viewportSize.y);
-
+					
 					SceneManager::SetCurrentScene(newScene);
 					m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 					m_ECSPanel.SetContext(SceneManager::GetCurrentScene());

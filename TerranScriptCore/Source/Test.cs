@@ -37,25 +37,12 @@ namespace TerranScriptCore
 	// Test script
 	public class TestScriptable : Scriptable
 	{
-		private Rigidbody2D rb;
-		
 		// Runs when the entity in the current scene, that has this script, is started
 		public void Init() 
 		{
-			rb = entity.GetComponent<Rigidbody2D>();
-			
-			if(rb != null)
-				rb.ApplyForceAtCenter(new Vector2(10.0f, 100.0f));
-
-			BoxCollider2D bc = entity.GetComponent<BoxCollider2D>();
-
-			if (bc != null)
-				Log.Trace("Offset: {0}", bc.Offset);
-
-			CircleCollider2D cc = entity.GetComponent<CircleCollider2D>();
-
-			if (cc != null)
-				Log.Trace("Offset: {0}", cc.Offset);
+			Log.Trace("test");
+			Log.Error("error");
+			Log.Warn("warn");
 		}
 
 		public void Update()

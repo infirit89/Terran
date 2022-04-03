@@ -100,8 +100,13 @@ namespace TerranEditor
 
 				ImGui::SameLine();
 
+				float cursorPosY = ImGui::GetCursorPosY();
+				ImGui::SetCursorPosY(cursorPosY + 2.0f);
+
 				ImGui::TextUnformatted(logMessage.Message.c_str());
 				ImGui::Unindent(4.0f);
+
+				ImGui::SetCursorPosY(cursorPosY);
 			}
 
 			ImGui::PopStyleVar();

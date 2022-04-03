@@ -48,13 +48,20 @@ namespace TerranEngine
 		
 		if (entity.GetTransform().IsDirty) 
 		{
-			if (entity.HasParent())
+			if (entity.HasParent()) 
+			{
 				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
+
+				transformComponent.LocalTransformMatrix = glm::inverse(entity.GetParent().GetWorldMatrix()) * CalculateTransformMatrix(transformComponent);
+			}
 			else 
+			{
 				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent);
+
+				transformComponent.LocalTransformMatrix = transformComponent.WorldTransformMatrix;
+			}
 		}
 
-		transformComponent.LocalTransformMatrix = glm::inverse(transformComponent.WorldTransformMatrix);
 
 		transformComponent.IsDirty = false;
 

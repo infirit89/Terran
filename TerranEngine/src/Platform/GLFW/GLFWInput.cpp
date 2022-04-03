@@ -35,4 +35,13 @@ namespace TerranEngine
 
 		return { xpos, ypos };
 	}
+
+	void Input::SetCursorState(CursorState cursorState) 
+	{
+		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
+
+		GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+
+		glfwSetCursor(window, cursor);
+	}
 }

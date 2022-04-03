@@ -39,6 +39,7 @@ namespace TerranEditor
 		uint32_t m_RenderTextureID = -1;
 
 		int m_GizmoType = 7;
+		int m_GizmoMode = 1;
 
 		glm::vec2 m_Position = { 0.0f, 0.0f };
 

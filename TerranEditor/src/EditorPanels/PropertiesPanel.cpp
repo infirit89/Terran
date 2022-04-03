@@ -30,10 +30,14 @@ namespace TerranEditor
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 			bool treeOpen = ImGui::TreeNodeEx(label, treeFlags);
 
+			if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				ImGui::OpenPopup("ComponentSettings");
+
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
 			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
 				ImGui::OpenPopup("ComponentSettings");
+
 
 			ImVec4 windowBGColor = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
 			windowBGColor.w = 1.0f;

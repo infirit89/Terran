@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace TerranEngine {
 
 	enum class MouseButton : uint16_t 

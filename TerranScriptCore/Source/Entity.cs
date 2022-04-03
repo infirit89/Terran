@@ -52,6 +52,12 @@ namespace TerranScriptCore
 			return null;
 		}
 
+		public static void Destroy(Entity entity) 
+		{
+			if (entity != null)
+				DestroyEntity_Internal(entity.ID.Data);
+		}
+
 		public void AddComponent<T>() where T : Component
 		{
 			if (typeof(T) == typeof(Collider2D)) 
@@ -117,6 +123,9 @@ namespace TerranScriptCore
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		static extern byte[] FindEntityWithID_Internal(UUID id);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		static extern void DestroyEntity_Internal(byte[] id);
 
 		
 	}

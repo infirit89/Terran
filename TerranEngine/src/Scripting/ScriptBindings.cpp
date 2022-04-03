@@ -28,6 +28,8 @@ namespace TerranEngine
 
 	static MonoArray* FindEntityWithName_Internal(MonoString* monoName);
 	static MonoArray* FindEntityWithID_Internal(MonoArray* monoIDArray);
+
+	static void DestroyEntity_Internal(MonoArray* entityUUIDArr);
 	// ----------------
 
 	// ---- Transform component ----
@@ -94,6 +96,7 @@ namespace TerranEngine
 
 	// ---- Input ----
 	static bool KeyPressed_Internal(uint32_t keyCode);
+	static bool MouseButtonPressed_Internal(uint16_t mouseButton);
 	// ---------------
 
 	template <typename Func>
@@ -112,6 +115,8 @@ namespace TerranEngine
 
 		BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", FindEntityWithName_Internal);
 		BindInternalFunc("TerranScriptCore.Entity::FindEntityWithID_Internal", FindEntityWithID_Internal);
+
+		BindInternalFunc("TerranScriptCore.Entity::DestroyEntity_Internal", DestroyEntity_Internal);
 		// -----------------
 
 		// ---- transform ----
@@ -180,6 +185,7 @@ namespace TerranEngine
 
 		// ---- input -----
 		BindInternalFunc("TerranScriptCore.Input::KeyPressed_Internal", KeyPressed_Internal);
+		BindInternalFunc("TerranScriptCore.Input::MouseButtonPressed_Internal", MouseButtonPressed_Internal);
 		// ----------------
 	}
 
@@ -331,6 +337,21 @@ namespace TerranEngine
 		return (MonoObject*)scriptObject.GetNativeObject();
 	}
 
+	static MonoArray* FindEntityWithID_Internal(MonoArray* monoIDArray)
+	{
+		UUID id = ScriptMarshal::MonoArrayToUUID(monoIDArray);
+
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+		if (entity)
+		{
+			MonoArray* idArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+			return idArray;
+		}
+
+		return nullptr;
+	}
+
 	static MonoArray* FindEntityWithName_Internal(MonoString* monoName)
 	{
 		ScriptString name(monoName);
@@ -344,6 +365,18 @@ namespace TerranEngine
 		}
 
 		return nullptr;
+	}
+
+	static void DestroyEntity_Internal(MonoArray* entityUUIDArr) 
+	{
+		UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+		if (entity)
+			SceneManager::GetCurrentScene()->DestroyEntity(entity, true);
+		else
+			TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 	}
 
 // bullshit?
@@ -597,8 +630,6 @@ namespace TerranEngine
 
 	static void Log_Internal(uint8_t logLevel, MonoString* monoMessage)
 	{
-		// TODO: for now it logs to the console,
-		// should make it log to a ui debug console inside the editor
 		ScriptString message(monoMessage);
 
 		switch (logLevel)
@@ -620,18 +651,8 @@ namespace TerranEngine
 		return Input::IsKeyPressed((Key)keyCode);
 	}
 
-	static MonoArray* FindEntityWithID_Internal(MonoArray* monoIDArray) 
+	static bool MouseButtonPressed_Internal(uint16_t mouseButton) 
 	{
-		UUID id = ScriptMarshal::MonoArrayToUUID(monoIDArray);
-
-		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-
-		if (entity) 
-		{
-			MonoArray* idArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
-			return idArray;
-		}
-
-		return nullptr;
+		return Input::IsMouseButtonPressed((MouseButton)mouseButton);
 	}
 }

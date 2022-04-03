@@ -2,6 +2,7 @@
 
 #include "KeyCodes.h"
 #include "MouseButtons.h"
+#include "CursorStates.h"
 
 #include <glm/glm.hpp>
 
@@ -13,6 +14,8 @@ namespace TerranEngine {
 		static bool IsKeyPressed(Key key);
 
 		static bool IsMouseButtonPressed(MouseButton button);
+
+		static void SetCursorState(CursorState cursorState);
 
 		static glm::vec2 GetMousePos();
 
