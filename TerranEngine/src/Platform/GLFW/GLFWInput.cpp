@@ -44,4 +44,61 @@ namespace TerranEngine
 
 		glfwSetCursor(window, cursor);
 	}
+
+	bool Input::IsControllerConnected(ControllerIndex controllerIndex)
+	{
+		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
+
+		int pressent = glfwJoystickPresent((int)controllerIndex);
+		bool isGamepad = glfwJoystickIsGamepad((int)controllerIndex);
+
+		return pressent && isGamepad;
+	}
+
+	const char* Input::GetControllerName(ControllerIndex controllerIndex)
+	{
+		if (IsControllerConnected(controllerIndex)) 
+		{
+			const char* controllerName = glfwGetGamepadName((int)controllerIndex);
+			return controllerName;
+		}
+
+		return "";
+	}
+
+	bool Input::IsControllerButtonPressed(ControllerButton controllerButton, ControllerIndex controllerIndex)
+	{
+		GLFWgamepadstate gamepadState;
+
+		if (glfwGetGamepadState((int)controllerIndex, &gamepadState)) 
+			return gamepadState.buttons[(int)controllerButton];
+
+		return false;
+	}
+
+	float Input::GetControllerAxis(ControllerAxis controllerAxis, ControllerIndex controllerIndex)
+	{
+		GLFWgamepadstate gamepadState;
+
+		if (glfwGetGamepadState((int)controllerIndex, &gamepadState)) 
+			return gamepadState.axes[(int)controllerAxis];
+
+		return 0.0f;
+	}
+
+	glm::vec2 Input::GetControllerRightStick(ControllerIndex controllerIndex)
+	{
+		float rightX = GetControllerAxis(ControllerAxis::RightX, controllerIndex);
+		float rightY = GetControllerAxis(ControllerAxis::RightY, controllerIndex);
+
+		return { rightX, rightY };
+	}
+
+	glm::vec2 Input::GetControllerLeftStick(ControllerIndex controllerIndex)
+	{
+		float leftX = GetControllerAxis(ControllerAxis::LeftX, controllerIndex);
+		float leftY = GetControllerAxis(ControllerAxis::LeftY, controllerIndex);
+
+		return { leftX, leftY };
+	}
 }

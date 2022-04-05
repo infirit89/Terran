@@ -25,9 +25,9 @@ namespace TerranScriptCore
 				entity.transform.Position = new Vector3(entity.transform.Position.X, newYPos, 0.0f);
 			}
 
-			if (Input.KeyPressed(KeyCode.W))
+			if (Input.IsKeyPressed(KeyCode.W))
 				entity.transform.Position += new Vector3(0.0f, 0.1f, 0.0f);
-			else if (Input.KeyPressed(KeyCode.S))
+			else if (Input.IsKeyPressed(KeyCode.S))
 				entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);
 		}
 	}
@@ -55,9 +55,9 @@ namespace TerranScriptCore
 				entity.transform.Position = new Vector3(entity.transform.Position.X, newYPos, 0.0f);
 			}
 
-			if (Input.KeyPressed(KeyCode.Up))
+			if (Input.IsKeyPressed(KeyCode.Up))
 				entity.transform.Position += new Vector3(0.0f, 0.1f, 0.0f);
-			else if (Input.KeyPressed(KeyCode.Down))
+			else if (Input.IsKeyPressed(KeyCode.Down))
 				entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);
 		}
 	}

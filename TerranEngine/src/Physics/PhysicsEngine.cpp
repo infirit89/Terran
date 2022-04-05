@@ -71,14 +71,14 @@ namespace TerranEngine
 			bodyDef.allowSleep = false;
 
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
-
 		rigidbody.RuntimeBody = body;
 	}
 
 	void PhysicsEngine::DestroyRigidbody(Entity entity)
 	{
 		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
-		s_PhysicsWorld->DestroyBody((b2Body*)rigidbody.RuntimeBody);
+		b2Body* body = (b2Body*)rigidbody.RuntimeBody;
+		s_PhysicsWorld->DestroyBody(body);
 		rigidbody.RuntimeBody = nullptr;
 	}
 

@@ -337,6 +337,9 @@ namespace TerranEditor
 	void EditorLayer::OnScenePlay()
 	{
 		// TODO: copy the current scene
+		if (m_LogPanel.IsClearOnPlay())
+			m_LogPanel.ClearMessageBuffer();
+
 		m_SceneState = SceneState::Play;
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
@@ -367,6 +370,8 @@ namespace TerranEditor
 		ImGuizmo::BeginFrame();
 
 		ShowDockspace();
+
+		ImGui::ShowDemoWindow();
 
 		// NOTE: Make an editor setting for the selected window
 		m_SHierarchy.ImGuiRender();

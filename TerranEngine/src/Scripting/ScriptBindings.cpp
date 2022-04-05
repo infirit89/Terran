@@ -96,7 +96,14 @@ namespace TerranEngine
 
 	// ---- Input ----
 	static bool KeyPressed_Internal(uint32_t keyCode);
+
 	static bool MouseButtonPressed_Internal(uint16_t mouseButton);
+	static void GetMousePosition_Internal(glm::vec2& outMousePosition);
+
+	static bool IsControllerConnected_Internal(uint8_t controllerIndex);
+	static MonoString* GetControllerName_Internal(uint8_t controllerIndex);
+	static bool IsControllerButtonPressed_Internal(uint8_t controllerButton, uint8_t controllerIndex);
+	static float GetControllerAxis_Internal(uint8_t controllerAxis, uint8_t controllerIndex);
 	// ---------------
 
 	template <typename Func>
@@ -185,7 +192,14 @@ namespace TerranEngine
 
 		// ---- input -----
 		BindInternalFunc("TerranScriptCore.Input::KeyPressed_Internal", KeyPressed_Internal);
+
 		BindInternalFunc("TerranScriptCore.Input::MouseButtonPressed_Internal", MouseButtonPressed_Internal);
+		BindInternalFunc("TerranScriptCore.Input::GetMousePosition_Internal", GetMousePosition_Internal);
+		
+		BindInternalFunc("TerranScriptCore.Input::IsControllerConnected_Internal", IsControllerConnected_Internal);
+		BindInternalFunc("TerranScriptCore.Input::GetControllerName_Internal", GetControllerName_Internal);
+		BindInternalFunc("TerranScriptCore.Input::IsControllerButtonPressed_Internal", IsControllerButtonPressed_Internal);
+		BindInternalFunc("TerranScriptCore.Input::GetControllerAxis_Internal", GetControllerAxis_Internal);
 		// ----------------
 	}
 
@@ -480,15 +494,20 @@ namespace TerranEngine
 	
 	static bool IsFixedRotation_Internal(MonoArray* entityUUIDArr) 
 	{
-		bool FixedRotation = false;
-		GET_COMPONENT_VAR(FixedRotation, entityUUIDArr, Rigidbody2DComponent);
+		void* RuntimeBody;
+		GET_COMPONENT_VAR(RuntimeBody, entityUUIDArr, Rigidbody2DComponent);
 
-		return FixedRotation;
+		b2Body* body = (b2Body*)RuntimeBody;
+
+		return body->IsFixedRotation();
 	}
 
 	static void SetFixedRotation_Internal(MonoArray* entityUUIDArr, bool FixedRotation) 
 	{
-		SET_COMPONENT_VAR(FixedRotation, entityUUIDArr, Rigidbody2DComponent);
+		void* RuntimeBody;
+		GET_COMPONENT_VAR(RuntimeBody, entityUUIDArr, Rigidbody2DComponent);
+
+		b2Body* body = (b2Body*)RuntimeBody;
 	}
 
 	static uint8_t GetAwakeState_Internal(MonoArray* entityUUIDArr) 
@@ -654,5 +673,33 @@ namespace TerranEngine
 	static bool MouseButtonPressed_Internal(uint16_t mouseButton) 
 	{
 		return Input::IsMouseButtonPressed((MouseButton)mouseButton);
+	}
+
+	static void GetMousePosition_Internal(glm::vec2& outMousePosition)
+	{
+		outMousePosition = Input::GetMousePos();
+	}
+
+	static bool IsControllerConnected_Internal(uint8_t controllerIndex) 
+	{
+		return Input::IsControllerConnected((ControllerIndex)controllerIndex);
+	}
+
+	static MonoString* GetControllerName_Internal(uint8_t controllerIndex) 
+	{
+		const char* controllerName = Input::GetControllerName((ControllerIndex)controllerIndex);
+		ScriptString string(controllerName);
+
+		return string.GetStringInternal();
+	}
+
+	static bool IsControllerButtonPressed_Internal(uint8_t controllerButton, uint8_t controllerIndex) 
+	{
+		return Input::IsControllerButtonPressed((ControllerButton)controllerButton, (ControllerIndex)controllerIndex);
+	}
+
+	static float GetControllerAxis_Internal(uint8_t controllerAxis, uint8_t controllerIndex) 
+	{
+		return Input::GetControllerAxis((ControllerAxis)controllerAxis, (ControllerIndex)controllerIndex);
 	}
 }

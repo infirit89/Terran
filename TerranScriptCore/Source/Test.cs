@@ -48,12 +48,28 @@ namespace TerranScriptCore
 		public void Update()
 		{
 			// Code to move the entity up and down
-			if (Input.KeyPressed(KeyCode.W))
+			/*if (Input.IsKeyPressed(KeyCode.W))
 				// if w is pressed move the entity up one unit
 				entity.transform.Position += new Vector3(0.0f, 0.1f, 0.0f);
-			else if (Input.KeyPressed(KeyCode.S))
+			else if (Input.IsKeyPressed(KeyCode.S))
 				// if s is pressed move the entity down one unit
-				entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);
+				entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);*/
+
+			float leftX = Input.GetControllerAxis(ControllerAxis.LeftX, 0);
+			float leftY = Input.GetControllerAxis(ControllerAxis.LeftY, 0);
+
+
+			leftX = (float)Math.Round(leftX, 1);
+			leftY = (float)Math.Round(leftY, 1);
+
+			Log.Trace(leftX);
+			Log.Trace(leftY);
+
+			if(leftX >= 0.5f || leftX <= -0.5f)
+				entity.transform.Position += new Vector3((leftX * 0.1f), 0.0f, 0.0f);
+			
+			//if(leftY >= 0.5f || leftY <= -0.5f)
+				//entity.transform.Position += new Vector3(0.0f, -(leftY * 0.1f), 0.0f);
 		}
 
 		void OnCollisionBegin(Entity entity)

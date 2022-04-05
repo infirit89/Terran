@@ -13,7 +13,6 @@ namespace TerranEditor
 	{
 		if (m_Open) 
 		{
-			
 			ImGui::Begin("Scene view", &m_Open);
 
 			if (m_Position.x != ImGui::GetWindowPos().x || m_Position.y != ImGui::GetWindowPos().y) 
@@ -25,6 +24,17 @@ namespace TerranEditor
 			ImVec2 regionAvail = ImGui::GetContentRegionAvail();
 
 			m_ViewportSize = { regionAvail.x, regionAvail.y };
+			
+			ImVec2 viewportMinRegion = ImGui::GetWindowContentRegionMin();
+
+			ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+			
+			ImVec2 viewportOffset = ImGui::GetWindowPos();
+
+			glm::vec2 viewportBounds[2] = {
+				{ viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y },
+				{ viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y }
+			};
 
 			bool isFocused = ImGui::IsWindowFocused();
 			bool isHovered = ImGui::IsWindowHovered();
@@ -36,7 +46,8 @@ namespace TerranEditor
 			m_Visible = ImGui::IsItemVisible();
 
 			ImGuizmo::SetDrawlist();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+
+			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
 
 			bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
 			if (altPressed)

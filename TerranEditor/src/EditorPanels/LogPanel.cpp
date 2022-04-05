@@ -1,8 +1,9 @@
 #include "LogPanel.h"
 
-#include <imgui.h>
+#include "../UI/UI.h"
 
-#include <stdarg.h>
+#include <imgui.h>
+#include <imgui_internal.h>
 
 namespace TerranEditor 
 {
@@ -38,12 +39,19 @@ namespace TerranEditor
 		
 		ImGui::Begin("Log", &m_Open);
 
-		if (ImGui::Button("Clear"))
-			ClearMessageBuffer();
+		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedSame, { 0.0f, 25.0f }))
+		{
+			ImGui::TableNextColumn();
+			if (ImGui::Button("Clear"))
+				ClearMessageBuffer();
 
-		ImGui::SameLine();
+			ImGui::TableNextColumn();
+			ImGui::Checkbox("Auto scroll", &m_AutoScroll);
 
-		ImGui::Checkbox("Auto scroll", &m_AutoScroll);
+			ImGui::TableNextColumn();
+			ImGui::Checkbox("Clear on play", &m_ClearOnPlay);
+		}
+		ImGui::EndTable();
 
 		ImGui::Separator();
 		

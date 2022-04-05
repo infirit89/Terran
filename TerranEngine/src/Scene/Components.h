@@ -8,6 +8,8 @@
 
 #include "Scripting/ScriptField.h"
 
+#include "Physics/PhysicsBody.h"
+
 #include "Utils/Debug/Profiler.h"
 
 #include <glm/glm.hpp>
@@ -152,6 +154,8 @@ namespace TerranEngine
 		bool FixedRotation = false;
 		RigidbodyAwakeState AwakeState = RigidbodyAwakeState::Awake;
 		float GravityScale = 1.0f;
+
+		PhysicsBody2D Body;
 
 		void* RuntimeBody;
 	};

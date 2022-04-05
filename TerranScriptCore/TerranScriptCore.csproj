@@ -45,7 +45,10 @@
   <ItemGroup>
     <Compile Include="Source\Components.cs" />
     <Compile Include="Source\Entity.cs" />
+    <Compile Include="Source\Input\ControllerIndices.cs" />
     <Compile Include="Source\Input\Input.cs" />
+    <Compile Include="Source\Input\KeyCodes.cs" />
+    <Compile Include="Source\Input\MouseButtons.cs" />
     <Compile Include="Source\Log.cs" />
     <Compile Include="Source\Math\Vector2.cs" />
     <Compile Include="Source\Math\Vector3.cs" />
