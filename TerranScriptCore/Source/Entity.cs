@@ -34,7 +34,7 @@ namespace TerranScriptCore
 
 		public static Entity FindWithName(string name)
 		{
-			byte[] entityID = FindEntityWithName_Internal(name);
+			byte[] entityID = Internal.Entity.FindEntityWithName_Internal(name);
 
 			if (entityID != null)
 				return new Entity(entityID);
@@ -44,7 +44,7 @@ namespace TerranScriptCore
 
 		public static Entity FindWithID(UUID id)
 		{
-			byte[] entityID = FindEntityWithID_Internal(id);
+			byte[] entityID = Internal.Entity.FindEntityWithID_Internal(id);
 
 			if (entityID != null)
 				return new Entity(entityID);
@@ -55,7 +55,7 @@ namespace TerranScriptCore
 		public static void Destroy(Entity entity) 
 		{
 			if (entity != null)
-				DestroyEntity_Internal(entity.ID.Data);
+				Internal.Entity.DestroyEntity_Internal(entity.ID.Data);
 		}
 
 		public void AddComponent<T>() where T : Component
@@ -66,10 +66,10 @@ namespace TerranScriptCore
 				return;
 			}
 
-			AddComponent_Internal(id.Data, typeof(T).FullName);
+			Internal.Entity.AddComponent_Internal(id.Data, typeof(T).FullName);
 		} 
 
-		public bool HasComponent<T>() where T : Component => HasComponent_Internal(id.Data, typeof(T).FullName);
+		public bool HasComponent<T>() where T : Component => Internal.Entity.HasComponent_Internal(id.Data, typeof(T).FullName);
 
 		public void RemoveComponent<T>() where T : Component 
 		{
@@ -81,7 +81,7 @@ namespace TerranScriptCore
 					return;
 				}
 
-				RemoveComponent_Internal(id.Data, typeof(T).FullName);
+				Internal.Entity.RemoveComponent_Internal(id.Data, typeof(T).FullName);
 			}
 		} 
 
@@ -90,7 +90,7 @@ namespace TerranScriptCore
 			if (HasComponent<T>())
 			{
 				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
-					return GetScriptableComponent_Internal(id.Data, typeof(T).FullName) as T;
+					return Internal.Entity.GetScriptableComponent_Internal(id.Data, typeof(T).FullName) as T;
 
 				if (typeof(T) == typeof(Collider2D)) 
 				{
@@ -104,29 +104,6 @@ namespace TerranScriptCore
 			}
 
 			return null;
-		}
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern bool HasComponent_Internal(byte[] runtimeID, string componentTypeStr);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void AddComponent_Internal(byte[] runtimeID, string componentTypeStr);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void RemoveComponent_Internal(byte[] runtimeID, string componentTypeStr);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern object GetScriptableComponent_Internal(byte[] uuid, string moduleName);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern byte[] FindEntityWithName_Internal(string name);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern byte[] FindEntityWithID_Internal(UUID id);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void DestroyEntity_Internal(byte[] id);
-
-		
+		}		
 	}
 }

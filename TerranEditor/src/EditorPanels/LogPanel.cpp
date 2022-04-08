@@ -39,12 +39,13 @@ namespace TerranEditor
 		
 		ImGui::Begin("Log", &m_Open);
 
-		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedSame, { 0.0f, 25.0f }))
+		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedFit, { 0.0f, 25.0f }))
 		{
+			ImGui::TableSetupColumn("clear_column", ImGuiTableColumnFlags_WidthFixed, 60.0f);
 			ImGui::TableNextColumn();
 			if (ImGui::Button("Clear"))
 				ClearMessageBuffer();
-
+			
 			ImGui::TableNextColumn();
 			ImGui::Checkbox("Auto scroll", &m_AutoScroll);
 

@@ -132,32 +132,15 @@ namespace TerranEngine
 		bool Started = false;
 	};
 
-	enum class RigidbodyBodyType 
-	{
-		Static = 0,
-		Dynamic,
-		Kinematic
-	};
-
-	enum class RigidbodyAwakeState 
-	{
-		Sleep = 0,
-		Awake,
-		NeverSleep
-	};
-
 	struct Rigidbody2DComponent 
 	{
 		Rigidbody2DComponent() = default;
 
-		RigidbodyBodyType BodyType = RigidbodyBodyType::Dynamic;
+		PhysicsBodyType BodyType = PhysicsBodyType::Dynamic;
+		PhysicsBodySleepState SleepState = PhysicsBodySleepState::Awake;
+
 		bool FixedRotation = false;
-		RigidbodyAwakeState AwakeState = RigidbodyAwakeState::Awake;
 		float GravityScale = 1.0f;
-
-		PhysicsBody2D Body;
-
-		void* RuntimeBody;
 	};
 
 	struct BoxCollider2DComponent 

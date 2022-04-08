@@ -15,6 +15,8 @@ namespace TerranEditor
 	template<typename Component>
 	using UIFunc = std::function<void(Component&)>;
 
+	static TransformComponent s_TransformClipboard;
+
 	template<typename T>
 	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool removable = true)
 	{
@@ -45,6 +47,16 @@ namespace TerranEditor
 			ImGui::PushStyleColor(ImGuiCol_PopupBg, windowBGColor);
 			if (ImGui::BeginPopup("ComponentSettings")) 
 			{
+				if (std::is_same<T, TransformComponent>()) 
+				{	
+					TransformComponent& transform = (TransformComponent&)component;
+					if (ImGui::MenuItem("Copy"))
+						s_TransformClipboard = transform;
+
+					if (ImGui::MenuItem("Paste"))
+						transform = s_TransformClipboard;
+				}
+
 				if (ImGui::MenuItem("Reset"))
 					entity.GetComponent<T>() = T();
 
@@ -385,7 +397,7 @@ namespace TerranEditor
 							{
 								const bool is_selected = (bodyTypeNames[i] == currentBodyType);
 								if (ImGui::Selectable(bodyTypeNames[i], is_selected))
-									rbComponent.BodyType = (RigidbodyBodyType)i;
+									rbComponent.BodyType = (PhysicsBodyType)i;
 
 								if (is_selected)
 									ImGui::SetItemDefaultFocus();
@@ -401,17 +413,17 @@ namespace TerranEditor
 					// rigidbody awake state selection 
 					{
 						const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
-						const char* currentAwakeState = awakeStateNames[(int)rbComponent.AwakeState];
+						const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
 
-						UI::ScopedVarTable awakeStateTable("Awake State", tableInfo);
+						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
 
-						if (ImGui::BeginCombo("##awake_state", currentAwakeState))
+						if (ImGui::BeginCombo("##sleep_state", currentAwakeState))
 						{
 							for (int i = 0; i < 3; i++)
 							{
 								const bool is_selected = (awakeStateNames[i] == currentAwakeState);
 								if (ImGui::Selectable(awakeStateNames[i], is_selected))
-									rbComponent.AwakeState = (RigidbodyAwakeState)i;
+									rbComponent.SleepState = (PhysicsBodySleepState)i;
 
 								if (is_selected)
 									ImGui::SetItemDefaultFocus();
@@ -428,8 +440,7 @@ namespace TerranEditor
 				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 
 				{
 					UI::DrawVec2Control("Offset", bcComponent.Offset);
-					UI::DrawVec2Control("Size", bcComponent.Size);
-
+					UI::DrawVec2Control("Size", bcComponent.Size);						
 					UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor);
 				});
 
@@ -437,7 +448,6 @@ namespace TerranEditor
 				{
 					UI::DrawVec2Control("Offset", ccComponent.Offset);
 					UI::DrawFloatControl("Radius", ccComponent.Radius);
-
 					UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor);
 				});
 

@@ -126,7 +126,6 @@ namespace TerranEngine
 		
 		void AddChild(Entity child) 
 		{
-
 			if (!HasComponent<RelationshipComponent>())
 				AddComponent<RelationshipComponent>();
 
@@ -136,6 +135,25 @@ namespace TerranEngine
 			auto& relComp = child.GetComponent<RelationshipComponent>();
 			relComp.ParentID = GetID();
 			GetChildren().emplace_back(child.GetID());
+		}
+
+		void Unparent() 
+		{
+			if (!HasComponent<RelationshipComponent>())
+				return;
+
+			UUID parentID = GetComponent<RelationshipComponent>().ParentID;
+			Entity parent = m_Scene->FindEntityWithUUID(parentID);
+
+			if (!parent)
+				return;
+
+			auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), GetID());
+
+			if (it != parent.GetChildren().end())
+				parent.GetChildren().erase(it);
+
+			SetParentID(UUID(false));
 		}
 
 		void RemoveChildFrom(Entity parent, Entity child, bool removeRelationship) 
@@ -153,6 +171,11 @@ namespace TerranEngine
 
 			if (removeRelationship)
 				child.RemoveComponent<RelationshipComponent>();
+			else 
+			{
+				RelationshipComponent& rc = child.GetComponent<RelationshipComponent>();
+				rc.ParentID = UUID(false);
+			}
 		}
 
 		void RemoveChild(Entity child, bool removeRelationship) 

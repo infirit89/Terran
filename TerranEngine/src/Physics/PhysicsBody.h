@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Collider.h"
+
 #include <glm/glm.hpp>
 
 class b2Body;
@@ -7,21 +9,21 @@ class b2World;
 
 namespace TerranEngine 
 {
-	enum class PhysicsBody2DState 
+	enum class PhysicsBodyType : uint8_t
 	{
 		Static = 0,
 		Dynamic,
 		Kinematic
 	};
 
-	enum class PhysicsBody2DSleepState 
+	enum class PhysicsBodySleepState : uint8_t
 	{
 		Sleep = 0,
 		Awake,
 		NeverSleep
 	};
 
-	enum class ForceMode2D
+	enum class ForceMode2D : uint8_t
 	{
 		Force = 0,
 		Impulse
@@ -31,8 +33,8 @@ namespace TerranEngine
 	{
 	public:
 		PhysicsBody2D() = default;
-		PhysicsBody2D(b2World* PhysicsWorld, const glm::vec2& position, float rotation);
-		~PhysicsBody2D();
+		PhysicsBody2D(b2Body* physicsBody);
+		~PhysicsBody2D() = default;
 
 		bool GetFixedRotation() const;
 		void SetFixedRotation(bool fixedRotation);
@@ -52,25 +54,32 @@ namespace TerranEngine
 		float GetGravityScale() const;
 		void SetGravityScale(float gravityScale);
 
-		inline bool IsStatic() const { return m_BodyState == PhysicsBody2DState::Static; }
-		inline bool IsDynamic() const { return m_BodyState == PhysicsBody2DState::Dynamic; }
-		inline bool IsKinematic() const { return m_BodyState == PhysicsBody2DState::Kinematic; }
+		inline bool IsStatic() const { return m_BodyState == PhysicsBodyType::Static; }
+		inline bool IsDynamic() const { return m_BodyState == PhysicsBodyType::Dynamic; }
+		inline bool IsKinematic() const { return m_BodyState == PhysicsBodyType::Kinematic; }
 
-		void SetBodyState(PhysicsBody2DState bodyState);
+		void SetBodyState(PhysicsBodyType bodyState);
+		PhysicsBodyType GetBodyState() const { return m_BodyState; }
 
-		inline bool IsAwake() const { return m_SleepState == PhysicsBody2DSleepState::Awake; }
-		inline bool IsSleeping() const { return m_SleepState == PhysicsBody2DSleepState::Sleep; }
-		inline bool CanSleep() const { return m_SleepState != PhysicsBody2DSleepState::NeverSleep; }
+		inline bool IsAwake() const { return m_SleepState == PhysicsBodySleepState::Awake; }
+		inline bool IsSleeping() const { return m_SleepState == PhysicsBodySleepState::Sleep; }
+		inline bool CanSleep() const { return m_SleepState != PhysicsBodySleepState::NeverSleep; }
 
-		void SetSleepState(PhysicsBody2DSleepState sleepState);
+		void SetSleepState(PhysicsBodySleepState sleepState);
+		PhysicsBodySleepState GetSleepState() const { return m_SleepState; }
 
 		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
 
+		void AddBoxCollider(const BoxCollider2D& collider);
+		void AddCircleCollider(const CircleCollider2D& collider);
+
+		b2Body* GetPhysicsBodyInternal() const { return m_Body; }
+		void SetPhysicsBodyInternal(b2Body* body) { m_Body = body; }
+
 	private:
-		b2Body* m_Body;
-		b2World* m_PhysicsWorld;
-		PhysicsBody2DState m_BodyState = PhysicsBody2DState::Dynamic;
-		PhysicsBody2DSleepState m_SleepState = PhysicsBody2DSleepState::Awake;
+		b2Body* m_Body = nullptr;
+		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
+		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;
 	};
 }

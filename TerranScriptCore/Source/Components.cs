@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 namespace TerranScriptCore
 {
 	public class Component
@@ -7,60 +6,29 @@ namespace TerranScriptCore
 		public Entity entity;
 	}
 
-	public enum Rigidbody2DAwakeState : byte
-	{
-		Sleep = 0,
-		Awake,
-		NeverSleep
-	}
-
 	public class Rigidbody2D : Component 
 	{
 		public bool FixedRotation 
 		{
-			get => IsFixedRotation_Internal(entity.ID.Data);
-			set => SetFixedRotation_Internal(entity.ID.Data, value);
+			get => Internal.Rigidbody2D.IsFixedRotation_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D.SetFixedRotation_Internal(entity.ID.Data, value);
 		}
 
-		public Rigidbody2DAwakeState AwakeState 
+		public RigidbodySleepState AwakeState 
 		{
-			get => (Rigidbody2DAwakeState)GetAwakeState_Internal(entity.ID.Data);
-			set => SetAwakeState_Internal(entity.ID.Data, (byte)value);
+			get => (RigidbodySleepState)Internal.Rigidbody2D.GetAwakeState_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D.SetAwakeState_Internal(entity.ID.Data, (byte)value);
 		}
 
 		public float GravityScale
 		{
-			get => GetGravityScale_Internal(entity.ID.Data);
-			set => SetGravityScale_Internal(entity.ID.Data, value);
+			get => Internal.Rigidbody2D.GetGravityScale_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D.SetGravityScale_Internal(entity.ID.Data, value);
 		}
 
-		public void ApplyForce(Vector2 force, Vector2 position) => ApplyForce_Internal(entity.ID.Data, force, position);
+		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D.ApplyForce_Internal(entity.ID.Data, in force, in position, (byte)forceMode);
 
-		public void ApplyForceAtCenter(Vector2 force) => ApplyForceAtCenter_Internal(entity.ID.Data, force);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern bool IsFixedRotation_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetFixedRotation_Internal(byte[] entityUUID, bool fixedRotation);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern byte GetAwakeState_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetAwakeState_Internal(byte[] entityUUID, byte awakeState);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern float GetGravityScale_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetGravityScale_Internal(byte[] entityUUID, float gravityScale);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void ApplyForce_Internal(byte[] entityUUID, Vector2 force, Vector2 position);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void ApplyForceAtCenter_Internal(byte[] entityUUID, Vector2 force);
+		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D.ApplyForceAtCenter_Internal(entity.ID.Data, in force, (byte)forceMode);
 	}
 
 	public abstract class Collider2D : Component 
@@ -91,83 +59,47 @@ namespace TerranScriptCore
 			get 
 			{
 				Vector2 size;
-				GetSize_Internal(entity.ID.Data, out size);
+				Internal.BoxCollider2D.GetSize_Internal(entity.ID.Data, out size);
 				return size;
 			}
 
-			set => SetSize_Internal(entity.ID.Data, value);
+			set => Internal.BoxCollider2D.SetSize_Internal(entity.ID.Data, in value);
 		}
 
 		protected override Vector2 GetOffset() 
 		{
 			Vector2 offset;
-			GetOffset_Internal(entity.ID.Data, out offset);
+			Internal.BoxCollider2D.GetOffset_Internal(entity.ID.Data, out offset);
 			return offset;
 		}
 
-		protected override void SetOffset(Vector2 offset) => SetOffset_Internal(entity.ID.Data, offset);
+		protected override void SetOffset(Vector2 offset) => Internal.BoxCollider2D.SetOffset_Internal(entity.ID.Data, in offset);
 
-		protected override bool IsSensorF() => IsSensor_Internal(entity.ID.Data);
+		protected override bool IsSensorF() => Internal.BoxCollider2D.IsSensor_Internal(entity.ID.Data);
 
-		protected override void SetSensor(bool isSensor) => SetSensor_Internal(entity.ID.Data, isSensor);
-		
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void GetSize_Internal(byte[] entityID, out Vector2 outSize);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetSize_Internal(byte[] entityID, Vector2 size);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void GetOffset_Internal(byte[] entityID, out Vector2 outOffset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetOffset_Internal(byte[] entityUUID, Vector2 offset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern bool IsSensor_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetSensor_Internal(byte[] entityUUID, bool isSensor);
+		protected override void SetSensor(bool isSensor) => Internal.BoxCollider2D.SetSensor_Internal(entity.ID.Data, isSensor);
     }
 
     public class CircleCollider2D : Collider2D
     {
 		public float Radius 
 		{
-			get => GetRadius_Internal(entity.ID.Data);
-			set => SetRadius_Internal(entity.ID.Data, value);
+			get => Internal.CircleCollider2D.GetRadius_Internal(entity.ID.Data);
+			set => Internal.CircleCollider2D.SetRadius_Internal(entity.ID.Data, value);
 		}
 
         protected override Vector2 GetOffset()
         {
 			Vector2 offset;
-			GetOffset_Internal(entity.ID.Data, out offset);
+			 Internal.CircleCollider2D.GetOffset_Internal(entity.ID.Data, out offset);
 			return offset;
         }
 
-		protected override void SetOffset(Vector2 offset) => SetOffset_Internal(entity.ID.Data, offset);
+		protected override void SetOffset(Vector2 offset) =>  Internal.CircleCollider2D.SetOffset_Internal(entity.ID.Data, in offset);
 
-		protected override bool IsSensorF() => IsSensor_Internal(entity.ID.Data);
+		protected override bool IsSensorF() => Internal.CircleCollider2D.IsSensor_Internal(entity.ID.Data);
 
-		protected override void SetSensor(bool isSensor) => SetSensor_Internal(entity.ID.Data, isSensor);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern float GetRadius_Internal(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetRadius_Internal(byte[] entityID, float radius);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void GetOffset_Internal(byte[] entityID, out Vector2 outVec);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetOffset_Internal(byte[] entityUUID, Vector2 offset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern bool IsSensor_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetSensor_Internal(byte[] entityUUID, bool isSensor);
+		protected override void SetSensor(bool isSensor) => Internal.CircleCollider2D.SetSensor_Internal(entity.ID.Data, isSensor);
 	}
 
 	// ---- Scriptable ----
@@ -191,7 +123,7 @@ namespace TerranScriptCore
 			get
 			{
 				if (entity != null) 
-					return GetTagName_Internal(entity.ID.Data);
+					return Internal.Tag.GetName_Internal(entity.ID.Data);
 
 				// TODO: log that the entity is null
 				return "";
@@ -200,16 +132,11 @@ namespace TerranScriptCore
 			set
 			{
 				if(entity != null)
-					SetTagName_Internal(entity.ID.Data, value);
+					Internal.Tag.SetName_Internal(entity.ID.Data, value);
 
 				// TODO: log that the entity is null
 			}
 		}
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetTagName_Internal(byte[] entityID, in string inName);
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern string GetTagName_Internal(byte[] entityID);
 	}
 	// -------------
 
@@ -223,7 +150,7 @@ namespace TerranScriptCore
 			{
 				if (entity != null) 
 				{
-					Vector3 outVec = GetTransformPosition_Internal(entity.ID.Data);
+					Vector3 outVec =  Internal.Transform.GetPosition_Internal(entity.ID.Data);
 					return outVec;
 				}
 
@@ -234,9 +161,7 @@ namespace TerranScriptCore
 			set
 			{
 				if (entity != null) 
-				{
-					SetTransformPosition_Internal(entity.ID.Data, value);
-				}
+					Internal.Transform.SetPosition_Internal(entity.ID.Data, in value);
 				// TODO: log that the entity is null
 			}
 		}
@@ -246,7 +171,7 @@ namespace TerranScriptCore
 			get
 			{
 				if (entity != null) 
-					return GetTransformRotation_Internal(entity.ID.Data);
+					return Internal.Transform.GetRotation_Internal(entity.ID.Data);
 
 				// TODO: log that the entity is null
 				return new Vector3(0.0f, 0.0f, 0.0f);
@@ -255,10 +180,7 @@ namespace TerranScriptCore
 			set
 			{
 				if (entity != null) 
-				{
-					SetTransformRotation_Internal(entity.ID.Data, value);
-					return;
-				}
+					Internal.Transform.SetRotation_Internal(entity.ID.Data, in value);
 
 				// TODO: log that the entity is null
 			}
@@ -269,7 +191,7 @@ namespace TerranScriptCore
 			get
 			{
 				if (entity != null) 
-					return GetTransformScale_Internal(entity.ID.Data);
+					return Internal.Transform.GetScale_Internal(entity.ID.Data);
 
 				// TODO: log that the entity is null
 				return new Vector3(0.0f, 0.0f, 0.0f);
@@ -278,46 +200,14 @@ namespace TerranScriptCore
 			set
 			{
 				if (entity != null) 
-				{
-					SetTransformScale_Internal(entity.ID.Data, value);
-					return;
-				}
+					Internal.Transform.SetScale_Internal(entity.ID.Data, in value);
 
 				// TODO: log that the entity is null
 			}
 		}
 
-		bool IsDirty 
-		{
-			get => IsDirty_Internal(entity.ID.Data);
-		}
+		bool IsDirty => Internal.Transform.IsDirty_Internal(entity.ID.Data);
 
-		// ---- position ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern Vector3 GetTransformPosition_Internal(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetTransformPosition_Internal(byte[] entityID, Vector3 inPosition);
-		// ------------------
-
-		// ---- rotation ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern Vector3 GetTransformRotation_Internal(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetTransformRotation_Internal(byte[] entityID, Vector3 inRotation);
-		// ------------------
-
-		// ---- scale ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern Vector3 GetTransformScale_Internal(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern void SetTransformScale_Internal(byte[] entityID, Vector3 inScale);
-		// ---------------
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		static extern bool IsDirty_Internal(byte[] entityID);
 	}
 	// -------------------
 }

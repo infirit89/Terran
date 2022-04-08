@@ -24,11 +24,11 @@ namespace TerranEngine
 	{
 	}
 
-	static json SerializeVec2(const std::string& name, const glm::vec2& value) 
+	static json SerializeVec2(const glm::vec2& value) 
 	{
 		return
 		{
-			name, {
+			{
 				{ "X", value.x },
 				{ "Y", value.y },
 			}
@@ -45,11 +45,11 @@ namespace TerranEngine
 		return vec;
 	}
 
-	static json SerializeVec3(const std::string& name, const glm::vec3& value)
+	static json SerializeVec3(const glm::vec3& value)
 	{
 		return
 		{
-			name, { 
+			{ 
 				{ "X", value.x },
 				{ "Y", value.y },
 				{ "Z", value.z }
@@ -68,11 +68,11 @@ namespace TerranEngine
 		return vec;
 	}
 
-	static json SerializeVec4(const std::string& name, const glm::vec4& value)
+	static json SerializeVec4(const glm::vec4& value)
 	{
 		return
 		{
-			name, {
+			{
 				{ "X", value.x },
 				{ "Y", value.y },
 				{ "Z", value.z },
@@ -191,16 +191,17 @@ namespace TerranEngine
 				j[field.GetName()] = value;
 				break;
 			}
+			case ScriptFieldType::Vector2: 
+			{
+				// NOTE: might need to box
+				glm::vec2 value = field.GetData<glm::vec2>();
+				j[field.GetName()] = SerializeVec2(value);
+				break;
+			}
 			case ScriptFieldType::Vector3: 
 			{
 				glm::vec3 value = field.GetData<glm::vec3>();
-				json jVec3 = {
-								{ "X", value.x },
-								{ "Y", value.y },
-								{ "Z", value.z }
-							};
-
-				j[field.GetName()] = jVec3;
+				j[field.GetName()] = SerializeVec3(value);
 				break;
 			}
 			
@@ -217,8 +218,8 @@ namespace TerranEngine
 		{
 			{"TagComponent", 
 			{
-				{ "Tag",	entity.GetComponent<TagComponent>().Name},
-				{ "ID",		std::to_string(entity.GetID())}
+				{ "Tag",	entity.GetComponent<TagComponent>().Name },
+				{ "ID",		std::to_string(entity.GetID()) }
 			}}
 		};
 
@@ -227,9 +228,9 @@ namespace TerranEngine
 			jObject.push_back(
 				{"TransformComponent", 
 				{
-					SerializeVec3("LocalPosition",	entity.GetTransform().Position),
-					SerializeVec3("LocalScale",		entity.GetTransform().Scale),
-					SerializeVec3("LocalRotation",	entity.GetTransform().Rotation),
+					{ "Position", SerializeVec3(entity.GetTransform().Position) },
+					{ "Rotation", SerializeVec3(entity.GetTransform().Rotation) },
+					{ "Scale", SerializeVec3(entity.GetTransform().Scale) },
 				}}
 			);
 		}
@@ -242,11 +243,11 @@ namespace TerranEngine
 				{ "CameraComponent",
 				{
 					{ "Camera", 
-					{	{ "Size",	camComp.Camera.GetOrthographicSize()},
-						{ "Near",	camComp.Camera.GetOrthographicNear()},
-						{ "Far",	camComp.Camera.GetOrthographicFar()},
+					{	{ "Size",	camComp.Camera.GetOrthographicSize() },
+						{ "Near",	camComp.Camera.GetOrthographicNear() },
+						{ "Far",	camComp.Camera.GetOrthographicFar() },
 					}},
-					{ "Primary", camComp.Primary}
+					{ "Primary", camComp.Primary }
 				} }
 			);
 		}
@@ -258,8 +259,8 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "SpriteRendererComponent",
 				{
-					SerializeVec4("Color", sprComp.Color),
-					{"ZIndex", sprComp.ZIndex}
+					{ "Color", SerializeVec4(sprComp.Color) },
+					{ "ZIndex", sprComp.ZIndex }
 				} }
 			);
 		}
@@ -271,7 +272,7 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "CircleRendererComponent",
 				{
-					SerializeVec4("Color", crComp.Color),
+					{ "Color", SerializeVec4(crComp.Color) },
 					{ "Thickness", crComp.Thickness }
 				}}
 			);
@@ -316,8 +317,8 @@ namespace TerranEngine
 				{
 					{ "BodyType", (int)rbComponent.BodyType },
 					{ "FixedRotation", rbComponent.FixedRotation },
-					{ "AwakeState", (int)rbComponent.AwakeState },
-					{ "GravityScale", rbComponent.GravityScale }
+					{ "SleepState", (int)rbComponent.SleepState },
+					{ "GravityScale", rbComponent.GravityScale}
 				} }
 			);
 		}
@@ -329,8 +330,8 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "BoxCollider2D",
 				{
-					SerializeVec2("Offset", bcComponent.Size),
-					SerializeVec2("Size", bcComponent.Size),
+					{ "Offset", SerializeVec2(bcComponent.Offset) },
+					{ "Size", SerializeVec2(bcComponent.Size) },
 					{ "IsSensor", bcComponent.IsSensor }
 				} }
 			);
@@ -343,7 +344,7 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "CircleCollider2D",
 				{
-					SerializeVec2("Offset", ccComponent.Offset),
+					{ "Offset", SerializeVec2(ccComponent.Offset) },
 					{ "Radius", ccComponent.Radius },
 					{ "IsSensor", ccComponent.IsSensor }
 				} }
@@ -649,14 +650,14 @@ catch(const std::exception& ex)\
 
 			try 
 			{
-				RigidbodyBodyType bodyType = (RigidbodyBodyType)jRigidbody2DComponent["BodyType"];
+				PhysicsBodyType bodyType = (PhysicsBodyType)jRigidbody2DComponent["BodyType"];
 				bool fixedRotation = jRigidbody2DComponent["FixedRotation"];
-				RigidbodyAwakeState awakeState = (RigidbodyAwakeState)jRigidbody2DComponent["AwakeState"];
+				PhysicsBodySleepState sleepState = (PhysicsBodySleepState)jRigidbody2DComponent["SleepState"];
 				float gravityScale = jRigidbody2DComponent["GravityScale"];
 
 				rbComponent.BodyType = bodyType;
 				rbComponent.FixedRotation = fixedRotation;
-				rbComponent.AwakeState = awakeState;
+				rbComponent.SleepState = sleepState;
 				rbComponent.GravityScale = gravityScale;
 			}
 			PRINT_JSON_ERROR();
@@ -674,8 +675,8 @@ catch(const std::exception& ex)\
 				glm::vec2 size = DeserializeVec2(jBoxCollider2DComponent, "Size");
 				bool isSensor = jBoxCollider2DComponent["IsSensor"];
 
-				bcComponent.Size = size;
 				bcComponent.Offset = offset;
+				bcComponent.Size = size;
 				bcComponent.IsSensor = isSensor;
 			}
 			PRINT_JSON_ERROR();

@@ -1,46 +1,37 @@
 #include "trpch.h"
 #include "PhysicsBody.h"
 
+#include <glm/gtx/transform.hpp>
+
 #include <box2d/box2d.h>
 #include <box2d/b2_body.h>
 
 namespace TerranEngine 
 {
-    PhysicsBody2D::PhysicsBody2D(b2World* PhysicsWorld, const glm::vec2& position, float rotation)
-        : m_PhysicsWorld(PhysicsWorld)
+    PhysicsBody2D::PhysicsBody2D(b2Body* physicsBody)
+        : m_Body(physicsBody)
     {
-        if (m_PhysicsWorld) 
-        {
-            b2BodyDef bodyDef;
-
-            bodyDef.position = { position.x, position.y };
-            bodyDef.angle = rotation;
-
-            m_Body = m_PhysicsWorld->CreateBody(&bodyDef);
-        }
     }
 
-    PhysicsBody2D::~PhysicsBody2D()
-    {
-        if (m_PhysicsWorld && m_Body) 
-        {
-            m_PhysicsWorld->DestroyBody(m_Body);
-            m_Body = nullptr;
-        }
-    }
 
     bool PhysicsBody2D::GetFixedRotation() const
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         return m_Body->IsFixedRotation();
     }
 
     void PhysicsBody2D::SetFixedRotation(bool fixedRotation)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         m_Body->SetFixedRotation(fixedRotation);
     }
 
     const glm::vec2& PhysicsBody2D::GetPosition() const
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         b2Vec2 position = m_Body->GetPosition();
 
         return { position.x, position.y };
@@ -48,6 +39,8 @@ namespace TerranEngine
 
     void PhysicsBody2D::SetPosition(const glm::vec2& position)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         float angle = m_Body->GetAngle();
 
         m_Body->SetTransform({ position.x, position.y }, angle);
@@ -55,11 +48,15 @@ namespace TerranEngine
 
     float PhysicsBody2D::GetRotation() const
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         return m_Body->GetAngle();
     }
 
     void PhysicsBody2D::SetRotation(float rotation)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         b2Vec2 position = m_Body->GetPosition();
 
         m_Body->SetTransform(position, rotation);
@@ -67,6 +64,8 @@ namespace TerranEngine
 
     const glm::vec2& PhysicsBody2D::GetLinearVelocity() const
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         b2Vec2 linearVelocity = m_Body->GetLinearVelocity();
 
         return { linearVelocity.x, linearVelocity.y };
@@ -74,36 +73,46 @@ namespace TerranEngine
 
     void PhysicsBody2D::SetLinearVelocity(const glm::vec2& linearVelocity)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         m_Body->SetLinearVelocity({ linearVelocity.x, linearVelocity.y });
     }
 
     float PhysicsBody2D::GetAngularVelocity() const
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         return m_Body->GetAngularVelocity();
     }
 
     void PhysicsBody2D::SetAngularVelocity(float angularVelocity)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         m_Body->SetAngularVelocity(angularVelocity);
     }
 
     float PhysicsBody2D::GetGravityScale() const
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         return m_Body->GetGravityScale();
     }
 
     void PhysicsBody2D::SetGravityScale(float gravityScale)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         m_Body->SetGravityScale(gravityScale);
     }
 
-    static b2BodyType ConvertToB2DBodyType(PhysicsBody2DState bodyType)
+    static b2BodyType ConvertToB2DBodyType(PhysicsBodyType bodyType)
     {
         switch (bodyType)
         {
-        case TerranEngine::PhysicsBody2DState::Static:		return b2BodyType::b2_staticBody;
-        case TerranEngine::PhysicsBody2DState::Dynamic:		return b2BodyType::b2_dynamicBody;
-        case TerranEngine::PhysicsBody2DState::Kinematic:	return b2BodyType::b2_kinematicBody;
+        case TerranEngine::PhysicsBodyType::Static:		return b2BodyType::b2_staticBody;
+        case TerranEngine::PhysicsBodyType::Dynamic:	return b2BodyType::b2_dynamicBody;
+        case TerranEngine::PhysicsBodyType::Kinematic:	return b2BodyType::b2_kinematicBody;
         }
 
         TR_ASSERT(false, "Unsupported body type");
@@ -111,22 +120,26 @@ namespace TerranEngine
         return b2BodyType::b2_staticBody;
     }
 
-    void PhysicsBody2D::SetBodyState(PhysicsBody2DState bodyState)
+    void PhysicsBody2D::SetBodyState(PhysicsBodyType bodyState)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         m_BodyState = bodyState;
         m_Body->SetType(ConvertToB2DBodyType(m_BodyState));
     }
 
-    void PhysicsBody2D::SetSleepState(PhysicsBody2DSleepState sleepState)
+    void PhysicsBody2D::SetSleepState(PhysicsBodySleepState sleepState)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         switch (sleepState)
         {
-        case TerranEngine::PhysicsBody2DSleepState::Sleep:
-        case TerranEngine::PhysicsBody2DSleepState::Awake:
+        case TerranEngine::PhysicsBodySleepState::Sleep:
+        case TerranEngine::PhysicsBodySleepState::Awake:
             m_Body->SetAwake((bool)sleepState);
             m_Body->SetSleepingAllowed(true);
             break;
-        case TerranEngine::PhysicsBody2DSleepState::NeverSleep:
+        case TerranEngine::PhysicsBodySleepState::NeverSleep:
             m_Body->SetSleepingAllowed(false);
             break;
         default:
@@ -136,6 +149,8 @@ namespace TerranEngine
 
     void PhysicsBody2D::ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         switch (forceMode)
         {
         case TerranEngine::ForceMode2D::Force:
@@ -149,6 +164,8 @@ namespace TerranEngine
 
     void PhysicsBody2D::ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode)
     {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
         switch (forceMode)
         {
         case TerranEngine::ForceMode2D::Force:
@@ -159,4 +176,58 @@ namespace TerranEngine
             break;
         }
     }
+
+    void PhysicsBody2D::AddBoxCollider(const BoxCollider2D& boxCollider) 
+    {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
+        b2PolygonShape shape;
+
+        glm::mat4 transformMat = glm::translate(glm::mat4(1.0f), { boxCollider.GetOffset(), 0.0f }) * glm::scale(glm::mat4(1.0f), { boxCollider.GetSize(), 1.0f });
+
+        glm::vec4 positions[4] = {
+            { -0.5f, -0.5f, 0.0f, 1.0f },
+            {  0.5f, -0.5f, 0.0f, 1.0f },
+            {  0.5f,  0.5f, 0.0f, 1.0f },
+            { -0.5f,  0.5f, 0.0f, 1.0f }
+        };
+
+        b2Vec2 vertices[4];
+
+        for (size_t i = 0; i < 4; i++)
+        {
+            glm::vec3 vertexPos = transformMat * positions[i];
+            vertices[i] = { vertexPos.x, vertexPos.y };
+        }
+
+        shape.Set(vertices, 4);
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &shape;
+        fixtureDef.density = boxCollider.GetDensity();
+        fixtureDef.friction = boxCollider.GetFriction();
+        fixtureDef.userData.pointer = (uintptr_t)boxCollider.GetUserData();
+        fixtureDef.isSensor = boxCollider.IsSensor();
+
+        m_Body->CreateFixture(&fixtureDef);
+    }
+
+    void PhysicsBody2D::AddCircleCollider(const CircleCollider2D& circleCollider) 
+    {
+        TR_ASSERT(m_Body, "Physics Body is null");
+
+        b2CircleShape shape;
+        shape.m_p.Set(circleCollider.GetOffset().x, circleCollider.GetOffset().y);
+        shape.m_radius = circleCollider.GetRadius();
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &shape;
+        fixtureDef.density = circleCollider.GetDensity();
+        fixtureDef.friction = circleCollider.GetFriction();
+        fixtureDef.userData.pointer = (uintptr_t)circleCollider.GetUserData();
+        fixtureDef.isSensor = circleCollider.IsSensor();
+
+        m_Body->CreateFixture(&fixtureDef);
+    }
+
 }

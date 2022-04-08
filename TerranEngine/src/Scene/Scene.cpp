@@ -11,7 +11,7 @@
 
 #include "Scripting/ScriptEngine.h"
 
-#include "Physics/PhysicsEngine.h"
+#include "Physics/Physics.h"
 
 #include "Utils/Debug/Profiler.h"
 #include "Utils/ResourceManager.h"
@@ -70,7 +70,7 @@ namespace TerranEngine
 		ScriptEngine::UninitalizeScriptable(entity);
 
 		if (entity.HasComponent<Rigidbody2DComponent>())
-			PhysicsEngine::DestroyRigidbody(entity);
+			Physics2D::DestroyPhysicsBody(entity);
 
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
@@ -97,7 +97,7 @@ namespace TerranEngine
 	{
 		m_RuntimeStarted = true;
 
-		PhysicsEngine::CreatePhysicsWorld({ 0.0f, -9.8f });
+		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
 
 		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
 
@@ -105,12 +105,7 @@ namespace TerranEngine
 		{
 			Entity entity(e, this);
 
-			PhysicsEngine::CreateRigidbody(entity);
-
-			if (entity.HasComponent<BoxCollider2DComponent>())
-				PhysicsEngine::CreateBoxCollider(entity);
-			else if (entity.HasComponent<CircleCollider2DComponent>())
-				PhysicsEngine::CreateCircleCollider(entity);
+			Physics2D::CreatePhysicsBody(entity);
 		}
 
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
@@ -126,7 +121,7 @@ namespace TerranEngine
 	void Scene::StopRuntime()
 	{
 		m_RuntimeStarted = false;
-		PhysicsEngine::CleanUpPhysicsWorld();
+		Physics2D::CleanUpPhysicsWorld();
 	}
 
 	void Scene::Update(Time time)
@@ -135,7 +130,7 @@ namespace TerranEngine
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 
-		PhysicsEngine::Update(time);
+		Physics2D::Update(time);
 
 		for (auto e : scriptableComponentView)
 		{
@@ -273,16 +268,17 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 
-				auto& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
+				BoxCollider2DComponent& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 				auto& transform = entity.GetTransform();
 
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
-				
-				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
-				const glm::vec3 position = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
 
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) * 
+				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
+
+				const glm::vec3 postition = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
+
+				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), postition) *
 											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
 											glm::scale(glm::mat4(1.0f), size);
 

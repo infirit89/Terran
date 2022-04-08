@@ -34,7 +34,10 @@ namespace TerranEngine
 		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
 
 		if (entityA && entityB) 
+		{
 			ScriptEngine::PhysicsBeginContact(entityA, entityB);
+			ScriptEngine::PhysicsBeginContact(entityB, entityA);
+		}
 	}
 
 	void ContactListener::EndContact(b2Contact* contact)
@@ -49,9 +52,11 @@ namespace TerranEngine
 		Entity entityA = GetEntityFromB2DFixtureUserData(userDataA);
 		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
 
-		if (entityA && entityB)
+		if (entityA && entityB) 
+		{
 			ScriptEngine::PhysicsEndContact(entityA, entityB);
-
+			ScriptEngine::PhysicsEndContact(entityB, entityA);
+		}
 	}
 
 	void ContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
