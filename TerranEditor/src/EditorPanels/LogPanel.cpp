@@ -51,8 +51,9 @@ namespace TerranEditor
 
 			ImGui::TableNextColumn();
 			ImGui::Checkbox("Clear on play", &m_ClearOnPlay);
+			
+			ImGui::EndTable();
 		}
-		ImGui::EndTable();
 
 		ImGui::Separator();
 		

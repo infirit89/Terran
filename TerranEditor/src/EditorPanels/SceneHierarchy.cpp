@@ -46,7 +46,7 @@ namespace TerranEditor
 
 					ImGui::EndPopup();
 				}
-
+	
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
 					m_Selected = {};
 			}
@@ -92,6 +92,9 @@ namespace TerranEditor
 	void SceneHierarchy::DrawEntityNode(Entity entity)
 	{
 		TagComponent& tagComp = entity.GetComponent<TagComponent>();
+		std::string imguiID = fmt::format("{0} {1}", tagComp.Name, (uint32_t)entity);
+		
+		ImGui::PushID(imguiID.c_str());
 
 		ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
 
@@ -107,6 +110,41 @@ namespace TerranEditor
 
 		bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tagComp.Name.c_str());
 		
+		if (ImGui::BeginDragDropSource()) 
+		{
+			const UUID& id = entity.GetID();
+			ImGui::SetDragDropPayload("ENTITY_UUID", id.GetRaw(), 16 * sizeof(uint8_t));
+			const char* entityName = entity.GetName().c_str();
+			ImGui::Text(entityName);
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget()) 
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID")) 
+			{
+				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
+
+				std::array<uint8_t, 16> idArr;
+				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+				UUID id(idArr);
+				Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
+
+				if (receivedEntity)
+				{
+					if (!receivedEntity.IsChildOf(entity)) 
+					{
+						if (receivedEntity.HasParent())
+							receivedEntity.Unparent();
+
+						receivedEntity.SetParent(entity);
+					}
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
 		style = orgStyle;
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -164,5 +202,7 @@ namespace TerranEditor
 			if (m_Selected == entity)
 				m_Selected = {};
 		}
+
+		ImGui::PopID();
 	}
 }

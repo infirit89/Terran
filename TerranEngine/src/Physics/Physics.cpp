@@ -56,14 +56,11 @@ namespace TerranEngine
 		bodyDef.fixedRotation = rigidbody.FixedRotation;
 		bodyDef.gravityScale = rigidbody.GravityScale;
 
-		bodyDef.allowSleep = true;
-		bodyDef.awake = true;
-
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
 		PhysicsBody2D physicsBody(body);
 
 		physicsBody.SetBodyState(rigidbody.BodyType);
-		//physicsBody.SetSleepState(rigidbody.SleepState);
+		physicsBody.SetSleepState(rigidbody.SleepState);
 
 		const UUID& id = entity.GetID();
 		if (entity.HasComponent<BoxCollider2DComponent>()) 

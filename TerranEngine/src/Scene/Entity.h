@@ -137,6 +137,17 @@ namespace TerranEngine
 			GetChildren().emplace_back(child.GetID());
 		}
 
+		bool IsChildOf(Entity entity) 
+		{
+			if (!HasComponent<RelationshipComponent>())
+				return false;
+
+			if (!entity.HasComponent<RelationshipComponent>())
+				return false;
+
+			return GetParentID() == entity.GetID();
+		}
+
 		void Unparent() 
 		{
 			if (!HasComponent<RelationshipComponent>())
