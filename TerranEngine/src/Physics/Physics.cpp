@@ -56,23 +56,28 @@ namespace TerranEngine
 		bodyDef.fixedRotation = rigidbody.FixedRotation;
 		bodyDef.gravityScale = rigidbody.GravityScale;
 
+		bodyDef.allowSleep = true;
+		bodyDef.awake = true;
+
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
 		PhysicsBody2D physicsBody(body);
 
 		physicsBody.SetBodyState(rigidbody.BodyType);
-		physicsBody.SetSleepState(rigidbody.SleepState);
+		//physicsBody.SetSleepState(rigidbody.SleepState);
 
-		UUID id = entity.GetID();
+		const UUID& id = entity.GetID();
 		if (entity.HasComponent<BoxCollider2DComponent>()) 
 		{
 			auto& boxColliderComponent = entity.GetComponent<BoxCollider2DComponent>();
 
+			glm::vec2 colliderSize = { transform.Scale.x * boxColliderComponent.Size.x, transform.Scale.y * boxColliderComponent.Size.y };
+
 			BoxCollider2D boxCollider;
 			boxCollider.SetOffset(boxColliderComponent.Offset);
-			boxCollider.SetSize(boxColliderComponent.Size);
+			boxCollider.SetSize(colliderSize);
 			boxCollider.SetSensor(boxColliderComponent.IsSensor);
 
-			boxCollider.SetUserData((void*)id.GetRaw());
+			boxCollider.SetUserData((uintptr_t)id.GetRaw());
 
 			physicsBody.AddBoxCollider(boxCollider);
 		}
@@ -87,7 +92,7 @@ namespace TerranEngine
 			circleCollider.SetRadius(circleColliderComponent.Radius);
 			circleCollider.SetSensor(circleColliderComponent.IsSensor);
 
-			circleCollider.SetUserData((void*)id.GetRaw());
+			circleCollider.SetUserData((uintptr_t)id.GetRaw());
 
 			physicsBody.AddCircleCollider(circleCollider);
 		}

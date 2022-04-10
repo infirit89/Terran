@@ -515,6 +515,10 @@ namespace TerranEngine
 						break;
 					}
 					case ScriptFieldType::Float:
+					{
+						fieldBackup.Data.dValue = field.GetData<float>();
+						break;
+					}
 					case ScriptFieldType::Double:
 					{
 						fieldBackup.Data.dValue = field.GetData<double>();

@@ -10,25 +10,25 @@ namespace TerranScriptCore
 	{
 		public bool FixedRotation 
 		{
-			get => Internal.Rigidbody2D.IsFixedRotation_Internal(entity.ID.Data);
-			set => Internal.Rigidbody2D.SetFixedRotation_Internal(entity.ID.Data, value);
+			get => Internal.Rigidbody2D_IsFixedRotation_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D_SetFixedRotation_Internal(entity.ID.Data, value);
 		}
 
 		public RigidbodySleepState AwakeState 
 		{
-			get => (RigidbodySleepState)Internal.Rigidbody2D.GetAwakeState_Internal(entity.ID.Data);
-			set => Internal.Rigidbody2D.SetAwakeState_Internal(entity.ID.Data, (byte)value);
+			get => (RigidbodySleepState)Internal.Rigidbody2D_GetAwakeState_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D_SetAwakeState_Internal(entity.ID.Data, (byte)value);
 		}
 
 		public float GravityScale
 		{
-			get => Internal.Rigidbody2D.GetGravityScale_Internal(entity.ID.Data);
-			set => Internal.Rigidbody2D.SetGravityScale_Internal(entity.ID.Data, value);
+			get => Internal.Rigidbody2D_GetGravityScale_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D_SetGravityScale_Internal(entity.ID.Data, value);
 		}
 
-		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D.ApplyForce_Internal(entity.ID.Data, in force, in position, (byte)forceMode);
+		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForce_Internal(entity.ID.Data, in force, in position, (byte)forceMode);
 
-		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D.ApplyForceAtCenter_Internal(entity.ID.Data, in force, (byte)forceMode);
+		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter_Internal(entity.ID.Data, in force, (byte)forceMode);
 	}
 
 	public abstract class Collider2D : Component 
@@ -59,47 +59,47 @@ namespace TerranScriptCore
 			get 
 			{
 				Vector2 size;
-				Internal.BoxCollider2D.GetSize_Internal(entity.ID.Data, out size);
+				Internal.BoxCollider2D_GetSize_Internal(entity.ID.Data, out size);
 				return size;
 			}
 
-			set => Internal.BoxCollider2D.SetSize_Internal(entity.ID.Data, in value);
+			set => Internal.BoxCollider2D_SetSize_Internal(entity.ID.Data, in value);
 		}
 
 		protected override Vector2 GetOffset() 
 		{
 			Vector2 offset;
-			Internal.BoxCollider2D.GetOffset_Internal(entity.ID.Data, out offset);
+			Internal.BoxCollider2D_GetOffset_Internal(entity.ID.Data, out offset);
 			return offset;
 		}
 
-		protected override void SetOffset(Vector2 offset) => Internal.BoxCollider2D.SetOffset_Internal(entity.ID.Data, in offset);
+		protected override void SetOffset(Vector2 offset) => Internal.BoxCollider2D_SetOffset_Internal(entity.ID.Data, in offset);
 
-		protected override bool IsSensorF() => Internal.BoxCollider2D.IsSensor_Internal(entity.ID.Data);
+		protected override bool IsSensorF() => Internal.BoxCollider2D_IsSensor_Internal(entity.ID.Data);
 
-		protected override void SetSensor(bool isSensor) => Internal.BoxCollider2D.SetSensor_Internal(entity.ID.Data, isSensor);
+		protected override void SetSensor(bool isSensor) => Internal.BoxCollider2D_SetSensor_Internal(entity.ID.Data, isSensor);
     }
 
     public class CircleCollider2D : Collider2D
     {
 		public float Radius 
 		{
-			get => Internal.CircleCollider2D.GetRadius_Internal(entity.ID.Data);
-			set => Internal.CircleCollider2D.SetRadius_Internal(entity.ID.Data, value);
+			get => Internal.CircleCollider2D_GetRadius_Internal(entity.ID.Data);
+			set => Internal.CircleCollider2D_SetRadius_Internal(entity.ID.Data, value);
 		}
 
         protected override Vector2 GetOffset()
         {
 			Vector2 offset;
-			 Internal.CircleCollider2D.GetOffset_Internal(entity.ID.Data, out offset);
+			 Internal.CircleCollider2D_GetOffset_Internal(entity.ID.Data, out offset);
 			return offset;
         }
 
-		protected override void SetOffset(Vector2 offset) =>  Internal.CircleCollider2D.SetOffset_Internal(entity.ID.Data, in offset);
+		protected override void SetOffset(Vector2 offset) =>  Internal.CircleCollider2D_SetOffset_Internal(entity.ID.Data, in offset);
 
-		protected override bool IsSensorF() => Internal.CircleCollider2D.IsSensor_Internal(entity.ID.Data);
+		protected override bool IsSensorF() => Internal.CircleCollider2D_IsSensor_Internal(entity.ID.Data);
 
-		protected override void SetSensor(bool isSensor) => Internal.CircleCollider2D.SetSensor_Internal(entity.ID.Data, isSensor);
+		protected override void SetSensor(bool isSensor) => Internal.CircleCollider2D_SetSensor_Internal(entity.ID.Data, isSensor);
 	}
 
 	// ---- Scriptable ----
@@ -123,7 +123,7 @@ namespace TerranScriptCore
 			get
 			{
 				if (entity != null) 
-					return Internal.Tag.GetName_Internal(entity.ID.Data);
+					return Internal.Tag_GetName_Internal(entity.ID.Data);
 
 				// TODO: log that the entity is null
 				return "";
@@ -132,7 +132,7 @@ namespace TerranScriptCore
 			set
 			{
 				if(entity != null)
-					Internal.Tag.SetName_Internal(entity.ID.Data, value);
+					Internal.Tag_SetName_Internal(entity.ID.Data, value);
 
 				// TODO: log that the entity is null
 			}
@@ -150,7 +150,7 @@ namespace TerranScriptCore
 			{
 				if (entity != null) 
 				{
-					Vector3 outVec =  Internal.Transform.GetPosition_Internal(entity.ID.Data);
+					Vector3 outVec =  Internal.Transform_GetPosition_Internal(entity.ID.Data);
 					return outVec;
 				}
 
@@ -161,7 +161,7 @@ namespace TerranScriptCore
 			set
 			{
 				if (entity != null) 
-					Internal.Transform.SetPosition_Internal(entity.ID.Data, in value);
+					Internal.Transform_SetPosition_Internal(entity.ID.Data, in value);
 				// TODO: log that the entity is null
 			}
 		}
@@ -171,7 +171,7 @@ namespace TerranScriptCore
 			get
 			{
 				if (entity != null) 
-					return Internal.Transform.GetRotation_Internal(entity.ID.Data);
+					return Internal.Transform_GetRotation_Internal(entity.ID.Data);
 
 				// TODO: log that the entity is null
 				return new Vector3(0.0f, 0.0f, 0.0f);
@@ -180,7 +180,7 @@ namespace TerranScriptCore
 			set
 			{
 				if (entity != null) 
-					Internal.Transform.SetRotation_Internal(entity.ID.Data, in value);
+					Internal.Transform_SetRotation_Internal(entity.ID.Data, in value);
 
 				// TODO: log that the entity is null
 			}
@@ -191,7 +191,7 @@ namespace TerranScriptCore
 			get
 			{
 				if (entity != null) 
-					return Internal.Transform.GetScale_Internal(entity.ID.Data);
+					return Internal.Transform_GetScale_Internal(entity.ID.Data);
 
 				// TODO: log that the entity is null
 				return new Vector3(0.0f, 0.0f, 0.0f);
@@ -200,13 +200,13 @@ namespace TerranScriptCore
 			set
 			{
 				if (entity != null) 
-					Internal.Transform.SetScale_Internal(entity.ID.Data, in value);
+					Internal.Transform_SetScale_Internal(entity.ID.Data, in value);
 
 				// TODO: log that the entity is null
 			}
 		}
 
-		bool IsDirty => Internal.Transform.IsDirty_Internal(entity.ID.Data);
+		bool IsDirty => Internal.Transform_IsDirty_Internal(entity.ID.Data);
 
 	}
 	// -------------------

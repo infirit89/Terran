@@ -118,71 +118,72 @@ namespace TerranEngine
 	void ScriptBindings::Bind()
 	{
 		// ---- entity -----
-		BindInternalFunc("TerranScriptCore.Entity::HasComponent_Internal", Entity_HasComponent_Internal);
-		BindInternalFunc("TerranScriptCore.Entity::AddComponent_Internal", Entity_AddComponent_Internal);
-		BindInternalFunc("TerranScriptCore.Entity::RemoveComponent_Internal", Entity_RemoveComponent_Internal);
-		BindInternalFunc("TerranScriptCore.Entity::GetScriptableComponent_Internal", Entity_GetScriptableComponent_Internal);
-
-		BindInternalFunc("TerranScriptCore.Entity::FindEntityWithName_Internal", Entity_FindEntityWithName_Internal);
-		BindInternalFunc("TerranScriptCore.Entity::FindEntityWithID_Internal", Entity_FindEntityWithID_Internal);
-
-		BindInternalFunc("TerranScriptCore.Entity::DestroyEntity_Internal", Entity_DestroyEntity_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Entity_HasComponent_Internal", Entity_HasComponent_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Entity_AddComponent_Internal", Entity_AddComponent_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Entity_RemoveComponent_Internal", Entity_RemoveComponent_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Entity_GetScriptableComponent_Internal", Entity_GetScriptableComponent_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Entity_FindEntityWithName_Internal", Entity_FindEntityWithName_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Entity_FindEntityWithID_Internal", Entity_FindEntityWithID_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Entity_DestroyEntity_Internal", Entity_DestroyEntity_Internal);
 		// -----------------
 
 		// ---- transform ----
-		BindInternalFunc("TerranScriptCore.Internal.Transform::GetPosition_Internal", Transform_GetPosition_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Transform::SetPosition_Internal", Transform_SetPosition_Internal);
-
-		BindInternalFunc("TerranScriptCore.Internal.Transform::GetRotation_Internal", Transform_GetRotation_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Transform::SetRotation_Internal", Transform_SetRotation_Internal);
-
-		BindInternalFunc("TerranScriptCore.Internal.Transform::GetScale_Internal", Transform_GetScale_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Transform::SetScale_Internal", Transform_SetScale_Internal);
-		
-		BindInternalFunc("TerranScriptCore.Internal.Transform::IsDirty_Internal", Transform_IsDirty_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Transform_GetPosition_Internal", Transform_GetPosition_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Transform_SetPosition_Internal", Transform_SetPosition_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Transform_GetRotation_Internal", Transform_GetRotation_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Transform_SetRotation_Internal", Transform_SetRotation_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Transform_GetScale_Internal", Transform_GetScale_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Transform_SetScale_Internal", Transform_SetScale_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Transform_IsDirty_Internal", Transform_IsDirty_Internal);
 		// -------------------
 
 		// ---- tag ----
-		BindInternalFunc("TerranScriptCore.Internal.Tag::GetName_Internal", Tag_GetName_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Tag::SetName_Internal", Tag_SetName_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Tag_GetName_Internal", Tag_GetName_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Tag_SetName_Internal", Tag_SetName_Internal);
 		// -------------
 
 		// ---- physics ----
 		{
 			// ---- rigidbody 2d ----
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::IsFixedRotation_Internal", Rigidbody_IsFixedRotation_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::SetFixedRotation_Internal", Rigidbody_SetFixedRotation_Internal);
-
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::GetAwakeState_Internal", Rigidbody_GetSleepState_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::SetAwakeState_Internal", Rigidbody_SetSleepState_Internal);
-
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::GetGravityScale_Internal", Rigidbody_GetGravityScale_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::SetGravityScale_Internal", Rigidbody_SetGravityScale_Internal);
-
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::ApplyForce_Internal", Rigidbody_ApplyForce_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.Rigidbody2D::ApplyForceAtCenter_Internal", Rigidbody_ApplyForceAtCenter_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_IsFixedRotation_Internal", Rigidbody_IsFixedRotation_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_SetFixedRotation_Internal", Rigidbody_SetFixedRotation_Internal);
+													   
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_GetAwakeState_Internal", Rigidbody_GetSleepState_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_SetAwakeState_Internal", Rigidbody_SetSleepState_Internal);
+													   
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_GetGravityScale_Internal", Rigidbody_GetGravityScale_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_SetGravityScale_Internal", Rigidbody_SetGravityScale_Internal);
+													   
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_ApplyForce_Internal", Rigidbody_ApplyForce_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_ApplyForceAtCenter_Internal", Rigidbody_ApplyForceAtCenter_Internal);
 			// ----------------------
 
 			// ---- box collider 2d ----
-			BindInternalFunc("TerranScriptCore.Internal.BoxCollider2D::GetOffset_Internal", BoxCollider_GetOffset_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.BoxCollider2D::SetOffset_Internal", BoxCollider_SetOffset_Internal);
-
-			BindInternalFunc("TerranScriptCore.Internal.BoxCollider2D::GetSize_Internal", BoxCollider_GetSize_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.BoxCollider2D::SetSize_Internal", BoxCollider_SetSize_Internal);
-
-			BindInternalFunc("TerranScriptCore.Internal.BoxCollider2D::IsSensor_Internal", BoxCollider_IsSensor_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.BoxCollider2D::SetSensor_Internal", BoxCollider_SetSensor_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::BoxCollider2D_GetOffset_Internal", BoxCollider_GetOffset_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::BoxCollider2D_SetOffset_Internal", BoxCollider_SetOffset_Internal);
+													   
+			BindInternalFunc("TerranScriptCore.Internal::BoxCollider2D_GetSize_Internal", BoxCollider_GetSize_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::BoxCollider2D_SetSize_Internal", BoxCollider_SetSize_Internal);
+													   
+			BindInternalFunc("TerranScriptCore.Internal::BoxCollider2D_IsSensor_Internal", BoxCollider_IsSensor_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::BoxCollider2D_SetSensor_Internal", BoxCollider_SetSensor_Internal);
 			// -------------------------
 
 			// ---- circle collider 2d ----
-			BindInternalFunc("TerranScriptCore.Internal.CircleCollider2D::GetOffset_Internal", CircleCollider_GetOffset_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.CircleCollider2D::SetOffset_Internal", CircleCollider_SetOffset_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::CircleCollider2D_GetOffset_Internal", CircleCollider_GetOffset_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::CircleCollider2D_SetOffset_Internal", CircleCollider_SetOffset_Internal);
+													   
+			BindInternalFunc("TerranScriptCore.Internal::CircleCollider2D_GetRadius_Internal", CircleCollider_GetRadius_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::CircleCollider2D_SetRadius_Internal", CircleCollider_SetRadius_Internal);
 
-			BindInternalFunc("TerranScriptCore.Internal.CircleCollider2D::GetRadius_Internal", CircleCollider_GetRadius_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.CircleCollider2D::SetRadius_Internal", CircleCollider_SetRadius_Internal);
-
-			BindInternalFunc("TerranScriptCore.Internal.CircleCollider2D::IsSensor_Internal", CircleCollider_IsSensor_Internal);
-			BindInternalFunc("TerranScriptCore.Internal.CircleCollider2D::SetSensor_Internal", CircleCollider_SetSensor_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::CircleCollider2D_IsSensor_Internal", CircleCollider_IsSensor_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::CircleCollider2D_SetSensor_Internal", CircleCollider_SetSensor_Internal);
 
 			// -----------------------------
 		}
@@ -190,19 +191,20 @@ namespace TerranEngine
 		// -----------------
 
 		// ---- misc ----
-		BindInternalFunc("TerranScriptCore.Internal.Log::Log_Internal", Log_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Log_Internal", Log_Internal);
 		// --------------
 
 		// ---- input -----
-		BindInternalFunc("TerranScriptCore.Internal.Input::KeyPressed_Internal", Input_KeyPressed_Internal);
-
-		BindInternalFunc("TerranScriptCore.Internal.Input::MouseButtonPressed_Internal", Input_MouseButtonPressed_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Input::GetMousePosition_Internal", Input_GetMousePosition_Internal);
-		
-		BindInternalFunc("TerranScriptCore.Internal.Input::IsControllerConnected_Internal", Input_IsControllerConnected_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Input::GetControllerName_Internal", Input_GetControllerName_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Input::IsControllerButtonPressed_Internal", Input_IsControllerButtonPressed_Internal);
-		BindInternalFunc("TerranScriptCore.Internal.Input::GetControllerAxis_Internal", Input_GetControllerAxis_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Input_KeyPressed_Internal", Input_KeyPressed_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Input_MouseButtonPressed_Internal", Input_MouseButtonPressed_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Input_GetMousePosition_Internal", Input_GetMousePosition_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Input_IsControllerConnected_Internal", Input_IsControllerConnected_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Input_GetControllerName_Internal", Input_GetControllerName_Internal);
+												   
+		BindInternalFunc("TerranScriptCore.Internal::Input_IsControllerButtonPressed_Internal", Input_IsControllerButtonPressed_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Input_GetControllerAxis_Internal", Input_GetControllerAxis_Internal);
 		// ----------------
 	}
 

@@ -79,11 +79,7 @@ namespace TerranEditor
 			if (ctrlPressed && shiftPressed)
 			{
 				auto entity = m_Scene->CreateEntity();
-
-				if (m_Selected)
-					entity.SetParent(m_Selected);
-				else
-					m_Selected = entity;
+				m_Selected = entity;
 
 				return true;
 			}
@@ -127,8 +123,8 @@ namespace TerranEditor
 			if (ImGui::MenuItem("Create an Entity")) 
 			{
 				auto entity = m_Scene->CreateEntity("Entity");
-
-				if (m_Selected) 
+			
+				if (m_Selected)
 					entity.SetParent(m_Selected);
 			}
 

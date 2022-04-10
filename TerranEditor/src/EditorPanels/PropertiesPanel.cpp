@@ -1,5 +1,7 @@
 #include "PropertiesPanel.h"
 
+#include "../EditorLayer.h"
+
 #include "../UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -105,15 +107,15 @@ namespace TerranEditor
 
 				//TR_TRACE("Entity: {0}, Position: x: {1}, y: {2}, z: {3}", entity.GetName(), entity.GetTransform().Position.x, entity.GetTransform().Position.y, entity.GetTransform().Position.z);
 
-				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
+				DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
 				{
 					if (UI::DrawVec3Control("Position", component.Position))
 						component.IsDirty = true;
 
-					if (UI::DrawVec3Control("Scale", component.Scale))
+					if (UI::DrawVec3Control("Rotation", component.Rotation)) 
 						component.IsDirty = true;
 
-					if (UI::DrawVec3Control("Rotation", component.Rotation))
+					if (UI::DrawVec3Control("Scale", component.Scale))
 						component.IsDirty = true;
 
 				}, false);
@@ -380,7 +382,7 @@ namespace TerranEditor
 					}
 				});
 
-				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](Rigidbody2DComponent& rbComponent) 
+				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
 				{
 					UI::ScopedVarTable::TableInfo tableInfo;
 
@@ -413,6 +415,12 @@ namespace TerranEditor
 					// rigidbody awake state selection 
 					{
 						const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+
+						PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+						std::string text = fmt::format("Sleep state: {0}, Can Sleep: {1}", awakeStateNames[(int)physicsBody.GetCurrentSleepState()], physicsBody.CanSleep());
+						ImGui::Text(text.c_str());
+
 						const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
 
 						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);

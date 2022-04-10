@@ -206,7 +206,7 @@ namespace TerranEngine
         fixtureDef.shape = &shape;
         fixtureDef.density = boxCollider.GetDensity();
         fixtureDef.friction = boxCollider.GetFriction();
-        fixtureDef.userData.pointer = (uintptr_t)boxCollider.GetUserData();
+        fixtureDef.userData.pointer = boxCollider.GetUserData();
         fixtureDef.isSensor = boxCollider.IsSensor();
 
         m_Body->CreateFixture(&fixtureDef);
@@ -224,10 +224,21 @@ namespace TerranEngine
         fixtureDef.shape = &shape;
         fixtureDef.density = circleCollider.GetDensity();
         fixtureDef.friction = circleCollider.GetFriction();
-        fixtureDef.userData.pointer = (uintptr_t)circleCollider.GetUserData();
+        fixtureDef.userData.pointer = circleCollider.GetUserData();
         fixtureDef.isSensor = circleCollider.IsSensor();
 
         m_Body->CreateFixture(&fixtureDef);
+    }
+
+    PhysicsBodySleepState PhysicsBody2D::GetCurrentSleepState() const
+    {
+        if (!m_Body)
+            return PhysicsBodySleepState::Awake;
+
+        if (!m_Body->IsSleepingAllowed())
+            return PhysicsBodySleepState::NeverSleep;
+
+        return (PhysicsBodySleepState)m_Body->IsAwake();
     }
 
 }

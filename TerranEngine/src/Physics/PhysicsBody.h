@@ -68,6 +68,8 @@ namespace TerranEngine
 		void SetSleepState(PhysicsBodySleepState sleepState);
 		PhysicsBodySleepState GetSleepState() const { return m_SleepState; }
 
+		PhysicsBodySleepState GetCurrentSleepState() const;
+
 		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
 

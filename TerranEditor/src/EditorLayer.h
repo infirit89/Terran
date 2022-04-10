@@ -31,6 +31,10 @@ namespace TerranEditor
 		void OnEvent(Event& event) override;
 		void ImGuiRender() override;
 
+		SceneState GetSceneState() { return m_SceneState; }
+
+		static EditorLayer* GetInstace() { return s_Instance; }
+
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 
@@ -81,5 +85,7 @@ namespace TerranEditor
 		std::filesystem::path m_CurrentScenePath;
 		const std::filesystem::path m_ResPath = "Resources";
 		std::filesystem::path m_ScriptAssemblyPath;
+
+		static EditorLayer* s_Instance;
 	};
 }

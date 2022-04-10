@@ -37,25 +37,33 @@ namespace TerranScriptCore
 	// Test script
 	public class TestScriptable : Scriptable
 	{
+		Rigidbody2D rb;
+		public float JumpForce = 100.0f;
+		private bool m_CanJump = true;
+
 		// Runs when the entity in the current scene, that has this script, is started
 		public void Init() 
 		{
-			Log.Trace("test");
-			Log.Error("error");
-			Log.Warn("warn");
+			rb = entity.GetComponent<Rigidbody2D>();
 		}
 
 		public void Update()
 		{
 			// Code to move the entity up and down
-			/*if (Input.IsKeyPressed(KeyCode.W))
+			if (Input.IsKeyPressed(KeyCode.D))
 				// if w is pressed move the entity up one unit
-				entity.transform.Position += new Vector3(0.0f, 0.1f, 0.0f);
-			else if (Input.IsKeyPressed(KeyCode.S))
+				entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
+			else if (Input.IsKeyPressed(KeyCode.A))
 				// if s is pressed move the entity down one unit
-				entity.transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);*/
+				entity.transform.Position -= new Vector3(0.1f, 0.0f, 0.0f);
 
-			float leftX = Input.GetControllerAxis(ControllerAxis.LeftX, 0);
+			if (Input.IsKeyPressed(KeyCode.Space) && m_CanJump) 
+			{
+				m_CanJump = false;
+				Log.Trace("jumped");
+				rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
+			}
+/*			float leftX = Input.GetControllerAxis(ControllerAxis.LeftX, 0);
 			float leftY = Input.GetControllerAxis(ControllerAxis.LeftY, 0);
 
 
@@ -66,20 +74,16 @@ namespace TerranScriptCore
 			Log.Trace(leftY);
 
 			if(leftX >= 0.5f || leftX <= -0.5f)
-				entity.transform.Position += new Vector3((leftX * 0.1f), 0.0f, 0.0f);
+				entity.transform.Position += new Vector3((leftX * 0.1f), 0.0f, 0.0f);*/
 			
 			//if(leftY >= 0.5f || leftY <= -0.5f)
 				//entity.transform.Position += new Vector3(0.0f, -(leftY * 0.1f), 0.0f);
 		}
 
-		void OnCollisionBegin(Entity entity)
+		public void OnCollisionBegin(Entity entity) 
 		{
-			Log.Trace("Begin contact");
-		}
-
-		void OnCollisionEnd(Entity entity) 
-		{
-			Log.Trace("End contact");
+			Log.Trace("collided");
+			m_CanJump = true;
 		}
 	}
 }

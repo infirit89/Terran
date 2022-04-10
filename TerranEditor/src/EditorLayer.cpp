@@ -17,9 +17,13 @@ namespace TerranEditor
 {
 	static void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination);
 
+	EditorLayer* EditorLayer::s_Instance;
+
 	EditorLayer::EditorLayer()
-		: Layer("Editor"), m_EditorCamera()
+		: Layer("Editor"), m_EditorCamera() 
 	{
+		s_Instance = this;
+
 		std::vector<spdlog::sink_ptr> clientSinks
 		{
 			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Terran_Editor.log", true),

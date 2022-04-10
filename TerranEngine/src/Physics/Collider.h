@@ -11,7 +11,7 @@ namespace TerranEngine
 		virtual ~Collider2D();
 
 		void SetSensor(bool isSensor) { m_IsSensor = isSensor; }
-		void SetUserData(void* ptr) { m_UserData = ptr; }
+		void SetUserData(uintptr_t ptr) { m_UserData = ptr; }
 		void SetFriction(float friction) { m_Friction = friction; }
 		void SetDensity(float density) { m_Density = density; }
 		void SetRestitution(float restitution) { m_Restitution = restitution; }
@@ -23,14 +23,14 @@ namespace TerranEngine
 		float GetDensity() const { return m_Density; }
 		float GetRestitution() const { return m_Restitution; }
 		float GetRestitutionThreshold() const { return m_RestitutionThreshold; }
-		void* GetUserData() const { return m_UserData; }
+		uintptr_t GetUserData() const { return m_UserData; }
 
 		inline const glm::vec2& GetOffset() const { return m_Offset; }
 		
 	private:
 		glm::vec2 m_Offset;
 		bool m_IsSensor = false;
-		void* m_UserData;
+		uintptr_t m_UserData;
 		float m_Friction = 0.5f;
 		float m_Density = 1.0f;
 		float m_Restitution = 0.0f;

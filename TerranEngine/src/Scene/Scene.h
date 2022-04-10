@@ -54,6 +54,8 @@ namespace TerranEngine
 
 		UUID& GetID() { return m_ID; }
 
+		bool HasRuntimeStarted() const { return m_RuntimeStarted; }
+
 	private:
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);

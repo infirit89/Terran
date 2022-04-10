@@ -127,11 +127,16 @@ namespace TerranEngine
 	void Scene::Update(Time time)
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
+		
+		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
+		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
-		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
+		TransformSystem::SetContext(this);
+		TransformSystem::Update();
 
 		Physics2D::Update(time);
 
+		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
@@ -145,10 +150,6 @@ namespace TerranEngine
 			ScriptEngine::UpdateScriptable(entity);
 		}
 
-		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.IsDirty && !rEntity.IsDirty; });
-
-		TransformSystem::Update(this);
 	}
 
 	void Scene::UpdateEditor()
@@ -156,7 +157,8 @@ namespace TerranEngine
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
 		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
-		TransformSystem::Update(this);
+		TransformSystem::SetContext(this);
+		TransformSystem::Update();
 	}
 
 	void Scene::OnResize(float width, float height)
