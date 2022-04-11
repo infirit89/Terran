@@ -67,6 +67,12 @@ namespace TerranEngine
 
 	static void Rigidbody_ApplyForce_Internal(MonoArray* entityUUIDArr, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode);
 	static void Rigidbody_ApplyForceAtCenter_Internal(MonoArray* entityUUIDArr, const glm::vec2& force, uint8_t forceMode);
+	
+	static void Rigidbody_GetLinearVelocity_Internal(MonoArray* entityUUIDArr, glm::vec2& linearVelocity);
+	static void Rigidbody_SetLinearVelocity_Internal(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity);
+	
+	static float Rigidbody_GetAngularVelocity_Internal(MonoArray* entityUUIDArr);
+	static void Rigidbody_SetAngularVelocity_Internal(MonoArray* entityUUIDArr, float angularVelocity);
 	// ----------------------
 
 	// ---- Box Collider 2D ----
@@ -162,6 +168,12 @@ namespace TerranEngine
 													   
 			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_ApplyForce_Internal", Rigidbody_ApplyForce_Internal);
 			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_ApplyForceAtCenter_Internal", Rigidbody_ApplyForceAtCenter_Internal);
+
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_GetLinearVelocity_Internal", Rigidbody_GetLinearVelocity_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_SetLinearVelocity_Internal", Rigidbody_SetLinearVelocity_Internal);
+
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_GetAngularVelocity_Internal", Rigidbody_GetAngularVelocity_Internal);
+			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_SetAngularVelocity_Internal", Rigidbody_SetAngularVelocity_Internal);
 			// ----------------------
 
 			// ---- box collider 2d ----
@@ -603,6 +615,60 @@ namespace TerranEngine
 			physicsBody.ApplyForceAtCenter(force, (ForceMode2D)forceMode);
 		}
 	}
+
+	static void Rigidbody_GetLinearVelocity_Internal(MonoArray* entityUUIDArr, glm::vec2& linearVelocity) 
+	{
+		UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+		if (entity) 
+		{
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			linearVelocity = physicsBody.GetLinearVelocity();
+			return;
+		}
+
+		linearVelocity = { 0.0f, 0.0f };
+	}
+
+	static void Rigidbody_SetLinearVelocity_Internal(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity) 
+	{
+		UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+		if (entity) 
+		{
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			physicsBody.SetLinearVelocity(linearVelocity);
+		}
+	}
+
+	static float Rigidbody_GetAngularVelocity_Internal(MonoArray* entityUUIDArr) 
+	{
+		UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+		if (entity) 
+		{
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			return physicsBody.GetAngularVelocity();
+		}
+
+		return 0.0f;
+	}
+
+	static void Rigidbody_SetAngularVelocity_Internal(MonoArray* entityUUIDArr, float angularVelocity) 
+	{
+		UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+		if (entity)
+		{
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			physicsBody.SetAngularVelocity(angularVelocity);
+		}
+	}
+
 	// ----------------------
 
 	// ---- Box Collider 2D ----

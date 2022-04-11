@@ -29,8 +29,6 @@ namespace TerranEditor
 
 		void OnEvent(Event& event);
 
-		void SetSceneState(SceneState sceneState) { m_SceneState = sceneState; }
-
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 
@@ -45,8 +43,6 @@ namespace TerranEditor
 
 		bool m_WindowMoved = false;
 		bool m_Visible = false;
-
-		SceneState m_SceneState = SceneState::Edit;
 
 		bool m_UseSnapping = false;
 		glm::vec3 m_Snap = { 2.0f, 2.0f, 2.0f };

@@ -80,6 +80,18 @@ namespace TerranScriptCore
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void Rigidbody2D_ApplyForceAtCenter_Internal(byte[] entityUUID, in Vector2 force, byte forceMode);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void Rigidbody2D_GetLinearVelocity_Internal(byte[] entityUUID, out Vector2 linearVelocity);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void Rigidbody2D_SetLinearVelocity_Internal(byte[] entityUUID, in Vector2 linearVelocity);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern float Rigidbody2D_GetAngularVelocity_Internal(byte[] entityUUID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void Rigidbody2D_SetAngularVelocity_Internal(byte[] entityUUID, float angularVelocity);
 		// ----------------------
 
 		// ---- Box Collider 2D ----

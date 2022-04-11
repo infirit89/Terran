@@ -227,9 +227,7 @@ namespace TerranEditor
 	static void ReloadScriptAssembly(const std::filesystem::path& scriptAssemblyPath) 
 	{
 		ScriptEngine::UnloadDomain();
-
 		CopyAssembly((scriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), scriptAssemblyPath.string());
-
 		ScriptEngine::NewDomain();
 
 		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
@@ -237,7 +235,6 @@ namespace TerranEditor
 		for (auto e : scriptView)
 		{
 			Entity entity(e, SceneManager::GetCurrentScene().get());
-
 			ScriptEngine::InitializeScriptable(entity);
 		}
 
@@ -340,7 +337,6 @@ namespace TerranEditor
 
 	void EditorLayer::OnScenePlay()
 	{
-		// TODO: copy the current scene
 		if (m_LogPanel.IsClearOnPlay())
 			m_LogPanel.ClearMessageBuffer();
 
@@ -367,21 +363,13 @@ namespace TerranEditor
 
 	void EditorLayer::ImGuiRender()
 	{
-		// NOTE : this is a temporary fix
-		// move the ImGui layer from the engine to the editor
 		ImGuizmo::SetOrthographic(true);
-
 		ImGuizmo::BeginFrame();
 
 		ShowDockspace();
 
-		ImGui::ShowDemoWindow();
-
-		// NOTE: Make an editor setting for the selected window
 		m_SHierarchy.ImGuiRender();
 		m_Selected = m_SHierarchy.GetSelected();
-
-		m_SceneView.SetSceneState(m_SceneState);
 
 		m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
 		{
@@ -389,11 +377,8 @@ namespace TerranEditor
 		});
 
 		m_PropertiesPanel.ImGuiRender(m_Selected);
-
 		m_ContentPanel.ImGuiRender();
-
 		m_ECSPanel.ImGuiRender();
-
 		m_LogPanel.ImGuiRender();
 
 		// Renderer stats
@@ -465,7 +450,6 @@ namespace TerranEditor
 		SceneManager::SetCurrentScene(CreateShared<Scene>());
 		CameraComponent& cameraComponent = SceneManager::GetCurrentScene()->CreateEntity("Camera").AddComponent<CameraComponent>();
 
-		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 		cameraComponent.Primary = true;
 		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
@@ -474,8 +458,7 @@ namespace TerranEditor
 
 	void EditorLayer::OpenScene()
 	{
-		std::filesystem::path scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");
-		
+		std::filesystem::path scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");		
 		OpenScene(scenePath, m_SceneView.GetViewportSize());
 	}
 
@@ -504,6 +487,8 @@ namespace TerranEditor
 					SceneManager::SetCurrentScene(newScene);
 					m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 					m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+
+					m_Selected = {};
 
 					m_CurrentScenePath = scenePath;
 				}

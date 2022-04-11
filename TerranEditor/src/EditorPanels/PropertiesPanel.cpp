@@ -83,7 +83,7 @@ namespace TerranEditor
 		}
 	}
 
-	void PropertiesPanel::ImGuiRender(Entity& entity)
+	void PropertiesPanel::ImGuiRender(Entity entity)
 	{
 		if(m_Open)
 		{
@@ -384,8 +384,12 @@ namespace TerranEditor
 
 				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
 				{
+					bool isPlay = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
 					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					UI::ScopedVarTable::TableInfo tableInfo;
 
@@ -425,8 +429,13 @@ namespace TerranEditor
 							for (int i = 0; i < 3; i++)
 							{
 								const bool is_selected = (awakeStateNames[i] == currentAwakeState);
-								if (ImGui::Selectable(awakeStateNames[i], is_selected))
+								if (ImGui::Selectable(awakeStateNames[i], is_selected)) 
+								{
 									rbComponent.SleepState = (PhysicsBodySleepState)i;
+
+									if (isPlay) 
+										physicsBody.SetSleepState(rbComponent.SleepState);
+								}
 
 								if (is_selected)
 									ImGui::SetItemDefaultFocus();
@@ -437,8 +446,11 @@ namespace TerranEditor
 
 					}
 
-					UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale);
-
+					if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
+					{
+						if (isPlay)
+							physicsBody.SetGravityScale(rbComponent.GravityScale);
+					}
 
 					{
 						ImGui::Unindent(20.0f);

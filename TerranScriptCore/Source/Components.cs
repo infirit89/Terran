@@ -26,6 +26,24 @@ namespace TerranScriptCore
 			set => Internal.Rigidbody2D_SetGravityScale_Internal(entity.ID.Data, value);
 		}
 
+		public Vector2 LinearVelocity 
+		{
+			get
+			{
+				Vector2 linearVelocity;
+				Internal.Rigidbody2D_GetLinearVelocity_Internal(entity.ID.Data, out linearVelocity);
+				return linearVelocity;
+			}
+
+			set => Internal.Rigidbody2D_SetLinearVelocity_Internal(entity.ID.Data, in value);
+		}
+
+		public float AngularVelocity 
+		{
+			get => Internal.Rigidbody2D_GetAngularVelocity_Internal(entity.ID.Data);
+			set => Internal.Rigidbody2D_SetAngularVelocity_Internal(entity.ID.Data, value);
+		}
+
 		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForce_Internal(entity.ID.Data, in force, in position, (byte)forceMode);
 
 		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter_Internal(entity.ID.Data, in force, (byte)forceMode);

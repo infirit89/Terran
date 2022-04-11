@@ -1,5 +1,7 @@
 #include "SceneView.h"
 
+#include "../EditorLayer.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ImGui/imgui.h>
@@ -14,6 +16,8 @@ namespace TerranEditor
 		if (m_Open) 
 		{
 			ImGui::Begin("Scene view", &m_Open);
+
+			SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();
 
 			if (m_Position.x != ImGui::GetWindowPos().x || m_Position.y != ImGui::GetWindowPos().y) 
 			{
@@ -46,18 +50,18 @@ namespace TerranEditor
 			m_Visible = ImGui::IsItemVisible();
 
 			ImGuizmo::SetDrawlist();
-
 			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
 
-			bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
-			if (altPressed)
-				m_UseSnapping = true;
-			else
-				m_UseSnapping = false;
 
 			// Gizmos
-			if (selectedEntity && m_SceneState == SceneState::Edit)
+			if (selectedEntity && sceneState == SceneState::Edit)
 			{
+				bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
+				if (altPressed)
+					m_UseSnapping = true;
+				else
+					m_UseSnapping = false;
+
 				const glm::mat4& cameraProjection = editorCamera.GetProjection();
 				glm::mat4 cameraView = editorCamera.GetView();
 
@@ -122,28 +126,16 @@ namespace TerranEditor
 
 	bool SceneView::OnKeyPressed(KeyPressedEvent& e)
 	{
-		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();
 
-		if (e.GetRepeatCount() > 0 || m_SceneState == SceneState::Play)
+		if (e.GetRepeatCount() > 0 || sceneState == SceneState::Play)
 			return false;
 
 		switch (e.GetKeyCode())
 		{
-		case Key::Q: 
-		{
-			m_GizmoType = ImGuizmo::TRANSLATE;
-			break;
-		}
-		case Key::W:
-		{
-			m_GizmoType = ImGuizmo::ROTATE;
-			break;
-		}
-		case Key::E:
-		{
-			m_GizmoType = ImGuizmo::SCALE;
-			break;
-		}
+		case Key::Q:	m_GizmoType = ImGuizmo::TRANSLATE; break;
+		case Key::W:	m_GizmoType = ImGuizmo::ROTATE; break;
+		case Key::E:	m_GizmoType = ImGuizmo::SCALE; break;
 		}
 
 		return false;

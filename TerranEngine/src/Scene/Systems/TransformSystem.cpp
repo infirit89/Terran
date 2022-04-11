@@ -50,9 +50,9 @@ namespace TerranEngine
 
 	void TransformSystem::UpdateEntityTransform(Entity entity)
 	{
-		TransformComponent& transformComponent = entity.GetTransform();
+		TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
 		
-		if (entity.GetTransform().IsDirty) 
+		if (transformComponent.IsDirty) 
 		{
 			if (s_Context->HasRuntimeStarted() && entity.HasComponent<Rigidbody2DComponent>())
 			{
