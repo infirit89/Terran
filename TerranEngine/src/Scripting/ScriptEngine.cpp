@@ -502,16 +502,44 @@ namespace TerranEngine
 					fieldBackup.Type = field.GetType();
 					switch (field.GetType())
 					{
-					case ScriptFieldType::Int8:
-					case ScriptFieldType::Int16:
-					case ScriptFieldType::Int:
-					case ScriptFieldType::Int64:
-					case ScriptFieldType::UInt8:
-					case ScriptFieldType::UInt16:
-					case ScriptFieldType::UInt:
-					case ScriptFieldType::UInt64:
+					case ScriptFieldType::Int8: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int8_t>();
+						break;
+					}
+					case ScriptFieldType::Int16: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int16_t>();
+						break;
+					}
+					case ScriptFieldType::Int: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int32_t>();
+						break;
+					}
+					case ScriptFieldType::Int64: 
 					{
 						fieldBackup.Data.iValue = field.GetData<int64_t>();
+						break;
+					}
+					case ScriptFieldType::UInt8: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint8_t>();
+						break;
+					}
+					case ScriptFieldType::UInt16: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint16_t>();
+						break;
+					}
+					case ScriptFieldType::UInt: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint32_t>();
+						break;
+					}
+					case ScriptFieldType::UInt64:
+					{
+						fieldBackup.Data.iValue = field.GetData<uint64_t>();
 						break;
 					}
 					case ScriptFieldType::Float:

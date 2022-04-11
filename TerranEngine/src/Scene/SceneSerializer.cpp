@@ -28,10 +28,8 @@ namespace TerranEngine
 	{
 		return
 		{
-			{
-				{ "X", value.x },
-				{ "Y", value.y },
-			}
+			{ "X", value.x },
+			{ "Y", value.y },
 		};
 	}
 
@@ -49,11 +47,9 @@ namespace TerranEngine
 	{
 		return
 		{
-			{ 
-				{ "X", value.x },
-				{ "Y", value.y },
-				{ "Z", value.z }
-			}
+			{ "X", value.x },
+			{ "Y", value.y },
+			{ "Z", value.z }
 		};
 	}
 
@@ -72,12 +68,10 @@ namespace TerranEngine
 	{
 		return
 		{
-			{
-				{ "X", value.x },
-				{ "Y", value.y },
-				{ "Z", value.z },
-				{ "W", value.w }
-			}
+			{ "X", value.x },
+			{ "Y", value.y },
+			{ "Z", value.z },
+			{ "W", value.w }
 		};
 	}
 
@@ -230,7 +224,7 @@ namespace TerranEngine
 				{
 					{ "Position", SerializeVec3(entity.GetTransform().Position) },
 					{ "Rotation", SerializeVec3(entity.GetTransform().Rotation) },
-					{ "Scale", SerializeVec3(entity.GetTransform().Scale) },
+					{ "Scale",	SerializeVec3(entity.GetTransform().Scale) },
 				}}
 			);
 		}
@@ -539,9 +533,9 @@ catch(const std::exception& ex)\
 
 			try
 			{
-				glm::vec3 position = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
-				glm::vec3 scale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
-				glm::vec3 rotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
+				glm::vec3 position = DeserializeVec3(jEntity["TransformComponent"], "Position");
+				glm::vec3 scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+				glm::vec3 rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
 					
 				transform.Position = position;
 				transform.Rotation = rotation;

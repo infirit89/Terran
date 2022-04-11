@@ -384,11 +384,13 @@ namespace TerranEditor
 
 				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
 				{
+					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+
 					UI::ScopedVarTable::TableInfo tableInfo;
 
 					// rigidbody body type selection
 					{
-						const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
 						const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
 						
 						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
@@ -414,13 +416,6 @@ namespace TerranEditor
 
 					// rigidbody awake state selection 
 					{
-						const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
-
-						PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-
-						std::string text = fmt::format("Sleep state: {0}, Can Sleep: {1}", awakeStateNames[(int)physicsBody.GetCurrentSleepState()], physicsBody.CanSleep());
-						ImGui::Text(text.c_str());
-
 						const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
 
 						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
@@ -443,6 +438,34 @@ namespace TerranEditor
 					}
 
 					UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale);
+
+
+					{
+						ImGui::Unindent(20.0f);
+
+						UI::ScopedStyleColor stlyeColor({
+							{ ImGuiCol_HeaderHovered,	{ 1.0f, 0.0f, 0.0f, 0.0f } },
+							{ ImGuiCol_HeaderActive,	{ 1.0f, 0.0f, 0.0f, 0.0f } }
+						});
+						bool treeNode = ImGui::TreeNodeEx("Details", ImGuiTreeNodeFlags_None);
+
+						if (treeNode) 
+						{
+							PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+							{
+								UI::ScopedVarTable::TableInfo currentSleepStateTableInfo;
+								currentSleepStateTableInfo.firstColumnWidth = ImGui::CalcTextSize("Current Sleep State").x + 10.0f;
+
+								UI::ScopedVarTable currentSleepStateTable("Current Sleep State", currentSleepStateTableInfo);
+							
+								ImGui::Text(awakeStateNames[(int)physicsBody.GetCurrentSleepState()]);
+							}
+
+							ImGui::TreePop();
+						}
+						ImGui::Indent(20.0f);
+					}
 				});
 
 				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 

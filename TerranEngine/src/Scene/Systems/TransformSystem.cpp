@@ -14,6 +14,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <box2d/box2d.h>
+
 namespace TerranEngine 
 {
 	Scene* TransformSystem::s_Context;
@@ -58,6 +60,14 @@ namespace TerranEngine
 				physicsBody.SetPosition({ transformComponent.Position.x, transformComponent.Position.y });
 				physicsBody.SetRotation(transformComponent.Rotation.z);
 				physicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+
+				// set all the bodies this physics body is contacing with to be awake
+				for (b2ContactEdge* contact = physicsBody.GetPhysicsBodyInternal()->GetContactList(); contact; contact = contact->next)
+				{
+					b2Body* body = contact->other;
+					PhysicsBody2D otherPhysicsBody(body);
+					otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+				}
 			}
 
 			if (entity.HasParent()) 

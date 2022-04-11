@@ -86,7 +86,7 @@ namespace TerranEngine
 			CircleCollider2D circleCollider;
 
 			circleCollider.SetOffset(circleColliderComponent.Offset);
-			circleCollider.SetRadius(circleColliderComponent.Radius);
+			circleCollider.SetRadius(circleColliderComponent.Radius * 0.5f);
 			circleCollider.SetSensor(circleColliderComponent.IsSensor);
 
 			circleCollider.SetUserData((uintptr_t)id.GetRaw());
