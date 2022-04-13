@@ -15,10 +15,14 @@ namespace TerranEditor
 
 		void SetScene(const Shared<Scene>& scene);
 
-		Entity& GetSelected() { return m_Selected; }
+		Entity GetSelected() { return m_Scene->FindEntityWithUUID(m_SelectedID); }
+		void SetSelected(Entity selectedEntity) 
+		{
+			if(selectedEntity)
+				m_SelectedID = selectedEntity.GetID(); 
+		}
 
 		void SetOpen(bool open) { m_Open = open; }
-		 
 
 		void OnEvent(Event& event);
 
@@ -31,7 +35,7 @@ namespace TerranEditor
 
 		bool m_Open = true;
 
-		Entity m_Selected = {};
+		UUID m_SelectedID;
 		Shared<Scene> m_Scene;
 	};
 }

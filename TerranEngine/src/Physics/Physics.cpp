@@ -136,12 +136,19 @@ namespace TerranEngine
 
 			PhysicsBody2D& physicsBody = s_PhysicsBodies.at(entity.GetID());
 
-			transform.Position.x = physicsBody.GetPosition().x;
-			transform.Position.y = physicsBody.GetPosition().y;
+			if (transform.Position.x != physicsBody.GetPosition().x || transform.Position.y != physicsBody.GetPosition().y) 
+			{
+				transform.Position.x = physicsBody.GetPosition().x;
+				transform.Position.y = physicsBody.GetPosition().y;
+				transform.IsDirty = true;
 
-			transform.Rotation.z = physicsBody.GetRotation();
+			}
 
-			transform.IsDirty = true;
+			if (transform.Rotation.z != physicsBody.GetRotation()) 
+			{
+				transform.Rotation.z = physicsBody.GetRotation();
+				transform.IsDirty = true;
+			}
 		}
 	}
 

@@ -467,11 +467,18 @@ namespace TerranEditor
 
 							{
 								UI::ScopedVarTable::TableInfo currentSleepStateTableInfo;
-								currentSleepStateTableInfo.firstColumnWidth = ImGui::CalcTextSize("Current Sleep State").x + 10.0f;
-
-								UI::ScopedVarTable currentSleepStateTable("Current Sleep State", currentSleepStateTableInfo);
+								currentSleepStateTableInfo.firstColumnWidth = ImGui::CalcTextSize("Sleep State").x + 10.0f;
+								UI::ScopedVarTable currentSleepStateTable("Sleep State", currentSleepStateTableInfo);
 							
 								ImGui::Text(awakeStateNames[(int)physicsBody.GetCurrentSleepState()]);
+							}
+
+							{
+								UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
+
+								glm::vec2 velocity = physicsBody.GetLinearVelocity();
+								std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
+								ImGui::Text(velocityText.c_str());
 							}
 
 							ImGui::TreePop();

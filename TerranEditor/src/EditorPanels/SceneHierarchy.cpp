@@ -12,7 +12,7 @@ namespace TerranEditor
 	void SceneHierarchy::SetScene(const Shared<Scene>& scene)
 	{
 		m_Scene = scene;
-		m_Selected = {};
+		m_SelectedID = UUID({ 0 });
 	}
 
 	void SceneHierarchy::OnEvent(Event& event)
@@ -42,13 +42,13 @@ namespace TerranEditor
 				if (ImGui::BeginPopupContextWindow(0, 1, false))
 				{
 					if (ImGui::MenuItem("Create an entity"))
-						m_Selected = m_Scene->CreateEntity("Entity");
+						m_SelectedID = m_Scene->CreateEntity("Entity").GetID();
 
 					ImGui::EndPopup();
 				}
 	
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					m_Selected = {};
+					m_SelectedID = UUID({ 0 });
 			}
 
 			ImGui::End();
@@ -61,6 +61,8 @@ namespace TerranEditor
 		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 
+		Entity selectedEntity = GetSelected();
+
 		if (e.GetRepeatCount() > 0)
 			return false;
 
@@ -69,8 +71,8 @@ namespace TerranEditor
 		case Key::D:
 			if (ctrlPressed) 
 			{
-				if (m_Selected)
-					m_Scene->DuplicateEntity(m_Selected);
+				if (selectedEntity)
+					m_Scene->DuplicateEntity(selectedEntity);
 			}
 
 			break;
@@ -79,7 +81,7 @@ namespace TerranEditor
 			if (ctrlPressed && shiftPressed)
 			{
 				auto entity = m_Scene->CreateEntity();
-				m_Selected = entity;
+				m_SelectedID = entity.GetID();
 
 				return true;
 			}
@@ -96,7 +98,8 @@ namespace TerranEditor
 		
 		ImGui::PushID(imguiID.c_str());
 
-		ImGuiTreeNodeFlags flags = (m_Selected == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+		Entity selectedEntity = GetSelected();
+		ImGuiTreeNodeFlags flags = (selectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
 
 		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
 			flags |= ImGuiTreeNodeFlags_NoButton;
@@ -148,12 +151,12 @@ namespace TerranEditor
 		style = orgStyle;
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
-			m_Selected = entity;
+			m_SelectedID = entity.GetID();
 
 		bool isDeleted = false;
 		
 		if (Input::IsKeyPressed(Key::Delete))
-			if (m_Selected == entity)
+			if (selectedEntity == entity)
 				isDeleted = true;
 
 		if (ImGui::BeginPopupContextItem())
@@ -162,8 +165,8 @@ namespace TerranEditor
 			{
 				auto entity = m_Scene->CreateEntity("Entity");
 			
-				if (m_Selected)
-					entity.SetParent(m_Selected);
+				if (selectedEntity)
+					entity.SetParent(selectedEntity);
 			}
 
 			if (ImGui::MenuItem("Delete entity")) 
@@ -171,8 +174,8 @@ namespace TerranEditor
 
 			if (ImGui::MenuItem("Duplicate")) 
 			{
-				if(m_Selected)
-					m_Scene->DuplicateEntity(m_Selected);
+				if(selectedEntity)
+					m_Scene->DuplicateEntity(selectedEntity);
 			}
 
 			ImGui::EndPopup();
@@ -199,8 +202,8 @@ namespace TerranEditor
 		if (isDeleted)
 		{
 			m_Scene->DestroyEntity(entity, true);
-			if (m_Selected == entity)
-				m_Selected = {};
+			if (selectedEntity == entity)
+				m_SelectedID = UUID({ 0 });
 		}
 
 		ImGui::PopID();

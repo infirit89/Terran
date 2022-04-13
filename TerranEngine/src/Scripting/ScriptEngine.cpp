@@ -385,6 +385,9 @@ namespace TerranEngine
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
+		if (!entity || !entity.HasComponent<TagComponent>())
+			return;
+
 		if (s_ScriptableInstanceMap.find(entity.GetSceneID()) != s_ScriptableInstanceMap.end()) 
 		{
 			if (s_ScriptableInstanceMap[entity.GetSceneID()].find(entity.GetID()) != s_ScriptableInstanceMap[entity.GetSceneID()].end()) 

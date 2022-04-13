@@ -14,6 +14,7 @@ namespace TerranEditor
 
 		void ImGuiRender(Entity entity);
 		inline void SetOpen(bool open) { m_Open = open; }
+
 	private:
 		bool m_Open = true;
 	};

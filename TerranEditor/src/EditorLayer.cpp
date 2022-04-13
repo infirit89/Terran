@@ -346,10 +346,10 @@ namespace TerranEditor
 
 		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
-
-		TR_TRACE(SceneManager::GetCurrentScene().get());
-
 		SceneManager::GetCurrentScene()->StartRuntime();
+
+		m_SHierarchy.SetSelected(m_Selected);
+		m_EditModeSelected = m_Selected;
 	}
 
 	void EditorLayer::OnSceneStop()
@@ -359,6 +359,8 @@ namespace TerranEditor
 		SceneManager::SetCurrentScene(m_EditorScene);
 		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+
+		m_SHierarchy.SetSelected(m_EditModeSelected);
 	}
 
 	void EditorLayer::ImGuiRender()
@@ -377,9 +379,9 @@ namespace TerranEditor
 		});
 
 		m_PropertiesPanel.ImGuiRender(m_Selected);
-		m_ContentPanel.ImGuiRender();
 		m_ECSPanel.ImGuiRender();
 		m_LogPanel.ImGuiRender();
+		m_ContentPanel.ImGuiRender();
 
 		// Renderer stats
 		{

@@ -16,7 +16,8 @@ namespace TerranEngine
 
     bool PhysicsBody2D::GetFixedRotation() const
     {
-        TR_ASSERT(m_Body, "Physics Body is null");
+        if (!m_Body)
+            return false;
 
         return m_Body->IsFixedRotation();
     }
@@ -30,25 +31,24 @@ namespace TerranEngine
 
     const glm::vec2& PhysicsBody2D::GetPosition() const
     {
-        TR_ASSERT(m_Body, "Physics Body is null");
+        if (!m_Body)
+            return { 0.0f,0.0f };
 
         b2Vec2 position = m_Body->GetPosition();
-
         return { position.x, position.y };
     }
 
     void PhysicsBody2D::SetPosition(const glm::vec2& position)
     {
         TR_ASSERT(m_Body, "Physics Body is null");
-
         float angle = m_Body->GetAngle();
-
         m_Body->SetTransform({ position.x, position.y }, angle);
     }
 
     float PhysicsBody2D::GetRotation() const
     {
-        TR_ASSERT(m_Body, "Physics Body is null");
+        if (!m_Body)
+            return 0.0f;
 
         return m_Body->GetAngle();
     }
@@ -56,31 +56,29 @@ namespace TerranEngine
     void PhysicsBody2D::SetRotation(float rotation)
     {
         TR_ASSERT(m_Body, "Physics Body is null");
-
         b2Vec2 position = m_Body->GetPosition();
-
         m_Body->SetTransform(position, rotation);
     }
 
     const glm::vec2& PhysicsBody2D::GetLinearVelocity() const
     {
-        TR_ASSERT(m_Body, "Physics Body is null");
+        if (!m_Body)
+            return { 0.0f, 0.0f };
 
         b2Vec2 linearVelocity = m_Body->GetLinearVelocity();
-
         return { linearVelocity.x, linearVelocity.y };
     }
 
     void PhysicsBody2D::SetLinearVelocity(const glm::vec2& linearVelocity)
     {
         TR_ASSERT(m_Body, "Physics Body is null");
-
         m_Body->SetLinearVelocity({ linearVelocity.x, linearVelocity.y });
     }
 
     float PhysicsBody2D::GetAngularVelocity() const
     {
-        TR_ASSERT(m_Body, "Physics Body is null");
+        if (!m_Body)
+            return 0.0f;
 
         return m_Body->GetAngularVelocity();
     }
@@ -94,7 +92,8 @@ namespace TerranEngine
 
     float PhysicsBody2D::GetGravityScale() const
     {
-        TR_ASSERT(m_Body, "Physics Body is null");
+        if (!m_Body)
+            return 1.0f;
 
         return m_Body->GetGravityScale();
     }

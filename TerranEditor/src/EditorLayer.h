@@ -58,6 +58,7 @@ namespace TerranEditor
 		OrthographicCamera m_Camera;
 
 		Entity m_Selected = {};
+		Entity m_EditModeSelected = {};
 
 		// ***** Panels *****
 		SceneHierarchy m_SHierarchy;
