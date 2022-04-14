@@ -46,6 +46,10 @@ namespace TerranEngine
 	static glm::vec3 Transform_GetScale_Internal(MonoArray* entityUUIDArr);
 
 	static bool Transform_IsDirty_Internal(MonoArray* entityUUIDArr);
+
+	static glm::vec3 Transform_GetForward_Internal(MonoArray* entityUUIDArr);
+	static glm::vec3 Transform_GetUp_Internal(MonoArray* entityUUIDArr);
+	static glm::vec3 Transform_GetRight_Internal(MonoArray* entityUUIDArr);
 	// -----------------------------
 
 	// ---- Tag component ----
@@ -147,6 +151,10 @@ namespace TerranEngine
 		BindInternalFunc("TerranScriptCore.Internal::Transform_SetScale_Internal", Transform_SetScale_Internal);
 												   
 		BindInternalFunc("TerranScriptCore.Internal::Transform_IsDirty_Internal", Transform_IsDirty_Internal);
+		
+		BindInternalFunc("TerranScriptCore.Internal::Transform_GetForward_Internal", Transform_GetForward_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Transform_GetUp_Internal", Transform_GetUp_Internal);
+		BindInternalFunc("TerranScriptCore.Internal::Transform_GetRight_Internal", Transform_GetRight_Internal);
 		// -------------------
 
 		// ---- tag ----
@@ -492,6 +500,28 @@ namespace TerranEngine
 
 		return false;
 	}
+
+	static glm::vec3 Transform_GetForward_Internal(MonoArray* entityUUIDArr) 
+	{
+		glm::vec3 Forward = { 0.0f, 0.0f, 1.0f };
+		GET_COMPONENT_VAR(Forward, entityUUIDArr, TransformComponent);
+		return Forward;
+	}
+
+	static glm::vec3 Transform_GetUp_Internal(MonoArray* entityUUIDArr) 
+	{
+		glm::vec3 Up = { 0.0f, 1.0f, 0.0f };
+		GET_COMPONENT_VAR(Up, entityUUIDArr, TransformComponent);
+		return Up;
+	}
+
+	static glm::vec3 Transform_GetRight_Internal(MonoArray* entityUUIDArr) 
+	{
+		glm::vec3 Right = { 1.0f, 0.0f, 0.0f };
+		GET_COMPONENT_VAR(Right, entityUUIDArr, TransformComponent);
+		return Right;
+	}
+
 	// -------------------
 
 	// ---- Tag ----

@@ -39,13 +39,13 @@ namespace TerranEngine
 		bool GetFixedRotation() const;
 		void SetFixedRotation(bool fixedRotation);
 
-		const glm::vec2& GetPosition() const;
+		glm::vec2 GetPosition() const;
 		void SetPosition(const glm::vec2& position);
 
 		float GetRotation() const;
 		void SetRotation(float rotation);
 
-		const glm::vec2& GetLinearVelocity() const;
+		glm::vec2 GetLinearVelocity() const;
 		void SetLinearVelocity(const glm::vec2& linearVelocity);
 
 		float GetAngularVelocity() const;
@@ -58,17 +58,15 @@ namespace TerranEngine
 		inline bool IsDynamic() const { return m_BodyState == PhysicsBodyType::Dynamic; }
 		inline bool IsKinematic() const { return m_BodyState == PhysicsBodyType::Kinematic; }
 
-		void SetBodyState(PhysicsBodyType bodyState);
-		PhysicsBodyType GetBodyState() const { return m_BodyState; }
+		void SetBodyType(PhysicsBodyType bodyType);
+		PhysicsBodyType GetBodyType() const;
 
 		inline bool IsAwake() const { return m_SleepState == PhysicsBodySleepState::Awake; }
 		inline bool IsSleeping() const { return m_SleepState == PhysicsBodySleepState::Sleep; }
 		inline bool CanSleep() const { return m_SleepState != PhysicsBodySleepState::NeverSleep; }
 
 		void SetSleepState(PhysicsBodySleepState sleepState);
-		PhysicsBodySleepState GetSleepState() const { return m_SleepState; }
-
-		PhysicsBodySleepState GetCurrentSleepState() const;
+		PhysicsBodySleepState GetSleepState() const;
 
 		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);

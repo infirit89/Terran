@@ -2,6 +2,8 @@
 #include "Physics.h"
 #include "ContatctListener.h"
 
+#include "Core/Settings.h"
+
 #include "Scene/SceneManager.h"
 
 #include <box2d/box2d.h>
@@ -59,7 +61,7 @@ namespace TerranEngine
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
 		PhysicsBody2D physicsBody(body);
 
-		physicsBody.SetBodyState(rigidbody.BodyType);
+		physicsBody.SetBodyType(rigidbody.BodyType);
 		physicsBody.SetSleepState(rigidbody.SleepState);
 
 		const UUID& id = entity.GetID();
@@ -119,11 +121,8 @@ namespace TerranEngine
 	}
 
 	void Physics2D::Update(Time time)
-	{
-		const int32 velocityIterations = 6;
-		const int32 positionIterations = 2;
-
-		s_PhysicsWorld->Step(time.GetDeltaTime(), velocityIterations, positionIterations);
+	{		
+		s_PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
 
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
 

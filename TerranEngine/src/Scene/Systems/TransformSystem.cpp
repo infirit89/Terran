@@ -50,40 +50,43 @@ namespace TerranEngine
 
 	void TransformSystem::UpdateEntityTransform(Entity entity)
 	{
-		TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
+		TransformComponent& tc = entity.GetComponent<TransformComponent>();
 		
-		if (transformComponent.IsDirty) 
+		if (s_Context->HasRuntimeStarted() && entity.HasComponent<Rigidbody2DComponent>())
 		{
-			if (s_Context->HasRuntimeStarted() && entity.HasComponent<Rigidbody2DComponent>())
-			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetPosition({ transformComponent.Position.x, transformComponent.Position.y });
-				physicsBody.SetRotation(transformComponent.Rotation.z);
-				physicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			physicsBody.SetPosition({ tc.Position.x, tc.Position.y });
+			physicsBody.SetRotation(tc.Rotation.z);
+			physicsBody.SetSleepState(PhysicsBodySleepState::Awake);
 
-				// set all the bodies this physics body is contacing with to be awake
-				for (b2ContactEdge* contact = physicsBody.GetPhysicsBodyInternal()->GetContactList(); contact; contact = contact->next)
-				{
-					b2Body* body = contact->other;
-					PhysicsBody2D otherPhysicsBody(body);
-					otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
-				}
-			}
-
-			if (entity.HasParent()) 
+			// set all the bodies this physics body is contacing with to be awake
+			for (b2ContactEdge* contact = physicsBody.GetPhysicsBodyInternal()->GetContactList(); contact; contact = contact->next)
 			{
-				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
-				transformComponent.LocalTransformMatrix = glm::inverse(entity.GetParent().GetWorldMatrix()) * CalculateTransformMatrix(transformComponent);
-			}
-			else 
-			{
-				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent);
-				transformComponent.LocalTransformMatrix = transformComponent.WorldTransformMatrix;
+				b2Body* body = contact->other;
+				PhysicsBody2D otherPhysicsBody(body);
+				otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
 			}
 		}
 
+		if (entity.HasParent()) 
+		{
+			tc.WorldTransformMatrix = CalculateTransformMatrix(tc) * 
+									entity.GetParent().GetWorldMatrix();
+			tc.LocalTransformMatrix = glm::inverse(entity.GetParent().GetWorldMatrix()) * 
+									CalculateTransformMatrix(tc);
+		}
+		else 
+		{
+			tc.WorldTransformMatrix = CalculateTransformMatrix(tc);
+			tc.LocalTransformMatrix = tc.WorldTransformMatrix;
+		}
 
-		transformComponent.IsDirty = false;
+		glm::quat rotationQuat = tc.Rotation;
+
+		tc.Forward = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 0.0f, 1.0f)));
+		tc.Up = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 1.0f, 0.0f)));
+		tc.Right = glm::normalize(glm::rotate(rotationQuat, glm::vec3(1.0f, 0.0f, 0.0f)));
+		tc.IsDirty = false;
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{

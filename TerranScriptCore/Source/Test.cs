@@ -44,6 +44,9 @@ namespace TerranScriptCore
 		// Runs when the entity in the current scene, that has this script, is started
 		public void Init() 
 		{
+			float Infinity = 1F / 0F;
+			Log.Trace(Infinity + 1F);
+
 			rb = entity.GetComponent<Rigidbody2D>();
 		}
 
@@ -63,21 +66,6 @@ namespace TerranScriptCore
 				Log.Trace("jumped");
 				rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
 			}
-/*			float leftX = Input.GetControllerAxis(ControllerAxis.LeftX, 0);
-			float leftY = Input.GetControllerAxis(ControllerAxis.LeftY, 0);
-
-
-			leftX = (float)Math.Round(leftX, 1);
-			leftY = (float)Math.Round(leftY, 1);
-
-			Log.Trace(leftX);
-			Log.Trace(leftY);
-
-			if(leftX >= 0.5f || leftX <= -0.5f)
-				entity.transform.Position += new Vector3((leftX * 0.1f), 0.0f, 0.0f);*/
-			
-			//if(leftY >= 0.5f || leftY <= -0.5f)
-				//entity.transform.Position += new Vector3(0.0f, -(leftY * 0.1f), 0.0f);
 		}
 
 		public void OnCollisionBegin(Entity entity) 

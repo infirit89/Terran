@@ -29,10 +29,10 @@ namespace TerranEngine
         m_Body->SetFixedRotation(fixedRotation);
     }
 
-    const glm::vec2& PhysicsBody2D::GetPosition() const
+    glm::vec2 PhysicsBody2D::GetPosition() const
     {
         if (!m_Body)
-            return { 0.0f,0.0f };
+            return { 0.0f, 0.0f };
 
         b2Vec2 position = m_Body->GetPosition();
         return { position.x, position.y };
@@ -60,7 +60,7 @@ namespace TerranEngine
         m_Body->SetTransform(position, rotation);
     }
 
-    const glm::vec2& PhysicsBody2D::GetLinearVelocity() const
+    glm::vec2 PhysicsBody2D::GetLinearVelocity() const
     {
         if (!m_Body)
             return { 0.0f, 0.0f };
@@ -116,10 +116,24 @@ namespace TerranEngine
 
         TR_ASSERT(false, "Unsupported body type");
 
-        return b2BodyType::b2_staticBody;
+        return b2BodyType::b2_dynamicBody;
     }
 
-    void PhysicsBody2D::SetBodyState(PhysicsBodyType bodyState)
+    static PhysicsBodyType ConvertToTerranPhysicsBodyType(b2BodyType bodyType) 
+    {
+        switch (bodyType)
+        {
+        case b2_staticBody:     return PhysicsBodyType::Static;
+        case b2_dynamicBody:    return PhysicsBodyType::Dynamic;
+        case b2_kinematicBody:  return PhysicsBodyType::Kinematic;
+        }
+
+        TR_ASSERT(false, "Unsupported body type");
+
+        return PhysicsBodyType::Dynamic;
+    }
+
+    void PhysicsBody2D::SetBodyType(PhysicsBodyType bodyState)
     {
         TR_ASSERT(m_Body, "Physics Body is null");
 
@@ -229,7 +243,7 @@ namespace TerranEngine
         m_Body->CreateFixture(&fixtureDef);
     }
 
-    PhysicsBodySleepState PhysicsBody2D::GetCurrentSleepState() const
+    PhysicsBodySleepState PhysicsBody2D::GetSleepState() const
     {
         if (!m_Body)
             return PhysicsBodySleepState::Awake;
@@ -238,6 +252,14 @@ namespace TerranEngine
             return PhysicsBodySleepState::NeverSleep;
 
         return (PhysicsBodySleepState)m_Body->IsAwake();
+    }
+
+    PhysicsBodyType PhysicsBody2D::GetBodyType() const 
+    {
+        if (!m_Body)
+            return PhysicsBodyType::Dynamic;
+
+        return ConvertToTerranPhysicsBodyType(m_Body->GetType());
     }
 
 }

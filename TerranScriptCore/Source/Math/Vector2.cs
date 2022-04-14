@@ -11,10 +11,7 @@ namespace TerranScriptCore
 		public float X;
 		public float Y;
 
-		public double Magnitude
-		{
-			get => Math.Sqrt(X * X + Y * Y);
-		}
+		public float Magnitude => (float)Math.Sqrt(X * X + Y * Y);
 
 		public Vector2(float x, float y)
 		{
@@ -28,16 +25,18 @@ namespace TerranScriptCore
 			Y = y;
 		}
 
-		public static Vector2 Zero = new Vector2(0, 0);
-		public static Vector2 One = new Vector2(1, 1);
+		public Vector2 Normalized => new Vector2(X / Magnitude, Y / Magnitude);
 
-		public static Vector2 Up = new Vector2(0, 1);
-		public static Vector2 Down = new Vector2(0, -1);
-		public static Vector2 Left = new Vector2(-1, 0);
-		public static Vector2 Right = new Vector2(1, 0);
-		public static double Dot(in Vector2 a, in Vector2 b) => (a.X * b.X) + (a.Y * b.Y);
+		public static Vector2 Zero = new Vector2(0.0f, 0.0f);
+		public static Vector2 One = new Vector2(1.0f, 1.0f);
+
+		public static Vector2 Up = new Vector2(0.0f, 1.0f);
+		public static Vector2 Right = new Vector2(1.0f, 0.0f);
+
+		public static float Dot(in Vector2 a, in Vector2 b) => (a.X * b.X) + (a.Y * b.Y);
 		
 		public static Vector2 Add(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X + vec2.X, vec1.Y + vec2.Y);
+		
 		public static Vector2 Subtract(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X - vec2.X, vec1.Y - vec2.Y);
 
 		public static Vector2 Multiply(Vector2 vec1, Vector2 vec2) => new Vector2(vec1.X * vec2.X, vec1.Y * vec2.Y);

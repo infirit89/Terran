@@ -163,6 +163,16 @@ namespace TerranScriptCore
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern bool Transform_IsDirty_Internal(byte[] entityID);
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern Vector3 Transform_GetForward_Internal(byte[] entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern Vector3 Transform_GetUp_Internal(byte[] entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern Vector3 Transform_GetRight_Internal(byte[] entityID);
+
+
 		// -------------------
 	}
 }

@@ -470,7 +470,7 @@ namespace TerranEditor
 								currentSleepStateTableInfo.firstColumnWidth = ImGui::CalcTextSize("Sleep State").x + 10.0f;
 								UI::ScopedVarTable currentSleepStateTable("Sleep State", currentSleepStateTableInfo);
 							
-								ImGui::Text(awakeStateNames[(int)physicsBody.GetCurrentSleepState()]);
+								ImGui::Text(awakeStateNames[(int)physicsBody.GetSleepState()]);
 							}
 
 							{

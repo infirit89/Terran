@@ -14,6 +14,8 @@ namespace TerranScriptCore
 			m_Data = data;
 		}
 
+		public static implicit operator byte[](UUID uuid) => uuid.Data;
+
 		public override string ToString()
 		{
 			string result = "";

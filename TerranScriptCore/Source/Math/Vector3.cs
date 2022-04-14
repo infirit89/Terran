@@ -12,10 +12,8 @@ namespace TerranScriptCore
 		public float Y;
 		public float Z;
 
-		public double Magnitude
-		{
-			get => Math.Sqrt(X * X + Y * Y + Z * Z);
-		}
+
+		public float Magnitude => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
 
 		public Vector3(float x, float y, float z)
 		{
@@ -31,32 +29,31 @@ namespace TerranScriptCore
 			Z = z;
 		}
 
-		public static Vector3 Zero = new Vector3(0, 0, 0);
-		public static Vector3 One = new Vector3(1, 1, 1);
+		public Vector3 Normalized => new Vector3(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
-		public static Vector3 Up = new Vector3(0, 1, 0);
-		public static Vector3 Down = new Vector3(0, -1, 0);
-		public static Vector3 Left = new Vector3(-1, 0, 0);
-		public static Vector3 Right = new Vector3(1, 0, 0);
+		public static Vector3 Zero = new Vector3(0.0f, 0.0f, 0.0f);
+		public static Vector3 One = new Vector3(1.0f, 1.0f, 1.0f);
+
+		public static Vector3 Up = new Vector3(0.0f, 1.0f, 0.0f);
+		public static Vector3 Right = new Vector3(1.0f, 0.0f, 0.0f);
+		public static Vector3 Forward = new Vector3(0.0f, 0.0f, 1.0f);
+
+		public static Vector3 Negate(Vector3 vec) => new Vector3(-vec.X, -vec.Y, -vec.Z);
+		
+		public static Vector3 Add(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X + vec2.X, vec1.Y + vec2.Y, vec1.Z + vec2.Z);
+		
+		public static Vector3 Subtract(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X - vec2.X, vec1.Y - vec2.Y, vec1.Z - vec2.Z);
 
 		public static Vector3 Multiply(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X * vec2.X, vec1.Y * vec2.Y, vec1.Z * vec2.Z);
 		public static Vector3 Multiply(Vector3 vec1, float scalar) => new Vector3(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
 		public static Vector3 Multiply(Vector3 vec1, int scalar) => new Vector3(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
 
-		public static Vector3 Add(Vector3 vec1, Vector3 vec2)
-		{
-			return new Vector3(vec1.X + vec2.X, vec1.Y + vec2.Y, vec1.Z + vec2.Z);
-		}
-
-		public static Vector3 Subtract(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X - vec2.X, vec1.Y - vec2.Y, vec1.Z - vec2.Z);
-
-		public static Vector3 Negate(Vector3 vec) => new Vector3(-vec.X, -vec.Y, -vec.Z);
-
 		public static Vector3 Divide(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
 		public static Vector3 Divide(Vector3 vec1, float scalar) => new Vector3(vec1.X / scalar, vec1.Y / scalar, vec1.Z / scalar);
 		public static Vector3 Divide(Vector3 vec1, int scalar) => new Vector3(vec1.X / scalar, vec1.Y / scalar, vec1.Z / scalar);
 
-		public static double Dot(in Vector3 a, in Vector3 b) => (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
+		public static float Dot(in Vector3 a, in Vector3 b) => (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
+		
 		public static Vector3 Cross(in Vector3 a, in Vector3 b)
 		{
 			float x, y, z;
