@@ -44,9 +44,7 @@ namespace TerranScriptCore
 		// Runs when the entity in the current scene, that has this script, is started
 		public void Init() 
 		{
-			float Infinity = 1F / 0F;
-			Log.Trace(Infinity + 1F);
-
+			RayCastHitInfo2D hitInfo = Physics2D.RayCast(entity.transform.Position, -Vector2.Up);
 			rb = entity.GetComponent<Rigidbody2D>();
 		}
 

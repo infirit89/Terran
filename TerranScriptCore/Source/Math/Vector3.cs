@@ -5,7 +5,8 @@ namespace TerranScriptCore
 {
 	// based on TMath's TVector3 class
 	// https://github.com/OKAY808/TMath
-
+	
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Vector3 : IEquatable<Vector3>
 	{
 		public float X;
@@ -27,6 +28,20 @@ namespace TerranScriptCore
 			X = x;
 			Y = y;
 			Z = z;
+		}
+
+		public Vector3(Vector2 vec, float z) 
+		{
+			X = vec.X;
+			Y = vec.Y;
+			Z = z;
+		}
+
+		public Vector3(Vector2 vec) 
+		{
+			X = vec.X;
+			Y = vec.Y;
+			Z = 0.0f;
 		}
 
 		public Vector3 Normalized => new Vector3(X / Magnitude, Y / Magnitude, Z / Magnitude);

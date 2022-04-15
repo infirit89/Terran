@@ -6,6 +6,7 @@ namespace TerranScriptCore
 	// based on TMath's TVector2 class
 	// https://github.com/OKAY808/TMath
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Vector2 : IEquatable<Vector2>
 	{
 		public float X;
@@ -23,6 +24,12 @@ namespace TerranScriptCore
 		{
 			X = x;
 			Y = y;
+		}
+
+		public Vector2(Vector3 vec) 
+		{
+			X = vec.X;
+			Y = vec.Y;
 		}
 
 		public Vector2 Normalized => new Vector2(X / Magnitude, Y / Magnitude);
@@ -65,6 +72,7 @@ namespace TerranScriptCore
 		public static Vector2 operator /(Vector2 a, int b) => Divide(a, b);
 		public static Vector2 operator /(Vector2 a, Vector2 b) => Divide(a, b);
 
+		public static implicit operator Vector2(Vector3 vec) => new Vector2(vec);
 
 		public bool Equals(Vector2 other)
 		{

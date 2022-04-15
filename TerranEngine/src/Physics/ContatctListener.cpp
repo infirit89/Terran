@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "ContatctListener.h"
+#include "PhysicsUtils.h"
 
 #include "Core/Log.h"
 #include "Core/UUID.h"
@@ -12,15 +13,6 @@
 
 namespace TerranEngine 
 {
-	static Entity GetEntityFromB2DFixtureUserData(const b2FixtureUserData& userData) 
-	{
-		std::array<uint8_t, 16> uuidArr;
-		memcpy(uuidArr._Elems, (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
-		UUID uuid(uuidArr);
-
-		return SceneManager::GetCurrentScene()->FindEntityWithUUID(uuid);
-	}
-
 	void ContactListener::BeginContact(b2Contact* contact)
 	{
 		const b2Fixture* collidee = contact->GetFixtureA();
@@ -30,8 +22,8 @@ namespace TerranEngine
 		b2FixtureUserData userDataA = collidee->GetUserData();
 		b2FixtureUserData userDataB = collider->GetUserData();
 
-		Entity entityA = GetEntityFromB2DFixtureUserData(userDataA);
-		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
+		Entity entityA = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataA);
+		Entity entityB = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataB);
 
 		if (entityA && entityB) 
 		{
@@ -49,8 +41,8 @@ namespace TerranEngine
 		b2FixtureUserData userDataA = collidee->GetUserData();
 		b2FixtureUserData userDataB = collider->GetUserData();
 
-		Entity entityA = GetEntityFromB2DFixtureUserData(userDataA);
-		Entity entityB = GetEntityFromB2DFixtureUserData(userDataB);
+		Entity entityA = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataA);
+		Entity entityB = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataB);
 
 		if (entityA && entityB) 
 		{

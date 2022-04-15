@@ -1,6 +1,38 @@
-[02:32:41] TERRAN: Graphics card: NVIDIA GeForce RTX 3060 Ti/PCIe/SSE2
-[02:32:41] TERRAN: OpenGL version: 4.6.0 NVIDIA 512.15
-[02:32:41] TERRAN: 0
-[02:32:41] TERRAN: The operation completed successfully.
-[02:32:41] TERRAN: Successfuly loaded: Resources/Scripts/TerranScriptCore.dll
-[02:32:45] TERRAN: Deinitialized the scripting core
+[04:58:34] TERRAN: Graphics card: NVIDIA GeForce RTX 3060 Ti/PCIe/SSE2
+[04:58:34] TERRAN: OpenGL version: 4.6.0 NVIDIA 512.15
+[04:58:34] TERRAN: 0
+[04:58:34] TERRAN: The operation completed successfully.
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'C:\Program Files\Mono\mscorlib.dll'.
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'C:\Program Files\Mono\mono\4.5\mscorlib.dll'.
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll'.
+[04:58:34] TERRAN: Domain: Mono; Message: Image addref mscorlib[000001F5EC6BBCA0] (asmctx DEFAULT) -> C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll[000001F5F20E8BF0]: 2
+[04:58:34] TERRAN: Domain: Mono; Message: Prepared to set up assembly 'mscorlib' (C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll)
+[04:58:34] TERRAN: Domain: Mono; Message: AOT: image 'C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll.dll' not found: The system cannot find the file specified.
+
+[04:58:34] TERRAN: Domain: Mono; Message: AOT: image 'C:\Program Files\Mono\lib/mono/aot-cache/amd64/mscorlib.dll.dll' not found: The system cannot find the path specified.
+
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly Loader loaded assembly from location: 'C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll'.
+[04:58:34] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll.config'.
+[04:58:34] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Program Files\Mono\etc\mono\assemblies\mscorlib\mscorlib.config'.
+[04:58:34] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\.mono\assemblies\mscorlib\mscorlib.config'.
+[04:58:34] TERRAN: Domain: Mono; Message: Loading assembly mscorlib (000001F5EC6BBCA0) into domain CoreDomain (000001F5F208AE40) and ALC 0000000000000000
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly mscorlib[000001F5EC6BBCA0] added to domain CoreDomain, ref_count=1
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly mscorlib[000001F5EC6BBCA0] added to domain ScriptAssemblyDomain, ref_count=2
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'Resources/Scripts/TerranScriptCore.dll'.
+[04:58:34] TERRAN: Domain: Mono; Message: Image addref TerranScriptCore[000001F5F72A3E00] (asmctx DEFAULT) -> C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll[000001F5F72A9C80]: 2
+[04:58:34] TERRAN: Domain: Mono; Message: Prepared to set up assembly 'TerranScriptCore' (C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll)
+[04:58:34] TERRAN: Domain: Mono; Message: Loading assembly TerranScriptCore (000001F5F72A3E00) into domain ScriptAssemblyDomain (000001F5F208D2D0) and ALC 0000000000000000
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly TerranScriptCore[000001F5F72A3E00] added to domain ScriptAssemblyDomain, ref_count=1
+[04:58:34] TERRAN: Domain: Mono; Message: Image 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll' has no debug directory.
+[04:58:34] TERRAN: Domain: Mono; Message: Assembly Loader loaded assembly from location: 'Resources/Scripts/TerranScriptCore.dll'.
+[04:58:34] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll.config'.
+[04:58:34] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Program Files\Mono\etc\mono\assemblies\TerranScriptCore\TerranScriptCore.config'.
+[04:58:34] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\.mono\assemblies\TerranScriptCore\TerranScriptCore.config'.
+[04:58:34] TERRAN: Successfuly loaded: Resources/Scripts/TerranScriptCore.dll
+[05:00:24] TERRAN: Domain: Mono; Message: GC_MAJOR: (user request) time 0.17ms, stw 0.19ms los size: 0K in use: 0K
+[05:00:24] TERRAN: Domain: Mono; Message: GC_MAJOR_SWEEP: major size: 240K in use: 3K
+[05:00:24] TERRAN: Domain: Mono; Message: Unloading domain CoreDomain[000001F5F208AE40], assembly mscorlib[000001F5EC6BBCA0], ref_count=2
+[05:00:24] TERRAN: Domain: Mono; Message: Unloading image C:\Program Files\Mono\lib\mono\4.5\mscorlib.pdb [000001F5F20ED320].
+[05:00:24] TERRAN: Domain: Mono; Message: Assembly image 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll' [000001F5F72A9C80] still loaded at shutdown.
+[05:00:24] TERRAN: Domain: Mono; Message: Assembly image 'C:\Program Files\Mono\lib\mono\4.5\mscorlib.dll' [000001F5F20E8BF0] still loaded at shutdown.
+[05:00:24] TERRAN: Deinitialized the scripting core

@@ -1,6 +1,7 @@
 #include "trpch.h"
 #include "Physics.h"
 #include "ContatctListener.h"
+#include "WorldRayCastCallback.h"
 
 #include "Core/Settings.h"
 
@@ -157,6 +158,20 @@ namespace TerranEngine
 			return s_PhysicsBodies.at(entity.GetID());
 
 		return s_EmptyPhysicsBody;
+	}
+
+	RayCastHitInfo2D Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length)
+	{
+		WorldRayCastCallback raycastCallback;
+		b2Vec2 point1 = { origin.x, origin.y };
+		b2Vec2 point2 = point1 + b2Vec2(length * direction.x, length * direction.y);
+		s_PhysicsWorld->RayCast(&raycastCallback, point1, point2);
+
+		RayCastHitInfo2D hitInfo;
+		hitInfo.Normal = raycastCallback.GetNormal();
+		hitInfo.Point = raycastCallback.GetPoint();
+
+		return hitInfo;
 	}
 }
 

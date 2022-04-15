@@ -59,6 +59,10 @@ namespace TerranEngine
 
 	// ---- Physics ----
 
+	// ---- Physics 2D ----
+	static void Physics2D_RayCast_Internal(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& outHitInfo);
+	// --------------------
+
 	// ---- Rigidbody 2D ----
 	static bool Rigidbody_IsFixedRotation_Internal(MonoArray* entityUUIDArr);
 	static void Rigidbody_SetFixedRotation_Internal(MonoArray* entityUUIDArr, bool fixedRotation);
@@ -164,6 +168,10 @@ namespace TerranEngine
 
 		// ---- physics ----
 		{
+			// ---- physics 2d ----
+			BindInternalFunc("TerranScriptCore.Internal::Physics2D_RayCast_Internal", Physics2D_RayCast_Internal);
+			// --------------------
+
 			// ---- rigidbody 2d ----
 			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_IsFixedRotation_Internal", Rigidbody_IsFixedRotation_Internal);
 			BindInternalFunc("TerranScriptCore.Internal::Rigidbody2D_SetFixedRotation_Internal", Rigidbody_SetFixedRotation_Internal);
@@ -541,6 +549,14 @@ namespace TerranEngine
 	}
 	// -------------
 	
+	// ---- Physics 2D ----
+	static void Physics2D_RayCast_Internal(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& outHitInfo) 
+	{
+		RayCastHitInfo2D hitInfo = Physics2D::RayCast(origin, direction, length);
+		outHitInfo = hitInfo;
+	}
+	// --------------------
+
 	// ---- Rigidbody 2D ----
 	static bool Rigidbody_IsFixedRotation_Internal(MonoArray* entityUUIDArr) 
 	{

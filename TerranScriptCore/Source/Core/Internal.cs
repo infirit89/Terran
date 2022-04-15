@@ -56,6 +56,11 @@ namespace TerranScriptCore
 		public static extern void Entity_DestroyEntity_Internal(byte[] id);
 		// ----------------
 
+		// ---- Physics 2D ---
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void Physics2D_RayCast_Internal(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D hitInfo);
+		// -------------------
+
 		// ---- Rigidbody 2D ----
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern bool Rigidbody2D_IsFixedRotation_Internal(byte[] entityUUID);
