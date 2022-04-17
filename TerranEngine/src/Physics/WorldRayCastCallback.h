@@ -16,7 +16,7 @@ namespace TerranEngine
 
 		virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
 
-		Entity GetHitEntityUUID() const;
+		Entity GetHitEntity() const;
 		bool HasHit() const { return m_Hit; }
 		glm::vec2 GetPoint() const { return m_Point; }
 		glm::vec2 GetNormal() const { return m_Normal; }

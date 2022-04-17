@@ -11,10 +11,10 @@ namespace TerranEngine
 	class UUID 
 	{
 	public:
-		UUID(bool generate = true);
+		UUID();
 		UUID(const std::array<uint8_t, 16>& data);
 		UUID(const UUID& other) = default;
-		static UUID Empty() { return UUID(false); }
+		static UUID Empty() { return UUID({ 0 }); }
 
 		const inline std::array<uint8_t, 16> GetData() const { return m_Data; }
 		inline std::array<uint8_t, 16> GetData() { return m_Data; }

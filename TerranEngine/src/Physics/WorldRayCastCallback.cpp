@@ -21,12 +21,17 @@ namespace TerranEngine
         return m_Fraction;
     }
 
-    Entity TerranEngine::WorldRayCastCallback::GetHitEntityUUID() const
+    Entity TerranEngine::WorldRayCastCallback::GetHitEntity() const
     {
-        b2FixtureUserData userData = m_Fixture->GetUserData();
+        if (m_Fixture != nullptr) 
+        {
+            b2FixtureUserData userData = m_Fixture->GetUserData();
 
-        Entity entity = PhysicsUtils::GetEntityFromB2DFixtureUserData(userData);
-        return entity;
+            Entity entity = PhysicsUtils::GetEntityFromB2DFixtureUserData(userData);
+            return entity;
+        }
+
+        return {};
     }
 }
 

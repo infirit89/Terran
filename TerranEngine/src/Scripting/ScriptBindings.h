@@ -2,9 +2,8 @@
 
 namespace TerranEngine 
 {
-	class ScriptBindings 
+	namespace ScriptBindings 
 	{
-	public:
-		static void Bind();
-	};
+		void Bind();
+	}
 }

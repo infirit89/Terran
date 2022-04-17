@@ -10,6 +10,8 @@ namespace TerranEngine
 {
 	namespace PhysicsUtils 
 	{
+		// NOTE: make templated?
 		Entity GetEntityFromB2DFixtureUserData(const b2FixtureUserData& userData);
+		Entity GetEntityFromB2DBodyUserData(const b2BodyUserData& userData);
 	}
 }

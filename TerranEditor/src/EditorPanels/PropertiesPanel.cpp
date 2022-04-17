@@ -136,7 +136,9 @@ namespace TerranEditor
 						char buf[256];
 						memset(buf, 0, sizeof(buf));
 						strcpy_s(buf, sizeof(buf), component.Texture == nullptr ? "None" : component.Texture->GetName().c_str());
-						ImGui::InputText("##TextureField", buf, sizeof(buf));
+						
+						ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_DontRenderCursor | ImGuiInputTextFlags_DontChangeMouseCursorOnHover;
+						ImGui::InputText("##TextureField", buf, sizeof(buf), inputTextFlags);
 
 						if (ImGui::BeginDragDropTarget()) 
 						{

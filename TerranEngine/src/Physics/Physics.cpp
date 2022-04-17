@@ -52,12 +52,15 @@ namespace TerranEngine
 		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
 		auto& transform = entity.GetTransform();
 
+		const UUID& id = entity.GetID();
+
 		b2BodyDef bodyDef;
 
 		bodyDef.position = { transform.Position.x, transform.Position.y };
 		bodyDef.angle = transform.Rotation.z;
 		bodyDef.fixedRotation = rigidbody.FixedRotation;
 		bodyDef.gravityScale = rigidbody.GravityScale;
+		bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
 
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
 		PhysicsBody2D physicsBody(body);
@@ -65,7 +68,6 @@ namespace TerranEngine
 		physicsBody.SetBodyType(rigidbody.BodyType);
 		physicsBody.SetSleepState(rigidbody.SleepState);
 
-		const UUID& id = entity.GetID();
 		if (entity.HasComponent<BoxCollider2DComponent>()) 
 		{
 			auto& boxColliderComponent = entity.GetComponent<BoxCollider2DComponent>();
@@ -154,24 +156,25 @@ namespace TerranEngine
 
 	PhysicsBody2D& Physics2D::GetPhysicsBody(Entity entity)
 	{
-		if (s_PhysicsBodies.find(entity.GetID()) != s_PhysicsBodies.end()) 
+		if (entity && s_PhysicsBodies.find(entity.GetID()) != s_PhysicsBodies.end())
 			return s_PhysicsBodies.at(entity.GetID());
 
 		return s_EmptyPhysicsBody;
 	}
 
-	RayCastHitInfo2D Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length)
+	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo)
 	{
 		WorldRayCastCallback raycastCallback;
 		b2Vec2 point1 = { origin.x, origin.y };
 		b2Vec2 point2 = point1 + b2Vec2(length * direction.x, length * direction.y);
+
 		s_PhysicsWorld->RayCast(&raycastCallback, point1, point2);
 
-		RayCastHitInfo2D hitInfo;
 		hitInfo.Normal = raycastCallback.GetNormal();
 		hitInfo.Point = raycastCallback.GetPoint();
+		hitInfo.PhysicsBody = GetPhysicsBody(raycastCallback.GetHitEntity());
 
-		return hitInfo;
+		return raycastCallback.HasHit();
 	}
 }
 

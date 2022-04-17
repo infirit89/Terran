@@ -23,7 +23,7 @@ namespace TerranEngine
 		{
 			TR_ERROR("Mono UUID array is invalid");
 			TR_TRACE(mono_array_length(uuidArray));
-			return UUID(false);
+			return UUID({ 0 });
 		}
 
 		std::array<uint8_t, 16> idData = { 0 };

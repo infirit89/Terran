@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Collider.h"
+#include "PhysicsStates.h"
+
+#include "Scene/Entity.h"
 
 #include <glm/glm.hpp>
 
@@ -9,32 +12,14 @@ class b2World;
 
 namespace TerranEngine 
 {
-	enum class PhysicsBodyType : uint8_t
-	{
-		Static = 0,
-		Dynamic,
-		Kinematic
-	};
-
-	enum class PhysicsBodySleepState : uint8_t
-	{
-		Sleep = 0,
-		Awake,
-		NeverSleep
-	};
-
-	enum class ForceMode2D : uint8_t
-	{
-		Force = 0,
-		Impulse
-	};
-
 	class PhysicsBody2D
 	{
 	public:
 		PhysicsBody2D() = default;
 		PhysicsBody2D(b2Body* physicsBody);
 		~PhysicsBody2D() = default;
+
+		Entity GetEntity() const { return m_Entity; }
 
 		bool GetFixedRotation() const;
 		void SetFixedRotation(bool fixedRotation);
@@ -81,5 +66,6 @@ namespace TerranEngine
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
 		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;
+		Entity m_Entity = {};
 	};
 }

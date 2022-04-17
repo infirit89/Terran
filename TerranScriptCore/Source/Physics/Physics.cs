@@ -19,15 +19,30 @@ namespace TerranScriptCore
 	{
 		public Vector2 Point;
 		public Vector2 Normal;
+		public Rigidbody2D Rigidbody;
 	}
 
 	public class Physics2D 
 	{
-		public static RayCastHitInfo2D RayCast(Vector2 origin, Vector2 direction, float length = 10.0f) 
+		public static bool RayCast(out RayCastHitInfo2D hitInfo, Vector2 origin, Vector2 direction, float length = 10.0f) 
 		{
-			RayCastHitInfo2D hitInfo;
-			Internal.Physics2D_RayCast_Internal(in origin, in direction, length, out hitInfo);
-			return hitInfo;
+			Internal.RayCastHitInfo2D_Internal hitInfo_Internal;
+			bool hasHit = Internal.Physics2D_RayCast_Internal(in origin, in direction, length, out hitInfo_Internal);
+
+			hitInfo = new RayCastHitInfo2D();
+
+			hitInfo.Point = hitInfo_Internal.Point;
+			hitInfo.Normal = hitInfo_Internal.Normal;
+
+			UUID id = new UUID(hitInfo_Internal.UUIDArray);
+			Entity entity = Entity.FindWithID(id);
+
+			if (entity != null) 
+			{
+				hitInfo.Rigidbody = entity.GetComponent<Rigidbody2D>();
+			}
+
+			return hasHit;
 		}
 	}
 }

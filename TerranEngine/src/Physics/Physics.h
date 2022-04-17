@@ -16,6 +16,7 @@ namespace TerranEngine
 	{
 		glm::vec2 Point;
 		glm::vec2 Normal;
+		PhysicsBody2D PhysicsBody;
 	};
 
 	class Physics2D
@@ -30,7 +31,7 @@ namespace TerranEngine
 		static void Update(Time time);
 
 		static PhysicsBody2D& GetPhysicsBody(Entity entity);
-		static RayCastHitInfo2D RayCast(const glm::vec2& origin, const glm::vec2& direction, float length);
+		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo);
 	private:
 		static b2World* s_PhysicsWorld;
 		static std::unordered_map<UUID, PhysicsBody2D> s_PhysicsBodies;

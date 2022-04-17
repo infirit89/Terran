@@ -164,7 +164,7 @@ namespace TerranEngine
 			if (it != parent.GetChildren().end())
 				parent.GetChildren().erase(it);
 
-			SetParentID(UUID(false));
+			SetParentID(UUID({ 0 }));
 		}
 
 		void RemoveChildFrom(Entity parent, Entity child, bool removeRelationship) 
@@ -185,7 +185,7 @@ namespace TerranEngine
 			else 
 			{
 				RelationshipComponent& rc = child.GetComponent<RelationshipComponent>();
-				rc.ParentID = UUID(false);
+				rc.ParentID = UUID({ 0 });
 			}
 		}
 

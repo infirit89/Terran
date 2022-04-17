@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "PhysicsBody.h"
+#include "PhysicsUtils.h"
 
 #include <glm/gtx/transform.hpp>
 
@@ -9,9 +10,8 @@
 namespace TerranEngine 
 {
     PhysicsBody2D::PhysicsBody2D(b2Body* physicsBody)
-        : m_Body(physicsBody)
-    {
-    }
+        : m_Body(physicsBody), m_Entity(PhysicsUtils::GetEntityFromB2DBodyUserData(m_Body->GetUserData()))
+    { }
 
 
     bool PhysicsBody2D::GetFixedRotation() const

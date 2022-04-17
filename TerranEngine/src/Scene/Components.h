@@ -8,7 +8,7 @@
 
 #include "Scripting/ScriptField.h"
 
-#include "Physics/PhysicsBody.h"
+#include "Physics/PhysicsStates.h"
 
 #include "Utils/Debug/Profiler.h"
 
