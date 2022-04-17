@@ -103,7 +103,25 @@ namespace TerranScriptCore
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Rigidbody2D_SetAngularVelocity_Internal(byte[] entityUUID, float angularVelocity);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern byte Rigidbody2D_GetType_Internal(byte[] entityUUID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Rigidbody2D_SetType_Internal(byte[] entityUUID, byte bodyType);
 		// ----------------------
+
+		// ---- Collider 2D ----
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Collider2D_GetOffset_Internal(byte[] entityUUID, byte colliderType, out Vector2 offset);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Collider2D_IsSensor_Internal(byte[] entityUUID, byte colliderType);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Collider2D_SetSensor_Internal(byte[] entityUUID, byte colliderType, bool isSensor);
+
+		// ---------------------
 
 		// ---- Box Collider 2D ----
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -111,18 +129,6 @@ namespace TerranScriptCore
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void BoxCollider2D_SetSize_Internal(byte[] entityID, in Vector2 size);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void BoxCollider2D_GetOffset_Internal(byte[] entityID, out Vector2 outOffset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void BoxCollider2D_SetOffset_Internal(byte[] entityUUID, in Vector2 offset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool BoxCollider2D_IsSensor_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void BoxCollider2D_SetSensor_Internal(byte[] entityUUID, bool isSensor);
 		// -------------------------
 	
 		// ---- Circle Collider 2D ----
@@ -131,18 +137,6 @@ namespace TerranScriptCore
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void CircleCollider2D_SetRadius_Internal(byte[] entityID, float radius);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void CircleCollider2D_GetOffset_Internal(byte[] entityID, out Vector2 outVec);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void CircleCollider2D_SetOffset_Internal(byte[] entityUUID, in Vector2 offset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool CircleCollider2D_IsSensor_Internal(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void CircleCollider2D_SetSensor_Internal(byte[] entityUUID, bool isSensor);
 		// ----------------------------
 
 		// ---- Tag ----

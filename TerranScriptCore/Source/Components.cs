@@ -25,6 +25,12 @@ namespace TerranScriptCore
 			get => Internal.Rigidbody2D_GetGravityScale_Internal(entity.ID);
 			set => Internal.Rigidbody2D_SetGravityScale_Internal(entity.ID, value);
 		}
+		
+		public RigidbodyType BodyType 
+		{
+			get => (RigidbodyType)Internal.Rigidbody2D_GetType_Internal(entity.ID);
+			set => Internal.Rigidbody2D_SetType_Internal(entity.ID, (byte)value);
+		}
 
 		public Vector2 LinearVelocity 
 		{
@@ -49,29 +55,44 @@ namespace TerranScriptCore
 		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter_Internal(entity.ID, in force, (byte)forceMode);
 	}
 
-	public abstract class Collider2D : Component 
+	public class Collider2D : Component
 	{
+		protected enum ColliderType : byte
+		{
+			None = 0,
+			Box,
+			Circle
+		}
+		public Collider2D() { }
+
+		protected Collider2D(ColliderType type) 
+		{
+			p_ColliderType = type;
+		}
+
 		public Vector2 Offset 
 		{
-			get => GetOffset();
-			set => SetOffset(value);
+			get 
+			{
+				Vector2 offset;
+				Internal.Collider2D_GetOffset_Internal(entity.ID, (byte)p_ColliderType, out offset);
+				return offset;
+			}
 		}
 
 		public bool IsSensor 
 		{
-			get => IsSensorF();
-			set => SetSensor(value);
+			get => Internal.Collider2D_IsSensor_Internal(entity.ID, (byte)p_ColliderType);
+			set => Internal.Collider2D_SetSensor_Internal(entity.ID, (byte)p_ColliderType, value);
 		}
 
-		protected abstract Vector2 GetOffset();
-		protected abstract void SetOffset(Vector2 offset);
-
-		protected abstract bool IsSensorF();
-		protected abstract void SetSensor(bool isSensor);
+		protected ColliderType p_ColliderType;
 	}
 
 	public class BoxCollider2D : Collider2D 
 	{
+		public BoxCollider2D() : base(ColliderType.Box) { }
+
 		public Vector2 Size 
 		{
 			get 
@@ -83,41 +104,17 @@ namespace TerranScriptCore
 
 			set => Internal.BoxCollider2D_SetSize_Internal(entity.ID, in value);
 		}
-
-		protected override Vector2 GetOffset() 
-		{
-			Vector2 offset;
-			Internal.BoxCollider2D_GetOffset_Internal(entity.ID, out offset);
-			return offset;
-		}
-
-		protected override void SetOffset(Vector2 offset) => Internal.BoxCollider2D_SetOffset_Internal(entity.ID, in offset);
-
-		protected override bool IsSensorF() => Internal.BoxCollider2D_IsSensor_Internal(entity.ID);
-
-		protected override void SetSensor(bool isSensor) => Internal.BoxCollider2D_SetSensor_Internal(entity.ID, isSensor);
     }
 
     public class CircleCollider2D : Collider2D
     {
+		public CircleCollider2D() : base(ColliderType.Circle) { }
+
 		public float Radius 
 		{
 			get => Internal.CircleCollider2D_GetRadius_Internal(entity.ID);
 			set => Internal.CircleCollider2D_SetRadius_Internal(entity.ID, value);
 		}
-
-        protected override Vector2 GetOffset()
-        {
-			Vector2 offset;
-			 Internal.CircleCollider2D_GetOffset_Internal(entity.ID, out offset);
-			return offset;
-        }
-
-		protected override void SetOffset(Vector2 offset) =>  Internal.CircleCollider2D_SetOffset_Internal(entity.ID, in offset);
-
-		protected override bool IsSensorF() => Internal.CircleCollider2D_IsSensor_Internal(entity.ID);
-
-		protected override void SetSensor(bool isSensor) => Internal.CircleCollider2D_SetSensor_Internal(entity.ID, isSensor);
 	}
 
 	// ---- Scriptable ----

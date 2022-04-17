@@ -17,6 +17,8 @@ namespace TerranEngine
 	static ContactListener s_Listener;
 	std::unordered_map<UUID, PhysicsBody2D> Physics2D::s_PhysicsBodies;
 	
+	PhysicsBody2D Physics2D::s_DefaultBody;
+
 	static PhysicsBody2D s_EmptyPhysicsBody;
 
 	void Physics2D::CreatePhysicsWorld(const glm::vec2& gravity)
@@ -61,6 +63,7 @@ namespace TerranEngine
 		bodyDef.fixedRotation = rigidbody.FixedRotation;
 		bodyDef.gravityScale = rigidbody.GravityScale;
 		bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
+		bodyDef.enabled = rigidbody.Enabled;
 
 		b2Body* body = s_PhysicsWorld->CreateBody(&bodyDef);
 		PhysicsBody2D physicsBody(body);

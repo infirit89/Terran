@@ -2,6 +2,13 @@
 
 namespace TerranScriptCore
 {
+	public enum RigidbodyType : byte 
+	{
+		Static = 0,
+		Dynamic,
+		Kinematic
+	}
+
 	public enum RigidbodySleepState : byte
 	{
 		Sleep = 0,

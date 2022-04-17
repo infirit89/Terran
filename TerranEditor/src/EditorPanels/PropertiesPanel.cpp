@@ -42,15 +42,20 @@ namespace TerranEditor
 			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
 				ImGui::OpenPopup("ComponentSettings");
 
-
 			ImVec4 windowBGColor = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
 			windowBGColor.w = 1.0f;
 
 			ImGui::PushStyleColor(ImGuiCol_PopupBg, windowBGColor);
 			if (ImGui::BeginPopup("ComponentSettings")) 
 			{
-				if (std::is_same<T, TransformComponent>()) 
-				{	
+				if (ImGui::MenuItem("Reset"))
+					entity.GetComponent<T>() = T();
+
+				if (ImGui::MenuItem("Remove Component", (const char*)0, false, removable))
+					removedComponent = true;
+
+				if (std::is_same<T, TransformComponent>())
+				{
 					TransformComponent& transform = (TransformComponent&)component;
 					if (ImGui::MenuItem("Copy"))
 						s_TransformClipboard = transform;
@@ -58,12 +63,6 @@ namespace TerranEditor
 					if (ImGui::MenuItem("Paste"))
 						transform = s_TransformClipboard;
 				}
-
-				if (ImGui::MenuItem("Reset"))
-					entity.GetComponent<T>() = T();
-
-				if (ImGui::MenuItem("Remove Component", (const char*)0, false, removable))
-					removedComponent = true;
 
 				ImGui::EndPopup();
 			}
@@ -101,11 +100,9 @@ namespace TerranEditor
 					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 						tagComp.Name = buf;
 				}
+
 				ImGui::Separator();
 				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
-
-
-				//TR_TRACE("Entity: {0}, Position: x: {1}, y: {2}, z: {3}", entity.GetName(), entity.GetTransform().Position.x, entity.GetTransform().Position.y, entity.GetTransform().Position.z);
 
 				DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
 				{
@@ -126,12 +123,8 @@ namespace TerranEditor
 					
 					{
 						ImGui::PushID("TEXTURE_FIELD");
-						ImGui::Columns(2, NULL, false);
-						ImGui::SetColumnWidth(0, 100.0f);
-						ImGui::Text("Sprite");
-
-						ImGui::NextColumn();
-						ImGui::PushItemWidth(ImGui::CalcItemWidth());
+						UI::ScopedVarTable::TableInfo tableInfo;
+						UI::ScopedVarTable textureTable("Sprite", tableInfo);
 
 						char buf[256];
 						memset(buf, 0, sizeof(buf));
@@ -155,9 +148,6 @@ namespace TerranEditor
 
 							ImGui::EndDragDropTarget();
 						}
-
-						ImGui::Columns(1);
-
 						ImGui::PopID();
 					}
 
@@ -179,12 +169,6 @@ namespace TerranEditor
 
 					if (UI::DrawIntControl("Point Count", lineRenderer.PointCount))
 					{
-						// TODO: copy points to a temporary array, realocate points, copy the temporary array to points
-						/*glm::vec3* tempArr = new glm::vec3[origPointCount];
-						memcpy(tempArr, lineRenderer.Points, origPointCount);
-
-						delete[] */
-
 						if(lineRenderer.Points)
 							lineRenderer.Points = (glm::vec3*)realloc(lineRenderer.Points, lineRenderer.PointCount * sizeof(glm::vec3));
 
@@ -239,9 +223,7 @@ namespace TerranEditor
 					if (!component.ClassExists) 
 					{
 						ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-
 						ImGui::Text("The class could not be found");
-
 						ImGui::PopStyleColor();
 					}
 
@@ -406,8 +388,13 @@ namespace TerranEditor
 							for (int i = 0; i < 3; i++)
 							{
 								const bool is_selected = (bodyTypeNames[i] == currentBodyType);
-								if (ImGui::Selectable(bodyTypeNames[i], is_selected))
+								if (ImGui::Selectable(bodyTypeNames[i], is_selected)) 
+								{
 									rbComponent.BodyType = (PhysicsBodyType)i;
+
+									if (isPlay)
+										physicsBody.SetBodyType(rbComponent.BodyType);
+								}
 
 								if (is_selected)
 									ImGui::SetItemDefaultFocus();
@@ -419,6 +406,7 @@ namespace TerranEditor
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
+					UI::DrawBoolControl("Enabled", rbComponent.Enabled);
 
 					// rigidbody awake state selection 
 					{
@@ -465,12 +453,8 @@ namespace TerranEditor
 
 						if (treeNode) 
 						{
-							PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-
 							{
-								UI::ScopedVarTable::TableInfo currentSleepStateTableInfo;
-								currentSleepStateTableInfo.firstColumnWidth = ImGui::CalcTextSize("Sleep State").x + 10.0f;
-								UI::ScopedVarTable currentSleepStateTable("Sleep State", currentSleepStateTableInfo);
+								UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
 							
 								ImGui::Text(awakeStateNames[(int)physicsBody.GetSleepState()]);
 							}
@@ -504,11 +488,9 @@ namespace TerranEditor
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();
-
 				ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvailWidth() / 4.0f, cursorPos.y += 5.0f });
 
 				float buttonWidth = (ImGui::GetContentRegionAvailWidth() / 2.0f) + GImGui->Font->FontSize + 5.0f;
-
 				if (ImGui::Button("Add Component", ImVec2{ buttonWidth, 0 }))
 					ImGui::OpenPopup("AddComponent");
 				
@@ -550,11 +532,9 @@ namespace TerranEditor
 				}
 
 				ImGui::SetCursorPos(cursorPos);
-
 			}
 
 			ImGui::End();
 		}
-
 	}
 }

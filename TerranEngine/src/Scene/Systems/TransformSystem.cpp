@@ -52,19 +52,22 @@ namespace TerranEngine
 	{
 		TransformComponent& tc = entity.GetComponent<TransformComponent>();
 		
-		if (s_Context->HasRuntimeStarted() && entity.HasComponent<Rigidbody2DComponent>())
+		if (s_Context->HasRuntimeStarted())
 		{
 			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-			physicsBody.SetPosition({ tc.Position.x, tc.Position.y });
-			physicsBody.SetRotation(tc.Rotation.z);
-			physicsBody.SetSleepState(PhysicsBodySleepState::Awake);
-
-			// set all the bodies this physics body is contacing with to be awake
-			for (b2ContactEdge* contact = physicsBody.GetPhysicsBodyInternal()->GetContactList(); contact; contact = contact->next)
+			if (physicsBody) 
 			{
-				b2Body* body = contact->other;
-				PhysicsBody2D otherPhysicsBody(body);
-				otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+				physicsBody.SetPosition({ tc.Position.x, tc.Position.y });
+				physicsBody.SetRotation(tc.Rotation.z);
+				physicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+
+				// set all the bodies this physics body is contacing with to be awake
+				for (b2ContactEdge* contact = physicsBody.GetPhysicsBodyInternal()->GetContactList(); contact; contact = contact->next)
+				{
+					b2Body* body = contact->other;
+					PhysicsBody2D otherPhysicsBody(body);
+					otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+				}
 			}
 		}
 

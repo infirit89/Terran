@@ -62,6 +62,8 @@ namespace TerranEngine
 		b2Body* GetPhysicsBodyInternal() const { return m_Body; }
 		void SetPhysicsBodyInternal(b2Body* body) { m_Body = body; }
 
+		inline operator bool() const { return m_Body != nullptr; }
+
 	private:
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
