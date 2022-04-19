@@ -27,6 +27,7 @@ namespace TerranScriptCore
 		public Vector2 Point;
 		public Vector2 Normal;
 		public Rigidbody2D Rigidbody;
+		public Collider2D Collider;
 	}
 
 	public class Physics2D 
@@ -47,6 +48,7 @@ namespace TerranScriptCore
 			if (entity != null) 
 			{
 				hitInfo.Rigidbody = entity.GetComponent<Rigidbody2D>();
+				hitInfo.Collider = entity.GetComponent<Collider2D>();
 			}
 
 			return hasHit;

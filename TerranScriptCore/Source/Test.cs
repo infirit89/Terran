@@ -6,9 +6,13 @@ namespace TerranScriptCore
 	{
 		void Init() 
 		{
-			BoxCollider2D bc = entity.GetComponent<BoxCollider2D>();
+			/*BoxCollider2D bc = entity.GetComponent<BoxCollider2D>();
 			Log.Trace(bc.Offset);
-			Log.Trace(bc.IsSensor);
+			Log.Trace(bc.IsSensor);*/
+
+			Collider2D c = entity.GetComponent<Collider2D>();
+
+			Log.Trace(c.Offset);
 
 			//CircleCollider2D cc = entity.GetComponent<CircleCollider2D>();
 			//Log.Trace(cc.Offset);

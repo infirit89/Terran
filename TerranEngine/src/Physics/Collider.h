@@ -26,7 +26,7 @@ namespace TerranEngine
 		uintptr_t GetUserData() const { return m_UserData; }
 
 		inline const glm::vec2& GetOffset() const { return m_Offset; }
-		
+				
 	private:
 		glm::vec2 m_Offset;
 		bool m_IsSensor = false;

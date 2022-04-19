@@ -92,12 +92,6 @@ namespace TerranScriptCore
 				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
 					return Internal.Entity_GetScriptableComponent_Internal(id.Data, typeof(T).FullName) as T;
 
-				if (typeof(T) == typeof(Collider2D)) 
-				{
-					Log.Error("Can't get Collider2D because it is abstract!");
-					return null;
-				}
-
 				T component = new T();
 				component.entity = this;
 				return component;

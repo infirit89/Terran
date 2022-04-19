@@ -86,7 +86,7 @@ namespace TerranScriptCore
 			set => Internal.Collider2D_SetSensor_Internal(entity.ID, (byte)p_ColliderType, value);
 		}
 
-		protected ColliderType p_ColliderType;
+		protected ColliderType p_ColliderType = ColliderType.None;
 	}
 
 	public class BoxCollider2D : Collider2D 

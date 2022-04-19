@@ -783,6 +783,20 @@ namespace TerranEngine
 			{
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
 			}
+			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::None) 
+			{
+				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+				if (entity) 
+				{
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					b2Fixture* fixture = physicsBody.GetPhysicsBodyInternal()->GetFixtureList();
+					
+					if (fixture)
+						IsSensor = fixture->IsSensor();
+				}
+			}
 
 			return IsSensor;
 		}
@@ -803,6 +817,48 @@ namespace TerranEngine
 			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::Circle)
 			{
 				GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
+			}
+			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::None)
+			{
+				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+				if (entity)
+				{
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					b2Fixture* fixture = physicsBody.GetPhysicsBodyInternal()->GetFixtureList();
+
+					if (fixture) 
+					{
+						b2Shape* shape = fixture->GetShape();
+						switch (shape->GetType())
+						{
+						case b2Shape::e_polygon: 
+						{
+							b2PolygonShape* polygonShape = dynamic_cast<b2PolygonShape*>(shape);
+							if (polygonShape) 
+							{
+								b2Vec2* vertices = polygonShape->m_vertices;
+
+								float offsetX = (vertices[1].x + vertices[3].x) * 0.5f;
+								float offsetY = (vertices[1].y + vertices[3].y) * 0.5f;
+
+								Offset = { offsetX, offsetY };
+							}
+							break;
+						}
+						case b2Shape::e_circle: 
+						{
+							b2CircleShape* circleShape = dynamic_cast<b2CircleShape*>(shape);
+
+							if (circleShape)
+								Offset = { circleShape->m_p.x, circleShape->m_p.y };
+
+							break;
+						}
+						}
+					}
+				}
 			}
 
 			outOffset = Offset;
