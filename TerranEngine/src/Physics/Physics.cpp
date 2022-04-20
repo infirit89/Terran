@@ -73,33 +73,14 @@ namespace TerranEngine
 
 		if (entity.HasComponent<BoxCollider2DComponent>()) 
 		{
-			auto& boxColliderComponent = entity.GetComponent<BoxCollider2DComponent>();
-
-			glm::vec2 colliderSize = { transform.Scale.x * boxColliderComponent.Size.x, transform.Scale.y * boxColliderComponent.Size.y };
-
-			BoxCollider2D boxCollider;
-			boxCollider.SetOffset(boxColliderComponent.Offset);
-			boxCollider.SetSize(colliderSize);
-			boxCollider.SetSensor(boxColliderComponent.IsSensor);
-
-			boxCollider.SetUserData((uintptr_t)id.GetRaw());
-
-			physicsBody.AddBoxCollider(boxCollider);
+			auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+			physicsBody.AddCollider(bcComponent, entity);
 		}
 
 		if (entity.HasComponent<CircleCollider2DComponent>()) 
 		{
-			auto& circleColliderComponent = entity.GetComponent<CircleCollider2DComponent>();
-
-			CircleCollider2D circleCollider;
-
-			circleCollider.SetOffset(circleColliderComponent.Offset);
-			circleCollider.SetRadius(circleColliderComponent.Radius * 0.5f);
-			circleCollider.SetSensor(circleColliderComponent.IsSensor);
-
-			circleCollider.SetUserData((uintptr_t)id.GetRaw());
-
-			physicsBody.AddCircleCollider(circleCollider);
+			auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+			physicsBody.AddCollider(ccComponent, entity);
 		}
 
 		s_PhysicsBodies.emplace(id, std::move(physicsBody));

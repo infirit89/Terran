@@ -473,18 +473,62 @@ namespace TerranEditor
 					}
 				});
 
-				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](BoxCollider2DComponent& bcComponent) 
+				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [&](BoxCollider2DComponent& bcComponent) 
 				{
-					UI::DrawVec2Control("Offset", bcComponent.Offset);
-					UI::DrawVec2Control("Size", bcComponent.Size);						
-					UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor);
+					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+					Shared<BoxCollider2D> boxCollider;
+
+					if(isRuntime)
+						boxCollider = std::dynamic_pointer_cast<BoxCollider2D>(physicsBody.GetColliders()[bcComponent.ColliderIndex]);
+
+					if(UI::DrawVec2Control("Offset", bcComponent.Offset))
+					{
+						if (isRuntime && boxCollider) 
+							boxCollider->SetOffset(bcComponent.Offset);
+					}
+
+					if (UI::DrawVec2Control("Size", bcComponent.Size)) 
+					{
+						if (isRuntime && boxCollider)
+							boxCollider->SetSize(bcComponent.Size);
+					}
+
+					if (UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor)) 
+					{
+						if (isRuntime && boxCollider)
+							boxCollider->SetSensor(bcComponent.IsSensor);
+					}
 				});
 
-				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](CircleCollider2DComponent& ccComponent) 
+				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent) 
 				{
-					UI::DrawVec2Control("Offset", ccComponent.Offset);
-					UI::DrawFloatControl("Radius", ccComponent.Radius);
-					UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor);
+					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<CircleCollider2D> circleCollider;
+
+					if (isRuntime)
+						circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(physicsBody.GetColliders()[ccComponent.ColliderIndex]);
+
+					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
+					{
+						if (isRuntime)
+							circleCollider->SetOffset(ccComponent.Offset);
+					}
+
+					if (UI::DrawFloatControl("Radius", ccComponent.Radius)) 
+					{
+						if (isRuntime)
+							circleCollider->SetRadius(ccComponent.Radius);
+					}
+
+					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
+					{
+						if (isRuntime)
+							circleCollider->SetSensor(ccComponent.IsSensor);
+					}
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();

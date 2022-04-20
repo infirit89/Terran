@@ -1,17 +1,19 @@
 #pragma once
 
-#include "Collider.h"
+#include "Core/Base.h"
 #include "PhysicsStates.h"
 
 #include "Scene/Entity.h"
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 class b2Body;
-class b2World;
 
 namespace TerranEngine 
 {
+	class Collider2D;
 	class PhysicsBody2D
 	{
 	public:
@@ -56,18 +58,21 @@ namespace TerranEngine
 		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
 
-		void AddBoxCollider(const BoxCollider2D& collider);
-		void AddCircleCollider(const CircleCollider2D& collider);
+		void AddCollider(BoxCollider2DComponent& colliderComponent, Entity entity);
+		void AddCollider(CircleCollider2DComponent& colliderComponent, Entity entity);
 
 		b2Body* GetPhysicsBodyInternal() const { return m_Body; }
 		void SetPhysicsBodyInternal(b2Body* body) { m_Body = body; }
 
 		inline operator bool() const { return m_Body != nullptr; }
 
+		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
+
 	private:
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
 		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;
 		Entity m_Entity = {};
+		std::vector<Shared<Collider2D>> m_Colliders;
 	};
 }

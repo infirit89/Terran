@@ -1,65 +1,87 @@
 #pragma once
 
+#include "PhysicsBody.h"
+
 #include <glm/glm.hpp>
+
+class b2Fixture;
+class b2PolygonShape;
+class b2CircleShape;
 
 namespace TerranEngine 
 {
+	enum class ColliderType2D 
+	{
+		None = 0,
+		Box,
+		Circle,
+		Edge,
+		Chain
+	};
+
 	class Collider2D
 	{
 	public:
-		Collider2D();
+		Collider2D() = default;
+		Collider2D(b2Fixture* fixture);
 		virtual ~Collider2D();
 
-		void SetSensor(bool isSensor) { m_IsSensor = isSensor; }
-		void SetUserData(uintptr_t ptr) { m_UserData = ptr; }
-		void SetFriction(float friction) { m_Friction = friction; }
-		void SetDensity(float density) { m_Density = density; }
-		void SetRestitution(float restitution) { m_Restitution = restitution; }
-		void SetRestitutionThreshold(float restitutionThreshold) { m_RestitutionThreshold = restitutionThreshold; }
-		void SetOffset(const glm::vec2& offset) { m_Offset = offset; };
+		void SetSensor(bool isSensor);
+		void SetFriction(float friction);
+		void SetDensity(float density);
+		void SetRestitution(float restitution);
+		void SetRestitutionThreshold(float restitutionThreshold);
+		virtual void SetOffset(const glm::vec2& offset) = 0;
 
-		bool IsSensor() const { return m_IsSensor; }
-		float GetFriction() const { return m_Friction; }
-		float GetDensity() const { return m_Density; }
-		float GetRestitution() const { return m_Restitution; }
-		float GetRestitutionThreshold() const { return m_RestitutionThreshold; }
-		uintptr_t GetUserData() const { return m_UserData; }
+		bool IsSensor() const;
+		float GetFriction() const;
+		float GetDensity() const;
+		float GetRestitution() const;
+		float GetRestitutionThreshold() const;
+		uintptr_t GetUserData() const;
 
-		inline const glm::vec2& GetOffset() const { return m_Offset; }
+		virtual glm::vec2 GetOffset() const = 0;
 				
-	private:
-		glm::vec2 m_Offset;
-		bool m_IsSensor = false;
-		uintptr_t m_UserData;
-		float m_Friction = 0.5f;
-		float m_Density = 1.0f;
-		float m_Restitution = 0.0f;
-		float m_RestitutionThreshold = 0.0f;
+		PhysicsBody2D GetPhysicsBody() const;
+
+		inline ColliderType2D GetType() const { return m_ColliderType; }
+
+	protected:
+		b2Fixture* p_Fixture = nullptr;
+		ColliderType2D m_ColliderType;
 	};
 
 	class BoxCollider2D : public Collider2D
 	{
 	public:
-		BoxCollider2D();
+		BoxCollider2D() = default;
+		BoxCollider2D(b2Fixture* fixture);
 		~BoxCollider2D() override;
 
-		void SetSize(const glm::vec2& size) { m_Size = size; }
-		inline const glm::vec2& GetSize() const { return m_Size; }
+		void SetSize(const glm::vec2& size);
+		glm::vec2 GetSize() const;
+
+		virtual void SetOffset(const glm::vec2& offset) override;
+		virtual glm::vec2 GetOffset() const override;
 
 	private:
-		glm::vec2 m_Size;
+		b2PolygonShape* m_PolygonShape = nullptr;
 	};
 
 	class CircleCollider2D : public Collider2D 
 	{
 	public:
-		CircleCollider2D();
+		CircleCollider2D() = default;
+		CircleCollider2D(b2Fixture* fixture);
 		~CircleCollider2D() override;
 
-		void SetRadius(float radius) { m_Radius = radius; }
-		inline float GetRadius() const { return m_Radius; }
+		void SetRadius(float radius);
+		float GetRadius() const;
+
+		virtual void SetOffset(const glm::vec2& offset) override;
+		virtual glm::vec2 GetOffset() const override;
 
 	private:
-		float m_Radius;
+		b2CircleShape* m_CircleShape = nullptr;
 	};
 }

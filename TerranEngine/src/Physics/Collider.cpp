@@ -5,71 +5,201 @@
 
 namespace TerranEngine 
 {
-	Collider2D::Collider2D()
-		: m_Offset(0.0f, 0.0f)
+	static ColliderType2D GetColliderTypeFromB2DShapeType(b2Shape::Type shapeType) 
 	{
-		//b2Fixture* fixture;
-		//b2Shape* shape = fixture->GetShape();
+		switch (shapeType)
+		{
+		case b2Shape::e_circle:		return ColliderType2D::Circle;
+		case b2Shape::e_edge:		return ColliderType2D::Edge;
+		// NOTE: there can also be polygon collider; have to think of a better solution for collider types
+		case b2Shape::e_polygon:	return ColliderType2D::Box;	
+		case b2Shape::e_chain:		return ColliderType2D::Chain;
+		}
 
-		//switch (shape->m_type)
-		//{
-		//case b2Shape::e_polygon:
-		//	b2PolygonShape* pShape = dynamic_cast<b2PolygonShape*>(shape);
+		TR_ASSERT(false, "Unknown collider type");
+	}
 
-		//	if (pShape) 
-		//	{
-		//		// reconstruct shape;
-		//	}
-		//}
+	Collider2D::Collider2D(b2Fixture* fixture)
+		: p_Fixture(fixture)
+	{
+		b2Shape* shape = p_Fixture->GetShape();
+		m_ColliderType = GetColliderTypeFromB2DShapeType(shape->GetType());
 	}
 
 	Collider2D::~Collider2D()
 	{
 	}
 
-	BoxCollider2D::BoxCollider2D() 
-		: m_Size(0.0f, 0.0f)
+	void Collider2D::SetSensor(bool isSensor)
 	{
-		/*b2PolygonShape shape;
+		if (!p_Fixture)
+			return;
 
-		glm::mat4 transformMat = glm::translate(glm::mat4(1.0f), { offset.x, offset.y, 0.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		glm::vec4 positions[4] = {
-			{ -0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f, 0.0f, 1.0f },
-			{ -0.5f,  0.5f, 0.0f, 1.0f }
-		};
-
-		b2Vec2 vertices[4];
-
-		for (size_t i = 0; i < 4; i++)
-		{
-			glm::vec3 vertexPos = transformMat * positions[i];
-			vertices[i] = { vertexPos.x, vertexPos.y };
-		}
-
-		shape.Set(vertices, 4);
-
-		p_FixtureDef->shape = &shape;*/
+		p_Fixture->SetSensor(isSensor);
 	}
 
-	BoxCollider2D::~BoxCollider2D()
+	void Collider2D::SetFriction(float friction)
 	{
+		if (!p_Fixture)
+			return;
+		
+		p_Fixture->SetFriction(friction);
 	}
 
-	CircleCollider2D::CircleCollider2D()
-		: m_Radius(0.0f)
+	void Collider2D::SetDensity(float density)
 	{
-		/*b2CircleShape shape;
-		shape.m_p.Set(offset.x, offset.y);
-		shape.m_radius = radius;
+		if (!p_Fixture)
+			return;
 
-		p_FixtureDef->shape = &shape;*/
+		p_Fixture->SetDensity(density);
 	}
 
-	CircleCollider2D::~CircleCollider2D()
+	void Collider2D::SetRestitution(float restitution)
 	{
+		if (!p_Fixture)
+			return;
+
+		p_Fixture->SetRestitution(restitution);
+	}
+
+	void Collider2D::SetRestitutionThreshold(float restitutionThreshold)
+	{
+		if (!p_Fixture)
+			return;
+
+		p_Fixture->SetRestitutionThreshold(restitutionThreshold);
+	}
+
+	bool Collider2D::IsSensor() const
+	{
+		TR_ASSERT(p_Fixture, "Fixture is null");
+
+		return p_Fixture->IsSensor();
+	}
+
+	float Collider2D::GetFriction() const
+	{
+		TR_ASSERT(p_Fixture, "Fixture is null");
+		
+		return p_Fixture->GetFriction();
+	}
+
+	float Collider2D::GetDensity() const
+	{
+		TR_ASSERT(p_Fixture, "Fixture is null");
+		
+		return p_Fixture->GetDensity();
+	}
+
+	float Collider2D::GetRestitution() const
+	{
+		TR_ASSERT(p_Fixture, "Fixture is null");
+		
+		return p_Fixture->GetRestitution();
+	}
+
+	float Collider2D::GetRestitutionThreshold() const
+	{
+		TR_ASSERT(p_Fixture, "Fixture is null");
+		
+		return p_Fixture->GetRestitutionThreshold();
+	}
+
+	uintptr_t Collider2D::GetUserData() const
+	{
+		TR_ASSERT(p_Fixture, "Fixture is null");
+		
+		return p_Fixture->GetUserData().pointer;
+	}
+
+	PhysicsBody2D Collider2D::GetPhysicsBody() const
+	{
+		PhysicsBody2D physicsBody(p_Fixture->GetBody());
+		return physicsBody;
+	}
+
+	BoxCollider2D::BoxCollider2D(b2Fixture* fixture) : Collider2D(fixture)
+	{
+		b2Shape* shape = p_Fixture->GetShape();
+
+		if (shape->GetType() == b2Shape::e_polygon)
+			m_PolygonShape = dynamic_cast<b2PolygonShape*>(shape);
+	}
+	
+	BoxCollider2D::~BoxCollider2D() { }
+	
+	void BoxCollider2D::SetSize(const glm::vec2& size)
+	{
+		TR_ASSERT(m_PolygonShape, "Shape is null");
+		glm::vec2 offset = GetOffset();
+
+		m_PolygonShape->SetAsBox(size.x * 0.5f, size.y * 0.5f, { offset.x, offset.y }, 0.0f);
+	}
+	
+	glm::vec2 BoxCollider2D::GetSize() const
+	{
+		TR_ASSERT(m_PolygonShape, "Shape is null");
+
+		b2Vec2* vertices = m_PolygonShape->m_vertices;
+
+		float sizeX = vertices[0].x + vertices[1].x;
+		float sizeY = vertices[1].y + vertices[2].y;
+
+		return { sizeX, sizeY };
+	}
+	
+	void BoxCollider2D::SetOffset(const glm::vec2& offset)
+	{
+		TR_ASSERT(m_PolygonShape, "Shape is null");
+
+		glm::vec2 size = GetSize();
+		m_PolygonShape->SetAsBox(size.x * 0.5f, size.y * 0.5f, { offset.x, offset.y }, 0.0f);
+	}
+	
+	glm::vec2 BoxCollider2D::GetOffset() const
+	{
+		TR_ASSERT(m_PolygonShape, "Shape is null");
+
+		b2Vec2* vertices = m_PolygonShape->m_vertices;
+
+		float offsetX = (vertices[1].x + vertices[3].x) * 0.5f;
+		float offsetY = (vertices[1].y + vertices[3].y) * 0.5f;
+
+		return { offsetX, offsetY };
+	}
+	
+	CircleCollider2D::CircleCollider2D(b2Fixture* fixture) : Collider2D(fixture)
+	{
+		b2Shape* shape = p_Fixture->GetShape();
+
+		if (shape->GetType() == b2Shape::e_circle)
+			m_CircleShape = dynamic_cast<b2CircleShape*>(shape);
+	}
+	
+	CircleCollider2D::~CircleCollider2D() { }
+	
+	void CircleCollider2D::SetRadius(float radius)
+	{
+		TR_ASSERT(m_CircleShape, "Shape is null");
+		m_CircleShape->m_radius = radius;
+	}
+	
+	float CircleCollider2D::GetRadius() const
+	{
+		TR_ASSERT(m_CircleShape, "Shape is null");
+		return m_CircleShape->m_radius;
+	}
+	
+	void CircleCollider2D::SetOffset(const glm::vec2& offset)
+	{
+		TR_ASSERT(m_CircleShape, "Shape is null");
+		m_CircleShape->m_p.Set(offset.x, offset.y);
+	}
+	
+	glm::vec2 CircleCollider2D::GetOffset() const
+	{
+		TR_ASSERT(m_CircleShape, "Shape is null");
+		return { m_CircleShape->m_p.x, m_CircleShape->m_p.y };
 	}
 }
 

@@ -13,6 +13,7 @@
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
+#include "Physics/Collider.h"
 
 #include <glm/glm.hpp>
 
@@ -775,50 +776,19 @@ namespace TerranEngine
 		{
 			bool IsSensor = false;
 
-			if ((ColliderType_Internal)colliderType == ColliderType_Internal::Box) 
+			switch ((ColliderType_Internal)colliderType)
+			{
+			case ColliderType_Internal::Box:
 			{
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
+				break;
 			}
-			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::Circle) 
+			case ColliderType_Internal::Circle:
 			{
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
+				break;
 			}
-			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::None) 
-			{
-				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-
-				if (entity) 
-				{
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-					b2Fixture* fixture = physicsBody.GetPhysicsBodyInternal()->GetFixtureList();
-					
-					if (fixture)
-						IsSensor = fixture->IsSensor();
-				}
-			}
-
-			return IsSensor;
-		}
-		
-		static void Collider_SetSensor_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
-		{
-			// TODO: implement
-		}
-
-		static void Collider_GetOffset_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, glm::vec2& outOffset) 
-		{
-			glm::vec2 Offset = { 0.0f, 0.0f };
-
-			if ((ColliderType_Internal)colliderType == ColliderType_Internal::Box)
-			{
-				GET_COMPONENT_VAR(Offset, entityUUIDArr, BoxCollider2DComponent);
-			}
-			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::Circle)
-			{
-				GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
-			}
-			else if ((ColliderType_Internal)colliderType == ColliderType_Internal::None)
+			case ColliderType_Internal::None: 
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
 				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
@@ -826,39 +796,113 @@ namespace TerranEngine
 				if (entity)
 				{
 					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-					b2Fixture* fixture = physicsBody.GetPhysicsBodyInternal()->GetFixtureList();
+					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
 
-					if (fixture) 
+					if (collider)
+						IsSensor = collider->IsSensor();
+				}
+
+				break;
+			}
+			}
+			return IsSensor;
+		}
+		
+		static void Collider_SetSensor_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
+		{
+			bool IsSensor = false;
+			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+			if (entity) 
+			{
+				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				 
+				switch ((ColliderType_Internal)colliderType)
+				{
+				case ColliderType_Internal::Box: 
+				{
+					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
+					Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+					
+					bcComponent.IsSensor = isSensor;
+					collider->SetSensor(isSensor);
+					break;
+				}
+				case ColliderType_Internal::Circle: 
+				{
+					CircleCollider2DComponent ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
+					Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+					
+					ccComponent.IsSensor = isSensor;
+					collider->SetSensor(isSensor);
+					break;
+				}
+				case ColliderType_Internal::None: 
+				{
+					break;
+				}
+				}
+			}
+		}
+
+		static void Collider_GetOffset_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, glm::vec2& outOffset) 
+		{
+			glm::vec2 Offset = { 0.0f, 0.0f };
+
+			switch ((ColliderType_Internal)colliderType)
+			{
+			case ColliderType_Internal::Box: 
+			{
+				GET_COMPONENT_VAR(Offset, entityUUIDArr, BoxCollider2DComponent);
+				break;
+			}
+			case ColliderType_Internal::Circle: 
+			{
+				GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
+				break;
+			}
+			case ColliderType_Internal::None: 
+			{
+				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+				if (entity)
+				{
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+					Shared<Collider2D> collider;
+					if (physicsBody.GetColliders().size() > 0)
+						collider = physicsBody.GetColliders()[0];
+
+					if (collider)
 					{
-						b2Shape* shape = fixture->GetShape();
-						switch (shape->GetType())
+						// nested switch statements; fucking disgusting
+						switch (collider->GetType())
 						{
-						case b2Shape::e_polygon: 
+						case ColliderType2D::Box:
 						{
-							b2PolygonShape* polygonShape = dynamic_cast<b2PolygonShape*>(shape);
-							if (polygonShape) 
-							{
-								b2Vec2* vertices = polygonShape->m_vertices;
-
-								float offsetX = (vertices[1].x + vertices[3].x) * 0.5f;
-								float offsetY = (vertices[1].y + vertices[3].y) * 0.5f;
-
-								Offset = { offsetX, offsetY };
-							}
+							Shared<BoxCollider2D> boxCollider = std::dynamic_pointer_cast<BoxCollider2D>(collider);
+							if (boxCollider)
+								Offset = boxCollider->GetOffset();
 							break;
 						}
-						case b2Shape::e_circle: 
+						case ColliderType2D::Circle:
 						{
-							b2CircleShape* circleShape = dynamic_cast<b2CircleShape*>(shape);
-
-							if (circleShape)
-								Offset = { circleShape->m_p.x, circleShape->m_p.y };
+							Shared<CircleCollider2D> circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(collider);
+							if (circleCollider)
+								Offset = circleCollider->GetOffset();
 
 							break;
 						}
 						}
 					}
 				}
+
+				break;
+			}
 			}
 
 			outOffset = Offset;
