@@ -78,6 +78,7 @@ namespace TerranScriptCore
 				Internal.Collider2D_GetOffset_Internal(entity.ID, (byte)p_ColliderType, out offset);
 				return offset;
 			}
+			set => Internal.Collider2D_SetOffset_Internal(entity.ID, (byte)p_ColliderType, in value);
 		}
 
 		public bool IsSensor 

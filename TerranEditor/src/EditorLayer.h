@@ -70,15 +70,17 @@ namespace TerranEditor
 		//GameView m_GameView;
 
 		// ******************
-
+		
 		Shared<Scene> m_EditorScene;
 		Shared<Scene> m_ActiveScene;
 
-		Shared<SceneRenderer> m_GameSceneRenderer;
+		Shared<SceneRenderer> m_RuntimeSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 
 		bool m_PerformanceOpen = true;
 		bool m_RendererStatsOpen = true;
+
+		bool m_ShowColliders = false;
 
 		float m_Frametime = 0.0f;
 		SceneState m_SceneState = SceneState::Edit;

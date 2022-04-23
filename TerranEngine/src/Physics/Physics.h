@@ -26,7 +26,6 @@ namespace TerranEngine
 		static void CleanUpPhysicsWorld();
 
 		static void CreatePhysicsBody(Entity entity);
-		//static void CreateCollider(Entity entity);
 		static void DestroyPhysicsBody(Entity entity);
 
 		static void Update(Time time);
@@ -37,5 +36,6 @@ namespace TerranEngine
 		static b2World* s_PhysicsWorld;
 		static std::unordered_map<UUID, PhysicsBody2D> s_PhysicsBodies;
 		static PhysicsBody2D s_DefaultBody;
+		static float s_PhysicsDeltaTime;
 	};
 }

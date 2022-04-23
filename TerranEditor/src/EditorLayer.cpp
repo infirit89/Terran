@@ -42,7 +42,7 @@ namespace TerranEditor
 		m_ContentPanel = ContentPanel(m_ResPath);
 
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
-		m_GameSceneRenderer = CreateShared<SceneRenderer>();
+		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>();
 
 		m_EditorScene = CreateShared<Scene>();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
@@ -115,11 +115,11 @@ namespace TerranEditor
 			}
 			case SceneState::Play: 
 			{
-				if ((m_SceneView.GetViewportSize().x != m_GameSceneRenderer->GetViewportWidth() ||
-					m_SceneView.GetViewportSize().y != m_GameSceneRenderer->GetViewportHeight()) &&
+				if ((m_SceneView.GetViewportSize().x != m_RuntimeSceneRenderer->GetViewportWidth() ||
+					m_SceneView.GetViewportSize().y != m_RuntimeSceneRenderer->GetViewportHeight()) &&
 					m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
 				{
-					m_GameSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+					m_RuntimeSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 					SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
 				}
 
@@ -130,12 +130,12 @@ namespace TerranEditor
 				if (primaryCamera)
 					backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
 
-				m_GameSceneRenderer->SetClearColor(backgroundColor);
+				m_RuntimeSceneRenderer->SetClearColor(backgroundColor);
 
 				SceneManager::GetCurrentScene()->Update(time);
-				SceneManager::GetCurrentScene()->OnRender(m_GameSceneRenderer);
+				SceneManager::GetCurrentScene()->OnRender(m_RuntimeSceneRenderer);
 
-				m_SceneView.SetRenderTextureID(m_GameSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				m_SceneView.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 
 				break;
 			}
@@ -325,6 +325,13 @@ namespace TerranEditor
 			{
 				if (ImGui::MenuItem("Reload C# Assembly"))
 					ReloadScriptAssembly(m_ScriptAssemblyPath);
+				
+				if (ImGui::MenuItem("Show colliders", NULL, m_ShowColliders)) 
+				{
+					m_ShowColliders = !m_ShowColliders;
+					m_EditorSceneRenderer->SetShowColliders(m_ShowColliders);
+					m_RuntimeSceneRenderer->SetShowColliders(m_ShowColliders);
+				}
 
 				ImGui::EndMenu();
 			}

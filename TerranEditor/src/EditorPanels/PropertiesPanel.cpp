@@ -400,7 +400,7 @@ namespace TerranEditor
 									ImGui::SetItemDefaultFocus();
 							}
 
-							ImGui::EndCombo();
+							ImGui::EndCombo();	
 						}
 						
 					}
@@ -436,10 +436,13 @@ namespace TerranEditor
 
 					}
 
-					if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
+					if (rbComponent.BodyType != PhysicsBodyType::Static) 
 					{
-						if (isPlay)
-							physicsBody.SetGravityScale(rbComponent.GravityScale);
+						if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
+						{
+							if (isPlay)
+								physicsBody.SetGravityScale(rbComponent.GravityScale);
+						}
 					}
 
 					{

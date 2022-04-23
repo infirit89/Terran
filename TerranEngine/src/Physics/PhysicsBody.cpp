@@ -221,7 +221,6 @@ namespace TerranEngine
         }
 
         polyhonShape.Set(vertices, 4);
-
         fixtureDef.shape = &polyhonShape;
 
         // NOTE: these magic numbers are temporary until i make physics materials a thing

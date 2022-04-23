@@ -114,7 +114,7 @@ namespace TerranEngine
 		{
 			Entity entity(e, this);
 			//ScriptEngine::InitializeScriptable(entity);
-			ScriptEngine::StartScriptable(entity);
+			ScriptEngine::OnStart(entity);
 		}
 	}
 
@@ -144,10 +144,10 @@ namespace TerranEngine
 			if (!entity.GetComponent<ScriptComponent>().Started) 
 			{
 				ScriptEngine::InitializeScriptable(entity);
-				ScriptEngine::StartScriptable(entity);
+				ScriptEngine::OnStart(entity);
 			}
 
-			ScriptEngine::UpdateScriptable(entity);
+			ScriptEngine::OnUpdate(entity);
 		}
 
 	}
@@ -261,61 +261,6 @@ namespace TerranEngine
 				sceneRenderer->SubmitLine(lineRenderer);
 			}
 		}
-		
-		// submit debug rectangles
-		{
-			auto boxCollider2DView = m_Registry.view<BoxCollider2DComponent>();
-
-			for (auto e : boxCollider2DView)
-			{
-				Entity entity(e, this);
-
-				BoxCollider2DComponent& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
-				auto& transform = entity.GetTransform();
-
-				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				const float thickness = 0.02f;
-
-				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
-
-				const glm::vec3 postition = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
-
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), postition) *
-											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
-											glm::scale(glm::mat4(1.0f), size);
-
-				sceneRenderer->SubmitDebugRectangle(transformMatrix, color, thickness);
-			}
-		}
-
-		// submit debug circles
-		{
-			auto circleCollider2DView = m_Registry.view<CircleCollider2DComponent>();
-
-			for (auto e : circleCollider2DView)
-			{
-				Entity entity(e, this);
-
-				auto& circleCollider = entity.GetComponent<CircleCollider2DComponent>();
-				auto& transform = entity.GetTransform();
-
-				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				const float thickness = 0.02f;
-
-				const glm::vec3 size = transform.Scale * circleCollider.Radius;
-				const glm::vec3 position = { transform.Position.x + circleCollider.Offset.x, transform.Position.y + circleCollider.Offset.y, 1.0f };
-
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) * 
-											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
-											glm::scale(glm::mat4(1.0f), size);
-
-				CircleRendererComponent circleRenderer;
-				circleRenderer.Color = color;
-				circleRenderer.Thickness = thickness;
-
-				sceneRenderer->SubmitCircle(circleRenderer, transformMatrix);
-			}
-		}
 
 		sceneRenderer->EndScene();
 	}
@@ -406,7 +351,7 @@ namespace TerranEngine
 			ScriptEngine::InitializeScriptable(dstEntity);
 
 			if (m_RuntimeStarted)
-				ScriptEngine::StartScriptable(dstEntity);
+				ScriptEngine::OnStart(dstEntity);
 
 		}
 		return dstEntity;

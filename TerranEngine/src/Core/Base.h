@@ -32,4 +32,10 @@ namespace TerranEngine
 	{
 		return std::make_weak<T>(std::forward<Args>(args)...);
 	}
+
+	template<typename T1, typename T2>
+	Shared<T1> DynamicCast(const Shared<T2>& ptr) 
+	{
+		return std::dynamic_pointer_cast<T1, T2>(ptr);
+	}
 }

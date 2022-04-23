@@ -33,13 +33,6 @@ namespace TerranEngine
 			MonoArray* UUID;
 		};
 		
-		static enum class ColliderType_Internal 
-		{
-			None = 0,
-			Box,
-			Circle
-		};
-
 		// ---- Entity ----
 		static bool Entity_HasComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
 		static void Entity_AddComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentType);
@@ -108,6 +101,7 @@ namespace TerranEngine
 		static void Collider_SetSensor_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor);
 
 		static void Collider_GetOffset_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, glm::vec2& outOffset);
+		static void Collider_SetOffset_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, const glm::vec2& inOffset);
 		// ---------------------
 
 		// ---- Box Collider 2D ----
@@ -776,32 +770,31 @@ namespace TerranEngine
 		{
 			bool IsSensor = false;
 
-			switch ((ColliderType_Internal)colliderType)
+			switch ((ColliderType2D)colliderType)
 			{
-			case ColliderType_Internal::Box:
+			case ColliderType2D::Box:
 			{
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
 				break;
 			}
-			case ColliderType_Internal::Circle:
+			case ColliderType2D::Circle:
 			{
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
 				break;
 			}
-			case ColliderType_Internal::None: 
+			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
 				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 
-				if (entity)
+				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				if (physicsBody)
 				{
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
 
 					if (collider)
 						IsSensor = collider->IsSensor();
 				}
-
 				break;
 			}
 			}
@@ -810,17 +803,15 @@ namespace TerranEngine
 		
 		static void Collider_SetSensor_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
 		{
-			bool IsSensor = false;
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
 			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 
-			if (entity) 
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			if (physicsBody) 
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				 
-				switch ((ColliderType_Internal)colliderType)
+				switch ((ColliderType2D)colliderType)
 				{
-				case ColliderType_Internal::Box: 
+				case ColliderType2D::Box:
 				{
 					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
 
@@ -830,7 +821,7 @@ namespace TerranEngine
 					collider->SetSensor(isSensor);
 					break;
 				}
-				case ColliderType_Internal::Circle: 
+				case ColliderType2D::Circle:
 				{
 					CircleCollider2DComponent ccComponent = entity.GetComponent<CircleCollider2DComponent>();
 
@@ -840,8 +831,29 @@ namespace TerranEngine
 					collider->SetSensor(isSensor);
 					break;
 				}
-				case ColliderType_Internal::None: 
+				case ColliderType2D::None:
 				{
+					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+
+					if (collider)
+						collider->SetSensor(isSensor);
+
+					switch (collider->GetType())
+					{
+					case ColliderType2D::Box: 
+					{
+						BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+						bcComponent.IsSensor = isSensor;
+						break;
+					}
+					case ColliderType2D::Circle: 
+					{
+						CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+						ccComponent.IsSensor = isSensor;
+						break;
+					}
+					}
+
 					break;
 				}
 				}
@@ -852,26 +864,26 @@ namespace TerranEngine
 		{
 			glm::vec2 Offset = { 0.0f, 0.0f };
 
-			switch ((ColliderType_Internal)colliderType)
+			switch ((ColliderType2D)colliderType)
 			{
-			case ColliderType_Internal::Box: 
+			case ColliderType2D::Box:
 			{
 				GET_COMPONENT_VAR(Offset, entityUUIDArr, BoxCollider2DComponent);
 				break;
 			}
-			case ColliderType_Internal::Circle: 
+			case ColliderType2D::Circle:
 			{
 				GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
 				break;
 			}
-			case ColliderType_Internal::None: 
+			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
 				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 
-				if (entity)
+				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				if (physicsBody)
 				{
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					Shared<Collider2D> collider;
 					if (physicsBody.GetColliders().size() > 0)
@@ -907,6 +919,69 @@ namespace TerranEngine
 
 			outOffset = Offset;
 		}
+
+		static void Collider_SetOffset_Internal(MonoArray* entityUUIDArr, uint8_t colliderType, const glm::vec2& inOffset) 
+		{
+			glm::vec2 Offset = inOffset;
+
+			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			if (physicsBody) 
+			{
+				switch ((ColliderType2D)colliderType)
+				{
+				case ColliderType2D::Box: 
+				{
+					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
+					Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+					
+					if(collider)
+						collider->SetOffset(Offset);
+					break;
+				}
+				case ColliderType2D::Circle: 
+				{
+					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
+					Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+					if (collider)
+						collider->SetOffset(Offset);
+
+					break;
+				}
+				case ColliderType2D::None: 
+				{
+					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+
+					if(collider)
+						collider->SetOffset(Offset);
+
+					// NOTE: this does not scale if in the future an entity can have multiple colliders of the same type;
+					// but it fucking works for now
+					switch (collider->GetType())
+					{
+					case ColliderType2D::Box: 
+					{
+						BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+						bcComponent.Offset = Offset;
+						break;
+					}
+					case ColliderType2D::Circle: 
+					{
+						CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+						ccComponent.Offset = Offset;
+						break;
+					}
+					}
+					break;
+				}
+				}
+			}
+		}
+
 		// ---------------------
 
 		// ---- Box Collider 2D ----
@@ -920,7 +995,18 @@ namespace TerranEngine
 		static void BoxCollider_SetSize_Internal(MonoArray* entityUUIDArr, const glm::vec2& size)
 		{
 			glm::vec2 Size = size;
-			//SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+			SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
+
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			if (physicsBody) 
+			{
+				BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+				Shared<BoxCollider2D> boxCollider = DynamicCast<BoxCollider2D>(collider);
+
+				if (boxCollider)
+					boxCollider->SetSize(Size);
+			}
 		}
 		// -------------------------
 
@@ -935,7 +1021,19 @@ namespace TerranEngine
 		static void CircleCollider_SetRadius_Internal(MonoArray* entityUUIDArr, float radius)
 		{
 			float Radius = radius;
-			//SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
+			SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
+
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+			if (physicsBody) 
+			{
+				CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+				Shared<CircleCollider2D> circleCollider = DynamicCast<CircleCollider2D>(collider);
+
+				if (circleCollider)
+					circleCollider->SetRadius(Radius);
+			}
 		}
 		// ----------------------------
 
@@ -946,15 +1044,9 @@ namespace TerranEngine
 
 			switch (logLevel)
 			{
-			case 1 << 0:
-				TR_CLIENT_TRACE(message.GetUTF8Str());
-				break;
-			case 1 << 1:
-				TR_CLIENT_WARN(message.GetUTF8Str());
-				break;
-			case 1 << 2:
-				TR_CLIENT_ERROR(message.GetUTF8Str());
-				break;
+			case 1 << 0: TR_CLIENT_TRACE(message.GetUTF8Str()); break;
+			case 1 << 1: TR_CLIENT_WARN(message.GetUTF8Str()); break;
+			case 1 << 2: TR_CLIENT_ERROR(message.GetUTF8Str()); break;
 			}
 		}
 		// -------------
@@ -998,6 +1090,5 @@ namespace TerranEngine
 			return Input::GetControllerAxis((ControllerAxis)controllerAxis, (ControllerIndex)controllerIndex);
 		}
 		// ---------------
-
 	}
 }

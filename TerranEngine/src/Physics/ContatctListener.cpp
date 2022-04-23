@@ -27,8 +27,8 @@ namespace TerranEngine
 
 		if (entityA && entityB) 
 		{
-			ScriptEngine::PhysicsBeginContact(entityA, entityB);
-			ScriptEngine::PhysicsBeginContact(entityB, entityA);
+			ScriptEngine::OnPhysicsBeginContact(entityA, entityB);
+			ScriptEngine::OnPhysicsBeginContact(entityB, entityA);
 		}
 	}
 
@@ -46,8 +46,8 @@ namespace TerranEngine
 
 		if (entityA && entityB) 
 		{
-			ScriptEngine::PhysicsEndContact(entityA, entityB);
-			ScriptEngine::PhysicsEndContact(entityB, entityA);
+			ScriptEngine::OnPhysicsEndContact(entityA, entityB);
+			ScriptEngine::OnPhysicsEndContact(entityB, entityA);
 		}
 	}
 

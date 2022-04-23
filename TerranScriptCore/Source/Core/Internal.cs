@@ -116,10 +116,14 @@ namespace TerranScriptCore
 		internal static extern void Collider2D_GetOffset_Internal(byte[] entityUUID, byte colliderType, out Vector2 offset);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Collider2D_SetOffset_Internal(byte[] entityUUID, byte colliderType, in Vector2 offset);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Collider2D_IsSensor_Internal(byte[] entityUUID, byte colliderType);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Collider2D_SetSensor_Internal(byte[] entityUUID, byte colliderType, bool isSensor);
+
 
 		// ---------------------
 

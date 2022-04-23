@@ -7,6 +7,8 @@
 
 #include "Scene/SceneManager.h"
 
+#include "Scripting/ScriptEngine.h"
+
 #include <box2d/box2d.h>
 
 #include <glm/gtx/transform.hpp>
@@ -18,6 +20,7 @@ namespace TerranEngine
 	std::unordered_map<UUID, PhysicsBody2D> Physics2D::s_PhysicsBodies;
 	
 	PhysicsBody2D Physics2D::s_DefaultBody;
+	float Physics2D::s_PhysicsDeltaTime = 0.0f;
 
 	static PhysicsBody2D s_EmptyPhysicsBody;
 
@@ -109,7 +112,21 @@ namespace TerranEngine
 
 	void Physics2D::Update(Time time)
 	{		
-		s_PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
+		s_PhysicsDeltaTime += time.GetDeltaTime();
+
+		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+
+		while (s_PhysicsDeltaTime > 0)
+		{
+			s_PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
+			s_PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
+
+			for (auto e : scriptView)
+			{
+				Entity entity(e, SceneManager::GetCurrentScene().get());
+				ScriptEngine::OnPhysicsUpdate(entity);
+			}
+		}
 
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
 
