@@ -31,6 +31,10 @@ namespace TerranEditor
 		void OnEvent(Event& event) override;
 		void ImGuiRender() override;
 
+		SceneState GetSceneState() { return m_SceneState; }
+
+		static EditorLayer* GetInstace() { return s_Instance; }
+
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 
@@ -54,6 +58,7 @@ namespace TerranEditor
 		OrthographicCamera m_Camera;
 
 		Entity m_Selected = {};
+		Entity m_EditModeSelected = {};
 
 		// ***** Panels *****
 		SceneHierarchy m_SHierarchy;
@@ -65,15 +70,17 @@ namespace TerranEditor
 		//GameView m_GameView;
 
 		// ******************
-
+		
 		Shared<Scene> m_EditorScene;
 		Shared<Scene> m_ActiveScene;
 
-		Shared<SceneRenderer> m_GameSceneRenderer;
+		Shared<SceneRenderer> m_RuntimeSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 
 		bool m_PerformanceOpen = true;
 		bool m_RendererStatsOpen = true;
+
+		bool m_ShowColliders = false;
 
 		float m_Frametime = 0.0f;
 		SceneState m_SceneState = SceneState::Edit;
@@ -81,5 +88,7 @@ namespace TerranEditor
 		std::filesystem::path m_CurrentScenePath;
 		const std::filesystem::path m_ResPath = "Resources";
 		std::filesystem::path m_ScriptAssemblyPath;
+
+		static EditorLayer* s_Instance;
 	};
 }

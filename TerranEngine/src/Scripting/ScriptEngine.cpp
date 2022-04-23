@@ -8,7 +8,6 @@
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
 
-#include "Scene/Entity.h"
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 
@@ -50,14 +49,57 @@ namespace TerranEngine
 		ScriptMethod InitMethod;
 		ScriptMethod UpdateMethod;
 
+		ScriptMethod PhysicsBeginContact;
+		ScriptMethod PhysicsEndContact;
+		
+		ScriptMethod PhysicsUpdateMethod;
+
 		void GetMethods(ScriptClass& scriptClass) 
 		{
 			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
 
 			InitMethod = scriptClass.GetMethod(":Init()");
 			UpdateMethod = scriptClass.GetMethod(":Update()");
+
+			PhysicsBeginContact = scriptClass.GetMethod(":OnCollisionBegin(Entity)");
+			PhysicsEndContact = scriptClass.GetMethod(":OnCollisionEnd(Entity)");
+
+			PhysicsUpdateMethod = scriptClass.GetMethod(":PhysicsUpdate()");
 		}
 	};
+
+	union ScriptFieldData
+	{
+		double dValue;
+		int64_t iValue;
+		bool bValue;
+		void* ptr;
+
+		operator bool() { return bValue; }
+
+		operator int8_t() { return static_cast<int8_t>(iValue); }
+		operator int16_t() { return static_cast<int16_t>(iValue); }
+		operator int32_t() { return static_cast<int32_t>(iValue); }
+		operator int64_t() { return static_cast<int64_t>(iValue); }
+
+		operator uint8_t() { return static_cast<uint8_t>(iValue); }
+		operator uint16_t() { return static_cast<uint16_t>(iValue); }
+		operator uint32_t() { return static_cast<uint32_t>(iValue); }
+		operator uint64_t() { return static_cast<uint64_t>(iValue); }
+
+		operator float() { return static_cast<float>(dValue); }
+		operator double() { return static_cast<double>(dValue); }
+		operator const char* () { return static_cast<const char*>(ptr); }
+		operator glm::vec2() { return *static_cast<glm::vec2*>(ptr); }
+		operator glm::vec3() { return *static_cast<glm::vec3*>(ptr); }
+	};
+
+	struct ScriptFieldBackup
+	{
+		ScriptFieldData Data;
+		ScriptFieldType Type;
+	};
+
 
 	static ScriptableInstance s_EmptyInstance;
 
@@ -285,85 +327,72 @@ namespace TerranEngine
 							case ScriptFieldType::Bool: 
 							{
 								bool value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int8:
 							{
 								int8_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int16:
 							{
 								int16_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int:
 							{
 								int32_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Int64:
 							{
 								int64_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt8:
 							{
 								uint8_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt16:
 							{
 								uint16_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt:
 							{
 								uint32_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::UInt64:
 							{
 								uint64_t value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
-
 							case ScriptFieldType::Float: 
 							{
 								float value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::Double: 
 							{
 								double value = field.Data;
-
 								objectField.SetData(value);
 								break;
 							}
 							case ScriptFieldType::String: 
 							{
 								const char* value = field.Data;
-
 								objectField.SetData<const char*>(value);
 								break;
 							}
@@ -387,39 +416,14 @@ namespace TerranEngine
 
 			scriptComponent.FieldOrder = instance.Object.GetFieldOrder();
 			scriptComponent.PublicFields = instance.Object.GetFieldMap();
-
-			auto scriptFieldBackupCpy = s_ScriptFieldBackup;
-			for(auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
-			{
-				auto fieldBackupCpy = fieldBackupMap;
-				for (auto& [fieldName, field] : fieldBackupCpy)
-				{
-					if (field.Type == ScriptFieldType::String) 
-					{
-						if (field.Data.ptr)
-							delete[] (char*)field.Data.ptr;
-					}
-					else if (field.Type == ScriptFieldType::Vector2) 
-					{
-						if (field.Data.ptr)
-							delete (glm::vec2*)field.Data.ptr;
-					}
-					else if (field.Type == ScriptFieldType::Vector3) 
-					{
-						if(field.Data.ptr)
-							delete (glm::vec3*)field.Data.ptr;
-					}
-
-					fieldBackupMap.erase(fieldName);
-				}
-
-				s_ScriptFieldBackup.erase(entityID);
-			}
 		}
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
+		if (!entity || !entity.HasComponent<TagComponent>())
+			return;
+
 		if (s_ScriptableInstanceMap.find(entity.GetSceneID()) != s_ScriptableInstanceMap.end()) 
 		{
 			if (s_ScriptableInstanceMap[entity.GetSceneID()].find(entity.GetID()) != s_ScriptableInstanceMap[entity.GetSceneID()].end()) 
@@ -430,7 +434,7 @@ namespace TerranEngine
 		}
 	}
 
-	void ScriptEngine::StartScriptable(Entity entity) 
+	void ScriptEngine::OnStart(Entity entity) 
 	{
 		ScriptableInstance instace = GetInstance(entity.GetSceneID(), entity.GetID());
 
@@ -440,12 +444,88 @@ namespace TerranEngine
 			instace.InitMethod.Invoke(instace.Object, nullptr);
 	}
 
-	void ScriptEngine::UpdateScriptable(Entity entity) 
+	void ScriptEngine::OnUpdate(Entity entity) 
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		if (instance.UpdateMethod.GetNativeMethodPtr())
 			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+	}
+
+	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee)
+	{
+		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
+
+		if (instance.PhysicsBeginContact.GetNativeMethodPtr()) 
+		{
+			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			void* args[] = { monoUuidArr };
+			instance.PhysicsBeginContact.Invoke(instance.Object, args);
+		}
+	}
+
+	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee)
+	{
+		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
+
+		if (instance.PhysicsEndContact.GetNativeMethodPtr())
+		{
+			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			void* args[] = { monoUuidArr };
+			instance.PhysicsEndContact.Invoke(instance.Object, args);
+		}
+	}
+
+	void ScriptEngine::OnPhysicsUpdate(Entity entity)
+	{
+		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
+
+		if (instance.PhysicsUpdateMethod.GetNativeMethodPtr())
+			instance.PhysicsUpdateMethod.Invoke(instance.Object, nullptr);
+	}
+
+	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
+	{
+		ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
+
+		return instance.Object;
+	}
+
+	void ScriptEngine::ClearFieldBackupMap()
+	{
+		auto scriptFieldBackupCpy = s_ScriptFieldBackup;
+		for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
+		{
+			auto fieldBackupCpy = fieldBackupMap;
+			for (auto& [fieldName, field] : fieldBackupCpy)
+			{
+				switch (field.Type)
+				{
+				case ScriptFieldType::String:
+				{
+					if (field.Data.ptr)
+						delete[](char*)field.Data.ptr;
+					break;
+				}
+				case ScriptFieldType::Vector2:
+				{
+					if (field.Data.ptr)
+						delete (glm::vec2*)field.Data.ptr;
+					break;
+				}
+				case ScriptFieldType::Vector3:
+				{
+					if (field.Data.ptr)
+						delete (glm::vec3*)field.Data.ptr;
+					break;
+				}
+				}
+
+				fieldBackupMap.erase(fieldName);
+			}
+
+			s_ScriptFieldBackup.erase(entityID);
+		}
 	}
 
 	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
@@ -465,19 +545,51 @@ namespace TerranEngine
 					fieldBackup.Type = field.GetType();
 					switch (field.GetType())
 					{
-					case ScriptFieldType::Int8:
-					case ScriptFieldType::Int16:
-					case ScriptFieldType::Int:
-					case ScriptFieldType::Int64:
-					case ScriptFieldType::UInt8:
-					case ScriptFieldType::UInt16:
-					case ScriptFieldType::UInt:
-					case ScriptFieldType::UInt64:
+					case ScriptFieldType::Int8: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int8_t>();
+						break;
+					}
+					case ScriptFieldType::Int16: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int16_t>();
+						break;
+					}
+					case ScriptFieldType::Int: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int32_t>();
+						break;
+					}
+					case ScriptFieldType::Int64: 
 					{
 						fieldBackup.Data.iValue = field.GetData<int64_t>();
 						break;
 					}
+					case ScriptFieldType::UInt8: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint8_t>();
+						break;
+					}
+					case ScriptFieldType::UInt16: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint16_t>();
+						break;
+					}
+					case ScriptFieldType::UInt: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint32_t>();
+						break;
+					}
+					case ScriptFieldType::UInt64:
+					{
+						fieldBackup.Data.iValue = field.GetData<uint64_t>();
+						break;
+					}
 					case ScriptFieldType::Float:
+					{
+						fieldBackup.Data.dValue = field.GetData<float>();
+						break;
+					}
 					case ScriptFieldType::Double:
 					{
 						fieldBackup.Data.dValue = field.GetData<double>();
@@ -531,7 +643,6 @@ namespace TerranEngine
 				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
 			}
 		}
-
 	}
 
 	static MonoAssembly* LoadAssembly(const char* fileName) 

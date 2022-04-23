@@ -40,8 +40,7 @@ namespace TerranEditor
 		bool OnMouseScroll(MouseScrollEvent& e);
 		
 		glm::vec3 CalculatePosition();
-		glm::vec2 GetPanSpeed();
-
+		
 		glm::vec2 m_OrigMousePos{ 0.0f, 0.0f };
 
 		EditorCameraType m_CameraType = EditorCameraType::Orthographic;
@@ -55,8 +54,11 @@ namespace TerranEditor
 		float m_OrthoGraphicSize = 10.0f;
 		float m_OrthographicFar = 10.0f, m_OrthographicNear = -10.0f;
 
+		float m_Pitch = 0.0f, m_Yaw = 0.0f;
+		
 		float m_ViewportWidth = 1080.0f, m_ViewportHeight = 780.0f;
 
 		bool m_BlockInput = false;
+		bool m_ViewDirty = false;
 	};
 }

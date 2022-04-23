@@ -1,8 +1,9 @@
 #include "LogPanel.h"
 
-#include <imgui.h>
+#include "../UI/UI.h"
 
-#include <stdarg.h>
+#include <imgui.h>
+#include <imgui_internal.h>
 
 namespace TerranEditor 
 {
@@ -38,12 +39,21 @@ namespace TerranEditor
 		
 		ImGui::Begin("Log", &m_Open);
 
-		if (ImGui::Button("Clear"))
-			ClearMessageBuffer();
+		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedFit, { 0.0f, 25.0f }))
+		{
+			ImGui::TableSetupColumn("clear_column", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+			ImGui::TableNextColumn();
+			if (ImGui::Button("Clear"))
+				ClearMessageBuffer();
+			
+			ImGui::TableNextColumn();
+			ImGui::Checkbox("Auto scroll", &m_AutoScroll);
 
-		ImGui::SameLine();
-
-		ImGui::Checkbox("Auto scroll", &m_AutoScroll);
+			ImGui::TableNextColumn();
+			ImGui::Checkbox("Clear on play", &m_ClearOnPlay);
+			
+			ImGui::EndTable();
+		}
 
 		ImGui::Separator();
 		
@@ -100,8 +110,13 @@ namespace TerranEditor
 
 				ImGui::SameLine();
 
+				float cursorPosY = ImGui::GetCursorPosY();
+				ImGui::SetCursorPosY(cursorPosY + 2.0f);
+
 				ImGui::TextUnformatted(logMessage.Message.c_str());
 				ImGui::Unindent(4.0f);
+
+				ImGui::SetCursorPosY(cursorPosY);
 			}
 
 			ImGui::PopStyleVar();

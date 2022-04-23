@@ -20,10 +20,13 @@ namespace TerranEngine
 
 		void SetScene(Scene* scene);
 
-		void BeginScene(Camera& camera, glm::mat4& cameraTransform);
+		void BeginScene(Camera& camera, glm::mat4& cameraTransform, bool invereTransform);
 
 		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform);
 		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform);
+		void SubmitLine(LineRendererComponent& lineRenderer);
+
+		void SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		uint32_t GetViewportWidth() { return m_Width; }
 		uint32_t GetViewportHeight() { return m_Height; }
@@ -33,9 +36,16 @@ namespace TerranEngine
 		Unique<Framebuffer>& GetFramebuffer() { return m_Framebuffer; }
 
 		void OnResize(uint32_t width, uint32_t height);
+
+		void SetShowColliders(bool show) { m_ShowColliders = show; }
+		bool AreCollidersShowing() { return m_ShowColliders; }
+
 	private:
+		void SubmitColliderBounds();
+
 		Scene* m_Scene;
 		bool m_BegunScene = false;
+		bool m_ShowColliders = false;
 
 		glm::vec4 m_ClearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 

@@ -1,5 +1,7 @@
 #include "SceneView.h"
 
+#include "../EditorLayer.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ImGui/imgui.h>
@@ -11,118 +13,132 @@ namespace TerranEditor
 {
 	void SceneView::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera, OpenSceneFN openSceneFN)
 	{
-        if (m_Open) 
-        {
-            
-            ImGui::Begin("Scene view", &m_Open);
+		if (m_Open) 
+		{
+			ImGui::Begin("Scene view", &m_Open);
 
-            if (m_Position.x != ImGui::GetWindowPos().x || m_Position.y != ImGui::GetWindowPos().y) 
-            {
-                m_Position = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
-                m_WindowMoved = true;
-            }
+			SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();
 
-            ImVec2 regionAvail = ImGui::GetContentRegionAvail();
+			if (m_Position.x != ImGui::GetWindowPos().x || m_Position.y != ImGui::GetWindowPos().y) 
+			{
+				m_Position = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
+				m_WindowMoved = true;
+			}
 
-            m_ViewportSize = { regionAvail.x, regionAvail.y };
+			ImVec2 regionAvail = ImGui::GetContentRegionAvail();
 
-            bool isFocused = ImGui::IsWindowFocused();
-            bool isHovered = ImGui::IsWindowHovered();
+			m_ViewportSize = { regionAvail.x, regionAvail.y };
+			
+			ImVec2 viewportMinRegion = ImGui::GetWindowContentRegionMin();
 
-            Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
+			ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+			
+			ImVec2 viewportOffset = ImGui::GetWindowPos();
 
-            ImGui::Image((void*)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
+			glm::vec2 viewportBounds[2] = {
+				{ viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y },
+				{ viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y }
+			};
 
-            m_Visible = ImGui::IsItemVisible();
+			bool isFocused = ImGui::IsWindowFocused();
+			bool isHovered = ImGui::IsWindowHovered();
 
-            ImGuizmo::SetOrthographic(true);
-            ImGuizmo::SetDrawlist();
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-            bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
-            if (altPressed)
-                m_UseSnapping = true;
-            else
-                m_UseSnapping = false;
+			ImGui::Image((void*)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
 
-            // Gizmos
-            if (selectedEntity && m_SceneState == SceneState::Edit)
-            {
-                auto& tc = selectedEntity.GetComponent<TransformComponent>();
-                glm::mat4 transformMatrix = tc.WorldTransformMatrix;
+			m_Visible = ImGui::IsItemVisible();
 
-                ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(editorCamera.GetView())), glm::value_ptr(editorCamera.GetProjection()),
-                    (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
 
-                if (ImGuizmo::IsUsing())
-                {
-                    glm::vec3 position, rotation, scale;
-                    if (Decompose(transformMatrix, position, rotation, scale))
+
+			// Gizmos
+			if (selectedEntity && sceneState == SceneState::Edit)
+			{
+				bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
+				if (altPressed)
+					m_UseSnapping = true;
+				else
+					m_UseSnapping = false;
+
+				const glm::mat4& cameraProjection = editorCamera.GetProjection();
+				glm::mat4 cameraView = editorCamera.GetView();
+
+				auto& tc = selectedEntity.GetComponent<TransformComponent>();
+				
+				glm::mat4 transformMatrix = tc.WorldTransformMatrix;
+
+				if (selectedEntity.HasParent())
+					m_GizmoMode = ImGuizmo::LOCAL;
+				else
+					m_GizmoMode = ImGuizmo::WORLD;
+
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+					(ImGuizmo::OPERATION)m_GizmoType, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
+
+				if (ImGuizmo::IsUsing())
+				{
+					glm::vec3 position, rotation, scale;
+
+					if (selectedEntity.HasParent()) 
 					{
-						glm::vec3 deltaPosition = position - tc.Position;
-                        tc.Position += deltaPosition;
+						glm::mat4 parentMat = selectedEntity.GetParent().GetWorldMatrix();
 
-                        tc.Scale = scale;
+						transformMatrix = glm::inverse(parentMat) * transformMatrix;
+					}
 
-                        tc.Rotation = rotation;
+					if (Math::Decompose(transformMatrix, position, rotation, scale))
+					{
+						tc.Position = position;
+						tc.Scale = scale;
+						tc.Rotation = rotation;
 
-                        tc.IsDirty = true;
-                    }
-                }
-            }
+						tc.IsDirty = true;
+					}
+				}
+			}
 
-            if (ImGui::BeginDragDropTarget()) 
-            {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
-                {
-                    const char* entryPath = (const char*)payload->Data;
-                    openSceneFN(entryPath, m_ViewportSize);
-                }
+			if (ImGui::BeginDragDropTarget()) 
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
+				{
+					const char* entryPath = (const char*)payload->Data;
+					openSceneFN(entryPath, m_ViewportSize);
+				}
 
-                ImGui::EndDragDropTarget();
-            }
+				ImGui::EndDragDropTarget();
+			}
 
-            editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused || !isHovered || m_WindowMoved);
+			editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused || !isHovered || m_WindowMoved);
 
-            ImGui::End();
+			ImGui::End();
 
-            m_WindowMoved = false;
-        }
+			m_WindowMoved = false;
+		}
 	}
 
-    void SceneView::OnEvent(Event& event)
-    {
-        EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneView::OnKeyPressed));
-    }
+	void SceneView::OnEvent(Event& event)
+	{
+		EventDispatcher dispatcher(event);
+		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneView::OnKeyPressed));
+	}
 
-    bool SceneView::OnKeyPressed(KeyPressedEvent& e)
-    {
-        bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+	bool SceneView::OnKeyPressed(KeyPressedEvent& e)
+	{
+		SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();
 
-        if (e.GetRepeatCount() > 0 || m_SceneState == SceneState::Play)
-            return false;
+		if (e.GetRepeatCount() > 0 || sceneState == SceneState::Play)
+			return false;
 
-        switch (e.GetKeyCode())
-        {
-        case Key::Q: 
-        {
-            m_GizmoType = ImGuizmo::TRANSLATE;
-            break;
-        }
-        case Key::W:
-        {
-            m_GizmoType = ImGuizmo::ROTATE;
-            break;
-        }
-        case Key::E:
-        {
-            m_GizmoType = ImGuizmo::SCALE;
-            break;
-        }
-        }
+		switch (e.GetKeyCode())
+		{
+		case Key::Q:	m_GizmoType = ImGuizmo::TRANSLATE; break;
+		case Key::W:	m_GizmoType = ImGuizmo::ROTATE; break;
+		case Key::E:	m_GizmoType = ImGuizmo::SCALE; break;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }
 

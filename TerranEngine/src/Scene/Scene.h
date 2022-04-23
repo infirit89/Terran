@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/UUID.h"
+#include "Core/Time.h"
 
 #include "Graphics/Camera.h"
 
@@ -29,7 +30,7 @@ namespace TerranEngine
 		void StartRuntime();
 		void StopRuntime();
 
-		void Update();
+		void Update(Time time);
 		void UpdateEditor();
 		void OnResize(float width, float height);
 
@@ -52,6 +53,8 @@ namespace TerranEngine
 		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
 
 		UUID& GetID() { return m_ID; }
+
+		bool HasRuntimeStarted() const { return m_RuntimeStarted; }
 
 	private:
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);

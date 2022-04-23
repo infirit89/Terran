@@ -18,12 +18,12 @@ namespace TerranEngine
 //        return shader;
 //    }
 
-    //Shared<Texture> ResourceManager::LoadTexture(const char* name)
-    //{
-    //    Shared<Texture> texture = CreateShared<Texture>(name);
-    //    m_Textures[name] = texture;
-    //    return texture;
-    //}
+	//Shared<Texture> ResourceManager::LoadTexture(const char* name)
+	//{
+	//    Shared<Texture> texture = CreateShared<Texture>(name);
+	//    m_Textures[name] = texture;
+	//    return texture;
+	//}
 
 //    Shared<Shader> ResourceManager::GetShader(const char* name)
 //    {

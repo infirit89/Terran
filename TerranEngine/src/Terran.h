@@ -58,3 +58,8 @@
 #include "Scripting/ScriptString.h"
 
 #include "Scripting/ScriptBindings.h"
+
+/* ---- Physics ---- */
+#include "Physics/Physics.h"
+#include "Physics/PhysicsBody.h"
+#include "Physics/Collider.h"

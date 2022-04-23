@@ -25,7 +25,6 @@ namespace TerranEngine
 			MonoClass* klass = mono_object_get_class(error);
 			TR_ERROR("Exception {0} caused by {1} method", mono_class_get_name(klass), mono_method_get_name(m_MonoMethod));
 		}
-
 	}
 
 	void ScriptMethod::InvokeStatic(void** args)

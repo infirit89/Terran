@@ -31,6 +31,14 @@ namespace TerranEngine
 		glm::vec2 LocalPosition;
 	};
 
+	struct LineVertex 
+	{
+		glm::vec3 Position;
+		float Thickness;
+		glm::vec4 Color;
+		glm::vec2 Normal;
+	};
+
 	struct BatchRendererStats
 	{
 		uint32_t MaxVertices = 0;
@@ -50,7 +58,7 @@ namespace TerranEngine
 
 		~BatchRenderer2D();
 
-		void BeginFrame(Camera& camera, const glm::mat4& transform);
+		void BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView);
 		void EndFrame();
 
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture);
@@ -61,9 +69,17 @@ namespace TerranEngine
 
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness);
 
+		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
+		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);
+
+		void AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
+		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
+
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
 		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 		inline bool CircleBatchHasRoom() const { return !(m_CircleIndexCount >= m_MaxIndices); }
+
+		inline bool LineBatchHasRoom() const { return !(m_LineIndexCount >= m_MaxIndices); }
 
 		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		inline BatchRendererStats GetStats() { return m_Stats; }
@@ -142,6 +158,18 @@ namespace TerranEngine
 
 		CircleVertex* m_CircleVertexPtr = nullptr;
 		uint32_t m_CircleVertexPtrIndex = 0;
+		// ************************
+
+		// ******** Line ******** 
+		uint32_t m_LineIndexCount = 0;
+		Shared<Shader> m_LineShader;
+
+		Shared<VertexArray> m_LineVAO;
+		Shared<VertexBuffer> m_LineVBO;
+
+		LineVertex* m_LineVertexPtr = nullptr;
+		uint32_t m_LineVertexPtrIndex = 0;
+		// **********************
 
 		//Shared<Texture> m_CircleTextures[m_MaxTextureSlots];
 		//uint32_t m_CircleTextureIndex = 1;

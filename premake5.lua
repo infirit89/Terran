@@ -23,6 +23,7 @@ group "Dependencies"
     include "TerranEngine/vendor/GLAD"
     include "TerranEngine/vendor/Freetype"
     include "TerranEngine/vendor/Freetype-GL"
+    include "TerranEngine/vendor/Box2D"
 
 group ""
 

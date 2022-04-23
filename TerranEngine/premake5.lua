@@ -32,7 +32,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/freetype/include/",
         "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
         "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
-        "%{mono_path}/include/mono-2.0/"
+        "%{mono_path}/include/mono-2.0/",
+        "%{wks.location}/TerranEngine/vendor/Box2D/include/"
     } 
 
     libdirs 
@@ -48,7 +49,8 @@ project "TerranEngine"
         "GLAD",
         "opengl32.lib",
         "Freetype",
-        "Freetype-GL"
+        "Freetype-GL",
+        "Box2D"
     }
 
     pchheader "trpch.h"

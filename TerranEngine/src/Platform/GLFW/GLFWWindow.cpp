@@ -36,16 +36,19 @@ namespace TerranEngine
 		glfwPollEvents();
 	}
 
+	void GLFWWindow::SetTitle(const char* title)
+	{
+		glfwSetWindowTitle(m_Window, title);
+	}
+
 	void GLFWWindow::InitWindow(WindowData data)
 	{
 		m_WindowDataPtr.Width = data.Width;
 		m_WindowDataPtr.Height = data.Height;
 
-
 		int glfwSuccess = glfwInit();
 		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
-
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 
 		if(data.Maximized)

@@ -1,5 +1,7 @@
 #include "PropertiesPanel.h"
 
+#include "../EditorLayer.h"
+
 #include "../UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -15,6 +17,8 @@ namespace TerranEditor
 	template<typename Component>
 	using UIFunc = std::function<void(Component&)>;
 
+	static TransformComponent s_TransformClipboard;
+
 	template<typename T>
 	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool removable = true)
 	{
@@ -29,6 +33,9 @@ namespace TerranEditor
 			ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 			bool treeOpen = ImGui::TreeNodeEx(label, treeFlags);
+
+			if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				ImGui::OpenPopup("ComponentSettings");
 
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
@@ -46,6 +53,16 @@ namespace TerranEditor
 
 				if (ImGui::MenuItem("Remove Component", (const char*)0, false, removable))
 					removedComponent = true;
+
+				if (std::is_same<T, TransformComponent>())
+				{
+					TransformComponent& transform = (TransformComponent&)component;
+					if (ImGui::MenuItem("Copy"))
+						s_TransformClipboard = transform;
+
+					if (ImGui::MenuItem("Paste"))
+						transform = s_TransformClipboard;
+				}
 
 				ImGui::EndPopup();
 			}
@@ -65,7 +82,7 @@ namespace TerranEditor
 		}
 	}
 
-	void PropertiesPanel::ImGuiRender(Entity& entity)
+	void PropertiesPanel::ImGuiRender(Entity entity)
 	{
 		if(m_Open)
 		{
@@ -83,21 +100,19 @@ namespace TerranEditor
 					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
 						tagComp.Name = buf;
 				}
+
 				ImGui::Separator();
 				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
 
-
-				//TR_TRACE("Entity: {0}, Position: x: {1}, y: {2}, z: {3}", entity.GetName(), entity.GetTransform().Position.x, entity.GetTransform().Position.y, entity.GetTransform().Position.z);
-
-				DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
+				DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
 				{
 					if (UI::DrawVec3Control("Position", component.Position))
 						component.IsDirty = true;
 
-					if (UI::DrawVec3Control("Scale", component.Scale))
+					if (UI::DrawVec3Control("Rotation", component.Rotation)) 
 						component.IsDirty = true;
 
-					if (UI::DrawVec3Control("Rotation", component.Rotation))
+					if (UI::DrawVec3Control("Scale", component.Scale))
 						component.IsDirty = true;
 
 				}, false);
@@ -108,17 +123,15 @@ namespace TerranEditor
 					
 					{
 						ImGui::PushID("TEXTURE_FIELD");
-						ImGui::Columns(2, NULL, false);
-						ImGui::SetColumnWidth(0, 100.0f);
-						ImGui::Text("Sprite");
-
-						ImGui::NextColumn();
-						ImGui::PushItemWidth(ImGui::CalcItemWidth());
+						UI::ScopedVarTable::TableInfo tableInfo;
+						UI::ScopedVarTable textureTable("Sprite", tableInfo);
 
 						char buf[256];
 						memset(buf, 0, sizeof(buf));
 						strcpy_s(buf, sizeof(buf), component.Texture == nullptr ? "None" : component.Texture->GetName().c_str());
-						ImGui::InputText("##TextureField", buf, sizeof(buf));
+						
+						ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_DontRenderCursor | ImGuiInputTextFlags_DontChangeMouseCursorOnHover;
+						ImGui::InputText("##TextureField", buf, sizeof(buf), inputTextFlags);
 
 						if (ImGui::BeginDragDropTarget()) 
 						{
@@ -135,9 +148,6 @@ namespace TerranEditor
 
 							ImGui::EndDragDropTarget();
 						}
-
-						ImGui::Columns(1);
-
 						ImGui::PopID();
 					}
 
@@ -148,6 +158,34 @@ namespace TerranEditor
 				{
 					UI::DrawColor4Control("Color", component.Color);
 					UI::DrawFloatControl("Thickness", component.Thickness);
+				});
+
+				DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer) 
+				{
+					UI::DrawColor4Control("Color", lineRenderer.Color);
+					UI::DrawFloatControl("Thickness", lineRenderer.Thickness);
+
+					int origPointCount = lineRenderer.PointCount;
+
+					if (UI::DrawIntControl("Point Count", lineRenderer.PointCount))
+					{
+						if(lineRenderer.Points)
+							lineRenderer.Points = (glm::vec3*)realloc(lineRenderer.Points, lineRenderer.PointCount * sizeof(glm::vec3));
+
+						if (lineRenderer.PointCount > origPointCount)
+						{
+							for (size_t i = 0; i < lineRenderer.PointCount - origPointCount; i++)
+								lineRenderer.Points[i + origPointCount] = { 0.0f, 0.0f, 0.0f };
+						}
+					}
+
+					for (size_t i = 0; i < lineRenderer.PointCount; i++)
+					{
+						std::string formatedLabel = fmt::format("Point {0}", i + 1);
+
+						UI::DrawVec3Control(formatedLabel.c_str(), lineRenderer.Points[i]);
+					}
+
 				});
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
@@ -185,9 +223,7 @@ namespace TerranEditor
 					if (!component.ClassExists) 
 					{
 						ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-
 						ImGui::Text("The class could not be found");
-
 						ImGui::PopStyleColor();
 					}
 
@@ -330,12 +366,178 @@ namespace TerranEditor
 					}
 				});
 
-				ImVec2 cursorPos = ImGui::GetCursorPos();
+				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
+				{
+					bool isPlay = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
+					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+					UI::ScopedVarTable::TableInfo tableInfo;
+
+					// rigidbody body type selection
+					{
+						const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
+						
+						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
+
+						if (ImGui::BeginCombo("##body_type", currentBodyType)) 
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								const bool is_selected = (bodyTypeNames[i] == currentBodyType);
+								if (ImGui::Selectable(bodyTypeNames[i], is_selected)) 
+								{
+									rbComponent.BodyType = (PhysicsBodyType)i;
+
+									if (isPlay)
+										physicsBody.SetBodyType(rbComponent.BodyType);
+								}
+
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+							}
+
+							ImGui::EndCombo();	
+						}
+						
+					}
+
+					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
+					UI::DrawBoolControl("Enabled", rbComponent.Enabled);
+
+					// rigidbody awake state selection 
+					{
+						const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
+
+						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
+
+						if (ImGui::BeginCombo("##sleep_state", currentAwakeState))
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								const bool is_selected = (awakeStateNames[i] == currentAwakeState);
+								if (ImGui::Selectable(awakeStateNames[i], is_selected)) 
+								{
+									rbComponent.SleepState = (PhysicsBodySleepState)i;
+
+									if (isPlay) 
+										physicsBody.SetSleepState(rbComponent.SleepState);
+								}
+
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+							}
+
+							ImGui::EndCombo();
+						}
+
+					}
+
+					if (rbComponent.BodyType != PhysicsBodyType::Static) 
+					{
+						if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
+						{
+							if (isPlay)
+								physicsBody.SetGravityScale(rbComponent.GravityScale);
+						}
+					}
+
+					{
+						ImGui::Unindent(20.0f);
+
+						UI::ScopedStyleColor stlyeColor({
+							{ ImGuiCol_HeaderHovered,	{ 1.0f, 0.0f, 0.0f, 0.0f } },
+							{ ImGuiCol_HeaderActive,	{ 1.0f, 0.0f, 0.0f, 0.0f } }
+						});
+						bool treeNode = ImGui::TreeNodeEx("Details", ImGuiTreeNodeFlags_None);
+
+						if (treeNode) 
+						{
+							{
+								UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
+							
+								ImGui::Text(awakeStateNames[(int)physicsBody.GetSleepState()]);
+							}
+
+							{
+								UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
+
+								glm::vec2 velocity = physicsBody.GetLinearVelocity();
+								std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
+								ImGui::Text(velocityText.c_str());
+							}
+
+							ImGui::TreePop();
+						}
+						ImGui::Indent(20.0f);
+					}
+				});
+
+				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [&](BoxCollider2DComponent& bcComponent) 
+				{
+					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+
+					Shared<BoxCollider2D> boxCollider;
+
+					if(isRuntime)
+						boxCollider = std::dynamic_pointer_cast<BoxCollider2D>(physicsBody.GetColliders()[bcComponent.ColliderIndex]);
+
+					if(UI::DrawVec2Control("Offset", bcComponent.Offset))
+					{
+						if (isRuntime && boxCollider) 
+							boxCollider->SetOffset(bcComponent.Offset);
+					}
+
+					if (UI::DrawVec2Control("Size", bcComponent.Size)) 
+					{
+						if (isRuntime && boxCollider)
+							boxCollider->SetSize(bcComponent.Size);
+					}
+
+					if (UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor)) 
+					{
+						if (isRuntime && boxCollider)
+							boxCollider->SetSensor(bcComponent.IsSensor);
+					}
+				});
+
+				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent) 
+				{
+					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<CircleCollider2D> circleCollider;
+
+					if (isRuntime)
+						circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(physicsBody.GetColliders()[ccComponent.ColliderIndex]);
+
+					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
+					{
+						if (isRuntime)
+							circleCollider->SetOffset(ccComponent.Offset);
+					}
+
+					if (UI::DrawFloatControl("Radius", ccComponent.Radius)) 
+					{
+						if (isRuntime)
+							circleCollider->SetRadius(ccComponent.Radius);
+					}
+
+					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
+					{
+						if (isRuntime)
+							circleCollider->SetSensor(ccComponent.IsSensor);
+					}
+				});
+
+				ImVec2 cursorPos = ImGui::GetCursorPos();
 				ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvailWidth() / 4.0f, cursorPos.y += 5.0f });
 
 				float buttonWidth = (ImGui::GetContentRegionAvailWidth() / 2.0f) + GImGui->Font->FontSize + 5.0f;
-
 				if (ImGui::Button("Add Component", ImVec2{ buttonWidth, 0 }))
 					ImGui::OpenPopup("AddComponent");
 				
@@ -344,25 +546,42 @@ namespace TerranEditor
 					if(!entity.HasComponent<SpriteRendererComponent>())
 						if (ImGui::MenuItem("Sprite Renderer"))
 							entity.AddComponent<SpriteRendererComponent>();
+
 					if (!entity.HasComponent<CircleRendererComponent>())
 						if (ImGui::MenuItem("Circle Renderer"))
 							entity.AddComponent<CircleRendererComponent>();
+
+					if (!entity.HasComponent<LineRendererComponent>())
+						if (ImGui::MenuItem("Line Renderer"))
+							entity.AddComponent<LineRendererComponent>();
+
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))
 							entity.AddComponent<CameraComponent>();
+
 					if (!entity.HasComponent<ScriptComponent>())
 						if (ImGui::MenuItem("Script"))
 							entity.AddComponent<ScriptComponent>();
+
+					if (!entity.HasComponent<Rigidbody2DComponent>())
+						if (ImGui::MenuItem("Rigidbody 2D"))
+							entity.AddComponent<Rigidbody2DComponent>();
+
+					if (!entity.HasComponent<BoxCollider2DComponent>())
+						if (ImGui::MenuItem("Box Collider 2D"))
+							entity.AddComponent<BoxCollider2DComponent>();
+
+					if (!entity.HasComponent<CircleCollider2DComponent>())
+						if (ImGui::MenuItem("Circle Collider 2D"))
+							entity.AddComponent<CircleCollider2DComponent>();
 
 					ImGui::EndPopup();
 				}
 
 				ImGui::SetCursorPos(cursorPos);
-
 			}
 
 			ImGui::End();
 		}
-
 	}
 }
