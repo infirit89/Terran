@@ -3,6 +3,8 @@
 
 #include "RenderCommand.h"
 
+#include "Math/Math.h"
+
 #include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/glm.hpp>
@@ -18,37 +20,18 @@ namespace TerranEngine
 {
 	BatchRenderer2D* BatchRenderer2D::m_Instance;
 
-	static void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
-	{
-		pos = m[3];
-		for (int i = 0; i < 3; i++)
-			scale[i] = glm::length(glm::vec3(m[i]));
-		const glm::mat3 rotMtx(
-			glm::vec3(m[0]) / scale[0],
-			glm::vec3(m[1]) / scale[1],
-			glm::vec3(m[2]) / scale[2]);
-		rot = glm::quat_cast(rotMtx);
-	}
-
-	static void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
-	{
-		m = glm::translate(glm::mat4(1.0f), pos) *
-			glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
-			glm::scale(glm::mat4(1.0f), scale);
-	}
-
 	BatchRenderer2D::BatchRenderer2D(uint32_t batchSize)
 	{
 		m_Instance = this;
-		Init(batchSize);
+		Initialize(batchSize);
 	}
 
 	BatchRenderer2D::~BatchRenderer2D()
 	{
-		Close();
+		Shutdown();
 	}
 
-	void BatchRenderer2D::Init(uint32_t batchSize)
+	void BatchRenderer2D::Initialize(uint32_t batchSize)
 	{
 		m_MaxIndices = batchSize * 6;
 		m_MaxVertices = batchSize * 4;
@@ -221,7 +204,7 @@ namespace TerranEngine
 
 	}
 
-	void BatchRenderer2D::Close()
+	void BatchRenderer2D::Shutdown()
 	{
 		delete[] m_QuadVertexPtr;
 		delete[] m_TextVertexPtr;
@@ -243,9 +226,6 @@ namespace TerranEngine
 
 		if (inverseView)
 			m_CameraData.View = glm::inverse(m_CameraData.View);
-
-		//m_CameraData.ProjectionSize = { 0, 0, 0 };
-		//m_CameraData.CameraPosition = transform[3];
 
 		m_CameraBuffer->Bind();
 		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData));
@@ -276,9 +256,6 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4])
 	{
-		//if (!InCameraView(transform))
-		//	return;
-
 		if (!QuadBatchHasRoom()) 
 		{
 			// Begin New Batch
@@ -329,9 +306,6 @@ namespace TerranEngine
 		* fix fucker
 		*/
 
-		//if (!InCameraView(transform))
-		//	return;
-
 		if (!TextBatchHasRoom()) 
 		{
 			// Begin new batch
@@ -362,9 +336,9 @@ namespace TerranEngine
 
 		glm::vec3 position;
 		glm::vec3 scale;
-		glm::quat rotation;
+		glm::vec3 rotation;
 
-		decomposeMatrix(transform, position, rotation, scale);
+		Math::Decompose(transform, position, rotation, scale);
 
 		for (size_t i = 0; i < text.size(); i++)
 		{
@@ -421,10 +395,6 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
-
-		//if (!InCameraView(transform))
-		//	return;
-
 		if (!CircleBatchHasRoom())
 		{
 			// Begin New Batch
@@ -499,7 +469,6 @@ namespace TerranEngine
 		for (size_t i = 0; i < timesToAdd; i++) 
 		{
 			int ind = i + 1 * i;
-
 			AddLine(points[ind], points[ind + 1], color, thickness);
 		}
 	}
@@ -612,48 +581,5 @@ namespace TerranEngine
 		m_LineVertexPtrIndex = 0;
 		m_LineIndexCount = 0;
 	}
-
-#if 0
-	// HUGE NOTE: This should be in the scene renderer
-	
-	// NOTE: This is (for now) only for orthographic cameras
-
-	bool BatchRenderer2D::InCameraViewX(float x, float width) 
-	{
-		if ((x + (width / 2) + 0.5f >= m_CameraData.CameraPosition.x + -m_CameraData.ProjectionSize.x / 2 && x - (width / 2) - 0.5f <= m_CameraData.CameraPosition.x + m_CameraData.ProjectionSize.x / 2))
-			return true;
-
-		return false;
-	}
-
-	bool BatchRenderer2D::InCameraViewY(float y, float height)
-	{
-		if ((y + (height / 2) + 0.5f >= m_CameraData.CameraPosition.y + -m_CameraData.ProjectionSize.y / 2 && y - (height / 2) - 0.5f <= m_CameraData.CameraPosition.y + m_CameraData.ProjectionSize.y / 2))
-			return true;
-
-		return false;
-	}
-	
-	bool BatchRenderer2D::InCameraViewZ(float z, float depth)
-	{
-		if ((z + (depth / 2) + 0.5f >= m_CameraData.CameraPosition.z + -m_CameraData.ProjectionSize.z / 2 && z - (depth / 2) - 0.5f <= m_CameraData.CameraPosition.z + m_CameraData.ProjectionSize.z / 2))
-			return true;
-
-		return false;
-	}
-
-	bool BatchRenderer2D::InCameraView(glm::mat4& transform)
-	{
-		glm::vec3 position, size;
-		glm::quat rotation;
-
-		decomposeMatrix(transform, position, rotation, size);
-
-		if (InCameraViewX(position.x, size.x) && InCameraViewY(position.y, size.y) && InCameraViewZ(position.z, size.z))
-			return true;
-
-		return m_CullObjectsOutsideOfCamera ? false : true;
-	}
-#endif
 }
 #pragma warning (pop)

@@ -36,6 +36,8 @@ namespace TerranScriptCore
 		public float JumpForce = 100.0f;
 		private bool m_CanJump = true;
 
+		private bool m_HasCollided = false;
+
 		// Runs when the entity in the current scene, that has this script, is started
 		public void Init() 
 		{
@@ -46,10 +48,16 @@ namespace TerranScriptCore
 		public void Update()
 		{
 			RayCastHitInfo2D hitInfo;
-			float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.1f;
+			float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;
 			bool hasHit = Physics2D.RayCast(out hitInfo, entity.transform.Position, -Vector2.Up, rayLength);
 
 			m_CanJump = hasHit;
+
+			if (hasHit && !m_HasCollided)
+			{
+				Log.Trace(hitInfo.Rigidbody.entity.Name);
+				Log.Trace("ray hit");
+			}
 
 			// Code to move the entity up and down
 			if (Input.IsKeyPressed(KeyCode.D))
@@ -62,16 +70,25 @@ namespace TerranScriptCore
 			if (Input.IsKeyPressed(KeyCode.Space) && m_CanJump) 
 			{
 				m_CanJump = false;
-				Log.Trace("jumped");
 				rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
 			}
 
+		}
+		public void PhysicsUpdate() 
+		{
+			
 		}
 
 		public void OnCollisionBegin(Entity entity) 
 		{
 			Log.Trace("collided");
-			
+			m_HasCollided = true;
 		}
+
+		public void OnCollisionEnd(Entity entity) 
+		{
+			m_HasCollided = false;
+		}
+
 	}
 }

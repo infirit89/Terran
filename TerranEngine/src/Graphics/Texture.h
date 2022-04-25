@@ -32,8 +32,9 @@ namespace TerranEngine
 	public:
 		Texture();
 
-		Texture(uint32_t width, uint32_t height, TextureParameters parameters);
-		Texture(const char* filePath, TextureParameters parameters);
+		Texture(uint32_t width, uint32_t height, TextureParameters parameters = {});
+		Texture(const char* filePath, TextureParameters parameters = {});
+
 		~Texture();
 
 		void Bind(uint8_t textureSlot) const;

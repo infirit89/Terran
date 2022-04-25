@@ -112,20 +112,21 @@ namespace TerranEngine
 
 	void Physics2D::Update(Time time)
 	{		
+		s_PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
+
 		s_PhysicsDeltaTime += time.GetDeltaTime();
 
 		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
 
-		while (s_PhysicsDeltaTime > 0)
+		while (s_PhysicsDeltaTime > 0.0f)
 		{
-			s_PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
-			s_PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
-
 			for (auto e : scriptView)
 			{
 				Entity entity(e, SceneManager::GetCurrentScene().get());
 				ScriptEngine::OnPhysicsUpdate(entity);
 			}
+
+			s_PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
 		}
 
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
@@ -144,7 +145,6 @@ namespace TerranEngine
 				transform.Position.x = physicsBody.GetPosition().x;
 				transform.Position.y = physicsBody.GetPosition().y;
 				transform.IsDirty = true;
-
 			}
 
 			if (transform.Rotation.z != physicsBody.GetRotation()) 
@@ -167,7 +167,8 @@ namespace TerranEngine
 	{
 		WorldRayCastCallback raycastCallback;
 		b2Vec2 point1 = { origin.x, origin.y };
-		b2Vec2 point2 = point1 + b2Vec2(length * direction.x, length * direction.y);
+		b2Vec2 distance = { length * direction.x, length * direction.y };
+		b2Vec2 point2 = point1 + distance;
 
 		s_PhysicsWorld->RayCast(&raycastCallback, point1, point2);
 
@@ -178,4 +179,3 @@ namespace TerranEngine
 		return raycastCallback.HasHit();
 	}
 }
-

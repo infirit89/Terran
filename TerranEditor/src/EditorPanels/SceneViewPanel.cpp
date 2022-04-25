@@ -1,4 +1,4 @@
-#include "SceneView.h"
+#include "SceneViewPanel.h"
 
 #include "../EditorLayer.h"
 
@@ -11,7 +11,9 @@
 
 namespace TerranEditor 
 {
-	void SceneView::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera, OpenSceneFN openSceneFN)
+	bool operator!=(const glm::vec2& vec1, const ImVec2& vec2) { return vec1.x != vec2.x || vec1.y != vec2.y; }
+
+	void SceneViewPanel::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera)
 	{
 		if (m_Open) 
 		{
@@ -27,12 +29,14 @@ namespace TerranEditor
 
 			ImVec2 regionAvail = ImGui::GetContentRegionAvail();
 
-			m_ViewportSize = { regionAvail.x, regionAvail.y };
-			
-			ImVec2 viewportMinRegion = ImGui::GetWindowContentRegionMin();
+			if (m_ViewportSize != regionAvail) 
+			{
+				m_ViewportSize = { regionAvail.x, regionAvail.y };
+				m_ViewportSizeChangedCallback(m_ViewportSize);
+			}
 
+			ImVec2 viewportMinRegion = ImGui::GetWindowContentRegionMin();
 			ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-			
 			ImVec2 viewportOffset = ImGui::GetWindowPos();
 
 			glm::vec2 viewportBounds[2] = {
@@ -51,7 +55,6 @@ namespace TerranEditor
 
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
-
 
 			// Gizmos
 			if (selectedEntity && sceneState == SceneState::Edit)
@@ -104,7 +107,7 @@ namespace TerranEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
 				{
 					const char* entryPath = (const char*)payload->Data;
-					openSceneFN(entryPath, m_ViewportSize);
+					m_OpenSceneCallback(entryPath, m_ViewportSize);
 				}
 
 				ImGui::EndDragDropTarget();
@@ -118,13 +121,13 @@ namespace TerranEditor
 		}
 	}
 
-	void SceneView::OnEvent(Event& event)
+	void SceneViewPanel::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneView::OnKeyPressed));
+		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneViewPanel::OnKeyPressed));
 	}
 
-	bool SceneView::OnKeyPressed(KeyPressedEvent& e)
+	bool SceneViewPanel::OnKeyPressed(KeyPressedEvent& e)
 	{
 		SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();
 

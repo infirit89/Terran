@@ -1,15 +1,46 @@
 {
     "Scene": "Name",
     "Entities": {
-        "Entity 6574ed90-1a2e-4591-85d2-56162d0d5e3e": {
+        "Entity 410f6cd0-9bff-42de-b90a-65175f616725": {
             "TagComponent": {
-                "Tag": "Platform 2",
-                "ID": "6574ed90-1a2e-4591-85d2-56162d0d5e3e"
+                "Tag": "Camera",
+                "ID": "410f6cd0-9bff-42de-b90a-65175f616725"
             },
             "TransformComponent": {
                 "Position": {
-                    "X": -0.3483307957649231,
-                    "Y": -0.6531212329864502,
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity 34394769-822b-465e-8700-6c67a5f4a621": {
+            "TagComponent": {
+                "Tag": "Player",
+                "ID": "34394769-822b-465e-8700-6c67a5f4a621"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -5.834542751312256,
+                    "Y": -2.72859263420105,
                     "Z": 0.0
                 },
                 "Rotation": {
@@ -19,7 +50,59 @@
                 },
                 "Scale": {
                     "X": 1.0,
-                    "Y": 0.42857128381729126,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CircleRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "Thickness": 1.0
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.TestScriptable",
+                "Fields": {
+                    "JumpForce": 600.0
+                }
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": true,
+                "SleepState": 1,
+                "GravityScale": 3.0
+            },
+            "CircleCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Radius": 0.5,
+                "IsSensor": false
+            }
+        },
+        "Entity 5830c863-4b63-4792-8a69-aa1b2260c8d9": {
+            "TagComponent": {
+                "Tag": "Ground",
+                "ID": "5830c863-4b63-4792-8a69-aa1b2260c8d9"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -0.13062477111816406,
+                    "Y": -3.7590713500976563,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 15.035126686096191,
+                    "Y": 1.0,
                     "Z": 1.0
                 }
             },
@@ -31,11 +114,6 @@
                     "W": 1.0
                 },
                 "ZIndex": 0
-            },
-            "RelationshipComponent": {
-                "ChildrenCount": 0,
-                "Children": 0,
-                "Parent": "e7e4862f-3a52-4694-97d0-c0177fef3c1d"
             },
             "Rigibody2D": {
                 "BodyType": 0,
@@ -140,15 +218,15 @@
                 "Parent": "null"
             }
         },
-        "Entity 5830c863-4b63-4792-8a69-aa1b2260c8d9": {
+        "Entity 6574ed90-1a2e-4591-85d2-56162d0d5e3e": {
             "TagComponent": {
-                "Tag": "Ground",
-                "ID": "5830c863-4b63-4792-8a69-aa1b2260c8d9"
+                "Tag": "Platform 2",
+                "ID": "6574ed90-1a2e-4591-85d2-56162d0d5e3e"
             },
             "TransformComponent": {
                 "Position": {
-                    "X": -0.13062477111816406,
-                    "Y": -3.7590713500976563,
+                    "X": -0.3483307957649231,
+                    "Y": -0.6531212329864502,
                     "Z": 0.0
                 },
                 "Rotation": {
@@ -157,8 +235,8 @@
                     "Z": 0.0
                 },
                 "Scale": {
-                    "X": 15.035126686096191,
-                    "Y": 1.0,
+                    "X": 1.0,
+                    "Y": 0.42857128381729126,
                     "Z": 1.0
                 }
             },
@@ -170,6 +248,11 @@
                     "W": 1.0
                 },
                 "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "e7e4862f-3a52-4694-97d0-c0177fef3c1d"
             },
             "Rigibody2D": {
                 "BodyType": 0,
@@ -187,89 +270,6 @@
                     "Y": 1.0
                 },
                 "IsSensor": false
-            }
-        },
-        "Entity 34394769-822b-465e-8700-6c67a5f4a621": {
-            "TagComponent": {
-                "Tag": "Player",
-                "ID": "34394769-822b-465e-8700-6c67a5f4a621"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": -5.834542751312256,
-                    "Y": -2.72859263420105,
-                    "Z": 0.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": -0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0
-                }
-            },
-            "CircleRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "Thickness": 1.0
-            },
-            "ScriptComponent": {
-                "ModuleName": "TerranScriptCore.TestScriptable",
-                "Fields": {
-                    "JumpForce": 600.0
-                }
-            },
-            "Rigibody2D": {
-                "BodyType": 1,
-                "FixedRotation": true,
-                "SleepState": 1,
-                "GravityScale": 3.0
-            },
-            "CircleCollider2D": {
-                "Offset": {
-                    "X": 0.0,
-                    "Y": 0.0
-                },
-                "Radius": 1.0,
-                "IsSensor": false
-            }
-        },
-        "Entity 410f6cd0-9bff-42de-b90a-65175f616725": {
-            "TagComponent": {
-                "Tag": "Camera",
-                "ID": "410f6cd0-9bff-42de-b90a-65175f616725"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0
-                }
-            },
-            "CameraComponent": {
-                "Camera": {
-                    "Size": 10.0,
-                    "Near": -10.0,
-                    "Far": 10.0
-                },
-                "Primary": true
             }
         }
     }

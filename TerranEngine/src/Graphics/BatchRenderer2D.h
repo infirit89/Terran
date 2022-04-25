@@ -84,30 +84,12 @@ namespace TerranEngine
 		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		inline BatchRendererStats GetStats() { return m_Stats; }
 
-#if 0
-		// Doesn't belong here, should put in scene renderer
-		inline void EnableObjectCulling(bool state) { m_CullObjectsOutsideOfCamera = state; }
-		inline bool ObjectCulling() { return m_CullObjectsOutsideOfCamera; }
-#endif
-
 		static BatchRenderer2D* Get() { return m_Instance; }
 	private:
+		void Initialize(uint32_t batchSize);
+		void Shutdown();
 
-		void Init(uint32_t batchSize);
-
-		void Close();
 		void Clear();
-
-		// NOTE: should move the fuck away from the batch renderer
-		// These don't belong here, put them in the scene renderer
-#if 0
-		bool InCameraView(glm::mat4& transform);
-		bool InCameraViewX(float x, float width);
-		bool InCameraViewY(float y, float height);
-		bool InCameraViewZ(float z, float depth);
-
-#endif
-
 	private:
 		// ******** Base stuffs ********
 		static BatchRenderer2D* m_Instance;
@@ -160,6 +142,8 @@ namespace TerranEngine
 		uint32_t m_CircleVertexPtrIndex = 0;
 		// ************************
 
+
+		// NOTE: shitty line renderer should change soon
 		// ******** Line ******** 
 		uint32_t m_LineIndexCount = 0;
 		Shared<Shader> m_LineShader;
@@ -171,26 +155,15 @@ namespace TerranEngine
 		uint32_t m_LineVertexPtrIndex = 0;
 		// **********************
 
-		//Shared<Texture> m_CircleTextures[m_MaxTextureSlots];
-		//uint32_t m_CircleTextureIndex = 1;
-		// ************************
-
 		//  ******** Camera stuffs ********
 		struct CameraData
 		{
 			glm::mat4 Projection;
 			glm::mat4 View;
-
-			// Doesn't belong here, should put in the scene renderer
-			//glm::vec3 ProjectionSize, CameraPosition;
 		};
 
 		CameraData m_CameraData;
 
 		Shared<UniformBuffer> m_CameraBuffer;
-
-		// Doesn't fucking belong here, should put in scene renderer
-		//bool m_CullObjectsOutsideOfCamera = false;
-		// ********************************
 	};
 }

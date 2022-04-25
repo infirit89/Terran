@@ -1,27 +1,27 @@
-#include "SceneHierarchy.h"
+#include "SceneHierarchyPanel.h"
 
 #include <imgui.h>
 
 namespace TerranEditor 
 {
-	SceneHierarchy::SceneHierarchy(const Shared<Scene>& scene)
+	SceneHierarchyPanel::SceneHierarchyPanel(const Shared<Scene>& scene)
 	{
 		SetScene(scene);
 	}
 
-	void SceneHierarchy::SetScene(const Shared<Scene>& scene)
+	void SceneHierarchyPanel::SetScene(const Shared<Scene>& scene)
 	{
 		m_Scene = scene;
-		m_SelectedID = UUID({ 0 });
+		SetSelectedID(UUID({ 0 }));
 	}
 
-	void SceneHierarchy::OnEvent(Event& event)
+	void SceneHierarchyPanel::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneHierarchy::OnKeyPressed));
+		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneHierarchyPanel::OnKeyPressed));
 	}
 
-	void SceneHierarchy::ImGuiRender()
+	void SceneHierarchyPanel::ImGuiRender()
 	{
 		if(m_Open)
 		{
@@ -42,13 +42,13 @@ namespace TerranEditor
 				if (ImGui::BeginPopupContextWindow(0, 1, false))
 				{
 					if (ImGui::MenuItem("Create an entity"))
-						m_SelectedID = m_Scene->CreateEntity("Entity").GetID();
+						SetSelected(m_Scene->CreateEntity("Entity"));
 
 					ImGui::EndPopup();
 				}
 	
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					m_SelectedID = UUID({ 0 });
+					SetSelectedID(UUID({ 0 }));
 			}
 
 			ImGui::End();
@@ -56,7 +56,7 @@ namespace TerranEditor
 
 	}
 
-	bool SceneHierarchy::OnKeyPressed(KeyPressedEvent& e)
+	bool SceneHierarchyPanel::OnKeyPressed(KeyPressedEvent& e)
 	{
 		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
@@ -72,7 +72,7 @@ namespace TerranEditor
 			if (ctrlPressed) 
 			{
 				if (selectedEntity)
-					m_Scene->DuplicateEntity(selectedEntity);
+					SetSelected(m_Scene->DuplicateEntity(selectedEntity));
 			}
 
 			break;
@@ -81,7 +81,7 @@ namespace TerranEditor
 			if (ctrlPressed && shiftPressed)
 			{
 				auto entity = m_Scene->CreateEntity();
-				m_SelectedID = entity.GetID();
+				SetSelected(entity);
 
 				return true;
 			}
@@ -91,7 +91,7 @@ namespace TerranEditor
 		return false;
 	}
 
-	void SceneHierarchy::DrawEntityNode(Entity entity)
+	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
 	{
 		TagComponent& tagComp = entity.GetComponent<TagComponent>();
 		std::string imguiID = fmt::format("{0} {1}", tagComp.Name, (uint32_t)entity);
@@ -151,7 +151,7 @@ namespace TerranEditor
 		style = orgStyle;
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
-			m_SelectedID = entity.GetID();
+			SetSelected(entity);
 
 		bool isDeleted = false;
 		

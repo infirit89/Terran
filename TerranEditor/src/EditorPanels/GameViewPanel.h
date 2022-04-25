@@ -6,11 +6,11 @@
 
 namespace TerranEditor 
 {
-	class GameView 
+	class GameViewPanel 
 	{
 	public:
-		GameView() = default;
-		~GameView() = default;
+		GameViewPanel() = default;
+		~GameViewPanel() = default;
 
 		void ImGuiRender();
 

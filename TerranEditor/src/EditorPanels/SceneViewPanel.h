@@ -10,16 +10,14 @@ namespace TerranEditor
 {
 	using namespace TerranEngine;
 
-	class SceneView
+	class SceneViewPanel
 	{
-		using OpenSceneFN = std::function<void(const char* filePath, glm::vec2 viewPortSize)>;
+		using OpenSceneFN = std::function<void(const char* filePath, glm::vec2 viewportSize)>;
 	public:
-		SceneView() = default;
-		~SceneView() = default;
+		SceneViewPanel() = default;
+		~SceneViewPanel() = default;
 
-		void ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera, OpenSceneFN openSceneFN);
-
-		glm::vec2 GetViewportSize() { return m_ViewportSize; }
+		void ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera);
 
 		void SetRenderTextureID(uint32_t textureID) { m_RenderTextureID = textureID; }
 
@@ -28,6 +26,9 @@ namespace TerranEditor
 		void SetOpen(bool open) { m_Open = open; }
 
 		void OnEvent(Event& event);
+
+		void SetOpenSceneCallback(OpenSceneFN openSceneCallback) { m_OpenSceneCallback = openSceneCallback; }
+		void SetViewportSizeChangedCallback(std::function<void(glm::vec2 viewportSize)> callback) { m_ViewportSizeChangedCallback = callback; }
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
@@ -46,5 +47,8 @@ namespace TerranEditor
 
 		bool m_UseSnapping = false;
 		glm::vec3 m_Snap = { 2.0f, 2.0f, 2.0f };
+
+		OpenSceneFN m_OpenSceneCallback;
+		std::function<void(glm::vec2 viewportSize)> m_ViewportSizeChangedCallback;
 	};
 }

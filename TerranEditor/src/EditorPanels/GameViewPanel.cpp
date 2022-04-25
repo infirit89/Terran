@@ -1,4 +1,4 @@
-#include "GameView.h"
+#include "GameViewPanel.h"
 
 #include "Terran.h"
 
@@ -7,7 +7,7 @@
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
-	void GameView::ImGuiRender()
+	void GameViewPanel::ImGuiRender()
 	{
 		if (m_Open)
 		{

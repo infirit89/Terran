@@ -13,8 +13,8 @@ namespace TerranEngine
 	{
 
 	public:
-		static void Init(const char* fileName);
-		static void CleanUp();
+		static void Initialize(const char* fileName);
+		static void Shutdown();
 
 		static void NewDomain();
 		static void UnloadDomain();

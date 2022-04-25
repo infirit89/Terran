@@ -23,6 +23,17 @@ namespace TerranEditor
 		: Layer("Editor"), m_EditorCamera() 
 	{
 		s_Instance = this;
+	}
+
+	void EditorLayer::OnAttach()
+	{
+		ImGuiIO& io = ImGui::GetIO();
+
+		ImFontConfig config;
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
+		config.MergeMode = true;
+		io.Fonts->Build();
+		io.IniFilename = "Resources/TerranEditorSettings.ini";
 
 		std::vector<spdlog::sink_ptr> clientSinks
 		{
@@ -39,50 +50,41 @@ namespace TerranEditor
 
 		Log::SetClientLogger(clientLogger);
 
-		m_ContentPanel = ContentPanel(m_ResPath);
-
-		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
-		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>();
-
 		m_EditorScene = CreateShared<Scene>();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		TR_TRACE((uint32_t)cameraEntity);
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
 
 		// TODO: should add an on component added function
-		cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
 		SceneManager::SetCurrentScene(m_EditorScene);
 
-		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+		// ***** Panel Setup *****
+		m_ContentPanel = ContentPanel(m_ResPath);
+		
+		m_SceneViewPanel.SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
+		m_SceneViewPanel.SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
+
+		m_SceneHierarchyPanel.SetOnSelectedChangedCallback([this](Entity entity) { OnSelectedChanged(entity); });
+		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
+		
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+		// ***********************
+
+		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
+		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>();
 
 		m_ScriptAssemblyPath = "Resources/Scripts/";
 
 		CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll"), m_ScriptAssemblyPath);
 
-		ScriptEngine::Init("Resources/Scripts/TerranScriptCore.dll");
-
+		ScriptEngine::Initialize("Resources/Scripts/TerranScriptCore.dll");
 		ScriptBindings::Bind();
-	}
-
-	void EditorLayer::OnAttach()
-	{
-		ImGuiIO& io = ImGui::GetIO();
-
-		ImFontConfig config;
-
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
-
-		config.MergeMode = true;
-
-		io.Fonts->Build();
-
-		io.IniFilename = "Resources/TerranEditorSettings.ini";
 	}
 
 	void EditorLayer::OnDettach()
 	{
-		ScriptEngine::CleanUp();
+		ScriptEngine::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -92,37 +94,21 @@ namespace TerranEditor
 		BatchRenderer2D::Get()->ResetStats();
 		m_EditorCamera.Update(time);
 
-		if (m_SceneView.IsVisible() && SceneManager::GetCurrentScene()) 
+		if (m_SceneViewPanel.IsVisible() && SceneManager::GetCurrentScene()) 
 		{
 			switch (m_SceneState) 
 			{
 			case SceneState::Edit: 
 			{
-				if ((m_SceneView.GetViewportSize().x != m_EditorSceneRenderer->GetViewportWidth() ||
-					m_SceneView.GetViewportSize().y != m_EditorSceneRenderer->GetViewportHeight()) &&
-					m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
-				{
-					m_EditorSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-					m_EditorCamera.OnViewportResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-				}
-
 				SceneManager::GetCurrentScene()->UpdateEditor();
 				SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
 
-				m_SceneView.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				m_SceneViewPanel.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 
 				break;
 			}
 			case SceneState::Play: 
 			{
-				if ((m_SceneView.GetViewportSize().x != m_RuntimeSceneRenderer->GetViewportWidth() ||
-					m_SceneView.GetViewportSize().y != m_RuntimeSceneRenderer->GetViewportHeight()) &&
-					m_SceneView.GetViewportSize().x > 0 && m_SceneView.GetViewportSize().y > 0)
-				{
-					m_RuntimeSceneRenderer->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-					SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
-				}
-
 				auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
 
 				glm::vec4 backgroundColor = glm::vec4(0.0f);
@@ -135,7 +121,7 @@ namespace TerranEditor
 				SceneManager::GetCurrentScene()->Update(time);
 				SceneManager::GetCurrentScene()->OnRender(m_RuntimeSceneRenderer);
 
-				m_SceneView.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				m_SceneViewPanel.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 
 				break;
 			}
@@ -176,8 +162,8 @@ namespace TerranEditor
 	void EditorLayer::OnEvent(Event& event)
 	{
 		m_EditorCamera.OnEvent(event);
-		m_SceneView.OnEvent(event);
-		m_SHierarchy.OnEvent(event);
+		m_SceneViewPanel.OnEvent(event);
+		m_SceneHierarchyPanel.OnEvent(event);
 
 		EventDispatcher dispatcher(event);
 
@@ -188,8 +174,6 @@ namespace TerranEditor
 	{
 		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
-
-		//if (Input::IsKeyPressed(Key::C)) Input::SetCursorState(CursorState::Hand);
 
 		if (kEvent.GetRepeatCount() > 0)
 			return false;
@@ -298,10 +282,10 @@ namespace TerranEditor
 					m_PropertiesPanel.SetOpen(true);
 
 				if (ImGui::MenuItem("Scene Hierarchy"))
-					m_SHierarchy.SetOpen(true);
+					m_SceneHierarchyPanel.SetOpen(true);
 
 				if (ImGui::MenuItem("Editor View"))
-					m_SceneView.SetOpen(true);
+					m_SceneViewPanel.SetOpen(true);
 
 				if (ImGui::MenuItem("Performance"))
 					m_PerformanceOpen = true;
@@ -349,13 +333,13 @@ namespace TerranEditor
 
 		m_SceneState = SceneState::Play;
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
-		SceneManager::GetCurrentScene()->OnResize(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 		SceneManager::GetCurrentScene()->StartRuntime();
 
-		m_SHierarchy.SetSelected(m_Selected);
+		m_SceneHierarchyPanel.SetSelected(m_Selected);
 		m_EditModeSelected = m_Selected;
 	}
 
@@ -364,10 +348,37 @@ namespace TerranEditor
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
 		SceneManager::SetCurrentScene(m_EditorScene);
-		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 
-		m_SHierarchy.SetSelected(m_EditModeSelected);
+		m_SceneHierarchyPanel.SetSelected(m_EditModeSelected);
+	}
+
+	void EditorLayer::OnSelectedChanged(Entity newSelected)
+	{
+		m_Selected = newSelected;
+	}
+
+	void EditorLayer::OnViewportSizeChanged(glm::vec2 newViewportSize)
+	{
+		m_ViewportSize = newViewportSize;
+
+		switch (m_SceneState)
+		{
+		case TerranEditor::SceneState::Edit: 
+		{
+			m_EditorSceneRenderer->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			m_EditorCamera.OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+			break;
+		}
+		case TerranEditor::SceneState::Play:
+		{
+			m_RuntimeSceneRenderer->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+			break;
+		}
+		}
 	}
 
 	void EditorLayer::ImGuiRender()
@@ -377,13 +388,8 @@ namespace TerranEditor
 
 		ShowDockspace();
 
-		m_SHierarchy.ImGuiRender();
-		m_Selected = m_SHierarchy.GetSelected();
-
-		m_SceneView.ImGuiRender(m_Selected, m_EditorCamera, [&](const char* filePath, glm::vec2 viewportSize) 
-		{
-			OpenScene(filePath, viewportSize);
-		});
+		m_SceneHierarchyPanel.ImGuiRender();
+		m_SceneViewPanel.ImGuiRender(m_Selected, m_EditorCamera);
 
 		m_PropertiesPanel.ImGuiRender(m_Selected);
 		m_ECSPanel.ImGuiRender();
@@ -456,19 +462,20 @@ namespace TerranEditor
 
 	void EditorLayer::NewScene()
 	{
-		SceneManager::SetCurrentScene(CreateShared<Scene>());
-		CameraComponent& cameraComponent = SceneManager::GetCurrentScene()->CreateEntity("Camera").AddComponent<CameraComponent>();
-
-		cameraComponent.Camera.SetViewport(m_SceneView.GetViewportSize().x, m_SceneView.GetViewportSize().y);
+		m_EditorScene = CreateShared<Scene>();
+		CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
 		cameraComponent.Primary = true;
-		m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+		m_EditorScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+		SceneManager::SetCurrentScene(m_EditorScene);
+		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 	}
 
 	void EditorLayer::OpenScene()
 	{
 		std::filesystem::path scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");		
-		OpenScene(scenePath, m_SceneView.GetViewportSize());
+		OpenScene(scenePath, m_ViewportSize);
 	}
 
 	void EditorLayer::OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize)
@@ -494,7 +501,7 @@ namespace TerranEditor
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
 					SceneManager::SetCurrentScene(newScene);
-					m_SHierarchy.SetScene(SceneManager::GetCurrentScene());
+					m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
 					m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 
 					m_Selected = {};

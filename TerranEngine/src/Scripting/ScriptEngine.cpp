@@ -118,7 +118,7 @@ namespace TerranEngine
 		return s_EmptyInstance;
 	}
 
-	void ScriptEngine::Init(const char* fileName)
+	void ScriptEngine::Initialize(const char* fileName)
 	{
 		s_AssemblyPath = fileName;
 		std::string monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
@@ -150,7 +150,7 @@ namespace TerranEngine
 		NewDomain();
 	}
 
-	void ScriptEngine::CleanUp()
+	void ScriptEngine::Shutdown()
 	{
 		mono_jit_cleanup(s_CoreDomain);
 		TR_INFO("Deinitialized the scripting core");
