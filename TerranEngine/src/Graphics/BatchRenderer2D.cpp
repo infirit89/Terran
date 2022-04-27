@@ -88,6 +88,7 @@ namespace TerranEngine
 												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
 												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
 
+			m_QuadShader->Bind();
 			m_QuadShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
 			m_QuadShader->Unbind();
 
@@ -117,7 +118,6 @@ namespace TerranEngine
 			m_CircleShader = CreateShared<Shader>(	"DefaultCircleShader", 
 													"Resources/Shaders/Base/Circle/CircleVertex.glsl",
 													"Resources/Shaders/Base/Circle/CircleFragment.glsl");
-			m_CircleShader->Unbind();
 		}
 		// ************************
 
@@ -137,7 +137,6 @@ namespace TerranEngine
 			m_LineVAO->AddIndexBuffer(m_IndexBuffer);
 
 			m_LineShader = CreateShared<Shader>("DefaultLineShader", "Resources/Shaders/Base/Line/LineVertex.glsl", "Resources/Shaders/Base/Line/LineFragment.glsl");
-			m_LineShader->Unbind();
 		}
 		// **********************
 

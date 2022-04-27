@@ -1,6 +1,6 @@
 #include "SceneViewPanel.h"
 
-#include "../EditorLayer.h"
+#include "EditorLayer.h"
 
 #include <glm/gtc/type_ptr.hpp>
 

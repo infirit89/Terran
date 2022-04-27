@@ -114,6 +114,7 @@ namespace TerranEngine
 		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
 
 		vertexArray->GetIndexBuffer()->Bind();
+
 		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 

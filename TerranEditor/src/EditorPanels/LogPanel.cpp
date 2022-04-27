@@ -1,6 +1,6 @@
 #include "LogPanel.h"
 
-#include "../UI/UI.h"
+#include "UI/UI.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -11,12 +11,9 @@ namespace TerranEditor
 
 	LogPanel::LogPanel() 
 	{
-		TextureParameters params;
-		//params.MagFilter = TextureFilter::NEAREST;
-		//params.MinFilter = TextureFilter::NEAREST;
-		m_InfoTexture = CreateShared<Texture>("Resources/Textures/info-icon.png", params);
-		m_WarnTexture = CreateShared<Texture>("Resources/Textures/warning-icon.png", params);
-		m_ErrorTexture = CreateShared<Texture>("Resources/Textures/error-icon.png", params);
+		m_InfoTexture = CreateShared<Texture>("Resources/Textures/info-icon.png");
+		m_WarnTexture = CreateShared<Texture>("Resources/Textures/warning-icon.png");
+		m_ErrorTexture = CreateShared<Texture>("Resources/Textures/error-icon.png");
 
 		s_Instance = this;
 		ClearMessageBuffer();

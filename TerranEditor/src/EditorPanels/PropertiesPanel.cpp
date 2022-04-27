@@ -1,8 +1,8 @@
 #include "PropertiesPanel.h"
 
-#include "../EditorLayer.h"
+#include "EditorLayer.h"
 
-#include "../UI/UI.h"
+#include "UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
 

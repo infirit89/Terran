@@ -2,8 +2,6 @@
 
 #include "Terran.h"
 
-#include "../SceneState.h"
-
 #include <string>
 #include <vector>
 

@@ -14,7 +14,6 @@
 #include "Physics/Physics.h"
 
 #include "Utils/Debug/Profiler.h"
-#include "Utils/ResourceManager.h"
 #include "Utils/Utils.h"
 
 #include <glm/gtc/matrix_transform.hpp>

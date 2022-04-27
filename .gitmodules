@@ -20,3 +20,9 @@
 [submodule "TerranEngine/vendor/Box2D"]
 	path = TerranEngine/vendor/Box2D
 	url = https://github.com/OKAY808/box2d
+[submodule "TerranEngine/vendor/msdfgen"]
+	path = TerranEngine/vendor/msdfgen
+	url = https://github.com/OKAY808/msdfgen
+[submodule "TerranEngine/vendor/msdf-atlas-gen"]
+	path = TerranEngine/vendor/msdf-atlas-gen
+	url = https://github.com/OKAY808/msdf-atlas-gen

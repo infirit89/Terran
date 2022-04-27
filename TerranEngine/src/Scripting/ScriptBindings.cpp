@@ -1069,12 +1069,12 @@ namespace TerranEngine
 
 		static bool Input_IsControllerConnected_Internal(uint8_t controllerIndex)
 		{
-			return Input::IsControllerConnected((ControllerIndex)controllerIndex);
+			return Input::IsControllerConnected(controllerIndex);
 		}
 
 		static MonoString* Input_GetControllerName_Internal(uint8_t controllerIndex)
 		{
-			const char* controllerName = Input::GetControllerName((ControllerIndex)controllerIndex);
+			const char* controllerName = Input::GetControllerName(controllerIndex);
 			ScriptString string(controllerName);
 
 			return string.GetStringInternal();
@@ -1082,12 +1082,12 @@ namespace TerranEngine
 
 		static bool Input_IsControllerButtonPressed_Internal(uint8_t controllerButton, uint8_t controllerIndex)
 		{
-			return Input::IsControllerButtonPressed((ControllerButton)controllerButton, (ControllerIndex)controllerIndex);
+			return Input::IsControllerButtonPressed((ControllerButton)controllerButton, controllerIndex);
 		}
 
 		static float Input_GetControllerAxis_Internal(uint8_t controllerAxis, uint8_t controllerIndex)
 		{
-			return Input::GetControllerAxis((ControllerAxis)controllerAxis, (ControllerIndex)controllerIndex);
+			return Input::GetControllerAxis((ControllerAxis)controllerAxis, controllerIndex);
 		}
 		// ---------------
 	}

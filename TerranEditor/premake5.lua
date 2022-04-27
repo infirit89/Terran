@@ -19,13 +19,13 @@ project "TerranEditor"
 
     includedirs
     {
+        "src",
         "%{wks.location}/TerranEngine/src/",
         "%{wks.location}/TerranEngine/vendor/",
         "%{wks.location}/TerranEngine/vendor/spdlog/include/",
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
         
         "%{wks.location}/TerranEditor/vendor/ImGuizmo/",
         "%{mono_path}/include/mono-2.0/"
@@ -38,8 +38,7 @@ project "TerranEditor"
 
     links 
     {
-        "TerranEngine",
-        "%{mono_path}/lib/mono-2.0-sgen.lib"
+        "TerranEngine"
     }
 
     filter "system:windows"

@@ -2,9 +2,7 @@
 
 #include "Terran.h"
 
-#include "../EditorCamera.h"
-
-#include "../SceneState.h"
+#include "EditorCamera.h"
 
 namespace TerranEditor 
 {

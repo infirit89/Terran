@@ -30,7 +30,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
         "%{wks.location}/TerranEngine/vendor/freetype/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
+        "%{wks.location}/TerranEngine/vendor/msdfgen/",
+        "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/",
         "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
         "%{mono_path}/include/mono-2.0/",
         "%{wks.location}/TerranEngine/vendor/Box2D/include/"
@@ -49,7 +50,8 @@ project "TerranEngine"
         "GLAD",
         "opengl32.lib",
         "Freetype",
-        "Freetype-GL",
+        "msdfgen",
+        "msdf-atlas-gen",
         "Box2D"
     }
 

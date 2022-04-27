@@ -20,14 +20,14 @@ namespace TerranEngine {
 
 		static glm::vec2 GetMousePos();
 
-		static bool IsControllerConnected(ControllerIndex controllerIndex);
-		static const char* GetControllerName(ControllerIndex controllerIndex);
+		static bool IsControllerConnected(uint8_t controllerIndex);
+		static const char* GetControllerName(uint8_t controllerIndex);
 
-		static bool IsControllerButtonPressed(ControllerButton controllerButton, ControllerIndex controllerIndex);
-		static float GetControllerAxis(ControllerAxis controllerAxis, ControllerIndex controllerIndex);
+		static bool IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex);
+		static float GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex);
 
-		static glm::vec2 GetControllerRightStick(ControllerIndex controllerIndex);
-		static glm::vec2 GetControllerLeftStick(ControllerIndex controllerIndex);
+		static glm::vec2 GetControllerRightStick(uint8_t controllerIndex);
+		static glm::vec2 GetControllerLeftStick(uint8_t controllerIndex);
 
 		static float GetMouseX() { return GetMousePos().x; }
 		static float GetMouseY() { return GetMousePos().y; }

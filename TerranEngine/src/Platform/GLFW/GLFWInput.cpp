@@ -30,7 +30,6 @@ namespace TerranEngine
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
 		double xpos, ypos;
-
 		glfwGetCursorPos(window, &xpos, &ypos);
 
 		return { xpos, ypos };
@@ -40,12 +39,11 @@ namespace TerranEngine
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
-		GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-
+		GLFWcursor* cursor = glfwCreateStandardCursor((int)cursorState);
 		glfwSetCursor(window, cursor);
 	}
 
-	bool Input::IsControllerConnected(ControllerIndex controllerIndex)
+	bool Input::IsControllerConnected(uint8_t controllerIndex)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
@@ -55,7 +53,7 @@ namespace TerranEngine
 		return pressent && isGamepad;
 	}
 
-	const char* Input::GetControllerName(ControllerIndex controllerIndex)
+	const char* Input::GetControllerName(uint8_t controllerIndex)
 	{
 		if (IsControllerConnected(controllerIndex)) 
 		{
@@ -66,7 +64,7 @@ namespace TerranEngine
 		return "";
 	}
 
-	bool Input::IsControllerButtonPressed(ControllerButton controllerButton, ControllerIndex controllerIndex)
+	bool Input::IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex)
 	{
 		GLFWgamepadstate gamepadState;
 
@@ -76,7 +74,7 @@ namespace TerranEngine
 		return false;
 	}
 
-	float Input::GetControllerAxis(ControllerAxis controllerAxis, ControllerIndex controllerIndex)
+	float Input::GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex)
 	{
 		GLFWgamepadstate gamepadState;
 
@@ -86,7 +84,7 @@ namespace TerranEngine
 		return 0.0f;
 	}
 
-	glm::vec2 Input::GetControllerRightStick(ControllerIndex controllerIndex)
+	glm::vec2 Input::GetControllerRightStick(uint8_t controllerIndex)
 	{
 		float rightX = GetControllerAxis(ControllerAxis::RightX, controllerIndex);
 		float rightY = GetControllerAxis(ControllerAxis::RightY, controllerIndex);
@@ -94,7 +92,7 @@ namespace TerranEngine
 		return { rightX, rightY };
 	}
 
-	glm::vec2 Input::GetControllerLeftStick(ControllerIndex controllerIndex)
+	glm::vec2 Input::GetControllerLeftStick(uint8_t controllerIndex)
 	{
 		float leftX = GetControllerAxis(ControllerAxis::LeftX, controllerIndex);
 		float leftY = GetControllerAxis(ControllerAxis::LeftY, controllerIndex);
