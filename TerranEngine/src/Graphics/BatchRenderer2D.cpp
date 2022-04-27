@@ -61,16 +61,11 @@ namespace TerranEngine
 		delete[] indices;
 		// ************************************
 
-		TextureParameters parameters;
-
 		uint16_t whiteTextureData = 0xffffffff;
 
-		int maxTexSlots = 16; //RenderCommand::GetMaxTextureSlots();
-
-		int* sampler = new int[maxTexSlots];
-
-		for (size_t i = 0; i < maxTexSlots; i++)
-			sampler[i] = i;
+		int samplers[16];
+		for (size_t i = 0; i < m_MaxTextureSlots; i++)
+			samplers[i] = i;
 
 		// ******** Quad ******** 
 		{
@@ -93,49 +88,14 @@ namespace TerranEngine
 												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
 												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
 
-			m_QuadShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
+			m_QuadShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
 			m_QuadShader->Unbind();
 
-			parameters.MagFilter = TextureFilter::LINEAR;
-			parameters.MinFilter = TextureFilter::LINEAR;
-
-			m_QuadTextures[0] =	CreateShared<Texture>(1, 1, parameters);
+			m_QuadTextures[0] =	CreateShared<Texture>(1, 1);
 			m_QuadTextures[0]->SetData(&whiteTextureData);
 
 		}
 		// **********************
-
-
-		// ******** Text ******** 
-		{
-			m_TextVertexPtr = new QuadVertex[m_MaxVertices];
-
-			m_TextVAO = CreateShared<VertexArray>();
-
-			m_TextVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(QuadVertex));
-
-			m_TextVAO->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 }
-			});
-
-			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
-
-			m_TextShader = CreateShared<Shader>("DefaultTextShader", 
-												"Resources/Shaders/Base/Text/TextVertex.glsl",
-												"Resources/Shaders/Base/Text/TextFragment.glsl");
-
-			m_TextShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
-
-			m_TextShader->Unbind();
-
-			m_TextTextures[0] = CreateShared<Texture>(1, 1, parameters);
-			m_TextTextures[0]->SetData(&whiteTextureData);
-		}
-		// **********************
-
 
 		// ******** Circle ********
 		{
@@ -157,7 +117,6 @@ namespace TerranEngine
 			m_CircleShader = CreateShared<Shader>(	"DefaultCircleShader", 
 													"Resources/Shaders/Base/Circle/CircleVertex.glsl",
 													"Resources/Shaders/Base/Circle/CircleFragment.glsl");
-
 			m_CircleShader->Unbind();
 		}
 		// ************************
@@ -178,7 +137,6 @@ namespace TerranEngine
 			m_LineVAO->AddIndexBuffer(m_IndexBuffer);
 
 			m_LineShader = CreateShared<Shader>("DefaultLineShader", "Resources/Shaders/Base/Line/LineVertex.glsl", "Resources/Shaders/Base/Line/LineFragment.glsl");
-
 			m_LineShader->Unbind();
 		}
 		// **********************
@@ -189,25 +147,19 @@ namespace TerranEngine
 		m_VertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
 		m_QuadShader->Bind();
-		m_TextShader->Bind();
 		m_CircleShader->Bind();
 		m_LineShader->Bind();
 
 		m_CameraBuffer = CreateShared<UniformBuffer>(sizeof(CameraData), 0);
 
 		m_QuadShader->Unbind();
-		m_TextShader->Unbind();
 		m_CircleShader->Unbind();
 		m_LineShader->Unbind();
-
-		delete[] sampler;
-
 	}
 
 	void BatchRenderer2D::Shutdown()
 	{
 		delete[] m_QuadVertexPtr;
-		delete[] m_TextVertexPtr;
 		delete[] m_CircleVertexPtr;
 		delete[] m_LineVertexPtr;
 	}
@@ -217,7 +169,6 @@ namespace TerranEngine
 		Clear();
 
 		m_QuadShader->Bind();
-		m_TextShader->Bind();
 		m_CircleShader->Bind();
 		m_LineShader->Bind();
 
@@ -231,7 +182,6 @@ namespace TerranEngine
 		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData));
 
 		m_QuadShader->Unbind();
-		m_TextShader->Unbind();
 		m_CircleShader->Unbind();
 		m_LineShader->Unbind();
 	}
@@ -295,102 +245,6 @@ namespace TerranEngine
 		}
 
 		m_QuadIndexCount += 6;
-	}
-
-	void BatchRenderer2D::AddText(glm::mat4& transform, const glm::vec4& color, Shared<Font> font, const std::string& text)
-	{
-
-		/* Note: there's there's some fuckery with displaying the characters 
-		* which i think is related to how freetype-gl stores them in a packed texture
-		* 
-		* fix fucker
-		*/
-
-		if (!TextBatchHasRoom()) 
-		{
-			// Begin new batch
-			EndFrame();
-			Clear();
-		}
-
-		int texIndex = -1;
-
-		if (font == nullptr)
-			texIndex = 0;
-
-		for (size_t i = 1; i < m_TextTextureIndex; i++)
-		{
-			if (m_TextTextures[i] == font->GetTexutre())
-			{
-				texIndex = i;
-				break;
-			}
-		}
-
-		if (texIndex == -1)
-		{
-			texIndex = m_TextTextureIndex;
-			m_TextTextures[m_TextTextureIndex] = font->GetTexutre();
-			m_TextTextureIndex++;
-		}
-
-		glm::vec3 position;
-		glm::vec3 scale;
-		glm::vec3 rotation;
-
-		Math::Decompose(transform, position, rotation, scale);
-
-		for (size_t i = 0; i < text.size(); i++)
-		{
-			char c = text[i];
-
-			ftgl::texture_glyph_t* glyph = font->LoadGlyph(c);
-
-			if (glyph != NULL) 
-			{
-
-				glm::vec2 uvs[4] =
-				{
-					{ glyph->s0, glyph->t0 },
-					{ glyph->s1, glyph->t0 },
-					{ glyph->s1, glyph->t1 },
-					{ glyph->s0, glyph->t1 },
-				};
-
-				if (i > 0)
-				{
-					float kerning = ftgl::texture_glyph_get_kerning(glyph, std::string(1, text[i - 1]).c_str());
-					position.x += kerning;
-				}
-
-				float x0 = position.x + (glyph->offset_x / 80.0f);
-				float y0 = position.y + (glyph->offset_y / 80.0f);
-				float x1 = x0 + glyph->width / 80.0f;
-				float y1 = y0 - glyph->height / 80.0f;
-
-				glm::vec4 vertexPositions[4] =
-				{
-					glm::vec4(x0, y0, 0.0f, 1.0f),
-					glm::vec4(x1, y0, 0.0f, 1.0f),
-					glm::vec4(x1, y1, 0.0f, 1.0f),
-					glm::vec4(x0, y1, 0.0f, 1.0f),
-				};
-
-				for (size_t i = 0; i < 4; i++)
-				{
-					m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * vertexPositions[i];
-					m_TextVertexPtr[m_TextVertexPtrIndex].Color = color;
-					m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = uvs[i];
-					m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
-
-					m_TextVertexPtrIndex++;
-				}
-
-				m_TextIndexCount += 6;
-
-				position.x += glyph->advance_x / 80.0f;
-			}
-		}
 	}
 
 	void BatchRenderer2D::AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness)
@@ -496,8 +350,8 @@ namespace TerranEngine
 
 	void BatchRenderer2D::EndFrame()
 	{
-		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_TextVertexPtrIndex + m_CircleVertexPtrIndex + m_LineVertexPtrIndex;
-		m_Stats.IndexCount +=  m_QuadIndexCount + m_TextIndexCount + m_CircleIndexCount + m_LineIndexCount;
+		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_CircleVertexPtrIndex + m_LineVertexPtrIndex;
+		m_Stats.IndexCount +=  m_QuadIndexCount + m_CircleIndexCount + m_LineIndexCount;
 
 		// Submit quads
 		if (m_QuadIndexCount)
@@ -516,25 +370,6 @@ namespace TerranEngine
 
 			m_QuadShader->Unbind();
 		}
-
-		// Submit text
-		if (m_TextIndexCount) 
-		{
-			m_TextShader->Bind();
-			m_TextVAO->Bind();
-			m_TextVBO->SetData(m_TextVertexPtr, m_TextVertexPtrIndex * sizeof(QuadVertex));
-
-
-			for (size_t i = 0; i < m_TextTextureIndex; i++)
-				m_TextTextures[i]->Bind(i);
-
-			RenderCommand::Draw(RenderMode::Triangles, m_TextVAO, m_TextIndexCount);
-
-			m_Stats.DrawCalls++;
-
-			m_TextShader->Unbind();
-		}
-
 
 		// Submit circles
 		if (m_CircleIndexCount) 
@@ -570,10 +405,6 @@ namespace TerranEngine
 		m_QuadVertexPtrIndex = 0;
 		m_QuadIndexCount = 0;
 		m_QuadTextureIndex = 1;
-
-		m_TextVertexPtrIndex = 0;
-		m_TextIndexCount = 0;
-		m_TextTextureIndex = 1;
 
 		m_CircleVertexPtrIndex = 0;
 		m_CircleIndexCount = 0;

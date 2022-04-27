@@ -31,7 +31,6 @@ namespace TerranEngine
 		
 		auto& shaderSources = ProcessShaderFile(data->Data);
 		CreateProgram(shaderSources);
-		Bind();
 
 		File::CloseFile(data);
 	}
@@ -48,7 +47,6 @@ namespace TerranEngine
 		FileData* fragmentFile = File::OpenFile(fragmentPath);
 
 		CreateProgram(vertexFile->Data, fragmentFile->Data);
-		Bind();
 
 		File::CloseFile(vertexFile);
 		File::CloseFile(fragmentFile);

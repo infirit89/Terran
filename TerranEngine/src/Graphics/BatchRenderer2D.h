@@ -65,8 +65,6 @@ namespace TerranEngine
 		void AddQuad(glm::mat4& transform, const glm::vec4& color);
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4]);
 
-		void AddText(glm::mat4& transform, const glm::vec4& color, Shared<Font> font, const std::string& text);
-
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
@@ -76,7 +74,6 @@ namespace TerranEngine
 		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
-		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 		inline bool CircleBatchHasRoom() const { return !(m_CircleIndexCount >= m_MaxIndices); }
 
 		inline bool LineBatchHasRoom() const { return !(m_LineIndexCount >= m_MaxIndices); }
@@ -96,6 +93,7 @@ namespace TerranEngine
 		BatchRendererStats m_Stats;
 		glm::vec4 m_VertexPositions[4];
 		uint32_t m_MaxVertices, m_MaxIndices;
+
 		static const uint32_t m_MaxTextureSlots = 16;
 		// *****************************
 
@@ -115,22 +113,6 @@ namespace TerranEngine
 		uint32_t m_QuadTextureIndex = 1;
 		// **********************
 
-
-		// ******** Text ********
-		uint32_t m_TextIndexCount = 0;
-		Shared<VertexArray>  m_TextVAO;
-		Shared<VertexBuffer> m_TextVBO;
-
-		Shared<Shader> m_TextShader;
-
-		QuadVertex* m_TextVertexPtr = nullptr;
-		uint32_t m_TextVertexPtrIndex = 0;
-
-		Shared<Texture> m_TextTextures[m_MaxTextureSlots];
-		uint32_t m_TextTextureIndex = 1;
-		// **********************
-
-
 		// ******** Circle ********
 		uint32_t m_CircleIndexCount = 0;
 		Shared<VertexArray>  m_CircleVAO;
@@ -141,7 +123,6 @@ namespace TerranEngine
 		CircleVertex* m_CircleVertexPtr = nullptr;
 		uint32_t m_CircleVertexPtrIndex = 0;
 		// ************************
-
 
 		// NOTE: shitty line renderer should change soon
 		// ******** Line ******** 
