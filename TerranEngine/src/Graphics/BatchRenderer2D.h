@@ -8,6 +8,8 @@
 #include "Framebuffer.h"
 #include "Camera.h"
 
+#include "FontAtlas.h"
+
 #include "Core/Base.h"
 
 #include <glm/glm.hpp>
@@ -36,6 +38,14 @@ namespace TerranEngine
 		float Thickness;
 		glm::vec4 Color;
 		glm::vec2 Normal;
+	};
+	
+	struct TextVertex 
+	{
+		glm::vec3 Position;
+		int TextureIndex;
+		glm::vec4 TextColor;
+		glm::vec2 TextureCoordinates;
 	};
 
 	struct BatchRendererStats
@@ -69,13 +79,18 @@ namespace TerranEngine
 		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
 		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);
 
+		void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas);
+
 		void AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
 		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
+		
 		inline bool CircleBatchHasRoom() const { return !(m_CircleIndexCount >= m_MaxIndices); }
 
 		inline bool LineBatchHasRoom() const { return !(m_LineIndexCount >= m_MaxIndices); }
+		
+		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 
 		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
 		inline BatchRendererStats GetStats() { return m_Stats; }
@@ -133,6 +148,21 @@ namespace TerranEngine
 
 		LineVertex* m_LineVertexPtr = nullptr;
 		uint32_t m_LineVertexPtrIndex = 0;
+		// **********************
+
+		// ******** Text ********
+		uint32_t m_TextIndexCount = 0;
+		Shared<VertexBuffer> m_TextVBO;
+		Shared<VertexArray> m_TextVAO;
+
+		Shared<Shader> m_TextShader;
+
+		TextVertex* m_TextVertexPtr = nullptr;
+		uint32_t m_TextVertexPtrIndex = 0;
+
+		Shared<Texture> m_TextTextures[m_MaxTextureSlots];
+		uint32_t m_TextTextureIndex = 0;
+
 		// **********************
 
 		//  ******** Camera stuffs ********

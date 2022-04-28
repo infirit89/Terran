@@ -27,6 +27,8 @@ namespace TerranEditor
 
 	void EditorLayer::OnAttach()
 	{
+		FontAtlas fontAtlas;
+
 		ImGuiIO& io = ImGui::GetIO();
 
 		ImFontConfig config;
@@ -57,7 +59,13 @@ namespace TerranEditor
 
 		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
+		Entity testEntity = m_EditorScene->CreateEntity("Test Entity");
+		auto& spr = testEntity.AddComponent<TextRendererComponent>();
+		spr.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+		//spr.Texture = fontAtlas.LoadFont("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+
 		SceneManager::SetCurrentScene(m_EditorScene);
+
 
 		// ***** Panel Setup *****
 		m_ContentPanel = ContentPanel(m_ResPath);

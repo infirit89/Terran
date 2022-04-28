@@ -5,6 +5,7 @@
 
 #include "Graphics/Texture.h"
 #include "Graphics/OrthographicCamera.h"
+#include "Graphics/FontAtlas.h"
 
 #include "Scripting/ScriptField.h"
 
@@ -104,6 +105,15 @@ namespace TerranEngine
 			delete[] Points;
 		}
 
+	};
+
+	struct TextRendererComponent 
+	{
+		Shared<FontAtlas> FontAtlas;
+		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		TextRendererComponent() = default;
+		~TextRendererComponent() = default;
 	};
 
 	struct RelationshipComponent 

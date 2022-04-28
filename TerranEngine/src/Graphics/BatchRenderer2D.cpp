@@ -88,7 +88,7 @@ namespace TerranEngine
 												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
 												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
 
-			m_QuadShader->Bind();
+			//m_QuadShader->Bind();
 			m_QuadShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
 			m_QuadShader->Unbind();
 
@@ -140,6 +140,29 @@ namespace TerranEngine
 		}
 		// **********************
 
+		// ******** Text ******** 
+		{
+			m_TextVertexPtr = new TextVertex[m_MaxVertices];
+			m_TextVAO = CreateShared<VertexArray>();
+			m_TextVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(TextVertex));
+
+			m_TextVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_INT,	1 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 }
+			});
+
+			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
+
+			m_TextShader = CreateShared<Shader>("DefaultTextShader", "Resources/Shaders/Base/Text/TextVertex.glsl", "Resources/Shaders/Base/Text/TextFragment.glsl");
+			m_TextShader->Bind();
+			m_TextShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
+			m_TextShader->Unbind();
+		}
+		// **********************
+
+
 		m_VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		m_VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
 		m_VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
@@ -148,12 +171,14 @@ namespace TerranEngine
 		m_QuadShader->Bind();
 		m_CircleShader->Bind();
 		m_LineShader->Bind();
+		m_TextShader->Bind();
 
 		m_CameraBuffer = CreateShared<UniformBuffer>(sizeof(CameraData), 0);
 
 		m_QuadShader->Unbind();
 		m_CircleShader->Unbind();
 		m_LineShader->Unbind();
+		m_TextShader->Unbind();
 	}
 
 	void BatchRenderer2D::Shutdown()
@@ -161,6 +186,7 @@ namespace TerranEngine
 		delete[] m_QuadVertexPtr;
 		delete[] m_CircleVertexPtr;
 		delete[] m_LineVertexPtr;
+		delete[] m_TextVertexPtr;
 	}
 
 	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView)
@@ -170,6 +196,7 @@ namespace TerranEngine
 		m_QuadShader->Bind();
 		m_CircleShader->Bind();
 		m_LineShader->Bind();
+		m_TextShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = transform;
@@ -183,6 +210,7 @@ namespace TerranEngine
 		m_QuadShader->Unbind();
 		m_CircleShader->Unbind();
 		m_LineShader->Unbind();
+		m_TextShader->Unbind();
 	}
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture)
@@ -326,6 +354,55 @@ namespace TerranEngine
 		}
 	}
 
+	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas)
+	{
+		if (!TextBatchHasRoom())
+		{
+			// Begin New Batch
+			EndFrame();
+			Clear();
+		}
+
+		int texIndex = -1;
+
+		for (size_t i = 0; i < m_TextTextureIndex; i++)
+		{
+			if (m_TextTextures[i] == fontAtlas->GetTexture())
+			{
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == -1)
+		{
+			texIndex = m_TextTextureIndex;
+			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
+			m_TextTextureIndex++;
+		}
+
+		constexpr glm::vec2 textureCoords[4] =
+		{
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f },
+		};
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * m_VertexPositions[i];
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = textureCoords[i];
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
+
+			m_TextVertexPtrIndex++;
+		}
+
+		m_TextIndexCount += 6;
+
+	}
+
 	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
 		glm::vec3 linePositions[4];
@@ -397,6 +474,23 @@ namespace TerranEngine
 
 			m_LineShader->Unbind();
 		}
+
+		// Submit text
+		if (m_TextIndexCount) 
+		{
+			m_TextShader->Bind();
+			m_TextVAO->Bind();
+			m_TextVBO->SetData(m_TextVertexPtr, m_TextVertexPtrIndex * sizeof(TextVertex));
+
+			for (size_t i = 0; i < m_TextTextureIndex; i++)
+				m_TextTextures[i]->Bind(i);
+
+			RenderCommand::Draw(RenderMode::Triangles, m_TextVAO, m_TextIndexCount);
+
+			m_Stats.DrawCalls++;
+
+			m_TextShader->Unbind();
+		}
 	}
 
 	void BatchRenderer2D::Clear()
@@ -410,6 +504,10 @@ namespace TerranEngine
 
 		m_LineVertexPtrIndex = 0;
 		m_LineIndexCount = 0;
+
+		m_TextIndexCount = 0;
+		m_TextVertexPtrIndex = 0;
+		m_TextTextureIndex = 0;
 	}
 }
 #pragma warning (pop)

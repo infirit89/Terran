@@ -36,7 +36,7 @@ namespace TerranEngine
 		m_Window = Window::Create(data);
 
 		RenderCommand::Init();
-		s_Renderer = CreateUnique<BatchRenderer2D>(20000);
+		s_Renderer = CreateUnique<BatchRenderer2D>(2000);
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 

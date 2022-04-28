@@ -12,6 +12,8 @@ namespace TerranEngine
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer")
 	{
+		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		m_Framebuffer = CreateShared<Framebuffer>();
 #if 0
 		// id test code
 		for (int i = 0; i < 9000; i++)
@@ -28,11 +30,11 @@ namespace TerranEngine
 		}
 #endif
 
-		SceneManager::SetCurrentScene(CreateShared<Scene>());
+		/*SceneManager::SetCurrentScene(CreateShared<Scene>());
 
 		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test");
 
-		entity.GetComponent<TransformComponent>();
+		entity.GetComponent<TransformComponent>();*/
 
 #if 0
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);
@@ -81,6 +83,7 @@ namespace TerranEngine
 
 		//m_Scene = newScene;
 
+		//TR_TRACE("{0}, {1}, {2}", m_Transform.Scale.x, m_Transform.Scale.y, m_Transform.Scale.z);
 	}
 
 	void SandboxLayer::OnAttach()
@@ -99,8 +102,6 @@ namespace TerranEngine
 		* the framebuffer object doesn't work goddamn properly
 		* 1. blending is just fucking gone
 		*/ 
-
-
 
 #if 0
 		if (m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
@@ -151,7 +152,15 @@ namespace TerranEngine
 
 		m_Time = time;
 #endif
+		
+		RenderCommand::SetClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+		RenderCommand::Clear();
 
+		BatchRenderer2D::Get()->BeginFrame(m_Camera, m_CameraTransform.GetTransformMatrix(), false);
+
+		BatchRenderer2D::Get()->AddQuad(m_Transform.GetTransformMatrix(), { 1.0f, 0.0f, 1.0f, 0.0f });
+
+		BatchRenderer2D::Get()->EndFrame();
 	}
 
 	void SandboxLayer::OnEvent(Event& event)
@@ -279,12 +288,11 @@ namespace TerranEngine
 
 	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
 	{
-
-#if 0
 		m_ZoomLevel += event.GetYOffset() * 0.005f;
 		
-		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
+#if 0
 		auto& camComp = m_Scene->GetPrimaryCamera().GetComponent<CameraComponent>();
 		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 #endif

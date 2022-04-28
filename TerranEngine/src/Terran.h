@@ -16,9 +16,6 @@
 #include "Events/MouseEvent.h"
 #include "Events/Event.h"
 
-/* ---- Utils ---- */
-//#include "Utils/FileUtils.h"
-
 /* ---- ImGui ---- */
 #include "ImGui/ImGuiLayer.h"
 
@@ -32,6 +29,7 @@
 #include "Graphics/BatchRenderer2D.h"
 #include "Graphics/TextureSheet.h"
 #include "Graphics/Camera.h"
+#include "Graphics/FontAtlas.h"
 
 /* ---- Debugging ---- */
 #include "Utils/Debug/Profiler.h"

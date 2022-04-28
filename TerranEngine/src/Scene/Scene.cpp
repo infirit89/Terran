@@ -261,6 +261,20 @@ namespace TerranEngine
 			}
 		}
 
+		// submit text
+		{
+			auto textRendererView = m_Registry.view<TextRendererComponent>();
+
+			for (auto e : textRendererView)
+			{
+				Entity entity(e, this);
+
+				auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+
+				sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+			}
+		}
+
 		sceneRenderer->EndScene();
 	}
 

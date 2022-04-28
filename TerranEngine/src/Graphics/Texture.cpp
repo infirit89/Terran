@@ -112,7 +112,7 @@ namespace TerranEngine
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}	 
 
-	void Texture::SetData(void* data) 
+	void Texture::SetData(const void* data) 
 	{
 		NativeTexutreType nativeType = ConvertTextureTypeToNativeType(m_TexParameters.TextureType);
 

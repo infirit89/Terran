@@ -56,6 +56,11 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddLine(lineRenderer.Points, lineRenderer.PointCount, lineRenderer.Color, lineRenderer.Thickness);
 	}
 
+	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform)
+	{
+		BatchRenderer2D::Get()->AddText(transform, "", textRenderer.TextColor, textRenderer.FontAtlas);
+	}
+
 	void SceneRenderer::SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
 		BatchRenderer2D::Get()->AddRect(transform, color, thickness);

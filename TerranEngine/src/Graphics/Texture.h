@@ -40,7 +40,7 @@ namespace TerranEngine
 		void Bind(uint8_t textureSlot) const;
 		void Unbind() const;
 
-		void SetData(void* data);
+		void SetData(const void* data);
 
 		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
 		inline const int GetWidth() const { return m_Width; }
