@@ -62,6 +62,12 @@ namespace TerranEditor
 		Entity testEntity = m_EditorScene->CreateEntity("Test Entity");
 		auto& spr = testEntity.AddComponent<TextRendererComponent>();
 		spr.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+		spr.Text = "c";
+
+		Entity test2 = m_EditorScene->CreateEntity("Test 2");
+		auto& trc = test2.AddComponent<TextRendererComponent>();
+		trc.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+
 		//spr.Texture = fontAtlas.LoadFont("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
 		SceneManager::SetCurrentScene(m_EditorScene);

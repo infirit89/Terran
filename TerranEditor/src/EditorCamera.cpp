@@ -49,7 +49,17 @@ namespace TerranEditor
 		RecalculateProjection();
 	}
 
-	void EditorCamera::RecalculateProjection() 
+	float EditorCamera::ZoomSpeed()
+	{
+		float distance = m_OrthoGraphicSize * 0.2f;
+		distance = std::max(distance, 0.0f);
+		float speed = distance * distance;
+		TR_TRACE(speed);
+		speed = std::min(speed, 100.0f);
+		return speed;
+	}
+
+	void EditorCamera::RecalculateProjection()
 	{
 		float orthRight = (m_OrthoGraphicSize * m_AspectRatio * 0.5f);
 		float orthoTop = (m_OrthoGraphicSize * 0.5f);
@@ -68,8 +78,11 @@ namespace TerranEditor
 	{
 		if (m_CameraType == EditorCameraType::Orthographic)
 		{
-			m_OrthoGraphicSize -= delta * 0.8f;
-			
+			m_OrthoGraphicSize -= delta * ZoomSpeed();
+
+			if (m_OrthoGraphicSize <= 0.0f)
+				m_OrthoGraphicSize = 0.1f;
+
 			RecalculateProjection();
 		}
 	}

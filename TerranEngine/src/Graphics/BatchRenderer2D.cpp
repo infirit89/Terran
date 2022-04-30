@@ -162,7 +162,6 @@ namespace TerranEngine
 		}
 		// **********************
 
-
 		m_VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		m_VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
 		m_VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
@@ -381,6 +380,61 @@ namespace TerranEngine
 			m_TextTextureIndex++;
 		}
 
+		/*constexpr glm::vec2 textureCoords[4] =
+		{
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f },
+		};*/
+
+		glm::vec2 textureCoords[4] = {};
+
+
+		GlyphData glyph = fontAtlas->GetGlyphData('c');
+		//fontAtlas->GetUVCoordinates('c', textureCoords);
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * glyph.VertexPositions[i];
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
+
+			m_TextVertexPtrIndex++;
+		}
+
+		m_TextIndexCount += 6;
+
+	}
+
+	void BatchRenderer2D::AddText(glm::mat4& transform, Shared<FontAtlas> fontAtlas)
+	{
+		if (!TextBatchHasRoom())
+		{
+			// Begin New Batch
+			EndFrame();
+			Clear();
+		}
+
+		int texIndex = -1;
+
+		for (size_t i = 0; i < m_TextTextureIndex; i++)
+		{
+			if (m_TextTextures[i] == fontAtlas->GetTexture())
+			{
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == -1)
+		{
+			texIndex = m_TextTextureIndex;
+			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
+			m_TextTextureIndex++;
+		}
+
 		constexpr glm::vec2 textureCoords[4] =
 		{
 			{ 0.0f, 0.0f },
@@ -392,7 +446,7 @@ namespace TerranEngine
 		for (size_t i = 0; i < 4; i++)
 		{
 			m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * m_VertexPositions[i];
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 			m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = textureCoords[i];
 			m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
 

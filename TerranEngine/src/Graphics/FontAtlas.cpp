@@ -5,9 +5,58 @@
 
 namespace TerranEngine 
 {
+	FontAtlas::FontAtlas()
+		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1)
+	{
+	}
+
 	FontAtlas::FontAtlas(const std::string& fontPath)
+		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1)
 	{
 		m_Texture = LoadFont(fontPath);
+	}
+
+	FontAtlas::~FontAtlas()
+	{
+		if (m_Glyphs)
+			delete m_Glyphs;
+
+		if (m_FontGeometry)
+			delete m_FontGeometry;
+	}
+
+	GlyphData FontAtlas::GetGlyphData(char c)
+	{
+		const msdf_atlas::GlyphGeometry* glyph = m_FontGeometry->getGlyph(c);
+
+		if (glyph) 
+		{
+			double ul, vb, ur, vt;
+			glyph->getQuadAtlasBounds(ul, vb, ur, vt);
+			GlyphData glyphData;
+
+			ul /= m_AtlasWidth;
+			vb /= m_AtlasHeight;
+			ur /= m_AtlasWidth;
+			vt /= m_AtlasHeight;
+
+			glyphData.UVs[0] = { ul, vb };
+			glyphData.UVs[1] = { ur, vb };
+			glyphData.UVs[2] = { ur, vt };
+			glyphData.UVs[3] = { ul, vt };
+
+			double vertL, vertB, vertR, vertT;
+			glyph->getQuadPlaneBounds(vertL, vertB, vertR, vertT);
+
+			glyphData.VertexPositions[0] = { vertL, vertB, 0.0f, 1.0f };
+			glyphData.VertexPositions[1] = { vertR, vertB, 0.0f, 1.0f };
+			glyphData.VertexPositions[2] = { vertR, vertT, 0.0f, 1.0f };
+			glyphData.VertexPositions[3] = { vertL, vertT, 0.0f, 1.0f };
+
+			return glyphData;
+		}
+
+		return {};
 	}
 
 	Shared<Texture> FontAtlas::LoadFont(const std::string& fontPath)
@@ -21,14 +70,15 @@ namespace TerranEngine
 			msdfgen::FontHandle* fontHandle = msdfgen::loadFont(freetypeHandle, fontPath.c_str());
 			if (fontHandle) 
 			{
+
 				msdf_atlas::Charset charset = msdf_atlas::Charset::ASCII;
-				std::vector<msdf_atlas::GlyphGeometry> glyphs;
-				msdf_atlas::FontGeometry fontGeometry(&glyphs);
-				
+				m_Glyphs = new std::vector<msdf_atlas::GlyphGeometry>();
+				m_FontGeometry = new msdf_atlas::FontGeometry(m_Glyphs);
+
 				{
 					int glyphsLoaded = -1;
 					// the font size is ignored unless there are two or more different font sizes in a single atlas
-					glyphsLoaded = fontGeometry.loadCharset(fontHandle, 1.0, charset);
+					glyphsLoaded = m_FontGeometry->loadCharset(fontHandle, 1.0, charset);
 
 					if (glyphsLoaded < 0)
 					{
@@ -41,7 +91,7 @@ namespace TerranEngine
 					TR_TRACE("Loaded geometry of {0} out of {1} glyphs", glyphsLoaded, charset.size());
 				}
 
-				if (glyphs.empty())
+				if (m_Glyphs->empty())
 				{
 					TR_ERROR("No glyphs loaded");
 					// NOTE: not uninitializing freetype and not destroying the loaded font
@@ -55,30 +105,30 @@ namespace TerranEngine
 				atlasPacker.setDimensionsConstraint(dimensionConstraint);
 				atlasPacker.setPadding(0);
 				atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
-
+				
 				const double defaultPixelRange = 2.0;
 				atlasPacker.setPixelRange(defaultPixelRange);
 
 				const double defaultMiterLimit = 1.0;
 				atlasPacker.setMiterLimit(defaultMiterLimit);
 
-				atlasPacker.pack(glyphs.data(), glyphs.size());
+				atlasPacker.pack(m_Glyphs->data(), m_Glyphs->size());
 
-				int atlasWidth = -1, atlasHeight = -1;
-				atlasPacker.getDimensions(atlasWidth, atlasHeight);
-				TR_TRACE("Atlas width: {0}; Atlas height: {1}", atlasWidth, atlasHeight);
+				atlasPacker.getDimensions(m_AtlasWidth, m_AtlasHeight);
+				TR_TRACE("Atlas width: {0}; Atlas height: {1}", m_AtlasWidth, m_AtlasHeight);
 
 				const double maxCornerAngle = 3.0;
-				for (msdf_atlas::GlyphGeometry& glyph : glyphs)
-					glyph.edgeColoring(msdfgen::edgeColoringSimple, maxCornerAngle, 0);
 				
-				msdf_atlas::ImmediateAtlasGenerator<float, 3, msdf_atlas::msdfGenerator, msdf_atlas::BitmapAtlasStorage<uint8_t, 3>> generator(atlasWidth, atlasHeight);
+				for (size_t i = 0; i < m_Glyphs->size(); i++)
+					(*m_Glyphs)[i].edgeColoring(msdfgen::edgeColoringSimple, maxCornerAngle, 0);
+
+				msdf_atlas::ImmediateAtlasGenerator<float, 3, msdf_atlas::msdfGenerator, msdf_atlas::BitmapAtlasStorage<uint8_t, 3>> generator(m_AtlasWidth, m_AtlasHeight);
 				//msdf_atlas::GeneratorAttributes generatorAttributes;
 				//generatorAttributes.scanlinePass = true;
 				//generatorAttributes.config.overlapSupport = true;
 
 				generator.setThreadCount(std::max((int)std::thread::hardware_concurrency() / 4, 1));
-				generator.generate(glyphs.data(), glyphs.size());
+				generator.generate(m_Glyphs->data(), m_Glyphs->size());
 
 				msdfgen::BitmapConstRef<uint8_t, 3> bitmap = generator.atlasStorage();
 

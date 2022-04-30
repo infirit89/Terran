@@ -111,6 +111,7 @@ namespace TerranEngine
 	{
 		Shared<FontAtlas> FontAtlas;
 		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		std::string Text = "";
 
 		TextRendererComponent() = default;
 		~TextRendererComponent() = default;

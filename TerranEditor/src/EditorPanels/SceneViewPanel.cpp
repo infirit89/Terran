@@ -2,6 +2,8 @@
 
 #include "EditorLayer.h"
 
+#include "UI/UI.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ImGui/imgui.h>
@@ -16,7 +18,12 @@ namespace TerranEditor
 	void SceneViewPanel::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera)
 	{
 		if (m_Open) 
-		{
+		{ 
+			UI::ScopedStyleVar styleVar(
+			{
+				{ ImGuiStyleVar_WindowPadding, {0.0f, 0.0f} }
+			});
+
 			ImGui::Begin("Scene view", &m_Open);
 
 			SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();

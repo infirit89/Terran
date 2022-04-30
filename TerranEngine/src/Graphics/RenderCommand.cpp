@@ -32,7 +32,6 @@ namespace TerranEngine
 				glDebugMessageCallback(glDebugOutput, nullptr);
 				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 			}
-
 		}
 #endif
 		EnableBlending(true);

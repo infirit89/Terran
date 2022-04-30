@@ -30,6 +30,9 @@ namespace TerranEngine
 
 		BatchRenderer2D::Get()->BeginFrame(camera, cameraTransform, invereTransform);
 		m_BegunScene = true;
+		
+		if (Input::IsKeyPressed(Key::F))
+			RenderCommand::WireframeMode(true);
 
 		/* TODO: better sorting
 		*  also add circle sorting
@@ -58,7 +61,10 @@ namespace TerranEngine
 
 	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform)
 	{
-		BatchRenderer2D::Get()->AddText(transform, "", textRenderer.TextColor, textRenderer.FontAtlas);
+		if (textRenderer.Text != "")
+			BatchRenderer2D::Get()->AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas);
+		else
+			BatchRenderer2D::Get()->AddText(transform, textRenderer.FontAtlas);
 	}
 
 	void SceneRenderer::SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness)

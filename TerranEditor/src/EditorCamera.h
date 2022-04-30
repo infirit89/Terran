@@ -32,6 +32,8 @@ namespace TerranEditor
 
 		glm::mat4 GetView() { return m_ViewMatrix; }
 	private:
+		float ZoomSpeed();
+
 		void RecalculateProjection();
 		void RecalculateView();
 		void CameraZoom(float delta);

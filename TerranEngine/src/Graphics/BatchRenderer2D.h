@@ -80,6 +80,7 @@ namespace TerranEngine
 		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);
 
 		void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas);
+		void AddText(glm::mat4& transform, Shared<FontAtlas> fontAtlas);
 
 		void AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
 		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
