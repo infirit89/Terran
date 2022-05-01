@@ -379,33 +379,35 @@ namespace TerranEngine
 			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
 			m_TextTextureIndex++;
 		}
+		
+		glm::vec3 position, rotation, scale;
+		Math::Decompose(transform, position, rotation, scale);
 
-		/*constexpr glm::vec2 textureCoords[4] =
+		glm::mat4 modelMat = glm::mat4(1.0f);
+
+		char previousChar = 0;
+		for (const char& c : text)
 		{
-			{ 0.0f, 0.0f },
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f },
-			{ 0.0f, 1.0f },
-		};*/
+			if (previousChar)
+				position.x += fontAtlas->GetKerning(previousChar, c);
 
-		glm::vec2 textureCoords[4] = {};
+			modelMat = Math::ComposeTransformationMatrix(position, rotation, scale);
+			GlyphData glyph = fontAtlas->GetGlyphData(c);
 
+			for (size_t i = 0; i < 4; i++)
+			{
+				m_TextVertexPtr[m_TextVertexPtrIndex].Position = modelMat * glyph.VertexPositions[i];
+				m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
+				m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
+				m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
 
-		GlyphData glyph = fontAtlas->GetGlyphData('c');
-		//fontAtlas->GetUVCoordinates('c', textureCoords);
+				m_TextVertexPtrIndex++;
+			}
 
-		for (size_t i = 0; i < 4; i++)
-		{
-			m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * glyph.VertexPositions[i];
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
-
-			m_TextVertexPtrIndex++;
+			m_TextIndexCount += 6;
+			position.x += glyph.Advance;
+			previousChar = c;
 		}
-
-		m_TextIndexCount += 6;
-
 	}
 
 	void BatchRenderer2D::AddText(glm::mat4& transform, Shared<FontAtlas> fontAtlas)

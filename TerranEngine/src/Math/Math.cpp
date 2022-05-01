@@ -74,4 +74,11 @@ namespace TerranEngine
 
 		return true;
 	}
+
+	glm::mat4 Math::ComposeTransformationMatrix(const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
+	{
+		return glm::translate(glm::mat4(1.0f), translation) *
+			glm::toMat4(glm::quat(rotation)) *
+			glm::scale(glm::mat4(1.0f), scale);
+	}
 }

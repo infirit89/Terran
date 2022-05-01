@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace msdf_atlas 
 {
@@ -34,6 +35,8 @@ namespace TerranEngine
 		inline Shared<Texture> GetTexture() const { return m_Texture; }
 
 		GlyphData GetGlyphData(char c);
+
+		double GetKerning(char c1, char c2);
 
 	private:
 		Shared<Texture> LoadFont(const std::string& fontPath);

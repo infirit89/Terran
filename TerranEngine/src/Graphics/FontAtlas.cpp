@@ -52,11 +52,31 @@ namespace TerranEngine
 			glyphData.VertexPositions[1] = { vertR, vertB, 0.0f, 1.0f };
 			glyphData.VertexPositions[2] = { vertR, vertT, 0.0f, 1.0f };
 			glyphData.VertexPositions[3] = { vertL, vertT, 0.0f, 1.0f };
+			
+			glyphData.Advance = glyph->getAdvance();
 
 			return glyphData;
 		}
 
 		return {};
+	}
+
+	double FontAtlas::GetKerning(char c1, char c2)
+	{
+		std::map<std::pair<int, int>, double> kerningMap = m_FontGeometry->getKerning();
+		const msdf_atlas::GlyphGeometry* glyph1,* glyph2;
+		glyph1 = m_FontGeometry->getGlyph(c1);
+		glyph2 = m_FontGeometry->getGlyph(c2);
+
+		std::pair<int, int> glyphIndicesPair = std::make_pair<int, int>(glyph1->getIndex(), glyph2->getIndex());
+
+		if (kerningMap.find(glyphIndicesPair) != kerningMap.end()) 
+		{
+			TR_TRACE("Char 1: {0}, Char 2: {1}, Kerning: {2}", c1, c2, kerningMap.at(glyphIndicesPair));
+			return kerningMap.at(glyphIndicesPair);
+		}
+
+		return 0.0;
 	}
 
 	Shared<Texture> FontAtlas::LoadFont(const std::string& fontPath)
@@ -68,9 +88,8 @@ namespace TerranEngine
 		if (freetypeHandle) 
 		{
 			msdfgen::FontHandle* fontHandle = msdfgen::loadFont(freetypeHandle, fontPath.c_str());
-			if (fontHandle) 
+			if (fontHandle)
 			{
-
 				msdf_atlas::Charset charset = msdf_atlas::Charset::ASCII;
 				m_Glyphs = new std::vector<msdf_atlas::GlyphGeometry>();
 				m_FontGeometry = new msdf_atlas::FontGeometry(m_Glyphs);
@@ -103,7 +122,7 @@ namespace TerranEngine
 				// TODO: make it editable?
 				constexpr msdf_atlas::TightAtlasPacker::DimensionsConstraint dimensionConstraint = msdf_atlas::TightAtlasPacker::DimensionsConstraint::MULTIPLE_OF_FOUR_SQUARE;
 				atlasPacker.setDimensionsConstraint(dimensionConstraint);
-				atlasPacker.setPadding(0);
+				atlasPacker.setPadding(1);
 				atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
 				
 				const double defaultPixelRange = 2.0;
@@ -138,6 +157,8 @@ namespace TerranEngine
 				texture = CreateShared<Texture>(bitmap.width, bitmap.height, params);
 				texture->SetData(bitmap.pixels);
 
+				m_FontGeometry->getKerning();
+
 				msdfgen::destroyFont(fontHandle);
 			}
 
@@ -147,4 +168,3 @@ namespace TerranEngine
 		return texture;
 	}
 }
-

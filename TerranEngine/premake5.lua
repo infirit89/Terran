@@ -16,7 +16,6 @@ project "TerranEngine"
         "vendor/stb/**.cpp",
         "vendor/glm/**.hpp",
         "vendor/glm/**.inl",
-        "vendor/freetype-gl/**.h"
     }
 
     includedirs
@@ -29,8 +28,7 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/stb/",
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype/include/",
-        "%{wks.location}/TerranEngine/vendor/msdfgen/",
+        "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/msdfgen/",
         "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/",
         "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
         "%{mono_path}/include/mono-2.0/",
@@ -49,8 +47,6 @@ project "TerranEngine"
         "ImGui",
         "GLAD",
         "opengl32.lib",
-        "Freetype",
-        "msdfgen",
         "msdf-atlas-gen",
         "Box2D"
     }

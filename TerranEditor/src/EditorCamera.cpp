@@ -52,7 +52,7 @@ namespace TerranEditor
 	float EditorCamera::ZoomSpeed()
 	{
 		float distance = m_OrthoGraphicSize * 0.2f;
-		distance = std::max(distance, 0.0f);
+		distance = std::max(distance, 0.1f);
 		float speed = distance * distance;
 		TR_TRACE(speed);
 		speed = std::min(speed, 100.0f);
@@ -81,7 +81,7 @@ namespace TerranEditor
 			m_OrthoGraphicSize -= delta * ZoomSpeed();
 
 			if (m_OrthoGraphicSize <= 0.0f)
-				m_OrthoGraphicSize = 0.1f;
+				m_OrthoGraphicSize = 0.0f;
 
 			RecalculateProjection();
 		}

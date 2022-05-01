@@ -203,7 +203,7 @@ namespace TerranEditor
 		{
 			m_Scene->DestroyEntity(entity, true);
 			if (selectedEntity == entity)
-				m_SelectedID = UUID({ 0 });
+				SetSelectedID(UUID({ 0 }));
 		}
 
 		ImGui::PopID();
