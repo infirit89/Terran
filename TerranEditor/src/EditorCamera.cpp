@@ -54,7 +54,6 @@ namespace TerranEditor
 		float distance = m_OrthoGraphicSize * 0.2f;
 		distance = std::max(distance, 0.1f);
 		float speed = distance * distance;
-		TR_TRACE(speed);
 		speed = std::min(speed, 100.0f);
 		return speed;
 	}

@@ -68,10 +68,7 @@ namespace TerranEditor
 		auto& trc = test2.AddComponent<TextRendererComponent>();
 		trc.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
-		//spr.Texture = fontAtlas.LoadFont("Resources/Fonts/Roboto/Roboto-Regular.ttf");
-
 		SceneManager::SetCurrentScene(m_EditorScene);
-
 
 		// ***** Panel Setup *****
 		m_ContentPanel = ContentPanel(m_ResPath);

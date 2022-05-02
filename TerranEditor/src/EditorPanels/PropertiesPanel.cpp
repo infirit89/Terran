@@ -534,6 +534,17 @@ namespace TerranEditor
 					}
 				});
 
+				DrawComponent<TextRendererComponent>("Text Renderer", entity, [](TextRendererComponent& textRenderer) 
+				{
+					UI::DrawStringControl("Text", textRenderer.Text);
+
+					// TODO: make it changeable
+					if(!textRenderer.FontAtlas)
+						textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+
+					UI::DrawColor4Control("Text Color", textRenderer.TextColor);
+				});
+
 				ImVec2 cursorPos = ImGui::GetCursorPos();
 				ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvailWidth() / 4.0f, cursorPos.y += 5.0f });
 
@@ -574,6 +585,10 @@ namespace TerranEditor
 					if (!entity.HasComponent<CircleCollider2DComponent>())
 						if (ImGui::MenuItem("Circle Collider 2D"))
 							entity.AddComponent<CircleCollider2DComponent>();
+
+					if (!entity.HasComponent<TextRendererComponent>())
+						if (ImGui::MenuItem("Text Renderer"))
+							entity.AddComponent<TextRendererComponent>();
 
 					ImGui::EndPopup();
 				}

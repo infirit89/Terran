@@ -1,5 +1,7 @@
 #include "SceneHierarchyPanel.h"
 
+#include "UI/UI.h"
+
 #include <imgui.h>
 
 namespace TerranEditor 
@@ -99,7 +101,8 @@ namespace TerranEditor
 		ImGui::PushID(imguiID.c_str());
 
 		Entity selectedEntity = GetSelected();
-		ImGuiTreeNodeFlags flags = (selectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+		ImGuiTreeNodeFlags flags = (selectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | 
+			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_AllowItemOverlap;
 
 		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
 			flags |= ImGuiTreeNodeFlags_NoButton;
@@ -177,7 +180,7 @@ namespace TerranEditor
 				if(selectedEntity)
 					m_Scene->DuplicateEntity(selectedEntity);
 			}
-
+			
 			ImGui::EndPopup();
 		}
 

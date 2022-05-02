@@ -5,10 +5,12 @@
 
 #include "Math/Math.h"
 
-#include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/glm.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include <glad/glad.h>
 
@@ -376,6 +378,13 @@ namespace TerranEngine
 		if (texIndex == -1)
 		{
 			texIndex = m_TextTextureIndex;
+			/*
+			* TODO: if the font isnt found or theres an error while loading the glyphs
+			*		then fontAtlas->GetTexture() returns null; 
+			*		Should test and check to see if the return value is null and 
+			*		if it is assign the make the current text texture be white.
+			*		Or return from the AddText function
+			*/
 			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
 			m_TextTextureIndex++;
 		}
@@ -383,7 +392,10 @@ namespace TerranEngine
 		glm::vec3 position, rotation, scale;
 		Math::Decompose(transform, position, rotation, scale);
 
-		glm::mat4 modelMat = glm::mat4(1.0f);
+		// TODO: origin should be at the center of the text
+		glm::vec3 origin = { 0.0f, 0.0f, 0.0f };
+
+		glm::mat4 modelMat = Math::ComposeTransformationMatrix(origin, rotation, scale);
 
 		char previousChar = 0;
 		for (const char& c : text)
@@ -391,11 +403,12 @@ namespace TerranEngine
 			if (previousChar)
 				position.x += fontAtlas->GetKerning(previousChar, c);
 
-			modelMat = Math::ComposeTransformationMatrix(position, rotation, scale);
 			GlyphData glyph = fontAtlas->GetGlyphData(c);
 
 			for (size_t i = 0; i < 4; i++)
 			{
+				glyph.VertexPositions[i].x += position.x;
+				glyph.VertexPositions[i].y += position.y;
 				m_TextVertexPtr[m_TextVertexPtrIndex].Position = modelMat * glyph.VertexPositions[i];
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];

@@ -47,7 +47,7 @@ namespace TerranEditor
 		void DrawEntityNode(Entity entity);
 
 		bool m_Open = true;
-
+		
 		UUID m_SelectedID;
 		Shared<Scene> m_Scene;
 

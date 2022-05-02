@@ -31,9 +31,6 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->BeginFrame(camera, cameraTransform, invereTransform);
 		m_BegunScene = true;
 		
-		if (Input::IsKeyPressed(Key::F))
-			RenderCommand::WireframeMode(true);
-
 		/* TODO: better sorting
 		*  also add circle sorting
 		*/
@@ -84,8 +81,6 @@ namespace TerranEngine
 		m_Framebuffer->Unbind();
 
 		m_BegunScene = false;
-
-		RenderCommand::WireframeMode(false);
 	}
 
 	void SceneRenderer::OnResize(uint32_t width, uint32_t height)

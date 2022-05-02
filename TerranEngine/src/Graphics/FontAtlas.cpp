@@ -68,12 +68,15 @@ namespace TerranEngine
 		glyph1 = m_FontGeometry->getGlyph(c1);
 		glyph2 = m_FontGeometry->getGlyph(c2);
 
-		std::pair<int, int> glyphIndicesPair = std::make_pair<int, int>(glyph1->getIndex(), glyph2->getIndex());
-
-		if (kerningMap.find(glyphIndicesPair) != kerningMap.end()) 
+		if (glyph1 && glyph2) 
 		{
-			TR_TRACE("Char 1: {0}, Char 2: {1}, Kerning: {2}", c1, c2, kerningMap.at(glyphIndicesPair));
-			return kerningMap.at(glyphIndicesPair);
+			std::pair<int, int> glyphIndicesPair = std::make_pair<int, int>(glyph1->getIndex(), glyph2->getIndex());
+
+			if (kerningMap.find(glyphIndicesPair) != kerningMap.end()) 
+			{
+				TR_TRACE("Char 1: {0}, Char 2: {1}, Kerning: {2}", c1, c2, kerningMap.at(glyphIndicesPair));
+				return kerningMap.at(glyphIndicesPair);
+			}
 		}
 
 		return 0.0;
@@ -123,8 +126,9 @@ namespace TerranEngine
 				constexpr msdf_atlas::TightAtlasPacker::DimensionsConstraint dimensionConstraint = msdf_atlas::TightAtlasPacker::DimensionsConstraint::MULTIPLE_OF_FOUR_SQUARE;
 				atlasPacker.setDimensionsConstraint(dimensionConstraint);
 				atlasPacker.setPadding(1);
-				atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
-				
+				//atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
+				atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE * 2);
+
 				const double defaultPixelRange = 2.0;
 				atlasPacker.setPixelRange(defaultPixelRange);
 
