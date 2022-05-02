@@ -1,8 +1,11 @@
 #include "GameViewPanel.h"
 
-#include "Terran.h"
+#include "Core/Application.h"
 
 #include <ImGui/imgui.h>
+
+#pragma warning(push)
+#pragma warning(disable : 4312)
 
 namespace TerranEditor 
 {
@@ -22,7 +25,7 @@ namespace TerranEditor
 
 			Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-			ImGui::Image((void*)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
+			ImGui::Image((ImTextureID)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
 
 			m_Visible = ImGui::IsItemVisible();
 
@@ -36,3 +39,4 @@ namespace TerranEditor
 		}
 	}
 }
+#pragma warning(pop)

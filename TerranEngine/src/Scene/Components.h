@@ -15,8 +15,6 @@
 
 #include <glm/glm.hpp>
 
-#include <entt.hpp>
-
 #include <vector>
 
 namespace TerranEngine 
@@ -112,6 +110,7 @@ namespace TerranEngine
 		Shared<FontAtlas> FontAtlas;
 		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		std::string Text = "";
+		float LineSpacing = 1.0f;
 
 		TextRendererComponent() = default;
 		~TextRendererComponent() = default;

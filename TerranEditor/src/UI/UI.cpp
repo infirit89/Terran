@@ -16,7 +16,7 @@ namespace TerranEditor
 		{
 			ScopedVarTable::TableInfo tableInfo;
 			ScopedVarTable colorControlTable(label, tableInfo);
-			ImVec2 buttonSize = ImVec2{ ImGui::GetContentRegionAvailWidth(), 0.0f };
+			ImVec2 buttonSize = ImVec2{ ImGui::CalcItemWidth(), 0.0f };
 
 			if (ImGui::ColorButton("##colbutton", ImVec4{ value.r, value.g, value.b, value.a }, 0, buttonSize))
 				ImGui::OpenPopup("picker");
@@ -236,7 +236,7 @@ namespace TerranEditor
 			ScopedVarTable::TableInfo tableInfo;
 			ScopedVarTable intTable(label, tableInfo);
 
-			if (ImGui::DragInt("##val", &value, power, 0.0f, 0.0f))
+			if (ImGui::DragInt("##val", &value, power))
 				changed = true;
 
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
@@ -367,7 +367,7 @@ namespace TerranEditor
 
 	UI::ScopedStyleColor::~ScopedStyleColor()
 	{
-		ImGui::PopStyleColor(m_StyleColorListSize);
+		ImGui::PopStyleColor((int)m_StyleColorListSize);
 	}
 
 	UI::ScopedStyleVar::ScopedStyleVar(std::initializer_list<StyleVar> styleVarList)
@@ -383,7 +383,7 @@ namespace TerranEditor
 
 	UI::ScopedStyleVar::~ScopedStyleVar()
 	{
-		ImGui::PopStyleVar(m_StyleVarListSize);
+		ImGui::PopStyleVar((int)m_StyleVarListSize);
 	}
 }
 

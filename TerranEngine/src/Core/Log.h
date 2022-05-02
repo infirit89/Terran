@@ -5,8 +5,10 @@
 
 #include <glm/glm.hpp>
 
+#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#pragma warning(pop)
 
 #include <memory>
 
@@ -30,6 +32,8 @@ namespace TerranEngine
 	template<typename OStream>
 	OStream& operator<<(OStream& os, const UUID& uuid)
 	{
+		std::array<uint8_t, 16> idArr = id.GetData() = uuid.GetData();
+
 		int ind = 0;
 		for (int i = 0; i < 20; i++)
 		{
@@ -40,8 +44,8 @@ namespace TerranEngine
 			}
 
 			os << std::hex
-				<< (int)(uuid.m_Data[ind] >> 4 & 0x0f)
-				<< (int)(uuid.m_Data[ind] & 0x0f);
+				<< (int)(idArr[ind] >> 4 & 0x0f)
+				<< (int)(idArr[ind] & 0x0f);
 
 			ind++;
 		}

@@ -26,7 +26,7 @@ namespace TerranEngine
 {
 	namespace ScriptBindings 
 	{
-		static struct RayCastHitInfo2D_Internal
+		struct RayCastHitInfo2D_Internal
 		{
 			glm::vec2 Point;
 			glm::vec2 Normal;
@@ -254,8 +254,6 @@ namespace TerranEngine
 			CircleCollider2DComponent
 		};
 
-		static Scene* GetScenePtr() { return SceneManager::GetCurrentScene().get(); }
-
 		static ComponentType GetComponentType(MonoString* componentTypeStr)
 		{
 			ScriptString string(componentTypeStr);
@@ -287,8 +285,9 @@ namespace TerranEngine
 		static bool Entity_HasComponent_Internal(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
 		{
 			ComponentType type = GetComponentType(componentTypeStr);
-
-			if (!GetScenePtr())
+			
+			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			if (!scenePtr)
 			{
 				TR_ERROR("No active scene loaded");
 				return false;
@@ -325,7 +324,8 @@ namespace TerranEngine
 		{
 			ComponentType type = GetComponentType(componentTypeStr);
 
-			if (!GetScenePtr())
+			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			if (!scenePtr)
 			{
 				TR_ERROR("No active scene loaded");
 				return;
@@ -355,7 +355,8 @@ namespace TerranEngine
 		{
 			ComponentType type = GetComponentType(componentTypeStr);
 
-			if (!GetScenePtr())
+			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			if (!scenePtr)
 			{
 				TR_ERROR("No active scene loaded");
 				return;
@@ -377,7 +378,8 @@ namespace TerranEngine
 
 		static MonoObject* Entity_GetScriptableComponent_Internal(MonoArray* entityUUIDArr, MonoString* moduleName)
 		{
-			if (!GetScenePtr())
+			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			if (!scenePtr)
 			{
 				TR_ERROR("No active scene!");
 				return nullptr;

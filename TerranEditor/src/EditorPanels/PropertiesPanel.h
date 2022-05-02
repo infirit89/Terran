@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Terran.h"
+#include "Scene/Entity.h"
 
 namespace TerranEditor 
 {

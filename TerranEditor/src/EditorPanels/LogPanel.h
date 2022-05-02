@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Terran.h"
+#include "Core/Base.h"
+#include "Graphics/Texture.h"
 
 #include <string>
 #include <vector>
@@ -20,7 +21,7 @@ namespace TerranEditor
 	struct LogMessage 
 	{
 		std::string Message;
-		LogMessageLevel MessageLevel;
+		LogMessageLevel MessageLevel = LogMessageLevel::Trace;
 	};
 
 	class LogPanel 

@@ -11,7 +11,9 @@
 
 #include <filesystem>
 
+#pragma warning(push, 0)
 #include <spdlog/sinks/basic_file_sink.h>
+#pragma warning(pop)
 
 namespace TerranEditor
 {
@@ -59,15 +61,7 @@ namespace TerranEditor
 
 		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
-		Entity testEntity = m_EditorScene->CreateEntity("Test Entity");
-		auto& spr = testEntity.AddComponent<TextRendererComponent>();
-		spr.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
-		spr.Text = "Almost before we knew it";
-
-		Entity test2 = m_EditorScene->CreateEntity("Test 2");
-		auto& trc = test2.AddComponent<TextRendererComponent>();
-		trc.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
-
+		
 		SceneManager::SetCurrentScene(m_EditorScene);
 
 		// ***** Panel Setup *****
@@ -378,13 +372,13 @@ namespace TerranEditor
 		{
 		case TerranEditor::SceneState::Edit: 
 		{
-			m_EditorSceneRenderer->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_EditorCamera.OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
 			break;
 		}
 		case TerranEditor::SceneState::Play:
 		{
-			m_RuntimeSceneRenderer->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			m_RuntimeSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 			break;

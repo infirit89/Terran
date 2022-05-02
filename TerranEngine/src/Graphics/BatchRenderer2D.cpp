@@ -14,10 +14,6 @@
 
 #include <glad/glad.h>
 
-#pragma warning (push)
-#pragma warning (disable : 4305)
-#pragma warning (disable : 4309)
-
 namespace TerranEngine 
 {
 	BatchRenderer2D* BatchRenderer2D::m_Instance;
@@ -46,7 +42,7 @@ namespace TerranEngine
 
 		uint32_t offset = 0;
 
-		for (uint32_t i = 0; i < batchSize * 6; i += 6)
+		for (uint32_t i = 0; i < m_MaxIndices; i += 6)
 		{
 			indices[i] = offset + 0;
 			indices[i + 1] = offset + 1;
@@ -63,7 +59,7 @@ namespace TerranEngine
 		delete[] indices;
 		// ************************************
 
-		uint16_t whiteTextureData = 0xffffffff;
+		constexpr uint32_t whiteTextureData = 0xffffffff;
 
 		int samplers[16];
 		for (size_t i = 0; i < m_MaxTextureSlots; i++)
@@ -355,8 +351,11 @@ namespace TerranEngine
 		}
 	}
 
-	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas)
+	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing)
 	{
+		if (!fontAtlas || !fontAtlas->GetTexture())
+			return;
+
 		if (!TextBatchHasRoom())
 		{
 			// Begin New Batch
@@ -378,13 +377,6 @@ namespace TerranEngine
 		if (texIndex == -1)
 		{
 			texIndex = m_TextTextureIndex;
-			/*
-			* TODO: if the font isnt found or theres an error while loading the glyphs
-			*		then fontAtlas->GetTexture() returns null; 
-			*		Should test and check to see if the return value is null and 
-			*		if it is assign the make the current text texture be white.
-			*		Or return from the AddText function
-			*/
 			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
 			m_TextTextureIndex++;
 		}
@@ -396,19 +388,27 @@ namespace TerranEngine
 		glm::vec3 origin = { 0.0f, 0.0f, 0.0f };
 
 		glm::mat4 modelMat = Math::ComposeTransformationMatrix(origin, rotation, scale);
+		
+		glm::vec3 cursorPos = position;
 
 		char previousChar = 0;
 		for (const char& c : text)
 		{
+			if (c == '\n') 
+			{
+				cursorPos.x = position.x;
+				cursorPos.y -= lineSpacing;
+			}
+
 			if (previousChar)
-				position.x += fontAtlas->GetKerning(previousChar, c);
+				cursorPos.x += (float)fontAtlas->GetKerning(previousChar, c);
 
 			GlyphData glyph = fontAtlas->GetGlyphData(c);
 
 			for (size_t i = 0; i < 4; i++)
 			{
-				glyph.VertexPositions[i].x += position.x;
-				glyph.VertexPositions[i].y += position.y;
+				glyph.VertexPositions[i].x += cursorPos.x;
+				glyph.VertexPositions[i].y += cursorPos.y;
 				m_TextVertexPtr[m_TextVertexPtrIndex].Position = modelMat * glyph.VertexPositions[i];
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
@@ -418,7 +418,8 @@ namespace TerranEngine
 			}
 
 			m_TextIndexCount += 6;
-			position.x += glyph.Advance;
+
+			cursorPos.x += glyph.Advance;
 			previousChar = c;
 		}
 	}
@@ -579,4 +580,3 @@ namespace TerranEngine
 		m_TextTextureIndex = 0;
 	}
 }
-#pragma warning (pop)

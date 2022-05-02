@@ -2,7 +2,12 @@
 
 #include "UI/UI.h"
 
+#include "Core/Input.h"
+
 #include <imgui.h>
+
+#pragma warning(push)
+#pragma warning(disable : 4312)
 
 namespace TerranEditor 
 {
@@ -114,7 +119,8 @@ namespace TerranEditor
 
 		style.FramePadding.y = 1.5f;
 
-		bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tagComp.Name.c_str());
+		uint32_t entityID = entity;
+		bool opened = ImGui::TreeNodeEx((void*)entityID, flags, tagComp.Name.c_str());
 		
 		if (ImGui::BeginDragDropSource()) 
 		{
@@ -212,3 +218,4 @@ namespace TerranEditor
 		ImGui::PopID();
 	}
 }
+#pragma warning(pop)

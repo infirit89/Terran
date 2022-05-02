@@ -5,6 +5,9 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4312)
+
 namespace TerranEditor 
 {
 	LogPanel* LogPanel::s_Instance;
@@ -84,13 +87,13 @@ namespace TerranEditor
 				backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvailWidth() + 2.0f,  y + textSize.y + 8.0f }, color);
 
 				ImGui::Indent(4.0f);
+
 				switch (logMessage.MessageLevel)
 				{
 				case LogMessageLevel::Trace:
 				case LogMessageLevel::Info:
 				{
 					ImGui::Image((ImTextureID)m_InfoTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
-
 					break;
 				}
 				case LogMessageLevel::Warn:
@@ -134,3 +137,4 @@ namespace TerranEditor
 		m_TextBuffer.clear();
 	}
 }
+#pragma warning(pop)

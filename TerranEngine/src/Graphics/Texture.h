@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace TerranEngine 
 {
 	enum class TextureType : uint32_t
@@ -45,7 +47,7 @@ namespace TerranEngine
 		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
 		inline const int GetWidth() const { return m_Width; }
 		inline const int GetHeight() const { return m_Height; }
-		inline const int GetTextureID() const { return m_TextureID; }
+		inline const uint32_t GetTextureID() const { return m_TextureID; }
 
 		inline const std::string GetName() const { return m_Name; }
 

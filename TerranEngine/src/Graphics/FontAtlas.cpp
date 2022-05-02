@@ -53,7 +53,7 @@ namespace TerranEngine
 			glyphData.VertexPositions[2] = { vertR, vertT, 0.0f, 1.0f };
 			glyphData.VertexPositions[3] = { vertL, vertT, 0.0f, 1.0f };
 			
-			glyphData.Advance = glyph->getAdvance();
+			glyphData.Advance = (float)glyph->getAdvance();
 
 			return glyphData;
 		}

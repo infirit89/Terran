@@ -7,13 +7,32 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ImGui/imgui.h>
+
+#pragma warning(push, 0)
 #include <ImGuizmo.h>
+#pragma warning(pop)
 
 #include <functional>
+
+#pragma warning(push)
+#pragma warning(disable : 4312)
 
 namespace TerranEditor 
 {
 	bool operator!=(const glm::vec2& vec1, const ImVec2& vec2) { return vec1.x != vec2.x || vec1.y != vec2.y; }
+
+	static ImGuizmo::OPERATION ConvertToImGuizmoOperation(GizmoType gizmoType) 
+	{
+		switch (gizmoType)
+		{
+		case TerranEditor::GizmoType::None:			return (ImGuizmo::OPERATION)0;
+		case TerranEditor::GizmoType::Translaste:	return ImGuizmo::TRANSLATE;
+		case TerranEditor::GizmoType::Rotate:		return ImGuizmo::ROTATE;
+		case TerranEditor::GizmoType::Scale:		return ImGuizmo::SCALE;
+		}
+
+		return (ImGuizmo::OPERATION)0;
+	}
 
 	void SceneViewPanel::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera)
 	{
@@ -25,6 +44,12 @@ namespace TerranEditor
 			});
 
 			ImGui::Begin("Scene view", &m_Open);
+			
+			bool isFocused = ImGui::IsWindowFocused();
+			bool isHovered = ImGui::IsWindowHovered();
+
+			if (isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+				ImGui::SetWindowFocus();
 
 			SceneState sceneState = EditorLayer::GetInstace()->GetSceneState();
 
@@ -51,12 +76,9 @@ namespace TerranEditor
 				{ viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y }
 			};
 
-			bool isFocused = ImGui::IsWindowFocused();
-			bool isHovered = ImGui::IsWindowHovered();
-
 			Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-			ImGui::Image((void*)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
+			ImGui::Image((ImTextureID)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
 
 			m_Visible = ImGui::IsItemVisible();
 
@@ -84,8 +106,10 @@ namespace TerranEditor
 				else
 					m_GizmoMode = ImGuizmo::WORLD;
 
+				ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
+
 				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					(ImGuizmo::OPERATION)m_GizmoType, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
+					gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
 
 				if (ImGuizmo::IsUsing())
 				{
@@ -143,12 +167,13 @@ namespace TerranEditor
 
 		switch (e.GetKeyCode())
 		{
-		case Key::Q:	m_GizmoType = ImGuizmo::TRANSLATE; break;
-		case Key::W:	m_GizmoType = ImGuizmo::ROTATE; break;
-		case Key::E:	m_GizmoType = ImGuizmo::SCALE; break;
+		case Key::Q:	m_GizmoType = GizmoType::None; break;
+		case Key::W:	m_GizmoType = GizmoType::Translaste; break;
+		case Key::E:	m_GizmoType = GizmoType::Rotate; break;
+		case Key::R:	m_GizmoType = GizmoType::Scale; break;
 		}
 
 		return false;
 	}
 }
-
+#pragma warning(pop)

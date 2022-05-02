@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Log.h"
-
 #include <string>
 #include <array>
 #include <xhash>
@@ -61,10 +59,6 @@ namespace TerranEngine
 		* 11-16: node
 		*/
 		std::array<uint8_t, 16> m_Data;
-
-		template<typename OStream>
-		friend OStream& operator<<(OStream& os, const UUID& uuid);
-
 	};
 }
 

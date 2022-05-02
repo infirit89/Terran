@@ -3,6 +3,12 @@
 #include "Scene.h"
 #include "Components.h"
 
+#include "Core/Log.h"
+#include "Core/Assert.h"
+
+#pragma warning(push)
+#pragma warning(disable : 4834)
+
 namespace TerranEngine 
 {
 	class Entity 
@@ -202,8 +208,10 @@ namespace TerranEngine
 
 	private:
 		entt::entity m_Handle { entt::null };
-		Scene* m_Scene;
+		Scene* m_Scene = nullptr;
 		std::string ErrorName = "Unnamed";
 		UUID m_EmptyUUID = UUID::Empty();
 	};
 }
+
+#pragma warning(pop)

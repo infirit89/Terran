@@ -536,13 +536,24 @@ namespace TerranEditor
 
 				DrawComponent<TextRendererComponent>("Text Renderer", entity, [](TextRendererComponent& textRenderer) 
 				{
-					UI::DrawStringControl("Text", textRenderer.Text);
+					{
+						UI::ScopedVarTable textScopedVarTable("Text", {});
+
+						char buf[256];
+						memset(buf, 0, sizeof(buf));
+						strcpy_s(buf, textRenderer.Text.c_str());
+
+						if (ImGui::InputTextMultiline("##text", buf, sizeof(buf)))
+							textRenderer.Text = buf;
+					}
 
 					// TODO: make it changeable
 					if(!textRenderer.FontAtlas)
 						textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
 					UI::DrawColor4Control("Text Color", textRenderer.TextColor);
+
+					UI::DrawFloatControl("Line Spacing", textRenderer.LineSpacing);
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "EditorPanels/LogPanel.h"
 #include <spdlog/sinks/base_sink.h>
 #include <mutex>

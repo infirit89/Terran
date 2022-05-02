@@ -1,12 +1,22 @@
 #pragma once
 
-#include "Terran.h"
-
 #include "EditorCamera.h"
+
+#include "Events/KeyboardEvent.h"
+
+#include "Scene/Entity.h"
 
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
+
+	enum class GizmoType 
+	{
+		None = 0,
+		Translaste,
+		Rotate,
+		Scale
+	};
 
 	class SceneViewPanel
 	{
@@ -35,7 +45,7 @@ namespace TerranEditor
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 		uint32_t m_RenderTextureID = -1;
 
-		int m_GizmoType = 7;
+		GizmoType m_GizmoType = GizmoType::None;
 		int m_GizmoMode = 1;
 
 		glm::vec2 m_Position = { 0.0f, 0.0f };

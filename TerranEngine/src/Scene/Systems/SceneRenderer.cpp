@@ -58,10 +58,7 @@ namespace TerranEngine
 
 	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform)
 	{
-		if (textRenderer.Text != "")
-			BatchRenderer2D::Get()->AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas);
-		else
-			BatchRenderer2D::Get()->AddText(transform, textRenderer.FontAtlas);
+		BatchRenderer2D::Get()->AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, textRenderer.LineSpacing);
 	}
 
 	void SceneRenderer::SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness)

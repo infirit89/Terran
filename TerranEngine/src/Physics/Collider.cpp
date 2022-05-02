@@ -17,6 +17,8 @@ namespace TerranEngine
 		}
 
 		TR_ASSERT(false, "Unknown collider type");
+
+		return ColliderType2D::Box;
 	}
 
 	Collider2D::Collider2D(b2Fixture* fixture)

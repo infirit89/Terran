@@ -1,6 +1,12 @@
 #pragma once
 
-#include "Terran.h"
+#include "Core/Base.h"
+
+#include "Events/Event.h"
+#include "Events/KeyboardEvent.h"
+
+#include "Scene/Scene.h"
+#include "Scene/Entity.h"
 
 #include <functional>
 
