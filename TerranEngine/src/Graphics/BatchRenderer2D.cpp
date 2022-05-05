@@ -398,6 +398,13 @@ namespace TerranEngine
 			{
 				cursorPos.x = position.x;
 				cursorPos.y -= lineSpacing;
+				continue;
+			}
+			else if (c == '\t') 
+			{
+				GlyphData spaceData = fontAtlas->GetGlyphData(' ');
+				cursorPos.x += spaceData.Advance * 4.0f;
+				continue;
 			}
 
 			if (previousChar)

@@ -63,7 +63,7 @@ namespace TerranEngine
 
 	double FontAtlas::GetKerning(char c1, char c2)
 	{
-		std::map<std::pair<int, int>, double> kerningMap = m_FontGeometry->getKerning();
+		const std::map<std::pair<int, int>, double>& kerningMap = m_FontGeometry->getKerning();
 		const msdf_atlas::GlyphGeometry* glyph1,* glyph2;
 		glyph1 = m_FontGeometry->getGlyph(c1);
 		glyph2 = m_FontGeometry->getGlyph(c2);
@@ -73,10 +73,7 @@ namespace TerranEngine
 			std::pair<int, int> glyphIndicesPair = std::make_pair<int, int>(glyph1->getIndex(), glyph2->getIndex());
 
 			if (kerningMap.find(glyphIndicesPair) != kerningMap.end()) 
-			{
-				TR_TRACE("Char 1: {0}, Char 2: {1}, Kerning: {2}", c1, c2, kerningMap.at(glyphIndicesPair));
 				return kerningMap.at(glyphIndicesPair);
-			}
 		}
 
 		return 0.0;

@@ -189,11 +189,9 @@ namespace TerranEngine
 			// submit sprites
 			{
 				auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
-
 				for (auto e : spriteRendererView) 
 				{
 					Entity entity(e, this);
-
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 				
 					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
@@ -203,7 +201,6 @@ namespace TerranEngine
 			// submit circles
 			{
 				auto circleRendererView = m_Registry.view<CircleRendererComponent>();
-
 				for (auto e : circleRendererView) 
 				{
 					Entity entity(e, this);
@@ -212,7 +209,19 @@ namespace TerranEngine
 					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
 				}
 			}
-			
+
+			// submit text
+			{
+				auto textRendererView = m_Registry.view<TextRendererComponent>();
+				for (auto e : textRendererView)
+				{
+					Entity entity(e, this);
+					auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+
+					sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+				}
+			}
+
 			sceneRenderer->EndScene();
 		}
 	}
@@ -225,7 +234,6 @@ namespace TerranEngine
 		// submit sprites
 		{
 			auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
-
 			for (auto e : spriteRendererView)
 			{
 				Entity entity(e, this);
@@ -238,7 +246,6 @@ namespace TerranEngine
 		// submit circles
 		{
 			auto circleRendererView = m_Registry.view<CircleRendererComponent>();
-
 			for (auto e : circleRendererView)
 			{
 				Entity entity(e, this);
@@ -254,7 +261,6 @@ namespace TerranEngine
 			for (auto e : lineRendererView)
 			{
 				Entity entity(e, this);
-
 				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
 
 				sceneRenderer->SubmitLine(lineRenderer);
@@ -264,11 +270,9 @@ namespace TerranEngine
 		// submit text
 		{
 			auto textRendererView = m_Registry.view<TextRendererComponent>();
-
 			for (auto e : textRendererView)
 			{
 				Entity entity(e, this);
-
 				auto& textRenderer = entity.GetComponent<TextRendererComponent>();
 
 				sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());

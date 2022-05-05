@@ -543,13 +543,16 @@ namespace TerranEditor
 						memset(buf, 0, sizeof(buf));
 						strcpy_s(buf, textRenderer.Text.c_str());
 
-						if (ImGui::InputTextMultiline("##text", buf, sizeof(buf)))
+						if (ImGui::InputTextMultiline("##text", buf, sizeof(buf), {0.0f, 0.0f}, ImGuiInputTextFlags_AllowTabInput))
 							textRenderer.Text = buf;
 					}
+
+					//ImGui::CalcTextSize()
 
 					// TODO: make it changeable
 					if(!textRenderer.FontAtlas)
 						textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+						//textRenderer.FontAtlas = CreateShared<FontAtlas>("C:/Windows/Fonts/CAMBRIA.ttc");
 
 					UI::DrawColor4Control("Text Color", textRenderer.TextColor);
 
