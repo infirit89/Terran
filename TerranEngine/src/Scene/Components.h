@@ -111,6 +111,7 @@ namespace TerranEngine
 		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		std::string Text = "";
 		float LineSpacing = 1.0f;
+		float LineWidth = 10.0f;
 
 		TextRendererComponent() = default;
 		~TextRendererComponent() = default;

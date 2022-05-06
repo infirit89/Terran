@@ -121,13 +121,13 @@ namespace TerranEngine
 	void ScriptEngine::Initialize(const char* fileName)
 	{
 		s_AssemblyPath = fileName;
-		std::string monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
+		std::filesystem::path monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
 		//std::string monoPath = "Resources/Mono/";
 
-		std::string libPath = monoPath + "lib";
-		std::string etcPath = monoPath + "etc";
+		std::filesystem::path libPath = monoPath / "lib";
+		std::filesystem::path etcPath = monoPath / "etc";
 
-		mono_set_dirs(libPath.c_str(), etcPath.c_str());
+		mono_set_dirs(libPath.string().c_str(), etcPath.string().c_str());
 
 #ifdef TR_DEBUG
 

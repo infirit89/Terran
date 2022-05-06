@@ -351,7 +351,36 @@ namespace TerranEngine
 		}
 	}
 
-	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing)
+	static glm::vec2 CalculateTextSize(float size, const std::string& text, Shared<FontAtlas> fontAtlas) 
+	{
+		glm::vec2 textSize = { 0.0f, 0.0f };
+		float lineWidth = 0.0f;
+
+		for (const char& c : text)
+		{
+			if (c == '\n') 
+			{
+				textSize.x = lineWidth;
+				lineWidth = 0.0f;
+				continue;
+			}
+			else if (c == '\t') 
+			{
+				continue;
+			}
+
+			GlyphData glyph = fontAtlas->GetGlyphData(c);
+
+			lineWidth += glyph.Advance * size;
+		}
+
+		if (textSize.x < lineWidth)
+			textSize.x = lineWidth;
+
+		return textSize;
+	}
+
+	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing, float lineWidth)
 	{
 		if (!fontAtlas || !fontAtlas->GetTexture())
 			return;
@@ -384,19 +413,36 @@ namespace TerranEngine
 		glm::vec3 position, rotation, scale;
 		Math::Decompose(transform, position, rotation, scale);
 
-		// TODO: origin should be at the center of the text
-		glm::vec3 origin = { 0.0f, 0.0f, 0.0f };
-
-		glm::mat4 modelMat = Math::ComposeTransformationMatrix(origin, rotation, scale);
-		
-		glm::vec3 cursorPos = position;
+		glm::vec3 cursorOrigin = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 cursorPos = cursorOrigin;
 
 		char previousChar = 0;
+		size_t wordOffset = 0;
+
 		for (const char& c : text)
 		{
+			// NOTE: this is a very very basic implementation of word wrapping; it wont be permenant
+			if (c == ' ')
+			{
+				size_t separatorInd = text.find(' ', wordOffset);
+
+				std::string currWord = text.substr(wordOffset, separatorInd - wordOffset);
+				
+				wordOffset = separatorInd;
+
+				glm::vec2 wordSize = CalculateTextSize(scale.x, currWord, fontAtlas);
+
+				if (cursorPos.x + wordSize.x > lineWidth)
+				{
+					cursorPos.x = cursorOrigin.x;
+					cursorPos.y -= lineSpacing;
+					continue;
+				}
+			}
+
 			if (c == '\n') 
 			{
-				cursorPos.x = position.x;
+				cursorPos.x = cursorOrigin.x;
 				cursorPos.y -= lineSpacing;
 				continue;
 			}
@@ -416,7 +462,7 @@ namespace TerranEngine
 			{
 				glyph.VertexPositions[i].x += cursorPos.x;
 				glyph.VertexPositions[i].y += cursorPos.y;
-				m_TextVertexPtr[m_TextVertexPtrIndex].Position = modelMat * glyph.VertexPositions[i];
+				m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * glyph.VertexPositions[i];
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
@@ -431,6 +477,7 @@ namespace TerranEngine
 		}
 	}
 
+#if 0
 	void BatchRenderer2D::AddText(glm::mat4& transform, Shared<FontAtlas> fontAtlas)
 	{
 		if (!TextBatchHasRoom())
@@ -479,6 +526,7 @@ namespace TerranEngine
 		m_TextIndexCount += 6;
 
 	}
+#endif
 
 	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
 	{

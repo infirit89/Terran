@@ -547,16 +547,14 @@ namespace TerranEditor
 							textRenderer.Text = buf;
 					}
 
-					//ImGui::CalcTextSize()
-
 					// TODO: make it changeable
 					if(!textRenderer.FontAtlas)
 						textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
-						//textRenderer.FontAtlas = CreateShared<FontAtlas>("C:/Windows/Fonts/CAMBRIA.ttc");
-
+					
 					UI::DrawColor4Control("Text Color", textRenderer.TextColor);
 
 					UI::DrawFloatControl("Line Spacing", textRenderer.LineSpacing);
+					UI::DrawFloatControl("Line Width", textRenderer.LineWidth);
 				});
 
 				ImVec2 cursorPos = ImGui::GetCursorPos();
