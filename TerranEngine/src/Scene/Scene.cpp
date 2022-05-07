@@ -194,7 +194,7 @@ namespace TerranEngine
 					Entity entity(e, this);
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 				
-					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
+					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
 				}
 			}
 
@@ -225,12 +225,14 @@ namespace TerranEngine
 			sceneRenderer->EndScene();
 		}
 	}
-
+	static bool f = false;
 	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		sceneRenderer->SetScene(this);
 		sceneRenderer->BeginScene(camera, cameraView, false);
-		
+
+		sceneRenderer->GetFramebuffer()->SetColorAttachment(1, -1);
+
 		// submit sprites
 		{
 			auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
@@ -239,7 +241,7 @@ namespace TerranEngine
 				Entity entity(e, this);
 				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 
-				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
+				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
 			}
 		}
 

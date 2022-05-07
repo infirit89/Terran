@@ -25,11 +25,8 @@ namespace TerranEditor
 
 		void SetSelected(Entity selectedEntity) 
 		{
-			if (selectedEntity) 
-			{
-				m_SelectedID = selectedEntity.GetID(); 
-				m_OnSelectedChangedCallback(selectedEntity);
-			}
+			m_SelectedID = selectedEntity ? selectedEntity.GetID() : UUID({ 0 });
+			m_OnSelectedChangedCallback(selectedEntity);
 		}
 
 		void SetOpen(bool open) { m_Open = open; }

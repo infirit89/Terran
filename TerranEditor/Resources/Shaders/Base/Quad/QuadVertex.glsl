@@ -4,6 +4,7 @@ layout(location = 0) in vec3	a_Pos;
 layout(location = 1) in vec4	a_Col;
 layout(location = 2) in vec2	a_TexCoords;
 layout(location = 3) in int		a_TexIndex;
+layout(location = 4) in int		a_EntityID;
 
 layout(std140, binding = 0) uniform Camera 
 {
@@ -20,6 +21,7 @@ struct VS_OUT
 
 layout(location = 0) out VS_OUT vsOut;
 layout(location = 2) out flat int f_TexIndex;
+layout(location = 3) out flat int f_EntityID;
 
 void main() 
 {
@@ -28,4 +30,5 @@ void main()
 	vsOut.Color = a_Col;
 	vsOut.TexCoords = a_TexCoords;
 	f_TexIndex = a_TexIndex;
+	f_EntityID = a_EntityID;
 }

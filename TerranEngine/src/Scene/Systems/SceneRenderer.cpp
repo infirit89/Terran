@@ -11,9 +11,11 @@
 
 namespace TerranEngine 
 {
-	SceneRenderer::SceneRenderer()
+	SceneRenderer::SceneRenderer(FramebufferParameters params)
 	{
-		m_Framebuffer = CreateUnique<Framebuffer>(m_Width, m_Height);
+		params.Width = m_Width;
+		params.Height = m_Height;
+		m_Framebuffer = CreateShared<Framebuffer>(params);
 	}
 
 	void SceneRenderer::SetScene(Scene* scene)
@@ -39,10 +41,10 @@ namespace TerranEngine
 		{ return lEntity.ZIndex < rEntity.ZIndex; });
 	}
 
-	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform)
+	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		BatchRenderer2D::Get()->AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture);
+		BatchRenderer2D::Get()->AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture, entityID);
 	}
 
 	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform)

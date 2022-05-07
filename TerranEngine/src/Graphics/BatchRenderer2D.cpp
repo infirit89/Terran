@@ -77,6 +77,7 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 4 },
 				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 },
 				{ GL_INT,	1 }
 			});
 
@@ -210,7 +211,7 @@ namespace TerranEngine
 		m_TextShader->Unbind();
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture)
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID)
 	{
 		glm::vec2 textureCoords[4] = 
 		{
@@ -220,15 +221,15 @@ namespace TerranEngine
 			{ 0.0f, 1.0f },
 		};
 
-		AddQuad(transform, color, texture, textureCoords);
+		AddQuad(transform, color, texture, textureCoords, entityID);
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color)
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
-		AddQuad(transform, color, nullptr);
+		AddQuad(transform, color, nullptr, entityID);
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4])
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID)
 	{
 		if (!QuadBatchHasRoom()) 
 		{
@@ -264,6 +265,7 @@ namespace TerranEngine
 			m_QuadVertexPtr[m_QuadVertexPtrIndex].Color = color;
 			m_QuadVertexPtr[m_QuadVertexPtrIndex].TextureCoordinates = textureCoordinates[i];
 			m_QuadVertexPtr[m_QuadVertexPtrIndex].TextureIndex = texIndex;
+			m_QuadVertexPtr[m_QuadVertexPtrIndex].EntityID = entityID;
 
 			m_QuadVertexPtrIndex++;
 		}
@@ -304,7 +306,7 @@ namespace TerranEngine
 		const glm::vec3 points[2] = { point1, point2 };
 
 		glm::vec3 lineNormal = glm::cross(point1, point2);
-
+		
 		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
 		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
 		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;

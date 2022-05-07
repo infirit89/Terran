@@ -12,8 +12,6 @@
 #include <ImGuizmo.h>
 #pragma warning(pop)
 
-#include <functional>
-
 #pragma warning(push)
 #pragma warning(disable : 4312)
 
@@ -78,57 +76,90 @@ namespace TerranEditor
 
 			Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-			ImGui::Image((ImTextureID)m_RenderTextureID, regionAvail, { 0, 1 }, { 1, 0 });
+			ImGui::Image((ImTextureID)(m_Framebuffer ? m_Framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
 
 			m_Visible = ImGui::IsItemVisible();
 
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
 
-			// Gizmos
-			if (selectedEntity && sceneState == SceneState::Edit)
+			if (sceneState == SceneState::Edit) 
 			{
-				bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
-				if (altPressed)
-					m_UseSnapping = true;
-				else
-					m_UseSnapping = false;
+				// Gizmos
 
-				const glm::mat4& cameraProjection = editorCamera.GetProjection();
-				glm::mat4 cameraView = editorCamera.GetView();
-
-				auto& tc = selectedEntity.GetComponent<TransformComponent>();
-				
-				glm::mat4 transformMatrix = tc.WorldTransformMatrix;
-
-				if (selectedEntity.HasParent())
-					m_GizmoMode = ImGuizmo::LOCAL;
-				else
-					m_GizmoMode = ImGuizmo::WORLD;
-
-				ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
-
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
-
-				if (ImGuizmo::IsUsing())
+				bool usingGizmo = false;
+				if (selectedEntity)
 				{
-					glm::vec3 position, rotation, scale;
+					bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
+					if (altPressed)
+						m_UseSnapping = true;
+					else
+						m_UseSnapping = false;
 
-					if (selectedEntity.HasParent()) 
+					const glm::mat4& cameraProjection = editorCamera.GetProjection();
+					glm::mat4 cameraView = editorCamera.GetView();
+
+					auto& tc = selectedEntity.GetComponent<TransformComponent>();
+				
+					glm::mat4 transformMatrix = tc.WorldTransformMatrix;
+
+					if (selectedEntity.HasParent())
+						m_GizmoMode = ImGuizmo::LOCAL;
+					else
+						m_GizmoMode = ImGuizmo::WORLD;
+
+					ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
+
+					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+						gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
+
+					usingGizmo = ImGuizmo::IsUsing();
+
+					if (usingGizmo)
 					{
-						glm::mat4 parentMat = selectedEntity.GetParent().GetWorldMatrix();
+						glm::vec3 position, rotation, scale;
 
-						transformMatrix = glm::inverse(parentMat) * transformMatrix;
+						if (selectedEntity.HasParent()) 
+						{
+							glm::mat4 parentMat = selectedEntity.GetParent().GetWorldMatrix();
+
+							transformMatrix = glm::inverse(parentMat) * transformMatrix;
+						}
+
+						if (Math::Decompose(transformMatrix, position, rotation, scale))
+						{
+							tc.Position = position;
+							tc.Scale = scale;
+							tc.Rotation = rotation;
+
+							tc.IsDirty = true;
+						}
 					}
+				}
 
-					if (Math::Decompose(transformMatrix, position, rotation, scale))
+				ImVec2 mousePos = ImGui::GetMousePos();
+				mousePos.x -= viewportBounds[0].x;
+				mousePos.y -= viewportBounds[0].y;
+
+				mousePos.y = m_ViewportSize.y - mousePos.y;
+
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !usingGizmo)
+				{
+					int mouseX = (int)mousePos.x;
+					int mouseY = (int)mousePos.y;
+
+					if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)m_ViewportSize.x && mouseY < (int)m_ViewportSize.y)
 					{
-						tc.Position = position;
-						tc.Scale = scale;
-						tc.Rotation = rotation;
+						m_Framebuffer->Bind();
+						int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+						TR_TRACE(pixelData);
 
-						tc.IsDirty = true;
+						//Entity entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
+						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
+						
+						m_SelectedChangedCallback(entity);
+
+						m_Framebuffer->Unbind();
 					}
 				}
 			}

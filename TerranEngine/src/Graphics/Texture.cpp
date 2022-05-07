@@ -20,7 +20,7 @@ namespace TerranEngine
 	{
 		switch (type)
 		{
-		case TerranEngine::TextureType::RED:	return { GL_RED, GL_RED };
+		case TerranEngine::TextureType::RED:	return { GL_R32I, GL_RED_INTEGER };
 		case TerranEngine::TextureType::GREEN:	return { GL_GREEN, GL_GREEN };
 		case TerranEngine::TextureType::BLUE:	return { GL_BLUE, GL_BLUE };
 		case TerranEngine::TextureType::RGB:	return { GL_RGB8, GL_RGB };

@@ -14,7 +14,7 @@ namespace TerranEngine
 	class SceneRenderer 
 	{
 	public:
-		SceneRenderer();
+		SceneRenderer(FramebufferParameters params);
 
 		void SetClearColor(glm::vec4 color) { m_ClearColor = color; }
 
@@ -22,7 +22,7 @@ namespace TerranEngine
 
 		void BeginScene(Camera& camera, glm::mat4& cameraTransform, bool invereTransform);
 
-		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform);
+		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID = -1);
 		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform);
 		void SubmitLine(LineRendererComponent& lineRenderer);
 
@@ -35,7 +35,7 @@ namespace TerranEngine
 
 		void EndScene();
 
-		Unique<Framebuffer>& GetFramebuffer() { return m_Framebuffer; }
+		Shared<Framebuffer>& GetFramebuffer() { return m_Framebuffer; }
 
 		void OnResize(uint32_t width, uint32_t height);
 
@@ -53,6 +53,6 @@ namespace TerranEngine
 
 		uint32_t m_Width = 1080, m_Height = 720;
 
-		Unique<Framebuffer> m_Framebuffer;
+		Shared<Framebuffer> m_Framebuffer;
 	};
 }

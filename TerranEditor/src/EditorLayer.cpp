@@ -69,6 +69,7 @@ namespace TerranEditor
 		
 		m_SceneViewPanel.SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
 		m_SceneViewPanel.SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
+		m_SceneViewPanel.SetSelectedChangedCallback([this](Entity entity) { m_SceneHierarchyPanel.SetSelected(entity); });
 
 		m_SceneHierarchyPanel.SetOnSelectedChangedCallback([this](Entity entity) { OnSelectedChanged(entity); });
 		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
@@ -76,8 +77,17 @@ namespace TerranEditor
 		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
 		// ***********************
 
-		m_EditorSceneRenderer = CreateShared<SceneRenderer>();
-		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>();
+		FramebufferParameters editorFramebufferParams;
+		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::RED };
+		editorFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
+
+		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
+		
+		FramebufferParameters runtimeFramebufferParams;
+		runtimeFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA };
+		runtimeFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
+
+		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);
 
 		m_ScriptAssemblyPath = "Resources/Scripts/";
 
@@ -107,8 +117,9 @@ namespace TerranEditor
 			{
 				SceneManager::GetCurrentScene()->UpdateEditor();
 				SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
-
-				m_SceneViewPanel.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				
+				//m_SceneViewPanel.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				m_SceneViewPanel.SetFramebuffer(m_EditorSceneRenderer->GetFramebuffer());
 
 				break;
 			}
@@ -126,7 +137,8 @@ namespace TerranEditor
 				SceneManager::GetCurrentScene()->Update(time);
 				SceneManager::GetCurrentScene()->OnRender(m_RuntimeSceneRenderer);
 
-				m_SceneViewPanel.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				//m_SceneViewPanel.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
+				m_SceneViewPanel.SetFramebuffer(m_RuntimeSceneRenderer->GetFramebuffer());
 
 				break;
 			}

@@ -22,6 +22,7 @@ namespace TerranEngine
 		glm::vec4 Color;
 		glm::vec2 TextureCoordinates;
 		int TextureIndex;
+		int EntityID;
 	};
 
 	struct CircleVertex 
@@ -70,9 +71,9 @@ namespace TerranEngine
 		void BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView);
 		void EndFrame();
 
-		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture);
-		void AddQuad(glm::mat4& transform, const glm::vec4& color);
-		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4]);
+		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID = -1);
+		void AddQuad(glm::mat4& transform, const glm::vec4& color, int entityID = -1);
+		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID = -1);
 
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness);
 
