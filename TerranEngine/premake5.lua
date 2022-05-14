@@ -12,10 +12,12 @@ project "TerranEngine"
     {
         "src/**.h",
         "src/**.cpp",
+        
         "vendor/stb/**.h",
         "vendor/stb/**.cpp",
+
         "vendor/glm/**.hpp",
-        "vendor/glm/**.inl",
+        "vendor/glm/**.inl"
     }
 
     includedirs

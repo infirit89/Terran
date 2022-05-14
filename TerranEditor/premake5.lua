@@ -1,4 +1,5 @@
 mono_path = os.getenv("MONO_PATH")
+
 project "TerranEditor"
     kind "ConsoleApp"
     language "C++"
@@ -48,17 +49,18 @@ project "TerranEditor"
 
     filter "system:windows"
         systemversion "latest"
+        
+        postbuildcommands  
+        {
+            -- todo: copy the pdb
+            "{COPY} %{wks.location}/TerranEngine/vendor/mono/mono-2.0-sgen.dll %{prj.location}/bin/" .. outputdir
+        }
 
     filter "configurations:Debug"
         defines "TR_DEBUG"
         runtime "Debug"
         symbols "on"
 
-        postbuildcommands  
-        {
-            -- todo: copy the pdb
-            "{COPY} %{wks.location}/TerranEngine/vendor/mono/mono-2.0-sgen.dll %{prj.location}/bin/" .. outputdir
-        }
 
     filter "configurations:Release"
         defines "TR_RELEASE"

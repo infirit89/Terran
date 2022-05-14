@@ -34,5 +34,7 @@ namespace TerranEngine
 
 		static void Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices);
 		static void DrawArrays(int numIndices);
+
+		static uint32_t GetAPIVersion();
 	};
 }

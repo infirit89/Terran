@@ -10,7 +10,7 @@ namespace TerranEngine
 	{
 		None = 0,
 		RGBA,
-		RED
+		Red32Integer
 	};
 
 	enum class FramebufferDepthAttachmentType
@@ -21,7 +21,7 @@ namespace TerranEngine
 
 	struct FramebufferParameters
 	{
-		uint32_t Width, Height;
+		uint32_t Width = 1080, Height = 790;
 		std::vector<FramebufferColorAttachmentType> ColorAttachemnts;
 		FramebufferDepthAttachmentType DepthAttachment;
 	};
@@ -39,7 +39,7 @@ namespace TerranEngine
 		int ReadPixel(uint32_t colorAttachmentIndex, int x, int y);
 
 		inline uint32_t GetColorAttachmentID(uint32_t colorAttachmentIndex) { return m_ColorAttachments[colorAttachmentIndex]; }
-
+		
 		uint32_t GetWidth() { return m_Width; }
 		uint32_t GetHeight() { return m_Height; }
 
@@ -52,7 +52,7 @@ namespace TerranEngine
 		uint32_t m_Width, m_Height;
 		uint32_t m_Buffer, m_DepthAttachment;
 		std::vector<uint32_t> m_ColorAttachments;
-
+		
 		std::vector<FramebufferColorAttachmentType> m_ColorAttachmentsParameters;
 		FramebufferDepthAttachmentType m_DepthAttachmentParameter;
 	};

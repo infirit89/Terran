@@ -140,8 +140,8 @@ namespace TerranEditor
 								std::filesystem::path texturePath = (const char*)payload->Data;
 								std::string texturePathStr = texturePath.string();
 								TextureParameters parameters;
-								parameters.MagFilter = TextureFilter::NEAREST;
-								parameters.MinFilter = TextureFilter::NEAREST;
+								parameters.MagFilter = TextureFilter::Nearest;
+								parameters.MinFilter = TextureFilter::Nearest;
 								Shared<Texture> texture = CreateShared<Texture>(texturePathStr.c_str(), parameters);
 								component.Texture = texture;
 							}

@@ -1,32 +1,43 @@
 #pragma once
 
 #include <string>
+#include <stdint.h>
 
 namespace TerranEngine 
 {
-	enum class TextureType : uint32_t
+	enum class TextureType
 	{
-		RED = 0,
-		GREEN,
-		BLUE,
+		None = 0,
+		Red,
+		Red32Integer,
 		RGB,
 		RGBA
 	};
 
-	enum class TextureFilter : uint32_t
+	enum class TextureFilter
 	{
-		LINEAR = 0,
-		NEAREST
+		None = 0,
+		Linear,
+		Nearest
+	};
+
+	enum class TextureWrapMode
+	{
+		None = 0,
+		Repeat,
+		Mirror,
+		MirrorOnce,
+		ClampToEdge
 	};
 
 	struct TextureParameters 
 	{
 		TextureType TextureType = TextureType::RGBA;
 
-		TextureFilter MinFilter = TextureFilter::LINEAR;
-		TextureFilter MagFilter = TextureFilter::LINEAR;
-
-		// TODO: add wrapping modes
+		TextureFilter MinFilter = TextureFilter::Linear;
+		TextureFilter MagFilter = TextureFilter::Linear;
+		
+		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
 	};
 
 	class Texture 
@@ -53,8 +64,8 @@ namespace TerranEngine
 
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
-	private:
 
+	private:
 		void LoadTexture(const char* filePath);
 
 		uint32_t m_TextureID;

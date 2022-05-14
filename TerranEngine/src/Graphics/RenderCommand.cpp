@@ -121,5 +121,10 @@ namespace TerranEngine
 	{
 		glDrawArrays(GL_TRIANGLES, 0, numIndices);
 	}
+
+	uint32_t RenderCommand::GetAPIVersion()
+	{
+		return (GLVersion.major * 100) + (GLVersion.minor * 10);
+	}
 }
 

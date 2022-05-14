@@ -1,15 +1,17 @@
 #include "trpch.h"
 #include "Framebuffer.h"
 
+#include "RenderCommand.h"
+
 #include <glad/glad.h>
 
 namespace TerranEngine 
 {
 	Framebuffer::Framebuffer(FramebufferParameters params)
-		: m_ClearTextureData(nullptr), m_Buffer(0), m_DepthAttachment(0), m_Width(params.Width), m_Height(params.Height)
+		: m_ClearTextureData(nullptr), m_Buffer(0), m_DepthAttachment(0), m_Width(params.Width), 
+		m_Height(params.Height)
 	{
 		m_ColorAttachmentsParameters = params.ColorAttachemnts;
-
 		m_DepthAttachmentParameter = params.DepthAttachment;
 
 		Create();
@@ -21,7 +23,10 @@ namespace TerranEngine
 
 		if (m_ClearTextureData)
 			free(m_ClearTextureData);
-		//free(m_Data);
+
+		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+		glDeleteTextures(1, &m_DepthAttachment);
+
 	}
 
 	void Framebuffer::Bind() const
@@ -45,6 +50,7 @@ namespace TerranEngine
 
 		m_ClearTextureData = (int*)malloc(m_Width * m_Height * sizeof(int));
 		memset(m_ClearTextureData, -1, m_Width * m_Height * sizeof(int));
+
 		Create();
 	}
 
@@ -58,12 +64,14 @@ namespace TerranEngine
 
 	void Framebuffer::SetColorAttachment(uint32_t colorAttachmentIndex, int value)
 	{
-		// this is so so so fucking slow
-		glTextureSubImage2D(m_ColorAttachments[colorAttachmentIndex], 0, 0, 0, m_Width, m_Height, GL_RED_INTEGER, GL_INT, m_ClearTextureData);
-		//glClearTexImage(m_ColorAttachments[colorAttachmentIndex], 0, GL_RED_INTEGER, GL_INT, &value);
-
-		//glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[colorAttachmentIndex]);
-		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, GL_RED_INTEGER, GL_INT, m_Data);
+		if (RenderCommand::GetAPIVersion() < 450) 
+		{
+			// this is so so so fucking slow
+			glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[colorAttachmentIndex]);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, GL_RED_INTEGER, GL_INT, m_ClearTextureData);
+		}
+		else 
+			glClearTexImage(m_ColorAttachments[colorAttachmentIndex], 0, GL_RED_INTEGER, GL_INT, &value);
 	}
 
 	void Framebuffer::Create()
@@ -90,7 +98,7 @@ namespace TerranEngine
 			glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			
+
 			switch (m_ColorAttachmentsParameters[i])
 			{
 			case FramebufferColorAttachmentType::RGBA: 
@@ -98,7 +106,7 @@ namespace TerranEngine
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 				break;
 			}
-			case FramebufferColorAttachmentType::RED: 
+			case FramebufferColorAttachmentType::Red32Integer: 
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, m_Width, m_Height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
 				break;

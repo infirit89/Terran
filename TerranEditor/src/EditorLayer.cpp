@@ -43,7 +43,6 @@ namespace TerranEditor
 		{
 			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Terran_Editor.log", true),
 			std::make_shared<EditorConsoleSink>()
-
 		};
 
 		clientSinks[0]->set_pattern("%^[%T] %n: %v%$");
@@ -78,7 +77,7 @@ namespace TerranEditor
 		// ***********************
 
 		FramebufferParameters editorFramebufferParams;
-		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::RED };
+		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::Red32Integer };
 		editorFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
 
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
