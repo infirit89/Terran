@@ -44,11 +44,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Components.cs" />
+    <Compile Include="Source\Core\Internal.cs" />
     <Compile Include="Source\Entity.cs" />
+    <Compile Include="Source\Input\ControllerIndices.cs" />
     <Compile Include="Source\Input\Input.cs" />
+    <Compile Include="Source\Input\KeyCodes.cs" />
+    <Compile Include="Source\Input\MouseButtons.cs" />
     <Compile Include="Source\Log.cs" />
+    <Compile Include="Source\Math\MathF.cs" />
     <Compile Include="Source\Math\Vector2.cs" />
     <Compile Include="Source\Math\Vector3.cs" />
+    <Compile Include="Source\Physics\Physics.cs" />
     <Compile Include="Source\Test\Ball.cs" />
     <Compile Include="Source\Test\CollisionUtils.cs" />
     <Compile Include="Source\Test\GameManager.cs" />

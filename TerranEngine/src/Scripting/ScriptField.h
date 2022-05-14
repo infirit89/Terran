@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ScriptString.h"
+typedef struct _MonoClassField MonoClassField;
+typedef struct _MonoObject MonoObject;
 
 namespace TerranEngine 
 {
@@ -33,19 +34,18 @@ namespace TerranEngine
 		Internal
 	};
 
-	// NOTE: templates?
 	class ScriptField 
 	{
 	public:
 		ScriptField() = default;
-		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
+		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
 		
 		ScriptField(const ScriptField& other) = default;
-		~ScriptField();
+		~ScriptField() = default;
 
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
-		inline ScriptFieldVisiblity GetVisibility() const					{ return m_FieldVisibility; }
+		inline ScriptFieldVisiblity GetVisibility() const	{ return m_FieldVisibility; }
 
 		void SetDataRaw(void* value);
 		void GetDataRaw(void* result);
@@ -80,12 +80,12 @@ namespace TerranEngine
 			SetDataStringRaw(value);
 		}
 
-		// NOTE: maybe marshal vec2 and vec3
+		// NOTE: maybe marshal vec2 and vec3?
 
 	private:
-		void* m_MonoField = nullptr;
-		uint32_t m_MonoObjectGCHandle = 0;
+		MonoClassField* m_MonoField = nullptr;
 		const char* m_Name = nullptr;
+		MonoObject* m_MonoObject = nullptr;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScriptFieldVisiblity m_FieldVisibility = ScriptFieldVisiblity::Unknown;
 	};

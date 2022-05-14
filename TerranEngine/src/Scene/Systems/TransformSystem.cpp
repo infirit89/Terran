@@ -5,6 +5,8 @@
 #include "Scene/Entity.h"
 #include "Scene/Scene.h"
 
+#include "Physics/Physics.h"
+
 #include "Utils/Debug/Profiler.h"
 
 #include <glm/glm.hpp>
@@ -12,8 +14,12 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <box2d/box2d.h>
+
 namespace TerranEngine 
 {
+	Scene* TransformSystem::s_Context;
+
 	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform) 
 	{
 		return glm::translate(glm::mat4(1.0f), transform.Position) *
@@ -21,15 +27,15 @@ namespace TerranEngine
 			glm::scale(glm::mat4(1.0f), transform.Scale);
 	}
 
-	void TransformSystem::Update(Scene* scene)
+	void TransformSystem::Update()
 	{
 		TR_PROFILE_FUNCN("TransformSystem::Update");
 
-		auto transformView = scene->GetEntitiesWith<TransformComponent>();
+		auto transformView = s_Context->GetEntitiesWith<TransformComponent>();
 
 		for (auto e : transformView)
 		{
-			Entity entity(e, scene);
+			Entity entity(e, s_Context);
 
 			Entity parent = entity.GetParent();
 
@@ -44,19 +50,46 @@ namespace TerranEngine
 
 	void TransformSystem::UpdateEntityTransform(Entity entity)
 	{
-		TransformComponent& transformComponent = entity.GetTransform();
+		TransformComponent& tc = entity.GetComponent<TransformComponent>();
 		
-		if (entity.GetTransform().IsDirty) 
+		if (s_Context->HasRuntimeStarted())
 		{
-			if (entity.HasParent())
-				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent) * entity.GetParent().GetWorldMatrix();
-			else 
-				transformComponent.WorldTransformMatrix = CalculateTransformMatrix(transformComponent);
+			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			if (physicsBody) 
+			{
+				physicsBody.SetPosition({ tc.Position.x, tc.Position.y });
+				physicsBody.SetRotation(tc.Rotation.z);
+				physicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+
+				// set all the bodies this physics body is contacing with to be awake
+				for (b2ContactEdge* contact = physicsBody.GetPhysicsBodyInternal()->GetContactList(); contact; contact = contact->next)
+				{
+					b2Body* body = contact->other;
+					PhysicsBody2D otherPhysicsBody(body);
+					otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+				}
+			}
 		}
 
-		transformComponent.LocalTransformMatrix = glm::inverse(transformComponent.WorldTransformMatrix);
+		if (entity.HasParent()) 
+		{
+			tc.WorldTransformMatrix = CalculateTransformMatrix(tc) * 
+									entity.GetParent().GetWorldMatrix();
+			tc.LocalTransformMatrix = glm::inverse(entity.GetParent().GetWorldMatrix()) * 
+									CalculateTransformMatrix(tc);
+		}
+		else 
+		{
+			tc.WorldTransformMatrix = CalculateTransformMatrix(tc);
+			tc.LocalTransformMatrix = tc.WorldTransformMatrix;
+		}
 
-		transformComponent.IsDirty = false;
+		glm::quat rotationQuat = tc.Rotation;
+
+		tc.Forward = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 0.0f, 1.0f)));
+		tc.Up = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 1.0f, 0.0f)));
+		tc.Right = glm::normalize(glm::rotate(rotationQuat, glm::vec3(1.0f, 0.0f, 0.0f)));
+		tc.IsDirty = false;
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{

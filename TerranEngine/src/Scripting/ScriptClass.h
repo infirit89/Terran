@@ -3,12 +3,7 @@
 #include "ScriptMethod.h"
 #include "ScriptObject.h"
 
-#include "Core/Base.h"
-
-#include <mono/metadata/class.h>
-
-#include <unordered_map>
-
+typedef struct _MonoClass MonoClass;
 namespace TerranEngine 
 {
 	class ScriptClass 

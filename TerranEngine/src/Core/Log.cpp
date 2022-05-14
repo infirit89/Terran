@@ -1,8 +1,10 @@
 #include "trpch.h"
 #include "Log.h"
 
+#pragma warning(push, 0)
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#pragma warning(pop)
 
 namespace TerranEngine 
 {
@@ -10,8 +12,6 @@ namespace TerranEngine
 	Shared<spdlog::logger> Log::s_ClientLogger;
 	void Log::Init() 
 	{
-		//spdlog::set_pattern("%^[%T] %n: %v%$");
-		
 		std::vector<spdlog::sink_ptr> coreSinks
 		{
 			std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),

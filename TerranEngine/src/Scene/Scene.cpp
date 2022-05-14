@@ -11,8 +11,12 @@
 
 #include "Scripting/ScriptEngine.h"
 
+#include "Physics/Physics.h"
+
 #include "Utils/Debug/Profiler.h"
-#include "Utils/ResourceManager.h"
+#include "Utils/Utils.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace TerranEngine 
 {
@@ -64,6 +68,9 @@ namespace TerranEngine
 	{
 		ScriptEngine::UninitalizeScriptable(entity);
 
+		if (entity.HasComponent<Rigidbody2DComponent>())
+			Physics2D::DestroyPhysicsBody(entity);
+
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
@@ -89,27 +96,46 @@ namespace TerranEngine
 	{
 		m_RuntimeStarted = true;
 
+		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
+
+		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
+
+		for (auto e: rigidbodyView)
+		{
+			Entity entity(e, this);
+
+			Physics2D::CreatePhysicsBody(entity);
+		}
+
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
 		{
 			Entity entity(e, this);
 			//ScriptEngine::InitializeScriptable(entity);
-			ScriptEngine::StartScriptable(entity);
+			ScriptEngine::OnStart(entity);
 		}
 	}
 
 	void Scene::StopRuntime()
 	{
 		m_RuntimeStarted = false;
+		Physics2D::CleanUpPhysicsWorld();
 	}
 
-	void Scene::Update()
+	void Scene::Update(Time time)
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
+		
+		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
+		{ return lEntity.IsDirty && !rEntity.IsDirty; });
+
+		TransformSystem::SetContext(this);
+		TransformSystem::Update();
+
+		Physics2D::Update(time);
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
-
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
@@ -117,16 +143,12 @@ namespace TerranEngine
 			if (!entity.GetComponent<ScriptComponent>().Started) 
 			{
 				ScriptEngine::InitializeScriptable(entity);
-				ScriptEngine::StartScriptable(entity);
+				ScriptEngine::OnStart(entity);
 			}
 
-			ScriptEngine::UpdateScriptable(entity);
+			ScriptEngine::OnUpdate(entity);
 		}
 
-		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.IsDirty && !rEntity.IsDirty; });
-
-		TransformSystem::Update(this);
 	}
 
 	void Scene::UpdateEditor()
@@ -134,7 +156,8 @@ namespace TerranEngine
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
 		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
-		TransformSystem::Update(this);
+		TransformSystem::SetContext(this);
+		TransformSystem::Update();
 	}
 
 	void Scene::OnResize(float width, float height)
@@ -161,26 +184,23 @@ namespace TerranEngine
 			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
 			glm::mat4& cameraTransform = primaryCamera.GetWorldMatrix();
 
-			sceneRenderer->BeginScene(camera, cameraTransform);
+			sceneRenderer->BeginScene(camera, cameraTransform, true);
 			
 			// submit sprites
 			{
 				auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
-
 				for (auto e : spriteRendererView) 
 				{
 					Entity entity(e, this);
-
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 				
-					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
+					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
 				}
 			}
 
 			// submit circles
 			{
 				auto circleRendererView = m_Registry.view<CircleRendererComponent>();
-
 				for (auto e : circleRendererView) 
 				{
 					Entity entity(e, this);
@@ -190,38 +210,74 @@ namespace TerranEngine
 				}
 			}
 
+			// submit text
+			{
+				auto textRendererView = m_Registry.view<TextRendererComponent>();
+				for (auto e : textRendererView)
+				{
+					Entity entity(e, this);
+					auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+
+					sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+				}
+			}
+
 			sceneRenderer->EndScene();
 		}
 	}
-
+	static bool f = false;
 	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		sceneRenderer->SetScene(this);
-		sceneRenderer->BeginScene(camera, cameraView);
-		
+		sceneRenderer->BeginScene(camera, cameraView, false);
+
+		sceneRenderer->GetFramebuffer()->SetColorAttachment(1, -1);
+
 		// submit sprites
 		{
 			auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
-
 			for (auto e : spriteRendererView)
 			{
 				Entity entity(e, this);
 				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 
-				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix());
+				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
 			}
 		}
 
 		// submit circles
 		{
 			auto circleRendererView = m_Registry.view<CircleRendererComponent>();
-
 			for (auto e : circleRendererView)
 			{
 				Entity entity(e, this);
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 
 				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
+			}
+		}
+
+		// submit lines
+		{
+			auto lineRendererView = m_Registry.view<LineRendererComponent>();
+			for (auto e : lineRendererView)
+			{
+				Entity entity(e, this);
+				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
+
+				sceneRenderer->SubmitLine(lineRenderer);
+			}
+		}
+
+		// submit text
+		{
+			auto textRendererView = m_Registry.view<TextRendererComponent>();
+			for (auto e : textRendererView)
+			{
+				Entity entity(e, this);
+				auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+
+				sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
 			}
 		}
 
@@ -289,7 +345,9 @@ namespace TerranEngine
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
-
+		CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
@@ -312,7 +370,7 @@ namespace TerranEngine
 			ScriptEngine::InitializeScriptable(dstEntity);
 
 			if (m_RuntimeStarted)
-				ScriptEngine::StartScriptable(dstEntity);
+				ScriptEngine::OnStart(dstEntity);
 
 		}
 		return dstEntity;
@@ -349,6 +407,9 @@ namespace TerranEngine
 			CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
 		ScriptEngine::ClearFieldBackupMap();

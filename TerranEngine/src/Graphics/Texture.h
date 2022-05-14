@@ -1,30 +1,43 @@
 #pragma once
 
+#include <string>
+#include <stdint.h>
+
 namespace TerranEngine 
 {
-	enum class TextureType : uint32_t
+	enum class TextureType
 	{
-		RED = 0,
-		GREEN,
-		BLUE,
+		None = 0,
+		Red,
+		Red32Integer,
 		RGB,
 		RGBA
 	};
 
-	enum class TextureFilter : uint32_t
+	enum class TextureFilter
 	{
-		LINEAR = 0,
-		NEAREST
+		None = 0,
+		Linear,
+		Nearest
+	};
+
+	enum class TextureWrapMode
+	{
+		None = 0,
+		Repeat,
+		Mirror,
+		MirrorOnce,
+		ClampToEdge
 	};
 
 	struct TextureParameters 
 	{
 		TextureType TextureType = TextureType::RGBA;
 
-		TextureFilter MinFilter = TextureFilter::LINEAR;
-		TextureFilter MagFilter = TextureFilter::LINEAR;
-
-		// TODO: add wrapping modes
+		TextureFilter MinFilter = TextureFilter::Linear;
+		TextureFilter MagFilter = TextureFilter::Linear;
+		
+		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
 	};
 
 	class Texture 
@@ -32,26 +45,27 @@ namespace TerranEngine
 	public:
 		Texture();
 
-		Texture(uint32_t width, uint32_t height, TextureParameters parameters);
-		Texture(const char* filePath, TextureParameters parameters);
+		Texture(uint32_t width, uint32_t height, TextureParameters parameters = {});
+		Texture(const char* filePath, TextureParameters parameters = {});
+
 		~Texture();
 
 		void Bind(uint8_t textureSlot) const;
 		void Unbind() const;
 
-		void SetData(void* data);
+		void SetData(const void* data);
 
 		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
 		inline const int GetWidth() const { return m_Width; }
 		inline const int GetHeight() const { return m_Height; }
-		inline const int GetTextureID() const { return m_TextureID; }
+		inline const uint32_t GetTextureID() const { return m_TextureID; }
 
 		inline const std::string GetName() const { return m_Name; }
 
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
-	private:
 
+	private:
 		void LoadTexture(const char* filePath);
 
 		uint32_t m_TextureID;

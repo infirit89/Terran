@@ -38,6 +38,7 @@ namespace TerranEngine {
 		virtual bool IsVsync() const = 0;
 
 		virtual void Update() = 0;	
+		virtual void SetTitle(const char* title) = 0;
 
 		// NOTE: Using this, because I plan to be able to support other windowing libraries
 		static Unique<Window> Create(const WindowData& data = WindowData());

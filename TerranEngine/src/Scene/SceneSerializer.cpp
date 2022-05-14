@@ -24,15 +24,32 @@ namespace TerranEngine
 	{
 	}
 
-	static json SerializeVec3(const std::string& name, const glm::vec3& value)
+	static json SerializeVec2(const glm::vec2& value) 
 	{
 		return
 		{
-			name, { 
-				{ "X", value.x },
-				{ "Y", value.y },
-				{ "Z", value.z }
-			}
+			{ "X", value.x },
+			{ "Y", value.y },
+		};
+	}
+
+	static glm::vec2 DeserializeVec2(json& j, const std::string& name)
+	{
+		glm::vec2 vec = glm::vec2(0.0f);
+
+		vec.x = j[name]["X"];
+		vec.y = j[name]["Y"];
+
+		return vec;
+	}
+
+	static json SerializeVec3(const glm::vec3& value)
+	{
+		return
+		{
+			{ "X", value.x },
+			{ "Y", value.y },
+			{ "Z", value.z }
 		};
 	}
 
@@ -40,26 +57,21 @@ namespace TerranEngine
 	{
 		glm::vec3 vec = glm::vec3(0.0f);
 
-		if (j.contains(name)) 
-		{
-			vec.x = j[name]["X"];
-			vec.y = j[name]["Y"];
-			vec.z = j[name]["Z"];
-		}
+		vec.x = j[name]["X"];
+		vec.y = j[name]["Y"];
+		vec.z = j[name]["Z"];
 
 		return vec;
 	}
 
-	static json SerializeVec4(const std::string& name, const glm::vec4& value)
+	static json SerializeVec4(const glm::vec4& value)
 	{
 		return
 		{
-			name, {
-				{ "X", value.x },
-				{ "Y", value.y },
-				{ "Z", value.z },
-				{ "W", value.w }
-			}
+			{ "X", value.x },
+			{ "Y", value.y },
+			{ "Z", value.z },
+			{ "W", value.w }
 		};
 	}
 
@@ -68,13 +80,10 @@ namespace TerranEngine
 	{
 		glm::vec4 vec = glm::vec4(0.0f);
 
-		if (j.contains(name))
-		{
-			vec.x = j[name]["X"];
-			vec.y = j[name]["Y"];
-			vec.z = j[name]["Z"];
-			vec.w = j[name]["W"];
-		}
+		vec.x = j[name]["X"];
+		vec.y = j[name]["Y"];
+		vec.z = j[name]["Z"];
+		vec.w = j[name]["W"];
 
 		return vec;
 	}
@@ -176,16 +185,17 @@ namespace TerranEngine
 				j[field.GetName()] = value;
 				break;
 			}
+			case ScriptFieldType::Vector2: 
+			{
+				// NOTE: might need to box
+				glm::vec2 value = field.GetData<glm::vec2>();
+				j[field.GetName()] = SerializeVec2(value);
+				break;
+			}
 			case ScriptFieldType::Vector3: 
 			{
 				glm::vec3 value = field.GetData<glm::vec3>();
-				json jVec3 = {
-								{ "X", value.x },
-								{ "Y", value.y },
-								{ "Z", value.z }
-							};
-
-				j[field.GetName()] = jVec3;
+				j[field.GetName()] = SerializeVec3(value);
 				break;
 			}
 			
@@ -202,8 +212,8 @@ namespace TerranEngine
 		{
 			{"TagComponent", 
 			{
-				{ "Tag",	entity.GetComponent<TagComponent>().Name},
-				{ "ID",		std::to_string(entity.GetID())}
+				{ "Tag",	entity.GetComponent<TagComponent>().Name },
+				{ "ID",		std::to_string(entity.GetID()) }
 			}}
 		};
 
@@ -212,9 +222,9 @@ namespace TerranEngine
 			jObject.push_back(
 				{"TransformComponent", 
 				{
-					SerializeVec3("LocalPosition",	entity.GetTransform().Position),
-					SerializeVec3("LocalScale",		entity.GetTransform().Scale),
-					SerializeVec3("LocalRotation",	entity.GetTransform().Rotation),
+					{ "Position", SerializeVec3(entity.GetTransform().Position) },
+					{ "Rotation", SerializeVec3(entity.GetTransform().Rotation) },
+					{ "Scale",	SerializeVec3(entity.GetTransform().Scale) },
 				}}
 			);
 		}
@@ -227,11 +237,11 @@ namespace TerranEngine
 				{ "CameraComponent",
 				{
 					{ "Camera", 
-					{	{ "Size",	camComp.Camera.GetOrthographicSize()},
-						{ "Near",	camComp.Camera.GetOrthographicNear()},
-						{ "Far",	camComp.Camera.GetOrthographicFar()},
+					{	{ "Size",	camComp.Camera.GetOrthographicSize() },
+						{ "Near",	camComp.Camera.GetOrthographicNear() },
+						{ "Far",	camComp.Camera.GetOrthographicFar() },
 					}},
-					{ "Primary", camComp.Primary}
+					{ "Primary", camComp.Primary }
 				} }
 			);
 		}
@@ -243,8 +253,8 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "SpriteRendererComponent",
 				{
-					SerializeVec4("Color", sprComp.Color),
-					{"ZIndex", sprComp.ZIndex}
+					{ "Color", SerializeVec4(sprComp.Color) },
+					{ "ZIndex", sprComp.ZIndex }
 				} }
 			);
 		}
@@ -256,7 +266,7 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "CircleRendererComponent",
 				{
-					SerializeVec4("Color", crComp.Color),
+					{ "Color", SerializeVec4(crComp.Color) },
 					{ "Thickness", crComp.Thickness }
 				}}
 			);
@@ -291,16 +301,54 @@ namespace TerranEngine
 
 			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent);
 		}
-	}
 
-	// NOTE: temporary scene version should put it somewhere else, where it'd make more sense
-	static int sceneVersion = 0;
+		if (entity.HasComponent<Rigidbody2DComponent>()) 
+		{
+			auto& rbComponent = entity.GetComponent<Rigidbody2DComponent>();
+
+			jObject.push_back(
+				{ "Rigibody2D",
+				{
+					{ "BodyType", (int)rbComponent.BodyType },
+					{ "FixedRotation", rbComponent.FixedRotation },
+					{ "SleepState", (int)rbComponent.SleepState },
+					{ "GravityScale", rbComponent.GravityScale}
+				} }
+			);
+		}
+
+		if (entity.HasComponent<BoxCollider2DComponent>()) 
+		{
+			auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
+			jObject.push_back(
+				{ "BoxCollider2D",
+				{
+					{ "Offset", SerializeVec2(bcComponent.Offset) },
+					{ "Size", SerializeVec2(bcComponent.Size) },
+					{ "IsSensor", bcComponent.IsSensor }
+				} }
+			);
+		}
+
+		if (entity.HasComponent<CircleCollider2DComponent>())
+		{
+			auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
+			jObject.push_back(
+				{ "CircleCollider2D",
+				{
+					{ "Offset", SerializeVec2(ccComponent.Offset) },
+					{ "Radius", ccComponent.Radius },
+					{ "IsSensor", ccComponent.IsSensor }
+				} }
+			);
+		}
+	}
 
 	void SceneSerializer::SerializeJson(const std::filesystem::path& scenePath)
 	{
 		json j;
-
-		j["Version"] = sceneVersion;
 
 		j["Scene"] =  "Name";
 
@@ -344,103 +392,111 @@ namespace TerranEngine
 		return j.dump();
 	}
 
+#define PRINT_JSON_ERROR()\
+catch(const std::exception& ex)\
+{\
+	TR_ERROR(ex.what());\
+}
+
 	static void DesirializeScriptable(Entity entity, json& jScriptComponent) 
 	{
 		ScriptComponent& scriptComponent = entity.AddComponent<ScriptComponent>();
 
 		scriptComponent.ModuleName = jScriptComponent["ModuleName"];
 
-		ScriptEngine::InitializeScriptable(entity);
-
-		if (jScriptComponent["Fields"] != "null")
+		if (ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
 		{
-			for (auto& [hashedName, field] : scriptComponent.PublicFields)
-			{
-				if (jScriptComponent["Fields"].contains(field.GetName()))
-				{
-					json jScriptFieldValue = jScriptComponent["Fields"][field.GetName()];
+			ScriptEngine::InitializeScriptable(entity);
 
-					try 
+			if (jScriptComponent["Fields"] != "null")
+			{
+				for (auto& [hashedName, field] : scriptComponent.PublicFields)
+				{
+					if (jScriptComponent["Fields"].contains(field.GetName()))
 					{
-						switch (field.GetType())
+						json jScriptFieldValue = jScriptComponent["Fields"][field.GetName()];
+
+						try 
 						{
-						case ScriptFieldType::Bool:
+							switch (field.GetType())
+							{
+							case ScriptFieldType::Bool:
+							{
+								bool value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int64:
+							{
+								int64_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int:
+							{
+								int32_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int16:
+							{
+								int16_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Int8:
+							{
+								int8_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt64:
+							{
+								uint64_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt:
+							{
+								uint32_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt16:
+							{
+								uint16_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::UInt8:
+							{
+								uint8_t value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Float:
+							{
+								float value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Double:
+							{
+								double value = jScriptFieldValue;
+								field.SetData(value);
+								break;
+							}
+							case ScriptFieldType::Vector3: 
+							{
+								glm::vec3 value = DeserializeVec3(jScriptComponent["Fields"], field.GetName());
+								field.SetData(value);
+							}
+							}
+						}
+						catch (const std::exception& ex) 
 						{
-							bool value = jScriptFieldValue;
-							field.SetData(value);
-							//field.SetValue(&value);
-							break;
+							TR_ERROR(ex.what());
 						}
-						case ScriptFieldType::Int64:
-						{
-							int64_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::Int:
-						{
-							int32_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::Int16:
-						{
-							int16_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::Int8:
-						{
-							int8_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::UInt64:
-						{
-							uint64_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::UInt:
-						{
-							uint32_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::UInt16:
-						{
-							uint16_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::UInt8:
-						{
-							uint8_t value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::Float:
-						{
-							float value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::Double:
-						{
-							double value = jScriptFieldValue;
-							field.SetData(value);
-							break;
-						}
-						case ScriptFieldType::Vector3: 
-						{
-							glm::vec3 value = DeserializeVec3(jScriptComponent["Fields"], field.GetName());
-							field.SetData(value);
-						}
-						}
-					}
-					catch (const std::exception& ex) 
-					{
-						TR_ERROR(ex.what());
 					}
 				}
 			}
@@ -449,9 +505,13 @@ namespace TerranEngine
 
 	static bool DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
 	{
+		Entity entity;
+
 		try
 		{
-			TR_ASSERT(jEntity.contains("TagComponent"), "Can't desirialize an entity that doesn't have a tag component");
+			if (!jEntity.contains("TagComponent"))
+				TR_ERROR("Can't desirialize an entity that doesn't have a tag component");
+
 			UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
 		
 			if (scene->FindEntityWithUUID(uuid))
@@ -459,45 +519,88 @@ namespace TerranEngine
 
 			std::string tag = jEntity["TagComponent"]["Tag"];
 
-			Entity entity = scene->CreateEntityWithUUID(tag, uuid);
+			entity = scene->CreateEntityWithUUID(tag, uuid);
 
+		}
+		catch (const std::exception& ex)
+		{
+			TR_ERROR(ex.what());
+			return false;
+		}
+
+		{
+			auto& transform = entity.GetTransform();
+
+			try
 			{
-				auto& transform = entity.GetTransform();
-
-				transform.Position = DeserializeVec3(jEntity["TransformComponent"], "LocalPosition");
-				transform.Scale = DeserializeVec3(jEntity["TransformComponent"], "LocalScale");
-				transform.Rotation = DeserializeVec3(jEntity["TransformComponent"], "LocalRotation");
-
+				glm::vec3 position = DeserializeVec3(jEntity["TransformComponent"], "Position");
+				glm::vec3 scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
+				glm::vec3 rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+					
+				transform.Position = position;
+				transform.Rotation = rotation;
+				transform.Scale = scale;
 			}
+			PRINT_JSON_ERROR();
+		}
 
-			if (jEntity.contains("CameraComponent"))
+		if (jEntity.contains("CameraComponent"))
+		{
+			json jCamera = jEntity["CameraComponent"];
+
+			CameraComponent& cameraComponent = entity.AddComponent<CameraComponent>();
+				
+			try
 			{
-				json jCamera = jEntity["CameraComponent"];
+				CameraComponent tempCamComponent;
 
 				OrthographicCamera cam;
 				cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
 				cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
 				cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
 
-				entity.AddComponent<CameraComponent>().Camera = cam;
-				entity.GetComponent<CameraComponent>().Primary = jCamera["Primary"];
+				tempCamComponent.Primary = jCamera["Primary"];
+
+				cameraComponent = tempCamComponent;
 			}
+			PRINT_JSON_ERROR();
+		}
 
-			if (jEntity.contains("SpriteRendererComponent"))
-				entity.AddComponent<SpriteRendererComponent>().Color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+		if (jEntity.contains("SpriteRendererComponent")) 
+		{
+			SpriteRendererComponent& spriteRenderer = entity.AddComponent<SpriteRendererComponent>();
 
-			if (jEntity.contains("CircleRendererComponent"))
+			try 
 			{
-				entity.AddComponent<CircleRendererComponent>().Color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
-				entity.GetComponent<CircleRendererComponent>().Thickness = jEntity["CircleRendererComponent"]["Thickness"];
+				glm::vec4 color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+
+				spriteRenderer.Color = color;
 			}
+			PRINT_JSON_ERROR();
+		}
+		if (jEntity.contains("CircleRendererComponent"))
+		{
+			CircleRendererComponent& circleRenderer = entity.AddComponent<CircleRendererComponent>();
 
-			if (jEntity.contains("RelationshipComponent"))
+			try
 			{
-				json jRelation = jEntity["RelationshipComponent"];
+				glm::vec4 color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
+				float thickness = jEntity["CircleRendererComponent"]["Thickness"];
 
-				RelationshipComponent& rlComp = entity.AddComponent<RelationshipComponent>();
+				circleRenderer.Color = color;
+				circleRenderer.Thickness = thickness;
+			}
+			PRINT_JSON_ERROR();
+		}
 
+		if (jEntity.contains("RelationshipComponent"))
+		{
+			json jRelation = jEntity["RelationshipComponent"];
+
+			RelationshipComponent& relationshipComponent = entity.AddComponent<RelationshipComponent>();
+
+			try 
+			{
 				if (jRelation["ChildrenCount"] > 0)
 				{
 					for (auto& id : jRelation["Children"])
@@ -517,19 +620,79 @@ namespace TerranEngine
 
 					entity.SetParentID(UUID::FromString(jRelation["Parent"]));
 				}
+
 			}
-
-			if (jEntity.contains("ScriptComponent")) 
+			catch (const std::exception& ex) 
 			{
-				json jScriptComponent = jEntity["ScriptComponent"];
-
-				DesirializeScriptable(entity, jScriptComponent);
+				TR_ERROR(ex.what());
+				relationshipComponent = RelationshipComponent();
 			}
 		}
-		catch (const std::exception& ex)
+
+		if (jEntity.contains("ScriptComponent")) 
 		{
-			TR_ERROR(ex.what());
-			return false;
+			json jScriptComponent = jEntity["ScriptComponent"];
+
+			DesirializeScriptable(entity, jScriptComponent);
+		}
+
+		if (jEntity.contains("Rigibody2D")) 
+		{
+			json jRigidbody2DComponent = jEntity["Rigibody2D"];
+
+			Rigidbody2DComponent& rbComponent = entity.AddComponent<Rigidbody2DComponent>();
+
+			try 
+			{
+				PhysicsBodyType bodyType = (PhysicsBodyType)jRigidbody2DComponent["BodyType"];
+				bool fixedRotation = jRigidbody2DComponent["FixedRotation"];
+				PhysicsBodySleepState sleepState = (PhysicsBodySleepState)jRigidbody2DComponent["SleepState"];
+				float gravityScale = jRigidbody2DComponent["GravityScale"];
+
+				rbComponent.BodyType = bodyType;
+				rbComponent.FixedRotation = fixedRotation;
+				rbComponent.SleepState = sleepState;
+				rbComponent.GravityScale = gravityScale;
+			}
+			PRINT_JSON_ERROR();
+		}
+
+		if (jEntity.contains("BoxCollider2D")) 
+		{
+			json jBoxCollider2DComponent = jEntity["BoxCollider2D"];
+
+			BoxCollider2DComponent& bcComponent = entity.AddComponent<BoxCollider2DComponent>();
+
+			try 
+			{
+				glm::vec2 offset = DeserializeVec2(jBoxCollider2DComponent, "Offset");
+				glm::vec2 size = DeserializeVec2(jBoxCollider2DComponent, "Size");
+				bool isSensor = jBoxCollider2DComponent["IsSensor"];
+
+				bcComponent.Offset = offset;
+				bcComponent.Size = size;
+				bcComponent.IsSensor = isSensor;
+			}
+			PRINT_JSON_ERROR();
+		}
+
+		if (jEntity.contains("CircleCollider2D")) 
+		{
+			json jCircleCollider2DComponent = jEntity["CircleCollider2D"];
+
+			CircleCollider2DComponent& ccComponent = entity.AddComponent<CircleCollider2DComponent>();
+
+			try 
+			{
+				glm::vec2 offset = DeserializeVec2(jCircleCollider2DComponent, "Offset");
+				float radius = jCircleCollider2DComponent["Radius"];
+				bool isSensor = jCircleCollider2DComponent["IsSensor"];
+
+				ccComponent.Offset = offset;
+				ccComponent.Radius = radius;
+				ccComponent.IsSensor = isSensor;
+			}
+			PRINT_JSON_ERROR();
 		}
 		
 		return true;
@@ -540,28 +703,12 @@ namespace TerranEngine
 		try 
 		{
 			json j = json::parse(data);
-			
-			// NOTE: bad version handling, this is a temporary fix, should think of a better one
-			if (!j.contains("Version"))
-			{
-				// TODO: shit error message should think of a better one
-				TR_ERROR("Couldn't find the version of the scene file");
-				return false;
-			}
-			else 
-			{
-				if(j["Version"] != sceneVersion) 
-				{
-					// TODO: shit error message should think of a better one
-					TR_ERROR("The version of the scene file doesn't match the current version");
-					return false;
-				}
 
-				for (auto jEntity : j["Entities"]) 
-				{
-					if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
-						return false;
-				}
+
+			for (auto jEntity : j["Entities"]) 
+			{
+				if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
+					return false;
 			}
 		}
 		catch (const std::exception& ex) 

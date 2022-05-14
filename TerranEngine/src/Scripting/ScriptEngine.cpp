@@ -4,11 +4,11 @@
 #include "ScriptString.h"
 #include "ScriptBindings.h"
 #include "ScriptMarshal.h"
+#include "GCManager.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
 
-#include "Scene/Entity.h"
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 
@@ -32,11 +32,11 @@ namespace TerranEngine
 	
 	static MonoImage* s_CurrentImage;
 	
-	static const char* s_AssemblyPath;
+	static std::filesystem::path s_AssemblyPath;
 
 	static std::unordered_map<uint32_t, ScriptClass> s_Classes;
 
-	static MonoAssembly* LoadAssembly(const char* fileName);
+	static MonoAssembly* LoadAssembly(const std::filesystem::path& asseblyPath);
 	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly);
 
 	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data);
@@ -50,13 +50,55 @@ namespace TerranEngine
 		ScriptMethod InitMethod;
 		ScriptMethod UpdateMethod;
 
+		ScriptMethod PhysicsBeginContact;
+		ScriptMethod PhysicsEndContact;
+		
+		ScriptMethod PhysicsUpdateMethod;
+
 		void GetMethods(ScriptClass& scriptClass) 
 		{
 			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
 
 			InitMethod = scriptClass.GetMethod(":Init()");
 			UpdateMethod = scriptClass.GetMethod(":Update()");
+
+			PhysicsBeginContact = scriptClass.GetMethod(":OnCollisionBegin(Entity)");
+			PhysicsEndContact = scriptClass.GetMethod(":OnCollisionEnd(Entity)");
+
+			PhysicsUpdateMethod = scriptClass.GetMethod(":PhysicsUpdate()");
 		}
+	};
+
+	union ScriptFieldData
+	{
+		double dValue;
+		int64_t iValue;
+		bool bValue;
+		void* ptr;
+
+		operator bool() { return bValue; }
+
+		operator int8_t() { return static_cast<int8_t>(iValue); }
+		operator int16_t() { return static_cast<int16_t>(iValue); }
+		operator int32_t() { return static_cast<int32_t>(iValue); }
+		operator int64_t() { return static_cast<int64_t>(iValue); }
+
+		operator uint8_t() { return static_cast<uint8_t>(iValue); }
+		operator uint16_t() { return static_cast<uint16_t>(iValue); }
+		operator uint32_t() { return static_cast<uint32_t>(iValue); }
+		operator uint64_t() { return static_cast<uint64_t>(iValue); }
+
+		operator float() { return static_cast<float>(dValue); }
+		operator double() { return static_cast<double>(dValue); }
+		operator const char* () { return static_cast<const char*>(ptr); }
+		operator glm::vec2() { return *static_cast<glm::vec2*>(ptr); }
+		operator glm::vec3() { return *static_cast<glm::vec3*>(ptr); }
+	};
+
+	struct ScriptFieldBackup
+	{
+		ScriptFieldData Data;
+		ScriptFieldType Type;
 	};
 
 	static ScriptableInstance s_EmptyInstance;
@@ -76,16 +118,16 @@ namespace TerranEngine
 		return s_EmptyInstance;
 	}
 
-	void ScriptEngine::Init(const char* fileName)
+	void ScriptEngine::Initialize(const std::filesystem::path& asseblyPath)
 	{
-		s_AssemblyPath = fileName;
-		std::string monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
+		s_AssemblyPath = asseblyPath;
+		std::filesystem::path monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
 		//std::string monoPath = "Resources/Mono/";
 
-		std::string libPath = monoPath + "lib";
-		std::string etcPath = monoPath + "etc";
+		std::filesystem::path libPath = monoPath / "lib";
+		std::filesystem::path etcPath = monoPath / "etc";
 
-		mono_set_dirs(libPath.c_str(), etcPath.c_str());
+		mono_set_dirs(libPath.string().c_str(), etcPath.string().c_str());
 
 #ifdef TR_DEBUG
 
@@ -108,7 +150,7 @@ namespace TerranEngine
 		NewDomain();
 	}
 
-	void ScriptEngine::CleanUp()
+	void ScriptEngine::Shutdown()
 	{
 		mono_jit_cleanup(s_CoreDomain);
 		TR_INFO("Deinitialized the scripting core");
@@ -137,7 +179,7 @@ namespace TerranEngine
 		ScriptBindings::Bind();
 	}
 
-	std::string ScriptEngine::GetAssemblyPath() 
+	std::filesystem::path ScriptEngine::GetAssemblyPath()
 	{
 		return s_AssemblyPath;
 	}
@@ -199,6 +241,7 @@ namespace TerranEngine
 			TR_ERROR("Class wasn't found");
 			return ScriptClass();
 		}
+
 		ScriptClass scriptClass(klass);
 		s_Classes[hashedName] = scriptClass;
 
@@ -379,17 +422,21 @@ namespace TerranEngine
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)
 	{
+		if (!entity || !entity.HasComponent<TagComponent>())
+			return;
+
 		if (s_ScriptableInstanceMap.find(entity.GetSceneID()) != s_ScriptableInstanceMap.end()) 
 		{
 			if (s_ScriptableInstanceMap[entity.GetSceneID()].find(entity.GetID()) != s_ScriptableInstanceMap[entity.GetSceneID()].end()) 
 			{
-				s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()].Object.Uninitialize();
+				GCHandle& handle = s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()].Object.GetGCHandle();
+				GCManager::FreeHandle(handle);
 				s_ScriptableInstanceMap[entity.GetSceneID()].erase(entity.GetID());
 			}
 		}
 	}
 
-	void ScriptEngine::StartScriptable(Entity entity) 
+	void ScriptEngine::OnStart(Entity entity) 
 	{
 		ScriptableInstance instace = GetInstance(entity.GetSceneID(), entity.GetID());
 
@@ -399,12 +446,44 @@ namespace TerranEngine
 			instace.InitMethod.Invoke(instace.Object, nullptr);
 	}
 
-	void ScriptEngine::UpdateScriptable(Entity entity) 
+	void ScriptEngine::OnUpdate(Entity entity) 
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		if (instance.UpdateMethod.GetNativeMethodPtr())
 			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+	}
+
+	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee)
+	{
+		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
+
+		if (instance.PhysicsBeginContact.GetNativeMethodPtr()) 
+		{
+			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			void* args[] = { monoUuidArr };
+			instance.PhysicsBeginContact.Invoke(instance.Object, args);
+		}
+	}
+
+	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee)
+	{
+		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
+
+		if (instance.PhysicsEndContact.GetNativeMethodPtr())
+		{
+			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			void* args[] = { monoUuidArr };
+			instance.PhysicsEndContact.Invoke(instance.Object, args);
+		}
+	}
+
+	void ScriptEngine::OnPhysicsUpdate(Entity entity)
+	{
+		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
+
+		if (instance.PhysicsUpdateMethod.GetNativeMethodPtr())
+			instance.PhysicsUpdateMethod.Invoke(instance.Object, nullptr);
 	}
 
 	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
@@ -468,19 +547,51 @@ namespace TerranEngine
 					fieldBackup.Type = field.GetType();
 					switch (field.GetType())
 					{
-					case ScriptFieldType::Int8:
-					case ScriptFieldType::Int16:
-					case ScriptFieldType::Int:
-					case ScriptFieldType::Int64:
-					case ScriptFieldType::UInt8:
-					case ScriptFieldType::UInt16:
-					case ScriptFieldType::UInt:
-					case ScriptFieldType::UInt64:
+					case ScriptFieldType::Int8: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int8_t>();
+						break;
+					}
+					case ScriptFieldType::Int16: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int16_t>();
+						break;
+					}
+					case ScriptFieldType::Int: 
+					{
+						fieldBackup.Data.iValue = field.GetData<int32_t>();
+						break;
+					}
+					case ScriptFieldType::Int64: 
 					{
 						fieldBackup.Data.iValue = field.GetData<int64_t>();
 						break;
 					}
+					case ScriptFieldType::UInt8: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint8_t>();
+						break;
+					}
+					case ScriptFieldType::UInt16: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint16_t>();
+						break;
+					}
+					case ScriptFieldType::UInt: 
+					{
+						fieldBackup.Data.iValue = field.GetData<uint32_t>();
+						break;
+					}
+					case ScriptFieldType::UInt64:
+					{
+						fieldBackup.Data.iValue = field.GetData<uint64_t>();
+						break;
+					}
 					case ScriptFieldType::Float:
+					{
+						fieldBackup.Data.dValue = field.GetData<float>();
+						break;
+					}
 					case ScriptFieldType::Double:
 					{
 						fieldBackup.Data.dValue = field.GetData<double>();
@@ -534,12 +645,11 @@ namespace TerranEngine
 				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
 			}
 		}
-
 	}
 
-	static MonoAssembly* LoadAssembly(const char* fileName) 
+	static MonoAssembly* LoadAssembly(const std::filesystem::path& asseblyPath)
 	{
-		MonoAssembly* newAssembly = mono_domain_assembly_open(s_NewDomain, fileName);
+		MonoAssembly* newAssembly = mono_domain_assembly_open(s_NewDomain, asseblyPath.string().c_str());
 
 		if (!newAssembly)
 		{

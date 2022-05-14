@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Core/Base.h"
+#include "Graphics/Texture.h"
+
 #include <string>
 #include <vector>
-
-#include "Terran.h"
 
 namespace TerranEditor 
 {
@@ -20,7 +21,7 @@ namespace TerranEditor
 	struct LogMessage 
 	{
 		std::string Message;
-		LogMessageLevel MessageLevel;
+		LogMessageLevel MessageLevel = LogMessageLevel::Trace;
 	};
 
 	class LogPanel 
@@ -35,12 +36,15 @@ namespace TerranEditor
 
 		void SetOpen(bool open) { m_Open = open; }
 
+		bool IsClearOnPlay() { return m_ClearOnPlay; }
+
 		static LogPanel* GetInstance() { return s_Instance; }
 
 	private:
 		std::vector<LogMessage> m_TextBuffer;
 		bool m_Open = true;
 		bool m_AutoScroll = true;
+		bool m_ClearOnPlay = true;
 		static LogPanel* s_Instance;
 		Shared<Texture> m_ErrorTexture;
 		Shared<Texture> m_WarnTexture;

@@ -21,8 +21,11 @@ group "Dependencies"
     include "TerranEngine/vendor/GLFW"
     include "TerranEngine/vendor/ImGui"
     include "TerranEngine/vendor/GLAD"
-    include "TerranEngine/vendor/Freetype"
-    include "TerranEngine/vendor/Freetype-GL"
+    include "TerranEngine/vendor/msdf-atlas-gen"
+    include "TerranEngine/vendor/msdf-atlas-gen/msdfgen"
+    include "TerranEngine/vendor/msdf-atlas-gen/msdfgen/Freetype"
+    --include "TerranEngine/vendor/Freetype-GL"
+    include "TerranEngine/vendor/Box2D"
 
 group ""
 

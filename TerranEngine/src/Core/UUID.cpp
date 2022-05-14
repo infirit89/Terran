@@ -3,11 +3,10 @@
 
 namespace TerranEngine
 {
-	UUID::UUID(bool generate)
+	UUID::UUID()
 		: m_Data({ 0 })
 	{
-		if (generate)
-			Generate();
+		Generate();
 	}
 
 	UUID::UUID(const std::array<uint8_t, 16>& data)
@@ -36,7 +35,7 @@ namespace TerranEngine
 		if (str.empty())
 		{
 			TR_ERROR("Empty UUID!");
-			return UUID(false);
+			return UUID({ 0 });
 		}
 
 		for (size_t i = 0; i < str.size(); ++i)
@@ -46,7 +45,7 @@ namespace TerranEngine
 			if (index >= 16 || !isxdigit(str[i]))
 			{
 				TR_ERROR("UUID not in hexidecimal format!");
-				return UUID(false);
+				return UUID({ 0 });
 			}
 
 			data[index] = (uint8_t)(CharToHex(str[i]) << 4);
@@ -58,7 +57,7 @@ namespace TerranEngine
 		if (index < 16)
 		{
 			TR_ERROR("Invalid UUID!");
-			return UUID(false);
+			return UUID({ 0 });
 		}
 
 		return UUID{ data };

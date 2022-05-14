@@ -1,8 +1,12 @@
 #include "LogPanel.h"
 
-#include <imgui.h>
+#include "UI/UI.h"
 
-#include <stdarg.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+
+#pragma warning(push)
+#pragma warning(disable : 4312)
 
 namespace TerranEditor 
 {
@@ -10,12 +14,9 @@ namespace TerranEditor
 
 	LogPanel::LogPanel() 
 	{
-		TextureParameters params;
-		//params.MagFilter = TextureFilter::NEAREST;
-		//params.MinFilter = TextureFilter::NEAREST;
-		m_InfoTexture = CreateShared<Texture>("Resources/Textures/info-icon.png", params);
-		m_WarnTexture = CreateShared<Texture>("Resources/Textures/warning-icon.png", params);
-		m_ErrorTexture = CreateShared<Texture>("Resources/Textures/error-icon.png", params);
+		m_InfoTexture = CreateShared<Texture>("Resources/Textures/info-icon.png");
+		m_WarnTexture = CreateShared<Texture>("Resources/Textures/warning-icon.png");
+		m_ErrorTexture = CreateShared<Texture>("Resources/Textures/error-icon.png");
 
 		s_Instance = this;
 		ClearMessageBuffer();
@@ -38,12 +39,21 @@ namespace TerranEditor
 		
 		ImGui::Begin("Log", &m_Open);
 
-		if (ImGui::Button("Clear"))
-			ClearMessageBuffer();
+		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedFit, { 0.0f, 25.0f }))
+		{
+			ImGui::TableSetupColumn("clear_column", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+			ImGui::TableNextColumn();
+			if (ImGui::Button("Clear"))
+				ClearMessageBuffer();
+			
+			ImGui::TableNextColumn();
+			ImGui::Checkbox("Auto scroll", &m_AutoScroll);
 
-		ImGui::SameLine();
-
-		ImGui::Checkbox("Auto scroll", &m_AutoScroll);
+			ImGui::TableNextColumn();
+			ImGui::Checkbox("Clear on play", &m_ClearOnPlay);
+			
+			ImGui::EndTable();
+		}
 
 		ImGui::Separator();
 		
@@ -77,13 +87,13 @@ namespace TerranEditor
 				backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvailWidth() + 2.0f,  y + textSize.y + 8.0f }, color);
 
 				ImGui::Indent(4.0f);
+
 				switch (logMessage.MessageLevel)
 				{
 				case LogMessageLevel::Trace:
 				case LogMessageLevel::Info:
 				{
 					ImGui::Image((ImTextureID)m_InfoTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
-
 					break;
 				}
 				case LogMessageLevel::Warn:
@@ -100,8 +110,13 @@ namespace TerranEditor
 
 				ImGui::SameLine();
 
+				float cursorPosY = ImGui::GetCursorPosY();
+				ImGui::SetCursorPosY(cursorPosY + 2.0f);
+
 				ImGui::TextUnformatted(logMessage.Message.c_str());
 				ImGui::Unindent(4.0f);
+
+				ImGui::SetCursorPosY(cursorPosY);
 			}
 
 			ImGui::PopStyleVar();
@@ -122,3 +137,4 @@ namespace TerranEditor
 		m_TextBuffer.clear();
 	}
 }
+#pragma warning(pop)

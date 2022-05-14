@@ -1,7 +1,10 @@
 #include "trpch.h"
 #include "ScriptClass.h"
+#include "GCManager.h"
 
+#include <mono/metadata/class.h>
 #include <mono/metadata/appdomain.h>
+#include <mono/metadata/debug-helpers.h>
 
 namespace TerranEngine
 {
@@ -17,9 +20,7 @@ namespace TerranEngine
 		MonoObject* monoObject = mono_object_new(mono_domain_get(), m_MonoClass);
 		mono_runtime_object_init(monoObject);
 
-		uint32_t monoGCHandle = mono_gchandle_new(monoObject, true);
-
-		return ScriptObject(monoGCHandle);
+		return ScriptObject(GCManager::CreateStrongHadle(monoObject));
 	}
 
 	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) 
@@ -53,4 +54,3 @@ namespace TerranEngine
 		return ScriptClass(monoClass);
 	}
 }
-

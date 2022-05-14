@@ -20,11 +20,10 @@ namespace TerranEngine
 	{
 		switch (type)
 		{
-		case TerranEngine::TextureType::RED:	return { GL_RED, GL_RED };
-		case TerranEngine::TextureType::GREEN:	return { GL_GREEN, GL_GREEN };
-		case TerranEngine::TextureType::BLUE:	return { GL_BLUE, GL_BLUE };
-		case TerranEngine::TextureType::RGB:	return { GL_RGB8, GL_RGB };
-		case TerranEngine::TextureType::RGBA:	return { GL_RGBA8, GL_RGBA };
+		case TerranEngine::TextureType::Red:			return { GL_R8, GL_RED };
+		case TerranEngine::TextureType::Red32Integer:	return { GL_R32I, GL_RED_INTEGER };
+		case TerranEngine::TextureType::RGB:			return { GL_RGB8, GL_RGB };
+		case TerranEngine::TextureType::RGBA:			return { GL_RGBA8, GL_RGBA };
 		default:
 			TR_WARN("The texture type isn't supported");
 			break;
@@ -45,8 +44,8 @@ namespace TerranEngine
 
 		switch (minFilter)
 		{
-		case TerranEngine::TextureFilter::LINEAR:
-		case TerranEngine::TextureFilter::NEAREST:
+		case TerranEngine::TextureFilter::Linear:
+		case TerranEngine::TextureFilter::Nearest:
 			filter.MinFilter = GL_LINEAR - (uint32_t)minFilter;
 			break;
 		default:
@@ -56,8 +55,8 @@ namespace TerranEngine
 
 		switch (magFilter)
 		{
-		case TerranEngine::TextureFilter::LINEAR:
-		case TerranEngine::TextureFilter::NEAREST:
+		case TerranEngine::TextureFilter::Linear:
+		case TerranEngine::TextureFilter::Nearest:
 			filter.MagFilter = GL_LINEAR - (uint32_t)magFilter;
 			break;
 		default:
@@ -66,6 +65,22 @@ namespace TerranEngine
 		}
 
 		return filter;
+	}
+
+	static uint32_t ConvertTextureWrapModeToOpenGLWrapMode(TextureWrapMode wrapMode) 
+	{
+		switch (wrapMode)
+		{
+		case TerranEngine::TextureWrapMode::Repeat:			return GL_REPEAT;
+		case TerranEngine::TextureWrapMode::Mirror:			return GL_MIRRORED_REPEAT;
+		case TerranEngine::TextureWrapMode::MirrorOnce:		return GL_MIRROR_CLAMP_TO_EDGE;
+		case TerranEngine::TextureWrapMode::ClampToEdge:	return GL_CLAMP_TO_EDGE;
+		default:
+			TR_WARN("The texture wrap mode isn't supported");
+			break;
+		}
+
+		return { GL_CLAMP_TO_EDGE };
 	}
 
 	Texture::Texture() 
@@ -83,8 +98,10 @@ namespace TerranEngine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		uint32_t wrapMode = ConvertTextureWrapModeToOpenGLWrapMode(m_TexParameters.WrapMode);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 	}
 
 	Texture::Texture(const char* filePath, TextureParameters parameters)
@@ -112,10 +129,9 @@ namespace TerranEngine
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}	 
 
-	void Texture::SetData(void* data) 
+	void Texture::SetData(const void* data) 
 	{
 		NativeTexutreType nativeType = ConvertTextureTypeToNativeType(m_TexParameters.TextureType);
-
 		glTexImage2D(GL_TEXTURE_2D, 0, nativeType.InternalFormat, m_Width, m_Height, 0, nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
@@ -162,14 +178,15 @@ namespace TerranEngine
 			default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
 		}
 
-
 		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		uint32_t wrapMode = ConvertTextureWrapModeToOpenGLWrapMode(m_TexParameters.WrapMode);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
 

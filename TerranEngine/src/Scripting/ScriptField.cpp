@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "ScriptField.h"
 
+#include "ScriptString.h"
+
 #include <mono/metadata/attrdefs.h>
 
 namespace TerranEngine 
@@ -27,7 +29,9 @@ namespace TerranEngine
 
 		case MONO_TYPE_R4:			return ScriptFieldType::Float;
 		case MONO_TYPE_R8:			return ScriptFieldType::Double;
+
 		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
+
 		case MONO_TYPE_STRING:		return ScriptFieldType::String;
 		case MONO_TYPE_VALUETYPE: 
 		{
@@ -35,7 +39,7 @@ namespace TerranEngine
 			const char* typeClassTypeName = mono_class_get_name(typeClass);
 			const char* typeClassNamespace = mono_class_get_namespace(typeClass);
 
-			// TODO: string comparing is slow, think of a better way to do this
+			// NOTE: string comparing is slow, think of a better way to do this
 			if (strcmp(typeClassNamespace, "TerranScriptCore") == 0) 
 			{
 				if (strcmp(typeClassTypeName, "Vector2") == 0)
@@ -62,72 +66,64 @@ namespace TerranEngine
 		return ScriptFieldVisiblity::Unknown;
 	}
 
-	ScriptField::ScriptField(void* monoField, uint32_t monoObjectGCHandle)
-		: m_MonoField(monoField), m_MonoObjectGCHandle(monoObjectGCHandle)
+	ScriptField::ScriptField(MonoClassField* monoField, MonoObject* monoObject)
+		: m_MonoField(monoField), m_MonoObject(monoObject)
 	{
-		m_Name = mono_field_get_name((MonoClassField*)m_MonoField);
-		m_FieldType = ConvertFieldType(mono_field_get_type((MonoClassField*)m_MonoField));
+		m_Name = mono_field_get_name(m_MonoField);
+		m_FieldType = ConvertFieldType(mono_field_get_type(m_MonoField));
 
-		uint32_t accessMask = mono_field_get_flags((MonoClassField*)m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
+		uint32_t accessMask = mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
-	}
-
-	ScriptField::~ScriptField() 
-	{
-	}
-
-	template<typename T, typename CachedDataType>
-	static void ExtractFieldData(void* result, CachedDataType& cachedData, MonoObject* monoObject, MonoClassField* monoField)
-	{
-		if (monoObject != nullptr && monoField != nullptr)
-			cachedData = *(T*)result;
-
-		*(T*)result = cachedData;
 	}
 
 	void ScriptField::SetDataRaw(void* value)
 	{
-		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
-		MonoClassField* monoField = (MonoClassField*)m_MonoField;
-
-		if (monoObject == nullptr) 
+		if (m_MonoObject == nullptr) 
 		{
 			TR_ERROR("Couldn't set the value of field {0} because the object that it corresponds to is no longer valid", m_Name);
 			return;
 		}
 
-		if (monoField == nullptr) 
+		if (m_MonoField == nullptr)
 		{
 			TR_ERROR("Couldn't set the value of field {0} because it wasn't found", m_Name);
 			return;
 		}
 		
-		if (monoObject != nullptr && monoField != nullptr)
-			mono_field_set_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, value);
+		mono_field_set_value(m_MonoObject, m_MonoField, value);
 	}
 
 	void ScriptField::GetDataRaw(void* result)
 	{
-		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
-		MonoClassField* monoField = (MonoClassField*)m_MonoField;
-
-		if (monoObject == nullptr) 
+		if (m_MonoObject == nullptr)
 		{
 			TR_ERROR("Couldnt find the object");
 			return;
 		}
 
-		if (monoField == nullptr) 
+		if (m_MonoField == nullptr) 
 		{
 			TR_ERROR("Mono field is null");
 			return;
 		}
 		
-		mono_field_get_value(monoObject, monoField, result);	
+		mono_field_get_value(m_MonoObject, m_MonoField, result);
 	}
 
 	const char* ScriptField::GetDataStringRaw()
 	{
+		if (m_MonoObject == nullptr)
+		{
+			TR_ERROR("Couldnt find the object");
+			return "";
+		}
+
+		if (m_MonoField == nullptr)
+		{
+			TR_ERROR("Mono field is null");
+			return "";
+		}
+
 		if (m_FieldType != ScriptFieldType::String) 
 		{
 			TR_ERROR("Can't get the string value of a non-string field");
@@ -136,23 +132,20 @@ namespace TerranEngine
 
 		MonoString* string = nullptr;
 
-		mono_field_get_value(mono_gchandle_get_target(m_MonoObjectGCHandle), (MonoClassField*)m_MonoField, &string);
+		mono_field_get_value(m_MonoObject, m_MonoField, &string);
 
 		return ScriptString(string).GetUTF8Str();
 	}
 
 	void ScriptField::SetDataStringRaw(const char* value)
 	{
-		MonoObject* monoObject = mono_gchandle_get_target(m_MonoObjectGCHandle);
-		MonoClassField* monoField = (MonoClassField*)m_MonoField;
-
-		if (monoObject == nullptr) 
+		if (m_MonoObject == nullptr) 
 		{
 			TR_ERROR("Couldnt find the object");
 			return;
 		}
 
-		if (monoField == nullptr) 
+		if (m_MonoField == nullptr) 
 		{
 			TR_ERROR("Mono field is null");
 			return;
@@ -165,7 +158,6 @@ namespace TerranEngine
 		}
 		
 		ScriptString string((const char*)value);
-		mono_field_set_value(monoObject, monoField, string.GetStringInternal());
-
+		mono_field_set_value(m_MonoObject, m_MonoField, string.GetStringInternal());
 	}
 }

@@ -30,9 +30,8 @@ namespace TerranEngine
 				glEnable(GL_DEBUG_OUTPUT);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 				glDebugMessageCallback(glDebugOutput, nullptr);
-				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
 			}
-
 		}
 #endif
 		EnableBlending(true);
@@ -114,13 +113,18 @@ namespace TerranEngine
 		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
 
 		vertexArray->GetIndexBuffer()->Bind();
-		vertexArray->Bind();
+
 		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void RenderCommand::DrawArrays(int numIndices)
 	{
 		glDrawArrays(GL_TRIANGLES, 0, numIndices);
+	}
+
+	uint32_t RenderCommand::GetAPIVersion()
+	{
+		return (GLVersion.major * 100) + (GLVersion.minor * 10);
 	}
 }
 

@@ -1,145 +1,232 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 namespace TerranScriptCore
 {
-    public class Component
-    {
-        public Entity entity;
+	public class Component
+	{
+		public Entity entity;
+	}
+
+	public class Rigidbody2D : Component 
+	{
+		public bool FixedRotation 
+		{
+			get => Internal.Rigidbody2D_IsFixedRotation_Internal(entity.ID);
+			set => Internal.Rigidbody2D_SetFixedRotation_Internal(entity.ID, value);
+		}
+
+		public RigidbodySleepState AwakeState 
+		{
+			get => (RigidbodySleepState)Internal.Rigidbody2D_GetAwakeState_Internal(entity.ID);
+			set => Internal.Rigidbody2D_SetAwakeState_Internal(entity.ID, (byte)value);
+		}
+
+		public float GravityScale
+		{
+			get => Internal.Rigidbody2D_GetGravityScale_Internal(entity.ID);
+			set => Internal.Rigidbody2D_SetGravityScale_Internal(entity.ID, value);
+		}
+		
+		public RigidbodyType BodyType 
+		{
+			get => (RigidbodyType)Internal.Rigidbody2D_GetType_Internal(entity.ID);
+			set => Internal.Rigidbody2D_SetType_Internal(entity.ID, (byte)value);
+		}
+
+		public Vector2 LinearVelocity 
+		{
+			get
+			{
+				Vector2 linearVelocity;
+				Internal.Rigidbody2D_GetLinearVelocity_Internal(entity.ID, out linearVelocity);
+				return linearVelocity;
+			}
+
+			set => Internal.Rigidbody2D_SetLinearVelocity_Internal(entity.ID, in value);
+		}
+
+		public float AngularVelocity 
+		{
+			get => Internal.Rigidbody2D_GetAngularVelocity_Internal(entity.ID);
+			set => Internal.Rigidbody2D_SetAngularVelocity_Internal(entity.ID, value);
+		}
+
+		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForce_Internal(entity.ID, in force, in position, (byte)forceMode);
+
+		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter_Internal(entity.ID, in force, (byte)forceMode);
+	}
+
+	public class Collider2D : Component
+	{
+		protected enum ColliderType : byte
+		{
+			None = 0,
+			Box,
+			Circle
+		}
+		public Collider2D() { }
+
+		protected Collider2D(ColliderType type) 
+		{
+			p_ColliderType = type;
+		}
+
+		public Vector2 Offset 
+		{
+			get 
+			{
+				Vector2 offset;
+				Internal.Collider2D_GetOffset_Internal(entity.ID, (byte)p_ColliderType, out offset);
+				return offset;
+			}
+			set => Internal.Collider2D_SetOffset_Internal(entity.ID, (byte)p_ColliderType, in value);
+		}
+
+		public bool IsSensor 
+		{
+			get => Internal.Collider2D_IsSensor_Internal(entity.ID, (byte)p_ColliderType);
+			set => Internal.Collider2D_SetSensor_Internal(entity.ID, (byte)p_ColliderType, value);
+		}
+
+		protected ColliderType p_ColliderType = ColliderType.None;
+	}
+
+	public class BoxCollider2D : Collider2D 
+	{
+		public BoxCollider2D() : base(ColliderType.Box) { }
+
+		public Vector2 Size 
+		{
+			get 
+			{
+				Vector2 size;
+				Internal.BoxCollider2D_GetSize_Internal(entity.ID, out size);
+				return size;
+			}
+
+			set => Internal.BoxCollider2D_SetSize_Internal(entity.ID, in value);
+		}
     }
 
-    public class Scriptable : Component
+    public class CircleCollider2D : Collider2D
     {
-        public Scriptable() { }
+		public CircleCollider2D() : base(ColliderType.Circle) { }
 
-        internal Scriptable(byte[] id) 
-        {
-            if (entity == null) 
-                entity = new Entity(id);
-        }
-    }
+		public float Radius 
+		{
+			get => Internal.CircleCollider2D_GetRadius_Internal(entity.ID);
+			set => Internal.CircleCollider2D_SetRadius_Internal(entity.ID, value);
+		}
+	}
 
-    public class Tag : Component 
-    {
-        public string Name 
-        {
-            get
-            {
-                if (entity != null) 
-                    return GetTagName_Internal(entity.ID.Data);
+	// ---- Scriptable ----
+	public class Scriptable : Component
+	{
+		public Scriptable() { }
 
-                // TODO: log that the entity is null
-                return "";
-            }
+		internal Scriptable(byte[] id) 
+		{
+			if (entity == null) 
+				entity = new Entity(id);
+		}
+	}
+	// --------------------
 
-            set
-            {
-                if(entity != null)
-                    SetTagName_Internal(entity.ID.Data, value);
+	// ---- Tag ----
+	public class Tag : Component 
+	{
+		public string Name 
+		{
+			get
+			{
+				if (entity != null) 
+					return Internal.Tag_GetName_Internal(entity.ID);
 
-                // TODO: log that the entity is null
-            }
-        }
+				// TODO: log that the entity is null
+				return "";
+			}
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTagName_Internal(byte[] entityID, in string inName);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern string GetTagName_Internal(byte[] entityID);
-    }
+			set
+			{
+				if(entity != null)
+					Internal.Tag_SetName_Internal(entity.ID, value);
 
-    public class Transform : Component
-    {
-        public Vector3 Position
-        {
-            get
-            {
-                if (entity != null) 
-                {
-                    Vector3 outVec = GetTransformPosition_Internal(entity.ID.Data);
-                    return outVec;
-                }
+				// TODO: log that the entity is null
+			}
+		}
+	}
+	// -------------
 
-                // TODO: log that the entity is null
-                return new Vector3(0.0f, 0.0f, 0.0f);
-            }
 
-            set
-            {
-                if (entity != null) 
-                {
-                    SetTransformPosition_Internal(entity.ID.Data, value);
-                }
-                // TODO: log that the entity is null
-            }
-        }
+	// ---- Transform ----
+	public class Transform : Component
+	{
+		public Vector3 Position
+		{
+			get
+			{
+				if (entity != null) 
+				{
+					Vector3 outVec =  Internal.Transform_GetPosition_Internal(entity.ID);
+					return outVec;
+				}
 
-        public Vector3 Rotation
-        {
-            get
-            {
-                if (entity != null) 
-                    return GetTransformRotation_Internal(entity.ID.Data);
+				// TODO: log that the entity is null
+				return new Vector3(0.0f, 0.0f, 0.0f);
+			}
 
-                // TODO: log that the entity is null
-                return new Vector3(0.0f, 0.0f, 0.0f);
-            }
+			set
+			{
+				if (entity != null) 
+					Internal.Transform_SetPosition_Internal(entity.ID, in value);
+				// TODO: log that the entity is null
+			}
+		}
 
-            set
-            {
-                if (entity != null) 
-                {
-                    SetTransformRotation_Internal(entity.ID.Data, value);
-                    return;
-                }
+		public Vector3 Rotation
+		{
+			get
+			{
+				if (entity != null) 
+					return Internal.Transform_GetRotation_Internal(entity.ID);
 
-                // TODO: log that the entity is null
-            }
-        }
+				// TODO: log that the entity is null
+				return new Vector3(0.0f, 0.0f, 0.0f);
+			}
 
-        public Vector3 Scale
-        {
-            get
-            {
-                if (entity != null) 
-                    return GetTransformScale_Internal(entity.ID.Data);
+			set
+			{
+				if (entity != null) 
+					Internal.Transform_SetRotation_Internal(entity.ID, in value);
 
-                // TODO: log that the entity is null
-                return new Vector3(0.0f, 0.0f, 0.0f);
-            }
+				// TODO: log that the entity is null
+			}
+		}
 
-            set
-            {
-                if (entity != null) 
-                {
-                    SetTransformScale_Internal(entity.ID.Data, value);
-                    return;
-                }
+		public Vector3 Scale
+		{
+			get
+			{
+				if (entity != null) 
+					return Internal.Transform_GetScale_Internal(entity.ID);
 
-                // TODO: log that the entity is null
-            }
-        }
+				// TODO: log that the entity is null
+				return new Vector3(0.0f, 0.0f, 0.0f);
+			}
 
-        // ---- position ----
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern Vector3 GetTransformPosition_Internal(byte[] entityID);
+			set
+			{
+				if (entity != null) 
+					Internal.Transform_SetScale_Internal(entity.ID, in value);
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformPosition_Internal(byte[] entityID, Vector3 inPosition);
-        // ------------------
+				// TODO: log that the entity is null
+			}
+		}
 
-        // ---- rotation ----
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern Vector3 GetTransformRotation_Internal(byte[] entityID);
+		public bool IsDirty => Internal.Transform_IsDirty_Internal(entity.ID);
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformRotation_Internal(byte[] entityID, Vector3 inRotation);
-        // ------------------
-
-        // ---- scale ----
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern Vector3 GetTransformScale_Internal(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        static extern void SetTransformScale_Internal(byte[] entityID, Vector3 inScale);
-        // ---------------
-    }
+		public Vector3 Forward => Internal.Transform_GetForward_Internal(entity.ID);
+		public Vector3 Up => Internal.Transform_GetUp_Internal(entity.ID);
+		public Vector3 Right => Internal.Transform_GetRight_Internal(entity.ID);
+	}
+	// -------------------
 }

@@ -1,10 +1,15 @@
 #pragma once
 
 #include "Core/UUID.h"
+#include "Core/Time.h"
+#include "Core/Base.h"
 
 #include "Graphics/Camera.h"
 
+#pragma warning(push)
+#pragma warning(disable : 26439)
 #include <entt.hpp>
+#pragma warning(pop)
 
 #include <unordered_map>
 
@@ -12,8 +17,7 @@ namespace TerranEngine
 {
 	class Entity;
 	class SceneRenderer;
-	class TransformSystem;
-
+	
 	class Scene 
 	{
 	public:
@@ -29,7 +33,7 @@ namespace TerranEngine
 		void StartRuntime();
 		void StopRuntime();
 
-		void Update();
+		void Update(Time time);
 		void UpdateEditor();
 		void OnResize(float width, float height);
 
@@ -53,6 +57,9 @@ namespace TerranEngine
 
 		UUID& GetID() { return m_ID; }
 
+		bool HasRuntimeStarted() const { return m_RuntimeStarted; }
+
+		Scene* GetRaw() { return this; }
 	private:
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
@@ -71,6 +78,5 @@ namespace TerranEngine
 		friend class SceneRenderer;
 		friend class Entity;
 		friend class SceneSerializer;
-		friend class TransformSystem;
 	};
 }

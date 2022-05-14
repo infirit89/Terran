@@ -3,52 +3,33 @@
 
 #include "RenderCommand.h"
 
-#include <glm/gtc/quaternion.hpp>
+#include "Math/Math.h"
+
 #include <glm/mat4x4.hpp>
 #include <glm/glm.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include <glad/glad.h>
-
-#pragma warning (push)
-#pragma warning (disable : 4305)
-#pragma warning (disable : 4309)
 
 namespace TerranEngine 
 {
 	BatchRenderer2D* BatchRenderer2D::m_Instance;
 
-	static void decomposeMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
-	{
-		pos = m[3];
-		for (int i = 0; i < 3; i++)
-			scale[i] = glm::length(glm::vec3(m[i]));
-		const glm::mat3 rotMtx(
-			glm::vec3(m[0]) / scale[0],
-			glm::vec3(m[1]) / scale[1],
-			glm::vec3(m[2]) / scale[2]);
-		rot = glm::quat_cast(rotMtx);
-	}
-
-	static void createTransformMatrix(glm::mat4& m, const glm::vec3& pos, const glm::quat& rot, const glm::vec3& scale) 
-	{
-		m = glm::translate(glm::mat4(1.0f), pos) *
-			glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
-			glm::scale(glm::mat4(1.0f), scale);
-	}
-
 	BatchRenderer2D::BatchRenderer2D(uint32_t batchSize)
 	{
 		m_Instance = this;
-		Init(batchSize);
+		Initialize(batchSize);
 	}
 
 	BatchRenderer2D::~BatchRenderer2D()
 	{
-		Close();
+		Shutdown();
 	}
 
-	void BatchRenderer2D::Init(uint32_t batchSize)
+	void BatchRenderer2D::Initialize(uint32_t batchSize)
 	{
 		m_MaxIndices = batchSize * 6;
 		m_MaxVertices = batchSize * 4;
@@ -61,7 +42,7 @@ namespace TerranEngine
 
 		uint32_t offset = 0;
 
-		for (uint32_t i = 0; i < batchSize * 6; i += 6)
+		for (uint32_t i = 0; i < m_MaxIndices; i += 6)
 		{
 			indices[i] = offset + 0;
 			indices[i + 1] = offset + 1;
@@ -78,16 +59,11 @@ namespace TerranEngine
 		delete[] indices;
 		// ************************************
 
-		TextureParameters parameters;
+		constexpr uint32_t whiteTextureData = 0xffffffff;
 
-		uint16_t whiteTextureData = 0xffffffff;
-
-		int maxTexSlots = 16; //RenderCommand::GetMaxTextureSlots();
-
-		int* sampler = new int[maxTexSlots];
-
-		for (size_t i = 0; i < maxTexSlots; i++)
-			sampler[i] = i;
+		int samplers[16];
+		for (size_t i = 0; i < m_MaxTextureSlots; i++)
+			samplers[i] = i;
 
 		// ******** Quad ******** 
 		{
@@ -101,6 +77,7 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 4 },
 				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 },
 				{ GL_INT,	1 }
 			});
 
@@ -110,49 +87,15 @@ namespace TerranEngine
 												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
 												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
 
-			m_QuadShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
+			//m_QuadShader->Bind();
+			m_QuadShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
 			m_QuadShader->Unbind();
 
-			parameters.MagFilter = TextureFilter::LINEAR;
-			parameters.MinFilter = TextureFilter::LINEAR;
-
-			m_QuadTextures[0] =	CreateShared<Texture>(1, 1, parameters);
+			m_QuadTextures[0] =	CreateShared<Texture>(1, 1);
 			m_QuadTextures[0]->SetData(&whiteTextureData);
 
 		}
 		// **********************
-
-
-		// ******** Text ******** 
-		{
-			m_TextVertexPtr = new QuadVertex[m_MaxVertices];
-
-			m_TextVAO = CreateShared<VertexArray>();
-
-			m_TextVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(QuadVertex));
-
-			m_TextVAO->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 }
-			});
-
-			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
-
-			m_TextShader = CreateShared<Shader>("DefaultTextShader", 
-												"Resources/Shaders/Base/Text/TextVertex.glsl",
-												"Resources/Shaders/Base/Text/TextFragment.glsl");
-
-			m_TextShader->UploadIntArray("u_Samplers", maxTexSlots, sampler);
-
-			m_TextShader->Unbind();
-
-			m_TextTextures[0] = CreateShared<Texture>(1, 1, parameters);
-			m_TextTextures[0]->SetData(&whiteTextureData);
-		}
-		// **********************
-
 
 		// ******** Circle ********
 		{
@@ -174,61 +117,101 @@ namespace TerranEngine
 			m_CircleShader = CreateShared<Shader>(	"DefaultCircleShader", 
 													"Resources/Shaders/Base/Circle/CircleVertex.glsl",
 													"Resources/Shaders/Base/Circle/CircleFragment.glsl");
-
-			m_CircleShader->Unbind();
 		}
 		// ************************
 
+		// ******** Line ******** 
+		{
+			m_LineVertexPtr = new LineVertex[m_MaxVertices];
+			m_LineVAO = CreateShared<VertexArray>();
+			m_LineVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(LineVertex));
 
-		m_VertexPositions[0] = { -1.0f, -1.0f, 0.0f, 1.0f };
-		m_VertexPositions[1] = {  1.0f, -1.0f, 0.0f, 1.0f };
-		m_VertexPositions[2] = {  1.0f,  1.0f, 0.0f, 1.0f };
-		m_VertexPositions[3] = { -1.0f,  1.0f, 0.0f, 1.0f };
+			m_LineVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 1 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 }
+			});
+
+			m_LineVAO->AddIndexBuffer(m_IndexBuffer);
+
+			m_LineShader = CreateShared<Shader>("DefaultLineShader", "Resources/Shaders/Base/Line/LineVertex.glsl", "Resources/Shaders/Base/Line/LineFragment.glsl");
+		}
+		// **********************
+
+		// ******** Text ******** 
+		{
+			m_TextVertexPtr = new TextVertex[m_MaxVertices];
+			m_TextVAO = CreateShared<VertexArray>();
+			m_TextVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(TextVertex));
+
+			m_TextVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_INT,	1 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 }
+			});
+
+			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
+
+			m_TextShader = CreateShared<Shader>("DefaultTextShader", "Resources/Shaders/Base/Text/TextVertex.glsl", "Resources/Shaders/Base/Text/TextFragment.glsl");
+			m_TextShader->Bind();
+			m_TextShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
+			m_TextShader->Unbind();
+		}
+		// **********************
+
+		m_VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		m_VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		m_VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		m_VertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
 		m_QuadShader->Bind();
-		m_TextShader->Bind();
 		m_CircleShader->Bind();
+		m_LineShader->Bind();
+		m_TextShader->Bind();
 
 		m_CameraBuffer = CreateShared<UniformBuffer>(sizeof(CameraData), 0);
 
 		m_QuadShader->Unbind();
-		m_TextShader->Unbind();
 		m_CircleShader->Unbind();
-
-		delete[] sampler;
-
+		m_LineShader->Unbind();
+		m_TextShader->Unbind();
 	}
 
-	void BatchRenderer2D::Close()
+	void BatchRenderer2D::Shutdown()
 	{
 		delete[] m_QuadVertexPtr;
-		delete[] m_TextVertexPtr;
 		delete[] m_CircleVertexPtr;
+		delete[] m_LineVertexPtr;
+		delete[] m_TextVertexPtr;
 	}
 
-	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform)
+	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView)
 	{
 		Clear();
 
 		m_QuadShader->Bind();
-		m_TextShader->Bind();
 		m_CircleShader->Bind();
+		m_LineShader->Bind();
+		m_TextShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
-		m_CameraData.View = glm::inverse(transform);
+		m_CameraData.View = transform;
 
-		//m_CameraData.ProjectionSize = { 0, 0, 0 };
-		//m_CameraData.CameraPosition = transform[3];
+		if (inverseView)
+			m_CameraData.View = glm::inverse(m_CameraData.View);
 
 		m_CameraBuffer->Bind();
 		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData));
 
 		m_QuadShader->Unbind();
-		m_TextShader->Unbind();
 		m_CircleShader->Unbind();
+		m_LineShader->Unbind();
+		m_TextShader->Unbind();
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture)
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID)
 	{
 		glm::vec2 textureCoords[4] = 
 		{
@@ -238,19 +221,16 @@ namespace TerranEngine
 			{ 0.0f, 1.0f },
 		};
 
-		AddQuad(transform, color, texture, textureCoords);
+		AddQuad(transform, color, texture, textureCoords, entityID);
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color)
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
-		AddQuad(transform, color, nullptr);
+		AddQuad(transform, color, nullptr, entityID);
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4])
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID)
 	{
-		//if (!InCameraView(transform))
-		//	return;
-
 		if (!QuadBatchHasRoom()) 
 		{
 			// Begin New Batch
@@ -285,6 +265,7 @@ namespace TerranEngine
 			m_QuadVertexPtr[m_QuadVertexPtrIndex].Color = color;
 			m_QuadVertexPtr[m_QuadVertexPtrIndex].TextureCoordinates = textureCoordinates[i];
 			m_QuadVertexPtr[m_QuadVertexPtrIndex].TextureIndex = texIndex;
+			m_QuadVertexPtr[m_QuadVertexPtrIndex].EntityID = entityID;
 
 			m_QuadVertexPtrIndex++;
 		}
@@ -292,111 +273,8 @@ namespace TerranEngine
 		m_QuadIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddText(glm::mat4& transform, const glm::vec4& color, Shared<Font> font, const std::string& text)
-	{
-
-		/* Note: there's there's some fuckery with displaying the characters 
-		* which i think is related to how freetype-gl stores them in a packed texture
-		* 
-		* fix fucker
-		*/
-
-		//if (!InCameraView(transform))
-		//	return;
-
-		if (!TextBatchHasRoom()) 
-		{
-			// Begin new batch
-			EndFrame();
-			Clear();
-		}
-
-		int texIndex = -1;
-
-		if (font == nullptr)
-			texIndex = 0;
-
-		for (size_t i = 1; i < m_TextTextureIndex; i++)
-		{
-			if (m_TextTextures[i] == font->GetTexutre())
-			{
-				texIndex = i;
-				break;
-			}
-		}
-
-		if (texIndex == -1)
-		{
-			texIndex = m_TextTextureIndex;
-			m_TextTextures[m_TextTextureIndex] = font->GetTexutre();
-			m_TextTextureIndex++;
-		}
-
-		glm::vec3 position;
-		glm::vec3 scale;
-		glm::quat rotation;
-
-		decomposeMatrix(transform, position, rotation, scale);
-
-		for (size_t i = 0; i < text.size(); i++)
-		{
-			char c = text[i];
-
-			ftgl::texture_glyph_t* glyph = font->LoadGlyph(c);
-
-			if (glyph != NULL) 
-			{
-
-				glm::vec2 uvs[4] =
-				{
-					{ glyph->s0, glyph->t0 },
-					{ glyph->s1, glyph->t0 },
-					{ glyph->s1, glyph->t1 },
-					{ glyph->s0, glyph->t1 },
-				};
-
-				if (i > 0)
-				{
-					float kerning = ftgl::texture_glyph_get_kerning(glyph, std::string(1, text[i - 1]).c_str());
-					position.x += kerning;
-				}
-
-				float x0 = position.x + (glyph->offset_x / 80.0f);
-				float y0 = position.y + (glyph->offset_y / 80.0f);
-				float x1 = x0 + glyph->width / 80.0f;
-				float y1 = y0 - glyph->height / 80.0f;
-
-				glm::vec4 vertexPositions[4] =
-				{
-					glm::vec4(x0, y0, 0.0f, 1.0f),
-					glm::vec4(x1, y0, 0.0f, 1.0f),
-					glm::vec4(x1, y1, 0.0f, 1.0f),
-					glm::vec4(x0, y1, 0.0f, 1.0f),
-				};
-
-				for (size_t i = 0; i < 4; i++)
-				{
-					m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * vertexPositions[i];
-					m_TextVertexPtr[m_TextVertexPtrIndex].Color = color;
-					m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = uvs[i];
-					m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
-
-					m_TextVertexPtrIndex++;
-				}
-
-				m_TextIndexCount += 6;
-
-				position.x += glyph->advance_x / 80.0f;
-			}
-		}
-	}
-
 	void BatchRenderer2D::AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
-
-		//if (!InCameraView(transform))
-		//	return;
-
 		if (!CircleBatchHasRoom())
 		{
 			// Begin New Batch
@@ -409,7 +287,7 @@ namespace TerranEngine
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Position = transform * m_VertexPositions[i];
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Thickness = thickness;
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Color = color;
-			m_CircleVertexPtr[m_CircleVertexPtrIndex].LocalPosition = glm::vec2(m_VertexPositions[i].x, m_VertexPositions[i].y);
+			m_CircleVertexPtr[m_CircleVertexPtrIndex].LocalPosition = glm::vec2(m_VertexPositions[i].x, m_VertexPositions[i].y) * 2.0f;
 
 			m_CircleVertexPtrIndex++;
 		}
@@ -417,10 +295,266 @@ namespace TerranEngine
 		m_CircleIndexCount += 6;
 	}
 
+	void BatchRenderer2D::AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness)
+	{
+		if (!LineBatchHasRoom()) 
+		{
+			EndFrame();
+			Clear();
+		}
+
+		const glm::vec3 points[2] = { point1, point2 };
+
+		glm::vec3 lineNormal = glm::cross(point1, point2);
+		
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
+
+		m_LineVertexPtrIndex++;
+
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
+
+		m_LineVertexPtrIndex++;
+
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
+
+		m_LineVertexPtrIndex++;
+
+		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
+		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+
+		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
+
+		m_LineVertexPtrIndex++;
+
+
+		m_LineIndexCount += 6;
+	}
+
+	void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
+	{
+		int timesToAdd = pointCount / 2;
+
+		for (size_t i = 0; i < timesToAdd; i++) 
+		{
+			int ind = i + 1 * i;
+			AddLine(points[ind], points[ind + 1], color, thickness);
+		}
+	}
+
+	static glm::vec2 CalculateTextSize(float size, const std::string& text, Shared<FontAtlas> fontAtlas) 
+	{
+		glm::vec2 textSize = { 0.0f, 0.0f };
+		float lineWidth = 0.0f;
+
+		for (const char& c : text)
+		{
+			if (c == '\n') 
+			{
+				textSize.x = lineWidth;
+				lineWidth = 0.0f;
+				continue;
+			}
+			else if (c == '\t') 
+			{
+				continue;
+			}
+
+			GlyphData glyph = fontAtlas->GetGlyphData(c);
+
+			lineWidth += glyph.Advance * size;
+		}
+
+		if (textSize.x < lineWidth)
+			textSize.x = lineWidth;
+
+		return textSize;
+	}
+
+	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing, float lineWidth)
+	{
+		if (!fontAtlas || !fontAtlas->GetTexture())
+			return;
+
+		if (!TextBatchHasRoom())
+		{
+			// Begin New Batch
+			EndFrame();
+			Clear();
+		}
+
+		int texIndex = -1;
+
+		for (size_t i = 0; i < m_TextTextureIndex; i++)
+		{
+			if (m_TextTextures[i] == fontAtlas->GetTexture())
+			{
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == -1)
+		{
+			texIndex = m_TextTextureIndex;
+			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
+			m_TextTextureIndex++;
+		}
+		
+		glm::vec3 position, rotation, scale;
+		Math::Decompose(transform, position, rotation, scale);
+
+		glm::vec3 cursorOrigin = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 cursorPos = cursorOrigin;
+
+		char previousChar = 0;
+		size_t wordOffset = 0;
+
+		for (const char& c : text)
+		{
+			// NOTE: this is a very very basic implementation of word wrapping; it wont be permenant
+			if (c == ' ')
+			{
+				size_t separatorInd = text.find(' ', wordOffset);
+
+				std::string currWord = text.substr(wordOffset, separatorInd - wordOffset);
+				
+				wordOffset = separatorInd;
+
+				glm::vec2 wordSize = CalculateTextSize(scale.x, currWord, fontAtlas);
+
+				if (cursorPos.x + wordSize.x > lineWidth)
+				{
+					cursorPos.x = cursorOrigin.x;
+					cursorPos.y -= lineSpacing;
+					continue;
+				}
+			}
+
+			if (c == '\n') 
+			{
+				cursorPos.x = cursorOrigin.x;
+				cursorPos.y -= lineSpacing;
+				continue;
+			}
+			else if (c == '\t') 
+			{
+				GlyphData spaceData = fontAtlas->GetGlyphData(' ');
+				cursorPos.x += spaceData.Advance * 4.0f;
+				continue;
+			}
+
+			if (previousChar)
+				cursorPos.x += (float)fontAtlas->GetKerning(previousChar, c);
+
+			GlyphData glyph = fontAtlas->GetGlyphData(c);
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				glyph.VertexPositions[i].x += cursorPos.x;
+				glyph.VertexPositions[i].y += cursorPos.y;
+				m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * glyph.VertexPositions[i];
+				m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
+				m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
+				m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
+
+				m_TextVertexPtrIndex++;
+			}
+
+			m_TextIndexCount += 6;
+
+			cursorPos.x += glyph.Advance;
+			previousChar = c;
+		}
+	}
+
+#if 0
+	void BatchRenderer2D::AddText(glm::mat4& transform, Shared<FontAtlas> fontAtlas)
+	{
+		if (!TextBatchHasRoom())
+		{
+			// Begin New Batch
+			EndFrame();
+			Clear();
+		}
+
+		int texIndex = -1;
+
+		for (size_t i = 0; i < m_TextTextureIndex; i++)
+		{
+			if (m_TextTextures[i] == fontAtlas->GetTexture())
+			{
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == -1)
+		{
+			texIndex = m_TextTextureIndex;
+			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
+			m_TextTextureIndex++;
+		}
+
+		constexpr glm::vec2 textureCoords[4] =
+		{
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f },
+		};
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * m_VertexPositions[i];
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = textureCoords[i];
+			m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
+
+			m_TextVertexPtrIndex++;
+		}
+
+		m_TextIndexCount += 6;
+
+	}
+#endif
+
+	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
+	{
+		glm::vec3 linePositions[4];
+
+		for (size_t i = 0; i < 4; i++)
+			linePositions[i] = transform * m_VertexPositions[i];
+
+		AddLine(linePositions[0], linePositions[1], color, thickness);
+		AddLine(linePositions[1], linePositions[2], color, thickness);
+		AddLine(linePositions[2], linePositions[3], color, thickness);
+		AddLine(linePositions[3], linePositions[0], color, thickness);
+	}
+
+	void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
+	{
+		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+	}
+
 	void BatchRenderer2D::EndFrame()
 	{
-		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_TextVertexPtrIndex + m_CircleVertexPtrIndex;
-		m_Stats.IndexCount +=  m_QuadIndexCount + m_TextIndexCount + m_CircleIndexCount;
+		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_CircleVertexPtrIndex + m_LineVertexPtrIndex;
+		m_Stats.IndexCount +=  m_QuadIndexCount + m_CircleIndexCount + m_LineIndexCount;
 
 		// Submit quads
 		if (m_QuadIndexCount)
@@ -440,25 +574,6 @@ namespace TerranEngine
 			m_QuadShader->Unbind();
 		}
 
-		// Submit text
-		if (m_TextIndexCount) 
-		{
-			m_TextShader->Bind();
-			m_TextVAO->Bind();
-			m_TextVBO->SetData(m_TextVertexPtr, m_TextVertexPtrIndex * sizeof(QuadVertex));
-
-
-			for (size_t i = 0; i < m_TextTextureIndex; i++)
-				m_TextTextures[i]->Bind(i);
-
-			RenderCommand::Draw(RenderMode::Triangles, m_TextVAO, m_TextIndexCount);
-
-			m_Stats.DrawCalls++;
-
-			m_TextShader->Unbind();
-		}
-
-
 		// Submit circles
 		if (m_CircleIndexCount) 
 		{
@@ -472,6 +587,37 @@ namespace TerranEngine
 
 			m_CircleShader->Unbind();
 		}
+
+		// Submit lines
+		if (m_LineIndexCount) 
+		{
+			m_LineShader->Bind();
+			m_LineVAO->Bind();
+			m_LineVBO->SetData(m_LineVertexPtr, m_LineVertexPtrIndex * sizeof(LineVertex));
+
+			RenderCommand::Draw(RenderMode::Triangles, m_LineVAO, m_LineIndexCount);
+
+			m_Stats.DrawCalls++;
+
+			m_LineShader->Unbind();
+		}
+
+		// Submit text
+		if (m_TextIndexCount) 
+		{
+			m_TextShader->Bind();
+			m_TextVAO->Bind();
+			m_TextVBO->SetData(m_TextVertexPtr, m_TextVertexPtrIndex * sizeof(TextVertex));
+
+			for (size_t i = 0; i < m_TextTextureIndex; i++)
+				m_TextTextures[i]->Bind(i);
+
+			RenderCommand::Draw(RenderMode::Triangles, m_TextVAO, m_TextIndexCount);
+
+			m_Stats.DrawCalls++;
+
+			m_TextShader->Unbind();
+		}
 	}
 
 	void BatchRenderer2D::Clear()
@@ -480,55 +626,14 @@ namespace TerranEngine
 		m_QuadIndexCount = 0;
 		m_QuadTextureIndex = 1;
 
-		m_TextVertexPtrIndex = 0;
-		m_TextIndexCount = 0;
-		m_TextTextureIndex = 1;
-
 		m_CircleVertexPtrIndex = 0;
 		m_CircleIndexCount = 0;
+
+		m_LineVertexPtrIndex = 0;
+		m_LineIndexCount = 0;
+
+		m_TextIndexCount = 0;
+		m_TextVertexPtrIndex = 0;
+		m_TextTextureIndex = 0;
 	}
-
-#if 0
-	// HUGE NOTE: This should be in the scene renderer
-	
-	// NOTE: This is (for now) only for orthographic cameras
-
-	bool BatchRenderer2D::InCameraViewX(float x, float width) 
-	{
-		if ((x + (width / 2) + 0.5f >= m_CameraData.CameraPosition.x + -m_CameraData.ProjectionSize.x / 2 && x - (width / 2) - 0.5f <= m_CameraData.CameraPosition.x + m_CameraData.ProjectionSize.x / 2))
-			return true;
-
-		return false;
-	}
-
-	bool BatchRenderer2D::InCameraViewY(float y, float height)
-	{
-		if ((y + (height / 2) + 0.5f >= m_CameraData.CameraPosition.y + -m_CameraData.ProjectionSize.y / 2 && y - (height / 2) - 0.5f <= m_CameraData.CameraPosition.y + m_CameraData.ProjectionSize.y / 2))
-			return true;
-
-		return false;
-	}
-	
-	bool BatchRenderer2D::InCameraViewZ(float z, float depth)
-	{
-		if ((z + (depth / 2) + 0.5f >= m_CameraData.CameraPosition.z + -m_CameraData.ProjectionSize.z / 2 && z - (depth / 2) - 0.5f <= m_CameraData.CameraPosition.z + m_CameraData.ProjectionSize.z / 2))
-			return true;
-
-		return false;
-	}
-
-	bool BatchRenderer2D::InCameraView(glm::mat4& transform)
-	{
-		glm::vec3 position, size;
-		glm::quat rotation;
-
-		decomposeMatrix(transform, position, rotation, size);
-
-		if (InCameraViewX(position.x, size.x) && InCameraViewY(position.y, size.y) && InCameraViewZ(position.z, size.z))
-			return true;
-
-		return m_CullObjectsOutsideOfCamera ? false : true;
-	}
-#endif
 }
-#pragma warning (pop)

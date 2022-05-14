@@ -27,34 +27,11 @@ namespace TerranEngine {
 	private:
 		OrthographicCamera m_Camera;
 		Transform m_CameraTransform;
-		
-		Transform m_Transform1, m_Transform2;
+		Transform m_Transform;
 
-		glm::vec2 m_TexCoords[4];
-		
 		float m_ZoomLevel = 0.1f;
-		
-		Shared<Font> m_Font;
+		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 
-		float fps = 0.0f;
-
-		BatchRendererStats stats;
-
-		Unique<BatchRenderer2D> m_Renderer;
-		Shared<Scene> m_Scene;
-
-		glm::vec2 m_ViewportSize = {1080.0f, 790.0f};
-
-		glm::uvec2 m_Max = { 10.0f, 10.0f };
-
-		glm::vec4 m_TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		float m_Time = 0.0f;
-
-		bool m_Wireframe = false;
-
-		Entity testEntity, cameraEntity;
-
-		SceneSerializer m_SSerializer;
+		Shared<Framebuffer> m_Framebuffer;
 	};
 }

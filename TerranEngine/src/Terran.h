@@ -16,9 +16,6 @@
 #include "Events/MouseEvent.h"
 #include "Events/Event.h"
 
-/* ---- Utils ---- */
-//#include "Utils/FileUtils.h"
-
 /* ---- ImGui ---- */
 #include "ImGui/ImGuiLayer.h"
 
@@ -31,8 +28,8 @@
 #include "Graphics/Texture.h"
 #include "Graphics/BatchRenderer2D.h"
 #include "Graphics/TextureSheet.h"
-#include "Graphics/Font.h"
 #include "Graphics/Camera.h"
+#include "Graphics/FontAtlas.h"
 
 /* ---- Debugging ---- */
 #include "Utils/Debug/Profiler.h"
@@ -55,6 +52,10 @@
 #include "Scripting/ScriptField.h"
 #include "Scripting/ScriptMethod.h"
 #include "Scripting/ScriptObject.h"
-#include "Scripting/ScriptString.h"
 
 #include "Scripting/ScriptBindings.h"
+
+/* ---- Physics ---- */
+#include "Physics/Physics.h"
+#include "Physics/PhysicsBody.h"
+#include "Physics/Collider.h"

@@ -2,7 +2,7 @@
 
 #include "Core/Base.h"
 
-#include <mono/metadata/debug-helpers.h>
+typedef struct _MonoMethod MonoMethod;
 
 namespace TerranEngine 
 {

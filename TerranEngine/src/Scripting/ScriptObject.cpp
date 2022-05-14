@@ -1,16 +1,20 @@
 #include "trpch.h"
 #include "ScriptObject.h"
+#include "GCManager.h"
 
 #include <mono/metadata/attrdefs.h>
+#include <mono/metadata/debug-helpers.h>
+#include <mono/metadata/object.h>
+
 
 namespace TerranEngine 
 {
-	ScriptObject::ScriptObject(uint32_t monoGCHandle)
-		: m_MonoGCHandle(monoGCHandle)
+	ScriptObject::ScriptObject(GCHandle gcHandle)
+		: m_GCHandle(gcHandle)
 	{
 		std::hash<std::string> hasher;
 
-		MonoObject* monoObject = (MonoObject*)GetNativeObject();
+		MonoObject* monoObject = GCManager::GetMonoObject(m_GCHandle);
 
 		MonoClass* klass = mono_object_get_class(monoObject);
 		
@@ -20,7 +24,7 @@ namespace TerranEngine
 		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
 		{
 			uint32_t hashedName = hasher(mono_field_get_name(field));
-			ScriptField scriptField(field, m_MonoGCHandle);
+			ScriptField scriptField(field, monoObject);
 			
 			if (scriptField.GetVisibility() == ScriptFieldVisiblity::Public) 
 			{
@@ -28,17 +32,6 @@ namespace TerranEngine
 				m_PublicFields.emplace(hashedName, std::move(scriptField));
 			}
 		}
-	}
-
-	ScriptObject::~ScriptObject()
-	{
-	}
-
-	void ScriptObject::Uninitialize()
-	{
-		TR_INFO("Mono object released");
-		mono_gchandle_free(m_MonoGCHandle);
-		m_MonoGCHandle = 0;
 	}
 
 	ScriptField ScriptObject::GetPublicField(const char* fieldName)
@@ -52,16 +45,6 @@ namespace TerranEngine
 			TR_WARN("No field with the corresponding name");
 
 		return { };
-	}
-
-	void* ScriptObject::GetNativeObject() const
-	{
-		MonoObject* obj = mono_gchandle_get_target(m_MonoGCHandle);
-
-		if (obj == NULL) 
-			TR_ERROR("Script object is null");
-
-		return (void*)obj;
 	}
 }
 

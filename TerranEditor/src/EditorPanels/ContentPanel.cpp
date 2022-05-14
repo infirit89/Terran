@@ -1,6 +1,11 @@
 #include "ContentPanel.h"
 
+#include "Core/Log.h"
+
 #include <imgui.h>
+
+#pragma warning(push)
+#pragma warning(disable : 4312)
 
 namespace TerranEditor 
 {
@@ -50,9 +55,10 @@ namespace TerranEditor
 
 				ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
 
+				Shared<Texture> entryIcon = dirEntry.is_directory() ? m_DirIcon : m_FileIcon;
+
 				// if the entry is a directory then use the folder icon else use the file icon
-				ImGui::ImageButton((ImTextureID)(dirEntry.is_directory() ? m_DirIcon->GetTextureID() : m_FileIcon->GetTextureID()), 
-					{ cellSize + 10.0f, cellSize }, { 0, 1 }, { 1, 0 });
+				ImGui::ImageButton((ImTextureID)entryIcon->GetTextureID(), { cellSize + 10.0f, cellSize }, { 0, 1 }, { 1, 0 });
 
 				ImGui::PopStyleColor();
 
@@ -98,4 +104,4 @@ namespace TerranEditor
 		}
 	}
 }
-
+#pragma warning(pop)

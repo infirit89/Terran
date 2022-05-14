@@ -5,14 +5,15 @@
 
 #include "Graphics/Texture.h"
 #include "Graphics/OrthographicCamera.h"
+#include "Graphics/FontAtlas.h"
 
 #include "Scripting/ScriptField.h"
+
+#include "Physics/PhysicsStates.h"
 
 #include "Utils/Debug/Profiler.h"
 
 #include <glm/glm.hpp>
-
-#include <entt.hpp>
 
 #include <vector>
 
@@ -37,6 +38,10 @@ namespace TerranEngine
 		glm::vec3 Position =	{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation =	{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 Scale =		{ 1.0f, 1.0f, 1.0f };
+
+		glm::vec3 Forward =		{ 0.0f, 0.0f, 1.0f };
+		glm::vec3 Up =			{ 0.0f, 1.0f, 0.0f };
+		glm::vec3 Right =		{ 1.0f, 0.0f, 0.0f };
 
 		bool IsDirty = true;
 
@@ -75,6 +80,43 @@ namespace TerranEngine
 		CircleRendererComponent() = default;
 	};
 
+	struct LineRendererComponent 
+	{
+		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float Thickness = 1.0f;
+
+		int PointCount = 2;
+		glm::vec3* Points;
+		//glm::vec3 Point1 = { 0.0f, 0.0f, 0.0f };
+		//glm::vec3 Point2 = { 0.0f, 0.0f, 1.0f };
+
+		LineRendererComponent() 
+		{
+			Points = new glm::vec3[PointCount];
+
+			Points[0] = { 0.0f, 0.0f, 0.0f };
+			Points[1] = { 0.0f, 0.0f, 1.0f };
+		}
+
+		~LineRendererComponent() 
+		{
+			delete[] Points;
+		}
+
+	};
+
+	struct TextRendererComponent 
+	{
+		Shared<FontAtlas> FontAtlas;
+		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		std::string Text = "";
+		float LineSpacing = 1.0f;
+		float LineWidth = 10.0f;
+
+		TextRendererComponent() = default;
+		~TextRendererComponent() = default;
+	};
+
 	struct RelationshipComponent 
 	{
 		UUID ParentID;
@@ -103,5 +145,40 @@ namespace TerranEngine
 		
 		bool ClassExists = true;
 		bool Started = false;
+	};
+
+	struct Rigidbody2DComponent 
+	{
+		Rigidbody2DComponent() = default;
+
+		PhysicsBodyType BodyType = PhysicsBodyType::Dynamic;
+		PhysicsBodySleepState SleepState = PhysicsBodySleepState::Awake;
+
+		bool FixedRotation = false;
+		float GravityScale = 1.0f;
+		bool Enabled = true;
+	};
+
+	struct BoxCollider2DComponent 
+	{
+		BoxCollider2DComponent() = default;
+
+		glm::vec2 Offset = { 0.0f, 0.0f };
+		glm::vec2 Size = { 1.0f, 1.0f };
+
+		bool IsSensor = false;
+
+		uint32_t ColliderIndex = 0;
+	};
+
+	struct CircleCollider2DComponent 
+	{
+		CircleCollider2DComponent() = default;
+
+		glm::vec2 Offset = { 0.0f, 0.0f };
+		float Radius = 0.5f;
+		bool IsSensor = false;
+
+		uint32_t ColliderIndex = 0;
 	};
 }
