@@ -46,9 +46,11 @@ bin-int/
 *.vcxproj.filters
 *.vcxproj.user
 
-!premake5.exe
 !TerranEngine/vendor/mono/mono-2.0-sgen.dll
 !TerranEngine/vendor/mono/mono-2.0-sgen.pdb
 
 #Terran Files
-.log
+*.log
+
+#Python
+__pycache__

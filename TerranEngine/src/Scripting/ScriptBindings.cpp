@@ -436,7 +436,7 @@ namespace TerranEngine
 		}
 		// ----------------------
 
-	// bullshit?
+// bullshit?
 #define SET_COMPONENT_VAR(var, entityID, componentType)\
 	UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityID);\
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
@@ -454,7 +454,7 @@ namespace TerranEngine
 	else\
 		TR_ERROR("Invalid entity id");
 
-	// ---- Transform ----
+		// ---- Transform ----
 		static void Transform_SetPosition_Internal(MonoArray* entityUUIDArr, const glm::vec3& Position)
 		{
 			SET_COMPONENT_VAR(Position, entityUUIDArr, TransformComponent);
