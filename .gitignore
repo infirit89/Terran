@@ -46,8 +46,9 @@ bin-int/
 *.vcxproj.filters
 *.vcxproj.user
 
-#Terran Files
+#Terran
 *.log
+premake/
 
 # Mono
 mono/include/
