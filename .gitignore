@@ -46,9 +46,6 @@ bin-int/
 *.vcxproj.filters
 *.vcxproj.user
 
-!TerranEngine/vendor/mono/mono-2.0-sgen.dll
-!TerranEngine/vendor/mono/mono-2.0-sgen.pdb
-
 #Terran Files
 *.log
 

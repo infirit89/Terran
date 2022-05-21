@@ -1,8 +1,15 @@
-from tkinter.messagebox import NO
 import requests
 import os
 import sys
 import zipfile
+
+# Note: winreg should only be imported if the os is windows
+import winreg
+
+TerranRoot = "../"
+TerranEnginePath = f"{TerranRoot}/TerranEngine"
+TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
+TerranEditorPath = f"{TerranRoot}/TerranEditor"
 
 def DownloadFile(url, filepath):
     filepath = os.path.abspath(filepath)
@@ -32,7 +39,6 @@ def DownloadFile(url, filepath):
             sys.stdout.flush()
         sys.stdout.write('\n')
 
-#
 
 def UnzipFile(zipPath, deleteZip : bool = True):
     zipPath = os.path.abspath(zipPath)
@@ -58,4 +64,37 @@ def UnzipFile(zipPath, deleteZip : bool = True):
 
     if(deleteZip):
         os.remove(zipPath)
-        
+
+
+def OpenKey(key: int, subkey: str):
+    try:
+        return winreg.OpenKey(key, subkey)
+    except:
+        sys.stderr.write("Couldn't open the specified key!\n")
+        return None
+
+def QueryValue(subkey: str, valueName: str):
+    try:
+        with OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey) as hKey:
+            return winreg.QueryValueEx(hKey, valueName)[0]
+    except:
+        sys.stderr.write("\rCouldn't find the value with name: {}\n".format(valueName))
+        return None
+
+def GetMonoRootDir():
+    rootDir = QueryValue("SOFTWARE\\Mono", "SdkInstallRoot")
+    
+    if rootDir is not None:
+        return str(rootDir)
+
+    return None
+
+def GetMonoVersion():
+    version = QueryValue("SOFTWARE\\Mono", "Version")
+
+    if version is not None:
+        return str(version)
+
+    return None
+
+
