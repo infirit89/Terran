@@ -33,6 +33,7 @@ namespace TerranEngine
 	static MonoImage* s_CurrentImage;
 	
 	static std::filesystem::path s_AssemblyPath;
+	static std::filesystem::path s_MonoPath = "mono";
 
 	static std::unordered_map<uint32_t, ScriptClass> s_Classes;
 
@@ -121,11 +122,9 @@ namespace TerranEngine
 	void ScriptEngine::Initialize(const std::filesystem::path& asseblyPath)
 	{
 		s_AssemblyPath = asseblyPath;
-		std::filesystem::path monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
-		//std::string monoPath = "Resources/Mono/";
-
-		std::filesystem::path libPath = monoPath / "lib";
-		std::filesystem::path etcPath = monoPath / "etc";
+		
+		std::filesystem::path libPath = s_MonoPath / "lib";
+		std::filesystem::path etcPath = s_MonoPath / "etc";
 
 		mono_set_dirs(libPath.string().c_str(), etcPath.string().c_str());
 

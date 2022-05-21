@@ -45,7 +45,7 @@ project "TerranEditor"
         postbuildcommands  
         {
             -- todo: copy the pdb
-            "{COPY} %{wks.location}/TerranEngine/vendor/mono/mono-2.0-sgen.dll %{prj.location}/bin/" .. outputdir
+            "{COPY} %{wks.location}/TerranEngine/vendor/mono/bin/mono-2.0-sgen.dll %{prj.location}/bin/" .. outputdir
         }
 
     filter "configurations:Debug"

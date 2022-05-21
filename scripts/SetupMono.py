@@ -11,9 +11,9 @@ import sys
 class MonoSetup:
 
     monoRoot = Utils.GetMonoRootDir()
-    targetMonoLibDir = f"{Utils.TerranEngineVendorPath}/mono/lib/4.5"
+    targetMonoLibDir = f"{Utils.TerranEditorPath}/mono/lib/mono/4.5"
     targetMonoFacadesLibDir = f"{targetMonoLibDir}/Facades"
-    targetMonoEtcDir = f"{Utils.TerranEngineVendorPath}/mono/etc"
+    targetMonoEtcDir = f"{Utils.TerranEditorPath}/mono/etc/mono"
     targetMonoBinDir = f"{Utils.TerranEngineVendorPath}/mono/bin"
     targetMonoIncludeDir = f"{Utils.TerranEngineVendorPath}/mono/include/mono"
 

@@ -50,8 +50,8 @@ bin-int/
 *.log
 
 # Mono
-TerranEngine/vendor/mono/include/
-TerranEngine/vendor/mono/etc/
+mono/include/
+mono/etc/
 
 #Python
 __pycache__
