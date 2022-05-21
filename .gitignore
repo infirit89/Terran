@@ -48,8 +48,10 @@ bin-int/
 
 #Terran Files
 *.log
-mono/include/
-mono/etc/
+
+# Mono
+TerranEngine/vendor/mono/include/
+TerranEngine/vendor/mono/etc/
 
 #Python
 __pycache__
