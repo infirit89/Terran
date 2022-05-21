@@ -48,6 +48,8 @@ bin-int/
 
 #Terran Files
 *.log
+TerranEngine/vendor/include/*.h
+TerranEngine/vendor/include/*.def
 
 #Python
 __pycache__
