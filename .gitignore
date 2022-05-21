@@ -51,8 +51,7 @@ bin-int/
 premake/
 
 # Mono
-mono/include/
-mono/etc/
+mono/
 
 #Python
 __pycache__

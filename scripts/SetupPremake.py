@@ -18,6 +18,7 @@ class PremakeSetup:
     @classmethod
     def InstallPremake(self):
         
+        os.makedirs(self.premakeDir)
         Utils.DownloadFile(self.premakeURL, f"{self.premakeDir}/premake.zip")
         Utils.UnzipFile(f"{self.premakeDir}/premake.zip")
         print(f"Premake {self.premakeVersion} has been downloaded!")
