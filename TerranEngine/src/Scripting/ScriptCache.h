@@ -10,7 +10,10 @@ namespace TerranEngine
 {
 	#define TR_API_CACHED_CLASS(className) ScriptCache::GetCachedClassFromName("Terran."#className)
 	#define TR_CORE_CACHED_CLASS(className) ScriptCache::GetCachedClassFromName("System."#className)
-	#define TR_CLASS_ID(className) Hash::FNVHash("Terran."#className)
+
+	#define TR_CLASS_ID(className) Hash::FNVHash(className)
+	#define TR_API_CLASS_ID(className) TR_CLASS_ID("Terran."#className)
+	#define TR_CORLIB_CLASS_ID(className) TR_CLASS_ID("System."#className)
 
 	class ScriptCache 
 	{

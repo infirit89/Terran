@@ -8,6 +8,7 @@
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
+#include "Core/Hash.h"
 
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
@@ -253,7 +254,7 @@ namespace TerranEngine
 
 	bool ScriptEngine::ClassExists(const std::string& moduleName)
 	{
-		return GetClass(moduleName).GetNativeClassPtr() != nullptr;
+		return GetClass(moduleName).GetMonoClassPtr() != nullptr;
 	}
 
 	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature)
@@ -286,14 +287,14 @@ namespace TerranEngine
 		{
 			ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
 			ScriptClass klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
-			if (!klass.GetNativeClassPtr())
+			if (!klass.GetMonoClassPtr())
 			{
 				TR_WARN("Couldn't find the class: {0}", scriptComponent.ModuleName);
 				return;
 			}
 
 			ScriptClass parentKlass = klass.GetParent();
-			if ((!parentKlass.GetNativeClassPtr()) ||
+			if ((!parentKlass.GetMonoClassPtr()) ||
 				(strcmp(parentKlass.GetName(), "Scriptable") != 0 && strcmp(parentKlass.GetNamespace(), "TerranScriptCore") != 0))
 			{
 				// TODO: display error in ui

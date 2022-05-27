@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "ScriptMarshal.h"
+#include "ScriptCache.h"
 
 #include <mono/metadata/appdomain.h>
 
@@ -8,7 +9,8 @@ namespace TerranEngine
 	MonoArray* ScriptMarshal::UUIDToMonoArray(const UUID& id)
 	{
 		const uint8_t* idData = id.GetRaw();
-		MonoArray* uuidArray = mono_array_new(mono_domain_get(), mono_get_byte_class(), 16);
+		MonoClass* byteClass = TR_CORE_CACHED_CLASS(Byte)->GetMonoClassPtr();
+		MonoArray* uuidArray = mono_array_new(mono_domain_get(), byteClass, 16);
 
 		uint8_t* uuidArrayAddr = mono_array_addr(uuidArray, uint8_t, 0);
 

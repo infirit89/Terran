@@ -19,7 +19,7 @@ namespace TerranEngine
 
 		ScriptMethod GetMethod(const char* methodSignature);
 
-		inline MonoClass* GetNativeClassPtr() const { return m_MonoClass; }
+		inline MonoClass* GetMonoClassPtr() const { return m_MonoClass; }
 		inline const char* GetName() const { return m_ClassName; }
 		inline const char* GetNamespace() const { return m_Namespace; }
 

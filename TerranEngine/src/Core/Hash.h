@@ -15,10 +15,10 @@ namespace TerranEngine
 
 			uint32_t hash = FNV32Offset;
 
-			for (const char& c : str)
+			for (char c : str)
 			{
-				hash *= FNV32Prime;
-				hash ^= c;
+				hash = hash ^ c;
+				hash = hash * FNV32Prime;
 			}
 
 			return hash;

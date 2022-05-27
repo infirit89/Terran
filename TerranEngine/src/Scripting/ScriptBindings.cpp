@@ -258,7 +258,7 @@ namespace TerranEngine
 		static ComponentType GetComponentType(MonoString* componentTypeStr)
 		{
 			std::string moduleName = ScriptMarshal::MonoStringToUTF8(componentTypeStr);
-			ScriptClass* clazz = ScriptCache::GetCachedClassFromName(moduleName);
+			ScriptClass* clazz = TR_API_CACHED_CLASS(moduleName);
 
 			if (clazz == nullptr)
 			{
@@ -270,12 +270,12 @@ namespace TerranEngine
 					return ComponentType::None;
 			}
 
-			if (*clazz == *ScriptCache::GetCachedClassFromName("Transform"))				return ComponentType::TransformComponent;
-			else if (*clazz == *ScriptCache::GetCachedClassFromName("Tag"))					return ComponentType::TagComponent;
-			else if (*clazz == *ScriptCache::GetCachedClassFromName("Rigidbody2D"))			return ComponentType::Rigibody2DComponent;
-			else if (*clazz == *ScriptCache::GetCachedClassFromName("Collider2D"))			return ComponentType::Collider2DComponent;
-			else if (*clazz == *ScriptCache::GetCachedClassFromName("BoxCollider2D"))		return ComponentType::BoxCollider2DComponent;
-			else if (*clazz == *ScriptCache::GetCachedClassFromName("CircleCollider2D"))	return ComponentType::CircleCollider2DComponent;
+			if		(*clazz == *TR_API_CACHED_CLASS(Transform))			return ComponentType::TransformComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(Tag))				return ComponentType::TagComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(Rigidbody2D))		return ComponentType::Rigibody2DComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(Collider2D))		return ComponentType::Collider2DComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))		return ComponentType::BoxCollider2DComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))	return ComponentType::CircleCollider2DComponent;
 
 			return ComponentType::None;
 		}
