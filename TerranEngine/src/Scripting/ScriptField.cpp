@@ -1,7 +1,6 @@
 #include "trpch.h"
 #include "ScriptField.h"
-
-#include "ScriptString.h"
+#include "ScriptMarshal.h"
 
 #include <mono/metadata/attrdefs.h>
 
@@ -130,11 +129,9 @@ namespace TerranEngine
 			return "";
 		}
 
-		MonoString* string = nullptr;
-
-		mono_field_get_value(m_MonoObject, m_MonoField, &string);
-
-		return ScriptString(string).GetUTF8Str();
+		MonoString* monoStr = nullptr;
+		mono_field_get_value(m_MonoObject, m_MonoField, &monoStr);
+		return ScriptMarshal::MonoStringToUTF8(monoStr).c_str();
 	}
 
 	void ScriptField::SetDataStringRaw(const char* value)
@@ -157,7 +154,7 @@ namespace TerranEngine
 			return;
 		}
 		
-		ScriptString string((const char*)value);
-		mono_field_set_value(m_MonoObject, m_MonoField, string.GetStringInternal());
+		MonoString* monoStr = ScriptMarshal::UTF8ToMonoString(value);
+		mono_field_set_value(m_MonoObject, m_MonoField, monoStr);
 	}
 }

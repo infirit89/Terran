@@ -24,6 +24,7 @@ namespace TerranEngine
 		inline const char* GetNamespace() const { return m_Namespace; }
 
 		ScriptClass GetParent();
+		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
 
 	private:
 		MonoClass* m_MonoClass = nullptr;

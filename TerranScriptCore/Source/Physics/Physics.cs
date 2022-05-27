@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TerranScriptCore
+﻿namespace Terran
 {
 	public enum RigidbodyType : byte 
 	{

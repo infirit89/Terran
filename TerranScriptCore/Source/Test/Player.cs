@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	class Player1 : Scriptable
 	{

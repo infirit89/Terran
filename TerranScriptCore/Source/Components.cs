@@ -1,5 +1,5 @@
 ﻿
-namespace TerranScriptCore
+namespace Terran
 {
 	public class Component
 	{

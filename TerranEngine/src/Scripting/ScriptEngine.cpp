@@ -1,10 +1,10 @@
 #include "trpch.h"
 #include "ScriptEngine.h"
 
-#include "ScriptString.h"
 #include "ScriptBindings.h"
 #include "ScriptMarshal.h"
 #include "GCManager.h"
+#include "ScriptCache.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -20,6 +20,7 @@
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/mono-debug.h>
 #include <mono/utils/mono-logger.h>
+#include <mono/metadata/mono-config.h>
 
 #include <unordered_map>
 
@@ -34,6 +35,11 @@ namespace TerranEngine
 	
 	static std::filesystem::path s_AssemblyPath;
 	static std::filesystem::path s_MonoPath = "mono";
+
+	static std::filesystem::path s_LibPath = s_MonoPath / "lib";
+	static std::filesystem::path s_EtcPath = s_MonoPath / "etc";
+
+	static std::filesystem::path s_MonoConfigPath = s_EtcPath / "config";
 
 	static std::unordered_map<uint32_t, ScriptClass> s_Classes;
 
@@ -58,7 +64,7 @@ namespace TerranEngine
 
 		void GetMethods(ScriptClass& scriptClass) 
 		{
-			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
+			Constructor = GetMethodFromImage(s_CurrentImage, "Terran.Scriptable:.ctor(byte[])");
 
 			InitMethod = scriptClass.GetMethod(":Init()");
 			UpdateMethod = scriptClass.GetMethod(":Update()");
@@ -123,20 +129,15 @@ namespace TerranEngine
 	{
 		s_AssemblyPath = asseblyPath;
 		
-		std::filesystem::path libPath = s_MonoPath / "lib";
-		std::filesystem::path etcPath = s_MonoPath / "etc";
-
-		mono_set_dirs(libPath.string().c_str(), etcPath.string().c_str());
+		mono_set_dirs(s_LibPath.string().c_str(), s_EtcPath.string().c_str());
 
 #ifdef TR_DEBUG
-
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
-
 		mono_trace_set_level_string("debug");
-
 		mono_trace_set_log_handler(OnLogMono, nullptr);
-
 #endif
+
+		mono_config_parse(s_MonoConfigPath.string().c_str());
 
 		s_CoreDomain = mono_jit_init("CoreDomain");
 		
@@ -175,6 +176,7 @@ namespace TerranEngine
 
 		TR_INFO("Successfuly loaded: {0}", s_AssemblyPath);
 
+		ScriptCache::CacheCoreClasses();
 		ScriptBindings::Bind();
 	}
 
@@ -211,6 +213,8 @@ namespace TerranEngine
 
 			s_Classes.clear();
 		}
+
+		ScriptCache::ClearClassCache();
 	}
 
 	ScriptClass ScriptEngine::GetClass(const std::string& moduleName)

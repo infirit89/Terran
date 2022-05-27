@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	public class Input
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	public class UUID
 	{

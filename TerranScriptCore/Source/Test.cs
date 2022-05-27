@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	public class TestScript : Scriptable 
 	{
@@ -12,16 +12,17 @@ namespace TerranScriptCore
 			Log.Trace(bc.IsSensor);*/
 
 			Collider2D c = entity.GetComponent<Collider2D>();
-
-			Log.Trace(c.Offset);
+			if(c != null)
+				Log.Trace(c.Offset);
 
 			//CircleCollider2D cc = entity.GetComponent<CircleCollider2D>();
 			//Log.Trace(cc.Offset);
-			//Log.Trace(cc.IsSensor);
+			//Log.Trace(cc.IsSensor
 		}
 
 		void Update() 
 		{
+			Log.Trace("Test");
 		}
 
 		void OnCollisionBegin(Entity entity) 
@@ -83,7 +84,7 @@ namespace TerranScriptCore
 			TimeSpan s = st.Elapsed;
 			Log.Trace(s.TotalMilliseconds);
 
-			//Log.Trace(st.ElapsedMilliseconds);
+			Log.Trace(st.ElapsedMilliseconds);
 
 		}
 		public void PhysicsUpdate() 

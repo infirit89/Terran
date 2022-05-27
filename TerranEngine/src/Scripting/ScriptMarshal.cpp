@@ -34,4 +34,24 @@ namespace TerranEngine
 
 		return UUID(idData);
 	}
+
+	MonoString* ScriptMarshal::UTF8ToMonoString(const std::string& str)
+	{
+		MonoDomain* mainDomain = mono_domain_get();
+		return mono_string_new(mainDomain, str.c_str());
+	}
+
+	std::string ScriptMarshal::MonoStringToUTF8(MonoString* monoStr)
+	{
+		MonoError error;
+		std::string str = mono_string_to_utf8_checked(monoStr, &error);
+
+		if (error.error_code != MONO_ERROR_NONE) 
+		{
+			TR_ERROR("Mono Error ID: {0}; Message {1}", mono_error_get_error_code(&error), mono_error_get_message(&error));
+			return "";
+		}
+
+		return str;
+	}
 }

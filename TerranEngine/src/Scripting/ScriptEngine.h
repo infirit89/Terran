@@ -11,6 +11,8 @@
 
 namespace TerranEngine 
 {
+	#define API_NAMESPACE "Terran"
+
 	class ScriptEngine 
 	{
 

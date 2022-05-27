@@ -39,5 +39,6 @@ namespace TerranEngine
 		static GCHandle CreateStrongHadle(MonoObject* monoObject);
 		static void FreeHandle(GCHandle& handle);
 		static MonoObject* GetMonoObject(const GCHandle& handle);
+		static void CollectAll();
 	};
 }

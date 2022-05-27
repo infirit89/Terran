@@ -37,4 +37,9 @@ namespace TerranEngine
 
         return object;
     }
+
+    void GCManager::CollectAll()
+    {
+        mono_gc_collect(mono_gc_max_generation());
+    }
 }

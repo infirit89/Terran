@@ -11,7 +11,8 @@ import sys
 class MonoSetup:
 
     monoRoot = Utils.GetMonoRootDir()
-    targetMonoLibDir = f"{Utils.TerranEditorPath}/mono/lib/mono/4.5"
+    targetMonoLibVer = "4.5"
+    targetMonoLibDir = f"{Utils.TerranEditorPath}/mono/lib/mono/{targetMonoLibVer}"
     targetMonoFacadesLibDir = f"{targetMonoLibDir}/Facades"
     targetMonoEtcDir = f"{Utils.TerranEditorPath}/mono/etc/mono"
     targetMonoBinDir = f"{Utils.TerranEngineVendorPath}/mono/bin"
@@ -26,7 +27,7 @@ class MonoSetup:
 
     @classmethod
     def CopyLibs(self):
-        monoLibPath = f"{self.monoRoot}/lib/mono/4.5" 
+        monoLibPath = f"{self.monoRoot}/lib/mono/{self.targetMonoLibVer}" 
         
         libsExist = 0
 

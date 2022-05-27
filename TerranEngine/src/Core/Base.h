@@ -3,6 +3,7 @@
 #include <memory>
 
 #define TR_EVENT_BIND_FN(event) std::bind(&event, this, std::placeholders::_1)
+#define STRINGIFY(a) #a
 
 namespace TerranEngine
 {
