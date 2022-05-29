@@ -22,6 +22,8 @@ namespace Terran
 
 		void Update() 
 		{
+			//entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
+
 			Log.Trace("Test");
 		}
 

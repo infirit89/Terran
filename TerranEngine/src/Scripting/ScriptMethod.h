@@ -21,7 +21,7 @@ namespace TerranEngine
 		
 		void InvokeStatic(void** args);
 
-		inline MonoMethod* GetNativeMethodPtr() const { return m_MonoMethod; }
+		inline MonoMethod* GeMonoMethodPtr() const { return m_MonoMethod; }
 	private:
 		MonoMethod* m_MonoMethod = nullptr;
 	};

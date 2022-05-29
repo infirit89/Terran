@@ -22,8 +22,7 @@ namespace TerranEngine
 		static void ClearClassCache();
 
 		static ScriptClass* GetCachedClassFromName(std::string className);
-
+		
 		static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;
 	};
-
 }

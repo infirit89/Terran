@@ -5,6 +5,7 @@
 #include "ScriptMarshal.h"
 #include "GCManager.h"
 #include "ScriptCache.h"
+#include "ScriptMethodThunks.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -54,26 +55,27 @@ namespace TerranEngine
 	struct ScriptableInstance 
 	{
 		ScriptObject Object;
-		ScriptMethod Constructor;
-		ScriptMethod InitMethod;
-		ScriptMethod UpdateMethod;
-
-		ScriptMethod PhysicsBeginContact;
-		ScriptMethod PhysicsEndContact;
+		ScriptMethodThunks<MonoArray*> Constructor;
+		ScriptMethodThunks<> InitMethod;
+		ScriptMethodThunks<> UpdateMethod;
 		
-		ScriptMethod PhysicsUpdateMethod;
+		ScriptMethodThunks<MonoArray*> PhysicsBeginContact;
+		ScriptMethodThunks<MonoArray*> PhysicsEndContact;
+
+		ScriptMethodThunks<> PhysicsUpdateMethod;
 
 		void GetMethods(ScriptClass& scriptClass) 
 		{
-			Constructor = GetMethodFromImage(s_CurrentImage, "Terran.Scriptable:.ctor(byte[])");
+			// TODO: return ScriptMethod*
+			Constructor.SetFromMethod(GetMethodFromImage(s_CurrentImage, "Terran.Scriptable:.ctor(byte[])"));
 
-			InitMethod = scriptClass.GetMethod(":Init()");
-			UpdateMethod = scriptClass.GetMethod(":Update()");
+			InitMethod.SetFromMethod(scriptClass.GetMethod(":Init()"));
+			UpdateMethod.SetFromMethod(scriptClass.GetMethod(":Update()"));
 
-			PhysicsBeginContact = scriptClass.GetMethod(":OnCollisionBegin(Entity)");
-			PhysicsEndContact = scriptClass.GetMethod(":OnCollisionEnd(Entity)");
+			PhysicsBeginContact.SetFromMethod(scriptClass.GetMethod(":OnCollisionBegin(Entity)"));
+			PhysicsEndContact.SetFromMethod(scriptClass.GetMethod(":OnCollisionEnd(Entity)"));
 
-			PhysicsUpdateMethod = scriptClass.GetMethod(":PhysicsUpdate()");
+			PhysicsUpdateMethod.SetFromMethod(scriptClass.GetMethod(":PhysicsUpdate()"));
 		}
 	};
 
@@ -149,6 +151,19 @@ namespace TerranEngine
 		}
 
 		NewDomain();
+
+		const MonoTableInfo* tableInfo = mono_image_get_table_info(s_CurrentImage, MONO_TABLE_FIELDRVA);
+		int rows = mono_table_info_get_rows(tableInfo);
+
+		for (size_t i = 0; i < rows; i++)
+		{
+			uint32_t cols[MONO_FIELD_RVA_SIZE];
+			mono_metadata_decode_row(tableInfo, i, cols, MONO_FIELD_RVA_SIZE);
+
+			const char* className = mono_metadata_string_heap(s_CurrentImage, cols[MONO_FIELD_RVA_RVA]);
+			const char* namespaceName = mono_metadata_string_heap(s_CurrentImage, cols[MONO_FIELD_RVA_FIELD]);
+			TR_TRACE("Class: {0}, Namespace: {1}", className, namespaceName);
+		}
 	}
 
 	void ScriptEngine::Shutdown()
@@ -231,7 +246,7 @@ namespace TerranEngine
 
 		if (s_Classes.find(hashedName) != s_Classes.end())
 			return s_Classes[hashedName];
-		
+
 		size_t dotPosition = moduleName.find_last_of(".");
 
 		std::string& namespaceName = moduleName.substr(0, dotPosition);
@@ -310,7 +325,8 @@ namespace TerranEngine
 
 			void* args[] = { uuidArray };
 
-			instance.Constructor.Invoke(instance.Object, args);
+			MonoException* exc = nullptr;
+			instance.Constructor.Invoke(GCManager::GetMonoObject(instance.Object.GetGCHandle()), uuidArray, &exc);
 
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
@@ -442,31 +458,41 @@ namespace TerranEngine
 
 	void ScriptEngine::OnStart(Entity entity) 
 	{
-		ScriptableInstance instace = GetInstance(entity.GetSceneID(), entity.GetID());
+		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		entity.GetComponent<ScriptComponent>().Started = true;
 
-		if (instace.InitMethod.GetNativeMethodPtr())
-			instace.InitMethod.Invoke(instace.Object, nullptr);
+		if (instance.InitMethod)
+		{
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetMonoObject(instance.Object.GetGCHandle());
+			instance.InitMethod.Invoke(monoObject, &exc);
+		}
 	}
 
 	void ScriptEngine::OnUpdate(Entity entity) 
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
-		if (instance.UpdateMethod.GetNativeMethodPtr())
-			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+		if (instance.UpdateMethod) 
+		{
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetMonoObject(instance.Object.GetGCHandle());
+			instance.UpdateMethod.Invoke(monoObject, &exc);
+		}
 	}
 
 	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee)
 	{
 		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
 
-		if (instance.PhysicsBeginContact.GetNativeMethodPtr()) 
+		if (instance.PhysicsBeginContact) 
 		{
-			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			void* args[] = { monoUuidArr };
-			instance.PhysicsBeginContact.Invoke(instance.Object, args);
+			MonoArray* uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			//void* args[] = { monoUuidArr };
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetMonoObject(instance.Object.GetGCHandle());
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr, &exc);
 		}
 	}
 
@@ -474,11 +500,13 @@ namespace TerranEngine
 	{
 		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
 
-		if (instance.PhysicsEndContact.GetNativeMethodPtr())
+		if (instance.PhysicsEndContact)
 		{
-			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			void* args[] = { monoUuidArr };
-			instance.PhysicsEndContact.Invoke(instance.Object, args);
+			MonoArray* uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			//void* args[] = { monoUuidArr };
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetMonoObject(instance.Object.GetGCHandle());
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr, &exc);
 		}
 	}
 
@@ -486,8 +514,12 @@ namespace TerranEngine
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
-		if (instance.PhysicsUpdateMethod.GetNativeMethodPtr())
-			instance.PhysicsUpdateMethod.Invoke(instance.Object, nullptr);
+		if (instance.PhysicsUpdateMethod) 
+		{
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetMonoObject(instance.Object.GetGCHandle());
+			instance.PhysicsUpdateMethod.Invoke(monoObject, &exc);
+		}
 	}
 
 	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)

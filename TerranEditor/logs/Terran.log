@@ -1,44 +1,356 @@
-[05:13:12] TERRAN: Graphics card: NVIDIA GeForce RTX 3060 Ti/PCIe/SSE2
-[05:13:12] TERRAN: OpenGL version: 4.6.0 NVIDIA 512.77
-[05:13:12] TERRAN: 0
-[05:13:12] TERRAN: The operation completed successfully.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'mono\etc\config'.
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'C:\Program Files\Mono\mscorlib.dll'.
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'C:\Program Files\Mono\mono\4.5\mscorlib.dll'.
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'mono\lib\mono\4.5\mscorlib.dll'.
-[05:13:12] TERRAN: Domain: Mono; Message: Image addref mscorlib[0000024D871188E0] (asmctx DEFAULT) -> C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\mono\lib\mono\4.5\mscorlib.dll[0000024D8C845B70]: 2
-[05:13:12] TERRAN: Domain: Mono; Message: Prepared to set up assembly 'mscorlib' (C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\mono\lib\mono\4.5\mscorlib.dll)
-[05:13:12] TERRAN: Domain: Mono; Message: AOT: image 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\mono\lib\mono\4.5\mscorlib.dll.dll' not found: The system cannot find the file specified.
-
-[05:13:12] TERRAN: Domain: Mono; Message: AOT: image 'mono\lib/mono/aot-cache/amd64/mscorlib.dll.dll' not found: The system cannot find the path specified.
-
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly Loader loaded assembly from location: 'mono\lib\mono\4.5\mscorlib.dll'.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\mono\lib\mono\4.5\mscorlib.dll.config'.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'mono\etc\mono\assemblies\mscorlib\mscorlib.config'.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\.mono\assemblies\mscorlib\mscorlib.config'.
-[05:13:12] TERRAN: Domain: Mono; Message: Loading assembly mscorlib (0000024D871188E0) into domain CoreDomain (0000024D8C90E470) and ALC 0000000000000000
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly mscorlib[0000024D871188E0] added to domain CoreDomain, ref_count=1
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly mscorlib[0000024D871188E0] added to domain ScriptAssemblyDomain, ref_count=2
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly Loader probing location: 'Resources/Scripts/TerranScriptCore.dll'.
-[05:13:12] TERRAN: Domain: Mono; Message: Image addref TerranScriptCore[0000024D8C8CBC40] (asmctx DEFAULT) -> C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll[0000024D8C8D5A20]: 2
-[05:13:12] TERRAN: Domain: Mono; Message: Prepared to set up assembly 'TerranScriptCore' (C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll)
-[05:13:12] TERRAN: Domain: Mono; Message: Loading assembly TerranScriptCore (0000024D8C8CBC40) into domain ScriptAssemblyDomain (0000024D8C90D360) and ALC 0000000000000000
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly TerranScriptCore[0000024D8C8CBC40] added to domain ScriptAssemblyDomain, ref_count=1
-[05:13:12] TERRAN: Domain: Mono; Message: Image 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll' has no debug directory.
-[05:13:12] TERRAN: Domain: Mono; Message: Assembly Loader loaded assembly from location: 'Resources/Scripts/TerranScriptCore.dll'.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll.config'.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'mono\etc\mono\assemblies\TerranScriptCore\TerranScriptCore.config'.
-[05:13:12] TERRAN: Domain: Mono; Message: Config attempting to parse: 'C:\Users\georg\.mono\assemblies\TerranScriptCore\TerranScriptCore.config'.
-[05:13:13] TERRAN: Successfuly loaded: "Resources/Scripts/TerranScriptCore.dll"
-[05:13:13] TERRAN: Domain: Mono; Message: Requesting loading reference 0 (of 2) of C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll
-[05:13:13] TERRAN: Domain: Mono; Message: Loading reference 0 of C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll asmctx DEFAULT, looking for mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
-[05:13:13] TERRAN: Domain: Mono; Message: Request to load mscorlib in (domain 0000024D8C90D360, alc 0000000000000000)
-[05:13:13] TERRAN: Domain: Mono; Message: Found assembly remapping for mscorlib and was for the same version 4.0.0.0
-[05:13:13] TERRAN: Domain: Mono; Message: Found assembly remapping for mscorlib and was for the same version 4.0.0.0
-[05:13:13] TERRAN: Domain: Mono; Message: Assembly Ref addref TerranScriptCore[0000024D8C8CBC40] -> mscorlib[0000024D871188E0]: 3
-[05:13:58] TERRAN: Domain: Mono; Message: GC_MAJOR: (user request) time 0.21ms, stw 0.24ms los size: 0K in use: 0K
-[05:13:58] TERRAN: Domain: Mono; Message: GC_MAJOR_SWEEP: major size: 240K in use: 3K
-[05:13:58] TERRAN: Domain: Mono; Message: Unloading domain CoreDomain[0000024D8C90E470], assembly mscorlib[0000024D871188E0], ref_count=3
-[05:13:58] TERRAN: Domain: Mono; Message: Assembly image 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll' [0000024D8C8D5A20] still loaded at shutdown.
-[05:13:58] TERRAN: Domain: Mono; Message: Assembly image 'C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\mono\lib\mono\4.5\mscorlib.dll' [0000024D8C845B70] still loaded at shutdown.
-[05:13:58] TERRAN: Deinitialized the scripting core
+[16:35:11] TERRAN: Graphics card: NVIDIA GeForce RTX 3060 Ti/PCIe/SSE2
+[16:35:11] TERRAN: OpenGL version: 4.6.0 NVIDIA 512.77
+[16:35:11] TERRAN: 0
+[16:35:11] TERRAN: The operation completed successfully.
+[16:35:11] TERRAN: Successfuly loaded: "Resources/Scripts/TerranScriptCore.dll"
+[16:35:24] TERRAN: Class wasn't found
+[16:35:24] TERRAN: Couldn't find the class: 
+[16:35:28] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:28] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:34] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:35] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:41] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:41] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:41] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:41] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:43] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:47] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:52] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:55] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:35:56] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:01] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:01] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:01] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:01] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:02] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:03] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:06] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:07] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:07] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:07] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:07] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:08] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:11] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:11] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:11] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:11] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:12] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:12] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:12] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:12] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:13] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:17] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:17] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:17] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:17] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:18] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :OnCollisionEnd(Entity) in class TestScript
+[16:36:20] TERRAN: Couldn't find the method with signature: :PhysicsUpdate() in class TestScript
+[16:36:35] TERRAN: Deinitialized the scripting core
