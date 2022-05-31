@@ -9,7 +9,7 @@ namespace TerranEngine
 	MonoArray* ScriptMarshal::UUIDToMonoArray(const UUID& id)
 	{
 		const uint8_t* idData = id.GetRaw();
-		MonoClass* byteClass = TR_CORE_CACHED_CLASS(Byte)->GetMonoClassPtr();
+		MonoClass* byteClass = TR_CORE_CACHED_CLASS(Byte)->GetMonoClass();
 		MonoArray* uuidArray = mono_array_new(mono_domain_get(), byteClass, 16);
 
 		uint8_t* uuidArrayAddr = mono_array_addr(uuidArray, uint8_t, 0);
@@ -46,7 +46,7 @@ namespace TerranEngine
 	std::string ScriptMarshal::MonoStringToUTF8(MonoString* monoStr)
 	{
 		MonoError error;
-		std::string str = mono_string_to_utf8_checked(monoStr, &error);
+		char* str = mono_string_to_utf8_checked(monoStr, &error);
 
 		if (error.error_code != MONO_ERROR_NONE) 
 		{
@@ -54,6 +54,9 @@ namespace TerranEngine
 			return "";
 		}
 
-		return str;
+		std::string result(str);
+		mono_free(str);
+
+		return result;
 	}
 }

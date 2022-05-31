@@ -21,7 +21,7 @@ namespace TerranEngine
 		// NOTE: this causes an access violation when a null reference occurs on the c# side
 		// going to leave the "break when this exception occurs" on for now 
 		// if there's a problem in the future this may be the cause
-		mono_runtime_invoke(m_MonoMethod, GCManager::GetMonoObject(scriptObject.GetGCHandle()), args, &error);
+		mono_runtime_invoke(m_MonoMethod, scriptObject.GetMonoObject(), args, &error);
 
 		if (error != nullptr) 
 		{

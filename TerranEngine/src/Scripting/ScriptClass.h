@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ScriptMethod.h"
-#include "ScriptObject.h"
 
 typedef struct _MonoClass MonoClass;
 namespace TerranEngine 
@@ -15,16 +14,16 @@ namespace TerranEngine
 		ScriptClass(const ScriptClass& other) = default;
 		~ScriptClass() = default;
 
-		ScriptObject CreateInstance();
-
 		ScriptMethod GetMethod(const char* methodSignature);
 
-		inline MonoClass* GetMonoClassPtr() const { return m_MonoClass; }
+		inline MonoClass* GetMonoClass() const { return m_MonoClass; }
 		inline const char* GetName() const { return m_ClassName; }
 		inline const char* GetNamespace() const { return m_Namespace; }
 
 		ScriptClass GetParent();
 		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
+
+		bool IsInstanceOf(ScriptClass* parent, bool checkInterfaces = true);
 
 	private:
 		MonoClass* m_MonoClass = nullptr;

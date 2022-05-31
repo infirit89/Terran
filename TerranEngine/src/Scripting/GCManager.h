@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
+#include "ScriptObject.h"
 
-typedef struct _MonoObject MonoObject;
+#include <stdint.h>
 
 namespace TerranEngine 
 {
@@ -35,10 +35,10 @@ namespace TerranEngine
 	class GCManager 
 	{
 	public:
-		static GCHandle CreateWeakHandle(MonoObject* monoObject);
-		static GCHandle CreateStrongHadle(MonoObject* monoObject);
+		static GCHandle CreateWeakHandle(const ScriptObject& monoObject);
+		static GCHandle CreateStrongHadle(const ScriptObject& monoObject);
 		static void FreeHandle(GCHandle& handle);
-		static MonoObject* GetMonoObject(const GCHandle& handle);
+		static MonoObject* GetManagedObject(const GCHandle& handle);
 		static void CollectAll();
 	};
 }

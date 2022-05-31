@@ -1,7 +1,10 @@
 #pragma once
+
 #include "Core/Hash.h"
+#include "Core/Base.h"
 
 #include "ScriptClass.h"
+#include "ScriptAssembly.h"
 
 #include <unordered_map>
 #include <string>
@@ -21,7 +24,9 @@ namespace TerranEngine
 		static void CacheCoreClasses();
 		static void ClearClassCache();
 
-		static ScriptClass* GetCachedClassFromName(std::string className);
+		static ScriptClass* GetCachedClassFromName(const std::string& className);
+
+		static void CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 		
 		static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;
 	};

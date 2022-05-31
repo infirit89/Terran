@@ -258,24 +258,15 @@ namespace TerranEngine
 		static ComponentType GetComponentType(MonoString* componentTypeStr)
 		{
 			std::string moduleName = ScriptMarshal::MonoStringToUTF8(componentTypeStr);
-			ScriptClass* clazz = TR_API_CACHED_CLASS(moduleName);
+			ScriptClass* clazz = ScriptCache::GetCachedClassFromName(moduleName);
 
-			if (clazz == nullptr)
-			{
-				ScriptClass parent = ScriptEngine::GetClass(moduleName).GetParent();
-
-				if (strcmp(parent.GetName(), "Scriptable") == 0)
-					return ComponentType::ScriptableComponent;
-				else
-					return ComponentType::None;
-			}
-
-			if		(*clazz == *TR_API_CACHED_CLASS(Transform))			return ComponentType::TransformComponent;
-			else if (*clazz == *TR_API_CACHED_CLASS(Tag))				return ComponentType::TagComponent;
-			else if (*clazz == *TR_API_CACHED_CLASS(Rigidbody2D))		return ComponentType::Rigibody2DComponent;
-			else if (*clazz == *TR_API_CACHED_CLASS(Collider2D))		return ComponentType::Collider2DComponent;
-			else if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))		return ComponentType::BoxCollider2DComponent;
-			else if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))	return ComponentType::CircleCollider2DComponent;
+			if		(*clazz == *TR_API_CACHED_CLASS(Transform))							return ComponentType::TransformComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(Tag))								return ComponentType::TagComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(Rigidbody2D))						return ComponentType::Rigibody2DComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(Collider2D))						return ComponentType::Collider2DComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))						return ComponentType::BoxCollider2DComponent;
+			else if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))					return ComponentType::CircleCollider2DComponent;
+			else if (!clazz && clazz->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))	return ComponentType::ScriptableComponent;
 
 			return ComponentType::None;
 		}
@@ -370,9 +361,9 @@ namespace TerranEngine
 
 			UUID uuid = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
 			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(uuid);
-			ScriptObject scriptObject = ScriptEngine::GetScriptInstanceScriptObject(entity.GetSceneID(), entity.GetID());
+			GCHandle objectHandle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 
-			return GCManager::GetMonoObject(scriptObject.GetGCHandle());
+			return GCManager::GetManagedObject(objectHandle);
 		}
 
 		static MonoArray* Entity_FindEntityWithID_Internal(MonoArray* monoIDArray)

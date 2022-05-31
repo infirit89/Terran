@@ -15,14 +15,6 @@ namespace TerranEngine
 		m_Namespace = mono_class_get_namespace(m_MonoClass);
 	}
 
-	ScriptObject ScriptClass::CreateInstance()
-	{
-		MonoObject* monoObject = mono_object_new(mono_domain_get(), m_MonoClass);
-		mono_runtime_object_init(monoObject);
-
-		return ScriptObject(GCManager::CreateStrongHadle(monoObject));
-	}
-
 	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) 
 	{
 		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
@@ -52,5 +44,10 @@ namespace TerranEngine
 		MonoClass* monoClass = mono_class_get_parent(m_MonoClass);
 
 		return ScriptClass(monoClass);
+	}
+
+	bool ScriptClass::IsInstanceOf(ScriptClass* parent, bool checkInterfaces)
+	{
+		return mono_class_is_assignable_from(m_MonoClass, parent->m_MonoClass);
 	}
 }

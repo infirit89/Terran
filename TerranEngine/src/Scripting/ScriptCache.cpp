@@ -14,6 +14,7 @@ namespace TerranEngine
 	void ScriptCache::CacheCoreClasses()
 	{
 		// corlib classes
+		s_CachedClasses.emplace(TR_API_CLASS_ID(Collider2D), TR_CLASS(Collider2D));
 		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Byte), mono_get_byte_class());
 		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Short), mono_get_int16_class());
 		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Int), mono_get_int32_class());
@@ -41,7 +42,7 @@ namespace TerranEngine
 		s_CachedClasses.clear();
 	}
 
-	ScriptClass* ScriptCache::GetCachedClassFromName(std::string className)
+	ScriptClass* ScriptCache::GetCachedClassFromName(const std::string& className)
 	{
 		uint32_t classID = TR_CLASS_ID(className);
 
@@ -49,6 +50,19 @@ namespace TerranEngine
 			return &s_CachedClasses.at(classID);
 
 		return nullptr;
+	}
+
+	void ScriptCache::CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
+	{
+		for (auto [namespaceName, classNames] : assemblyInfo->ClassInfoMap) 
+		{
+			for (auto className : classNames)
+			{
+				std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, className);
+				ScriptClass klass = ScriptEngine::GetClass(formattedModuleName);
+				s_CachedClasses.emplace(TR_CLASS_ID(formattedModuleName), klass);
+			}
+		}
 	}
 
 }

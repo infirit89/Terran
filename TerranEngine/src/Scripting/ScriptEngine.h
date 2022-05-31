@@ -1,13 +1,16 @@
 #pragma once
 
 #include "ScriptClass.h"
+#include "GCManager.h"
 
 #include "Core/Log.h"
 #include "Core/Base.h"
+#include "Core/UUID.h"
 
 #include "Scene/Entity.h"
 
 #include <filesystem>
+#include <unordered_map>
 
 namespace TerranEngine 
 {
@@ -15,6 +18,7 @@ namespace TerranEngine
 
 	class ScriptEngine 
 	{
+		using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, GCHandle>>;
 
 	public:
 		static void Initialize(const std::filesystem::path& asseblyPath);
@@ -41,6 +45,7 @@ namespace TerranEngine
 		static void OnPhysicsUpdate(Entity entity);
 
 		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
+		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
 
 		static void ClearFieldBackupMap();
 

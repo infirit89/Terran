@@ -1,9 +1,8 @@
 #pragma once
 
+#include "ScriptClass.h"
 #include "ScriptMethod.h"
 #include "ScriptField.h"
-
-#include "GCManager.h"
 
 #include "Core/Base.h"
 
@@ -17,7 +16,7 @@ namespace TerranEngine
 	{
 	public:
 		ScriptObject() = default;
-		ScriptObject(GCHandle gcHandle);
+		ScriptObject(MonoObject* monoObject);
 
 		ScriptObject(const ScriptObject& other) = default;
 		~ScriptObject() = default;
@@ -25,14 +24,15 @@ namespace TerranEngine
 		ScriptField GetPublicField(const char* fieldName);
 		std::unordered_map<uint32_t, ScriptField>& GetFieldMap() { return m_PublicFields; };
 		const std::vector<uint32_t>& GetFieldOrder() const { return m_FieldOrder; }
-		
-		inline GCHandle& GetGCHandle() { return m_GCHandle; }
+
+		inline MonoObject* GetMonoObject() const { return m_MonoObject; }
+
+		static ScriptObject CreateInstace(ScriptClass klass);
 
 	private:
-		GCHandle m_GCHandle;
-
+		
+		MonoObject* m_MonoObject;
 		std::vector<uint32_t> m_FieldOrder;
 		std::unordered_map<uint32_t, ScriptField> m_PublicFields;
-		friend class ScriptMethod;
 	};
 }
