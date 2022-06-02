@@ -28,6 +28,6 @@ namespace TerranEngine
 
 		static void CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 		
-		static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;
+		static std::unordered_map<uint32_t, ScriptClass*> s_CachedClasses;
 	};
 }
