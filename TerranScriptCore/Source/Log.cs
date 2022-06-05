@@ -11,7 +11,7 @@ namespace Terran
 			Error   = 1 << 2
 		}
 
-		public static void Trace(string message) => Internal.Log_Internal((byte)LogLevel.Trace, message != null ? message : "");
+		public static void Trace(string message) => Internal.Log_Log((byte)LogLevel.Trace, message != null ? message : "");
 		public static void Trace(string format, params object[] args) => Trace(string.Format(format, args));
 		public static void Trace(bool message) => Trace(message.ToString());
 		public static void Trace(int message) => Trace(message.ToString());
@@ -20,7 +20,7 @@ namespace Terran
 		public static void Trace(Vector3 message) => Trace(message.ToString());
 		public static void Trace(object message) => Trace(message.ToString());
 
-		public static void Warn(string message) => Internal.Log_Internal((byte)LogLevel.Warn, message != null ? message : "");
+		public static void Warn(string message) => Internal.Log_Log((byte)LogLevel.Warn, message != null ? message : "");
 		public static void Warn(string format, params object[] args) => Warn(string.Format(format, args));
 		public static void Warn(int message) => Warn(message.ToString());
 		public static void Warn(bool message) => Warn(message.ToString());
@@ -29,7 +29,7 @@ namespace Terran
 		public static void Warn(Vector3 message) => Warn(message.ToString());
 		public static void Warn(object message) => Warn(message.ToString());
 
-		public static void Error(string message) => Internal.Log_Internal((byte)LogLevel.Error, message != null ? message : "");
+		public static void Error(string message) => Internal.Log_Log((byte)LogLevel.Error, message != null ? message : "");
 		public static void Error(string format, params object[] args) => Error(string.Format(format, args));
 		public static void Error(bool message) => Error(message.ToString());
 		public static void Error(int message) => Error(message.ToString());
