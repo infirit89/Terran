@@ -22,12 +22,15 @@ namespace TerranEngine
 	{
 	public:
 		static void CacheCoreClasses();
-		static void ClearClassCache();
+		static void ClearCache();
 
 		static ScriptClass* GetCachedClassFromName(const std::string& className);
+		static ScriptMethod* GetCachedMethod(const std::string& className, const std::string& methodName);
 
 		static void CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
-		
+		static void CacheMethodsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
+
 		static std::unordered_map<uint32_t, ScriptClass*> s_CachedClasses;
+		static std::unordered_map<uint32_t, std::vector<ScriptMethod*>> s_CachedMethods;
 	};
 }

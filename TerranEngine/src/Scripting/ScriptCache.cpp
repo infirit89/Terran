@@ -4,12 +4,14 @@
 #include "ScriptCache.h"
 
 #include <mono/metadata/appdomain.h>
+#include <mono/metadata/debug-helpers.h>
 
 namespace TerranEngine 
 {
 	#define TR_CLASS(className) ScriptEngine::GetClassFromName("Terran."#className)
 
 	std::unordered_map<uint32_t, ScriptClass*> ScriptCache::s_CachedClasses;
+	std::unordered_map<uint32_t, std::vector<ScriptMethod*>> ScriptCache::s_CachedMethods;
 
 	void ScriptCache::CacheCoreClasses()
 	{
@@ -37,12 +39,21 @@ namespace TerranEngine
 		s_CachedClasses.emplace(TR_API_CLASS_ID(Transform), TR_CLASS(Transform));
 	}
 
-	void ScriptCache::ClearClassCache()
+	void ScriptCache::ClearCache()
 	{
 		for (auto [hashedName, klass] : s_CachedClasses)
 			delete klass;
 
+		for (auto [hashedModuleName, methods] : s_CachedMethods)
+		{
+			for (auto method : methods)
+				delete method;
+
+			methods.clear();
+		}
+
 		s_CachedClasses.clear();
+		s_CachedMethods.clear();
 	}
 
 	ScriptClass* ScriptCache::GetCachedClassFromName(const std::string& className)
@@ -53,6 +64,30 @@ namespace TerranEngine
 			return s_CachedClasses.at(classID);
 
 		return nullptr;
+	}
+
+	ScriptMethod* ScriptCache::GetCachedMethod(const std::string& className, const std::string& methodName)
+	{
+		uint32_t classID = TR_CLASS_ID(className);
+
+		ScriptMethod* method = nullptr;
+
+		if (s_CachedMethods.find(classID) != s_CachedMethods.end()) 
+		{
+			// TODO: better way of searching methods
+			for (auto cachedMethod : s_CachedMethods.at(classID))
+			{
+				std::string formattedMethodDesc = fmt::format("{0}{1}", className, methodName);
+				MonoMethodDesc* methodDesc = mono_method_desc_new(formattedMethodDesc.c_str(), false);
+
+				if (mono_method_desc_match(methodDesc, cachedMethod->GeMonoMethod()))
+					method = cachedMethod;
+
+				mono_method_desc_free(methodDesc);
+			}
+		}
+
+		return method;
 	}
 
 	void ScriptCache::CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
@@ -70,4 +105,18 @@ namespace TerranEngine
 		}
 	}
 
+	void ScriptCache::CacheMethodsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
+	{
+		for (auto[moduleName, methodSignatures] : assemblyInfo->MethodInfoMap)
+		{
+			for (auto methodSignature : methodSignatures)
+			{
+				std::string formattedMethodSignature = fmt::format("{0}{1}", moduleName, methodSignature);
+				ScriptMethod* method = ScriptEngine::GetMethodFromDesc(formattedMethodSignature);
+
+				if (method)
+					s_CachedMethods[TR_CLASS_ID(moduleName)].emplace_back(std::move(method));
+			}
+		}
+	}
 }

@@ -4,6 +4,7 @@
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/class.h>
 #include <mono/metadata/image.h>
+#include <mono/metadata/debug-helpers.h>
 
 namespace TerranEngine 
 {
@@ -17,17 +18,45 @@ namespace TerranEngine
         Shared<AssemblyInfo> info = CreateShared<AssemblyInfo>();
 
         const MonoTableInfo* tableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_TYPEDEF);
-        int rows = mono_table_info_get_rows(tableInfo);
+        const MonoTableInfo* methodTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_METHOD);
 
-        for (size_t i = 0; i < rows; i++)
+        int rows = mono_table_info_get_rows(tableInfo);
+        int methodRows = mono_table_info_get_rows(methodTableInfo);
+
+        for (int i = 0; i < rows; i++)
         {
             uint32_t cols[MONO_TYPEDEF_SIZE];
             mono_metadata_decode_row(tableInfo, i, cols, MONO_TYPEDEF_SIZE);
 
             std::string namespaceName = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAMESPACE]);
             std::string className = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAME]);
+            
+            uint32_t nextCol[MONO_TYPEDEF_SIZE];
+            mono_metadata_decode_row(tableInfo, std::min(i + 1, rows - 1), nextCol, MONO_TYPEDEF_SIZE);
 
+            for (size_t i = cols[MONO_TYPEDEF_METHOD_LIST]; i < std::min(nextCol[MONO_TYPEDEF_METHOD_LIST], (uint32_t)methodRows); i++)
+            {
+                uint32_t methodCols[MONO_METHOD_SIZE];
 
+                mono_metadata_decode_row(methodTableInfo, i, methodCols, MONO_METHOD_SIZE);
+                std::string methodName = mono_metadata_string_heap(m_MonoImage, methodCols[MONO_METHOD_NAME]);
+                
+                const char* blob = mono_metadata_blob_heap(m_MonoImage, methodCols[MONO_METHOD_SIGNATURE]);
+                
+                const char* c;
+                uint32_t val = mono_metadata_decode_value(blob, &c);
+                const char* cc;
+                MonoMethodSignature* signature = mono_metadata_parse_method_signature(m_MonoImage, val, c, &cc);
+                
+                std::string moduleName = fmt::format("{0}.{1}", namespaceName, className);
+                char* methodDesc = mono_signature_get_desc(signature, false);
+                std::string formattedMethodDesc = fmt::format(":{0}({1})", methodName, methodDesc);
+                
+                info->MethodInfoMap[moduleName].emplace_back(std::move(formattedMethodDesc));
+
+                mono_metadata_free_method_signature(signature);
+            }
+            
             info->ClassInfoMap[namespaceName].emplace_back(std::move(className));
         }
 
@@ -76,5 +105,24 @@ namespace TerranEngine
         File::CloseFile(assemblyData);
 
         return scriptAssembly;
+    }
+
+    ScriptMethod* ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
+    {
+        MonoMethodDesc* monoDesc = mono_method_desc_new(methodDesc.c_str(), false);
+        if (!monoDesc)
+        {
+            TR_ERROR("Couldn't find a matching description ({0}) in the image", methodDesc);
+            return nullptr;
+        }
+        MonoMethod* monoMethod = mono_method_desc_search_in_image(monoDesc, m_MonoImage);
+        if (!monoMethod)
+        {
+            TR_ERROR("Couldn't find the method with signature: {0} in image", methodDesc);
+            return nullptr;
+        }
+        
+        mono_method_desc_free(monoDesc);
+        return new ScriptMethod(monoMethod);
     }
 }

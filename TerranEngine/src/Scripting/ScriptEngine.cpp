@@ -69,15 +69,25 @@ namespace TerranEngine
 		void GetMethods(ScriptClass& scriptClass) 
 		{
 			// TODO: return ScriptMethod*
-			Constructor.SetFromMethod(GetMethodFromImage(s_ScriptEngineData.Assembly->GetMonoImage(), "Terran.Scriptable:.ctor(byte[])"));
+			//Constructor.SetFromMethod(GetMethodFromImage(s_ScriptEngineData.Assembly->GetMonoImage(), "Terran.Scriptable:.ctor(byte[])"));
 
-			InitMethod.SetFromMethod(scriptClass.GetMethod(":Init()"));
+			/*InitMethod.SetFromMethod(scriptClass.GetMethod(":Init()"));
 			UpdateMethod.SetFromMethod(scriptClass.GetMethod(":Update()"));
 
 			PhysicsBeginContact.SetFromMethod(scriptClass.GetMethod(":OnCollisionBegin(Entity)"));
 			PhysicsEndContact.SetFromMethod(scriptClass.GetMethod(":OnCollisionEnd(Entity)"));
 
-			PhysicsUpdateMethod.SetFromMethod(scriptClass.GetMethod(":PhysicsUpdate()"));
+			PhysicsUpdateMethod.SetFromMethod(scriptClass.GetMethod(":PhysicsUpdate()"));*/
+			
+			Constructor.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
+
+			InitMethod.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
+			UpdateMethod.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update()"));
+
+			PhysicsBeginContact.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
+			PhysicsEndContact.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
+
+			PhysicsUpdateMethod.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":PhysicsUpdate()"));
 		}
 	};
 
@@ -155,7 +165,10 @@ namespace TerranEngine
 
 		NewDomain();
 		
-		ScriptCache::CacheClassesFromAssemblyInfo(s_ScriptEngineData.Assembly->GenerateAssemblyInfo());
+		Shared<AssemblyInfo> assemblyInfo = s_ScriptEngineData.Assembly->GenerateAssemblyInfo();
+
+		ScriptCache::CacheClassesFromAssemblyInfo(assemblyInfo);
+		ScriptCache::CacheMethodsFromAssemblyInfo(assemblyInfo);
 	}
 
 	void ScriptEngine::Shutdown()
@@ -212,12 +225,17 @@ namespace TerranEngine
 			mono_domain_unload(s_ScriptEngineData.NewDomain);
 		}
 
-		ScriptCache::ClearClassCache();
+		ScriptCache::ClearCache();
 	}
 
 	ScriptClass* ScriptEngine::GetClassFromName(const std::string& moduleName)
 	{
 		return s_ScriptEngineData.Assembly->GetClassFromName(moduleName);
+	}
+
+	ScriptMethod* ScriptEngine::GetMethodFromDesc(const std::string& methodDesc)
+	{
+		return s_ScriptEngineData.Assembly->GetMethodFromDesc(methodDesc);
 	}
 
 	bool ScriptEngine::ClassExists(const std::string& moduleName)

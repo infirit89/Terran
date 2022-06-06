@@ -5,7 +5,7 @@ namespace Terran
 {
 	public class TestScript : Scriptable 
 	{
-		void Init() 
+		protected override void Init() 
 		{
 			/*BoxCollider2D bc = entity.GetComponent<BoxCollider2D>();
 			Log.Trace(bc.Offset);
@@ -20,14 +20,14 @@ namespace Terran
 			//Log.Trace(cc.IsSensor
 		}
 
-		void Update() 
+		protected override void Update() 
 		{
 			//entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
 
 			Log.Trace("Test");
 		}
 
-		void OnCollisionBegin(Entity entity) 
+		protected override void OnCollisionBegin(Entity entity) 
 		{
 			Log.Trace("collided");
 		}
@@ -43,15 +43,14 @@ namespace Terran
 		private bool m_HasCollided = false;
 
 		// Runs when the entity in the current scene, that has this script, is started
-		public void Init() 
+		protected override void Init() 
 		{
 			
 			//RayCastHitInfo2D hitInfo = Physics2D.RayCast(entity.transform.Position, -Vector2.Up);
-			rb = entity.GetComponent<Rigidbody2D>();
-			
+			rb = entity.GetComponent<Rigidbody2D>();	
 		}
 
-		public void Update()
+		protected override void Update()
 		{
 			Stopwatch st = new Stopwatch();
 			st.Start();
@@ -89,21 +88,20 @@ namespace Terran
 			Log.Trace(st.ElapsedMilliseconds);
 
 		}
-		public void PhysicsUpdate() 
+		protected override void PhysicsUpdate() 
 		{
 			
 		}
 
-		public void OnCollisionBegin(Entity entity) 
-		{
-			Log.Trace("collided");
-			m_HasCollided = true;
-		}
+		protected override void OnCollisionBegin(Entity entity)
+        {
+            Log.Trace("collided");
+            m_HasCollided = true;
+        }
 
-		public void OnCollisionEnd(Entity entity) 
-		{
-			m_HasCollided = false;
-		}
-
+		protected override void OnCollisionEnd(Entity entity)
+        {
+            m_HasCollided = false;
+        }
 	}
 }

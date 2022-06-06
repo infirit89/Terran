@@ -128,6 +128,14 @@ namespace Terran
 			if (entity == null) 
 				entity = new Entity(id);
 		}
+
+		protected virtual void Init() { }
+		protected virtual void Update() { }
+
+		protected virtual void OnCollisionBegin(Entity entity) { }
+		protected virtual void OnCollisionEnd(Entity entity) { }
+
+		protected virtual void PhysicsUpdate() { }
 	}
 	// --------------------
 

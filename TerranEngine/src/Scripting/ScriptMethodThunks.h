@@ -25,10 +25,10 @@ namespace TerranEngine
 
 		void SetFromMethod(ScriptMethod method) 
 		{
-			if (method.GeMonoMethodPtr() == nullptr)
+			if (method.GeMonoMethod() == nullptr)
 				return;
 
-			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method.GeMonoMethodPtr());
+			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method.GeMonoMethod());
 		}
 
 		void Invoke(MonoObject* obj, TParameters... params, MonoException** exc) 
@@ -52,10 +52,10 @@ namespace TerranEngine
 
 		void SetFromMethod(ScriptMethod method)
 		{
-			if (method.GeMonoMethodPtr() == nullptr)
+			if (method.GeMonoMethod() == nullptr)
 				return;
 
-			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method.GeMonoMethodPtr());
+			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method.GeMonoMethod());
 		}
 
 		TReturn Invoke(MonoObject* obj, TParameters... params, MonoException** exc)
