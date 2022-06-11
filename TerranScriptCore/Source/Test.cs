@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace Terran
 {
@@ -52,8 +51,6 @@ namespace Terran
 
 		protected override void Update()
 		{
-			Stopwatch st = new Stopwatch();
-			st.Start();
 			RayCastHitInfo2D hitInfo;
 			float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;
 			bool hasHit = Physics2D.RayCast(out hitInfo, entity.transform.Position, -Vector2.Up, rayLength);
@@ -79,13 +76,6 @@ namespace Terran
 				m_CanJump = false;
 				rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
 			}
-
-			st.Stop();
-
-			TimeSpan s = st.Elapsed;
-			Log.Trace(s.TotalMilliseconds);
-
-			Log.Trace(st.ElapsedMilliseconds);
 
 		}
 		protected override void PhysicsUpdate() 

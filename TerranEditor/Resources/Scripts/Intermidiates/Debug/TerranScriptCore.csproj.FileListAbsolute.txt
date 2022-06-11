@@ -1,0 +1,5 @@
+C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\Intermidiates\Debug\TerranScriptCore.csproj.CoreCompileInputs.cache
+C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\Intermidiates\Debug\TerranScriptCore.dll
+C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\Intermidiates\Debug\TerranScriptCore.pdb
+C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.dll
+C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\Resources\Scripts\TerranScriptCore.pdb
