@@ -79,15 +79,15 @@ namespace TerranEngine
 
 			PhysicsUpdateMethod.SetFromMethod(scriptClass.GetMethod(":PhysicsUpdate()"));*/
 			
-			Constructor.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
+			Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
 
-			InitMethod.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
-			UpdateMethod.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update()"));
+			InitMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
+			UpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update()"));
 
-			PhysicsBeginContact.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
-			PhysicsEndContact.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
+			PhysicsBeginContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
+			PhysicsEndContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
 
-			PhysicsUpdateMethod.SetFromMethod(*ScriptCache::GetCachedMethod("Terran.Scriptable", ":PhysicsUpdate()"));
+			PhysicsUpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":PhysicsUpdate()"));
 		}
 	};
 
@@ -228,12 +228,12 @@ namespace TerranEngine
 		ScriptCache::ClearCache();
 	}
 
-	ScriptClass* ScriptEngine::GetClassFromName(const std::string& moduleName)
+	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName)
 	{
 		return s_ScriptEngineData.Assembly->GetClassFromName(moduleName);
 	}
 
-	ScriptMethod* ScriptEngine::GetMethodFromDesc(const std::string& methodDesc)
+	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc)
 	{
 		return s_ScriptEngineData.Assembly->GetMethodFromDesc(methodDesc);
 	}
@@ -241,30 +241,6 @@ namespace TerranEngine
 	bool ScriptEngine::ClassExists(const std::string& moduleName)
 	{
 		return ScriptCache::GetCachedClassFromName(moduleName);
-	}
-
-	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature)
-	{
-		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
-		if (!monoDesc)
-		{
-			TR_ERROR("Couldn't find a matching description ({0}) in the image", methodSignature);
-
-			return NULL;
-		}
-
-		MonoMethod* monoMethod = mono_method_desc_search_in_image(monoDesc, image);
-
-		if (!monoMethod)
-		{
-			TR_ERROR("Couldn't find the method with signature: {0} in image", methodSignature);
-
-			return NULL;
-		}
-
-		mono_method_desc_free(monoDesc);
-
-		return ScriptMethod(monoMethod);
 	}
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
@@ -284,7 +260,8 @@ namespace TerranEngine
 			}
 
 			ScriptableInstance instance;
-			instance.ObjectHandle = GCManager::CreateStrongHadle(ScriptObject::CreateInstace(*klass));
+			ScriptObject object = ScriptObject::CreateInstace(*klass);
+			instance.ObjectHandle = GCManager::CreateStrongHadle(object);
 			instance.GetMethods(*klass);
 
 			MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
@@ -292,7 +269,7 @@ namespace TerranEngine
 			void* args[] = { uuidArray };
 
 			MonoException* exc = nullptr;
-			ScriptObject object = GCManager::GetManagedObject(instance.ObjectHandle);
+			//ScriptObject object = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray, &exc);
 
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
@@ -655,32 +632,6 @@ namespace TerranEngine
 				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
 			}
 		}
-	}
-
-	static MonoAssembly* LoadAssembly(const std::filesystem::path& asseblyPath)
-	{
-		MonoAssembly* newAssembly = mono_domain_assembly_open(s_ScriptEngineData.NewDomain, asseblyPath.string().c_str());
-
-		if (!newAssembly)
-		{
-			TR_ERROR("Couldn't load the C# assembly!");
-			return nullptr;
-		}
-
-		return newAssembly;
-	}
-
-	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly)
-	{
-		MonoImage* newImage = mono_assembly_get_image(assembly);
-
-		if (!newImage)
-		{
-			TR_ERROR("Couldn't find an image in the script assembly!");
-			return nullptr;
-		}
-
-		return newImage;
 	}
 
 	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data) 

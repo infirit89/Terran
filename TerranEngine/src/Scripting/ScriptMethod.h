@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Core/Base.h"
-
-typedef struct _MonoMethod MonoMethod;
+extern "C"
+{
+	typedef struct _MonoMethod MonoMethod;
+}
 
 namespace TerranEngine 
 {
@@ -21,8 +22,13 @@ namespace TerranEngine
 		
 		void InvokeStatic(void** args);
 
-		inline MonoMethod* GeMonoMethod() const { return m_MonoMethod; }
+		inline MonoMethod* GetMonoMethod() const { return m_MonoMethod; }
+
+		operator bool() const { return m_MonoMethod != nullptr; }
+
+		inline const std::string& GetName() const { return m_Name; }
 	private:
 		MonoMethod* m_MonoMethod = nullptr;
+		std::string m_Name;
 	};
 } 

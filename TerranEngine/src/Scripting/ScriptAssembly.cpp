@@ -17,28 +17,29 @@ namespace TerranEngine
     {
         Shared<AssemblyInfo> info = CreateShared<AssemblyInfo>();
 
-        const MonoTableInfo* tableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_TYPEDEF);
+        const MonoTableInfo* typedefTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_TYPEDEF);
         const MonoTableInfo* methodTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_METHOD);
 
-        int rows = mono_table_info_get_rows(tableInfo);
-        int methodRows = mono_table_info_get_rows(methodTableInfo);
+        const int typedefTableRows = mono_table_info_get_rows(typedefTableInfo);
+        const int methodRows = mono_table_info_get_rows(methodTableInfo);
 
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < typedefTableRows; i++)
         {
             uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(tableInfo, i, cols, MONO_TYPEDEF_SIZE);
+            mono_metadata_decode_row(typedefTableInfo, i, cols, MONO_TYPEDEF_SIZE);
 
             std::string namespaceName = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAMESPACE]);
             std::string className = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAME]);
             
             uint32_t nextCol[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(tableInfo, std::min(i + 1, rows - 1), nextCol, MONO_TYPEDEF_SIZE);
+            mono_metadata_decode_row(typedefTableInfo, std::min(i + 1, typedefTableRows - 1), nextCol, MONO_TYPEDEF_SIZE);
 
-            for (size_t i = cols[MONO_TYPEDEF_METHOD_LIST]; i < std::min(nextCol[MONO_TYPEDEF_METHOD_LIST], (uint32_t)methodRows); i++)
+            for (size_t j = cols[MONO_TYPEDEF_METHOD_LIST]; j
+                < std::min(nextCol[MONO_TYPEDEF_METHOD_LIST], (uint32_t)methodRows); j++)
             {
                 uint32_t methodCols[MONO_METHOD_SIZE];
 
-                mono_metadata_decode_row(methodTableInfo, i, methodCols, MONO_METHOD_SIZE);
+                mono_metadata_decode_row(methodTableInfo, j, methodCols, MONO_METHOD_SIZE);
                 std::string methodName = mono_metadata_string_heap(m_MonoImage, methodCols[MONO_METHOD_NAME]);
                 
                 const char* blob = mono_metadata_blob_heap(m_MonoImage, methodCols[MONO_METHOD_SIGNATURE]);
@@ -65,21 +66,21 @@ namespace TerranEngine
         return info;
     }
 
-    ScriptClass* ScriptAssembly::GetClassFromName(const std::string& moduleName)
+    ScriptClass ScriptAssembly::GetClassFromName(const std::string& moduleName)
     {
         TR_ASSERT(m_MonoImage, "Mono Image not loaded");
 
-        size_t dotPosition = moduleName.find_last_of(".");
+        const size_t dotPosition = moduleName.find_last_of(".");
 
-        ScriptClass* scriptClass = nullptr;
+        ScriptClass scriptClass = ScriptClass();
 
-        std::string& namespaceName = moduleName.substr(0, dotPosition);
-        std::string& className = moduleName.substr(dotPosition + 1);
+        const std::string& namespaceName = moduleName.substr(0, dotPosition);
+        const std::string& className = moduleName.substr(dotPosition + 1);
 
         MonoClass* klass = mono_class_from_name(m_MonoImage, namespaceName.c_str(), className.c_str());
 
         if (klass)
-            scriptClass = new ScriptClass(klass);
+            scriptClass = ScriptClass(klass);
 
         return scriptClass;
     }
@@ -87,42 +88,46 @@ namespace TerranEngine
     Shared<ScriptAssembly> ScriptAssembly::LoadScriptAssembly(const std::filesystem::path& assemblyPath)
     {
         FileData* assemblyData = File::OpenFile(assemblyPath.string().c_str());
-        
         Shared<ScriptAssembly> scriptAssembly = nullptr;
         
-        MonoImageOpenStatus status = MonoImageOpenStatus::MONO_IMAGE_OK;
-        MonoImage* assemblyImage = mono_image_open_from_data(assemblyData->Data, assemblyData->Length, true, &status);
-        
-        TR_ASSERT(status == MonoImageOpenStatus::MONO_IMAGE_OK, "Couldn't open the image in location: {0}", assemblyPath.string());
-
-        status = MonoImageOpenStatus::MONO_IMAGE_OK;
-        MonoAssembly* assembly = mono_assembly_load_from(assemblyImage, assemblyPath.string().c_str(), &status);
-        TR_ASSERT(status == MonoImageOpenStatus::MONO_IMAGE_OK, "Couldn't load the mono assembly in location: {0}", assemblyPath.string());
+        if(assemblyData->Data)
+        {
+            MonoImageOpenStatus status = MonoImageOpenStatus::MONO_IMAGE_OK;
+            MonoImage* assemblyImage = mono_image_open_from_data(assemblyData->Data, assemblyData->Length, true, &status);
             
-        scriptAssembly = CreateShared<ScriptAssembly>(assembly);
+            TR_ASSERT(status == MonoImageOpenStatus::MONO_IMAGE_OK, "Couldn't open the image in location: {0}", assemblyPath.string());
 
-        mono_image_close(assemblyImage);
-        File::CloseFile(assemblyData);
+            status = MonoImageOpenStatus::MONO_IMAGE_OK;
+            MonoAssembly* assembly = mono_assembly_load_from(assemblyImage, assemblyPath.string().c_str(), &status);
+            TR_ASSERT(status == MonoImageOpenStatus::MONO_IMAGE_OK, "Couldn't load the mono assembly in location: {0}", assemblyPath.string());
+                
+            scriptAssembly = CreateShared<ScriptAssembly>(assembly);
 
+            mono_image_close(assemblyImage);
+            File::CloseFile(assemblyData);
+            
+        }
         return scriptAssembly;
     }
 
-    ScriptMethod* ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
+    ScriptMethod ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
     {
+        ScriptMethod method;
         MonoMethodDesc* monoDesc = mono_method_desc_new(methodDesc.c_str(), false);
         if (!monoDesc)
         {
             TR_ERROR("Couldn't find a matching description ({0}) in the image", methodDesc);
-            return nullptr;
+            return method;
         }
         MonoMethod* monoMethod = mono_method_desc_search_in_image(monoDesc, m_MonoImage);
         if (!monoMethod)
         {
             TR_ERROR("Couldn't find the method with signature: {0} in image", methodDesc);
-            return nullptr;
+            return method;
         }
         
         mono_method_desc_free(monoDesc);
-        return new ScriptMethod(monoMethod);
+        method = ScriptMethod(monoMethod);
+        return method;
     }
 }

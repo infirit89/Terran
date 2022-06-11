@@ -31,13 +31,11 @@ namespace TerranEngine
 		Shared<AssemblyInfo> GenerateAssemblyInfo();
 
 		// 'moduleName' has to have the format {Namespace}.{Class} e.g. "Terran.TestScript"
-		// NOTE: this has to be freed from the user of the function
-		ScriptClass* GetClassFromName(const std::string& moduleName);
+		ScriptClass GetClassFromName(const std::string& moduleName);
 
 		// 'methodDesc' has to have the format {Namespace}.{Class}:{MethodName}({Params}) 
 		// e.g. "Terran.TestScript:Update()" or "Terran.TestScript:OnCollisionBegin(Entity)"
-		// NOTE: this has to be freed from the user of the function
-		ScriptMethod* GetMethodFromDesc(const std::string& methodDesc);
+		ScriptMethod GetMethodFromDesc(const std::string& methodDesc);
 		
 		static Shared<ScriptAssembly> LoadScriptAssembly(const std::filesystem::path& assemblyPath);
 

@@ -2,7 +2,11 @@
 
 #include "ScriptMethod.h"
 
-typedef struct _MonoClass MonoClass;
+extern "C"
+{
+	typedef struct _MonoClass MonoClass;
+}
+
 namespace TerranEngine 
 {
 	class ScriptClass 
@@ -19,10 +23,11 @@ namespace TerranEngine
 		inline MonoClass* GetMonoClass() const { return m_MonoClass; }
 		inline const char* GetName() const { return m_ClassName; }
 		inline const char* GetNamespace() const { return m_Namespace; }
-
+		
 		ScriptClass GetParent();
 		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
-
+		operator bool() const { return m_MonoClass != nullptr; }
+		
 		bool IsInstanceOf(ScriptClass* parent, bool checkInterfaces = true);
 
 	private:

@@ -13,7 +13,7 @@ namespace TerranEngine
 		: Layer("Sandbox Layer")
 	{
 		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
-		m_Framebuffer = CreateShared<Framebuffer>();
+		//m_Framebuffer = CreateShared<Framebuffer>();
 #if 0
 		// id test code
 		for (int i = 0; i < 9000; i++)

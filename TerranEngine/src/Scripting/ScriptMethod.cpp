@@ -11,7 +11,13 @@
 namespace TerranEngine 
 {
 	ScriptMethod::ScriptMethod(MonoMethod* monoMethod)
-		: m_MonoMethod(monoMethod) { }
+		: m_MonoMethod(monoMethod)
+	{
+		if(monoMethod)
+		{
+			m_Name = mono_method_get_name(m_MonoMethod);
+		}
+	}
 
 	void ScriptMethod::Invoke(ScriptObject& scriptObject, void** args)
 	{

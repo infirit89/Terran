@@ -23,17 +23,18 @@ namespace TerranEngine
 	public:
 		ScriptMethodThunks() = default;
 
-		void SetFromMethod(ScriptMethod method) 
+		void SetFromMethod(ScriptMethod* method) 
 		{
-			if (method.GeMonoMethod() == nullptr)
+			if (method == nullptr)
 				return;
 
-			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method.GeMonoMethod());
+			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method->GetMonoMethod());
 		}
 
 		void Invoke(MonoObject* obj, TParameters... params, MonoException** exc) 
 		{
-			m_MethodThunk(obj, params..., exc);
+			if(m_MethodThunk != nullptr)
+				m_MethodThunk(obj, params..., exc);
 		}
 
 		operator bool() { return m_MethodThunk != nullptr; }
@@ -50,12 +51,12 @@ namespace TerranEngine
 	public:
 		ScriptMethodThunksR() = default;
 
-		void SetFromMethod(ScriptMethod method)
+		void SetFromMethod(ScriptMethod* method)
 		{
-			if (method.GeMonoMethod() == nullptr)
+			if (method == nullptr)
 				return;
 
-			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method.GeMonoMethod());
+			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method->GetMonoMethod());
 		}
 
 		TReturn Invoke(MonoObject* obj, TParameters... params, MonoException** exc)

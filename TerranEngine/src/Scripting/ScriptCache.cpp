@@ -10,19 +10,19 @@ namespace TerranEngine
 {
 	#define TR_CLASS(className) ScriptEngine::GetClassFromName("Terran."#className)
 
-	std::unordered_map<uint32_t, ScriptClass*> ScriptCache::s_CachedClasses;
-	std::unordered_map<uint32_t, std::vector<ScriptMethod*>> ScriptCache::s_CachedMethods;
+	std::unordered_map<uint32_t, ScriptClass> ScriptCache::s_CachedClasses;
+	std::unordered_map<uint32_t, std::vector<ScriptMethod>> ScriptCache::s_CachedMethods;
 
 	void ScriptCache::CacheCoreClasses()
 	{
 		// corlib classes
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Byte), new ScriptClass(mono_get_byte_class()));
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Short), new ScriptClass(mono_get_int16_class()));
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Int), new ScriptClass(mono_get_int32_class()));
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Long), new ScriptClass(mono_get_int64_class()));
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Bool), new ScriptClass(mono_get_boolean_class()));
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Float), new ScriptClass(mono_get_single_class()));
-		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Double), new ScriptClass(mono_get_double_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Byte), ScriptClass(mono_get_byte_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Short), ScriptClass(mono_get_int16_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Int),  ScriptClass(mono_get_int32_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Long), ScriptClass(mono_get_int64_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Bool), ScriptClass(mono_get_boolean_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Float), ScriptClass(mono_get_single_class()));
+		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Double), ScriptClass(mono_get_double_class()));
 
 		// api core classes
 		s_CachedClasses.emplace(TR_API_CLASS_ID(Vector2), TR_CLASS(Vector2));
@@ -41,50 +41,44 @@ namespace TerranEngine
 
 	void ScriptCache::ClearCache()
 	{
-		for (auto [hashedName, klass] : s_CachedClasses)
-			delete klass;
-
-		for (auto [hashedModuleName, methods] : s_CachedMethods)
-		{
-			for (auto method : methods)
-				delete method;
-
-			methods.clear();
-		}
-
 		s_CachedClasses.clear();
 		s_CachedMethods.clear();
 	}
 
 	ScriptClass* ScriptCache::GetCachedClassFromName(const std::string& className)
 	{
-		uint32_t classID = TR_CLASS_ID(className);
+		const uint32_t classID = TR_CLASS_ID(className);
 
 		if(s_CachedClasses.find(classID) != s_CachedClasses.end())
-			return s_CachedClasses.at(classID);
+			return &s_CachedClasses.at(classID);
 
 		return nullptr;
 	}
 
 	ScriptMethod* ScriptCache::GetCachedMethod(const std::string& className, const std::string& methodName)
 	{
-		uint32_t classID = TR_CLASS_ID(className);
+		const uint32_t classID = TR_CLASS_ID(className);
 
 		ScriptMethod* method = nullptr;
 
 		if (s_CachedMethods.find(classID) != s_CachedMethods.end()) 
 		{
-			// TODO: better way of searching methods
-			for (auto cachedMethod : s_CachedMethods.at(classID))
-			{
-				std::string formattedMethodDesc = fmt::format("{0}{1}", className, methodName);
-				MonoMethodDesc* methodDesc = mono_method_desc_new(formattedMethodDesc.c_str(), false);
+			std::vector<ScriptMethod>& methods = s_CachedMethods.at(classID);
+			const auto it = std::find_if(methods.begin(), methods.end(),
+	     [&](ScriptMethod method)
+	     {
+	         const std::string formattedMethodDesc = fmt::format("{0}{1}", className, methodName);
+	         MonoMethodDesc* methodDesc = mono_method_desc_new(formattedMethodDesc.c_str(), false);
 
-				if (mono_method_desc_match(methodDesc, cachedMethod->GeMonoMethod()))
-					method = cachedMethod;
+	         if (mono_method_desc_match(methodDesc, method.GetMonoMethod()))
+	             return true;
 
-				mono_method_desc_free(methodDesc);
-			}
+	         mono_method_desc_free(methodDesc);
+	         return false;
+	     });
+			
+			if(it != methods.end())
+				method = &methods.at(it - methods.begin());	
 		}
 
 		return method;
@@ -94,10 +88,10 @@ namespace TerranEngine
 	{
 		for (auto [namespaceName, classNames] : assemblyInfo->ClassInfoMap) 
 		{
-			for (auto className : classNames)
+			for (const std::string& className : classNames)
 			{
 				std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, className);
-				ScriptClass* klass = ScriptEngine::GetClassFromName(formattedModuleName);
+				ScriptClass klass = ScriptEngine::GetClassFromName(formattedModuleName);
 				
 				if(klass)
 					s_CachedClasses.emplace(TR_CLASS_ID(formattedModuleName), klass);
@@ -109,10 +103,10 @@ namespace TerranEngine
 	{
 		for (auto[moduleName, methodSignatures] : assemblyInfo->MethodInfoMap)
 		{
-			for (auto methodSignature : methodSignatures)
+			for (const std::string& methodSignature : methodSignatures)
 			{
 				std::string formattedMethodSignature = fmt::format("{0}{1}", moduleName, methodSignature);
-				ScriptMethod* method = ScriptEngine::GetMethodFromDesc(formattedMethodSignature);
+				ScriptMethod method = ScriptEngine::GetMethodFromDesc(formattedMethodSignature);
 
 				if (method)
 					s_CachedMethods[TR_CLASS_ID(moduleName)].emplace_back(std::move(method));

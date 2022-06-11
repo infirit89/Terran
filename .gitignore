@@ -60,3 +60,6 @@ __pycache__
 
 # Scripts Folder
 TerranEditor/Resources/Scripts/
+
+# Jetbrains IDEs
+.idea

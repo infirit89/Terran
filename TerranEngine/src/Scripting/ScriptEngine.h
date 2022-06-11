@@ -29,8 +29,8 @@ namespace TerranEngine
 
 		static std::filesystem::path GetAssemblyPath();
 
-		static ScriptClass* GetClassFromName(const std::string& moduleName);
-		static ScriptMethod* GetMethodFromDesc(const std::string& methodDesc);
+		static ScriptClass GetClassFromName(const std::string& moduleName);
+		static ScriptMethod GetMethodFromDesc(const std::string& methodDesc);
 		static bool ClassExists(const std::string& moduleName);
 
 		static void InitializeScriptable(Entity entity);

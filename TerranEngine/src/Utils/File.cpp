@@ -7,8 +7,9 @@ namespace TerranEngine
 	{
 		FileData* data = (FileData*)malloc(sizeof(FileData));
 
+		memset(data, 0, sizeof(data));
+		
 		FILE* filePtr;
-
 		fopen_s(&filePtr, filePath, "rb");
 
 		data->Index = 0;
