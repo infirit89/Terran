@@ -7,23 +7,25 @@ project "TerranScriptCore"
 
     files 
     {
-        "Source/**.cs"   
+        "Source/**.cs",
+        "Properties/**.cs"
     }
 
     includedirs 
     {
-        "Source"
+        "Source",
+        "Properties"
     }
 
-    links 
-    {
-        "System",
-        "System.Core",
-        "System.Runtime",
-        "System.Numerics"
+    -- links 
+    -- {
+    --     "System",
+    --     "System.Core",
+    --     "System.Runtime",
+    --     "System.Numerics"
 
-        -- todo: add more links if needed
-    }
+    --     -- todo: add more links if needed
+    -- }
 
     filter "system:windows"
         systemversion "latest"
