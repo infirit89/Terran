@@ -57,3 +57,6 @@ mono/
 
 #Python
 __pycache__
+
+# Scripts Folder
+TerranEditor/Resources/Scripts/
