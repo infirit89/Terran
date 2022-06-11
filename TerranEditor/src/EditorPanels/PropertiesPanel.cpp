@@ -232,7 +232,7 @@ namespace TerranEditor
 						for (auto& hashedName : component.FieldOrder)
 						{
 							ScriptField& field = component.PublicFields.at(hashedName);
-
+#if 0
 							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
@@ -362,6 +362,7 @@ namespace TerranEditor
 								break;
 							}
 							}
+#endif
 						}
 					}
 				});

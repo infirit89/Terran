@@ -169,6 +169,7 @@ namespace TerranEngine
 
 		ScriptCache::CacheClassesFromAssemblyInfo(assemblyInfo);
 		ScriptCache::CacheMethodsFromAssemblyInfo(assemblyInfo);
+		ScriptCache::CacheFieldsFromAssemblyInfo(assemblyInfo);
 	}
 
 	void ScriptEngine::Shutdown()
@@ -233,6 +234,11 @@ namespace TerranEngine
 		return s_ScriptEngineData.Assembly->GetClassFromName(moduleName);
 	}
 
+	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken)
+	{
+		return s_ScriptEngineData.Assembly->GetClassFromTypeToken(typeToken);
+	}
+
 	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc)
 	{
 		return s_ScriptEngineData.Assembly->GetMethodFromDesc(methodDesc);
@@ -266,14 +272,13 @@ namespace TerranEngine
 
 			MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 
-			void* args[] = { uuidArray };
-
 			MonoException* exc = nullptr;
-			//ScriptObject object = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray, &exc);
 
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
+			
+#if 0
 			if (!s_ScriptFieldBackup.empty()) 
 			{
 				std::unordered_map<std::string, ScriptFieldBackup> fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
@@ -381,6 +386,7 @@ namespace TerranEngine
 
 			scriptComponent.FieldOrder = object.GetFieldOrder();
 			scriptComponent.PublicFields = object.GetFieldMap();
+#endif
 		}
 	}
 
@@ -518,10 +524,10 @@ namespace TerranEngine
 
 	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
 	{
+#if 0
 		if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end())
 		{
 			std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
-
 			for (auto& [id, scriptableInstance] : entityInstanceMap)
 			{
 				UUID entityID = id;
@@ -632,6 +638,7 @@ namespace TerranEngine
 				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
 			}
 		}
+#endif
 	}
 
 	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data) 

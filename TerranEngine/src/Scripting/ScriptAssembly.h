@@ -8,18 +8,21 @@
 #include <string>
 #include <vector>
 #include <filesystem>
-#include <unordered_set>
 
-typedef struct _MonoImage MonoImage;
-typedef struct _MonoAssembly MonoAssembly;
+extern "C"
+{
+	typedef struct _MonoImage MonoImage;
+	typedef struct _MonoAssembly MonoAssembly;
+}
 
 namespace TerranEngine 
 {
 	struct AssemblyInfo 
 	{
-		std::unordered_map<std::string, std::vector<std::string>> ClassInfoMap;
+		std::unordered_map<std::string, std::vector<uint32_t>> ClassInfoMap;
 		std::unordered_map<std::string, std::vector<std::string>> MethodInfoMap;
-
+		std::unordered_map<std::string, std::vector<uint32_t>> FieldInfoMap;
+		
 		MonoImage* CurrentImage;
 	};
 
@@ -32,6 +35,7 @@ namespace TerranEngine
 
 		// 'moduleName' has to have the format {Namespace}.{Class} e.g. "Terran.TestScript"
 		ScriptClass GetClassFromName(const std::string& moduleName);
+		ScriptClass GetClassFromTypeToken(uint32_t typeToken);
 
 		// 'methodDesc' has to have the format {Namespace}.{Class}:{MethodName}({Params}) 
 		// e.g. "Terran.TestScript:Update()" or "Terran.TestScript:OnCollisionBegin(Entity)"

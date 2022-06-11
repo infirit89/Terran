@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ScriptMethod.h"
+#include "ScriptField.h"
 
 extern "C"
 {
@@ -19,10 +20,11 @@ namespace TerranEngine
 		~ScriptClass() = default;
 
 		ScriptMethod GetMethod(const char* methodSignature);
-
+		ScriptField GetFieldFromToken(uint32_t fieldToken);
+		
 		inline MonoClass* GetMonoClass() const { return m_MonoClass; }
-		inline const char* GetName() const { return m_ClassName; }
-		inline const char* GetNamespace() const { return m_Namespace; }
+		inline const std::string&  GetName() const { return m_ClassName; }
+		inline const std::string& GetNamespace() const { return m_Namespace; }
 		
 		ScriptClass GetParent();
 		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
@@ -32,7 +34,9 @@ namespace TerranEngine
 
 	private:
 		MonoClass* m_MonoClass = nullptr;
-		const char* m_ClassName = nullptr;
-		const char* m_Namespace = nullptr;
+		std::string m_ClassName;
+		std::string m_Namespace;
+
+		friend class ScriptAssembly;
 	};
 }

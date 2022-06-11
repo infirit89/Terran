@@ -1,7 +1,12 @@
 #pragma once
 
-typedef struct _MonoClassField MonoClassField;
-typedef struct _MonoObject MonoObject;
+#include "GCManager.h"
+
+extern "C"
+{
+	typedef struct _MonoClassField MonoClassField;
+	typedef struct _MonoObject MonoObject;
+}
 
 namespace TerranEngine 
 {
@@ -25,7 +30,7 @@ namespace TerranEngine
 		Vector3
 	};
 
-	enum class ScriptFieldVisiblity 
+	enum class ScriptFieldVisibility 
 	{
 		Unknown,
 		Private,
@@ -38,55 +43,56 @@ namespace TerranEngine
 	{
 	public:
 		ScriptField() = default;
-		ScriptField(MonoClassField* monoField, MonoObject* monoObject);
+		ScriptField(MonoClassField* monoField);
 		
 		ScriptField(const ScriptField& other) = default;
 		~ScriptField() = default;
 
-		inline const char* GetName() const					{ return m_Name; }
+		inline const std::string& GetName() const			{ return m_Name; }
 		inline ScriptFieldType GetType() const				{ return m_FieldType; }
-		inline ScriptFieldVisiblity GetVisibility() const	{ return m_FieldVisibility; }
+		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
-		void SetDataRaw(void* value);
-		void GetDataRaw(void* result);
+		inline operator bool() const { return m_MonoField != nullptr; }
+		
+		void SetDataRaw(void* value, GCHandle handle);
+		void GetDataRaw(void* result, GCHandle handle);
 
-		const char* GetDataStringRaw();
-		void SetDataStringRaw(const char* value);
+		const char* GetDataStringRaw(GCHandle handle);
+		void SetDataStringRaw(const char* value, GCHandle handle);
 
 		template<typename T>
-		T GetData() 
+		T GetData(GCHandle handle) 
 		{
 			T value;
-			GetDataRaw(&value);
+			GetDataRaw(&value, handle);
 			return value;
 		}
 
 		template<typename T>
-		void SetData(T value) 
+		void SetData(T value, GCHandle handle) 
 		{
-			SetDataRaw(&value);
+			SetDataRaw(&value, handle);
 		}
 
 		template<>
-		const char* GetData<const char*>() 
+		const char* GetData<const char*>(GCHandle handle) 
 		{
-			const char* value = GetDataStringRaw();
+			const char* value = GetDataStringRaw(handle);
 			return value;
 		}
 
 		template<>
-		void SetData<const char*>(const char* value) 
+		void SetData<const char*>(const char* value, GCHandle handle) 
 		{
-			SetDataStringRaw(value);
+			SetDataStringRaw(value, handle);
 		}
 
 		// NOTE: maybe marshal vec2 and vec3?
 
 	private:
 		MonoClassField* m_MonoField = nullptr;
-		const char* m_Name = nullptr;
-		MonoObject* m_MonoObject = nullptr;
+		std::string m_Name;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
-		ScriptFieldVisiblity m_FieldVisibility = ScriptFieldVisiblity::Unknown;
+		ScriptFieldVisibility m_FieldVisibility = ScriptFieldVisibility::Unknown;
 	};
 }

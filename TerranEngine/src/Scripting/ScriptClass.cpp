@@ -3,17 +3,13 @@
 #include "GCManager.h"
 
 #include <mono/metadata/class.h>
-#include <mono/metadata/appdomain.h>
 #include <mono/metadata/debug-helpers.h>
 
 namespace TerranEngine
 {
 	ScriptClass::ScriptClass(MonoClass* monoClass)
 		: m_MonoClass(monoClass)
-	{
-		m_ClassName = mono_class_get_name(m_MonoClass);
-		m_Namespace = mono_class_get_namespace(m_MonoClass);
-	}
+	{ }
 
 	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) 
 	{
@@ -21,7 +17,6 @@ namespace TerranEngine
 		if (!monoDesc)
 		{
 			TR_WARN("Couldn't create the method description with method signature: {0}", methodSignature);
-
 			return NULL;
 		}
 
@@ -30,13 +25,25 @@ namespace TerranEngine
 		if (!monoMethod)
 		{
 			TR_WARN("Couldn't find the method with signature: {0} in class {1}", methodSignature, mono_class_get_name(m_MonoClass));
-			
 			return NULL;
 		}
 
 		mono_method_desc_free(monoDesc);
 
 		return ScriptMethod(monoMethod);
+	}
+
+	ScriptField ScriptClass::GetFieldFromToken(uint32_t fieldToken)
+	{
+		ScriptField field;
+		MonoClassField* monoField = mono_class_get_field(m_MonoClass, fieldToken);
+
+		if(monoField)
+			field = ScriptField(monoField);
+		else
+			TR_ERROR("Couldn't find the field with field token: {0} in class: {1}", fieldToken, m_ClassName);
+		
+		return field;
 	}
 
 	ScriptClass ScriptClass::GetParent()

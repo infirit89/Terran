@@ -52,21 +52,21 @@ namespace TerranEngine
 		return ScriptFieldType::None;
 	}
 
-	static ScriptFieldVisiblity ConvertFieldVisibility(uint32_t accessMask) 
+	static ScriptFieldVisibility ConvertFieldVisibility(uint32_t accessMask) 
 	{
 		switch (accessMask)
 		{
-		case MONO_FIELD_ATTR_PRIVATE:	return ScriptFieldVisiblity::Private;
-		case MONO_FIELD_ATTR_PUBLIC:	return ScriptFieldVisiblity::Public;
-		case MONO_FIELD_ATTR_FAMILY:	return ScriptFieldVisiblity::Protected;
-		case MONO_FIELD_ATTR_ASSEMBLY:	return ScriptFieldVisiblity::Internal;
+		case MONO_FIELD_ATTR_PRIVATE:	return ScriptFieldVisibility::Private;
+		case MONO_FIELD_ATTR_PUBLIC:	return ScriptFieldVisibility::Public;
+		case MONO_FIELD_ATTR_FAMILY:	return ScriptFieldVisibility::Protected;
+		case MONO_FIELD_ATTR_ASSEMBLY:	return ScriptFieldVisibility::Internal;
 		}
 
-		return ScriptFieldVisiblity::Unknown;
+		return ScriptFieldVisibility::Unknown;
 	}
 
-	ScriptField::ScriptField(MonoClassField* monoField, MonoObject* monoObject)
-		: m_MonoField(monoField), m_MonoObject(monoObject)
+	ScriptField::ScriptField(MonoClassField* monoField)
+		: m_MonoField(monoField)
 	{
 		m_Name = mono_field_get_name(m_MonoField);
 		m_FieldType = ConvertFieldType(mono_field_get_type(m_MonoField));
@@ -75,9 +75,10 @@ namespace TerranEngine
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
 	}
 
-	void ScriptField::SetDataRaw(void* value)
+	void ScriptField::SetDataRaw(void* value, GCHandle handle)
 	{
-		if (m_MonoObject == nullptr) 
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr) 
 		{
 			TR_ERROR("Couldn't set the value of field {0} because the object that it corresponds to is no longer valid", m_Name);
 			return;
@@ -89,12 +90,13 @@ namespace TerranEngine
 			return;
 		}
 		
-		mono_field_set_value(m_MonoObject, m_MonoField, value);
+		mono_field_set_value(monoObject, m_MonoField, value);
 	}
 
-	void ScriptField::GetDataRaw(void* result)
+	void ScriptField::GetDataRaw(void* result, GCHandle handle)
 	{
-		if (m_MonoObject == nullptr)
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr)
 		{
 			TR_ERROR("Couldnt find the object");
 			return;
@@ -106,12 +108,13 @@ namespace TerranEngine
 			return;
 		}
 		
-		mono_field_get_value(m_MonoObject, m_MonoField, result);
+		mono_field_get_value(monoObject, m_MonoField, result);
 	}
 
-	const char* ScriptField::GetDataStringRaw()
+	const char* ScriptField::GetDataStringRaw(GCHandle handle)
 	{
-		if (m_MonoObject == nullptr)
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr)
 		{
 			TR_ERROR("Couldnt find the object");
 			return "";
@@ -130,13 +133,14 @@ namespace TerranEngine
 		}
 
 		MonoString* monoStr = nullptr;
-		mono_field_get_value(m_MonoObject, m_MonoField, &monoStr);
+		mono_field_get_value(monoObject, m_MonoField, &monoStr);
 		return ScriptMarshal::MonoStringToUTF8(monoStr).c_str();
 	}
 
-	void ScriptField::SetDataStringRaw(const char* value)
+	void ScriptField::SetDataStringRaw(const char* value, GCHandle handle)
 	{
-		if (m_MonoObject == nullptr) 
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr) 
 		{
 			TR_ERROR("Couldnt find the object");
 			return;
@@ -155,6 +159,6 @@ namespace TerranEngine
 		}
 		
 		MonoString* monoStr = ScriptMarshal::UTF8ToMonoString(value);
-		mono_field_set_value(m_MonoObject, m_MonoField, monoStr);
+		mono_field_set_value(monoObject, m_MonoField, monoStr);
 	}
 }

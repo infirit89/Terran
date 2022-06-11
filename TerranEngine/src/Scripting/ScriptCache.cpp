@@ -12,6 +12,7 @@ namespace TerranEngine
 
 	std::unordered_map<uint32_t, ScriptClass> ScriptCache::s_CachedClasses;
 	std::unordered_map<uint32_t, std::vector<ScriptMethod>> ScriptCache::s_CachedMethods;
+	std::unordered_map<uint32_t, ScriptField> ScriptCache::s_CachedFields;
 
 	void ScriptCache::CacheCoreClasses()
 	{
@@ -84,17 +85,30 @@ namespace TerranEngine
 		return method;
 	}
 
+	ScriptField* ScriptCache::GetCachedFieldFromName(const std::string& className, const std::string& fieldName)
+	{
+		const std::string fullFieldName = fmt::format("{0}.{1}", className, fieldName);
+		const uint32_t fieldID = Hash::FNVHash(fullFieldName);
+
+		if(s_CachedFields.find(fieldID) != s_CachedFields.end())
+			return &s_CachedFields.at(fieldID);
+
+		return nullptr;
+	}
+
 	void ScriptCache::CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
 	{
-		for (auto [namespaceName, classNames] : assemblyInfo->ClassInfoMap) 
+		for (auto [namespaceName, typeTokens] : assemblyInfo->ClassInfoMap) 
 		{
-			for (const std::string& className : classNames)
+			for (const uint32_t& typeToken : typeTokens)
 			{
-				std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, className);
-				ScriptClass klass = ScriptEngine::GetClassFromName(formattedModuleName);
+				ScriptClass klass = ScriptEngine::GetClassFromTypeToken(typeToken);
 				
 				if(klass)
+				{
+					std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, klass.GetName());
 					s_CachedClasses.emplace(TR_CLASS_ID(formattedModuleName), klass);
+				}
 			}
 		}
 	}
@@ -110,6 +124,29 @@ namespace TerranEngine
 
 				if (method)
 					s_CachedMethods[TR_CLASS_ID(moduleName)].emplace_back(std::move(method));
+			}
+		}
+	}
+
+	void ScriptCache::CacheFieldsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
+	{
+		for (auto [moduleName, fieldTokens] : assemblyInfo->FieldInfoMap)
+		{
+			for (uint32_t fieldToken : fieldTokens)
+			{
+				ScriptClass* klass = GetCachedClassFromName(moduleName);
+
+				if(!klass)
+					continue;
+				
+				ScriptField field = klass->GetFieldFromToken(fieldToken);
+
+				if(field)
+				{
+					std::string fullFieldName = fmt::format("{0}.{1}", moduleName, field.GetName());\
+					uint32_t fieldID = Hash::FNVHash(fullFieldName); 
+					s_CachedFields.emplace(fieldID, std::move(field));
+				}
 			}
 		}
 	}

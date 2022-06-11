@@ -140,8 +140,7 @@ namespace TerranEngine
 
 		std::string ModuleName;
 		
-		std::vector<uint32_t> FieldOrder;
-		std::unordered_map<uint32_t, ScriptField> PublicFields;
+		std::vector<ScriptField> PublicFields;
 		
 		bool ClassExists = true;
 		bool Started = false;

@@ -30,6 +30,8 @@ namespace TerranEngine
 		static std::filesystem::path GetAssemblyPath();
 
 		static ScriptClass GetClassFromName(const std::string& moduleName);
+		static ScriptClass GetClassFromTypeToken(uint32_t typeToken);
+		
 		static ScriptMethod GetMethodFromDesc(const std::string& methodDesc);
 		static bool ClassExists(const std::string& moduleName);
 

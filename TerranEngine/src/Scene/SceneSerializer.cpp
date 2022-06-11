@@ -106,7 +106,7 @@ namespace TerranEngine
 	{
 		if (scriptComponent.PublicFields.empty())
 			return;
-
+#if 0
 		for (auto& hashedName : scriptComponent.FieldOrder)
 		{
 			ScriptField field = scriptComponent.PublicFields.at(hashedName);
@@ -202,6 +202,7 @@ namespace TerranEngine
 			default:	TR_ERROR("Unsupported field type"); break;
 			}
 		}
+#endif
 	}
 
 	static void SerializeEntity(json& j, Entity entity) 
@@ -407,7 +408,7 @@ catch(const std::exception& ex)\
 		if (ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
 		{
 			ScriptEngine::InitializeScriptable(entity);
-
+#if 0
 			if (jScriptComponent["Fields"] != "null")
 			{
 				for (auto& [hashedName, field] : scriptComponent.PublicFields)
@@ -500,6 +501,7 @@ catch(const std::exception& ex)\
 					}
 				}
 			}
+#endif
 		}
 	}
 
