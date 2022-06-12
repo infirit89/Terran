@@ -140,7 +140,7 @@ namespace TerranEngine
 
 		std::string ModuleName;
 		
-		std::vector<ScriptField> PublicFields;
+		std::vector<uint32_t> PublicFieldIDs;
 		
 		bool ClassExists = true;
 		bool Started = false;

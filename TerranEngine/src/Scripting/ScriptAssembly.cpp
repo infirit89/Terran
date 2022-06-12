@@ -31,7 +31,7 @@ namespace TerranEngine
             uint32_t cols[MONO_TYPEDEF_SIZE];
             mono_metadata_decode_row(typedefTableInfo, i, cols, MONO_TYPEDEF_SIZE);
 
-            uint32_t typeToken = (i + 1) | MONO_TOKEN_TYPE_DEF;
+            //uint32_t typeToken = ((i + 1) | MONO_TOKEN_TYPE_DEF);
             
             std::string namespaceName = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAMESPACE]);
             std::string className = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAME]);
@@ -69,11 +69,12 @@ namespace TerranEngine
             {
                 uint32_t fieldCols[MONO_FIELD_SIZE];
                 mono_metadata_decode_row(fieldTableInfo, j, fieldCols, MONO_FIELD_SIZE);
-                uint32_t fieldTypeToken = (j + 1) | MONO_TOKEN_FIELD_DEF;
-                info->FieldInfoMap[moduleName].emplace_back(fieldTypeToken);
+                //uint32_t fieldTypeToken = (j + 1) | MONO_TOKEN_FIELD_DEF;
+                std::string fieldName = mono_metadata_string_heap(m_MonoImage, fieldCols[MONO_FIELD_NAME]);
+                info->FieldInfoMap[moduleName].emplace_back(fieldName);
             }
             
-            info->ClassInfoMap[namespaceName].emplace_back(typeToken);
+            info->ClassInfoMap[namespaceName].emplace_back(className);
         }
 
         info->CurrentImage = m_MonoImage;

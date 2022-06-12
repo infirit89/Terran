@@ -26,7 +26,9 @@ namespace TerranEngine
 
 		static ScriptClass* GetCachedClassFromName(const std::string& className);
 		static ScriptMethod* GetCachedMethod(const std::string& className, const std::string& methodName);
+
 		static ScriptField* GetCachedFieldFromName(const std::string& className, const std::string& fieldName);
+		static ScriptField* GetCachedFieldFromID(uint32_t fieldID);
 		
 		static void CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 		static void CacheMethodsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);

@@ -96,19 +96,25 @@ namespace TerranEngine
 		return nullptr;
 	}
 
+	ScriptField* ScriptCache::GetCachedFieldFromID(uint32_t fieldID)
+	{
+		if(s_CachedFields.find(fieldID) != s_CachedFields.end())
+			return &s_CachedFields.at(fieldID);
+		
+		return nullptr;
+	}
+
 	void ScriptCache::CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
 	{
-		for (auto [namespaceName, typeTokens] : assemblyInfo->ClassInfoMap) 
+		for (auto [namespaceName, classNames] : assemblyInfo->ClassInfoMap) 
 		{
-			for (const uint32_t& typeToken : typeTokens)
+			for (const std::string& className : classNames)
 			{
-				ScriptClass klass = ScriptEngine::GetClassFromTypeToken(typeToken);
+				std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, className);
+				ScriptClass klass = ScriptEngine::GetClassFromName(formattedModuleName);
 				
 				if(klass)
-				{
-					std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, klass.GetName());
 					s_CachedClasses.emplace(TR_CLASS_ID(formattedModuleName), klass);
-				}
 			}
 		}
 	}
@@ -130,22 +136,24 @@ namespace TerranEngine
 
 	void ScriptCache::CacheFieldsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
 	{
-		for (auto [moduleName, fieldTokens] : assemblyInfo->FieldInfoMap)
+		for (auto [moduleName, fieldNames] : assemblyInfo->FieldInfoMap)
 		{
-			for (uint32_t fieldToken : fieldTokens)
+			for (const std::string& fieldName : fieldNames)
 			{
 				ScriptClass* klass = GetCachedClassFromName(moduleName);
-
+				
 				if(!klass)
 					continue;
 				
-				ScriptField field = klass->GetFieldFromToken(fieldToken);
+				ScriptField field = klass->GetFieldFromName(fieldName);
 
 				if(field)
 				{
-					std::string fullFieldName = fmt::format("{0}.{1}", moduleName, field.GetName());\
-					uint32_t fieldID = Hash::FNVHash(fullFieldName); 
+					std::string fullFieldName = fmt::format("{0}.{1}", moduleName, field.GetName());
+					uint32_t fieldID = Hash::FNVHash(fullFieldName);
+					field.m_ID = fieldID;
 					s_CachedFields.emplace(fieldID, std::move(field));
+					klass->m_Fields.emplace_back(field);
 				}
 			}
 		}

@@ -19,9 +19,9 @@ namespace TerranEngine
 {
 	struct AssemblyInfo 
 	{
-		std::unordered_map<std::string, std::vector<uint32_t>> ClassInfoMap;
+		std::unordered_map<std::string, std::vector<std::string>> ClassInfoMap;
 		std::unordered_map<std::string, std::vector<std::string>> MethodInfoMap;
-		std::unordered_map<std::string, std::vector<uint32_t>> FieldInfoMap;
+		std::unordered_map<std::string, std::vector<std::string>> FieldInfoMap;
 		
 		MonoImage* CurrentImage;
 	};

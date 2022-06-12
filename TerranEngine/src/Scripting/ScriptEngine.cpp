@@ -26,6 +26,7 @@
 #include <mono/metadata/mono-config.h>
 
 #include <unordered_map>
+#include <Freetype/src/gzip/ftzconf.h>
 
 namespace TerranEngine
 {
@@ -45,13 +46,8 @@ namespace TerranEngine
 		std::filesystem::path MonoConfigPath = EtcPath / "config";
 	};
 
-	static MonoAssembly* LoadAssembly(const std::filesystem::path& asseblyPath);
-	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly);
-
 	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data);
 
-	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature);
-	
 	static ScriptEngineData s_ScriptEngineData;
 
 	struct ScriptableInstance 
@@ -66,19 +62,8 @@ namespace TerranEngine
 
 		ScriptMethodThunks<> PhysicsUpdateMethod;
 
-		void GetMethods(ScriptClass& scriptClass) 
+		void GetMethods() 
 		{
-			// TODO: return ScriptMethod*
-			//Constructor.SetFromMethod(GetMethodFromImage(s_ScriptEngineData.Assembly->GetMonoImage(), "Terran.Scriptable:.ctor(byte[])"));
-
-			/*InitMethod.SetFromMethod(scriptClass.GetMethod(":Init()"));
-			UpdateMethod.SetFromMethod(scriptClass.GetMethod(":Update()"));
-
-			PhysicsBeginContact.SetFromMethod(scriptClass.GetMethod(":OnCollisionBegin(Entity)"));
-			PhysicsEndContact.SetFromMethod(scriptClass.GetMethod(":OnCollisionEnd(Entity)"));
-
-			PhysicsUpdateMethod.SetFromMethod(scriptClass.GetMethod(":PhysicsUpdate()"));*/
-			
 			Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
 
 			InitMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
@@ -127,7 +112,7 @@ namespace TerranEngine
 
 	static std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
 
-	static std::unordered_map<UUID, std::unordered_map<std::string, ScriptFieldBackup>> s_ScriptFieldBackup;
+	static std::unordered_map<UUID, std::unordered_map<uint32_t, ScriptFieldBackup>> s_ScriptFieldBackup;
 
 	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
@@ -268,7 +253,7 @@ namespace TerranEngine
 			ScriptableInstance instance;
 			ScriptObject object = ScriptObject::CreateInstace(*klass);
 			instance.ObjectHandle = GCManager::CreateStrongHadle(object);
-			instance.GetMethods(*klass);
+			instance.GetMethods();
 
 			MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 
@@ -277,116 +262,120 @@ namespace TerranEngine
 
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
+			// TODO: fix the rest of the field code
+			TR_TRACE(klass->GetFields().size());
 			
-#if 0
-			if (!s_ScriptFieldBackup.empty()) 
+			for (const auto& field : klass->GetFields())
 			{
-				std::unordered_map<std::string, ScriptFieldBackup> fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
-				for (auto& [fieldName, field] : fieldBackup)
-				{
-					std::hash<std::string> hasher;
-					uint32_t hashedName = hasher(fieldName);
-					if (object.GetFieldMap().find(hashedName) != object.GetFieldMap().end())
-					{
-						ScriptField& objectField = object.GetFieldMap().at(hashedName);
-
-						if (objectField.GetType() == field.Type) 
-						{
-							switch (field.Type)
-							{
-							case ScriptFieldType::Bool: 
-							{
-								bool value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int8:
-							{
-								int8_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int16:
-							{
-								int16_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int:
-							{
-								int32_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int64:
-							{
-								int64_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt8:
-							{
-								uint8_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt16:
-							{
-								uint16_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt:
-							{
-								uint32_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt64:
-							{
-								uint64_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Float: 
-							{
-								float value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Double: 
-							{
-								double value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::String: 
-							{
-								const char* value = field.Data;
-								objectField.SetData<const char*>(value);
-								break;
-							}
-							case ScriptFieldType::Vector2: 
-							{
-								glm::vec2 value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Vector3:
-							{
-								glm::vec3 value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							}
-						}
-					}
-				}
+				if(field.GetVisibility() == ScriptFieldVisibility::Public) 
+					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 			}
 
-			scriptComponent.FieldOrder = object.GetFieldOrder();
-			scriptComponent.PublicFields = object.GetFieldMap();
+
+			for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+			{
+				if(s_ScriptFieldBackup.find(entity.GetID()) == s_ScriptFieldBackup.end())
+					break;
+
+				std::unordered_map<uint32_t, ScriptFieldBackup>& fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
+				if(fieldBackup.find(fieldID) == fieldBackup.end())
+					continue;
+
+				if(ScriptCache::GetCachedFieldFromID(fieldID)->GetType() == fieldBackup.at(fieldID).Type)
+				{
+					// TODO: set data
+#if 0
+					switch (field.Type)
+					{
+					case ScriptFieldType::Bool: 
+					{
+						bool value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Int8:
+					{
+						int8_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Int16:
+					{
+						int16_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Int:
+					{
+						int32_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Int64:
+					{
+						int64_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::UInt8:
+					{
+						uint8_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::UInt16:
+					{
+						uint16_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::UInt:
+					{
+						uint32_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::UInt64:
+					{
+						uint64_t value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Float: 
+					{
+						float value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Double: 
+					{
+						double value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::String: 
+					{
+						const char* value = field.Data;
+						objectField.SetData<const char*>(value);
+						break;
+					}
+					case ScriptFieldType::Vector2: 
+					{
+						glm::vec2 value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					case ScriptFieldType::Vector3:
+					{
+						glm::vec3 value = field.Data;
+						objectField.SetData(value);
+						break;
+					}
+					}
 #endif
+				}
+			}
+			
 		}
 	}
 

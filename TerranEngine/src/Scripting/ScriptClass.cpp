@@ -46,6 +46,19 @@ namespace TerranEngine
 		return field;
 	}
 
+	ScriptField ScriptClass::GetFieldFromName(const std::string& fieldName)
+	{
+		ScriptField field;
+		MonoClassField* monoField = mono_class_get_field_from_name(m_MonoClass, fieldName.c_str());
+
+		if(monoField)
+			field = ScriptField(monoField);
+		else
+			TR_ERROR("Couldn't find the field with name: {0} in class: {1}", fieldName, m_ClassName);
+
+		return field;
+	}
+
 	ScriptClass ScriptClass::GetParent()
 	{
 		MonoClass* monoClass = mono_class_get_parent(m_MonoClass);

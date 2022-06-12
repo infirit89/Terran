@@ -227,143 +227,145 @@ namespace TerranEditor
 						ImGui::PopStyleColor();
 					}
 
-					if (!component.PublicFields.empty()) 
+					if (!component.PublicFieldIDs.empty()) 
 					{
-						for (auto& hashedName : component.FieldOrder)
-						{
-							ScriptField& field = component.PublicFields.at(hashedName);
+						const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+
+						TR_ASSERT(handle.IsValid(), "Invalid handle");
 #if 0
+						for (auto& field  : component.PublicFieldIDs)
+						{
 							switch (field.GetType())
 							{
 							case ScriptFieldType::Bool:
 							{
-								bool value = field.GetData<bool>();
+								bool value = field.GetData<bool>(handle);
 
 								if (UI::DrawBoolControl(field.GetName(), value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Int8:
 							{
-								int8_t value = field.GetData<int8_t>();
+								int8_t value = field.GetData<int8_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S8, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Int16:
 							{
-								int16_t value = field.GetData<int16_t>();
+								int16_t value = field.GetData<int16_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S16, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Int:
 							{
-								int32_t value = field.GetData<int32_t>();
+								int32_t value = field.GetData<int32_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S32, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Int64:
 							{
-								int64_t value = field.GetData<int64_t>();
+								int64_t value = field.GetData<int64_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S64, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::UInt8:
 							{
-								uint8_t value = field.GetData<uint8_t>();
+								uint8_t value = field.GetData<uint8_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U8, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::UInt16:
 							{
-								uint16_t value = field.GetData<uint16_t>();
+								uint16_t value = field.GetData<uint16_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U16, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::UInt:
 							{
-								uint32_t value = field.GetData<uint32_t>();
+								uint32_t value = field.GetData<uint32_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U32, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::UInt64:
 							{
-								uint64_t value = field.GetData<uint64_t>();
+								uint64_t value = field.GetData<uint64_t>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U64, &value))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Float:
 							{
-								float value = field.GetData<float>();
+								float value = field.GetData<float>(handle);
 
 								if (UI::DrawFloatControl(field.GetName(), value, 0.1f, "%.2f"))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Double:
 							{
-								double value = field.GetData<double>();
+								double value = field.GetData<double>(handle);
 
 								if (UI::DrawScalar(field.GetName(), ImGuiDataType_Double, &value, 0.1f, "%.4f"))
-									field.SetData(value);
+									field.SetData(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::String: 
 							{
-								std::string value = field.GetData<const char*>();
+								std::string value = field.GetData<const char*>(handle);
 
 								if (UI::DrawStringControl(field.GetName(), value))
-									field.SetData<const char*>(value.c_str());
+									field.SetData<const char*>(value.c_str(), handle);
 
 								break;
 							}
 							case ScriptFieldType::Vector2: 
 							{
-								glm::vec2 value = field.GetData<glm::vec2>();
+								glm::vec2 value = field.GetData<glm::vec2>(handle);
 								
 								if (UI::DrawVec2Control(field.GetName(), value))
-									field.SetData<glm::vec2>(value);
+									field.SetData<glm::vec2>(value, handle);
 
 								break;
 							}
 							case ScriptFieldType::Vector3: 
 							{
-								glm::vec3 value = field.GetData<glm::vec3>();
+								glm::vec3 value = field.GetData<glm::vec3>(handle);
 
 								if (UI::DrawVec3Control(field.GetName(), value))
-									field.SetData<glm::vec3>(value);
+									field.SetData<glm::vec3>(value, handle);
 
 								break;
 							}
 							}
-#endif
 						}
+#endif
 					}
 				});
 

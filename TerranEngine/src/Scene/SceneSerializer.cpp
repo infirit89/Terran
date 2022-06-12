@@ -104,7 +104,7 @@ namespace TerranEngine
 
 	static void SerializeField(json& j, ScriptComponent& scriptComponent) 
 	{
-		if (scriptComponent.PublicFields.empty())
+		if (scriptComponent.PublicFieldIDs.empty())
 			return;
 #if 0
 		for (auto& hashedName : scriptComponent.FieldOrder)

@@ -9,9 +9,9 @@
 
 namespace TerranEditor 
 {
-	void UI::DrawColor4Control(const char* label, glm::vec4& value, float columnWidth)
+	void UI::DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth)
 	{
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 		
 		{
 			ScopedVarTable::TableInfo tableInfo;
@@ -33,11 +33,11 @@ namespace TerranEditor
 
 	}
 
-	bool UI::DrawVec2Control(const char* label, glm::vec2& value, float power, const char* format, float columnWidth)
+	bool UI::DrawVec2Control(const std::string& label, glm::vec2& value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 
 		ImVec2 cursorPos;
 
@@ -109,11 +109,11 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawVec3Control(const char* label, glm::vec3& value, float power, const char* format, float columnWidth)
+	bool UI::DrawVec3Control(const std::string& label, glm::vec3& value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 
 		ImVec2 cursorPos;
 
@@ -203,11 +203,11 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawFloatControl(const char* label, float& value, float power, const char* format, float columnWidth)
+	bool UI::DrawFloatControl(const std::string& label, float& value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 		
 		{
 			ScopedVarTable::TableInfo tableInfo;
@@ -226,11 +226,11 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawIntControl(const char* label, int& value, float power, float columnWidth)
+	bool UI::DrawIntControl(const std::string& label, int& value, float power, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 
 		{
 			ScopedVarTable::TableInfo tableInfo;
@@ -249,11 +249,11 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawBoolControl(const char* label, bool& value, float columnWidth)
+	bool UI::DrawBoolControl(const std::string& label, bool& value, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 
 		{
 			ScopedVarTable::TableInfo tableInfo;
@@ -267,11 +267,11 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawStringControl(const char* label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
+	bool UI::DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 
 		{
 			ScopedVarTable::TableInfo tableInfo;
@@ -296,11 +296,11 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawScalar(const char* label, ImGuiDataType type, void* value, float power, const char* format, float columnWidth)
+	bool UI::DrawScalar(const std::string& label, ImGuiDataType type, void* value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
 
-		ImGui::PushID(label);
+		ImGui::PushID(label.c_str());
 		{
 			ScopedVarTable::TableInfo tableInfo;
 
@@ -322,19 +322,19 @@ namespace TerranEditor
 		return changed;
 	}
 
-	UI::ScopedVarTable::ScopedVarTable(const char* name, TableInfo tableInfo)
+	UI::ScopedVarTable::ScopedVarTable(const std::string& name, TableInfo tableInfo)
 		: m_TableInfo(tableInfo)
 	{
 		// NOTE: this is a very fucking bad
 		char tableID[256];
 
 		tableID[0] = '#';
-		strcpy_s(tableID + 1, sizeof(tableID) - 1, name);
-		tableID[strlen(name) + 1] = '\0';
+		strcpy_s(tableID + 1, sizeof(tableID) - 1, name.c_str());
+		tableID[strlen(name.c_str()) + 1] = '\0';
 
 		ImGui::Columns(tableInfo.columnCount, tableID, tableInfo.border);
 		ImGui::SetColumnWidth(0, tableInfo.firstColumnWidth);
-		ImGui::Text(name);
+		ImGui::Text(name.c_str());
 		ImGui::NextColumn();
 
 		if (tableInfo.itemCount > 1)

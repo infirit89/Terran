@@ -53,13 +53,15 @@ namespace TerranEngine
 		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
 		inline operator bool() const { return m_MonoField != nullptr; }
+
+		uint32_t GetID() const { return m_ID; }
 		
 		void SetDataRaw(void* value, GCHandle handle);
 		void GetDataRaw(void* result, GCHandle handle);
 
 		const char* GetDataStringRaw(GCHandle handle);
 		void SetDataStringRaw(const char* value, GCHandle handle);
-
+		
 		template<typename T>
 		T GetData(GCHandle handle) 
 		{
@@ -94,5 +96,8 @@ namespace TerranEngine
 		std::string m_Name;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScriptFieldVisibility m_FieldVisibility = ScriptFieldVisibility::Unknown;
+		uint32_t m_ID;
+
+		friend class ScriptCache;
 	};
 }

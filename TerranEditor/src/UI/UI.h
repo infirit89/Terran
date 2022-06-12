@@ -21,7 +21,7 @@ namespace TerranEditor
 				uint32_t itemCount = 1;
 			};
 
-			ScopedVarTable(const char* name, TableInfo tableInfo);
+			ScopedVarTable(const std::string& name, TableInfo tableInfo);
 			~ScopedVarTable();
 
 		private:
@@ -59,21 +59,21 @@ namespace TerranEditor
 			size_t m_StyleVarListSize = 0;
 		};
 
-		void DrawColor4Control(const char* label, glm::vec4& value, float columnWidth = 100.0f);
+		void DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth = 100.0f);
 
-		bool DrawVec3Control(const char* label, glm::vec3& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
+		bool DrawVec3Control(const std::string& label, glm::vec3& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
 
-		bool DrawFloatControl(const char* label, float& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
+		bool DrawFloatControl(const std::string& label, float& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
 
-		bool DrawIntControl(const char* label, int& value, float power = 0.1f, float columnWidth = 100.0f);
+		bool DrawIntControl(const std::string& label, int& value, float power = 0.1f, float columnWidth = 100.0f);
 
-		bool DrawBoolControl(const char* label, bool& value, float columnWidth = 100.0f);
+		bool DrawBoolControl(const std::string& label, bool& value, float columnWidth = 100.0f);
 
-		bool DrawStringControl(const char* label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+		bool DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
 
-		bool DrawScalar(const char* label, ImGuiDataType type, void* value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
+		bool DrawScalar(const std::string&label, ImGuiDataType type, void* value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
 
-		bool DrawVec2Control(const char* label, glm::vec2& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
+		bool DrawVec2Control(const std::string&label, glm::vec2& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
 
 	};
 }
