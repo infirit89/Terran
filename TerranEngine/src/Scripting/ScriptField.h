@@ -2,6 +2,8 @@
 
 #include "GCManager.h"
 
+#include "Utils/Utils.h"
+
 extern "C"
 {
 	typedef struct _MonoClassField MonoClassField;
@@ -15,13 +17,13 @@ namespace TerranEngine
 		None = 0,
 		Bool,
 		Char,
-		Int,
 		Int8,
 		Int16,
+		Int32,
 		Int64,
 		UInt8,
 		UInt16,
-		UInt,
+		UInt32,
 		UInt64,
 		Float,
 		Double,
@@ -61,6 +63,8 @@ namespace TerranEngine
 
 		const char* GetDataStringRaw(GCHandle handle);
 		void SetDataStringRaw(const char* value, GCHandle handle);
+
+		void SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle);
 		
 		template<typename T>
 		T GetData(GCHandle handle) 
@@ -88,6 +92,12 @@ namespace TerranEngine
 		{
 			SetDataStringRaw(value, handle);
 		}
+
+		template<>
+		void SetData<Utils::Variant>(Utils::Variant variant, GCHandle handle)
+		{
+			SetDataVariantRaw(variant, handle);
+		}		
 
 		// NOTE: maybe marshal vec2 and vec3?
 

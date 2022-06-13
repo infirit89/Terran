@@ -17,13 +17,13 @@ namespace TerranEngine
 		// signed integer types
 		case MONO_TYPE_I1:			return ScriptFieldType::Int8;
 		case MONO_TYPE_I2:			return ScriptFieldType::Int16;
-		case MONO_TYPE_I4:			return ScriptFieldType::Int;
+		case MONO_TYPE_I4:			return ScriptFieldType::Int32;
 		case MONO_TYPE_I8:			return ScriptFieldType::Int64;
 
 		// unsigned integer types
 		case MONO_TYPE_U1:			return ScriptFieldType::UInt8;
 		case MONO_TYPE_U2:			return ScriptFieldType::UInt16;
-		case MONO_TYPE_U4:			return ScriptFieldType::UInt;
+		case MONO_TYPE_U4:			return ScriptFieldType::UInt64;
 		case MONO_TYPE_U8:			return ScriptFieldType::UInt64;
 
 		case MONO_TYPE_R4:			return ScriptFieldType::Float;
@@ -160,5 +160,102 @@ namespace TerranEngine
 		
 		MonoString* monoStr = ScriptMarshal::UTF8ToMonoString(value);
 		mono_field_set_value(monoObject, m_MonoField, monoStr);
+	}
+
+	void ScriptField::SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle)
+	{
+		switch (m_FieldType)
+		{
+		case ScriptFieldType::Bool:
+		{
+			bool val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Char:
+		{
+			char val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Int8:
+		{
+			int8_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Int16:
+		{
+			int16_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Int32:
+		{
+			int32_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Int64:
+		{
+			int64_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::UInt8:
+		{
+			uint8_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::UInt16:
+		{
+			uint16_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::UInt32:
+		{
+			uint32_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::UInt64:
+		{
+			uint64_t val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Float:
+		{
+			float val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Double:
+		{
+			double val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::String:
+		{
+			const char*  val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Vector2:
+		{
+			glm::vec2 val = variant;
+			SetData(val, handle);
+			break;
+		}
+		case ScriptFieldType::Vector3:
+		{
+			glm::vec3 val = variant;
+			SetData(val, handle);
+			break;
+		}
+		}
 	}
 }
