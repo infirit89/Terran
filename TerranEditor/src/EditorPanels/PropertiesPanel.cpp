@@ -631,6 +631,15 @@ namespace TerranEditor
 
 					break;
 				}
+				case ScriptFieldType::Color:
+				{
+					glm::vec4 value = field->GetData<glm::vec4>(handle);
+
+					if (UI::DrawColor4Control(field->GetName(), value))
+						field->SetData<glm::vec4>(value, handle);
+
+					break;
+				}
 				}
 			}
 		}

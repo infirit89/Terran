@@ -75,6 +75,16 @@ namespace TerranEngine
             ((glm::vec3*)m_Data.ptr)->z = vec3.z;
             break;
         }
+        case Type::Vector4:
+        {
+            glm::vec4 vec4 = other;
+            m_Data.ptr = new glm::vec4;
+            ((glm::vec4*)m_Data.ptr)->x = vec4.x;
+            ((glm::vec4*)m_Data.ptr)->y = vec4.y;
+            ((glm::vec4*)m_Data.ptr)->z = vec4.z;
+            ((glm::vec4*)m_Data.ptr)->w = vec4.w;
+            break;
+        }
         }
     }
 
@@ -185,6 +195,16 @@ namespace TerranEngine
         ((glm::vec3*)m_Data.ptr)->z = vec3.z;
     }
 
+    Variant::Variant(const glm::vec4& vec4)
+    {
+        m_Type = Type::Vector4;
+        m_Data.ptr = new glm::vec4;
+        ((glm::vec4*)m_Data.ptr)->x = vec4.x;
+        ((glm::vec4*)m_Data.ptr)->y = vec4.y;
+        ((glm::vec4*)m_Data.ptr)->z = vec4.z;
+        ((glm::vec4*)m_Data.ptr)->w = vec4.w;
+    }
+
     Variant::~Variant() { Clear(); }
 
     void Variant::Clear()
@@ -193,28 +213,40 @@ namespace TerranEngine
         {
         case Type::String:
         {
-            if(m_Data.ptr != nullptr)
-            {
-                char* str = (char*)m_Data.ptr; 
+            if(m_Data.ptr)
+            { 
                 delete[] (char*)m_Data.ptr;
                 m_Data.ptr = nullptr;
             }
             break;
         }
         case Type::Vector2:
+        {
             if(m_Data.ptr)
             {
                 delete (glm::vec2*)m_Data.ptr;
                 m_Data.ptr = nullptr;
             }
             break;
+        }
         case Type::Vector3:
+        {
             if(m_Data.ptr)
             {
                 delete (glm::vec3*)m_Data.ptr;
                 m_Data.ptr = nullptr;
             }
             break;
+        }
+        case Type::Vector4:
+        {
+            if(m_Data.ptr)
+            {
+                delete (glm::vec4*)m_Data.ptr;
+                m_Data.ptr = nullptr;
+            }
+            break;
+        }
         }
     }
         
@@ -234,5 +266,6 @@ namespace TerranEngine
     Variant::operator std::string() const   { return static_cast<const char*>(m_Data.ptr); }
     Variant::operator glm::vec2() const     { return *static_cast<glm::vec2*>(m_Data.ptr); }
     Variant::operator glm::vec3() const     { return *static_cast<glm::vec3*>(m_Data.ptr); }
+    Variant::operator glm::vec4() const     { return *static_cast<glm::vec4*>(m_Data.ptr); }
     }
 }

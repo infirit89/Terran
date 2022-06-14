@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Terran
+﻿namespace Terran
 {
 	public class Log
 	{

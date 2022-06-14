@@ -45,7 +45,7 @@ namespace TerranEngine
 		std::filesystem::path MonoConfigPath = EtcPath / "config";
 	};
 
-	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data);
+	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
 
 	static ScriptEngineData s_ScriptEngineData;
 
@@ -93,9 +93,9 @@ namespace TerranEngine
 	}
 
 
-	void ScriptEngine::Initialize(const std::filesystem::path& asseblyPath)
+	void ScriptEngine::Initialize(const std::filesystem::path& assemblyPath)
 	{
-		s_ScriptEngineData.AssemblyPath = asseblyPath;
+		s_ScriptEngineData.AssemblyPath = assemblyPath;
 		
 		mono_set_dirs(s_ScriptEngineData.LibPath.string().c_str(), s_ScriptEngineData.EtcPath.string().c_str());
 
@@ -167,7 +167,7 @@ namespace TerranEngine
 			}
 			mono_gc_collect(mono_gc_max_generation());
 
-			auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+			const auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
 
 			for (auto e : scriptView)
 			{
@@ -339,7 +339,6 @@ namespace TerranEngine
 	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
 	{
 		const ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
-
 		return GCManager::GetManagedObject(instance.ObjectHandle);
 	}
 
@@ -382,7 +381,6 @@ namespace TerranEngine
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 					Utils::Variant fieldBackup = field->GetData<Utils::Variant>(handle);
 
-					const char* str = fieldBackup;
 					fieldBackupMap.emplace(fieldID, fieldBackup);
 				}
 
@@ -391,16 +389,16 @@ namespace TerranEngine
 		}
 	}
 
-	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data) 
+	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData) 
 	{
-		if (log_level != nullptr) 
+		if (logLevel != nullptr) 
 		{
-			if (strcmp(log_level, "info") == 0)
-				TR_INFO("Domain: {0}; Message: {1}", log_domain, message);
-			else if(strcmp(log_level, "debug") == 0)
-				TR_TRACE("Domain: {0}; Message: {1}", log_domain, message);
+			if (strcmp(logLevel, "info") == 0)
+				TR_INFO("Domain: {0}; Message: {1}", logDomain, message);
+			else if(strcmp(logLevel, "debug") == 0)
+				TR_TRACE("Domain: {0}; Message: {1}", logDomain, message);
 			else
-				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", log_domain, message, log_level);
+				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", logDomain, message, logLevel);
 		}
 	}
 }

@@ -31,7 +31,8 @@ namespace TerranEngine
 				Double,
 				String,
 				Vector2,
-				Vector3
+				Vector3,
+				Vector4
 			};
 
 			Variant();
@@ -59,6 +60,7 @@ namespace TerranEngine
 
 			Variant(const glm::vec2& vec2);
 			Variant(const glm::vec3& vec3);
+			Variant(const glm::vec4& vec4);
 			
 			~Variant();
 			
@@ -86,6 +88,7 @@ namespace TerranEngine
 
 			operator glm::vec2() const;
 			operator glm::vec3() const;
+			operator glm::vec4() const;
 
 			Type GetType() const { return m_Type; }
 			

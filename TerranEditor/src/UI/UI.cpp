@@ -11,40 +11,39 @@
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
-	void UI::DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth)
+	bool UI::DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth)
 	{
+		bool changed = false;
 		ImGui::PushID(label.c_str());
 		
 		{
-			ScopedVarTable::TableInfo tableInfo;
+			const ScopedVarTable::TableInfo tableInfo;
 			ScopedVarTable colorControlTable(label, tableInfo);
-			ImVec2 buttonSize = ImVec2{ ImGui::CalcItemWidth(), 0.0f };
+			const ImVec2 buttonSize = ImVec2{ ImGui::CalcItemWidth(), 0.0f };
 
 			if (ImGui::ColorButton("##colbutton", ImVec4{ value.r, value.g, value.b, value.a }, 0, buttonSize))
 				ImGui::OpenPopup("picker");
 
 			if (ImGui::BeginPopup("picker"))
 			{
-
-				ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
+				changed = ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
 				ImGui::EndPopup();
 			}
 		}
 		
 		ImGui::PopID();
 
+		return changed;
 	}
 
 	bool UI::DrawVec2Control(const std::string& label, glm::vec2& value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
-
 		ImGui::PushID(label.c_str());
 
-		ImVec2 cursorPos;
-
-		ImGuiIO io = ImGui::GetIO();
 		{
+			const ImGuiIO io = ImGui::GetIO();
+			
 			ScopedVarTable::TableInfo tableInfo;
 			tableInfo.itemCount = 2;
 			ScopedVarTable vec2Table(label, tableInfo);
@@ -71,7 +70,7 @@ namespace TerranEditor
 
 			ImGui::SameLine();
 
-			cursorPos = ImGui::GetCursorPos();
+			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
 			if (ImGui::DragFloat("##DRX", &value.x, power, 0.0f, 0.0f, format))
 				changed = true;
@@ -104,7 +103,6 @@ namespace TerranEditor
 
 		}
 
-
 		ImGui::Columns(1);
 		ImGui::PopID();
 
@@ -114,14 +112,11 @@ namespace TerranEditor
 	bool UI::DrawVec3Control(const std::string& label, glm::vec3& value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
-
 		ImGui::PushID(label.c_str());
 
-		ImVec2 cursorPos;
-
-		ImGuiIO io = ImGui::GetIO();
-
 		{
+			const ImGuiIO io = ImGui::GetIO();
+			
 			ScopedVarTable::TableInfo tableInfo;
 			tableInfo.itemCount = 3;
 			ScopedVarTable vec3Table(label, tableInfo);
@@ -148,7 +143,7 @@ namespace TerranEditor
 
 			ImGui::SameLine();
 
-			cursorPos = ImGui::GetCursorPos();
+			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
 			if (ImGui::DragFloat("##DRX", &value.x, power, 0.0f, 0.0f, format))
 				changed = true;
@@ -244,8 +239,7 @@ namespace TerranEditor
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 		}
-
-
+		
 		ImGui::PopID();
 
 		return changed;
@@ -254,12 +248,10 @@ namespace TerranEditor
 	bool UI::DrawBoolControl(const std::string& label, bool& value, float columnWidth)
 	{
 		bool changed = false;
-
 		ImGui::PushID(label.c_str());
 
 		{
 			ScopedVarTable::TableInfo tableInfo;
-
 			ScopedVarTable floatTable(label, tableInfo);
 			changed = ImGui::Checkbox("##val", &value);
 		}
@@ -272,16 +264,13 @@ namespace TerranEditor
 	bool UI::DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
 		bool changed = false;
-
 		ImGui::PushID(label.c_str());
 
 		{
-			ScopedVarTable::TableInfo tableInfo;
-
+			const ScopedVarTable::TableInfo tableInfo;
 			ScopedVarTable floatTable(label, tableInfo);
 
 			char* buf = new char[maxBufSize];
-
 			memset(buf, 0, maxBufSize);
 			strcpy_s(buf, maxBufSize, value.c_str());
 
@@ -300,19 +289,13 @@ namespace TerranEditor
 	bool UI::DrawScalar(const std::string& label, ImGuiDataType type, void* value, float power, const char* format, float columnWidth)
 	{
 		bool changed = false;
-
 		ImGui::PushID(label.c_str());
+		
 		{
-			ScopedVarTable::TableInfo tableInfo;
-
+			const ScopedVarTable::TableInfo tableInfo;
 			ScopedVarTable floatTable(label, tableInfo);
 
-			float min = 0.0f;
-			float max = 50.0f;
-			int16_t val = *((int16_t*)value);
-			TR_TRACE(val);
-
-			if (ImGui::DragScalar("##val", type, value, power, NULL, NULL, format))
+			if (ImGui::DragScalar("##val", type, value, power, nullptr, nullptr, format))
 				changed = true;
 
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
@@ -363,15 +346,11 @@ namespace TerranEditor
 		for (auto& styleColor : styleColorList)
 		{
 			ImVec4 color = { styleColor.Color.x, styleColor.Color.y, styleColor.Color.z, styleColor.Color.w };
-
 			ImGui::PushStyleColor(styleColor.ColorVarIdx, color);
 		}
 	}
 
-	UI::ScopedStyleColor::~ScopedStyleColor()
-	{
-		ImGui::PopStyleColor((int)m_StyleColorListSize);
-	}
+	UI::ScopedStyleColor::~ScopedStyleColor() { ImGui::PopStyleColor((int)m_StyleColorListSize); }
 
 	UI::ScopedStyleVar::ScopedStyleVar(std::initializer_list<StyleVar> styleVarList)
 		: m_StyleVarListSize(styleVarList.size())
@@ -379,14 +358,10 @@ namespace TerranEditor
 		for (auto& styleVarIt : styleVarList)
 		{
 			ImVec2 styleVal = { styleVarIt.Val.x, styleVarIt.Val.y };
-
 			ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
 		}
 	}
 
-	UI::ScopedStyleVar::~ScopedStyleVar()
-	{
-		ImGui::PopStyleVar((int)m_StyleVarListSize);
-	}
+	UI::ScopedStyleVar::~ScopedStyleVar() { ImGui::PopStyleVar((int)m_StyleVarListSize); }
 }
 

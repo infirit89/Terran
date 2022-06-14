@@ -25,6 +25,8 @@ namespace Terran
 
 		public Vector2 Vec2Test = new Vector2(10.0f, 1231.123f);
 		public Vector3 Vec3Test = new Vector3(12312.0f, 1223.0f, 131.01f);
+
+		public Color ColorTest = Color.Cyan;
 		
 		protected override void Init() 
 		{
@@ -48,6 +50,8 @@ namespace Terran
 			
 			Log.Trace("Vector 2: {0}", Vec2Test);
 			Log.Trace("Vector 3: {0}", Vec3Test);
+			
+			Log.Trace("Color: {0}", ColorTest);
 		}
 
 		protected override void Update() 

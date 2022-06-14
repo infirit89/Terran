@@ -1,6 +1,7 @@
 #include "trpch.h"
 #include "ScriptField.h"
 #include "ScriptMarshal.h"
+#include "ScriptCache.h"
 
 #include <mono/metadata/attrdefs.h>
 
@@ -34,18 +35,12 @@ namespace TerranEngine
 		case MONO_TYPE_STRING:		return ScriptFieldType::String;
 		case MONO_TYPE_VALUETYPE: 
 		{
-			MonoClass* typeClass = mono_class_from_mono_type(monoType);
-			const char* typeClassTypeName = mono_class_get_name(typeClass);
-			const char* typeClassNamespace = mono_class_get_namespace(typeClass);
-
-			// NOTE: string comparing is slow, think of a better way to do this
-			if (strcmp(typeClassNamespace, "Terran") == 0) 
-			{
-				if (strcmp(typeClassTypeName, "Vector2") == 0)
-					return ScriptFieldType::Vector2;
-				if (strcmp(typeClassTypeName, "Vector3") == 0)
-					return ScriptFieldType::Vector3;
-			}
+			const ScriptClass typeClass = mono_class_from_mono_type(monoType);
+			if(typeClass == *TR_API_CACHED_CLASS(Vector2))	return ScriptFieldType::Vector2;
+			if(typeClass == *TR_API_CACHED_CLASS(Vector3))	return ScriptFieldType::Vector3;
+			if(typeClass == *TR_API_CACHED_CLASS(Color))	return ScriptFieldType::Color;
+				
+			break;
 		}
 		}
 
@@ -257,6 +252,12 @@ namespace TerranEngine
 			SetData(val, handle);
 			break;
 		}
+		case ScriptFieldType::Color:
+		{
+			glm::vec4 val = variant;
+			SetData(val, handle);
+			break;
+		}
 		}
 	}
 
@@ -264,21 +265,22 @@ namespace TerranEngine
 	{
 		switch (m_FieldType)
 		{
-		case ScriptFieldType::Bool:	return GetData<bool>(handle);
-		case ScriptFieldType::Char: return (char)GetData<wchar_t>(handle);
-		case ScriptFieldType::Int8: return GetData<int8_t>(handle);
-		case ScriptFieldType::Int16: return GetData<int16_t>(handle);
-		case ScriptFieldType::Int32: return GetData<int32_t>(handle);
-		case ScriptFieldType::Int64: return GetData<int64_t>(handle);
-		case ScriptFieldType::UInt8: return GetData<uint8_t>(handle);
-		case ScriptFieldType::UInt16: return GetData<uint16_t>(handle);
-		case ScriptFieldType::UInt32: return GetData<uint32_t>(handle);
-		case ScriptFieldType::UInt64: return GetData<uint64_t>(handle);
-		case ScriptFieldType::Float: return GetData<float>(handle);
-		case ScriptFieldType::Double: return GetData<double>(handle);
-		case ScriptFieldType::String: return GetData<std::string>(handle);
-		case ScriptFieldType::Vector2: return GetData<glm::vec2>(handle);
-		case ScriptFieldType::Vector3: return GetData<glm::vec3>(handle);
+		case ScriptFieldType::Bool:		return GetData<bool>(handle);
+		case ScriptFieldType::Char: 	return (char)GetData<wchar_t>(handle);
+		case ScriptFieldType::Int8: 	return GetData<int8_t>(handle);
+		case ScriptFieldType::Int16: 	return GetData<int16_t>(handle);
+		case ScriptFieldType::Int32: 	return GetData<int32_t>(handle);
+		case ScriptFieldType::Int64: 	return GetData<int64_t>(handle);
+		case ScriptFieldType::UInt8: 	return GetData<uint8_t>(handle);
+		case ScriptFieldType::UInt16: 	return GetData<uint16_t>(handle);
+		case ScriptFieldType::UInt32: 	return GetData<uint32_t>(handle);
+		case ScriptFieldType::UInt64: 	return GetData<uint64_t>(handle);
+		case ScriptFieldType::Float:	return GetData<float>(handle);
+		case ScriptFieldType::Double:	return GetData<double>(handle);
+		case ScriptFieldType::String:	return GetData<std::string>(handle);
+		case ScriptFieldType::Vector2:	return GetData<glm::vec2>(handle);
+		case ScriptFieldType::Vector3:	return GetData<glm::vec3>(handle);
+		case ScriptFieldType::Color:	return GetData<glm::vec4>(handle);
 		}
 
 		return {};

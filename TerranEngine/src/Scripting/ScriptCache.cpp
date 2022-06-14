@@ -25,19 +25,21 @@ namespace TerranEngine
 		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Float), ScriptClass(mono_get_single_class()));
 		s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(Double), ScriptClass(mono_get_double_class()));
 
+#define CACHE_API_CLASS(klass) s_CachedClasses.emplace(TR_API_CLASS_ID(klass), TR_CLASS(klass))
 		// api core classes
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Vector2), TR_CLASS(Vector2));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Vector3), TR_CLASS(Vector3));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Entity), TR_CLASS(Entity));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(UUID), TR_CLASS(UUID));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Component), TR_CLASS(Component));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Collider2D), TR_CLASS(Collider2D));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Rigidbody2D), TR_CLASS(Rigidbody2D));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(BoxCollider2D), TR_CLASS(BoxCollider2D));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(CircleCollider2D), TR_CLASS(CircleCollider2D));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Scriptable), TR_CLASS(Scriptable));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Tag), TR_CLASS(Tag));
-		s_CachedClasses.emplace(TR_API_CLASS_ID(Transform), TR_CLASS(Transform));
+		CACHE_API_CLASS(Vector2);
+		CACHE_API_CLASS(Vector3);
+		CACHE_API_CLASS(Entity);
+		CACHE_API_CLASS(UUID);
+		CACHE_API_CLASS(Component);
+		CACHE_API_CLASS(Collider2D);
+		CACHE_API_CLASS(Rigidbody2D);
+		CACHE_API_CLASS(BoxCollider2D);
+		CACHE_API_CLASS(CircleCollider2D);
+		CACHE_API_CLASS(Scriptable);
+		CACHE_API_CLASS(Tag);
+		CACHE_API_CLASS(Transform);
+		CACHE_API_CLASS(Color);
 	}
 
 	void ScriptCache::ClearCache()

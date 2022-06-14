@@ -21,7 +21,7 @@ namespace TerranEngine
 		using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, GCHandle>>;
 
 	public:
-		static void Initialize(const std::filesystem::path& asseblyPath);
+		static void Initialize(const std::filesystem::path& assemblyPath);
 		static void Shutdown();
 
 		static void NewDomain();
