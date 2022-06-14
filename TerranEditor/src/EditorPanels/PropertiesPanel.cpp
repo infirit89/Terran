@@ -499,6 +499,21 @@ namespace TerranEditor
 
 					break;
 				}
+				case ScriptFieldType::Char:
+					{
+						char value = (char)field->GetData<wchar_t>(handle);
+						// TODO: kinda hacky implementation, make a UI::DrawCharControl function
+						std::string strVal; strVal += value;
+						if(UI::DrawStringControl(field->GetName(), strVal, 0, 2))
+						{
+							if(strVal.empty())
+								break;
+							const wchar_t wc = strVal.at(0); 
+							field->SetData<wchar_t>(wc, handle);
+						}
+						
+						break;
+					}
 				case ScriptFieldType::Int8:
 				{
 					int8_t value = field->GetData<int8_t>(handle);
@@ -591,7 +606,7 @@ namespace TerranEditor
 				}
 				case ScriptFieldType::String: 
 				{
-					std::string value = field->GetData<const char*>(handle);
+					std::string value = field->GetData<std::string>(handle);
 
 					if (UI::DrawStringControl(field->GetName(), value))
 						field->SetData<const char*>(value.c_str(), handle);

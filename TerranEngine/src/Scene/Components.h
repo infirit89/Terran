@@ -12,7 +12,6 @@
 #include <glm/glm.hpp>
 
 #include <vector>
-#include <unordered_set>
 
 namespace TerranEngine 
 {
@@ -137,7 +136,7 @@ namespace TerranEngine
 
 		std::string ModuleName;
 		
-		std::unordered_set<uint32_t> PublicFieldIDs;
+		std::vector<uint32_t> PublicFieldIDs;
 		
 		bool ClassExists = true;
 		bool Started = false;

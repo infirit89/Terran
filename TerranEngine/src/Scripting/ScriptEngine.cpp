@@ -231,11 +231,12 @@ namespace TerranEngine
 
 			// TODO: fix the rest of the field code
 			TR_TRACE(klass->GetFields().size());
+			scriptComponent.PublicFieldIDs.clear();
 			
 			for (const auto& field : klass->GetFields())
 			{
-				if(field.GetVisibility() == ScriptFieldVisibility::Public) 
-					scriptComponent.PublicFieldIDs.emplace(field.GetID());
+				if(field.GetVisibility() == ScriptFieldVisibility::Public)
+					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 			}
 
 

@@ -402,6 +402,8 @@ namespace TerranEditor
 		ImGuizmo::SetOrthographic(true);
 		ImGuizmo::BeginFrame();
 
+		ImGui::ShowDemoWindow();
+		
 		ShowDockspace();
 
 		m_SceneHierarchyPanel.ImGuiRender();

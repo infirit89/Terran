@@ -23,7 +23,7 @@ namespace TerranEngine
 		// unsigned integer types
 		case MONO_TYPE_U1:			return ScriptFieldType::UInt8;
 		case MONO_TYPE_U2:			return ScriptFieldType::UInt16;
-		case MONO_TYPE_U4:			return ScriptFieldType::UInt64;
+		case MONO_TYPE_U4:			return ScriptFieldType::UInt32;
 		case MONO_TYPE_U8:			return ScriptFieldType::UInt64;
 
 		case MONO_TYPE_R4:			return ScriptFieldType::Float;
@@ -111,7 +111,7 @@ namespace TerranEngine
 		mono_field_get_value(monoObject, m_MonoField, result);
 	}
 
-	const char* ScriptField::GetDataStringRaw(GCHandle handle)
+	std::string ScriptField::GetDataStringRaw(GCHandle handle)
 	{
 		MonoObject* monoObject = GCManager::GetManagedObject(handle);
 		if (monoObject == nullptr)
@@ -134,7 +134,8 @@ namespace TerranEngine
 
 		MonoString* monoStr = nullptr;
 		mono_field_get_value(monoObject, m_MonoField, &monoStr);
-		return ScriptMarshal::MonoStringToUTF8(monoStr).c_str();
+		const std::string val = ScriptMarshal::MonoStringToUTF8(monoStr);
+		return val;
 	}
 
 	void ScriptField::SetDataStringRaw(const char* value, GCHandle handle)
@@ -275,7 +276,7 @@ namespace TerranEngine
 		case ScriptFieldType::UInt64: return GetData<uint64_t>(handle);
 		case ScriptFieldType::Float: return GetData<float>(handle);
 		case ScriptFieldType::Double: return GetData<double>(handle);
-		case ScriptFieldType::String: return GetData<const char*>(handle);
+		case ScriptFieldType::String: return GetData<std::string>(handle);
 		case ScriptFieldType::Vector2: return GetData<glm::vec2>(handle);
 		case ScriptFieldType::Vector3: return GetData<glm::vec3>(handle);
 		}

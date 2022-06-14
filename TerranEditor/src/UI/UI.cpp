@@ -1,6 +1,7 @@
 #include "UI.h"
 
 #include "Terran.h"
+#include "Core/Log.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -9,6 +10,7 @@
 
 namespace TerranEditor 
 {
+	using namespace TerranEngine;
 	void UI::DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth)
 	{
 		ImGui::PushID(label.c_str());
@@ -281,7 +283,6 @@ namespace TerranEditor
 			char* buf = new char[maxBufSize];
 
 			memset(buf, 0, maxBufSize);
-
 			strcpy_s(buf, maxBufSize, value.c_str());
 
 			if (ImGui::InputText("##val", buf, maxBufSize, flags))
@@ -308,8 +309,10 @@ namespace TerranEditor
 
 			float min = 0.0f;
 			float max = 50.0f;
+			int16_t val = *((int16_t*)value);
+			TR_TRACE(val);
 
-			if (ImGui::DragScalar("##val", type, value, power, &min, &max, format, NULL))
+			if (ImGui::DragScalar("##val", type, value, power, NULL, NULL, format))
 				changed = true;
 
 			if (ImGui::IsItemHovered() || ImGui::IsItemActive())

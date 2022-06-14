@@ -46,7 +46,7 @@ namespace TerranEngine
 	std::string ScriptMarshal::MonoStringToUTF8(MonoString* monoStr)
 	{
 		MonoError error;
-		char* str = mono_string_to_utf8_checked(monoStr, &error);
+		const char* str = mono_string_to_utf8_checked(monoStr, &error);
 
 		if (error.error_code != MONO_ERROR_NONE) 
 		{
@@ -55,7 +55,7 @@ namespace TerranEngine
 		}
 
 		std::string result(str);
-		mono_free(str);
+		mono_free((char*)str);
 
 		return result;
 	}

@@ -1,22 +1,53 @@
 ﻿using System;
+using System.Runtime.ConstrainedExecution;
 
 namespace Terran
 {
-	public class TestScript : Scriptable 
+	public class TestScript : Scriptable
 	{
+		public bool BTest = false; 
+		public char CTest = 'A';
+		
+		public sbyte I8Test = 126;
+		public short I16Test = -1210;
+		public int I32Test = -15;
+		public long I64Test = -100000000123123;
+		
+		public byte U8Test = 126;
+		public ushort U16Test = 12023;
+		public uint U32Test = 1231201231;
+		public ulong U64Test = 12389056893832234879;
+
+		public float FTest = 3213.3123123f;
+		public double DTest = 3213.312312312312312;
+
+		public string StrTest = "Hello World!";
+
+		public Vector2 Vec2Test = new Vector2(10.0f, 1231.123f);
+		public Vector3 Vec3Test = new Vector3(12312.0f, 1223.0f, 131.01f);
+		
 		protected override void Init() 
 		{
-			/*BoxCollider2D bc = entity.GetComponent<BoxCollider2D>();
-			Log.Trace(bc.Offset);
-			Log.Trace(bc.IsSensor);*/
-
-			Collider2D c = entity.GetComponent<Collider2D>();
-			if(c != null)
-				Log.Trace(c.Offset);
-
-			//CircleCollider2D cc = entity.GetComponent<CircleCollider2D>();
-			//Log.Trace(cc.Offset);
-			//Log.Trace(cc.IsSensor
+			Log.Trace("bool: {0}", BTest);
+			Log.Trace("char: {0}", CTest);
+			
+			Log.Trace("sbyte: {0}", I8Test);
+			Log.Trace("short: {0}", I16Test);
+			Log.Trace("int: {0}", I32Test);
+			Log.Trace("long: {0}", I64Test);
+			
+			Log.Trace("byte: {0}", U8Test);
+			Log.Trace("ushort: {0}", U16Test);
+			Log.Trace("uint: {0}", U32Test);
+			Log.Trace("ulong: {0}", U64Test);
+			
+			Log.Trace("float: {0}", FTest);
+			Log.Trace("double: {0}", DTest);
+			
+			Log.Trace("String: {0}", StrTest);
+			
+			Log.Trace("Vector 2: {0}", Vec2Test);
+			Log.Trace("Vector 3: {0}", Vec3Test);
 		}
 
 		protected override void Update() 

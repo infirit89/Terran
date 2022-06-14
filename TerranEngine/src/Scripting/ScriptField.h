@@ -61,7 +61,7 @@ namespace TerranEngine
 		void SetDataRaw(void* value, GCHandle handle);
 		void GetDataRaw(void* result, GCHandle handle);
 
-		const char* GetDataStringRaw(GCHandle handle);
+		std::string GetDataStringRaw(GCHandle handle);
 		void SetDataStringRaw(const char* value, GCHandle handle);
 
 		void SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle);
@@ -70,7 +70,7 @@ namespace TerranEngine
 		template<typename T>
 		T GetData(GCHandle handle) 
 		{
-			T value;
+			T value{};
 			GetDataRaw(&value, handle);
 			return value;
 		}
@@ -82,9 +82,9 @@ namespace TerranEngine
 		}
 
 		template<>
-		const char* GetData<const char*>(GCHandle handle) 
+		std::string GetData<std::string>(GCHandle handle) 
 		{
-			const char* value = GetDataStringRaw(handle);
+			std::string value = GetDataStringRaw(handle);
 			return value;
 		}
 
