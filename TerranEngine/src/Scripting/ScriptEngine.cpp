@@ -379,11 +379,11 @@ namespace TerranEngine
 				
 				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 				{
-					Utils::Variant fieldBackup;
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-					fieldBackup = field->GetData<Utils::Variant>(handle);
-					
-					fieldBackupMap.emplace(fieldID, std::move(fieldBackup));
+					Utils::Variant fieldBackup = field->GetData<Utils::Variant>(handle);
+
+					const char* str = fieldBackup;
+					fieldBackupMap.emplace(fieldID, fieldBackup);
 				}
 
 				s_ScriptFieldBackup.emplace(id, std::move(fieldBackupMap));

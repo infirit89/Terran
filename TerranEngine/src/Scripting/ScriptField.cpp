@@ -39,7 +39,7 @@ namespace TerranEngine
 			const char* typeClassNamespace = mono_class_get_namespace(typeClass);
 
 			// NOTE: string comparing is slow, think of a better way to do this
-			if (strcmp(typeClassNamespace, "TerranScriptCore") == 0) 
+			if (strcmp(typeClassNamespace, "Terran") == 0) 
 			{
 				if (strcmp(typeClassTypeName, "Vector2") == 0)
 					return ScriptFieldType::Vector2;
@@ -176,7 +176,7 @@ namespace TerranEngine
 		case ScriptFieldType::Char:
 		{
 			char val = variant;
-			SetData(val, handle);
+			SetData<wchar_t>((wchar_t)val, handle);
 			break;
 		}
 		case ScriptFieldType::Int8:
@@ -265,7 +265,7 @@ namespace TerranEngine
 		switch (m_FieldType)
 		{
 		case ScriptFieldType::Bool:	return GetData<bool>(handle);
-		case ScriptFieldType::Char: return GetData<char>(handle);
+		case ScriptFieldType::Char: return (char)GetData<wchar_t>(handle);
 		case ScriptFieldType::Int8: return GetData<int8_t>(handle);
 		case ScriptFieldType::Int16: return GetData<int16_t>(handle);
 		case ScriptFieldType::Int32: return GetData<int32_t>(handle);

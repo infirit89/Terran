@@ -53,8 +53,9 @@ namespace TerranEngine
         {
             const char* str = other;
             const size_t strLen = strlen(str);
-            m_Data.ptr = new char[strLen];
+            m_Data.ptr = new char[strLen + 1];
             strcpy((char*)m_Data.ptr, str);
+            ((char*)m_Data.ptr)[strLen] = '\0';
             break;
         }
         case Type::Vector2:
@@ -153,16 +154,18 @@ namespace TerranEngine
     {
         m_Type = Type::String;
         const size_t strLen = str.size();
-        m_Data.ptr = new char[strLen];
+        m_Data.ptr = new char[strLen + 1];
         strcpy((char*)m_Data.ptr, str.c_str());
+        ((char*)m_Data.ptr)[strLen] = '\0';
     }
 
     Variant::Variant(const char* str)
     {
         m_Type = Type::String;
         const size_t strLen = strlen(str);
-        m_Data.ptr = new char[strLen];
+        m_Data.ptr = new char[strLen + 1];
         strcpy((char*)m_Data.ptr, str);
+        ((char*)m_Data.ptr)[strLen] = '\0';
     }
 
     Variant::Variant(const glm::vec2& vec2)
@@ -189,12 +192,15 @@ namespace TerranEngine
         switch (m_Type)
         {
         case Type::String:
-            if(m_Data.ptr)
+        {
+            if(m_Data.ptr != nullptr)
             {
+                char* str = (char*)m_Data.ptr; 
                 delete[] (char*)m_Data.ptr;
                 m_Data.ptr = nullptr;
             }
             break;
+        }
         case Type::Vector2:
             if(m_Data.ptr)
             {
