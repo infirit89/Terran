@@ -16,6 +16,8 @@ namespace TerranEditor
 		inline void SetOpen(bool open) { m_Open = open; }
 
 	private:
+		void DrawScriptFields(Entity entity);
+		
 		bool m_Open = true;
 	};
 }

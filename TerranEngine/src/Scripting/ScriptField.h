@@ -65,6 +65,7 @@ namespace TerranEngine
 		void SetDataStringRaw(const char* value, GCHandle handle);
 
 		void SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle);
+		Utils::Variant GetDataVariantRaw(GCHandle handle);
 		
 		template<typename T>
 		T GetData(GCHandle handle) 
@@ -99,6 +100,14 @@ namespace TerranEngine
 			SetDataVariantRaw(variant, handle);
 		}		
 
+		template<>
+		Utils::Variant GetData<Utils::Variant>(GCHandle handle) 
+		{
+			Utils::Variant variant = GetDataVariantRaw(handle);
+			return variant;
+		}
+
+		
 		// NOTE: maybe marshal vec2 and vec3?
 
 	private:

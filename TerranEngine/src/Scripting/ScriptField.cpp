@@ -258,4 +258,28 @@ namespace TerranEngine
 		}
 		}
 	}
+
+	Utils::Variant ScriptField::GetDataVariantRaw(GCHandle handle)
+	{
+		switch (m_FieldType)
+		{
+		case ScriptFieldType::Bool:	return GetData<bool>(handle);
+		case ScriptFieldType::Char: return GetData<char>(handle);
+		case ScriptFieldType::Int8: return GetData<int8_t>(handle);
+		case ScriptFieldType::Int16: return GetData<int16_t>(handle);
+		case ScriptFieldType::Int32: return GetData<int32_t>(handle);
+		case ScriptFieldType::Int64: return GetData<int64_t>(handle);
+		case ScriptFieldType::UInt8: return GetData<uint8_t>(handle);
+		case ScriptFieldType::UInt16: return GetData<uint16_t>(handle);
+		case ScriptFieldType::UInt32: return GetData<uint32_t>(handle);
+		case ScriptFieldType::UInt64: return GetData<uint64_t>(handle);
+		case ScriptFieldType::Float: return GetData<float>(handle);
+		case ScriptFieldType::Double: return GetData<double>(handle);
+		case ScriptFieldType::String: return GetData<const char*>(handle);
+		case ScriptFieldType::Vector2: return GetData<glm::vec2>(handle);
+		case ScriptFieldType::Vector3: return GetData<glm::vec3>(handle);
+		}
+
+		return {};
+	}
 }

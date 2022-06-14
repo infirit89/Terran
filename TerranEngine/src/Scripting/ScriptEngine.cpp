@@ -205,7 +205,7 @@ namespace TerranEngine
 	{
 		if (s_ScriptableInstanceMap.find(entity.GetID()) == s_ScriptableInstanceMap.end())
 		{
-			ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
+			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 			ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
 			
 			if (!klass) return;
@@ -218,7 +218,7 @@ namespace TerranEngine
 			}
 
 			ScriptableInstance instance;
-			ScriptObject object = ScriptObject::CreateInstace(*klass);
+			const ScriptObject object = ScriptObject::CreateInstace(*klass);
 			instance.ObjectHandle = GCManager::CreateStrongHadle(object);
 			instance.GetMethods();
 
@@ -235,7 +235,7 @@ namespace TerranEngine
 			for (const auto& field : klass->GetFields())
 			{
 				if(field.GetVisibility() == ScriptFieldVisibility::Public) 
-					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
+					scriptComponent.PublicFieldIDs.emplace(field.GetID());
 			}
 
 
@@ -304,7 +304,6 @@ namespace TerranEngine
 		if (instance.PhysicsBeginContact) 
 		{
 			MonoArray* uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			//void* args[] = { monoUuidArr };
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr, &exc);
@@ -318,7 +317,6 @@ namespace TerranEngine
 		if (instance.PhysicsEndContact)
 		{
 			MonoArray* uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			//void* args[] = { monoUuidArr };
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr, &exc);
@@ -339,14 +337,14 @@ namespace TerranEngine
 
 	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
 	{
-		ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
+		const ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
 
 		return GCManager::GetManagedObject(instance.ObjectHandle);
 	}
 
 	GCHandle ScriptEngine::GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID)
 	{
-		ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
+		const ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
 		return instance.ObjectHandle;
 	}
 
@@ -368,121 +366,28 @@ namespace TerranEngine
 
 	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
 	{
-#if 0
 		if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end())
 		{
 			std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
 			for (auto& [id, scriptableInstance] : entityInstanceMap)
 			{
-				UUID entityID = id;
-				std::unordered_map<std::string, ScriptFieldBackup> fieldBackupMap;
-				ScriptObject object = GCManager::GetManagedObject(GetInstance(sceneID, entityID).ObjectHandle);
-
-				for (auto& [fieldName, field] : object.GetFieldMap())
+				std::unordered_map<uint32_t, Utils::Variant> fieldBackupMap;
+				const GCHandle handle = GetScriptInstanceGCHandle(sceneID, id);
+				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+				
+				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 				{
-					ScriptFieldBackup fieldBackup;
-					fieldBackup.Type = field.GetType();
-					switch (field.GetType())
-					{
-					case ScriptFieldType::Int8: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int8_t>();
-						break;
-					}
-					case ScriptFieldType::Int16: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int16_t>();
-						break;
-					}
-					case ScriptFieldType::Int: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int32_t>();
-						break;
-					}
-					case ScriptFieldType::Int64: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int64_t>();
-						break;
-					}
-					case ScriptFieldType::UInt8: 
-					{
-						fieldBackup.Data.iValue = field.GetData<uint8_t>();
-						break;
-					}
-					case ScriptFieldType::UInt16: 
-					{
-						fieldBackup.Data.iValue = field.GetData<uint16_t>();
-						break;
-					}
-					case ScriptFieldType::UInt: 
-					{
-						fieldBackup.Data.iValue = field.GetData<uint32_t>();
-						break;
-					}
-					case ScriptFieldType::UInt64:
-					{
-						fieldBackup.Data.iValue = field.GetData<uint64_t>();
-						break;
-					}
-					case ScriptFieldType::Float:
-					{
-						fieldBackup.Data.dValue = field.GetData<float>();
-						break;
-					}
-					case ScriptFieldType::Double:
-					{
-						fieldBackup.Data.dValue = field.GetData<double>();
-						break;
-					}
-					case ScriptFieldType::Bool:
-					{
-						fieldBackup.Data.bValue = field.GetData<bool>();
-						break;
-					}
-					case ScriptFieldType::String: 
-					{
-						const char* tempVal = field.GetData<const char*>();
-						size_t tempValLength = strlen(tempVal);
-
-						fieldBackup.Data.ptr = new char[tempValLength + 1];
-
-						strcpy((char*)fieldBackup.Data.ptr, tempVal);
-
-						((char*)fieldBackup.Data.ptr)[tempValLength] = '\0';
-						break;
-					}
-					case ScriptFieldType::Vector2: 
-					{
-						glm::vec2 tempVal = field.GetData<glm::vec2>();
-
-						fieldBackup.Data.ptr = new glm::vec2;
-
-						((glm::vec2*)fieldBackup.Data.ptr)->x = tempVal.x;
-						((glm::vec2*)fieldBackup.Data.ptr)->y = tempVal.y;
-
-						break;
-					}
-					case ScriptFieldType::Vector3:
-					{
-						glm::vec3 tempVal = field.GetData<glm::vec3>();
-
-						fieldBackup.Data.ptr = new glm::vec3;
-
-						((glm::vec3*)fieldBackup.Data.ptr)->x = tempVal.x;
-						((glm::vec3*)fieldBackup.Data.ptr)->y = tempVal.y;
-						((glm::vec3*)fieldBackup.Data.ptr)->z = tempVal.z;
-
-						break;
-					}
-					}
-
-					fieldBackupMap.emplace(field.GetName(), std::move(fieldBackup));
+					Utils::Variant fieldBackup;
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					fieldBackup = field->GetData<Utils::Variant>(handle);
+					
+					fieldBackupMap.emplace(fieldID, std::move(fieldBackup));
 				}
 
-				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
+				s_ScriptFieldBackup.emplace(id, std::move(fieldBackupMap));
 			}
 		}
-#endif
 	}
 
 	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data) 

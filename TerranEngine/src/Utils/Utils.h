@@ -34,7 +34,7 @@ namespace TerranEngine
 				Vector3
 			};
 
-			Variant() = default;
+			Variant();
 			Variant(const Variant& other);
 
 			Variant(int8_t i8);

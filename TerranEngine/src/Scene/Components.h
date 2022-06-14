@@ -7,15 +7,12 @@
 #include "Graphics/OrthographicCamera.h"
 #include "Graphics/FontAtlas.h"
 
-#include "Scripting/ScriptField.h"
-
 #include "Physics/PhysicsStates.h"
-
-#include "Utils/Debug/Profiler.h"
 
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <unordered_set>
 
 namespace TerranEngine 
 {
@@ -140,7 +137,7 @@ namespace TerranEngine
 
 		std::string ModuleName;
 		
-		std::vector<uint32_t> PublicFieldIDs;
+		std::unordered_set<uint32_t> PublicFieldIDs;
 		
 		bool ClassExists = true;
 		bool Started = false;

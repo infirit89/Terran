@@ -11,6 +11,12 @@ namespace TerranEngine
         return { color.x / 255, color.y / 255, color.z / 255, color.w / 255 };
     }
 
+    Variant::Variant()
+    {
+        m_Type = Type::None;
+        m_Data.iValue = 0;
+    }
+
     Variant::Variant(const Variant& other)
     {
         Clear();
