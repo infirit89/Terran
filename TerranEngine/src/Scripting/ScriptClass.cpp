@@ -11,7 +11,7 @@ namespace TerranEngine
 		: m_MonoClass(monoClass)
 	{ }
 
-	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) 
+	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) const
 	{
 		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
 		if (!monoDesc)
@@ -33,7 +33,7 @@ namespace TerranEngine
 		return ScriptMethod(monoMethod);
 	}
 
-	ScriptField ScriptClass::GetFieldFromToken(uint32_t fieldToken)
+	ScriptField ScriptClass::GetFieldFromToken(uint32_t fieldToken) const
 	{
 		ScriptField field;
 		MonoClassField* monoField = mono_class_get_field(m_MonoClass, fieldToken);
@@ -46,7 +46,7 @@ namespace TerranEngine
 		return field;
 	}
 
-	ScriptField ScriptClass::GetFieldFromName(const std::string& fieldName)
+	ScriptField ScriptClass::GetFieldFromName(const std::string& fieldName) const
 	{
 		ScriptField field;
 		MonoClassField* monoField = mono_class_get_field_from_name(m_MonoClass, fieldName.c_str());
@@ -69,5 +69,10 @@ namespace TerranEngine
 	bool ScriptClass::IsInstanceOf(ScriptClass* parent, bool checkInterfaces)
 	{
 		return mono_class_is_assignable_from(m_MonoClass, parent->m_MonoClass);
+	}
+
+	int ScriptClass::GetTypeToken() const
+	{
+		return mono_class_get_type_token(m_MonoClass);
 	}
 }

@@ -1,4 +1,3 @@
-
 workspace "Terran"
 
     architecture "x86_64"

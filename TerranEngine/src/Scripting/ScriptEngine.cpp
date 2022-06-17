@@ -7,16 +7,16 @@
 #include "ScriptCache.h"
 #include "ScriptMethodThunks.h"
 #include "ScriptAssembly.h"
+#include "ScriptObject.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
+#include "Core/Project.h"
 
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 
 #include "Utils/Utils.h"
-
-#include <glm/glm.hpp>
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
@@ -32,11 +32,10 @@ namespace TerranEngine
 	struct ScriptEngineData 
 	{
 		MonoDomain* CoreDomain;
-		MonoDomain* NewDomain;
+		MonoDomain* AppDomain;
 
-		Shared<ScriptAssembly> Assembly;
-
-		std::filesystem::path AssemblyPath;
+		std::vector<Shared<ScriptAssembly>> Assemblies;
+		
 		std::filesystem::path MonoPath = "mono";
 
 		std::filesystem::path LibPath = MonoPath / "lib";
@@ -46,8 +45,9 @@ namespace TerranEngine
 	};
 
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
-
-	static ScriptEngineData s_ScriptEngineData;
+	static void UnhandledExceptionHook(MonoObject* exc, void *user_data);
+	
+	static ScriptEngineData* s_ScriptEngineData;
 
 	struct ScriptableInstance 
 	{
@@ -93,11 +93,11 @@ namespace TerranEngine
 	}
 
 
-	void ScriptEngine::Initialize(const std::filesystem::path& assemblyPath)
+	void ScriptEngine::Initialize()
 	{
-		s_ScriptEngineData.AssemblyPath = assemblyPath;
+		s_ScriptEngineData = new ScriptEngineData;
 		
-		mono_set_dirs(s_ScriptEngineData.LibPath.string().c_str(), s_ScriptEngineData.EtcPath.string().c_str());
+		mono_set_dirs(s_ScriptEngineData->LibPath.string().c_str(), s_ScriptEngineData->EtcPath.string().c_str());
 
 #ifdef TR_DEBUG
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
@@ -105,68 +105,94 @@ namespace TerranEngine
 		mono_trace_set_log_handler(OnLogMono, nullptr);
 #endif
 
-		mono_config_parse(s_ScriptEngineData.MonoConfigPath.string().c_str());
+		mono_config_parse(s_ScriptEngineData->MonoConfigPath.string().c_str());
 
-		s_ScriptEngineData.CoreDomain = mono_jit_init("CoreDomain");
+		s_ScriptEngineData->CoreDomain = mono_jit_init("CoreDomain");
 		
-		if (!s_ScriptEngineData.CoreDomain)
+		if (!s_ScriptEngineData->CoreDomain)
 		{
 			TR_ERROR("Couldn't initialize the Mono Domain!");
 			return;
 		}
 
-		NewDomain();
+		s_ScriptEngineData->Assemblies.reserve(TR_ASSEMBLIES);
+		for (size_t i = 0; i < TR_ASSEMBLIES; i++)
+			s_ScriptEngineData->Assemblies.emplace_back(CreateShared<ScriptAssembly>());
 		
-		Shared<AssemblyInfo> assemblyInfo = s_ScriptEngineData.Assembly->GenerateAssemblyInfo();
+		mono_install_unhandled_exception_hook(UnhandledExceptionHook, nullptr);		
+		
+		CreateAppDomain();
 
-		ScriptCache::CacheClassesFromAssemblyInfo(assemblyInfo);
-		ScriptCache::CacheMethodsFromAssemblyInfo(assemblyInfo);
-		ScriptCache::CacheFieldsFromAssemblyInfo(assemblyInfo);
+		LoadCoreAssembly(Project::GetCoreAssemblyPath());
+		LoadAppAssembly(Project::GetAppAssemblyPath());
+		
+		ScriptBindings::Bind();
 	}
 
 	void ScriptEngine::Shutdown()
 	{
-		mono_jit_cleanup(s_ScriptEngineData.CoreDomain);
+		mono_jit_cleanup(s_ScriptEngineData->CoreDomain);
 		TR_INFO("Deinitialized the scripting core");
 	}
 
-	void ScriptEngine::NewDomain() 
+	void ScriptEngine::ReloadAppAssembly()
 	{
-		s_ScriptEngineData.NewDomain = mono_domain_create_appdomain("ScriptAssemblyDomain", NULL);
+		UnloadDomain();
+		CreateAppDomain();
+
+		LoadCoreAssembly(Project::GetCoreAssemblyPath());
+		LoadAppAssembly(Project::GetAppAssemblyPath());
 		
-		if (!mono_domain_set(s_ScriptEngineData.NewDomain, false))
+		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+
+		for (auto e : scriptView)
 		{
-			TR_ERROR("Couldn't set the new domain");
-			return;
+			Entity entity(e, SceneManager::GetCurrentScene().get());
+			InitializeScriptable(entity);
 		}
 
-		s_ScriptEngineData.Assembly = ScriptAssembly::LoadScriptAssembly(s_ScriptEngineData.AssemblyPath);
-		TR_INFO("Successfuly loaded: {0}", s_ScriptEngineData.AssemblyPath);
-
-		ScriptCache::CacheCoreClasses();
-		ScriptBindings::Bind();
+		ClearFieldBackupMap();
 	}
 
-	std::filesystem::path ScriptEngine::GetAssemblyPath()
+	void ScriptEngine::LoadCoreAssembly(const std::filesystem::path& assemblyPath)
 	{
-		return s_ScriptEngineData.AssemblyPath;
+		auto& coreAssembly = s_ScriptEngineData->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+		coreAssembly = ScriptAssembly::LoadAssembly(assemblyPath);
+		ScriptCache::CacheCoreClasses();
+	}
+
+	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& assemblyPath)
+	{
+		auto& appAssembly = s_ScriptEngineData->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+		appAssembly = ScriptAssembly::LoadAssembly(assemblyPath);
+
+		Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
+		ScriptCache::GenerateCacheForAssembly(assemblyInfo);
+	}
+
+	void ScriptEngine::CreateAppDomain() 
+	{
+		s_ScriptEngineData->AppDomain = mono_domain_create_appdomain("ScriptAssemblyDomain", NULL);
+		
+		if (!mono_domain_set(s_ScriptEngineData->AppDomain, false))
+			TR_ERROR("Couldn't set the new domain");
 	}
 
 	void ScriptEngine::UnloadDomain() 
 	{
-		if (s_ScriptEngineData.NewDomain != s_ScriptEngineData.CoreDomain)
+		if (s_ScriptEngineData->AppDomain != s_ScriptEngineData->CoreDomain)
 		{
 			SetCurrentFieldStates(SceneManager::GetCurrentScene()->GetID());
 
-			mono_domain_set(s_ScriptEngineData.CoreDomain, false);
+			mono_domain_set(s_ScriptEngineData->CoreDomain, false);
 
-			if (!mono_domain_finalize(s_ScriptEngineData.NewDomain, 2000))
+			if (!mono_domain_finalize(s_ScriptEngineData->AppDomain, 2000))
 			{
 				TR_ERROR("Finalizing the domain timed out");
 				return;
 			}
-			mono_gc_collect(mono_gc_max_generation());
-
+			GCManager::CollectAll();
+			
 			const auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
 
 			for (auto e : scriptView)
@@ -175,30 +201,35 @@ namespace TerranEngine
 				UninitalizeScriptable(entity);
 			}
 
-			mono_domain_unload(s_ScriptEngineData.NewDomain);
+			mono_domain_unload(s_ScriptEngineData->AppDomain);
 		}
 
 		ScriptCache::ClearCache();
 	}
 
-	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName)
+	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName, int assemblyIndex)
 	{
-		return s_ScriptEngineData.Assembly->GetClassFromName(moduleName);
+		return s_ScriptEngineData->Assemblies[assemblyIndex]->GetClassFromName(moduleName);
 	}
 
-	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken)
+	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex)
 	{
-		return s_ScriptEngineData.Assembly->GetClassFromTypeToken(typeToken);
+		return s_ScriptEngineData->Assemblies[assemblyIndex]->GetClassFromTypeToken(typeToken);
 	}
 
-	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc)
+	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex)
 	{
-		return s_ScriptEngineData.Assembly->GetMethodFromDesc(methodDesc);
+		return s_ScriptEngineData->Assemblies[assemblyIndex]->GetMethodFromDesc(methodDesc);
 	}
 
 	bool ScriptEngine::ClassExists(const std::string& moduleName)
 	{
 		return ScriptCache::GetCachedClassFromName(moduleName);
+	}
+
+	Shared<ScriptAssembly>& ScriptEngine::GetAssembly(int assemblyIndex)
+	{
+		return s_ScriptEngineData->Assemblies.at(assemblyIndex);
 	}
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
@@ -226,19 +257,15 @@ namespace TerranEngine
 
 			MonoException* exc = nullptr;
 			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray, &exc);
-
+			
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
-			// TODO: fix the rest of the field code
-			TR_TRACE(klass->GetFields().size());
 			scriptComponent.PublicFieldIDs.clear();
-			
 			for (const auto& field : klass->GetFields())
 			{
 				if(field.GetVisibility() == ScriptFieldVisibility::Public)
 					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 			}
-
 
 			for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 			{
@@ -249,8 +276,8 @@ namespace TerranEngine
 				if(fieldBackup.find(fieldID) == fieldBackup.end())
 					continue;
 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID); 
-				if(field->GetType() == (ScriptFieldType)fieldBackup.at(fieldID).GetType())
-					field->SetData<Utils::Variant>(fieldBackup.at(fieldID), instance.ObjectHandle);
+				
+				field->SetData<Utils::Variant>(fieldBackup.at(fieldID), instance.ObjectHandle);
 			}
 			
 		}
@@ -269,6 +296,9 @@ namespace TerranEngine
 				GCManager::FreeHandle(handle);
 				s_ScriptableInstanceMap[entity.GetSceneID()].erase(entity.GetID());
 			}
+
+			if(s_ScriptableInstanceMap.empty())
+				s_ScriptableInstanceMap.erase(entity.GetSceneID());
 		}
 	}
 
@@ -400,5 +430,10 @@ namespace TerranEngine
 			else
 				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", logDomain, message, logLevel);
 		}
+	}
+
+	static void UnhandledExceptionHook(MonoObject* exc, void *user_data)
+	{
+		ScriptObject object(exc);
 	}
 }

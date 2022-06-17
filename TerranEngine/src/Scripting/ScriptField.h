@@ -2,6 +2,8 @@
 
 #include "GCManager.h"
 
+#include "Scene/Entity.h"
+
 #include "Utils/Utils.h"
 
 extern "C"

@@ -1,11 +1,15 @@
 #pragma once
 
-#include "ScriptObject.h"
-
 #include <stdint.h>
+
+extern "C"
+{
+	typedef struct _MonoObject MonoObject;
+}
 
 namespace TerranEngine 
 {
+	class ScriptObject;
 	enum class GCHandleType
 	{
 		None = 0,

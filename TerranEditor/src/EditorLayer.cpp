@@ -17,8 +17,6 @@
 
 namespace TerranEditor
 {
-	static void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination);
-
 	EditorLayer* EditorLayer::s_Instance;
 
 	EditorLayer::EditorLayer()
@@ -29,6 +27,7 @@ namespace TerranEditor
 
 	void EditorLayer::OnAttach()
 	{
+		Project::Init("", "SandboxProject");
 		FontAtlas fontAtlas;
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -88,16 +87,12 @@ namespace TerranEditor
 
 		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);
 
-		m_ScriptAssemblyPath = "Resources/Scripts/";
-
-		CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll"), m_ScriptAssemblyPath);
-
-		ScriptEngine::Initialize("Resources/Scripts/TerranScriptCore.dll");
-		ScriptBindings::Bind();
+		ScriptEngine::Initialize();
 	}
 
 	void EditorLayer::OnDettach()
 	{
+		Project::Uninitialize();
 		ScriptEngine::Shutdown();
 	}
 
@@ -223,24 +218,7 @@ namespace TerranEditor
 
 		return false;
 	}
-
-	static void ReloadScriptAssembly(const std::filesystem::path& scriptAssemblyPath) 
-	{
-		ScriptEngine::UnloadDomain();
-		CopyAssembly((scriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), scriptAssemblyPath.string());
-		ScriptEngine::NewDomain();
-
-		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
-
-		for (auto e : scriptView)
-		{
-			Entity entity(e, SceneManager::GetCurrentScene().get());
-			ScriptEngine::InitializeScriptable(entity);
-		}
-
-		ScriptEngine::ClearFieldBackupMap();
-	}
-
+	
 	void EditorLayer::ShowDockspace() 
 	{
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
@@ -324,7 +302,7 @@ namespace TerranEditor
 			if (ImGui::BeginMenu("Tools")) 
 			{
 				if (ImGui::MenuItem("Reload C# Assembly"))
-					ReloadScriptAssembly(m_ScriptAssemblyPath);
+					ScriptEngine::ReloadAppAssembly();
 				
 				if (ImGui::MenuItem("Show colliders", NULL, m_ShowColliders)) 
 				{
@@ -539,20 +517,5 @@ namespace TerranEditor
 			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
 			sSerializer.SerializeJson(m_CurrentScenePath);
 		}
-	}
-
-	void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination)
-	{
-		if (std::filesystem::exists(source)) 
-		{
-			if (std::filesystem::exists(destination / source.filename()))
-				std::filesystem::remove(destination / source.filename());
-
-			std::error_code errCode;
-			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing, errCode);
-			
-			TR_TRACE(errCode.message());
-		}
-			
 	}
 }

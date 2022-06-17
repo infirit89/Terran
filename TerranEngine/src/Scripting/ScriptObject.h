@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ScriptClass.h"
+
 extern "C"
 {
 	typedef struct _MonoObject MonoObject;
@@ -7,7 +9,6 @@ extern "C"
 
 namespace TerranEngine 
 {
-	class ScriptClass;
 	class ScriptObject 
 	{
 	public:
@@ -18,9 +19,11 @@ namespace TerranEngine
 		~ScriptObject() = default;
 
 		inline MonoObject* GetMonoObject() const { return m_MonoObject; }
-
+		
 		static ScriptObject CreateInstace(const ScriptClass& klass);
 
+		ScriptClass GetClass();
+		
 	private:
 		MonoObject* m_MonoObject;
 	};

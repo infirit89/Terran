@@ -6,6 +6,45 @@ namespace Terran
 		public Entity entity;
 	}
 
+	public class CircleRenderer : Component
+	{
+		public Color Color
+		{
+			get => Internal.CircleRenderer_GetColor(entity.ID);
+			set => Internal.CircleRenderer_SetColor(entity.ID, value);
+		}
+
+		public float Thickness
+		{
+			get => Internal.CircleRenderer_GetThickness(entity.ID);
+			set => Internal.CircleRenderer_SetThickness(entity.ID, value);
+		}
+	}
+
+	public class Camera : Component
+	{
+		public bool IsPrimary
+		{
+			get => Internal.Camera_IsPrimary(entity.ID);
+			set => Internal.Camera_SetPrimary(entity.ID, value);
+		}
+
+		public Color BackgroundColor
+		{
+			get => Internal.Camera_GetBackgroundColor(entity.ID);
+			set => Internal.Camera_SetBackgroundColor(entity.ID, value);
+		}
+	}
+	
+	public class SpriteRenderer : Component
+	{
+		public Color Color
+		{
+			get => Internal.SpriteRenderer_GetColor(entity.ID);
+			set => Internal.SpriteRenderer_SetColor(entity.ID, value);
+		}
+	}
+
 	public class Rigidbody2D : Component 
 	{
 		public bool FixedRotation 

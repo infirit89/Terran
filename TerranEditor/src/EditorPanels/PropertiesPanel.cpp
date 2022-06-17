@@ -477,6 +477,27 @@ namespace TerranEditor
 		}
 	}
 
+	// TODO: cache field names
+	static std::string ProccessFieldName(std::string name)
+	{
+		std::string result;
+		
+		name[0] = toupper(name[0]);
+		
+		for (size_t i = 0; i < name.size(); i++)
+		{
+			if(isupper(name.at(i)))
+			{
+				result += " ";
+				result += name.at(i);
+			}
+			else
+				result += name.at(i);
+		}
+
+		return result;
+	}
+	
 	void PropertiesPanel::DrawScriptFields(Entity entity)
 	{
 		const auto& sc = entity.GetComponent<ScriptComponent>();
@@ -488,37 +509,38 @@ namespace TerranEditor
 			for (const auto& fieldID  : sc.PublicFieldIDs)
 			{
 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+				std::string fieldName = ProccessFieldName(field->GetName());
 				switch (field->GetType())
 				{
 				case ScriptFieldType::Bool:
 				{
 					bool value = field->GetData<bool>(handle);
 
-					if (UI::DrawBoolControl(field->GetName(), value))
+					if (UI::DrawBoolControl(fieldName, value))
 						field->SetData(value, handle);
 
 					break;
 				}
 				case ScriptFieldType::Char:
+				{
+					char value = (char)field->GetData<wchar_t>(handle);
+					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
+					std::string strVal; strVal += value;
+					if(UI::DrawStringControl(fieldName, strVal, 0, 2))
 					{
-						char value = (char)field->GetData<wchar_t>(handle);
-						// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-						std::string strVal; strVal += value;
-						if(UI::DrawStringControl(field->GetName(), strVal, 0, 2))
-						{
-							if(strVal.empty())
-								break;
-							const wchar_t wc = strVal.at(0); 
-							field->SetData<wchar_t>(wc, handle);
-						}
-						
-						break;
+						if(strVal.empty())
+							break;
+						const wchar_t wc = strVal.at(0); 
+						field->SetData<wchar_t>(wc, handle);
 					}
+					
+					break;
+				}
 				case ScriptFieldType::Int8:
 				{
 					int8_t value = field->GetData<int8_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_S8, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_S8, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -527,7 +549,7 @@ namespace TerranEditor
 				{
 					int16_t value = field->GetData<int16_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_S16, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_S16, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -536,7 +558,7 @@ namespace TerranEditor
 				{
 					int32_t value = field->GetData<int32_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_S32, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_S32, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -545,7 +567,7 @@ namespace TerranEditor
 				{
 					int64_t value = field->GetData<int64_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_S64, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_S64, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -554,7 +576,7 @@ namespace TerranEditor
 				{
 					uint8_t value = field->GetData<uint8_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_U8, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_U8, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -563,7 +585,7 @@ namespace TerranEditor
 				{
 					uint16_t value = field->GetData<uint16_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_U16, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_U16, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -572,7 +594,7 @@ namespace TerranEditor
 				{
 					uint32_t value = field->GetData<uint32_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_U32, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_U32, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -581,7 +603,7 @@ namespace TerranEditor
 				{
 					uint64_t value = field->GetData<uint64_t>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_U64, &value))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_U64, &value))
 						field->SetData(value, handle);
 
 					break;
@@ -590,7 +612,7 @@ namespace TerranEditor
 				{
 					float value = field->GetData<float>(handle);
 
-					if (UI::DrawFloatControl(field->GetName(), value, 0.1f, "%.2f"))
+					if (UI::DrawFloatControl(fieldName, value, 0.1f, "%.2f"))
 						field->SetData(value, handle);
 
 					break;
@@ -599,7 +621,7 @@ namespace TerranEditor
 				{
 					double value = field->GetData<double>(handle);
 
-					if (UI::DrawScalar(field->GetName(), ImGuiDataType_Double, &value, 0.1f, "%.4f"))
+					if (UI::DrawScalar(fieldName, ImGuiDataType_Double, &value, 0.1f, "%.4f"))
 						field->SetData(value, handle);
 
 					break;
@@ -608,7 +630,7 @@ namespace TerranEditor
 				{
 					std::string value = field->GetData<std::string>(handle);
 
-					if (UI::DrawStringControl(field->GetName(), value))
+					if (UI::DrawStringControl(fieldName, value))
 						field->SetData<const char*>(value.c_str(), handle);
 
 					break;
@@ -617,7 +639,7 @@ namespace TerranEditor
 				{
 					glm::vec2 value = field->GetData<glm::vec2>(handle);
 					
-					if (UI::DrawVec2Control(field->GetName(), value))
+					if (UI::DrawVec2Control(fieldName, value))
 						field->SetData<glm::vec2>(value, handle);
 
 					break;
@@ -626,7 +648,7 @@ namespace TerranEditor
 				{
 					glm::vec3 value = field->GetData<glm::vec3>(handle);
 
-					if (UI::DrawVec3Control(field->GetName(), value))
+					if (UI::DrawVec3Control(fieldName, value))
 						field->SetData<glm::vec3>(value, handle);
 
 					break;
@@ -635,7 +657,7 @@ namespace TerranEditor
 				{
 					glm::vec4 value = field->GetData<glm::vec4>(handle);
 
-					if (UI::DrawColor4Control(field->GetName(), value))
+					if (UI::DrawColor4Control(fieldName, value))
 						field->SetData<glm::vec4>(value, handle);
 
 					break;

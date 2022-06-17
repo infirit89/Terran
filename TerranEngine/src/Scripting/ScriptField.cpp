@@ -157,7 +157,7 @@ namespace TerranEngine
 		MonoString* monoStr = ScriptMarshal::UTF8ToMonoString(value);
 		mono_field_set_value(monoObject, m_MonoField, monoStr);
 	}
-
+	
 	void ScriptField::SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle)
 	{
 		switch (m_FieldType)
@@ -258,6 +258,7 @@ namespace TerranEngine
 			SetData(val, handle);
 			break;
 		}
+			
 		}
 	}
 

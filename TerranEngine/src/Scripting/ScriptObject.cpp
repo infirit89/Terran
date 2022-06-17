@@ -18,4 +18,14 @@ namespace TerranEngine
 		
 		return monoObject;
 	}
+
+	ScriptClass ScriptObject::GetClass()
+	{
+		if(!m_MonoObject)
+			return {};
+			
+		MonoClass* monoClass = mono_object_get_class(m_MonoObject);
+
+		return { monoClass };
+	}
 }

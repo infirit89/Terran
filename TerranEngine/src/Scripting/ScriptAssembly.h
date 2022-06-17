@@ -19,9 +19,11 @@ namespace TerranEngine
 {
 	struct AssemblyInfo 
 	{
-		std::unordered_map<std::string, std::vector<std::string>> ClassInfoMap;
-		std::unordered_map<std::string, std::vector<std::string>> MethodInfoMap;
-		std::unordered_map<std::string, std::vector<std::string>> FieldInfoMap;
+		using InfoMap = std::unordered_map<std::string, std::vector<std::string>>; 
+		
+		InfoMap ClassInfoMap;
+		InfoMap MethodInfoMap;
+		InfoMap FieldInfoMap;
 		
 		MonoImage* CurrentImage;
 	};
@@ -29,10 +31,11 @@ namespace TerranEngine
 	class ScriptAssembly 
 	{
 	public:
+		ScriptAssembly() = default;
 		ScriptAssembly(MonoAssembly* monoAssembly);
 
 		Shared<AssemblyInfo> GenerateAssemblyInfo();
-
+		
 		// 'moduleName' has to have the format {Namespace}.{Class} e.g. "Terran.TestScript"
 		ScriptClass GetClassFromName(const std::string& moduleName);
 		ScriptClass GetClassFromTypeToken(uint32_t typeToken);
@@ -41,13 +44,13 @@ namespace TerranEngine
 		// e.g. "Terran.TestScript:Update()" or "Terran.TestScript:OnCollisionBegin(Entity)"
 		ScriptMethod GetMethodFromDesc(const std::string& methodDesc);
 		
-		static Shared<ScriptAssembly> LoadScriptAssembly(const std::filesystem::path& assemblyPath);
-
+		static Shared<ScriptAssembly> LoadAssembly(const std::filesystem::path& assemblyPath);
+		
 		inline MonoImage* GetMonoImage() const { return m_MonoImage; }
 		inline MonoAssembly* GetMonoAssembly() const { return m_MonoAssembly; }
 
 	private:
-		MonoAssembly* m_MonoAssembly;
-		MonoImage* m_MonoImage;
+		MonoAssembly* m_MonoAssembly = nullptr;
+		MonoImage* m_MonoImage = nullptr;
 	};
 }

@@ -6,7 +6,7 @@ namespace Terran
 	{
 		public UUID ID
 		{
-			get => id;
+			get => m_ID;
 		}
 
 		public string Name
@@ -14,22 +14,18 @@ namespace Terran
 			get => GetComponent<Tag>().Name;
 			set => GetComponent<Tag>().Name = value;
 		}
+		public Transform Transform => GetComponent<Transform>();
 
-		private UUID id;
-		public Transform transform;
-
+		private UUID m_ID;
+		
 		public Entity()
 		{
-			id = new UUID();
-			transform = new Transform();
-			transform.entity = this;
+			m_ID = new UUID();
 		}
 
 		public Entity(byte[] uuidData)
 		{
-			id = new UUID(uuidData);
-			transform = new Transform();
-			transform.entity = this;
+			m_ID = new UUID(uuidData);
 		}
 
 		public static Entity FindWithName(string name)
@@ -66,10 +62,10 @@ namespace Terran
 				return;
 			}
 
-			Internal.Entity_AddComponent(id.Data, typeof(T).FullName);
+			Internal.Entity_AddComponent(m_ID.Data, typeof(T).FullName);
 		} 
 
-		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(id.Data, typeof(T).FullName);
+		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(m_ID.Data, typeof(T).FullName);
 
 		public void RemoveComponent<T>() where T : Component 
 		{
@@ -81,7 +77,7 @@ namespace Terran
 					return;
 				}
 
-				Internal.Entity_RemoveComponent(id.Data, typeof(T).FullName);
+				Internal.Entity_RemoveComponent(m_ID.Data, typeof(T).FullName);
 			}
 		} 
 
@@ -90,7 +86,7 @@ namespace Terran
 			if (HasComponent<T>())
 			{
 				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
-					return Internal.Entity_GetScriptableComponent(id.Data, typeof(T).FullName) as T;
+					return Internal.Entity_GetScriptableComponent(m_ID.Data, typeof(T).FullName) as T;
 
 				T component = new T();
 				component.entity = this;

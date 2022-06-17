@@ -120,5 +120,25 @@ namespace TerranEngine
 		static glm::vec3 Transform_GetUp(MonoArray* entityUUIDArr);
 		static glm::vec3 Transform_GetRight(MonoArray* entityUUIDArr);
 		// -----------------------------
+
+		// ---- Sprite Renderer Component ----
+		static glm::vec4 SpriteRenderer_GetColor(MonoArray* entityUUIDArr);
+		static void SpriteRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+		// -----------------------------------
+
+		// ---- Camera Component ----
+		static bool Camera_IsPrimary(MonoArray* entityUUIDArr);
+		static void Camera_SetPrimary(MonoArray* entityUUIDArr, bool togglePrimary);
+		static glm::vec4 Camera_GetBackgroundColor(MonoArray* entityUUIDArr);
+		static void Camera_SetBackgroundColor(MonoArray* entityUUIDArr,const glm::vec4& color);
+		// --------------------------
+
+		// ---- Circle Renderer Component ----
+		static glm::vec4 CircleRenderer_GetColor(MonoArray* entityUUIDArr);
+		static void CircleRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+
+		static float CircleRenderer_GetThickness(MonoArray* entityUUIDArr);
+		static void CircleRenderer_SetThickness(MonoArray* entityUUIDArr, float thickness);
+		// -----------------------------------
 	}
 }

@@ -21,10 +21,14 @@ namespace TerranEngine
         const MonoTableInfo* typedefTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_TYPEDEF);
         const MonoTableInfo* methodTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_METHOD);
         const MonoTableInfo* fieldTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_FIELD);
+        const MonoTableInfo* propertyMapTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_PROPERTYMAP);
+        const MonoTableInfo* propertyTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_PROPERTY);
         
         const int typedefTableRows = mono_table_info_get_rows(typedefTableInfo);
         const int methodTableRows = mono_table_info_get_rows(methodTableInfo);
         const int fieldTableRows = mono_table_info_get_rows(fieldTableInfo);
+        const int propertyMapTableRows = mono_table_info_get_rows(propertyMapTableInfo);
+        const int propertyTableRows = mono_table_info_get_rows(propertyTableInfo);
         
         for (int i = 1; i < typedefTableRows; i++)
         {
@@ -39,10 +43,13 @@ namespace TerranEngine
             uint32_t nextCol[MONO_TYPEDEF_SIZE];
             mono_metadata_decode_row(typedefTableInfo, std::min(i + 1, typedefTableRows - 1), nextCol, MONO_TYPEDEF_SIZE);
 
+            const uint32_t methodMax = i == typedefTableRows - 1 ?  methodTableRows : nextCol[MONO_TYPEDEF_METHOD_LIST] - 1;
+
             std::string moduleName = fmt::format("{0}.{1}", namespaceName, className);
-            for (size_t j = cols[MONO_TYPEDEF_METHOD_LIST] - 1; j
-                < std::min(nextCol[MONO_TYPEDEF_METHOD_LIST], (uint32_t)methodTableRows) - 1; j++)
+            for (size_t j = cols[MONO_TYPEDEF_METHOD_LIST] - 1; j < methodMax; j++)
             {
+                if (methodTableRows <= 0) break;
+
                 uint32_t methodCols[MONO_METHOD_SIZE];
 
                 mono_metadata_decode_row(methodTableInfo, j, methodCols, MONO_METHOD_SIZE);
@@ -64,9 +71,11 @@ namespace TerranEngine
                 mono_metadata_free_method_signature(signature);
             }
 
-            for (size_t j = cols[MONO_TYPEDEF_FIELD_LIST] - 1; j <
-                std::min(nextCol[MONO_TYPEDEF_FIELD_LIST], (uint32_t)fieldTableRows) - 1; j++)
+            const uint32_t fieldMax = i == typedefTableRows - 1 ?  fieldTableRows : nextCol[MONO_TYPEDEF_FIELD_LIST] - 1;
+            for (size_t j = cols[MONO_TYPEDEF_FIELD_LIST] - 1; j < fieldMax; j++)
             {
+                if (fieldTableRows <= 0) break;
+
                 uint32_t fieldCols[MONO_FIELD_SIZE];
                 mono_metadata_decode_row(fieldTableInfo, j, fieldCols, MONO_FIELD_SIZE);
                 //uint32_t fieldTypeToken = (j + 1) | MONO_TOKEN_FIELD_DEF;
@@ -77,6 +86,25 @@ namespace TerranEngine
             info->ClassInfoMap[namespaceName].emplace_back(className);
         }
 
+        // for (int i = 0; i < propertyMapTableRows; i++)
+        // {
+        //     uint32_t propertyMapCols[MONO_PROPERTY_MAP_SIZE];
+        //     mono_metadata_decode_row(propertyMapTableInfo, i, propertyMapCols, MONO_PROPERTY_MAP_SIZE);
+        //
+        //     uint32_t typedefCols[MONO_TYPEDEF_SIZE];
+        //     mono_metadata_decode_row(typedefTableInfo, propertyMapCols[MONO_PROPERTY_MAP_PARENT],
+        //         typedefCols, MONO_TYPEDEF_SIZE);
+        //
+        //     std::string namespaceName = mono_metadata_string_heap(m_MonoImage, typedefCols[MONO_TYPEDEF_NAMESPACE]);
+        //     std::string className = mono_metadata_string_heap(m_MonoImage, typedefCols[MONO_TYPEDEF_NAME]);
+        //     std::string moduleName = fmt::format("{0}.{1}", namespaceName, className);
+        //     
+        //     uint32_t nextCol[MONO_PROPERTY_MAP_SIZE];
+        //     mono_metadata_decode_row(propertyMapTableInfo, std::min(i + 1, propertyMapTableRows - 1),
+        //                                 nextCol, MONO_PROPERTY_MAP_SIZE);
+        //
+        //     // TODO: get properties
+        // }
         info->CurrentImage = m_MonoImage;
 
         return info;
@@ -120,7 +148,7 @@ namespace TerranEngine
         return klass;
     }
 
-    Shared<ScriptAssembly> ScriptAssembly::LoadScriptAssembly(const std::filesystem::path& assemblyPath)
+    Shared<ScriptAssembly> ScriptAssembly::LoadAssembly(const std::filesystem::path& assemblyPath)
     {
         FileData* assemblyData = File::OpenFile(assemblyPath.string().c_str());
         Shared<ScriptAssembly> scriptAssembly = nullptr;
@@ -140,10 +168,12 @@ namespace TerranEngine
 
             mono_image_close(assemblyImage);
             File::CloseFile(assemblyData);
-            
+
+            TR_INFO("Successfuly loaded: {0}", assemblyPath);
         }
         return scriptAssembly;
     }
+
 
     ScriptMethod ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
     {

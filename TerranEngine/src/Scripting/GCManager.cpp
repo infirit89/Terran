@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "GCManager.h"
 
+#include "ScriptObject.h"
+
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/object.h>
 

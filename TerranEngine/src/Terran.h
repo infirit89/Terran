@@ -9,6 +9,7 @@
 #include "Core/Base.h"
 #include "Core/UUID.h"
 #include "Core/Time.h"
+#include "Core/Project.h"
 
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"

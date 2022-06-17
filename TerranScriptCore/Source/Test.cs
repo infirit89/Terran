@@ -5,8 +5,8 @@ namespace Terran
 {
 	public class TestScript : Scriptable
 	{
-		public bool BTest = false; 
-		public char CTest = 'A';
+		public bool bTest = false; 
+		public char cTest = 'A';
 		
 		public sbyte I8Test = 126;
 		public short I16Test = -1210;
@@ -25,40 +25,24 @@ namespace Terran
 
 		public Vector2 Vec2Test = new Vector2(10.0f, 1231.123f);
 		public Vector3 Vec3Test = new Vector3(12312.0f, 1223.0f, 131.01f);
-
-		public Color ColorTest = Color.Cyan;
 		
-		protected override void Init() 
+		private CircleRenderer _CircleRenderer;
+		protected override void Init()
 		{
-			Log.Trace("bool: {0}", BTest);
-			Log.Trace("char: {0}", CTest);
-			
-			Log.Trace("sbyte: {0}", I8Test);
-			Log.Trace("short: {0}", I16Test);
-			Log.Trace("int: {0}", I32Test);
-			Log.Trace("long: {0}", I64Test);
-			
-			Log.Trace("byte: {0}", U8Test);
-			Log.Trace("ushort: {0}", U16Test);
-			Log.Trace("uint: {0}", U32Test);
-			Log.Trace("ulong: {0}", U64Test);
-			
-			Log.Trace("float: {0}", FTest);
-			Log.Trace("double: {0}", DTest);
-			
-			Log.Trace("String: {0}", StrTest);
-			
-			Log.Trace("Vector 2: {0}", Vec2Test);
-			Log.Trace("Vector 3: {0}", Vec3Test);
-			
-			Log.Trace("Color: {0}", ColorTest);
+			_CircleRenderer = entity.GetComponent<CircleRenderer>();
+			Log.Trace(_CircleRenderer.Thickness);
+			Log.Trace(_CircleRenderer.Color);
 		}
 
 		protected override void Update() 
 		{
-			//entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
-			Console.WriteLine("Test bruh bruh bruh");
-			Log.Trace("Test");
+			if (Input.IsKeyPressed(KeyCode.Q))
+				_CircleRenderer.Color = Color.Cyan;
+
+			if (Input.IsKeyPressed(KeyCode.Up))
+				_CircleRenderer.Thickness++;
+			else if (Input.IsKeyPressed(KeyCode.Down))
+				_CircleRenderer.Thickness--;
 		}
 
 		protected override void OnCollisionBegin(Entity entity) 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/UUID.h"
+
 #include <glm/glm.hpp>
 
 #include <string>
@@ -32,7 +34,8 @@ namespace TerranEngine
 				String,
 				Vector2,
 				Vector3,
-				Vector4
+				Vector4,
+				UUID
 			};
 
 			Variant();
@@ -61,6 +64,8 @@ namespace TerranEngine
 			Variant(const glm::vec2& vec2);
 			Variant(const glm::vec3& vec3);
 			Variant(const glm::vec4& vec4);
+
+			Variant(const UUID& id);
 			
 			~Variant();
 			
@@ -89,6 +94,8 @@ namespace TerranEngine
 			operator glm::vec2() const;
 			operator glm::vec3() const;
 			operator glm::vec4() const;
+
+			operator UUID() const;
 
 			Type GetType() const { return m_Type; }
 			

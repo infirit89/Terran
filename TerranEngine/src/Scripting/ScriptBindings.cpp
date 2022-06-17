@@ -66,6 +66,27 @@ namespace TerranEngine
 			BIND_INTERNAL_FUNC(Tag_SetName);
 			// -------------
 
+			// ---- sprite renderer -----
+			BIND_INTERNAL_FUNC(SpriteRenderer_GetColor);
+			BIND_INTERNAL_FUNC(SpriteRenderer_SetColor);
+			// --------------------------
+
+			// ---- camera ----
+			BIND_INTERNAL_FUNC(Camera_IsPrimary);
+			BIND_INTERNAL_FUNC(Camera_SetPrimary);
+			
+			BIND_INTERNAL_FUNC(Camera_GetBackgroundColor);
+			BIND_INTERNAL_FUNC(Camera_SetBackgroundColor);
+			// ----------------
+
+			// ---- circle renderer ----
+			BIND_INTERNAL_FUNC(CircleRenderer_GetThickness);
+			BIND_INTERNAL_FUNC(CircleRenderer_SetThickness);
+			
+			BIND_INTERNAL_FUNC(CircleRenderer_GetColor);
+			BIND_INTERNAL_FUNC(CircleRenderer_SetColor);
+			// -------------------------
+			
 			// ---- physics ----
 			{
 				// ---- physics 2d ----
@@ -142,7 +163,10 @@ namespace TerranEngine
 			Rigibody2DComponent,
 			Collider2DComponent,
 			BoxCollider2DComponent,
-			CircleCollider2DComponent
+			CircleCollider2DComponent,
+			SpriteRendererComponent,
+			CameraComponent,
+			CircleRendererComponent
 		};
 
 		static ComponentType GetComponentType(MonoString* componentTypeStr)
@@ -156,8 +180,11 @@ namespace TerranEngine
 			if (*clazz == *TR_API_CACHED_CLASS(Collider2D))								return ComponentType::Collider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))							return ComponentType::BoxCollider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))						return ComponentType::CircleCollider2DComponent;
+			if (*clazz == *TR_API_CACHED_CLASS(SpriteRenderer))							return ComponentType::SpriteRendererComponent;
+			if (*clazz == *TR_API_CACHED_CLASS(Camera))									return ComponentType::CameraComponent;
+			if (*clazz == *TR_API_CACHED_CLASS(CircleRenderer))							return ComponentType::CircleRendererComponent;
 			if (!clazz && clazz->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))	return ComponentType::ScriptableComponent;
-
+		
 			return ComponentType::None;
 		}
 
@@ -185,6 +212,9 @@ namespace TerranEngine
 			case ComponentType::BoxCollider2DComponent:		return entity.HasComponent<BoxCollider2DComponent>();
 			case ComponentType::CircleCollider2DComponent:	return entity.HasComponent<CircleCollider2DComponent>();
 			case ComponentType::ScriptableComponent:		return entity.HasComponent<ScriptComponent>();
+			case ComponentType::SpriteRendererComponent:	return entity.HasComponent<SpriteRendererComponent>();
+			case ComponentType::CameraComponent:			return entity.HasComponent<CameraComponent>();
+			case ComponentType::CircleRendererComponent:	return entity.HasComponent<CircleRendererComponent>();
 			}
 
 			return false;
@@ -211,6 +241,9 @@ namespace TerranEngine
 			case ComponentType::BoxCollider2DComponent:		entity.AddComponent<BoxCollider2DComponent>(); break;
 			case ComponentType::CircleCollider2DComponent:	entity.AddComponent<CircleCollider2DComponent>(); break;
 			case ComponentType::ScriptableComponent:		entity.AddComponent<ScriptComponent>(ScriptMarshal::MonoStringToUTF8(componentTypeStr)); break;
+			case ComponentType::SpriteRendererComponent:	entity.AddComponent<SpriteRendererComponent>(); break;
+			case ComponentType::CameraComponent:			entity.AddComponent<CameraComponent>(); break;
+			case ComponentType::CircleRendererComponent:	entity.AddComponent<CircleRendererComponent>(); break;
 			}
 		}
 
@@ -235,6 +268,9 @@ namespace TerranEngine
 			case ComponentType::Rigibody2DComponent:		entity.RemoveComponent<Rigidbody2DComponent>(); break;
 			case ComponentType::BoxCollider2DComponent:		entity.RemoveComponent<BoxCollider2DComponent>(); break;
 			case ComponentType::CircleCollider2DComponent:	entity.RemoveComponent<CircleCollider2DComponent>(); break;
+			case ComponentType::SpriteRendererComponent:	entity.RemoveComponent<SpriteRendererComponent>(); break;
+			case ComponentType::CameraComponent:			entity.RemoveComponent<CameraComponent>(); break;
+			case ComponentType::CircleRendererComponent:	entity.RemoveComponent<CircleRendererComponent>(); break;
 			}
 		}
 
@@ -385,8 +421,78 @@ namespace TerranEngine
 			GET_COMPONENT_VAR(Right, entityUUIDArr, TransformComponent);
 			return Right;
 		}
-
 		// -------------------
+
+		// ---- Sprite Renderer ----
+		glm::vec4 SpriteRenderer_GetColor(MonoArray* entityUUIDArr)
+		{
+			glm::vec4 Color = {0.0f, 0.0f, 0.0f, 1.0f};
+			GET_COMPONENT_VAR(Color, entityUUIDArr, SpriteRendererComponent);
+			return Color;
+		}
+
+		void SpriteRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color)
+		{
+			glm::vec4 Color = color;
+			SET_COMPONENT_VAR(Color, entityUUIDArr, SpriteRendererComponent);
+		}
+		// -------------------------
+
+		// ---- Camera ----
+		bool Camera_IsPrimary(MonoArray* entityUUIDArr)
+		{
+			bool Primary = false;
+			GET_COMPONENT_VAR(Primary, entityUUIDArr, CameraComponent);
+			return Primary;
+		}
+
+		void Camera_SetPrimary(MonoArray* entityUUIDArr, bool togglePrimary)
+		{
+			bool Primary = togglePrimary;
+			SET_COMPONENT_VAR(Primary, entityUUIDArr, CameraComponent);
+		}
+
+		glm::vec4 Camera_GetBackgroundColor(MonoArray* entityUUIDArr)
+		{
+			glm::vec4 BackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+			GET_COMPONENT_VAR(BackgroundColor, entityUUIDArr, CameraComponent);
+			return BackgroundColor;
+		}
+
+		void Camera_SetBackgroundColor(MonoArray* entityUUIDArr, const glm::vec4& color)
+		{
+			glm::vec4 BackgroundColor = color;
+			SET_COMPONENT_VAR(BackgroundColor, entityUUIDArr, CameraComponent);
+		}
+		// ----------------
+
+		// ---- Circle Renderer ----
+		glm::vec4 CircleRenderer_GetColor(MonoArray* entityUUIDArr)
+		{
+			glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			GET_COMPONENT_VAR(Color, entityUUIDArr, CircleRendererComponent);
+			return Color;
+		}
+
+		void CircleRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color)
+		{
+			glm::vec4 Color = color;
+			SET_COMPONENT_VAR(Color, entityUUIDArr, CircleRendererComponent);
+		}
+
+		float CircleRenderer_GetThickness(MonoArray* entityUUIDArr)
+		{
+			float Thickness = 1.0f;
+			GET_COMPONENT_VAR(Thickness, entityUUIDArr, CircleRendererComponent);
+			return Thickness;
+		}
+
+		void CircleRenderer_SetThickness(MonoArray* entityUUIDArr, float thickness)
+		{
+			float Thickness = thickness;
+			SET_COMPONENT_VAR(Thickness, entityUUIDArr, CircleRendererComponent);
+		}
+		// -------------------------
 
 		// ---- Tag ----
 		void Tag_SetName(MonoArray* entityUUIDArr, MonoString* name)

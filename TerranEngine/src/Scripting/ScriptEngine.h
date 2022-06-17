@@ -14,27 +14,36 @@
 
 namespace TerranEngine 
 {
-	#define API_NAMESPACE "Terran"
-
+#define TR_CORE_ASSEMBLY_INDEX 0
+#define TR_APP_ASSEMBLY_INDEX 1
+#define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
+	
 	class ScriptEngine 
 	{
 		using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, GCHandle>>;
 
 	public:
-		static void Initialize(const std::filesystem::path& assemblyPath);
+		static void Initialize();
 		static void Shutdown();
 
-		static void NewDomain();
+		static void ReloadAppAssembly();
+
+		static void LoadCoreAssembly(const std::filesystem::path& assemblyPath);
+		static void LoadAppAssembly(const std::filesystem::path& assemblyPath);
+		
+		static void CreateAppDomain();
 		static void UnloadDomain();
 
 		static std::filesystem::path GetAssemblyPath();
 
-		static ScriptClass GetClassFromName(const std::string& moduleName);
-		static ScriptClass GetClassFromTypeToken(uint32_t typeToken);
+		static ScriptClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
+		static ScriptClass GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex);
 		
-		static ScriptMethod GetMethodFromDesc(const std::string& methodDesc);
+		static ScriptMethod GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex);
 		static bool ClassExists(const std::string& moduleName);
 
+		static Shared<ScriptAssembly>& GetAssembly(int assemblyIndex);
+		
 		static void InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 

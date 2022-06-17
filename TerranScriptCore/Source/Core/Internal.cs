@@ -179,5 +179,45 @@ namespace Terran
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern Vector3 Transform_GetRight(byte[] entityID);
         #endregion
+
+        #region SpriteRender
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern Color SpriteRenderer_GetColor(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void SpriteRenderer_SetColor(byte[] entityID, in Color color);
+        #endregion
+
+        #region Camera
+		
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern bool Camera_IsPrimary(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void Camera_SetPrimary(byte[] entityID, bool togglePrimary);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern Color Camera_GetBackgroundColor(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void Camera_SetBackgroundColor(byte[] entityID, in Color color);
+        #endregion
+
+        #region CircleRenderer
+		
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern float CircleRenderer_GetThickness(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void CircleRenderer_SetThickness(byte[] entityID, float thickness);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern Color CircleRenderer_GetColor(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void CircleRenderer_SetColor(byte[] entityID, in Color color);
+        #endregion
+
+
     }
 }

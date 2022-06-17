@@ -19,14 +19,15 @@ namespace TerranEngine
 		ScriptClass(const ScriptClass& other) = default;
 		~ScriptClass() = default;
 
-		ScriptMethod GetMethod(const char* methodSignature);
-		ScriptField GetFieldFromToken(uint32_t fieldToken);
-		ScriptField GetFieldFromName(const std::string& fieldName);
+		ScriptMethod GetMethod(const char* methodSignature) const;
+		ScriptField GetFieldFromToken(uint32_t fieldToken) const;
+		ScriptField GetFieldFromName(const std::string& fieldName) const;
 		
 		inline MonoClass* GetMonoClass() const { return m_MonoClass; }
 		inline const std::string&  GetName() const { return m_ClassName; }
 		inline const std::string& GetNamespace() const { return m_Namespace; }
-		
+		inline std::string GetFullName() const { return fmt::format("{0}.{1}", m_Namespace, m_ClassName); }
+	
 		ScriptClass GetParent();
 		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
 		operator bool() const { return m_MonoClass != nullptr; }
@@ -34,6 +35,7 @@ namespace TerranEngine
 		bool IsInstanceOf(ScriptClass* parent, bool checkInterfaces = true);
 
 		inline std::vector<ScriptField>& GetFields() { return m_Fields; }
+		int GetTypeToken() const;
 		
 	private:
 		MonoClass* m_MonoClass = nullptr;

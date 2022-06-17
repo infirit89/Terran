@@ -24,6 +24,8 @@ namespace TerranEngine
 		static void CacheCoreClasses();
 		static void ClearCache();
 
+		static void GenerateCacheForAssembly(Shared<AssemblyInfo>& assemblyInfo);
+		
 		static ScriptClass* GetCachedClassFromName(const std::string& className);
 		static ScriptMethod* GetCachedMethod(const std::string& className, const std::string& methodName);
 
@@ -34,6 +36,9 @@ namespace TerranEngine
 		static void CacheMethodsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 		static void CacheFieldsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 
+		static void CacheFields(Shared<ScriptAssembly>& assembly, const ScriptClass& klass);
+		static void CacheMethods(Shared<ScriptAssembly>& assembly, const ScriptClass& klass);
+		
 		static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;
 		static std::unordered_map<uint32_t, std::vector<ScriptMethod>> s_CachedMethods;
 		static std::unordered_map<uint32_t, ScriptField> s_CachedFields;
