@@ -10,6 +10,7 @@ extern "C"
 {
 	typedef struct _MonoClassField MonoClassField;
 	typedef struct _MonoObject MonoObject;
+	typedef struct _MonoType MonoType;
 }
 
 namespace TerranEngine 
@@ -115,6 +116,7 @@ namespace TerranEngine
 
 	private:
 		MonoClassField* m_MonoField = nullptr;
+		MonoType* m_MonoType = nullptr;
 		std::string m_Name;
 		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScriptFieldVisibility m_FieldVisibility = ScriptFieldVisibility::Unknown;

@@ -27,6 +27,7 @@ namespace TerranEngine
 		CACHE_CORLIB_CLASS(Bool);
 		CACHE_CORLIB_CLASS(Float);
 		CACHE_CORLIB_CLASS(Double);
+		CACHE_CORLIB_CLASS(Object);
 		
 #define CACHE_API_CLASS(klass)\
 	ScriptClass managedClass##klass = TR_CLASS(klass);\

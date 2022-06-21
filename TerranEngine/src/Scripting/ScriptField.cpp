@@ -2,8 +2,10 @@
 #include "ScriptField.h"
 #include "ScriptMarshal.h"
 #include "ScriptCache.h"
+#include "ScriptArray.h"
 
 #include <mono/metadata/attrdefs.h>
+
 
 namespace TerranEngine 
 {
@@ -32,6 +34,8 @@ namespace TerranEngine
 
 		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
 
+		case MONO_TYPE_ARRAY:		return ScriptFieldType::Array;
+			
 		case MONO_TYPE_STRING:		return ScriptFieldType::String;
 		case MONO_TYPE_VALUETYPE: 
 		{
@@ -64,7 +68,8 @@ namespace TerranEngine
 		: m_MonoField(monoField)
 	{
 		m_Name = mono_field_get_name(m_MonoField);
-		m_FieldType = ConvertFieldType(mono_field_get_type(m_MonoField));
+		m_MonoType = mono_field_get_type(m_MonoField);
+		m_FieldType = ConvertFieldType(m_MonoType);
 
 		uint32_t accessMask = mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
@@ -107,7 +112,7 @@ namespace TerranEngine
 	}
 
 	std::string ScriptField::GetDataStringRaw(GCHandle handle)
-	{
+	{	
 		MonoObject* monoObject = GCManager::GetManagedObject(handle);
 		if (monoObject == nullptr)
 		{

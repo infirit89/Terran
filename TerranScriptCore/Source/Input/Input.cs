@@ -11,8 +11,7 @@ namespace Terran
 
 		public static Vector2 GetMousePosition() 
 		{
-			Vector2 mousePosition;
-			Internal.Input_GetMousePosition(out mousePosition);
+			Internal.Input_GetMousePosition(out var mousePosition);
 			return mousePosition;
 		}
 

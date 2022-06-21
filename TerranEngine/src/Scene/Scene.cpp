@@ -14,9 +14,6 @@
 #include "Physics/Physics.h"
 
 #include "Utils/Debug/Profiler.h"
-#include "Utils/Utils.h"
-
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace TerranEngine 
 {
@@ -294,7 +291,7 @@ namespace TerranEngine
 
 	Entity Scene::FindEntityWithName(const std::string& name)
 	{
-		auto tagView = m_Registry.view<TagComponent>();
+		const auto tagView = m_Registry.view<TagComponent>();
 
 		for (auto e : tagView) 
 		{
@@ -308,7 +305,7 @@ namespace TerranEngine
 
 	Entity Scene::GetPrimaryCamera()
 	{
-		auto cameraView = m_Registry.view<CameraComponent>();
+		const auto cameraView = m_Registry.view<CameraComponent>();
 		for (auto e : cameraView)
 		{
 			Entity entity(e, this);
@@ -339,7 +336,7 @@ namespace TerranEngine
 	Entity Scene::DuplicateEntity(Entity srcEntity, Entity parent)
 	{
 		Entity dstEntity = CreateEntity(srcEntity.GetName() + " Copy");
-
+		
 		CopyComponent<TransformComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);

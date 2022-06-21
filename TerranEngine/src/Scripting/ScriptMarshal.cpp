@@ -11,9 +11,9 @@ namespace TerranEngine
 		const uint8_t* idData = id.GetRaw();
 		MonoClass* byteClass = TR_CORE_CACHED_CLASS(Byte)->GetMonoClass();
 		MonoArray* uuidArray = mono_array_new(mono_domain_get(), byteClass, 16);
-
+		
 		uint8_t* uuidArrayAddr = mono_array_addr(uuidArray, uint8_t, 0);
-
+		
 		memcpy(uuidArrayAddr, idData, 16 * sizeof(uint8_t));
 
 		return uuidArray;

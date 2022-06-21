@@ -43,18 +43,15 @@ namespace TerranEngine
             uint32_t nextCol[MONO_TYPEDEF_SIZE];
             mono_metadata_decode_row(typedefTableInfo, std::min(i + 1, typedefTableRows - 1), nextCol, MONO_TYPEDEF_SIZE);
 
-            const uint32_t methodMax = i == typedefTableRows - 1 ?  methodTableRows : nextCol[MONO_TYPEDEF_METHOD_LIST] - 1;
+            const uint32_t methodMax = i == typedefTableRows - 1 ? methodTableRows : nextCol[MONO_TYPEDEF_METHOD_LIST] - 1;
 
             std::string moduleName = fmt::format("{0}.{1}", namespaceName, className);
             for (size_t j = cols[MONO_TYPEDEF_METHOD_LIST] - 1; j < methodMax; j++)
             {
-                if (methodTableRows <= 0) break;
-
                 uint32_t methodCols[MONO_METHOD_SIZE];
 
                 mono_metadata_decode_row(methodTableInfo, j, methodCols, MONO_METHOD_SIZE);
                 std::string methodName = mono_metadata_string_heap(m_MonoImage, methodCols[MONO_METHOD_NAME]);
-
                 
                 const char* blob = mono_metadata_blob_heap(m_MonoImage, methodCols[MONO_METHOD_SIGNATURE]);
                 
@@ -71,11 +68,9 @@ namespace TerranEngine
                 mono_metadata_free_method_signature(signature);
             }
 
-            const uint32_t fieldMax = i == typedefTableRows - 1 ?  fieldTableRows : nextCol[MONO_TYPEDEF_FIELD_LIST] - 1;
+            const uint32_t fieldMax = i == typedefTableRows - 1 ? fieldTableRows : nextCol[MONO_TYPEDEF_FIELD_LIST] - 1;
             for (size_t j = cols[MONO_TYPEDEF_FIELD_LIST] - 1; j < fieldMax; j++)
             {
-                if (fieldTableRows <= 0) break;
-
                 uint32_t fieldCols[MONO_FIELD_SIZE];
                 mono_metadata_decode_row(fieldTableInfo, j, fieldCols, MONO_FIELD_SIZE);
                 //uint32_t fieldTypeToken = (j + 1) | MONO_TOKEN_FIELD_DEF;
@@ -173,7 +168,6 @@ namespace TerranEngine
         }
         return scriptAssembly;
     }
-
 
     ScriptMethod ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
     {
