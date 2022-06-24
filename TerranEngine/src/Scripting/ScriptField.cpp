@@ -33,8 +33,6 @@ namespace TerranEngine
 		case MONO_TYPE_R8:			return ScriptFieldType::Double;
 
 		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
-
-		case MONO_TYPE_ARRAY:		return ScriptFieldType::Array;
 			
 		case MONO_TYPE_STRING:		return ScriptFieldType::String;
 		case MONO_TYPE_VALUETYPE: 

@@ -10,10 +10,26 @@ namespace SandboxProject
         public int Bruh3 = 109;
         public int Bruh4 = 109;
         public int Bruh5 = 109;
+        
+
         protected override void Init()
         {
             Log.Trace(Test);
             Log.Trace(entity.HasComponent<SpriteRenderer>());
+
+            byte[] connectedControllers = Input.GetConnectedControllers();
+
+            for (byte i = 0; i < connectedControllers.Length; i++) 
+            {
+                Log.Trace(Input.GetControllerName(i));
+            }
+
+            Entity[] children = entity.GetChildren();
+
+            foreach (var child in children)
+                Log.Trace(child.Name);
+
+            //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
         }
 
         protected override void Update()

@@ -99,4 +99,17 @@ namespace TerranEngine
 
 		return { leftX, leftY };
 	}
+
+	std::vector<uint8_t> Input::GetConnectedControllers()
+	{
+		std::vector<uint8_t> connectedControllers;
+
+		for (uint8_t i = 0; i < GLFW_JOYSTICK_LAST; i++)
+		{
+			if(IsControllerConnected(i))
+				connectedControllers.emplace_back(i);
+		}
+		
+		return connectedControllers;
+	}
 }

@@ -61,7 +61,26 @@ namespace Terran
 			}
 
 			Internal.Entity_AddComponent(ID.Data, typeof(T).FullName);
-		} 
+		}
+
+		public Entity[] GetChildren()
+		{
+			UUID[] childrenIDs = Internal.Entity_GetChildren(ID);
+
+			if (childrenIDs == null)
+				return null;
+			
+			Entity[] children = new Entity[childrenIDs.Length];
+
+			int i = 0;
+			foreach (var id in childrenIDs)
+			{
+				children[i] = FindWithID(id);
+				i++;
+			}
+
+			return children;
+		}
 
 		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(ID.Data, typeof(T).FullName);
 

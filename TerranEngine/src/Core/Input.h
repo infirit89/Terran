@@ -7,6 +7,8 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 namespace TerranEngine {
 
 	class Input 
@@ -29,6 +31,7 @@ namespace TerranEngine {
 		static glm::vec2 GetControllerRightStick(uint8_t controllerIndex);
 		static glm::vec2 GetControllerLeftStick(uint8_t controllerIndex);
 
+		static std::vector<uint8_t> GetConnectedControllers(); 
 		static float GetMouseX() { return GetMousePos().x; }
 		static float GetMouseY() { return GetMousePos().y; }
 	};

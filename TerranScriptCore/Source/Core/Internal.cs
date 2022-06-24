@@ -31,7 +31,10 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern float Input_GetControllerAxis(byte controllerAxis, byte controllerIndex);
-        #endregion
+     
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern byte[] Input_GetConnectedControllers();
+		#endregion
 
         #region Entity
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -54,7 +57,10 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Entity_DestroyEntity(byte[] id);
-        #endregion
+		
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern UUID[] Entity_GetChildren(byte[] id);
+		#endregion
 
         #region Physics 2D
         internal struct RayCastHitInfo2D_Internal 

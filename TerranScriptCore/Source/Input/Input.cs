@@ -25,5 +25,7 @@ namespace Terran
 		public static bool IsControllerButtonPressed(ControllerButton controllerButton, byte controllerIndex) => Internal.Input_IsControllerButtonPressed((byte)controllerButton, controllerIndex);
 
 		public static float GetControllerAxis(ControllerAxis controllerAxis, byte controllerIndex) => Internal.Input_GetControllerAxis((byte)controllerAxis, controllerIndex);
+
+		public static byte[] GetConnectedControllers() => Internal.Input_GetConnectedControllers();
 	}
 }

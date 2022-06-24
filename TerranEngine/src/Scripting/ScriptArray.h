@@ -2,8 +2,6 @@
 
 #include "ScriptCache.h"
 
-#include <type_traits>
-
 extern "C"
 {
     typedef struct _MonoArray MonoArray;
@@ -25,32 +23,18 @@ namespace TerranEngine
 
         char* GetElementAddress(uint32_t index, int dataSize) const;
 
-        uintptr_t Length() const;
-        
-        template<typename  T>
-        static MonoClass* GetMonoClassFromType()
-        {
-            TR_REGISTER_ARRAY_TYPE(uint8_t, "System.Byte");
-            TR_REGISTER_ARRAY_TYPE(int16_t, "System.Short");
-            TR_REGISTER_ARRAY_TYPE(int32_t, "System.Int");
-            TR_REGISTER_ARRAY_TYPE(int64_t, "System.Long");
+        uint32_t Length() const { return m_Length; }
 
-            TR_REGISTER_ARRAY_TYPE(bool, "System.Bool");
-
-            TR_REGISTER_ARRAY_TYPE(float, "System.Float");
-            TR_REGISTER_ARRAY_TYPE(double, "System.Double");
-
-            return nullptr;
-        }
+        void Resize(uint32_t size);
         
         template<typename  T>
         static ScriptArray Create(uint32_t size)
         {
             MonoClass* arrayClass = GetMonoClassFromType<T>();
-            return ScriptArray<T>(arrayClass, size);
+            return ScriptArray(arrayClass, size);
         }
         
-        template<typename  T>
+        template<typename T>
         void Set(uint32_t index, T value)
         {
             T* elementAdrr = (T*)GetElementAddress(index, sizeof(T));
@@ -66,6 +50,31 @@ namespace TerranEngine
         inline MonoArray* GetMonoArray() const { return m_MonoArray; } 
         
     private:
+        template<typename  T>
+        static MonoClass* GetMonoClassFromType()
+        {
+            TR_REGISTER_ARRAY_TYPE(uint8_t, "System.Byte");
+            TR_REGISTER_ARRAY_TYPE(uint16_t, "System.UInt16");
+            TR_REGISTER_ARRAY_TYPE(uint32_t, "System.UInt32");
+            TR_REGISTER_ARRAY_TYPE(uint64_t, "System.UInt64");
+            
+            TR_REGISTER_ARRAY_TYPE(int8_t, "System.SByte");
+            TR_REGISTER_ARRAY_TYPE(int16_t, "System.Int16");
+            TR_REGISTER_ARRAY_TYPE(int32_t, "System.Int32");
+            TR_REGISTER_ARRAY_TYPE(int64_t, "System.Int64");
+
+            TR_REGISTER_ARRAY_TYPE(bool, "System.Bool");
+
+            TR_REGISTER_ARRAY_TYPE(float, "System.Float");
+            TR_REGISTER_ARRAY_TYPE(double, "System.Double");
+
+            TR_REGISTER_ARRAY_TYPE(UUID, "Terran.UUID");
+            
+            return nullptr;
+        }
+        
         MonoArray* m_MonoArray = nullptr;
+        uint32_t m_Length = 0;
+        MonoClass* m_ElementClass = nullptr;
     };
 }

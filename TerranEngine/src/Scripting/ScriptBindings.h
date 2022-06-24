@@ -31,6 +31,7 @@ namespace TerranEngine
 		static MonoString* Input_GetControllerName(uint8_t controllerIndex);
 		static bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex);
 		static float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex);
+		static MonoArray* Input_GetConnectedControllers();
 		// ---------------
 
 		// ---- Entity ----
@@ -43,6 +44,8 @@ namespace TerranEngine
 		static MonoArray* Entity_FindEntityWithID(MonoArray* monoIDArray);
 
 		static void Entity_DestroyEntity(MonoArray* entityUUIDArr);
+		
+		static MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr);
 		// ----------------
 
 		// ---- Physics ----

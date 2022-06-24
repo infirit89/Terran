@@ -7,8 +7,6 @@
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
 
-#include "Platform/OpenGL/OpenGLErrorHandler.h"
-
 #include <stb_image.h>
 
 #pragma warning (push)
@@ -167,8 +165,7 @@ namespace TerranEngine
 				}
 			}
 		});
-
-
+		
 		glfwMakeContextCurrent(m_Window);
 		SetVsync(data.VSync);
 	}

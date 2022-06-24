@@ -5,6 +5,9 @@
 #include "ScriptMarshal.h"
 #include "GCManager.h"
 #include "ScriptCache.h"
+#include "ScriptArray.h"
+#include "ScriptObject.h"
+#include "ScriptMethodThunks.h"
 
 #include "Core/Input.h"
 
@@ -29,6 +32,8 @@ namespace TerranEngine
 	{				
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, func);
 
+		static ScriptMethodThunks<MonoArray*> s_IDClassCtor;
+
 		void ScriptBindings::Bind()
 		{
 			// ---- entity -----
@@ -42,6 +47,8 @@ namespace TerranEngine
 			BIND_INTERNAL_FUNC(Entity_FindEntityWithID);
 
 			BIND_INTERNAL_FUNC(Entity_DestroyEntity);
+
+			BIND_INTERNAL_FUNC(Entity_GetChildren);
 			// -----------------
 
 			// ---- transform ----
@@ -151,7 +158,11 @@ namespace TerranEngine
 
 			BIND_INTERNAL_FUNC(Input_IsControllerButtonPressed);
 			BIND_INTERNAL_FUNC(Input_GetControllerAxis);
+
+			BIND_INTERNAL_FUNC(Input_GetConnectedControllers);
 			// ----------------
+
+			s_IDClassCtor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.UUID", ":.ctor(byte[])"));
 		}
 
 		enum class ComponentType
@@ -325,6 +336,37 @@ namespace TerranEngine
 			else
 				TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 		}
+
+		// TODO: find a better way to do this
+		MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr)
+		{
+			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
+			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+
+			if(!entity)
+				return nullptr;
+
+			if(entity.GetChildCount() <= 0)
+				return nullptr;
+			
+			ScriptArray childrenIDs = ScriptArray::Create<UUID>(entity.GetChildCount());
+			ScriptClass* idClass = TR_API_CACHED_CLASS(UUID);
+			
+			int i = 0;
+			for (const UUID& id : entity.GetChildren())
+			{
+				ScriptObject idObject = ScriptObject::CreateInstace(*idClass);
+				MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+
+				MonoException* exc = nullptr;
+				s_IDClassCtor.Invoke(idObject.GetMonoObject(), uuidArray, &exc);
+				childrenIDs.Set(i, idObject.GetMonoObject());
+				i++;
+			}
+
+			return childrenIDs.GetMonoArray();
+		}
+
 		// ----------------------
 
 // bullshit?
@@ -1000,6 +1042,18 @@ namespace TerranEngine
 
 		bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex) { return Input::IsControllerButtonPressed(controllerButton, controllerIndex); }
 		float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex) { return Input::GetControllerAxis(controllerAxis, controllerIndex); }
+
+		MonoArray* Input_GetConnectedControllers()
+		{
+			std::vector<uint8_t> connectedControllers = Input::GetConnectedControllers();
+			ScriptArray connectedControllersArr = ScriptArray::Create<uint8_t>(connectedControllers.size());
+
+			for (size_t i = 0; i < connectedControllers.size(); i++)
+				connectedControllersArr.Set<uint8_t>(i, i);
+
+			return connectedControllersArr.GetMonoArray();
+		}
+
 		// ---------------
 	}
 }

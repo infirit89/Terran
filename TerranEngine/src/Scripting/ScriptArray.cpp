@@ -9,11 +9,15 @@ namespace TerranEngine
     ScriptArray::ScriptArray(MonoClass* arrayClass, uint32_t size)
     {
         m_MonoArray = mono_array_new(mono_domain_get(), arrayClass, size);
+        m_Length = size;
+        m_ElementClass = arrayClass;
     }
 
     ScriptArray::ScriptArray(const ScriptArray& other)
     {
-        mono_arra
+        uint32_t copyCount = m_Length > other.m_Length ? other.m_Length : m_Length;
+        m_Length = other.m_Length;
+        mono_value_copy_array(m_MonoArray, 0, other.m_MonoArray, copyCount);
     }
 
     char* ScriptArray::GetElementAddress(uint32_t index, int dataSize) const
@@ -21,9 +25,15 @@ namespace TerranEngine
         return mono_array_addr_with_size(m_MonoArray, dataSize, index);
     }
 
-    uintptr_t ScriptArray::Length() const
+    void ScriptArray::Resize(uint32_t size)
     {
-        return mono_array_length(m_MonoArray);
+        MonoArray* tempArr = mono_array_new(mono_domain_get(), m_ElementClass, m_Length);
+        mono_value_copy_array(tempArr, 0, m_MonoArray, m_Length);
+        uint32_t copyCount = m_Length > size ? size : m_Length;
+        m_MonoArray = mono_array_new(mono_domain_get(), m_ElementClass, size);
+        mono_value_copy_array(m_MonoArray, 0, tempArr, copyCount);
+        m_Length = size;
     }
+
 }
 
