@@ -1,8 +1,7 @@
 #pragma once
 
 #include "GCManager.h"
-
-#include "Scene/Entity.h"
+#include "ScriptType.h"
 
 #include "Utils/Utils.h"
 
@@ -15,27 +14,6 @@ extern "C"
 
 namespace TerranEngine 
 {
-	enum class ScriptFieldType
-	{
-		None = 0,
-		Bool,
-		Char,
-		Int8,
-		Int16,
-		Int32,
-		Int64,
-		UInt8,
-		UInt16,
-		UInt32,
-		UInt64,
-		Float,
-		Double,
-		String,
-		Vector2,
-		Vector3,
-		Color
-	};
-
 	enum class ScriptFieldVisibility 
 	{
 		Unknown,
@@ -55,12 +33,12 @@ namespace TerranEngine
 		~ScriptField() = default;
 
 		inline const std::string& GetName() const			{ return m_Name; }
-		inline ScriptFieldType GetType() const				{ return m_FieldType; }
 		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
 		inline operator bool() const { return m_MonoField != nullptr; }
 
-		uint32_t GetID() const { return m_ID; }
+		inline uint32_t GetID() const { return m_ID; }
+		inline const ScriptType& GetType() const { return m_Type; } 
 		
 		void SetDataRaw(void* value, GCHandle handle);
 		void GetDataRaw(void* result, GCHandle handle);
@@ -70,6 +48,7 @@ namespace TerranEngine
 
 		void SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle);
 		Utils::Variant GetDataVariantRaw(GCHandle handle);
+
 		
 		template<typename T>
 		T GetData(GCHandle handle) 
@@ -116,11 +95,10 @@ namespace TerranEngine
 
 	private:
 		MonoClassField* m_MonoField = nullptr;
-		MonoType* m_MonoType = nullptr;
+		ScriptType m_Type;
 		std::string m_Name;
-		ScriptFieldType m_FieldType = ScriptFieldType::None;
 		ScriptFieldVisibility m_FieldVisibility = ScriptFieldVisibility::Unknown;
-		uint32_t m_ID;
+		uint32_t m_ID = 0;
 
 		friend class ScriptCache;
 	};

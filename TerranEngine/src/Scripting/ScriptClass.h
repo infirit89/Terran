@@ -30,6 +30,7 @@ namespace TerranEngine
 	
 		ScriptClass GetParent();
 		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
+		bool operator==(MonoClass* monoClass) const { return m_MonoClass == monoClass; }
 		operator bool() const { return m_MonoClass != nullptr; }
 		
 		bool IsInstanceOf(ScriptClass* parent, bool checkInterfaces = true);

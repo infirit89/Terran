@@ -510,9 +510,9 @@ namespace TerranEditor
 			{
 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 				std::string fieldName = ProccessFieldName(field->GetName());
-				switch (field->GetType())
+				switch (field->GetType().TypeEnum)
 				{
-				case ScriptFieldType::Bool:
+				case ScriptType::Bool:
 				{
 					bool value = field->GetData<bool>(handle);
 
@@ -521,7 +521,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Char:
+				case ScriptType::Char:
 				{
 					char value = (char)field->GetData<wchar_t>(handle);
 					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
@@ -536,7 +536,7 @@ namespace TerranEditor
 					
 					break;
 				}
-				case ScriptFieldType::Int8:
+				case ScriptType::Int8:
 				{
 					int8_t value = field->GetData<int8_t>(handle);
 
@@ -545,7 +545,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Int16:
+				case ScriptType::Int16:
 				{
 					int16_t value = field->GetData<int16_t>(handle);
 
@@ -554,7 +554,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Int32:
+				case ScriptType::Int32:
 				{
 					int32_t value = field->GetData<int32_t>(handle);
 
@@ -563,7 +563,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Int64:
+				case ScriptType::Int64:
 				{
 					int64_t value = field->GetData<int64_t>(handle);
 
@@ -572,7 +572,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::UInt8:
+				case ScriptType::UInt8:
 				{
 					uint8_t value = field->GetData<uint8_t>(handle);
 
@@ -581,7 +581,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::UInt16:
+				case ScriptType::UInt16:
 				{
 					uint16_t value = field->GetData<uint16_t>(handle);
 
@@ -590,7 +590,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::UInt32:
+				case ScriptType::UInt32:
 				{
 					uint32_t value = field->GetData<uint32_t>(handle);
 
@@ -599,7 +599,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::UInt64:
+				case ScriptType::UInt64:
 				{
 					uint64_t value = field->GetData<uint64_t>(handle);
 
@@ -608,7 +608,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Float:
+				case ScriptType::Float:
 				{
 					float value = field->GetData<float>(handle);
 
@@ -617,7 +617,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Double:
+				case ScriptType::Double:
 				{
 					double value = field->GetData<double>(handle);
 
@@ -626,7 +626,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::String: 
+				case ScriptType::String: 
 				{
 					std::string value = field->GetData<std::string>(handle);
 
@@ -635,7 +635,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Vector2: 
+				case ScriptType::Vector2: 
 				{
 					glm::vec2 value = field->GetData<glm::vec2>(handle);
 					
@@ -644,7 +644,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Vector3: 
+				case ScriptType::Vector3: 
 				{
 					glm::vec3 value = field->GetData<glm::vec3>(handle);
 
@@ -653,7 +653,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptFieldType::Color:
+				case ScriptType::Color:
 				{
 					glm::vec4 value = field->GetData<glm::vec4>(handle);
 

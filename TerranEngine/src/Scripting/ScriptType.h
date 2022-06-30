@@ -1,0 +1,57 @@
+﻿#pragma once
+
+extern "C"
+{
+    typedef struct _MonoType MonoType;
+}
+
+namespace TerranEngine
+{
+    class ScriptClass;
+    class ScriptType
+    {
+    public:
+        ScriptType() = default;
+        ScriptType(MonoType* monoType);
+        
+        ScriptType(const ScriptType& other) = default;
+        ~ScriptType() = default;
+
+        static ScriptType FromClass(const ScriptClass& klass);
+
+        inline MonoType* GetMonoType() const { return m_MonoType; }
+
+        bool IsArray() const;
+        bool IsPointer() const;
+        bool IsVoid() const;
+        
+        enum
+        {
+            None = 0,
+            Bool,
+            Char,
+            Int8,
+            Int16,
+            Int32,
+            Int64,
+            UInt8,
+            UInt16,
+            UInt32,
+            UInt64,
+            Float,
+            Double,
+            String,
+            Vector2,
+            Vector3,
+            Color,
+            Entity
+        } TypeEnum = None;
+        
+    private:
+        void GetUnmanagedType(MonoType* monoType);
+        
+        MonoType* m_MonoType = nullptr;
+        int m_TypeEncoding = 0;
+    };
+    
+}

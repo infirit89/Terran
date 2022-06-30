@@ -5,50 +5,10 @@
 #include "ScriptArray.h"
 
 #include <mono/metadata/attrdefs.h>
-
+#include <mono/metadata/object.h>
 
 namespace TerranEngine 
 {
-	static ScriptFieldType ConvertFieldType(MonoType* monoType)
-	{
-		MonoTypeEnum type = (MonoTypeEnum)mono_type_get_type(monoType);
-
-		switch (type)
-		{
-		case MONO_TYPE_BOOLEAN:		return ScriptFieldType::Bool;
-
-		// signed integer types
-		case MONO_TYPE_I1:			return ScriptFieldType::Int8;
-		case MONO_TYPE_I2:			return ScriptFieldType::Int16;
-		case MONO_TYPE_I4:			return ScriptFieldType::Int32;
-		case MONO_TYPE_I8:			return ScriptFieldType::Int64;
-
-		// unsigned integer types
-		case MONO_TYPE_U1:			return ScriptFieldType::UInt8;
-		case MONO_TYPE_U2:			return ScriptFieldType::UInt16;
-		case MONO_TYPE_U4:			return ScriptFieldType::UInt32;
-		case MONO_TYPE_U8:			return ScriptFieldType::UInt64;
-
-		case MONO_TYPE_R4:			return ScriptFieldType::Float;
-		case MONO_TYPE_R8:			return ScriptFieldType::Double;
-
-		case MONO_TYPE_CHAR:		return ScriptFieldType::Char;
-			
-		case MONO_TYPE_STRING:		return ScriptFieldType::String;
-		case MONO_TYPE_VALUETYPE: 
-		{
-			const ScriptClass typeClass = mono_class_from_mono_type(monoType);
-			if(typeClass == *TR_API_CACHED_CLASS(Vector2))	return ScriptFieldType::Vector2;
-			if(typeClass == *TR_API_CACHED_CLASS(Vector3))	return ScriptFieldType::Vector3;
-			if(typeClass == *TR_API_CACHED_CLASS(Color))	return ScriptFieldType::Color;
-				
-			break;
-		}
-		}
-
-		return ScriptFieldType::None;
-	}
-
 	static ScriptFieldVisibility ConvertFieldVisibility(uint32_t accessMask) 
 	{
 		switch (accessMask)
@@ -66,8 +26,7 @@ namespace TerranEngine
 		: m_MonoField(monoField)
 	{
 		m_Name = mono_field_get_name(m_MonoField);
-		m_MonoType = mono_field_get_type(m_MonoField);
-		m_FieldType = ConvertFieldType(m_MonoType);
+		m_Type = mono_field_get_type(m_MonoField);
 
 		uint32_t accessMask = mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
@@ -124,7 +83,7 @@ namespace TerranEngine
 			return "";
 		}
 
-		if (m_FieldType != ScriptFieldType::String) 
+		if (m_Type.TypeEnum != ScriptType::String) 
 		{
 			TR_ERROR("Can't get the string value of a non-string field");
 			return "";
@@ -151,7 +110,7 @@ namespace TerranEngine
 			return;
 		}
 
-		if (m_FieldType != ScriptFieldType::String)
+		if (m_Type.TypeEnum != ScriptType::String)
 		{
 			TR_ERROR("Can't set the string value of a non-string field");
 			return;
@@ -163,99 +122,99 @@ namespace TerranEngine
 	
 	void ScriptField::SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle)
 	{
-		switch (m_FieldType)
+		switch (m_Type.TypeEnum)
 		{
-		case ScriptFieldType::Bool:
+		case ScriptType::Bool:
 		{
 			bool val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Char:
+		case ScriptType::Char:
 		{
 			char val = variant;
 			SetData<wchar_t>((wchar_t)val, handle);
 			break;
 		}
-		case ScriptFieldType::Int8:
+		case ScriptType::Int8:
 		{
 			int8_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Int16:
+		case ScriptType::Int16:
 		{
 			int16_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Int32:
+		case ScriptType::Int32:
 		{
 			int32_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Int64:
+		case ScriptType::Int64:
 		{
 			int64_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::UInt8:
+		case ScriptType::UInt8:
 		{
 			uint8_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::UInt16:
+		case ScriptType::UInt16:
 		{
 			uint16_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::UInt32:
+		case ScriptType::UInt32:
 		{
 			uint32_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::UInt64:
+		case ScriptType::UInt64:
 		{
 			uint64_t val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Float:
+		case ScriptType::Float:
 		{
 			float val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Double:
+		case ScriptType::Double:
 		{
 			double val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::String:
+		case ScriptType::String:
 		{
 			const char*  val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Vector2:
+		case ScriptType::Vector2:
 		{
 			glm::vec2 val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Vector3:
+		case ScriptType::Vector3:
 		{
 			glm::vec3 val = variant;
 			SetData(val, handle);
 			break;
 		}
-		case ScriptFieldType::Color:
+		case ScriptType::Color:
 		{
 			glm::vec4 val = variant;
 			SetData(val, handle);
@@ -267,24 +226,24 @@ namespace TerranEngine
 
 	Utils::Variant ScriptField::GetDataVariantRaw(GCHandle handle)
 	{
-		switch (m_FieldType)
+		switch (m_Type.TypeEnum)
 		{
-		case ScriptFieldType::Bool:		return GetData<bool>(handle);
-		case ScriptFieldType::Char: 	return (char)GetData<wchar_t>(handle);
-		case ScriptFieldType::Int8: 	return GetData<int8_t>(handle);
-		case ScriptFieldType::Int16: 	return GetData<int16_t>(handle);
-		case ScriptFieldType::Int32: 	return GetData<int32_t>(handle);
-		case ScriptFieldType::Int64: 	return GetData<int64_t>(handle);
-		case ScriptFieldType::UInt8: 	return GetData<uint8_t>(handle);
-		case ScriptFieldType::UInt16: 	return GetData<uint16_t>(handle);
-		case ScriptFieldType::UInt32: 	return GetData<uint32_t>(handle);
-		case ScriptFieldType::UInt64: 	return GetData<uint64_t>(handle);
-		case ScriptFieldType::Float:	return GetData<float>(handle);
-		case ScriptFieldType::Double:	return GetData<double>(handle);
-		case ScriptFieldType::String:	return GetData<std::string>(handle);
-		case ScriptFieldType::Vector2:	return GetData<glm::vec2>(handle);
-		case ScriptFieldType::Vector3:	return GetData<glm::vec3>(handle);
-		case ScriptFieldType::Color:	return GetData<glm::vec4>(handle);
+		case ScriptType::Bool:		return GetData<bool>(handle);
+		case ScriptType::Char: 	return (char)GetData<wchar_t>(handle);
+		case ScriptType::Int8: 	return GetData<int8_t>(handle);
+		case ScriptType::Int16: 	return GetData<int16_t>(handle);
+		case ScriptType::Int32: 	return GetData<int32_t>(handle);
+		case ScriptType::Int64: 	return GetData<int64_t>(handle);
+		case ScriptType::UInt8: 	return GetData<uint8_t>(handle);
+		case ScriptType::UInt16: 	return GetData<uint16_t>(handle);
+		case ScriptType::UInt32: 	return GetData<uint32_t>(handle);
+		case ScriptType::UInt64: 	return GetData<uint64_t>(handle);
+		case ScriptType::Float:	return GetData<float>(handle);
+		case ScriptType::Double:	return GetData<double>(handle);
+		case ScriptType::String:	return GetData<std::string>(handle);
+		case ScriptType::Vector2:	return GetData<glm::vec2>(handle);
+		case ScriptType::Vector3:	return GetData<glm::vec3>(handle);
+		case ScriptType::Color:	return GetData<glm::vec4>(handle);
 		}
 
 		return {};

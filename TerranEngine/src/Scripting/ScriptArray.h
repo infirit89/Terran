@@ -19,6 +19,7 @@ namespace TerranEngine
         ScriptArray() = default;
         ~ScriptArray() = default;
         ScriptArray(MonoClass* arrayClass, uint32_t size);
+        ScriptArray(MonoArray* monoArray);
         ScriptArray(const ScriptArray& other);
 
         char* GetElementAddress(uint32_t index, int dataSize) const;
@@ -63,9 +64,9 @@ namespace TerranEngine
             TR_REGISTER_ARRAY_TYPE(int32_t, "System.Int32");
             TR_REGISTER_ARRAY_TYPE(int64_t, "System.Int64");
 
-            TR_REGISTER_ARRAY_TYPE(bool, "System.Bool");
+            TR_REGISTER_ARRAY_TYPE(bool, "System.Boolean");
 
-            TR_REGISTER_ARRAY_TYPE(float, "System.Float");
+            TR_REGISTER_ARRAY_TYPE(float, "System.Single");
             TR_REGISTER_ARRAY_TYPE(double, "System.Double");
 
             TR_REGISTER_ARRAY_TYPE(UUID, "Terran.UUID");

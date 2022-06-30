@@ -21,7 +21,6 @@
 
 #include <glm/glm.hpp>
 
-#include <mono/jit/jit.h>
 #include <mono/metadata/object.h>
 
 #include <box2d/box2d.h>
@@ -307,7 +306,7 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				MonoArray* idArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+				MonoArray* idArray = ScriptMarshal::UUIDToMonoArray(entity.GetID()).GetMonoArray();
 				return idArray;
 			}
 			return nullptr;
@@ -320,7 +319,7 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				MonoArray* monoArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+				MonoArray* monoArray = ScriptMarshal::UUIDToMonoArray(entity.GetID()).GetMonoArray();
 				return monoArray;
 			}
 			return nullptr;
@@ -356,7 +355,7 @@ namespace TerranEngine
 			for (const UUID& id : entity.GetChildren())
 			{
 				ScriptObject idObject = ScriptObject::CreateInstace(*idClass);
-				MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+				MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
 
 				MonoException* exc = nullptr;
 				s_IDClassCtor.Invoke(idObject.GetMonoObject(), uuidArray, &exc);
@@ -568,7 +567,7 @@ namespace TerranEngine
 				id = entity.GetID();
 			}
 
-			outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id);
+			outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
 			return hasHit;
 		}
 		// --------------------

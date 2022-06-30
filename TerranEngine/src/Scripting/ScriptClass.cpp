@@ -9,7 +9,10 @@ namespace TerranEngine
 {
 	ScriptClass::ScriptClass(MonoClass* monoClass)
 		: m_MonoClass(monoClass)
-	{ }
+	{
+		m_ClassName = mono_class_get_name(m_MonoClass);
+		m_Namespace = mono_class_get_namespace(m_MonoClass);
+	}
 
 	ScriptMethod ScriptClass::GetMethod(const char* methodSignature) const
 	{

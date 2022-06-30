@@ -53,6 +53,8 @@
 #include "Scripting/ScriptField.h"
 #include "Scripting/ScriptMethod.h"
 #include "Scripting/ScriptObject.h"
+#include "Scripting/ScriptArray.h"
+#include "Scripting/ScriptCache.h"
 
 #include "Scripting/ScriptBindings.h"
 

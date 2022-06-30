@@ -8,6 +8,7 @@
 #include "ScriptMethodThunks.h"
 #include "ScriptAssembly.h"
 #include "ScriptObject.h"
+#include "ScriptArray.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -127,6 +128,9 @@ namespace TerranEngine
 		LoadAppAssembly(Project::GetAppAssemblyPath());
 		
 		ScriptBindings::Bind();
+
+		ScriptArray arr = ScriptArray::Create<uint8_t>(1);
+		ScriptArray arr2(arr.GetMonoArray());
 	}
 
 	void ScriptEngine::Shutdown()
@@ -253,10 +257,10 @@ namespace TerranEngine
 			instance.ObjectHandle = GCManager::CreateStrongHadle(object);
 			instance.GetMethods();
 
-			MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 
 			MonoException* exc = nullptr;
-			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray, &exc);
+			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exc);
 			
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
@@ -334,10 +338,10 @@ namespace TerranEngine
 
 		if (instance.PhysicsBeginContact) 
 		{
-			MonoArray* uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr, &exc);
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
 		}
 	}
 
@@ -347,10 +351,10 @@ namespace TerranEngine
 
 		if (instance.PhysicsEndContact)
 		{
-			MonoArray* uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr, &exc);
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
 		}
 	}
 
