@@ -57,7 +57,7 @@ namespace TerranEngine
 
 		UUID& GetID() { return m_ID; }
 
-		bool HasRuntimeStarted() const { return m_RuntimeStarted; }
+		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
 	private:
@@ -69,7 +69,7 @@ namespace TerranEngine
 
 		UUID m_ID;
 
-		bool m_RuntimeStarted = false;
+		bool m_IsPlaying = false;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 

@@ -2,6 +2,7 @@
 
 #include "GCManager.h"
 #include "ScriptType.h"
+#include "Scene/Entity.h"
 
 #include "Utils/Utils.h"
 
@@ -43,12 +44,14 @@ namespace TerranEngine
 		void SetDataRaw(void* value, GCHandle handle);
 		void GetDataRaw(void* result, GCHandle handle);
 
-		std::string GetDataStringRaw(GCHandle handle);
 		void SetDataStringRaw(const char* value, GCHandle handle);
+		std::string GetDataStringRaw(GCHandle handle);
 
-		void SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle);
+		void SetDataVariantRaw(const Utils::Variant& value, GCHandle handle);
 		Utils::Variant GetDataVariantRaw(GCHandle handle);
 
+		void SetDataEntityRaw(Entity value, GCHandle handle);
+		Entity GetDataEntityRaw(GCHandle handle);
 		
 		template<typename T>
 		T GetData(GCHandle handle) 
@@ -78,18 +81,31 @@ namespace TerranEngine
 		}
 
 		template<>
-		void SetData<Utils::Variant>(Utils::Variant variant, GCHandle handle)
+		void SetData<Utils::Variant>(Utils::Variant value, GCHandle handle)
 		{
-			SetDataVariantRaw(variant, handle);
+			SetDataVariantRaw(value, handle);
 		}		
 
 		template<>
 		Utils::Variant GetData<Utils::Variant>(GCHandle handle) 
 		{
-			Utils::Variant variant = GetDataVariantRaw(handle);
-			return variant;
+			Utils::Variant value = GetDataVariantRaw(handle);
+			return value;
 		}
 
+		template<>
+		void SetData<Entity>(Entity value, GCHandle handle)
+		{
+			SetDataEntityRaw(value, handle);
+		}		
+
+		template<>
+		Entity GetData<Entity>(GCHandle handle) 
+		{
+			Entity value = GetDataEntityRaw(handle);
+			return value;
+		}
+		
 		
 		// NOTE: maybe marshal vec2 and vec3?
 

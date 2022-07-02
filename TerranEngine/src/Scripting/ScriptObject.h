@@ -23,6 +23,8 @@ namespace TerranEngine
 		static ScriptObject CreateInstace(const ScriptClass& klass);
 
 		ScriptClass GetClass();
+
+		inline operator bool() const { return m_MonoObject; }  
 		
 	private:
 		MonoObject* m_MonoObject;

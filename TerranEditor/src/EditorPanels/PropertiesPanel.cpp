@@ -662,6 +662,13 @@ namespace TerranEditor
 
 					break;
 				}
+				case ScriptType::Entity:
+				{
+					Entity value = field->GetData<Entity>(handle);
+					if(UI::DrawEntityControl(fieldName, value))
+						field->SetData<Entity>(value, handle);
+					break;	
+				}
 				}
 			}
 		}

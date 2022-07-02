@@ -91,7 +91,7 @@ namespace TerranEngine
 
 	void Scene::StartRuntime()
 	{
-		m_RuntimeStarted = true;
+		m_IsPlaying = true;
 
 		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
 
@@ -116,7 +116,7 @@ namespace TerranEngine
 
 	void Scene::StopRuntime()
 	{
-		m_RuntimeStarted = false;
+		m_IsPlaying = false;
 		Physics2D::CleanUpPhysicsWorld();
 	}
 
@@ -366,7 +366,7 @@ namespace TerranEngine
 		{
 			ScriptEngine::InitializeScriptable(dstEntity);
 
-			if (m_RuntimeStarted)
+			if (m_IsPlaying)
 				ScriptEngine::OnStart(dstEntity);
 
 		}

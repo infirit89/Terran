@@ -5,10 +5,10 @@ namespace SandboxProject
     public class Sandbox : Scriptable 
     {
         public Entity TestEntity;
-
         protected override void Init()
         {
             Log.Trace(TestEntity.Name);
+            
             //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
         }
 

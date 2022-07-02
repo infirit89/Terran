@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "Utils.h"
 
+#include "Scene/SceneManager.h"
+
 namespace TerranEngine 
 {
     namespace Utils
@@ -217,6 +219,9 @@ namespace TerranEngine
         m_Data.ptr = new UUID(id.GetData());
     }
 
+    Variant::Variant(Entity entity)
+        : Variant(entity.GetID()) { }
+
     Variant::~Variant() { Clear(); }
 
     void Variant::Clear()
@@ -290,5 +295,6 @@ namespace TerranEngine
     Variant::operator glm::vec3() const     { return *static_cast<glm::vec3*>(m_Data.ptr); }
     Variant::operator glm::vec4() const     { return *static_cast<glm::vec4*>(m_Data.ptr); }
     Variant::operator UUID() const          { return *static_cast<UUID*>(m_Data.ptr); }
+    Variant::operator Entity() const        { return SceneManager::GetCurrentScene()->FindEntityWithUUID(operator UUID()); }
     }
 }

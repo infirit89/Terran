@@ -19,19 +19,12 @@ namespace TerranEngine
         : m_MonoArray(monoArray)
     {
         m_Length = mono_array_length(monoArray);
-        ScriptObject arrayObject((MonoObject*)m_MonoArray);
+        ScriptObject arrayObject((MonoObject*)monoArray);
         
         const ScriptClass arrayKlass = arrayObject.GetClass();
         const ScriptType arrayType = ScriptType::FromClass(arrayKlass);
         const MonoArrayType* arrayElementType = mono_type_get_array_type(arrayType.GetMonoType());
         m_ElementClass = arrayElementType->eklass;
-    }
-
-    ScriptArray::ScriptArray(const ScriptArray& other)
-    {
-        m_MonoArray = mono_array_new(mono_domain_get(), other.m_ElementClass, other.m_Length);
-        m_Length = other.m_Length;
-        mono_value_copy_array(m_MonoArray, 0, other.m_MonoArray, m_Length);
     }
 
     char* ScriptArray::GetElementAddress(uint32_t index, int dataSize) const

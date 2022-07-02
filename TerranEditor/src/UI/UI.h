@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scripting/ScriptEngine.h"
 #include <imgui.h>
 
 #include <glm/glm.hpp>
@@ -8,6 +9,7 @@
 
 namespace TerranEditor 
 {
+	// TODO: needs rework
 	namespace UI 
 	{
 		class ScopedVarTable 
@@ -65,8 +67,8 @@ namespace TerranEditor
 		bool DrawIntControl(const std::string& label, int& value, float power = 0.1f, float columnWidth = 100.0f);
 		bool DrawBoolControl(const std::string& label, bool& value, float columnWidth = 100.0f);
 		bool DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
-		bool DrawScalar(const std::string&label, ImGuiDataType type, void* value, float power = 0.1f, const char* format = nullptr, float columnWidth = 100.0f);
-		bool DrawVec2Control(const std::string&label, glm::vec2& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
-
-	};
+		bool DrawScalar(const std::string& label, ImGuiDataType type, void* value, float power = 0.1f, const char* format = nullptr, float columnWidth = 100.0f);
+		bool DrawVec2Control(const std::string& label, glm::vec2& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
+		bool DrawEntityControl(const std::string& label, TerranEngine::Entity& value, float columnWidth = 100.0f);			
+	}
 }

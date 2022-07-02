@@ -3,9 +3,14 @@
 #include "ScriptMarshal.h"
 #include "ScriptCache.h"
 #include "ScriptArray.h"
+#include "ScriptMarshal.h"
+#include "ScriptMethodThunks.h"
+#include "ScriptObject.h"
+#include "Scene/SceneManager.h"
 
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/object.h>
+#include <mono/metadata/appdomain.h>
 
 namespace TerranEngine 
 {
@@ -120,107 +125,112 @@ namespace TerranEngine
 		mono_field_set_value(monoObject, m_MonoField, monoStr);
 	}
 	
-	void ScriptField::SetDataVariantRaw(const Utils::Variant& variant, GCHandle handle)
+	void ScriptField::SetDataVariantRaw(const Utils::Variant& value, GCHandle handle)
 	{
 		switch (m_Type.TypeEnum)
 		{
 		case ScriptType::Bool:
 		{
-			bool val = variant;
+			bool val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Char:
 		{
-			char val = variant;
+			char val = value;
 			SetData<wchar_t>((wchar_t)val, handle);
 			break;
 		}
 		case ScriptType::Int8:
 		{
-			int8_t val = variant;
+			int8_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Int16:
 		{
-			int16_t val = variant;
+			int16_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Int32:
 		{
-			int32_t val = variant;
+			int32_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Int64:
 		{
-			int64_t val = variant;
+			int64_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::UInt8:
 		{
-			uint8_t val = variant;
+			uint8_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::UInt16:
 		{
-			uint16_t val = variant;
+			uint16_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::UInt32:
 		{
-			uint32_t val = variant;
+			uint32_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::UInt64:
 		{
-			uint64_t val = variant;
+			uint64_t val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Float:
 		{
-			float val = variant;
+			float val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Double:
 		{
-			double val = variant;
+			double val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::String:
 		{
-			const char*  val = variant;
+			const char*  val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Vector2:
 		{
-			glm::vec2 val = variant;
+			glm::vec2 val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Vector3:
 		{
-			glm::vec3 val = variant;
+			glm::vec3 val = value;
 			SetData(val, handle);
 			break;
 		}
 		case ScriptType::Color:
 		{
-			glm::vec4 val = variant;
+			glm::vec4 val = value;
 			SetData(val, handle);
 			break;
 		}
-			
+		case ScriptType::Entity:
+		{
+			Entity val = value;
+			SetData(val, handle);
+			break;
+		}
 		}
 	}
 
@@ -229,8 +239,8 @@ namespace TerranEngine
 		switch (m_Type.TypeEnum)
 		{
 		case ScriptType::Bool:		return GetData<bool>(handle);
-		case ScriptType::Char: 	return (char)GetData<wchar_t>(handle);
-		case ScriptType::Int8: 	return GetData<int8_t>(handle);
+		case ScriptType::Char: 		return (char)GetData<wchar_t>(handle);
+		case ScriptType::Int8: 		return GetData<int8_t>(handle);
 		case ScriptType::Int16: 	return GetData<int16_t>(handle);
 		case ScriptType::Int32: 	return GetData<int32_t>(handle);
 		case ScriptType::Int64: 	return GetData<int64_t>(handle);
@@ -238,14 +248,85 @@ namespace TerranEngine
 		case ScriptType::UInt16: 	return GetData<uint16_t>(handle);
 		case ScriptType::UInt32: 	return GetData<uint32_t>(handle);
 		case ScriptType::UInt64: 	return GetData<uint64_t>(handle);
-		case ScriptType::Float:	return GetData<float>(handle);
+		case ScriptType::Float:		return GetData<float>(handle);
 		case ScriptType::Double:	return GetData<double>(handle);
 		case ScriptType::String:	return GetData<std::string>(handle);
 		case ScriptType::Vector2:	return GetData<glm::vec2>(handle);
 		case ScriptType::Vector3:	return GetData<glm::vec3>(handle);
-		case ScriptType::Color:	return GetData<glm::vec4>(handle);
+		case ScriptType::Color:		return GetData<glm::vec4>(handle);
+		case ScriptType::Entity:	return GetData<Entity>(handle);
 		}
 
 		return {};
+	}
+
+	void ScriptField::SetDataEntityRaw(Entity value, GCHandle handle)
+	{
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr) 
+		{
+			TR_ERROR("Couldnt find the object");
+			return;
+		}
+
+		if (m_MonoField == nullptr) 
+		{
+			TR_ERROR("Mono field is null");
+			return;
+		}
+
+		if (m_Type.TypeEnum != ScriptType::Entity)
+		{
+			TR_ERROR("Field isn't of type 'Entity'");
+			return;
+		}
+
+		const ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(value.GetID());
+		
+		void* args[] = { uuidArray.GetMonoArray() };
+		ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
+		ScriptMethod* constructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+		constructor->Invoke(entityObj, args);
+		
+		mono_field_set_value(monoObject, m_MonoField, entityObj.GetMonoObject());
+	}
+
+	Entity ScriptField::GetDataEntityRaw(GCHandle handle)
+	{
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr) 
+		{
+			TR_ERROR("Couldnt find the object");
+			return {};
+		}
+
+		if (m_MonoField == nullptr) 
+		{
+			TR_ERROR("Mono field is null");
+			return {};
+		}
+
+		if (m_Type.TypeEnum != ScriptType::Entity)
+		{
+			TR_ERROR("Field isn't of type 'Entity'");
+			return {};
+		}
+		
+		ScriptObject entityObj = mono_field_get_value_object(mono_domain_get(), m_MonoField, monoObject);
+		ScriptMethod* getIdMethod = ScriptCache::GetCachedMethod("Terran.Entity", ":get_ID");
+
+		if(!entityObj)
+			return {};
+		
+		ScriptObject idObj = getIdMethod->Invoke(entityObj, nullptr);
+
+		if(!idObj)
+			return {};
+		
+		ScriptMethod* getDataMethod = ScriptCache::GetCachedMethod("Terran.UUID", ":get_Data");
+		ScriptArray idDataArr = (MonoArray*)getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
+		UUID id = ScriptMarshal::MonoArrayToUUID(idDataArr);
+		
+		return SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 	}
 }

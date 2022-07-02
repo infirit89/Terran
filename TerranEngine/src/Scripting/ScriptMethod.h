@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 extern "C"
 {
 	typedef struct _MonoMethod MonoMethod;
@@ -18,9 +20,8 @@ namespace TerranEngine
 		ScriptMethod(const ScriptMethod& other) = default;
 		~ScriptMethod() = default;
 
-		void Invoke(ScriptObject& scriptObject, void** args);
-		
-		void InvokeStatic(void** args);
+		ScriptObject Invoke(ScriptObject& scriptObject, void** args);
+		ScriptObject InvokeStatic(void** args);
 
 		inline MonoMethod* GetMonoMethod() const { return m_MonoMethod; }
 

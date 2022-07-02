@@ -258,14 +258,14 @@ namespace TerranEngine
 			instance.GetMethods();
 
 			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
-
+			
 			MonoException* exc = nullptr;
 			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exc);
 			
 			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
 			scriptComponent.PublicFieldIDs.clear();
-			for (const auto& field : klass->GetFields())
+			for (auto& field : klass->GetFields())
 			{
 				if(field.GetVisibility() == ScriptFieldVisibility::Public)
 					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
@@ -279,11 +279,10 @@ namespace TerranEngine
 				std::unordered_map<uint32_t, Utils::Variant>& fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
 				if(fieldBackup.find(fieldID) == fieldBackup.end())
 					continue;
-				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID); 
 				
+				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID); 
 				field->SetData<Utils::Variant>(fieldBackup.at(fieldID), instance.ObjectHandle);
 			}
-			
 		}
 	}
 

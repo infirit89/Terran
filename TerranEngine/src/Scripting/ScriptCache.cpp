@@ -240,7 +240,6 @@ namespace TerranEngine
 			return;
 		
 		const int typedefTableRows = mono_table_info_get_rows(typedefTableInfo);
-		TR_TRACE(klass.GetTypeToken());
 		const int klassTypedefIndex = (klass.GetTypeToken() & ~MONO_TOKEN_TYPE_DEF) - 1;
 		
 		uint32_t cols[MONO_TYPEDEF_SIZE];

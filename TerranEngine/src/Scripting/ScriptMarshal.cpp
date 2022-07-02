@@ -13,30 +13,26 @@ namespace TerranEngine
 
 		constexpr uint32_t uuidArrayLength = 16 * sizeof(uint8_t); 
 		
-		memcpy(uuidArray.GetElementAddress(0, sizeof(uint8_t)), idData, uuidArrayLength);
+		memcpy((uint8_t*)uuidArray.GetElementAddress(0, sizeof(uint8_t)), idData, uuidArrayLength);
 
 		return uuidArray;
 	}
 
 	UUID ScriptMarshal::MonoArrayToUUID(ScriptArray uuidArray)
 	{
-#if 0
-		if (mono_array_length(uuidArray) != 16)
+		if (uuidArray.Length() != 16)
 		{
 			TR_ERROR("Mono UUID array is invalid");
-			TR_TRACE(mono_array_length(uuidArray));
 			return UUID({ 0 });
 		}
 
 		std::array<uint8_t, 16> idData = { 0 };
 
-		const uint8_t* uuidArrayAddr = mono_array_addr(uuidArray, uint8_t, 0);
+		const uint8_t* uuidArrayAddr = (uint8_t*)uuidArray.GetElementAddress(0, sizeof(uint8_t));
 
 		memcpy(idData._Elems, uuidArrayAddr, 16 * sizeof(uint8_t));
 
 		return UUID(idData);
-#endif
-		return UUID({ 0 });
 	}
 
 	MonoString* ScriptMarshal::UTF8ToMonoString(const std::string& str)

@@ -39,9 +39,13 @@ namespace TerranEngine
             if(typeClass == *TR_API_CACHED_CLASS(Vector2))  { TypeEnum = Vector2; return; }
             if(typeClass == *TR_API_CACHED_CLASS(Vector3))  { TypeEnum = Vector3; return; }
             if(typeClass == *TR_API_CACHED_CLASS(Color))    { TypeEnum = Color; return; }
-            if(typeClass == *TR_API_CACHED_CLASS(Entity))   { TypeEnum = Entity; return; }
                 
             break;
+        }
+        case MONO_TYPE_CLASS:
+        {
+            const ScriptClass typeClass = mono_class_from_mono_type(monoType);
+            if(typeClass == *TR_API_CACHED_CLASS(Entity))   { TypeEnum = Entity; return; }
         }
         }
 

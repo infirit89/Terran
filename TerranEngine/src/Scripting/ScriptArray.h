@@ -20,7 +20,7 @@ namespace TerranEngine
         ~ScriptArray() = default;
         ScriptArray(MonoClass* arrayClass, uint32_t size);
         ScriptArray(MonoArray* monoArray);
-        ScriptArray(const ScriptArray& other);
+        ScriptArray(const ScriptArray& other) = default;
 
         char* GetElementAddress(uint32_t index, int dataSize) const;
 
