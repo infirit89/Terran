@@ -98,7 +98,6 @@ namespace TerranEngine
 			operator glm::vec4() const;
 
 			operator UUID() const;
-			operator Entity() const;
 
 			Type GetType() const { return m_Type; }
 			

@@ -60,6 +60,9 @@ namespace TerranEngine
 		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
+
+		static Shared<Scene> GetScene(const UUID& id);
+		
 	private:
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);

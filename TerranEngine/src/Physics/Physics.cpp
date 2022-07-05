@@ -5,8 +5,6 @@
 
 #include "Core/Settings.h"
 
-#include "Scene/SceneManager.h"
-
 #include "Scripting/ScriptEngine.h"
 
 #include <box2d/box2d.h>
@@ -18,6 +16,8 @@ namespace TerranEngine
 	b2World* Physics2D::s_PhysicsWorld = nullptr;
 	static ContactListener s_Listener;
 	std::unordered_map<UUID, PhysicsBody2D> Physics2D::s_PhysicsBodies;
+
+	Shared<Scene> Physics2D::s_SceneContext = nullptr;
 	
 	PhysicsBody2D Physics2D::s_DefaultBody;
 	float Physics2D::s_PhysicsDeltaTime = 0.0f;
@@ -116,24 +116,24 @@ namespace TerranEngine
 
 		s_PhysicsDeltaTime += time.GetDeltaTime();
 
-		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+		auto scriptView = s_SceneContext->GetEntitiesWith<ScriptComponent>();
 
 		while (s_PhysicsDeltaTime > 0.0f)
 		{
 			for (auto e : scriptView)
 			{
-				Entity entity(e, SceneManager::GetCurrentScene().get());
+				Entity entity(e, s_SceneContext->GetRaw());
 				ScriptEngine::OnPhysicsUpdate(entity);
 			}
 
 			s_PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
 		}
 
-		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
+		auto rigidbodyView = s_SceneContext->GetEntitiesWith<Rigidbody2DComponent>();
 
 		for (auto e : rigidbodyView)
 		{
-			Entity entity(e, SceneManager::GetCurrentScene().get());
+			Entity entity(e, s_SceneContext->GetRaw());
 
 			auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
 			auto& transform = entity.GetTransform();

@@ -40,7 +40,6 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneSerializer.h"
-#include "Scene/SceneManager.h"
 
 #include "Scene/Systems/SceneRenderer.h"
 

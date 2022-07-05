@@ -109,15 +109,17 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::DrawEntityControl(const std::string& label, Entity& value, float columnWidth)
+	bool UI::DrawEntityControl(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
 	{
 		ScopedVarTable::TableInfo tableInfo;
 		ScopedVarTable textureTable("Sprite", tableInfo);
 
+		Entity entity = scene->FindEntityWithUUID(value);
+		
 		char buf[256];
 		memset(buf, 0, sizeof(buf));
 
-		strcpy_s(buf, sizeof(buf), !value ? "None" : value.GetName().c_str());
+		strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
 						
 		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_DontRenderCursor | ImGuiInputTextFlags_DontChangeMouseCursorOnHover;
 		ImGui::InputText("##TextureField", buf, sizeof(buf), inputTextFlags);
@@ -130,11 +132,11 @@ namespace TerranEditor
 				std::array<uint8_t, 16> idArr = { 0 };
 				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
 				UUID id(idArr);
-				Entity receivedEntity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+				Entity receivedEntity = scene->FindEntityWithUUID(id);
 
 				if(receivedEntity)
 				{
-					value = receivedEntity;
+					value = receivedEntity.GetID();
 					return true;
 				}
 			}

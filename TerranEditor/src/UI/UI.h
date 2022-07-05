@@ -69,6 +69,6 @@ namespace TerranEditor
 		bool DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
 		bool DrawScalar(const std::string& label, ImGuiDataType type, void* value, float power = 0.1f, const char* format = nullptr, float columnWidth = 100.0f);
 		bool DrawVec2Control(const std::string& label, glm::vec2& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
-		bool DrawEntityControl(const std::string& label, TerranEngine::Entity& value, float columnWidth = 100.0f);			
+		bool DrawEntityControl(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);			
 	}
 }

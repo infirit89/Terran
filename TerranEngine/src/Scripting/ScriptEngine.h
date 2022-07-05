@@ -8,6 +8,7 @@
 #include "Core/UUID.h"
 
 #include "Scene/Entity.h"
+#include "Scene/Scene.h"
 
 #include <filesystem>
 #include <unordered_map>
@@ -28,6 +29,9 @@ namespace TerranEngine
 
 		static void ReloadAppAssembly();
 
+		static void SetContext(Scene* context);
+		static Shared<Scene>& GetContext();
+		
 		static void LoadCoreAssembly(const std::filesystem::path& assemblyPath);
 		static void LoadAppAssembly(const std::filesystem::path& assemblyPath);
 		
@@ -57,9 +61,5 @@ namespace TerranEngine
 
 		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
-
-		static void ClearFieldBackupMap();
-
-		static void SetCurrentFieldStates(const UUID& sceneID);
 	};
 }

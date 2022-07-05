@@ -30,8 +30,8 @@ namespace TerranEngine
 		inline GCHandleType GetType() const { return m_HandleType; }
 
 	private:
-		uint32_t m_Handle;
-		GCHandleType m_HandleType;
+		uint32_t m_Handle = 0;
+		GCHandleType m_HandleType = GCHandleType::None;
 
 		friend class GCManager;
 	};

@@ -33,6 +33,12 @@ namespace TerranEngine
 		ScriptField(const ScriptField& other) = default;
 		~ScriptField() = default;
 
+		void CopyData(GCHandle from, GCHandle to)
+		{
+			const auto& val = GetData<Utils::Variant>(from);
+			SetData<Utils::Variant>(val, to);
+		}
+		
 		inline const std::string& GetName() const			{ return m_Name; }
 		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 
@@ -50,8 +56,8 @@ namespace TerranEngine
 		void SetDataVariantRaw(const Utils::Variant& value, GCHandle handle);
 		Utils::Variant GetDataVariantRaw(GCHandle handle);
 
-		void SetDataEntityRaw(Entity value, GCHandle handle);
-		Entity GetDataEntityRaw(GCHandle handle);
+		void SetDataUUIDRaw(UUID value, GCHandle handle);
+		UUID GetDataUUIDRaw(GCHandle handle);
 		
 		template<typename T>
 		T GetData(GCHandle handle) 
@@ -94,18 +100,17 @@ namespace TerranEngine
 		}
 
 		template<>
-		void SetData<Entity>(Entity value, GCHandle handle)
+		void SetData<UUID>(UUID value, GCHandle handle)
 		{
-			SetDataEntityRaw(value, handle);
+			SetDataUUIDRaw(value, handle);
 		}		
 
 		template<>
-		Entity GetData<Entity>(GCHandle handle) 
+		UUID GetData<UUID>(GCHandle handle) 
 		{
-			Entity value = GetDataEntityRaw(handle);
+			UUID value = GetDataUUIDRaw(handle);
 			return value;
 		}
-		
 		
 		// NOTE: maybe marshal vec2 and vec3?
 

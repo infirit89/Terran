@@ -500,6 +500,7 @@ namespace TerranEditor
 	
 	void PropertiesPanel::DrawScriptFields(Entity entity)
 	{
+		auto scene = Scene::GetScene(entity.GetSceneID());
 		const auto& sc = entity.GetComponent<ScriptComponent>();
 		if (!sc.PublicFieldIDs.empty()) 
 		{
@@ -664,9 +665,9 @@ namespace TerranEditor
 				}
 				case ScriptType::Entity:
 				{
-					Entity value = field->GetData<Entity>(handle);
-					if(UI::DrawEntityControl(fieldName, value))
-						field->SetData<Entity>(value, handle);
+					UUID value = field->GetData<UUID>(handle);
+					if(UI::DrawEntityControl(fieldName, value, scene))
+						field->SetData<UUID>(value, handle);
 					break;	
 				}
 				}

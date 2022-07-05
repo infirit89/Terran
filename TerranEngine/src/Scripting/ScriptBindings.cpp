@@ -13,7 +13,6 @@
 
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
-#include "Scene/SceneManager.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
@@ -203,7 +202,7 @@ namespace TerranEngine
 		{
 			ComponentType type = GetComponentType(componentTypeStr);
 			
-			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			Scene* scenePtr = ScriptEngine::GetContext()->GetRaw();
 			if (!scenePtr)
 			{
 				TR_ERROR("No active scene loaded");
@@ -211,7 +210,7 @@ namespace TerranEngine
 			}
 
 			UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(entityUUID);
 
 			switch (type)
 			{
@@ -233,7 +232,7 @@ namespace TerranEngine
 		void Entity_AddComponent(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
 		{
 			ComponentType type = GetComponentType(componentTypeStr);
-			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			Scene* scenePtr = ScriptEngine::GetContext()->GetRaw();
 			if (!scenePtr)
 			{
 				TR_ERROR("No active scene loaded");
@@ -241,7 +240,7 @@ namespace TerranEngine
 			}
 
 			UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(entityUUID);
 
 			switch (type)
 			{
@@ -260,7 +259,7 @@ namespace TerranEngine
 		void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
 		{
 			ComponentType type = GetComponentType(componentTypeStr);
-			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			Scene* scenePtr = ScriptEngine::GetContext()->GetRaw();
 			if (!scenePtr)
 			{
 				TR_ERROR("No active scene loaded");
@@ -268,7 +267,7 @@ namespace TerranEngine
 			}
 
 			UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(entityUUID);
 
 			switch (type)
 			{
@@ -286,7 +285,7 @@ namespace TerranEngine
 
 		MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr, MonoString* moduleName)
 		{
-			Scene* scenePtr = SceneManager::GetCurrentScene()->GetRaw();
+			Scene* scenePtr = ScriptEngine::GetContext()->GetRaw();
 			if (!scenePtr)
 			{
 				TR_ERROR("No active scene!");
@@ -294,7 +293,7 @@ namespace TerranEngine
 			}
 
 			UUID uuid = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(uuid);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(uuid);
 			GCHandle objectHandle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 			return GCManager::GetManagedObject(objectHandle);
 		}
@@ -302,7 +301,7 @@ namespace TerranEngine
 		MonoArray* Entity_FindEntityWithID(MonoArray* monoIDArray)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(monoIDArray);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -315,7 +314,7 @@ namespace TerranEngine
 		MonoArray* Entity_FindEntityWithName(MonoString* monoEntityName)
 		{
 			std::string entityName = ScriptMarshal::MonoStringToUTF8(monoEntityName);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName(entityName);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithName(entityName);
 
 			if (entity)
 			{
@@ -328,10 +327,10 @@ namespace TerranEngine
 		void Entity_DestroyEntity(MonoArray* entityUUIDArr)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
-				SceneManager::GetCurrentScene()->DestroyEntity(entity, true);
+				ScriptEngine::GetContext()->DestroyEntity(entity, true);
 			else
 				TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 		}
@@ -340,7 +339,7 @@ namespace TerranEngine
 		MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if(!entity)
 				return nullptr;
@@ -371,7 +370,7 @@ namespace TerranEngine
 // bullshit?
 #define SET_COMPONENT_VAR(var, entityID, componentType)\
 	UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityID);\
-	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
+	Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(entityUUID);\
 	if(entity)\
 		entity.GetComponent<componentType>().var = var;\
 	else\
@@ -380,7 +379,7 @@ namespace TerranEngine
 // bullshit #2? 
 #define GET_COMPONENT_VAR(var, entityID, componentType)\
 	UUID entityUUID = ScriptMarshal::MonoArrayToUUID(entityID);\
-	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);\
+	Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(entityUUID);\
 	if(entity)\
 		var = entity.GetComponent<componentType>().var;\
 	else\
@@ -432,7 +431,7 @@ namespace TerranEngine
 		bool Transform_IsDirty(MonoArray* entityUUIDArr)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -576,7 +575,7 @@ namespace TerranEngine
 		static bool Rigidbody2D_IsFixedRotation(MonoArray* entityUUIDArr)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -601,7 +600,7 @@ namespace TerranEngine
 		static uint8_t Rigidbody2D_GetSleepState(MonoArray* entityUUIDArr)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -627,7 +626,7 @@ namespace TerranEngine
 		{
 			float GravityScale = 0.0f;
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -652,7 +651,7 @@ namespace TerranEngine
 		static void Rigidbody2D_ApplyForce(MonoArray* entityUUIDArr, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -664,7 +663,7 @@ namespace TerranEngine
 		static void Rigidbody2D_ApplyForceAtCenter(MonoArray* entityUUIDArr, const glm::vec2& force, uint8_t forceMode)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -676,7 +675,7 @@ namespace TerranEngine
 		static void Rigidbody2D_GetLinearVelocity(MonoArray* entityUUIDArr, glm::vec2& linearVelocity)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -690,7 +689,7 @@ namespace TerranEngine
 		static void Rigidbody2D_SetLinearVelocity(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -702,7 +701,7 @@ namespace TerranEngine
 		static float Rigidbody2D_GetAngularVelocity(MonoArray* entityUUIDArr)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -715,7 +714,7 @@ namespace TerranEngine
 		static void Rigidbody2D_SetAngularVelocity(MonoArray* entityUUIDArr, float angularVelocity)
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity)
 			{
@@ -727,7 +726,7 @@ namespace TerranEngine
 		static uint8_t Rigidbody2D_GetType(MonoArray* entityUUIDArr) 
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 			if (entity) 
 			{
@@ -771,7 +770,7 @@ namespace TerranEngine
 			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+				Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 				if (physicsBody)
@@ -790,7 +789,7 @@ namespace TerranEngine
 		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
 		{
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
@@ -861,7 +860,7 @@ namespace TerranEngine
 			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+				Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 
 				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 				if (physicsBody)
@@ -905,7 +904,7 @@ namespace TerranEngine
 		{
 			glm::vec2 Offset = inOffset;
 			UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
-			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+			Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
 			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 

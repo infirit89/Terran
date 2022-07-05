@@ -15,7 +15,6 @@
 #include "Core/Project.h"
 
 #include "Scene/Components.h"
-#include "Scene/SceneManager.h"
 
 #include "Utils/Utils.h"
 
@@ -43,6 +42,7 @@ namespace TerranEngine
 		std::filesystem::path EtcPath = MonoPath / "etc";
 
 		std::filesystem::path MonoConfigPath = EtcPath / "config";
+		Shared<Scene> SceneContext;
 	};
 
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
@@ -79,8 +79,6 @@ namespace TerranEngine
 	static ScriptableInstance s_EmptyInstance;
 
 	static std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
-
-	static std::unordered_map<UUID, std::unordered_map<uint32_t, Utils::Variant>> s_ScriptFieldBackup;
 
 	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
@@ -128,9 +126,6 @@ namespace TerranEngine
 		LoadAppAssembly(Project::GetAppAssemblyPath());
 		
 		ScriptBindings::Bind();
-
-		ScriptArray arr = ScriptArray::Create<uint8_t>(1);
-		ScriptArray arr2(arr.GetMonoArray());
 	}
 
 	void ScriptEngine::Shutdown()
@@ -147,17 +142,18 @@ namespace TerranEngine
 		LoadCoreAssembly(Project::GetCoreAssemblyPath());
 		LoadAppAssembly(Project::GetAppAssemblyPath());
 		
-		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
+		auto scriptView = s_ScriptEngineData->SceneContext->GetEntitiesWith<ScriptComponent>();
 
 		for (auto e : scriptView)
 		{
-			Entity entity(e, SceneManager::GetCurrentScene().get());
+			Entity entity(e, s_ScriptEngineData->SceneContext->GetRaw());
 			InitializeScriptable(entity);
 		}
-
-		ClearFieldBackupMap();
 	}
 
+	void ScriptEngine::SetContext(Scene* context) { s_ScriptEngineData->SceneContext.reset(context); }
+	Shared<Scene>& ScriptEngine::GetContext() { return s_ScriptEngineData->SceneContext; }
+	
 	void ScriptEngine::LoadCoreAssembly(const std::filesystem::path& assemblyPath)
 	{
 		auto& coreAssembly = s_ScriptEngineData->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
@@ -186,8 +182,6 @@ namespace TerranEngine
 	{
 		if (s_ScriptEngineData->AppDomain != s_ScriptEngineData->CoreDomain)
 		{
-			SetCurrentFieldStates(SceneManager::GetCurrentScene()->GetID());
-
 			mono_domain_set(s_ScriptEngineData->CoreDomain, false);
 
 			if (!mono_domain_finalize(s_ScriptEngineData->AppDomain, 2000))
@@ -195,16 +189,16 @@ namespace TerranEngine
 				TR_ERROR("Finalizing the domain timed out");
 				return;
 			}
+			
 			GCManager::CollectAll();
 			
-			const auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
-
+			const auto scriptView = s_ScriptEngineData->SceneContext->GetEntitiesWith<ScriptComponent>();
 			for (auto e : scriptView)
 			{
-				Entity entity(e, SceneManager::GetCurrentScene().get());
+				Entity entity(e, s_ScriptEngineData->SceneContext->GetRaw());
 				UninitalizeScriptable(entity);
 			}
-
+			
 			mono_domain_unload(s_ScriptEngineData->AppDomain);
 		}
 
@@ -269,19 +263,6 @@ namespace TerranEngine
 			{
 				if(field.GetVisibility() == ScriptFieldVisibility::Public)
 					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
-			}
-
-			for (const auto& fieldID : scriptComponent.PublicFieldIDs)
-			{
-				if(s_ScriptFieldBackup.find(entity.GetID()) == s_ScriptFieldBackup.end())
-					break;
-
-				std::unordered_map<uint32_t, Utils::Variant>& fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
-				if(fieldBackup.find(fieldID) == fieldBackup.end())
-					continue;
-				
-				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID); 
-				field->SetData<Utils::Variant>(fieldBackup.at(fieldID), instance.ObjectHandle);
 			}
 		}
 	}
@@ -381,46 +362,46 @@ namespace TerranEngine
 		return instance.ObjectHandle;
 	}
 
-	void ScriptEngine::ClearFieldBackupMap()
-	{
-		auto scriptFieldBackupCpy = s_ScriptFieldBackup;
-		for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
-		{
-			auto fieldBackupCpy = fieldBackupMap;
-			for (auto& [fieldID, fieldData] : fieldBackupCpy)
-			{
-				fieldData.Clear();
-				fieldBackupMap.erase(fieldID);
-			}
+	// void ScriptEngine::ClearFieldBackupMap()
+	// {
+	// 	auto scriptFieldBackupCpy = s_ScriptFieldBackup;
+	// 	for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
+	// 	{
+	// 		auto fieldBackupCpy = fieldBackupMap;
+	// 		for (auto& [fieldID, fieldData] : fieldBackupCpy)
+	// 		{
+	// 			fieldData.Clear();
+	// 			fieldBackupMap.erase(fieldID);
+	// 		}
+	//
+	// 		s_ScriptFieldBackup.erase(entityID);
+	// 	}
+	// }
 
-			s_ScriptFieldBackup.erase(entityID);
-		}
-	}
-
-	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
-	{
-		if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end())
-		{
-			std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
-			for (auto& [id, scriptableInstance] : entityInstanceMap)
-			{
-				std::unordered_map<uint32_t, Utils::Variant> fieldBackupMap;
-				const GCHandle handle = GetScriptInstanceGCHandle(sceneID, id);
-				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
-				
-				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
-				{
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-					Utils::Variant fieldBackup = field->GetData<Utils::Variant>(handle);
-
-					fieldBackupMap.emplace(fieldID, fieldBackup);
-				}
-
-				s_ScriptFieldBackup.emplace(id, std::move(fieldBackupMap));
-			}
-		}
-	}
+	// void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
+	// {
+	// 	if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end())
+	// 	{
+	// 		std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
+	// 		for (auto& [id, scriptableInstance] : entityInstanceMap)
+	// 		{
+	// 			std::unordered_map<uint32_t, Utils::Variant> fieldBackupMap;
+	// 			const GCHandle handle = GetScriptInstanceGCHandle(sceneID, id);
+	// 			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+	// 			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+	// 			
+	// 			for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+	// 			{
+	// 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+	// 				Utils::Variant fieldBackup = field->GetData<Utils::Variant>(handle);
+	//
+	// 				fieldBackupMap.emplace(fieldID, fieldBackup);
+	// 			}
+	//
+	// 			s_ScriptFieldBackup.emplace(id, std::move(fieldBackupMap));
+	// 		}
+	// 	}
+	// }
 
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData) 
 	{

@@ -3,10 +3,9 @@
 #include "ScriptMarshal.h"
 #include "ScriptCache.h"
 #include "ScriptArray.h"
-#include "ScriptMarshal.h"
 #include "ScriptMethodThunks.h"
 #include "ScriptObject.h"
-#include "Scene/SceneManager.h"
+#include "ScriptEngine.h"
 
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/object.h>
@@ -227,7 +226,7 @@ namespace TerranEngine
 		}
 		case ScriptType::Entity:
 		{
-			Entity val = value;
+			UUID val = value;
 			SetData(val, handle);
 			break;
 		}
@@ -254,13 +253,13 @@ namespace TerranEngine
 		case ScriptType::Vector2:	return GetData<glm::vec2>(handle);
 		case ScriptType::Vector3:	return GetData<glm::vec3>(handle);
 		case ScriptType::Color:		return GetData<glm::vec4>(handle);
-		case ScriptType::Entity:	return GetData<Entity>(handle);
+		case ScriptType::Entity:	return GetData<UUID>(handle);
 		}
 
 		return {};
 	}
 
-	void ScriptField::SetDataEntityRaw(Entity value, GCHandle handle)
+	void ScriptField::SetDataUUIDRaw(UUID value, GCHandle handle)
 	{
 		MonoObject* monoObject = GCManager::GetManagedObject(handle);
 		if (monoObject == nullptr) 
@@ -281,7 +280,7 @@ namespace TerranEngine
 			return;
 		}
 
-		const ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(value.GetID());
+		const ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(value);
 		
 		void* args[] = { uuidArray.GetMonoArray() };
 		ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
@@ -291,7 +290,7 @@ namespace TerranEngine
 		mono_field_set_value(monoObject, m_MonoField, entityObj.GetMonoObject());
 	}
 
-	Entity ScriptField::GetDataEntityRaw(GCHandle handle)
+	UUID ScriptField::GetDataUUIDRaw(GCHandle handle)
 	{
 		MonoObject* monoObject = GCManager::GetManagedObject(handle);
 		if (monoObject == nullptr) 
@@ -327,6 +326,6 @@ namespace TerranEngine
 		ScriptArray idDataArr = (MonoArray*)getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
 		UUID id = ScriptMarshal::MonoArrayToUUID(idDataArr);
 		
-		return SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+		return id;
 	}
 }

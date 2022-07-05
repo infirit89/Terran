@@ -5,6 +5,7 @@
 #include "Core/Time.h"
 
 #include "Scene/Entity.h"
+#include "Scene/Scene.h"
 
 #include <unordered_map>
 
@@ -30,6 +31,9 @@ namespace TerranEngine
 
 		static void Update(Time time);
 
+		static void SetContext(Scene* context) { s_SceneContext.reset(context);  }
+		static Shared<Scene>& GetContext() { return s_SceneContext; }
+		
 		static PhysicsBody2D& GetPhysicsBody(Entity entity);
 		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo);
 	private:
@@ -37,5 +41,6 @@ namespace TerranEngine
 		static std::unordered_map<UUID, PhysicsBody2D> s_PhysicsBodies;
 		static PhysicsBody2D s_DefaultBody;
 		static float s_PhysicsDeltaTime;
+		static  Shared<Scene> s_SceneContext;
 	};
 }

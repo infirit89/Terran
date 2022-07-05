@@ -12,19 +12,31 @@
 #include "Scripting/ScriptEngine.h"
 
 #include "Physics/Physics.h"
+#include "Scripting/ScriptCache.h"
 
 #include "Utils/Debug/Profiler.h"
 
 namespace TerranEngine 
 {
 
+	static std::unordered_map<UUID, Shared<Scene>> s_SceneMap;
+	
+	struct SceneComponent
+	{
+		UUID SceneID;
+	};
+	
 	Scene::Scene()
 	{
 		m_ID = UUID();
 
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
-
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
+
+		const auto sceneEntity = m_Registry.create();
+		m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
+		
+		s_SceneMap[m_ID].reset(this);
 	}
 
 	Scene::~Scene()
@@ -34,12 +46,10 @@ namespace TerranEngine
 		for (auto e : scriptView)
 		{
 			Entity entity(e, this);
-
 			ScriptEngine::UninitalizeScriptable(entity);
 		}
-
+	
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
-
 		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
 	}
 
@@ -91,8 +101,12 @@ namespace TerranEngine
 
 	void Scene::StartRuntime()
 	{
+		if(m_IsPlaying)
+			return;
+		
 		m_IsPlaying = true;
 
+		Physics2D::SetContext(this);
 		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
 
 		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
@@ -104,6 +118,8 @@ namespace TerranEngine
 			Physics2D::CreatePhysicsBody(entity);
 		}
 
+
+		ScriptEngine::SetContext(this);
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
@@ -116,6 +132,9 @@ namespace TerranEngine
 
 	void Scene::StopRuntime()
 	{
+		if(!m_IsPlaying)
+			return;
+		
 		m_IsPlaying = false;
 		Physics2D::CleanUpPhysicsWorld();
 	}
@@ -222,7 +241,7 @@ namespace TerranEngine
 			sceneRenderer->EndScene();
 		}
 	}
-	static bool f = false;
+	
 	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		sceneRenderer->SetScene(this);
@@ -324,6 +343,30 @@ namespace TerranEngine
 		if (srcRegistry.all_of<Component>(srcHandle)) 
 		{
 			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
+
+			if constexpr (std::is_same<Component, ScriptComponent>::value)
+			{
+				ScriptComponent& sc = dstRegistry.get<ScriptComponent>(dstHandle);
+
+				for (const auto& fieldID : sc.PublicFieldIDs)
+				{
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+
+					const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
+					const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
+
+					const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
+					const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
+
+					const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
+					const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
+					
+					const GCHandle srcEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(srcSceneID, srcEntityID);
+					const GCHandle dstEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(dstSceneID, dstEntityID);
+
+					field->CopyData(srcEntityHandle, dstEntityHandle);
+				}
+			}
 		}
 	}
 
@@ -380,7 +423,7 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
-		ScriptEngine::SetCurrentFieldStates(srcScene->GetID());
+		//ScriptEngine::SetCurrentFieldStates(srcScene->GetID());
 
 		Shared<Scene> scene = CreateShared<Scene>();
 
@@ -409,9 +452,17 @@ namespace TerranEngine
 			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
-		ScriptEngine::ClearFieldBackupMap();
+		//ScriptEngine::ClearFieldBackupMap();
 
 		return scene;
+	}
+
+	Shared<Scene> Scene::GetScene(const UUID& id)
+	{
+		if(s_SceneMap.find(id) != s_SceneMap.end())
+			return s_SceneMap.at(id);
+
+		return nullptr;
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
