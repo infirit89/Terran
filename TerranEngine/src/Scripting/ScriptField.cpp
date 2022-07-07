@@ -30,7 +30,7 @@ namespace TerranEngine
 		: m_MonoField(monoField)
 	{
 		m_Name = mono_field_get_name(m_MonoField);
-		m_Type = mono_field_get_type(m_MonoField);
+		m_Type = ScriptType(mono_field_get_type(m_MonoField));
 
 		uint32_t accessMask = mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
@@ -323,7 +323,8 @@ namespace TerranEngine
 			return {};
 		
 		ScriptMethod* getDataMethod = ScriptCache::GetCachedMethod("Terran.UUID", ":get_Data");
-		ScriptArray idDataArr = (MonoArray*)getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
+		MonoObject* result  = getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
+		ScriptArray idDataArr = ScriptArray::Create((MonoArray*)result);
 		UUID id = ScriptMarshal::MonoArrayToUUID(idDataArr);
 		
 		return id;

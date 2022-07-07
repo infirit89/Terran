@@ -12,21 +12,21 @@ namespace TerranEngine
     {
         m_MonoArray = mono_array_new(mono_domain_get(), arrayClass, size);
         m_Length = size;
-        m_ElementClass = arrayClass;
+        m_Type = ScriptType::FromClass(arrayClass);
     }
-
-    ScriptArray::ScriptArray(MonoArray* monoArray)
-        : m_MonoArray(monoArray)
+    
+    ScriptArray ScriptArray::Create(MonoArray* monoArray)
     {
-        m_Length = mono_array_length(monoArray);
         ScriptObject arrayObject((MonoObject*)monoArray);
-        
-        const ScriptClass arrayKlass = arrayObject.GetClass();
-        const ScriptType arrayType = ScriptType::FromClass(arrayKlass);
-        const MonoArrayType* arrayElementType = mono_type_get_array_type(arrayType.GetMonoType());
-        m_ElementClass = arrayElementType->eklass;
+        const ScriptType arrayType = ScriptType::FromClass(arrayObject.GetClass());
+        ScriptType elementType = arrayType.GetElementType();
+        ScriptArray array;
+        array.m_MonoArray = monoArray;
+        array.m_Length = mono_array_length(monoArray);
+        array.m_Type = ScriptType::FromClass(*elementType.GetTypeClass());
+        return array;
     }
-
+    
     char* ScriptArray::GetElementAddress(uint32_t index, int dataSize) const
     {
         return mono_array_addr_with_size(m_MonoArray, dataSize, index);
@@ -34,13 +34,19 @@ namespace TerranEngine
 
     void ScriptArray::Resize(uint32_t size)
     {
-        MonoArray* tempArr = mono_array_new(mono_domain_get(), m_ElementClass, m_Length);
-        mono_value_copy_array(tempArr, 0, m_MonoArray, m_Length);
-        uint32_t copyCount = m_Length > size ? size : m_Length;
-        m_MonoArray = mono_array_new(mono_domain_get(), m_ElementClass, size);
-        mono_value_copy_array(m_MonoArray, 0, tempArr, copyCount);
+        MonoArray* tempArr = mono_array_new(mono_domain_get(), m_Type.GetTypeClass()->GetMonoClass(), m_Length);
+
+        char* tempArrAddr = mono_array_addr_with_size(tempArr, m_Type.GetSize(), 0);
+        char* arrAddr = GetElementAddress(m_Type.GetSize(), 0);
+        memcpy(tempArrAddr, arrAddr, m_Length);
+        
+        const uint32_t copyCount = m_Length > size ? size : m_Length;
+        m_MonoArray = mono_array_new(mono_domain_get(), m_Type.GetTypeClass()->GetMonoClass(), size);
+        
+        arrAddr = GetElementAddress(m_Type.GetSize(), 0);
+        memcpy(arrAddr, tempArrAddr, copyCount);
+
         m_Length = size;
     }
-
 }
 

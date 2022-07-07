@@ -72,6 +72,12 @@ namespace TerranEngine
 			~Variant();
 			
 			void Clear();
+
+			Variant& operator=(const Variant& other)
+			{
+				Copy(*this, other);
+				return *this;
+			}
 			
 			operator bool() const;
 
@@ -100,6 +106,9 @@ namespace TerranEngine
 			operator UUID() const;
 
 			Type GetType() const { return m_Type; }
+
+		private:
+			static void Copy(Variant& result, const Variant& in);
 			
 		private:
 			union 

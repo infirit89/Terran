@@ -35,22 +35,20 @@ namespace TerranEngine
 
 		const auto sceneEntity = m_Registry.create();
 		m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
-		
-		s_SceneMap[m_ID].reset(this);
 	}
 
 	Scene::~Scene()
 	{
-		auto scriptView = m_Registry.view<ScriptComponent>();
-
-		for (auto e : scriptView)
-		{
-			Entity entity(e, this);
-			ScriptEngine::UninitalizeScriptable(entity);
-		}
-	
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
+	}
+
+	Shared<Scene> Scene::CreateEmpty()
+	{
+		Shared<Scene> scene = CreateShared<Scene>();
+		s_SceneMap.emplace(scene->m_ID, scene);
+		
+		return scene;
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -106,7 +104,7 @@ namespace TerranEngine
 		
 		m_IsPlaying = true;
 
-		Physics2D::SetContext(this);
+		Physics2D::SetContext(GetScene(m_ID));
 		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
 
 		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
@@ -119,7 +117,7 @@ namespace TerranEngine
 		}
 
 
-		ScriptEngine::SetContext(this);
+		ScriptEngine::SetContext(GetScene(m_ID));
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
@@ -423,9 +421,7 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
-		//ScriptEngine::SetCurrentFieldStates(srcScene->GetID());
-
-		Shared<Scene> scene = CreateShared<Scene>();
+		Shared<Scene> scene = CreateEmpty();
 
 		auto tagView = srcScene->GetEntitiesWith<TagComponent>();
 
@@ -451,8 +447,6 @@ namespace TerranEngine
 			CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
-
-		//ScriptEngine::ClearFieldBackupMap();
 
 		return scene;
 	}

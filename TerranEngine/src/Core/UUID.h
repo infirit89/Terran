@@ -17,6 +17,8 @@ namespace TerranEngine
 		const inline std::array<uint8_t, 16> GetData() const { return m_Data; }
 		inline std::array<uint8_t, 16> GetData() { return m_Data; }
 
+		inline void SetData(const std::array<uint8_t, 16>& idArray) { m_Data = idArray; }
+
 		const inline uint8_t* GetRaw() const { return m_Data.data(); }
 		
 		const inline bool operator==(const UUID& other) const	{ return m_Data == other.m_Data; }

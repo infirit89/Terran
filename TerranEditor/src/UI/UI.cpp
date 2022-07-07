@@ -112,7 +112,7 @@ namespace TerranEditor
 	bool UI::DrawEntityControl(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
 	{
 		ScopedVarTable::TableInfo tableInfo;
-		ScopedVarTable textureTable("Sprite", tableInfo);
+		ScopedVarTable textureTable(label, tableInfo);
 
 		Entity entity = scene->FindEntityWithUUID(value);
 		

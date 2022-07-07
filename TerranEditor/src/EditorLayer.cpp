@@ -52,7 +52,7 @@ namespace TerranEditor
 
 		Log::SetClientLogger(clientLogger);
 
-		m_EditorScene = CreateShared<Scene>();
+		m_EditorScene = Scene::CreateEmpty();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		TR_TRACE((uint32_t)cameraEntity);
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
@@ -68,13 +68,12 @@ namespace TerranEditor
 		m_SceneViewPanel.SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
 		m_SceneViewPanel.SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
 		m_SceneViewPanel.SetSelectedChangedCallback([this](Entity entity) { m_SceneHierarchyPanel.SetSelected(entity); });
+		m_SceneViewPanel.SetContext(m_ActiveScene);
 
 		m_SceneHierarchyPanel.SetOnSelectedChangedCallback([this](Entity entity) { OnSelectedChanged(entity); });
 		m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 		
 		m_ECSPanel.SetContext(m_ActiveScene);
-
-		m_SceneViewPanel.SetContext(m_ActiveScene);
 		// ***********************
 
 		FramebufferParameters editorFramebufferParams;
@@ -90,12 +89,14 @@ namespace TerranEditor
 		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);
 
 		ScriptEngine::Initialize();
+		Physics2D::Initialize();
 	}
 
 	void EditorLayer::OnDettach()
 	{
 		Project::Uninitialize();
 		ScriptEngine::Shutdown();
+		Physics2D::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -460,7 +461,7 @@ namespace TerranEditor
 
 	void EditorLayer::NewScene()
 	{
-		m_EditorScene = CreateShared<Scene>();
+		m_EditorScene = Scene::CreateEmpty();
 		CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
 		cameraComponent.Primary = true;
 		m_EditorScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
@@ -492,7 +493,7 @@ namespace TerranEditor
 			std::string& jsonData = SceneSerializer::ReadJson(scenePath.string());
 			if (jsonData != "")
 			{
-				Shared<Scene> newScene = CreateShared<Scene>();
+				Shared<Scene> newScene = Scene::CreateEmpty();
 				SceneSerializer sSerializer(newScene);
 				if (sSerializer.DesirializeJson(jsonData))
 				{

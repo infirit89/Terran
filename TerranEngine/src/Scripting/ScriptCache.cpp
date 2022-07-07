@@ -79,10 +79,14 @@ namespace TerranEngine
 	ScriptClass* ScriptCache::GetCachedClassFromName(const std::string& className)
 	{
 		const uint32_t classID = TR_CLASS_ID(className);
+		return GetCachedClassFromID(classID);
+	}
 
+	ScriptClass* ScriptCache::GetCachedClassFromID(uint32_t classID)
+	{
 		if(s_CachedClasses.find(classID) != s_CachedClasses.end())
 			return &s_CachedClasses.at(classID);
-
+		
 		return nullptr;
 	}
 
@@ -224,7 +228,7 @@ namespace TerranEngine
 				std::string fullFieldName = fmt::format("{0}.{1}", klass.GetFullName(), field.GetName());
 				uint32_t fieldID = Hash::FNVHash(fullFieldName);
 				field.m_ID = fieldID;
-				s_CachedFields.emplace(fieldID, std::move(field));
+				s_CachedFields.emplace(fieldID, field);
 			}
 		}
 	}

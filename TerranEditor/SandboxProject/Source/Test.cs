@@ -5,6 +5,8 @@ namespace SandboxProject
     public class Sandbox : Scriptable 
     {
         public Entity TestEntity;
+        public int Test = 10;
+
         protected override void Init()
         {
             Log.Trace(TestEntity.Name);

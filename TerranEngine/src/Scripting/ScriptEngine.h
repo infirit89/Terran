@@ -21,23 +21,15 @@ namespace TerranEngine
 	
 	class ScriptEngine 
 	{
-		using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, GCHandle>>;
-
 	public:
 		static void Initialize();
 		static void Shutdown();
 
 		static void ReloadAppAssembly();
 
-		static void SetContext(Scene* context);
+		static void SetContext(const Shared<Scene>& context);
 		static Shared<Scene>& GetContext();
 		
-		static void LoadCoreAssembly(const std::filesystem::path& assemblyPath);
-		static void LoadAppAssembly(const std::filesystem::path& assemblyPath);
-		
-		static void CreateAppDomain();
-		static void UnloadDomain();
-
 		static std::filesystem::path GetAssemblyPath();
 
 		static ScriptClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
@@ -61,5 +53,12 @@ namespace TerranEngine
 
 		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
+
+	private:
+		static void LoadCoreAssembly();
+		static void LoadAppAssembly();
+		
+		static void CreateAppDomain();
+		static void UnloadDomain();
 	};
 }

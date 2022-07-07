@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "ScriptCache.h"
+#include "ScriptType.h"
 
 extern "C"
 {
@@ -14,12 +15,11 @@ namespace TerranEngine
     {
     public:
 #define TR_REGISTER_ARRAY_TYPE(type, klass)\
-    if(std::is_same<T, type>()) return ScriptCache::GetCachedClassFromName(klass)->GetMonoClass()
+    if constexpr (std::is_same<T, type>::value) return ScriptCache::GetCachedClassFromName(klass)->GetMonoClass()
         
         ScriptArray() = default;
         ~ScriptArray() = default;
         ScriptArray(MonoClass* arrayClass, uint32_t size);
-        ScriptArray(MonoArray* monoArray);
         ScriptArray(const ScriptArray& other) = default;
 
         char* GetElementAddress(uint32_t index, int dataSize) const;
@@ -27,13 +27,6 @@ namespace TerranEngine
         uint32_t Length() const { return m_Length; }
 
         void Resize(uint32_t size);
-        
-        template<typename  T>
-        static ScriptArray Create(uint32_t size)
-        {
-            MonoClass* arrayClass = GetMonoClassFromType<T>();
-            return ScriptArray(arrayClass, size);
-        }
         
         template<typename T>
         void Set(uint32_t index, T value)
@@ -49,6 +42,18 @@ namespace TerranEngine
         }
         
         inline MonoArray* GetMonoArray() const { return m_MonoArray; } 
+        inline const ScriptType& GetType() const { return m_Type; }
+
+    public:
+        template<typename  T>
+        static ScriptArray Create(uint32_t size)
+        {
+            MonoClass* arrayClass = GetMonoClassFromType<T>();
+            return ScriptArray(arrayClass, size);
+        }
+
+        static ScriptArray Create(MonoArray* monoArray);
+        
         
     private:
         template<typename  T>
@@ -76,6 +81,6 @@ namespace TerranEngine
         
         MonoArray* m_MonoArray = nullptr;
         uint32_t m_Length = 0;
-        MonoClass* m_ElementClass = nullptr;
+        ScriptType m_Type = {};        
     };
 }

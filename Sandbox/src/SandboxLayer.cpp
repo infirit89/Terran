@@ -92,9 +92,6 @@ namespace TerranEngine
 	{
 		Project::Init("", "");
 		ScriptEngine::Initialize();
-
-		ScriptArray arr = ScriptArray::Create<uint8_t>(1);
-		ScriptArray arr2(arr.GetMonoArray());
 	}
 
 	void SandboxLayer::OnDettach()
