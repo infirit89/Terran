@@ -152,6 +152,7 @@ namespace TerranEngine
 	void ScriptEngine::ReloadAppAssembly()
 	{
 		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, Utils::Variant>>> scriptFieldsStates;
+		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, std::vector<Utils::Variant>>>> arrayScriptFieldsStates;
 
 		for (const auto& [sceneID, scriptInstances] : s_Data->ScriptInstanceMap)
 		{
@@ -167,6 +168,17 @@ namespace TerranEngine
 				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 				{
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					if (field->GetType().IsArray())
+					{
+						ScriptArray array = field->GetArray(handle);
+						arrayScriptFieldsStates[sceneID][entityID][fieldID].reserve(array.Length());
+
+						for (size_t i = 0; i < array.Length(); i++)
+							arrayScriptFieldsStates[sceneID][entityID][fieldID].push_back(array[i]);
+
+						continue;
+					}
+
 					scriptFieldsStates[sceneID][entityID][fieldID] = field->GetData<Utils::Variant>(handle);
 				}
 			}
@@ -178,10 +190,10 @@ namespace TerranEngine
 		LoadCoreAssembly();
 		LoadAppAssembly();
 		
-		for (const auto& [sceneID, scriptFieldsStates] : scriptFieldsStates)
+		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
 		{
 			auto scene = Scene::GetScene(sceneID);
-			for (const auto& [entityID, fieldsState] : scriptFieldsStates)
+			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
 			{
 				Entity entity = scene->FindEntityWithUUID(entityID);
 				InitializeScriptable(entity);
@@ -197,8 +209,46 @@ namespace TerranEngine
 
 					if(!field)
 						continue;
+					
+					if (field->GetType().IsArray())
+						continue;
 
 					field->SetData<Utils::Variant>(fieldData, handle);
+				}
+			}
+		}
+		
+		for (const auto& [sceneID, scriptFieldsValues] : arrayScriptFieldsStates)
+		{
+			auto scene = Scene::GetScene(sceneID);
+			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
+			{
+				Entity entity = scene->FindEntityWithUUID(entityID);
+				InitializeScriptable(entity);
+				
+				for (const auto& [fieldID, arrayFieldData] : fieldsState)
+				{
+					GCHandle& handle = GetScriptInstanceGCHandle(sceneID, entityID);
+
+					if(!handle.IsValid())
+						break;
+
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+
+					if(!field)
+						continue;
+					
+					if (!field->GetType().IsArray())
+						continue;
+
+					ScriptArray array = field->GetArray(handle);
+					if (array.Length() != arrayFieldData.size())
+						array.Resize(arrayFieldData.size());
+
+					for (size_t i = 0; i < arrayFieldData.size(); i++)
+						array.Set<Utils::Variant>(i, arrayFieldData[i]);
+
+					field->SetArray(array, handle);
 				}
 			}
 		}
@@ -334,9 +384,6 @@ namespace TerranEngine
 							for (int i = 0; i < arr.Length(); i++)
 								arr.Set(i, i);
 							field.SetArray(arr, instance.ObjectHandle);
-							ScriptArray arr2 = field.GetArray(instance.ObjectHandle);
-							for (int i = 0; i < arr2.Length(); i++)
-								TR_TRACE(arr2.Get<int32_t>(i));
 						}
 						f = false;
 					}
