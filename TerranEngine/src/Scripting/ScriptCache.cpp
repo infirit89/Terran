@@ -2,6 +2,8 @@
 
 #include "ScriptEngine.h"
 #include "ScriptCache.h"
+#include "ScriptClass.h"
+#include "ScriptAssembly.h"
 
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/debug-helpers.h>
@@ -36,7 +38,9 @@ namespace TerranEngine
 		CACHE_CORLIB_CLASS(Double);
 
 		CACHE_CORLIB_CLASS(Object);
-		
+
+		CACHE_CORLIB_CLASS(String);
+
 #define CACHE_API_CLASS(klass)\
 	ScriptClass managedClass##klass = TR_CLASS(klass);\
 	s_CachedClasses.emplace(TR_API_CLASS_ID(klass), managedClass##klass);\
@@ -46,9 +50,9 @@ namespace TerranEngine
 		// api core classes
 		CACHE_API_CLASS(Vector2);
 		CACHE_API_CLASS(Vector3);
-		CACHE_API_CLASS(Entity);
-		CACHE_API_CLASS(UUID);
 		CACHE_API_CLASS(Color);
+		CACHE_API_CLASS(UUID);
+		CACHE_API_CLASS(Entity);
 		CACHE_API_CLASS(Component);
 		CACHE_API_CLASS(Collider2D);
 		CACHE_API_CLASS(Rigidbody2D);

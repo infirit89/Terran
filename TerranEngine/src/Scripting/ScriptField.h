@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GCManager.h"
+#include "ScriptArray.h"
 #include "ScriptType.h"
 #include "Scene/Entity.h"
 
@@ -9,8 +10,7 @@
 extern "C"
 {
 	typedef struct _MonoClassField MonoClassField;
-	typedef struct _MonoObject MonoObject;
-	typedef struct _MonoType MonoType;
+	typedef struct _MonoProperty MonoProperty;
 }
 
 namespace TerranEngine 
@@ -33,11 +33,8 @@ namespace TerranEngine
 		ScriptField(const ScriptField& other) = default;
 		~ScriptField() = default;
 
-		void CopyData(GCHandle from, GCHandle to)
-		{
-			const auto& val = GetData<Utils::Variant>(from);
-			SetData<Utils::Variant>(val, to);
-		}
+		void CopyData(GCHandle from, GCHandle to);
+
 		
 		inline const std::string& GetName() const			{ return m_Name; }
 		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
@@ -58,7 +55,10 @@ namespace TerranEngine
 
 		void SetDataUUIDRaw(UUID value, GCHandle handle);
 		UUID GetDataUUIDRaw(GCHandle handle);
-		
+
+		ScriptArray GetArray(GCHandle handle);
+		void SetArray(ScriptArray array, GCHandle handle);
+
 		template<typename T>
 		T GetData(GCHandle handle) 
 		{

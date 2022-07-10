@@ -27,7 +27,8 @@ namespace TerranEngine
         bool IsArray() const;
         bool IsPointer() const;
         bool IsVoid() const;
-
+        bool IsObject() const;
+        
         ScriptType& operator=(const ScriptType& other); 
         
         enum
@@ -49,6 +50,7 @@ namespace TerranEngine
             Vector2,
             Vector3,
             Color,
+            UUID,
             Entity
         } TypeEnum = None;
         

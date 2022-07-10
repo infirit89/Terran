@@ -1,16 +1,16 @@
+using System;
 using Terran;
 
 namespace SandboxProject 
 {
     public class Sandbox : Scriptable 
     {
-        public Entity TestEntity;
-        public int Test = 10;
+        public int[] Test;
 
         protected override void Init()
         {
-            Log.Trace(TestEntity.Name);
-            
+            for (int i = 0; i < Test.Length; i++)
+                Log.Trace(Test[i]);
             //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
         }
 

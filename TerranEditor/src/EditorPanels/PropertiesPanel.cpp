@@ -510,6 +510,10 @@ namespace TerranEditor
 			for (const auto& fieldID  : sc.PublicFieldIDs)
 			{
 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+
+				if(field->GetType().IsArray())
+					continue;
+				
 				std::string fieldName = ProccessFieldName(field->GetName());
 				switch (field->GetType().TypeEnum)
 				{

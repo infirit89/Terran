@@ -34,6 +34,31 @@ namespace TerranEngine
 
 		uint32_t accessMask = mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
+
+		if (m_Type.IsArray())
+			m_Type = m_Type.GetElementType();
+	}
+
+	void ScriptField::CopyData(GCHandle from, GCHandle to)
+	{
+		if(m_Type.IsArray())
+		{
+			ScriptArray fromArr = GetArray(from);
+			ScriptArray toArr = GetArray(to);
+
+			if(fromArr.Length() != toArr.Length())
+				toArr.Resize(fromArr.Length());
+
+			for (uint32_t i = 0; i < fromArr.Length(); i++)
+				toArr.Set(i, fromArr[i]);
+
+			SetArray(toArr, to);
+
+			return;
+		}
+			
+		const auto& val = GetData<Utils::Variant>(from);
+		SetData<Utils::Variant>(val, to);
 	}
 
 	void ScriptField::SetDataRaw(void* value, GCHandle handle)
@@ -328,5 +353,62 @@ namespace TerranEngine
 		UUID id = ScriptMarshal::MonoArrayToUUID(idDataArr);
 		
 		return id;
+	}
+
+	ScriptArray ScriptField::GetArray(GCHandle handle)
+	{
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr) 
+		{
+			TR_ERROR("Couldnt find the object");
+			return {};
+		}
+	
+		if (m_MonoField == nullptr) 
+		{
+			TR_ERROR("Mono field is null");
+			return {};
+		}
+	
+		if (!m_Type.IsArray())
+		{
+			TR_ERROR("Field isn't an array type");
+			return {};
+		}
+		
+		MonoObject* arrayObj = mono_field_get_value_object(mono_domain_get(), m_MonoField, monoObject);
+
+		if(!arrayObj)
+		{
+			ScriptArray defaultArray(m_Type.GetTypeClass()->GetMonoClass(), 1);
+			mono_field_set_value(monoObject, m_MonoField, (MonoObject*)defaultArray.GetMonoArray());
+			return defaultArray;
+		}
+		
+		return ScriptArray::Create((MonoArray*)arrayObj);
+	}
+
+	void ScriptField::SetArray(ScriptArray array, GCHandle handle)
+	{
+		MonoObject* monoObject = GCManager::GetManagedObject(handle);
+		if (monoObject == nullptr) 
+		{
+			TR_ERROR("Couldnt find the object");
+			return;
+		}
+	
+		if (m_MonoField == nullptr) 
+		{
+			TR_ERROR("Mono field is null");
+			return;
+		}
+	
+		if (!m_Type.IsArray())
+		{
+			TR_ERROR("Field isn't an array type");
+			return;
+		}
+		
+		mono_field_set_value(monoObject, m_MonoField, array.GetMonoArray());
 	}
 }

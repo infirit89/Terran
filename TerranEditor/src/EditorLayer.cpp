@@ -44,8 +44,8 @@ namespace TerranEditor
 			std::make_shared<EditorConsoleSink>()
 		};
 
-		clientSinks[0]->set_pattern("%^[%T] %n: %v%$");
-		clientSinks[1]->set_pattern("%^[%T] %n: %v%$");
+		clientSinks[0]->set_pattern("%^[%T] %v%$");
+		clientSinks[1]->set_pattern("%^[%T] %v%$");
 
 		Shared<spdlog::logger> clientLogger = CreateShared<spdlog::logger>("Console", clientSinks.begin(), clientSinks.end());
 		clientLogger->set_level(spdlog::level::trace);

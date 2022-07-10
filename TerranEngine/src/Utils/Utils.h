@@ -22,9 +22,9 @@ namespace TerranEngine
 				None = 0,
 				Bool,
 				Char,
-				Int32,
 				Int8,
 				Int16,
+				Int32,
 				Int64,
 				UInt8,
 				UInt16,
@@ -68,6 +68,8 @@ namespace TerranEngine
 
 			Variant(const UUID& id);
 			Variant(Entity entity);
+
+			Variant(char* data, const Type& type);
 			
 			~Variant();
 			

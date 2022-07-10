@@ -3,12 +3,14 @@
 #include "ScriptArray.h"
 
 #include "Core/UUID.h"
+#include "Utils/Utils.h"
 
 #include <string>
 
 extern "C"
 {
 	typedef struct _MonoString MonoString;
+	typedef struct _MonoObject MonoObject;
 }
 
 namespace TerranEngine 
@@ -21,5 +23,8 @@ namespace TerranEngine
 
 		static MonoString* UTF8ToMonoString(const std::string& str);
 		static std::string MonoStringToUTF8(MonoString* monoStr);
+
+		static Utils::Variant MonoObjectToVariant(MonoObject* monoObject, const ScriptType& type);
+		static Utils::Variant::Type ScriptTypeToVariantType(const ScriptType& type);
 	};
 }

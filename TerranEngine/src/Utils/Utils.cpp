@@ -149,6 +149,61 @@ namespace TerranEngine
         Variant::Variant(Entity entity)
             : Variant(entity.GetID()) { }
 
+        Variant::Variant(char* data, const Type& type)
+        {
+            m_Type = type;
+            size_t copySize = 0;
+            switch (type)
+            {
+            case Type::Bool:    m_Data.bValue = *(bool*)data; break;
+            case Type::Char:    m_Data.iValue = *data; break;
+            case Type::Int8:    m_Data.iValue = *(int8_t*)data; break;
+            case Type::Int16:   m_Data.iValue = *(int16_t*)data; break;
+            case Type::Int32:   m_Data.iValue = *(int32_t*)data; break;
+            case Type::Int64:   m_Data.iValue = *(int64_t*)data; break;
+            case Type::UInt8:   m_Data.iValue = *(uint8_t*)data; break;
+            case Type::UInt16:  m_Data.iValue = *(uint16_t*)data; break;
+            case Type::UInt32:  m_Data.iValue = *(uint32_t*)data; break;
+            case Type::UInt64:  m_Data.iValue = *(uint64_t*)data; break;
+            case Type::Float:   m_Data.dValue = *(float*)data; break;
+            case Type::Double:  m_Data.dValue = *(double*)data; break;
+            case Type::Vector2:
+            {
+                glm::vec2 v2Data = *(glm::vec2*)data;
+                m_Data.ptr = new glm::vec2;
+                ((glm::vec2*)m_Data.ptr)->x = v2Data.x;
+                ((glm::vec2*)m_Data.ptr)->y = v2Data.y;
+                break;
+            }
+            case Type::Vector3:
+            {
+                glm::vec3 v3Data = *(glm::vec3*)data;
+                m_Data.ptr = new glm::vec3;
+                ((glm::vec3*)m_Data.ptr)->x = v3Data.x;
+                ((glm::vec3*)m_Data.ptr)->y = v3Data.y;
+                ((glm::vec3*)m_Data.ptr)->z = v3Data.z;
+                break;
+            }
+            case Type::Vector4:
+            {
+                glm::vec4 v4Data = *(glm::vec4*)data;
+                m_Data.ptr = new glm::vec4;
+                ((glm::vec4*)m_Data.ptr)->x = v4Data.x;
+                ((glm::vec4*)m_Data.ptr)->y = v4Data.y;
+                ((glm::vec4*)m_Data.ptr)->z = v4Data.z;
+                ((glm::vec4*)m_Data.ptr)->w = v4Data.w;
+                break;
+            }
+            case Type::UUID:
+            {
+                UUID id = *(UUID*)data;
+                m_Data.ptr = new UUID();
+                ((UUID*)m_Data.ptr)->SetData(id.GetData());
+                break;
+            }
+            }
+        }
+
         Variant::~Variant() { Clear(); }
 
         void Variant::Clear()

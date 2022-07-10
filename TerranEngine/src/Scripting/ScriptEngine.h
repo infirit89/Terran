@@ -3,15 +3,12 @@
 #include "ScriptClass.h"
 #include "GCManager.h"
 
-#include "Core/Log.h"
 #include "Core/Base.h"
 #include "Core/UUID.h"
 
-#include "Scene/Entity.h"
 #include "Scene/Scene.h"
 
 #include <filesystem>
-#include <unordered_map>
 
 namespace TerranEngine 
 {
@@ -30,8 +27,6 @@ namespace TerranEngine
 		static void SetContext(const Shared<Scene>& context);
 		static Shared<Scene>& GetContext();
 		
-		static std::filesystem::path GetAssemblyPath();
-
 		static ScriptClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
 		static ScriptClass GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex);
 		

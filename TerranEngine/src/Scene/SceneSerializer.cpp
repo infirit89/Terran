@@ -89,7 +89,6 @@ namespace TerranEngine
 		return vec;
 	}
 	
-
 	static json SerializeUUIDVector(const std::vector<UUID>& vec) 
 	{
 		if (vec.size() <= 0)
@@ -426,8 +425,7 @@ catch(const std::exception& ex)\
 
 	static void DesirializeScriptable(Entity entity, json& jScriptComponent) 
 	{
-		ScriptComponent& scriptComponent = entity.AddComponent<ScriptComponent>();
-
+		auto& scriptComponent = entity.AddComponent<ScriptComponent>();
 		scriptComponent.ModuleName = jScriptComponent["ModuleName"];
 
 		if (ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
@@ -458,9 +456,8 @@ catch(const std::exception& ex)\
 						}
 						case ScriptType::Char:
 						{
-							std::string strValue = jScriptFieldValue;
-							char value = strValue.size() > 0 ? strValue.at(0) : 0;
-							field->SetData(value, handle);
+							const uint8_t value = jScriptFieldValue;
+							field->SetData<char>((char)value, handle);
 							break;
 						}
 						case ScriptType::Int64:
@@ -521,6 +518,12 @@ catch(const std::exception& ex)\
 						{
 							const double value = jScriptFieldValue;
 							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::String:
+						{
+							std::string value = jScriptFieldValue;
+							field->SetData(value.c_str(), handle);
 							break;
 						}
 						case ScriptType::Vector2: 

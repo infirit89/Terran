@@ -9,6 +9,7 @@
 #include "ScriptAssembly.h"
 #include "ScriptObject.h"
 #include "ScriptArray.h"
+#include "ScriptUtils.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -62,7 +63,7 @@ namespace TerranEngine
 		MonoDomain* CoreDomain;
 		MonoDomain* AppDomain;
 
-		std::vector<Shared<ScriptAssembly>> Assemblies;
+		std::array<Shared<ScriptAssembly>, TR_ASSEMBLIES> Assemblies;
 		
 		std::filesystem::path MonoPath = "mono";
 
@@ -114,10 +115,9 @@ namespace TerranEngine
 			TR_ERROR("Couldn't initialize the Mono Domain!");
 			return;
 		}
-
-		s_Data->Assemblies.reserve(TR_ASSEMBLIES);
+		
 		for (size_t i = 0; i < TR_ASSEMBLIES; i++)
-			s_Data->Assemblies.emplace_back(CreateShared<ScriptAssembly>());
+			s_Data->Assemblies[i] = CreateShared<ScriptAssembly>();
 		
 		mono_install_unhandled_exception_hook(UnhandledExceptionHook, nullptr);		
 		
@@ -206,7 +206,7 @@ namespace TerranEngine
 
 	void ScriptEngine::SetContext(const Shared<Scene>& context) { s_Data->SceneContext = context; }
 	Shared<Scene>& ScriptEngine::GetContext() { return s_Data->SceneContext; }
-	
+
 	void ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
@@ -290,7 +290,7 @@ namespace TerranEngine
 	{
 		return s_Data->Assemblies.at(assemblyIndex);
 	}
-
+	bool f = true;
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
 		if (s_Data->ScriptInstanceMap.find(entity.GetID()) == s_Data->ScriptInstanceMap.end())
@@ -316,14 +316,33 @@ namespace TerranEngine
 			
 			MonoException* exc = nullptr;
 			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 			
 			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
 			scriptComponent.PublicFieldIDs.clear();
-			for (auto& field : klass->GetFields())
+			for (ScriptField& field : klass->GetFields())
 			{
 				if(field.GetVisibility() == ScriptFieldVisibility::Public)
+				{
+					if(f)
+					{
+						if(field.GetType().IsArray())
+						{
+							ScriptArray arr = field.GetArray(instance.ObjectHandle);
+							arr.Resize(3);
+							for (int i = 0; i < arr.Length(); i++)
+								arr.Set(i, i);
+							field.SetArray(arr, instance.ObjectHandle);
+							ScriptArray arr2 = field.GetArray(instance.ObjectHandle);
+							for (int i = 0; i < arr2.Length(); i++)
+								TR_TRACE(arr2.Get<int32_t>(i));
+						}
+						f = false;
+					}
+					
 					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
+				}
 			}
 		}
 	}
@@ -358,6 +377,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.InitMethod.Invoke(monoObject, &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 
@@ -370,6 +390,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.UpdateMethod.Invoke(monoObject, &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 
@@ -383,6 +404,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 
@@ -395,7 +417,8 @@ namespace TerranEngine
 			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
+			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 
@@ -408,6 +431,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsUpdateMethod.Invoke(monoObject, &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 

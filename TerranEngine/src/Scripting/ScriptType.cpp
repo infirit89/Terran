@@ -45,6 +45,7 @@ namespace TerranEngine
         case MONO_TYPE_CLASS:
         {
             const ScriptClass typeClass = mono_class_from_mono_type(monoType);
+            if(typeClass == *TR_API_CACHED_CLASS(UUID))   { TypeEnum = UUID; return; }
             if(typeClass == *TR_API_CACHED_CLASS(Entity))   { TypeEnum = Entity; return; }
         }
         }
@@ -59,10 +60,12 @@ namespace TerranEngine
         GetUnmanagedType(m_MonoType);
 
         MonoClass* monoTypeClass = nullptr;
+        
         if(m_TypeEncoding == MONO_TYPE_CLASS || m_TypeEncoding == MONO_TYPE_VALUETYPE)
              monoTypeClass = mono_type_get_class(monoType);
         else
             monoTypeClass =  mono_class_from_mono_type(monoType);
+        
         m_TypeClass = new ScriptClass(monoTypeClass);
         
         int alignment = 0;
@@ -90,13 +93,16 @@ namespace TerranEngine
     ScriptType ScriptType::GetElementType() const
     {
         const MonoArrayType* monoElementType = mono_type_get_array_type(m_MonoType);
-        return FromClass(monoElementType->eklass);
+        ScriptType elementType = FromClass(monoElementType->eklass);
+        elementType.m_TypeEncoding = m_TypeEncoding;
+        return elementType;
     }
 
     bool ScriptType::IsArray() const
     { return m_TypeEncoding == MONO_TYPE_ARRAY || m_TypeEncoding == MONO_TYPE_SZARRAY; }
     bool ScriptType::IsPointer() const  { return mono_type_is_pointer(m_MonoType); }
     bool ScriptType::IsVoid() const     { return mono_type_is_void(m_MonoType); }
+    bool ScriptType::IsObject() const   { return m_TypeEncoding == MONO_TYPE_OBJECT; }
 
     ScriptType& ScriptType::operator=(const ScriptType& other)
     {
@@ -108,4 +114,3 @@ namespace TerranEngine
         return *this;
     }
 }
-

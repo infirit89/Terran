@@ -1,16 +1,18 @@
 ﻿#pragma once
 
-#include "ScriptCache.h"
 #include "ScriptType.h"
+#include "Utils/Utils.h"
 
 extern "C"
 {
     typedef struct _MonoArray MonoArray;
     typedef struct _MonoClass MonoClass;
+    typedef struct _MonoObject MonoObject;
 }
 
 namespace TerranEngine
 {
+    class ScriptCache;
     class ScriptArray
     {
     public:
@@ -24,6 +26,9 @@ namespace TerranEngine
 
         char* GetElementAddress(uint32_t index, int dataSize) const;
 
+        Utils::Variant At(uint32_t index) const;
+        Utils::Variant operator[](uint32_t index) const { return At(index); }
+        
         uint32_t Length() const { return m_Length; }
 
         void Resize(uint32_t size);
@@ -31,8 +36,13 @@ namespace TerranEngine
         template<typename T>
         void Set(uint32_t index, T value)
         {
-            T* elementAdrr = (T*)GetElementAddress(index, sizeof(T));
-            *elementAdrr = value;  
+            if constexpr (std::is_same<T, Utils::Variant>::value)
+                SetData(value, index);
+            else
+            {
+                T* elementAdrr = (T*)GetElementAddress(index, sizeof(T));
+                *elementAdrr = value;
+            }
         }
 
         template<typename  T>
@@ -53,9 +63,10 @@ namespace TerranEngine
         }
 
         static ScriptArray Create(MonoArray* monoArray);
-        
-        
+    
     private:
+        void SetData(const Utils::Variant& value, uint32_t index);
+        
         template<typename  T>
         static MonoClass* GetMonoClassFromType()
         {
@@ -74,6 +85,12 @@ namespace TerranEngine
             TR_REGISTER_ARRAY_TYPE(float, "System.Single");
             TR_REGISTER_ARRAY_TYPE(double, "System.Double");
 
+            TR_REGISTER_ARRAY_TYPE(std::string, "System.String");
+            
+            TR_REGISTER_ARRAY_TYPE(MonoObject*, "System.Object");
+
+            TR_REGISTER_ARRAY_TYPE(glm::vec2, "Terran.Vector2");
+            
             TR_REGISTER_ARRAY_TYPE(UUID, "Terran.UUID");
             
             return nullptr;
