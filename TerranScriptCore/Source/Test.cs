@@ -5,6 +5,13 @@ namespace Terran
 {
 	public class TestScript : Scriptable
 	{
+		enum Test 
+		{
+			A = 0,
+			B,
+			C
+		}
+
 		public bool bTest = false; 
 		public char cTest = 'A';
 		

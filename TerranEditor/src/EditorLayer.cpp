@@ -387,6 +387,8 @@ namespace TerranEditor
 
 		ShowDockspace();
 
+		ImGui::ShowDemoWindow();
+
 		m_SceneHierarchyPanel.ImGuiRender();
 		m_SceneViewPanel.ImGuiRender(m_Selected, m_EditorCamera);
 

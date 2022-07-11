@@ -349,7 +349,7 @@ namespace TerranEngine
 				for (const auto& fieldID : sc.PublicFieldIDs)
 				{
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-
+					
 					const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
 					const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
 

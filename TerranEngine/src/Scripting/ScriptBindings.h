@@ -13,7 +13,7 @@ extern "C"
 
 namespace TerranEngine 
 {
-	namespace ScriptBindings 
+	namespace ScriptBindings
 	{
 		void Bind();
 
