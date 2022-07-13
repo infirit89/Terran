@@ -86,7 +86,7 @@ namespace TerranEngine
         const uint32_t copyCount = m_Length > size ? size : m_Length;
         char* tempArrAddr = mono_array_addr_with_size(tempArr, m_Type.GetSize(), 0);
         char* arrAddr = GetElementAddress(0, m_Type.GetSize());
-        memcpy(tempArrAddr, arrAddr, copyCount);
+        memcpy(tempArrAddr, arrAddr, copyCount * m_Type.GetSize());
 
         m_Length = size;
         m_MonoArray = tempArr;

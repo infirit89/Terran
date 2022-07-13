@@ -198,7 +198,7 @@ namespace TerranEngine
 		}
 	}
 
-	void ScriptCache::CacheFields(Shared<ScriptAssembly>& assembly, const ScriptClass& klass)
+	void ScriptCache::CacheFields(Shared<ScriptAssembly>& assembly, ScriptClass& klass)
 	{
 		const MonoTableInfo* typedefTableInfo = mono_image_get_table_info(assembly->GetMonoImage(), MONO_TABLE_TYPEDEF);
 		const MonoTableInfo* fieldTableInfo = mono_image_get_table_info(assembly->GetMonoImage(), MONO_TABLE_FIELD);
@@ -233,6 +233,7 @@ namespace TerranEngine
 				uint32_t fieldID = Hash::FNVHash(fullFieldName);
 				field.m_ID = fieldID;
 				s_CachedFields.emplace(fieldID, field);
+				klass.m_Fields.emplace_back(field);
 			}
 		}
 	}

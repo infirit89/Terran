@@ -36,6 +36,8 @@ namespace TerranEngine
 		bool IsInstanceOf(ScriptClass* parent, bool checkInterfaces = true);
 
 		inline std::vector<ScriptField>& GetFields() { return m_Fields; }
+		std::vector<ScriptField> GetEnumFields() const;
+
 		int GetTypeToken() const;
 		
 	private:

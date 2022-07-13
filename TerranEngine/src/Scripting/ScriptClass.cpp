@@ -74,6 +74,22 @@ namespace TerranEngine
 		return mono_class_is_assignable_from(m_MonoClass, parent->m_MonoClass);
 	}
 
+	std::vector<ScriptField> ScriptClass::GetEnumFields() const
+	{
+		bool isEnum = mono_class_is_enum(m_MonoClass);
+		TR_ASSERT(isEnum, "Class isn't of type 'enum'");
+
+		std::vector<ScriptField> fields;
+
+		for (const auto& field : m_Fields)
+		{
+			if (field.IsStatic() && field.GetVisibility() == ScriptFieldVisibility::Public)
+				fields.emplace_back(field);
+		}
+
+		return fields;
+	}
+
 	int ScriptClass::GetTypeToken() const
 	{
 		return mono_class_get_type_token(m_MonoClass);

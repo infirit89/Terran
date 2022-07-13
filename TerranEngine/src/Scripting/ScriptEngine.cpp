@@ -340,7 +340,7 @@ namespace TerranEngine
 	{
 		return s_Data->Assemblies.at(assemblyIndex);
 	}
-	bool f = true;
+
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
 		if (s_Data->ScriptInstanceMap.find(entity.GetID()) == s_Data->ScriptInstanceMap.end())
@@ -374,22 +374,7 @@ namespace TerranEngine
 			for (ScriptField& field : klass->GetFields())
 			{
 				if(field.GetVisibility() == ScriptFieldVisibility::Public)
-				{
-					if(f)
-					{
-						if(field.GetType().IsArray())
-						{
-							ScriptArray arr = field.GetArray(instance.ObjectHandle);
-							arr.Resize(3);
-							for (int i = 0; i < arr.Length(); i++)
-								arr.Set(i, i);
-							field.SetArray(arr, instance.ObjectHandle);
-						}
-						f = false;
-					}
-					
 					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
-				}
 			}
 		}
 	}

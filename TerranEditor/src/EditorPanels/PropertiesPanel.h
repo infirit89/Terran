@@ -23,9 +23,6 @@ namespace TerranEditor
 		inline void SetOpen(bool open) { m_Open = open; }
 
 	private:
-		void DrawScriptField(const Shared<Scene>& scene, ScriptField* field, const GCHandle& handle);
-		bool DrawScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array);
-
 		bool m_Open = true;
 	};
 }

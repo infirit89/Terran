@@ -28,7 +28,8 @@ namespace TerranEngine
         bool IsPointer() const;
         bool IsVoid() const;
         bool IsObject() const;
-        
+        bool IsEnum() const;
+
         ScriptType& operator=(const ScriptType& other); 
         
         enum

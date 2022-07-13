@@ -3,14 +3,19 @@ using Terran;
 
 namespace SandboxProject 
 {
+    public enum TestEnum 
+    {
+        None = 0,
+        Test1,
+        Test2
+    }
+
     public class Sandbox : Scriptable 
     {
-        public int[] Test;
+        public TestEnum Test = TestEnum.Test1;
 
         protected override void Init()
         {
-            for (int i = 0; i < Test.Length; i++)
-                Log.Trace(Test[i]);
             //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
         }
 

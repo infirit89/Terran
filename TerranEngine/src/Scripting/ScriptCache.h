@@ -38,7 +38,7 @@ namespace TerranEngine
 		static void CacheMethodsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 		static void CacheFieldsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo);
 
-		static void CacheFields(Shared<ScriptAssembly>& assembly, const ScriptClass& klass);
+		static void CacheFields(Shared<ScriptAssembly>& assembly, ScriptClass& klass);
 		static void CacheMethods(Shared<ScriptAssembly>& assembly, const ScriptClass& klass);
 		
 		static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;

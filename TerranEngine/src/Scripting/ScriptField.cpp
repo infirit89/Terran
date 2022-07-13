@@ -61,57 +61,10 @@ namespace TerranEngine
 		SetData<Utils::Variant>(val, to);
 	}
 
-	void ScriptField::SetDataRaw(void* value, GCHandle handle)
-	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr) 
-		{
-			TR_ERROR("Couldn't set the value of field {0} because the object that it corresponds to is no longer valid", m_Name);
-			return;
-		}
-
-		if (m_MonoField == nullptr)
-		{
-			TR_ERROR("Couldn't set the value of field {0} because it wasn't found", m_Name);
-			return;
-		}
-		
-		mono_field_set_value(monoObject, m_MonoField, value);
-	}
-
-	void ScriptField::GetDataRaw(void* result, GCHandle handle)
-	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr)
-		{
-			TR_ERROR("Couldnt find the object");
-			return;
-		}
-
-		if (m_MonoField == nullptr) 
-		{
-			TR_ERROR("Mono field is null");
-			return;
-		}
-		
-		mono_field_get_value(monoObject, m_MonoField, result);
-	}
+	bool ScriptField::IsStatic() const { return mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_STATIC; }
 
 	std::string ScriptField::GetDataStringRaw(GCHandle handle)
 	{	
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr)
-		{
-			TR_ERROR("Couldnt find the object");
-			return "";
-		}
-
-		if (m_MonoField == nullptr)
-		{
-			TR_ERROR("Mono field is null");
-			return "";
-		}
-
 		if (m_Type.TypeEnum != ScriptType::String) 
 		{
 			TR_ERROR("Can't get the string value of a non-string field");
@@ -119,26 +72,13 @@ namespace TerranEngine
 		}
 
 		MonoString* monoStr = nullptr;
-		mono_field_get_value(monoObject, m_MonoField, &monoStr);
+		ScriptUtils::GetFieldDataRaw(&monoStr, m_MonoField, handle);
 		const std::string val = ScriptMarshal::MonoStringToUTF8(monoStr);
 		return val;
 	}
 
 	void ScriptField::SetDataStringRaw(const char* value, GCHandle handle)
 	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr) 
-		{
-			TR_ERROR("Couldnt find the object");
-			return;
-		}
-
-		if (m_MonoField == nullptr) 
-		{
-			TR_ERROR("Mono field is null");
-			return;
-		}
-
 		if (m_Type.TypeEnum != ScriptType::String)
 		{
 			TR_ERROR("Can't set the string value of a non-string field");
@@ -146,7 +86,7 @@ namespace TerranEngine
 		}
 		
 		MonoString* monoStr = ScriptMarshal::UTF8ToMonoString(value);
-		mono_field_set_value(monoObject, m_MonoField, monoStr);
+		ScriptUtils::SetFieldDataRaw(monoStr, m_MonoField, handle);
 	}
 	
 	void ScriptField::SetDataVariantRaw(const Utils::Variant& value, GCHandle handle)
@@ -286,19 +226,6 @@ namespace TerranEngine
 
 	void ScriptField::SetDataUUIDRaw(UUID value, GCHandle handle)
 	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr) 
-		{
-			TR_ERROR("Couldnt find the object");
-			return;
-		}
-
-		if (m_MonoField == nullptr) 
-		{
-			TR_ERROR("Mono field is null");
-			return;
-		}
-
 		if (m_Type.TypeEnum != ScriptType::Entity)
 		{
 			TR_ERROR("Field isn't of type 'Entity'");
@@ -312,31 +239,18 @@ namespace TerranEngine
 		ScriptMethod* constructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 		constructor->Invoke(entityObj, args);
 		
-		mono_field_set_value(monoObject, m_MonoField, entityObj.GetMonoObject());
+		ScriptUtils::SetFieldDataRaw(entityObj.GetMonoObject(), m_MonoField, handle);
 	}
 
 	UUID ScriptField::GetDataUUIDRaw(GCHandle handle)
 	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr) 
-		{
-			TR_ERROR("Couldnt find the object");
-			return {};
-		}
-
-		if (m_MonoField == nullptr) 
-		{
-			TR_ERROR("Mono field is null");
-			return {};
-		}
-
 		if (m_Type.TypeEnum != ScriptType::Entity)
 		{
 			TR_ERROR("Field isn't of type 'Entity'");
 			return {};
 		}
 		
-		ScriptObject entityObj = mono_field_get_value_object(mono_domain_get(), m_MonoField, monoObject);
+		ScriptObject entityObj = ScriptUtils::GetFieldValueObject(m_MonoField, handle);
 		ScriptMethod* getIdMethod = ScriptCache::GetCachedMethod("Terran.Entity", ":get_ID");
 
 		if(!entityObj)
@@ -357,31 +271,18 @@ namespace TerranEngine
 
 	ScriptArray ScriptField::GetArray(GCHandle handle)
 	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr) 
-		{
-			TR_ERROR("Couldnt find the object");
-			return {};
-		}
-	
-		if (m_MonoField == nullptr) 
-		{
-			TR_ERROR("Mono field is null");
-			return {};
-		}
-	
 		if (!m_Type.IsArray())
 		{
 			TR_ERROR("Field isn't an array type");
 			return {};
 		}
 		
-		MonoObject* arrayObj = mono_field_get_value_object(mono_domain_get(), m_MonoField, monoObject);
+		MonoObject* arrayObj = ScriptUtils::GetFieldValueObject(m_MonoField, handle);
 
 		if(!arrayObj)
 		{
 			ScriptArray defaultArray(m_Type.GetTypeClass()->GetMonoClass(), 1);
-			mono_field_set_value(monoObject, m_MonoField, (MonoObject*)defaultArray.GetMonoArray());
+			ScriptUtils::SetFieldDataRaw(defaultArray.GetMonoArray(), m_MonoField, handle);
 			return defaultArray;
 		}
 		
@@ -390,25 +291,12 @@ namespace TerranEngine
 
 	void ScriptField::SetArray(ScriptArray array, GCHandle handle)
 	{
-		MonoObject* monoObject = GCManager::GetManagedObject(handle);
-		if (monoObject == nullptr) 
-		{
-			TR_ERROR("Couldnt find the object");
-			return;
-		}
-	
-		if (m_MonoField == nullptr) 
-		{
-			TR_ERROR("Mono field is null");
-			return;
-		}
-	
 		if (!m_Type.IsArray())
 		{
 			TR_ERROR("Field isn't an array type");
 			return;
 		}
 		
-		mono_field_set_value(monoObject, m_MonoField, array.GetMonoArray());
+		ScriptUtils::SetFieldDataRaw(array.GetMonoArray(), m_MonoField, handle);
 	}
 }

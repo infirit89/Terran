@@ -241,11 +241,11 @@ namespace TerranEditor
 							if (field->GetType().IsArray()) 
 							{
 								ScriptArray array = field->GetArray(handle);
-								if (DrawScriptArrayField(scene, field->GetName(), array))
+								if (UI::DrawScriptArrayField(scene, field->GetName(), array))
 									field->SetArray(array, handle);
 							}
 							else
-								DrawScriptField(scene, field, handle);
+								UI::DrawScriptField(scene, field, handle);
 						}
 					}
 
@@ -264,7 +264,7 @@ namespace TerranEditor
 
 					// rigidbody body type selection
 					{
-						const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
+						/*const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
 						
 						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
 
@@ -287,7 +287,11 @@ namespace TerranEditor
 
 							ImGui::EndCombo();	
 						}
-						
+						*/
+
+						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
+							isPlay)
+							physicsBody.SetBodyType(rbComponent.BodyType);
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
@@ -295,7 +299,7 @@ namespace TerranEditor
 
 					// rigidbody awake state selection 
 					{
-						const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
+						/*const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
 
 						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
 
@@ -317,7 +321,9 @@ namespace TerranEditor
 							}
 
 							ImGui::EndCombo();
-						}
+						}*/
+
+						UI::DrawComboBox("Sleep State", awakeStateNames, 3, rbComponent.SleepState);
 
 					}
 
@@ -495,400 +501,5 @@ namespace TerranEditor
 
 			ImGui::End();
 		}
-	}
-
-	// TODO: cache field names
-	static std::string ProccessFieldName(std::string name)
-	{
-		std::string result;
-
-		name[0] = toupper(name[0]);
-
-		for (size_t i = 0; i < name.size(); i++)
-		{
-			if (isupper(name.at(i)))
-			{
-				result += " ";
-				result += name.at(i);
-			}
-			else
-				result += name.at(i);
-		}
-
-		return result;
-	}
-
-	void PropertiesPanel::DrawScriptField(const Shared<Scene>& scene, ScriptField* field, const GCHandle& handle)
-	{
-		TR_ASSERT(handle.IsValid(), "Invalid handle");
-
-		std::string fieldName = ProccessFieldName(field->GetName());
-		switch (field->GetType().TypeEnum)
-		{
-		case ScriptType::Bool:
-		{
-			bool value = field->GetData<bool>(handle);
-
-			if (UI::DrawBoolControl(fieldName, value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::Char:
-		{
-			char value = (char)field->GetData<wchar_t>(handle);
-			// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-			std::string strVal; strVal += value;
-			if (UI::DrawStringControl(fieldName, strVal, 0, 2))
-			{
-				if (strVal.empty())
-					break;
-				const wchar_t wc = strVal.at(0);
-				field->SetData<wchar_t>(wc, handle);
-			}
-
-			break;
-		}
-		case ScriptType::Int8:
-		{
-			int8_t value = field->GetData<int8_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_S8, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::Int16:
-		{
-			int16_t value = field->GetData<int16_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_S16, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::Int32:
-		{
-			int32_t value = field->GetData<int32_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_S32, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::Int64:
-		{
-			int64_t value = field->GetData<int64_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_S64, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::UInt8:
-		{
-			uint8_t value = field->GetData<uint8_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_U8, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::UInt16:
-		{
-			uint16_t value = field->GetData<uint16_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_U16, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::UInt32:
-		{
-			uint32_t value = field->GetData<uint32_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_U32, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::UInt64:
-		{
-			uint64_t value = field->GetData<uint64_t>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_U64, &value))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::Float:
-		{
-			float value = field->GetData<float>(handle);
-
-			if (UI::DrawFloatControl(fieldName, value, 0.1f, "%.2f"))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::Double:
-		{
-			double value = field->GetData<double>(handle);
-
-			if (UI::DrawScalar(fieldName, ImGuiDataType_Double, &value, 0.1f, "%.4f"))
-				field->SetData(value, handle);
-
-			break;
-		}
-		case ScriptType::String:
-		{
-			std::string value = field->GetData<std::string>(handle);
-
-			if (UI::DrawStringControl(fieldName, value))
-				field->SetData<const char*>(value.c_str(), handle);
-
-			break;
-		}
-		case ScriptType::Vector2:
-		{
-			glm::vec2 value = field->GetData<glm::vec2>(handle);
-
-			if (UI::DrawVec2Control(fieldName, value))
-				field->SetData<glm::vec2>(value, handle);
-
-			break;
-		}
-		case ScriptType::Vector3:
-		{
-			glm::vec3 value = field->GetData<glm::vec3>(handle);
-
-			if (UI::DrawVec3Control(fieldName, value))
-				field->SetData<glm::vec3>(value, handle);
-
-			break;
-		}
-		case ScriptType::Color:
-		{
-			glm::vec4 value = field->GetData<glm::vec4>(handle);
-
-			if (UI::DrawColor4Control(fieldName, value))
-				field->SetData<glm::vec4>(value, handle);
-
-			break;
-		}
-		case ScriptType::Entity:
-		{
-			UUID value = field->GetData<UUID>(handle);
-			if (UI::DrawEntityControl(fieldName, value, scene))
-				field->SetData<UUID>(value, handle);
-			break;
-		}
-		}
-	}
-
-	bool PropertiesPanel::DrawScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)
-	{
-		bool hasChanged = false;
-		ImGuiTreeNodeFlags flags =	ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | 
-									ImGuiTreeNodeFlags_AllowItemOverlap;
-
-		ImGui::Unindent(20.0f);
-		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-
-		bool opened = ImGui::TreeNodeEx(fieldName.c_str(), flags);
-
-		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
-
-		ImGui::PushItemWidth(lineHeight * 1.5f);
-		uint32_t arrayLength = array.Length();
-		if (ImGui::DragScalar("##array_size", ImGuiDataType_U32, &arrayLength, 0.1f, nullptr, nullptr, nullptr)) 
-		{
-			array.Resize(arrayLength);
-			hasChanged = true;
-		}
-		ImGui::PopItemWidth();
-
-		ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow |
-											ImGuiTreeNodeFlags_NoButton | ImGuiTreeNodeFlags_FramePadding;
-
-		if (opened) 
-		{
-			for (size_t i = 0; i < array.Length(); i++)
-			{
-				std::string elementName = std::to_string(i);
-				switch (array.GetType().TypeEnum)
-				{
-				case ScriptType::Bool:
-				{
-					bool value = array.Get<bool>(i);
-					if (UI::DrawBoolControl(elementName, value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Char:
-				{
-					char value = (char)array.Get<wchar_t>(i);
-					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-					std::string strVal; strVal += value;
-					if (UI::DrawStringControl(elementName, strVal, 0, 2))
-					{
-						if (strVal.empty())
-							break;
-						const wchar_t wc = strVal.at(0);
-						array.Set<wchar_t>(i, wc);
-					}
-
-					break;
-				}
-				case ScriptType::Int8:
-				{
-					int8_t value = array.Get<int8_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_S8, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::Int16:
-				{
-					int16_t value = array.Get<int16_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_S16, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::Int32:
-				{
-					int32_t value = array.Get<int32_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_S32, &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int64:
-				{
-					int64_t value = array.Get<int64_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_S64, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::UInt8:
-				{
-					uint8_t value = array.Get<uint8_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_U8, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::UInt16:
-				{
-					uint16_t value = array.Get<uint16_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_U16, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::UInt32:
-				{
-					uint32_t value = array.Get<uint32_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_U32, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::UInt64:
-				{
-					uint64_t value = array.Get<uint64_t>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_U64, &value))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::Float:
-				{
-					float value = array.Get<float>(i);
-
-					if (UI::DrawFloatControl(elementName, value, 0.1f, "%.2f"))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::Double:
-				{
-					double value = array.Get<double>(i);
-
-					if (UI::DrawScalar(elementName, ImGuiDataType_Double, &value, 0.1f, "%.4f"))
-						array.Set(i, value);
-
-					break;
-				}
-				case ScriptType::String:
-				{
-					// TODO: maybe make a UI::DrawVariant
-					/*std::string value = array.Get<std::string>(i);
-
-					if (UI::DrawStringControl(fieldName, value))
-						array.Set<const char*>(i, value.c_str());*/
-
-					break;
-				}
-				case ScriptType::Vector2:
-				{
-					glm::vec2 value = array.Get<glm::vec2>(i);
-
-					if (UI::DrawVec2Control(elementName, value))
-						array.Set<glm::vec2>(i, value);
-
-					break;
-				}
-				case ScriptType::Vector3:
-				{
-					glm::vec3 value = array.Get<glm::vec3>(i);
-
-					if (UI::DrawVec3Control(elementName, value))
-						array.Set<glm::vec3>(i, value);
-
-					break;
-				}
-				case ScriptType::Color:
-				{
-					glm::vec4 value = array.Get<glm::vec4>(i);
-
-					if (UI::DrawColor4Control(elementName, value))
-						array.Set<glm::vec4>(i, value);
-
-					break;
-				}
-				case ScriptType::Entity:
-				{
-					UUID value = array.Get<UUID>(i);
-					if (UI::DrawEntityControl(elementName, value, scene))
-						array.Set<UUID>(i, value);
-					break;
-				}
-				}
-			}
-
-			ImGui::TreePop();
-		}
-		ImGui::Indent(20.0f);
-
-
-		return hasChanged;
 	}
 }
