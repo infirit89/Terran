@@ -52,7 +52,7 @@ namespace TerranEngine
 	{
 		TransformComponent& tc = entity.GetComponent<TransformComponent>();
 		
-		if (s_Context->HasRuntimeStarted())
+		if (s_Context->IsPlaying())
 		{
 			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 			if (physicsBody) 

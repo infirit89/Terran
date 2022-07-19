@@ -2,35 +2,23 @@ project "TerranScriptCore"
     kind "SharedLib"
     language "C#"
 
-    targetdir ("%{prj.location}/bin/" .. outputdir)
-    objdir ("%{prj.location}/bin-int/" .. outputdir)
+    targetdir ("../TerranEditor/Resources/Scripts")
+    objdir ("../TerranEditor//Resources/Scripts/Intermidiates")
 
     files 
     {
-        "Source/**.cs"   
+        "Source/**.cs",
+        "Properties/**.cs"
     }
 
     includedirs 
     {
-        "Source"
-    }
-
-    links 
-    {
-        "System",
-        "System.Core",
-        "System.Runtime",
-        "System.Numerics"
-
-        -- todo: add more links if needed
+        "Source",
+        "Properties"
     }
 
     filter "system:windows"
         systemversion "latest"
-        postbuildcommands  
-        {
-            ("{COPY} %{prj.location}/bin/Debug-%{cfg.system}-%{cfg.architecture} %{wks.location}/TerranEditor/Resources/Scripts/Temp")
-        }
 
     filter "configurations:Debug"
         defines "DEBUG"

@@ -21,10 +21,11 @@ namespace TerranEngine
 	class Scene 
 	{
 	public:
-		
 		Scene();
 		~Scene();
-
+		
+		static Shared<Scene> CreateEmpty();
+		
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
 
@@ -57,19 +58,23 @@ namespace TerranEngine
 
 		UUID& GetID() { return m_ID; }
 
-		bool HasRuntimeStarted() const { return m_RuntimeStarted; }
+		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
+
+		static Shared<Scene> GetScene(const UUID& id);
+	
 	private:
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
+		
 	private:
 		// TODO: add scene name and UUID
 
 		UUID m_ID;
 
-		bool m_RuntimeStarted = false;
+		bool m_IsPlaying = false;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 

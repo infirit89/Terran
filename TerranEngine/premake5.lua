@@ -1,4 +1,3 @@
-mono_path = os.getenv("MONO_PATH")
 project "TerranEngine"
     kind "StaticLib"
     language "C++"
@@ -33,18 +32,18 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/msdfgen/",
         "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/",
         "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
-        "%{mono_path}/include/mono-2.0/",
+        "%{wks.location}/TerranEngine/vendor/mono/include/",
         "%{wks.location}/TerranEngine/vendor/Box2D/include/"
     } 
 
     libdirs 
     {
-        "%{mono_path}/lib/"
+        "%{wks.location}/TerranEngine/vendor/mono/lib/"
     }
 
     links 
     {
-        "%{mono_path}/lib/mono-2.0-sgen.lib",
+        "%{wks.location}/TerranEngine/vendor/mono/bin/mono-2.0-sgen.lib",
         "GLFW",
         "ImGui",
         "GLAD",
@@ -73,6 +72,12 @@ project "TerranEngine"
 
     filter "system:windows"
         systemversion "latest"
+
+        links
+        {
+            "Imm32.lib",
+            "Rpcrt4.lib"
+        }
 
     filter "configurations:Debug"
         defines "TR_DEBUG"

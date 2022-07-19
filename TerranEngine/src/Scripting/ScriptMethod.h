@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Core/Base.h"
+#include <string>
 
-#include <mono/metadata/debug-helpers.h>
+extern "C"
+{
+	typedef struct _MonoMethod MonoMethod;
+}
 
 namespace TerranEngine 
 {
@@ -17,12 +20,16 @@ namespace TerranEngine
 		ScriptMethod(const ScriptMethod& other) = default;
 		~ScriptMethod() = default;
 
-		void Invoke(ScriptObject& scriptObject, void** args);
-		
-		void InvokeStatic(void** args);
+		ScriptObject Invoke(ScriptObject& scriptObject, void** args);
+		ScriptObject InvokeStatic(void** args);
 
-		inline MonoMethod* GetNativeMethodPtr() const { return m_MonoMethod; }
+		inline MonoMethod* GetMonoMethod() const { return m_MonoMethod; }
+
+		operator bool() const { return m_MonoMethod != nullptr; }
+
+		inline const std::string& GetName() const { return m_Name; }
 	private:
 		MonoMethod* m_MonoMethod = nullptr;
+		std::string m_Name;
 	};
 } 

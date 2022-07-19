@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "PhysicsUtils.h"
+#include "Physics.h"
 
 namespace TerranEngine 
 {
@@ -9,7 +10,7 @@ namespace TerranEngine
 		memcpy(uuidArr._Elems, (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
 		UUID uuid(uuidArr);
 
-		return SceneManager::GetCurrentScene()->FindEntityWithUUID(uuid);
+		return Physics2D::GetContext()->FindEntityWithUUID(uuid);
     }
 
 	Entity PhysicsUtils::GetEntityFromB2DBodyUserData(const b2BodyUserData& userData)
@@ -18,7 +19,7 @@ namespace TerranEngine
 		memcpy(uuidArr._Elems, (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
 		UUID uuid(uuidArr);
 
-		return SceneManager::GetCurrentScene()->FindEntityWithUUID(uuid);
+		return Physics2D::GetContext()->FindEntityWithUUID(uuid);
 	}
 }
 

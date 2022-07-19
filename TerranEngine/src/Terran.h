@@ -9,6 +9,7 @@
 #include "Core/Base.h"
 #include "Core/UUID.h"
 #include "Core/Time.h"
+#include "Core/Project.h"
 
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"
@@ -39,7 +40,6 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneSerializer.h"
-#include "Scene/SceneManager.h"
 
 #include "Scene/Systems/SceneRenderer.h"
 
@@ -52,7 +52,8 @@
 #include "Scripting/ScriptField.h"
 #include "Scripting/ScriptMethod.h"
 #include "Scripting/ScriptObject.h"
-#include "Scripting/ScriptString.h"
+#include "Scripting/ScriptArray.h"
+#include "Scripting/ScriptCache.h"
 
 #include "Scripting/ScriptBindings.h"
 

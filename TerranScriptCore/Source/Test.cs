@@ -1,30 +1,58 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Runtime.ConstrainedExecution;
 
-namespace TerranScriptCore
+namespace Terran
 {
-	public class TestScript : Scriptable 
+	public class TestScript : Scriptable
 	{
-		void Init() 
+		enum Test 
 		{
-			/*BoxCollider2D bc = entity.GetComponent<BoxCollider2D>();
-			Log.Trace(bc.Offset);
-			Log.Trace(bc.IsSensor);*/
-
-			Collider2D c = entity.GetComponent<Collider2D>();
-
-			Log.Trace(c.Offset);
-
-			//CircleCollider2D cc = entity.GetComponent<CircleCollider2D>();
-			//Log.Trace(cc.Offset);
-			//Log.Trace(cc.IsSensor);
+			A = 0,
+			B,
+			C
 		}
 
-		void Update() 
+		public bool bTest = false; 
+		public char cTest = 'A';
+		
+		public sbyte I8Test = 126;
+		public short I16Test = -1210;
+		public int I32Test = -15;
+		public long I64Test = -100000000123123;
+		
+		public byte U8Test = 126;
+		public ushort U16Test = 12023;
+		public uint U32Test = 1231201231;
+		public ulong U64Test = 12389056893832234879;
+
+		public float FTest = 3213.3123123f;
+		public double DTest = 3213.312312312312312;
+
+		public string StrTest = "Hello World!";
+
+		public Vector2 Vec2Test = new Vector2(10.0f, 1231.123f);
+		public Vector3 Vec3Test = new Vector3(12312.0f, 1223.0f, 131.01f);
+		
+		private CircleRenderer _CircleRenderer;
+		protected override void Init()
 		{
+			_CircleRenderer = entity.GetComponent<CircleRenderer>();
+			Log.Trace(_CircleRenderer.Thickness);
+			Log.Trace(_CircleRenderer.Color);
 		}
 
-		void OnCollisionBegin(Entity entity) 
+		protected override void Update() 
+		{
+			if (Input.IsKeyPressed(KeyCode.Q))
+				_CircleRenderer.Color = Color.Cyan;
+
+			if (Input.IsKeyPressed(KeyCode.Up))
+				_CircleRenderer.Thickness++;
+			else if (Input.IsKeyPressed(KeyCode.Down))
+				_CircleRenderer.Thickness--;
+		}
+
+		protected override void OnCollisionBegin(Entity entity) 
 		{
 			Log.Trace("collided");
 		}
@@ -40,67 +68,58 @@ namespace TerranScriptCore
 		private bool m_HasCollided = false;
 
 		// Runs when the entity in the current scene, that has this script, is started
-		public void Init() 
+		protected override void Init() 
 		{
 			
 			//RayCastHitInfo2D hitInfo = Physics2D.RayCast(entity.transform.Position, -Vector2.Up);
-			rb = entity.GetComponent<Rigidbody2D>();
-			
+			rb = entity.GetComponent<Rigidbody2D>();	
+			Log.Trace(JumpForce);
 		}
 
-		public void Update()
+		protected override void Update()
 		{
-			Stopwatch st = new Stopwatch();
-			st.Start();
-			RayCastHitInfo2D hitInfo;
-			float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;
-			bool hasHit = Physics2D.RayCast(out hitInfo, entity.transform.Position, -Vector2.Up, rayLength);
-
-			m_CanJump = hasHit;
-
-			if (hasHit && !m_HasCollided)
-			{
-				Log.Trace(hitInfo.Rigidbody.entity.Name);
-				Log.Trace("ray hit");
-			}
-
-			// Code to move the entity up and down
-			if (Input.IsKeyPressed(KeyCode.D))
-				// if w is pressed move the entity up one unit
-				entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
-			else if (Input.IsKeyPressed(KeyCode.A))
-				// if s is pressed move the entity down one unit
-				entity.transform.Position -= new Vector3(0.1f, 0.0f, 0.0f);
-
-			if (Input.IsKeyPressed(KeyCode.Space) && m_CanJump) 
-			{
-				m_CanJump = false;
-				rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
-			}
-
-			st.Stop();
-
-			TimeSpan s = st.Elapsed;
-			Log.Trace(s.TotalMilliseconds);
-
-			//Log.Trace(st.ElapsedMilliseconds);
+			// RayCastHitInfo2D hitInfo;
+			// float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;
+			// bool hasHit = Physics2D.RayCast(out hitInfo, entity.transform.Position, -Vector2.Up, rayLength);
+			//
+			// m_CanJump = hasHit;
+			//
+			// if (hasHit && !m_HasCollided)
+			// {
+			// 	Log.Trace(hitInfo.Rigidbody.entity.Name);
+			// 	Log.Trace("ray hit");
+			// }
+			//
+			// // Code to move the entity up and down
+			// if (Input.IsKeyPressed(KeyCode.D))
+			// 	// if w is pressed move the entity up one unit
+			// 	entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
+			// else if (Input.IsKeyPressed(KeyCode.A))
+			// 	// if s is pressed move the entity down one unit
+			// 	entity.transform.Position -= new Vector3(0.1f, 0.0f, 0.0f);
+			//
+			// if (Input.IsKeyPressed(KeyCode.Space) && m_CanJump) 
+			// {
+			// 	m_CanJump = false;
+			// 	rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
+			// }
 
 		}
-		public void PhysicsUpdate() 
+		protected override void PhysicsUpdate() 
 		{
 			
 		}
 
-		public void OnCollisionBegin(Entity entity) 
-		{
-			Log.Trace("collided");
-			m_HasCollided = true;
-		}
+		protected override void OnCollisionBegin(Entity entity)
+        {
+            Log.Trace("collided");
+            m_HasCollided = true;
+        }
 
-		public void OnCollisionEnd(Entity entity) 
-		{
-			m_HasCollided = false;
-		}
-
+		protected override void OnCollisionEnd(Entity entity)
+        {
+            m_HasCollided = false;
+        }
 	}
+
 }

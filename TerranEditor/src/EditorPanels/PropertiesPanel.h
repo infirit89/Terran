@@ -1,6 +1,13 @@
 #pragma once
 
+#include "Core/Base.h"
+
+#include "Scene/Scene.h"
 #include "Scene/Entity.h"
+
+#include "Scripting/ScriptField.h"
+#include "Scripting/ScriptArray.h"
+#include "Scripting/GCManager.h"
 
 namespace TerranEditor 
 {

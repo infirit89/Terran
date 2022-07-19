@@ -85,7 +85,7 @@ namespace TerranEngine
 		inline bool operator==(const Entity& other) const			{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 
 		// relationship component stuffs
-		inline std::vector<UUID>& GetChildren() const				{ return GetComponent<RelationshipComponent>().Children; }
+		inline std::vector<UUID>& GetChildren()	const				{ return GetComponent<RelationshipComponent>().Children; }
 		inline size_t GetChildCount() const							{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
 		inline const UUID& GetParentID() const						{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : m_EmptyUUID; }
 		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false; }
@@ -165,7 +165,7 @@ namespace TerranEngine
 			if (!parent)
 				return;
 
-			auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), GetID());
+			const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), GetID());
 
 			if (it != parent.GetChildren().end())
 				parent.GetChildren().erase(it);
@@ -181,7 +181,7 @@ namespace TerranEngine
 			if (!child.HasComponent<RelationshipComponent>())
 				return;
 
-			auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), child.GetID());
+			const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), child.GetID());
 
 			if (it != parent.GetChildren().end())
 				parent.GetChildren().erase(it);

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TerranScriptCore
+﻿namespace Terran
 {
 	public enum RigidbodyType : byte 
 	{
@@ -35,7 +33,7 @@ namespace TerranScriptCore
 		public static bool RayCast(out RayCastHitInfo2D hitInfo, Vector2 origin, Vector2 direction, float length = 10.0f) 
 		{
 			Internal.RayCastHitInfo2D_Internal hitInfo_Internal;
-			bool hasHit = Internal.Physics2D_RayCast_Internal(in origin, in direction, length, out hitInfo_Internal);
+			bool hasHit = Internal.Physics2D_RayCast(in origin, in direction, length, out hitInfo_Internal);
 
 			hitInfo = new RayCastHitInfo2D();
 

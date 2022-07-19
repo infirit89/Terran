@@ -155,7 +155,7 @@ namespace TerranEditor
 						TR_TRACE(pixelData);
 
 						//Entity entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
-						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
+						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_SceneContext->GetRaw());
 						
 						m_SelectedChangedCallback(entity);
 

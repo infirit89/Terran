@@ -488,7 +488,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 
@@ -2193,7 +2193,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 
@@ -9567,7 +9567,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 
@@ -12698,7 +12698,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 
@@ -27276,7 +27276,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 
@@ -36486,7 +36486,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 
@@ -42487,7 +42487,7 @@ namespace entt {
             const Char* str;
         };
 
-        // Fowler–Noll–Vo hash function v. 1a - the good
+        // Fowlerâ€“Nollâ€“Vo hash function v. 1a - the good
         [[nodiscard]] static constexpr id_type helper(const Char* curr) ENTT_NOEXCEPT {
             auto value = traits_type::offset;
 

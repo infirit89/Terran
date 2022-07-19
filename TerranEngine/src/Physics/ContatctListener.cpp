@@ -6,7 +6,6 @@
 #include "Core/UUID.h"
 
 #include "Scene/Scene.h"
-#include "Scene/SceneManager.h"
 #include "Scene/Entity.h"
 
 #include "Scripting/ScriptEngine.h"

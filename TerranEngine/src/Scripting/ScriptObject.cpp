@@ -1,67 +1,31 @@
 #include "trpch.h"
 #include "ScriptObject.h"
+#include "ScriptClass.h"
 
-#include <mono/metadata/attrdefs.h>
+#include <mono/metadata/object.h>
+#include <mono/metadata/appdomain.h>
 
 namespace TerranEngine 
 {
-	ScriptObject::ScriptObject(uint32_t monoGCHandle)
-		: m_MonoGCHandle(monoGCHandle)
+	ScriptObject::ScriptObject(MonoObject* monoObject)
+		: m_MonoObject(monoObject)
+	{ }
+	
+	ScriptObject ScriptObject::CreateInstace(const ScriptClass& klass)
 	{
-		std::hash<std::string> hasher;
-
-		MonoObject* monoObject = (MonoObject*)GetNativeObject();
-
-		MonoClass* klass = mono_object_get_class(monoObject);
+		MonoObject* monoObject = mono_object_new(mono_domain_get(), klass.GetMonoClass());
+		mono_runtime_object_init(monoObject);
 		
-		MonoClassField* field;
-		void* iter = nullptr;
+		return monoObject;
+	}
 
-		while ((field = mono_class_get_fields(klass, &iter)) != nullptr) 
-		{
-			uint32_t hashedName = hasher(mono_field_get_name(field));
-			ScriptField scriptField(field, m_MonoGCHandle);
+	ScriptClass ScriptObject::GetClass()
+	{
+		if(!m_MonoObject)
+			return {};
 			
-			if (scriptField.GetVisibility() == ScriptFieldVisiblity::Public) 
-			{
-				m_FieldOrder.emplace_back(hashedName);
-				m_PublicFields.emplace(hashedName, std::move(scriptField));
-			}
-		}
-	}
+		MonoClass* monoClass = mono_object_get_class(m_MonoObject);
 
-	ScriptObject::~ScriptObject()
-	{
-	}
-
-	void ScriptObject::Uninitialize()
-	{
-		TR_INFO("Mono object released");
-		mono_gchandle_free(m_MonoGCHandle);
-		m_MonoGCHandle = 0;
-	}
-
-	ScriptField ScriptObject::GetPublicField(const char* fieldName)
-	{
-		std::hash<std::string> hasher;
-		uint32_t hashedName = hasher(fieldName);
-
-		if (m_PublicFields.find(hashedName) != m_PublicFields.end())
-			return m_PublicFields[hashedName];
-		else 
-			TR_WARN("No field with the corresponding name");
-
-		return { };
-	}
-
-	void* ScriptObject::GetNativeObject() const
-	{
-		MonoObject* obj = mono_gchandle_get_target(m_MonoGCHandle);
-
-		if (obj == NULL) 
-			TR_ERROR("Script object is null");
-
-		return (void*)obj;
+		return { monoClass };
 	}
 }
-

@@ -1,296 +1,356 @@
 #include "trpch.h"
 #include "ScriptEngine.h"
 
-#include "ScriptString.h"
 #include "ScriptBindings.h"
 #include "ScriptMarshal.h"
+#include "GCManager.h"
+#include "ScriptCache.h"
+#include "ScriptMethodThunks.h"
+#include "ScriptAssembly.h"
+#include "ScriptObject.h"
+#include "ScriptArray.h"
+#include "ScriptUtils.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
+#include "Core/Project.h"
 
 #include "Scene/Components.h"
-#include "Scene/SceneManager.h"
 
-#include <glm/glm.hpp>
+#include "Utils/Utils.h"
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
-#include <mono/metadata/debug-helpers.h>
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/mono-debug.h>
 #include <mono/utils/mono-logger.h>
+#include <mono/metadata/mono-config.h>
 
 #include <unordered_map>
 
 namespace TerranEngine
 {
-	static MonoDomain* s_CoreDomain;
-	static MonoDomain* s_NewDomain;
-
-	static MonoAssembly* s_CurrentAssembly;
-	
-	static MonoImage* s_CurrentImage;
-	
-	static const char* s_AssemblyPath;
-
-	static std::unordered_map<uint32_t, ScriptClass> s_Classes;
-
-	static MonoAssembly* LoadAssembly(const char* fileName);
-	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly);
-
-	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data);
-
-	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature);
-
 	struct ScriptableInstance 
 	{
-		ScriptObject Object;
-		ScriptMethod Constructor;
-		ScriptMethod InitMethod;
-		ScriptMethod UpdateMethod;
-
-		ScriptMethod PhysicsBeginContact;
-		ScriptMethod PhysicsEndContact;
+		GCHandle ObjectHandle;
+		ScriptMethodThunks<MonoArray*> Constructor;
+		ScriptMethodThunks<> InitMethod;
+		ScriptMethodThunks<> UpdateMethod;
 		
-		ScriptMethod PhysicsUpdateMethod;
+		ScriptMethodThunks<MonoArray*> PhysicsBeginContact;
+		ScriptMethodThunks<MonoArray*> PhysicsEndContact;
 
-		void GetMethods(ScriptClass& scriptClass) 
+		ScriptMethodThunks<> PhysicsUpdateMethod;
+
+		void GetMethods() 
 		{
-			Constructor = GetMethodFromImage(s_CurrentImage, "TerranScriptCore.Scriptable:.ctor(byte[])");
+			Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
 
-			InitMethod = scriptClass.GetMethod(":Init()");
-			UpdateMethod = scriptClass.GetMethod(":Update()");
+			InitMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
+			UpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update()"));
 
-			PhysicsBeginContact = scriptClass.GetMethod(":OnCollisionBegin(Entity)");
-			PhysicsEndContact = scriptClass.GetMethod(":OnCollisionEnd(Entity)");
+			PhysicsBeginContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
+			PhysicsEndContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
 
-			PhysicsUpdateMethod = scriptClass.GetMethod(":PhysicsUpdate()");
+			PhysicsUpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":PhysicsUpdate()"));
 		}
 	};
-
-	union ScriptFieldData
+	
+	using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>>;
+	
+	struct ScriptEngineData 
 	{
-		double dValue;
-		int64_t iValue;
-		bool bValue;
-		void* ptr;
+		MonoDomain* CoreDomain;
+		MonoDomain* AppDomain;
 
-		operator bool() { return bValue; }
+		std::array<Shared<ScriptAssembly>, TR_ASSEMBLIES> Assemblies;
+		
+		std::filesystem::path MonoPath = "mono";
 
-		operator int8_t() { return static_cast<int8_t>(iValue); }
-		operator int16_t() { return static_cast<int16_t>(iValue); }
-		operator int32_t() { return static_cast<int32_t>(iValue); }
-		operator int64_t() { return static_cast<int64_t>(iValue); }
+		std::filesystem::path LibPath = MonoPath / "lib";
+		std::filesystem::path EtcPath = MonoPath / "etc";
 
-		operator uint8_t() { return static_cast<uint8_t>(iValue); }
-		operator uint16_t() { return static_cast<uint16_t>(iValue); }
-		operator uint32_t() { return static_cast<uint32_t>(iValue); }
-		operator uint64_t() { return static_cast<uint64_t>(iValue); }
-
-		operator float() { return static_cast<float>(dValue); }
-		operator double() { return static_cast<double>(dValue); }
-		operator const char* () { return static_cast<const char*>(ptr); }
-		operator glm::vec2() { return *static_cast<glm::vec2*>(ptr); }
-		operator glm::vec3() { return *static_cast<glm::vec3*>(ptr); }
+		std::filesystem::path MonoConfigPath = EtcPath / "config";
+		Shared<Scene> SceneContext;
+		ScriptInstanceMap ScriptInstanceMap;
 	};
 
-	struct ScriptFieldBackup
-	{
-		ScriptFieldData Data;
-		ScriptFieldType Type;
-	};
-
+	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
+	static void UnhandledExceptionHook(MonoObject* exc, void *user_data);
+	
+	static ScriptEngineData* s_Data;
 
 	static ScriptableInstance s_EmptyInstance;
 
-	static std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>> s_ScriptableInstanceMap;
-
-	static std::unordered_map<UUID, std::unordered_map<std::string, ScriptFieldBackup>> s_ScriptFieldBackup;
-
 	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
-		if (s_ScriptableInstanceMap.find(sceneUUID) != s_ScriptableInstanceMap.end()) 
+		if (s_Data->ScriptInstanceMap.find(sceneUUID) != s_Data->ScriptInstanceMap.end()) 
 		{
-			if (s_ScriptableInstanceMap[sceneUUID].find(entityUUID) != s_ScriptableInstanceMap[sceneUUID].end())
-				return s_ScriptableInstanceMap[sceneUUID][entityUUID];
+			if (s_Data->ScriptInstanceMap[sceneUUID].find(entityUUID) != s_Data->ScriptInstanceMap[sceneUUID].end())
+				return s_Data->ScriptInstanceMap[sceneUUID][entityUUID];
 		}
 
 		return s_EmptyInstance;
 	}
 
-	void ScriptEngine::Initialize(const char* fileName)
+
+	void ScriptEngine::Initialize()
 	{
-		s_AssemblyPath = fileName;
-		std::filesystem::path monoPath = FileUtils::GetEnvironmentVariable("MONO_PATH");
-		//std::string monoPath = "Resources/Mono/";
-
-		std::filesystem::path libPath = monoPath / "lib";
-		std::filesystem::path etcPath = monoPath / "etc";
-
-		mono_set_dirs(libPath.string().c_str(), etcPath.string().c_str());
+		s_Data = new ScriptEngineData;
+		
+		mono_set_dirs(s_Data->LibPath.string().c_str(), s_Data->EtcPath.string().c_str());
 
 #ifdef TR_DEBUG
-
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
-
 		mono_trace_set_level_string("debug");
-
 		mono_trace_set_log_handler(OnLogMono, nullptr);
-
 #endif
 
-		s_CoreDomain = mono_jit_init("CoreDomain");
+		mono_config_parse(s_Data->MonoConfigPath.string().c_str());
+
+		s_Data->CoreDomain = mono_jit_init("CoreDomain");
 		
-		if (!s_CoreDomain)
+		if (!s_Data->CoreDomain)
 		{
 			TR_ERROR("Couldn't initialize the Mono Domain!");
 			return;
 		}
+		
+		for (size_t i = 0; i < TR_ASSEMBLIES; i++)
+			s_Data->Assemblies[i] = CreateShared<ScriptAssembly>();
+		
+		mono_install_unhandled_exception_hook(UnhandledExceptionHook, nullptr);		
+		
+		CreateAppDomain();
 
-		NewDomain();
+		LoadCoreAssembly();
+		LoadAppAssembly();
+		
+		ScriptBindings::Bind();
 	}
 
 	void ScriptEngine::Shutdown()
 	{
-		mono_jit_cleanup(s_CoreDomain);
+		for (const auto& [sceneID, scriptInstances] : s_Data->ScriptInstanceMap)
+		{
+			for (const auto& [entityID, instance] : scriptInstances)
+			{
+				GCHandle& handle = s_Data->ScriptInstanceMap[sceneID][entityID].ObjectHandle;
+				GCManager::FreeHandle(handle);
+			}
+			s_Data->ScriptInstanceMap[sceneID].clear();
+		}
+
+		s_Data->ScriptInstanceMap.clear();
+
+		GCManager::CollectAll();
+		
+		mono_jit_cleanup(s_Data->CoreDomain);
 		TR_INFO("Deinitialized the scripting core");
 	}
 
-	void ScriptEngine::NewDomain() 
+	void ScriptEngine::ReloadAppAssembly()
 	{
-		s_NewDomain = mono_domain_create_appdomain("ScriptAssemblyDomain", NULL);
-		
-		if (!mono_domain_set(s_NewDomain, false)) 
+		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, Utils::Variant>>> scriptFieldsStates;
+		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, std::vector<Utils::Variant>>>> arrayScriptFieldsStates;
+
+		for (const auto& [sceneID, scriptInstances] : s_Data->ScriptInstanceMap)
 		{
-			TR_ERROR("Couldn't set the new domain");
-			return;
+			for (const auto& [entityID, instance] : scriptInstances)
+			{
+				const GCHandle& handle = instance.ObjectHandle;
+				
+				auto scene = Scene::GetScene(sceneID);
+
+				Entity entity = scene->FindEntityWithUUID(entityID);
+
+				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+				{
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					if (field->GetType().IsArray())
+					{
+						ScriptArray array = field->GetArray(handle);
+						arrayScriptFieldsStates[sceneID][entityID][fieldID].reserve(array.Length());
+
+						for (size_t i = 0; i < array.Length(); i++)
+							arrayScriptFieldsStates[sceneID][entityID][fieldID].push_back(array[i]);
+
+						continue;
+					}
+
+					scriptFieldsStates[sceneID][entityID][fieldID] = field->GetData<Utils::Variant>(handle);
+				}
+			}
 		}
+		
+		UnloadDomain();
+		CreateAppDomain();
 
-		s_CurrentAssembly = LoadAssembly(s_AssemblyPath);
+		LoadCoreAssembly();
+		LoadAppAssembly();
+		
+		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
+		{
+			auto scene = Scene::GetScene(sceneID);
+			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
+			{
+				Entity entity = scene->FindEntityWithUUID(entityID);
+				InitializeScriptable(entity);
+				
+				for (const auto& [fieldID, fieldData] : fieldsState)
+				{
+					GCHandle handle = GetScriptInstanceGCHandle(sceneID, entityID);
 
-		if (!s_CurrentAssembly) return;
+					if(!handle.IsValid())
+						break;
 
-		s_CurrentImage = GetImageFromAssemly(s_CurrentAssembly);
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-		if (!s_CurrentImage) return;
+					if(!field)
+						continue;
+					
+					if (field->GetType().IsArray())
+						continue;
 
-		TR_INFO("Successfuly loaded: {0}", s_AssemblyPath);
+					field->SetData<Utils::Variant>(fieldData, handle);
+				}
+			}
+		}
+		
+		for (const auto& [sceneID, scriptFieldsValues] : arrayScriptFieldsStates)
+		{
+			auto scene = Scene::GetScene(sceneID);
+			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
+			{
+				Entity entity = scene->FindEntityWithUUID(entityID);
+				InitializeScriptable(entity);
+				
+				for (const auto& [fieldID, arrayFieldData] : fieldsState)
+				{
+					GCHandle handle = GetScriptInstanceGCHandle(sceneID, entityID);
 
-		ScriptBindings::Bind();
+					if(!handle.IsValid())
+						break;
+
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+
+					if(!field)
+						continue;
+					
+					if (!field->GetType().IsArray())
+						continue;
+
+					ScriptArray array = field->GetArray(handle);
+					if (array.Length() != arrayFieldData.size())
+						array.Resize(arrayFieldData.size());
+
+					for (size_t i = 0; i < arrayFieldData.size(); i++)
+						array.Set<Utils::Variant>(i, arrayFieldData[i]);
+
+					field->SetArray(array, handle);
+				}
+			}
+		}
 	}
 
-	std::string ScriptEngine::GetAssemblyPath() 
+	void ScriptEngine::SetContext(const Shared<Scene>& context) { s_Data->SceneContext = context; }
+	Shared<Scene>& ScriptEngine::GetContext() { return s_Data->SceneContext; }
+
+	void ScriptEngine::LoadCoreAssembly()
 	{
-		return s_AssemblyPath;
+		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+		coreAssembly = ScriptAssembly::LoadAssembly(Project::GetCoreAssemblyPath());
+		ScriptCache::CacheCoreClasses();
+	}
+
+	void ScriptEngine::LoadAppAssembly()
+	{
+		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+		appAssembly = ScriptAssembly::LoadAssembly(Project::GetAppAssemblyPath());
+
+		Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
+		ScriptCache::GenerateCacheForAssembly(assemblyInfo);
+	}
+
+	void ScriptEngine::CreateAppDomain() 
+	{
+		s_Data->AppDomain = mono_domain_create_appdomain("ScriptAssemblyDomain", NULL);
+		
+		if (!mono_domain_set(s_Data->AppDomain, false))
+			TR_ERROR("Couldn't set the new domain");
 	}
 
 	void ScriptEngine::UnloadDomain() 
 	{
-		if (s_NewDomain != s_CoreDomain) 
+		if (s_Data->AppDomain != s_Data->CoreDomain)
 		{
-			SetCurrentFieldStates(SceneManager::GetCurrentScene()->GetID());
+			mono_domain_set(s_Data->CoreDomain, false);
 
-			mono_domain_set(s_CoreDomain, false);
-
-			if (!mono_domain_finalize(s_NewDomain, 2000))
+			if (!mono_domain_finalize(s_Data->AppDomain, 2000))
 			{
 				TR_ERROR("Finalizing the domain timed out");
 				return;
 			}
-			mono_gc_collect(mono_gc_max_generation());
+			
+			GCManager::CollectAll();
 
-			auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
-
-			for (auto e : scriptView)
+			ScriptInstanceMap oldInstanceMap = s_Data->ScriptInstanceMap;
+			for (const auto& [sceneID, scriptInstances] : oldInstanceMap)
 			{
-				Entity entity(e, SceneManager::GetCurrentScene().get());
+				for (const auto& [entityID, instance] : scriptInstances)
+				{
+					auto scene = Scene::GetScene(sceneID);
 
-				UninitalizeScriptable(entity);
+					if(!scene)
+						continue;
+
+					Entity entity = scene->FindEntityWithUUID(entityID);
+					UninitalizeScriptable(entity);
+				}
 			}
-
-			mono_domain_unload(s_NewDomain);
-
-			s_Classes.clear();
+			
+			mono_domain_unload(s_Data->AppDomain);
 		}
+
+		ScriptCache::ClearCache();
 	}
 
-	ScriptClass ScriptEngine::GetClass(const std::string& moduleName)
+	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName, int assemblyIndex)
 	{
-		if (!s_CurrentImage)
-		{
-			TR_ERROR("Can't locate the class {0}, as there is no loaded script image", moduleName);
-			return ScriptClass();
-		}
+		return s_Data->Assemblies[assemblyIndex]->GetClassFromName(moduleName);
+	}
 
-		std::hash<std::string> hasher;
-		uint32_t hashedName = hasher(moduleName);
+	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex)
+	{
+		return s_Data->Assemblies[assemblyIndex]->GetClassFromTypeToken(typeToken);
+	}
 
-		if (s_Classes.find(hashedName) != s_Classes.end())
-			return s_Classes[hashedName];
-		
-		size_t dotPosition = moduleName.find_last_of(".");
-
-		std::string& namespaceName = moduleName.substr(0, dotPosition);
-		std::string& className = moduleName.substr(dotPosition + 1);
-		
-		// NOTE: Access violation when the script assembly isn't loaded
-		MonoClass* klass = mono_class_from_name(s_CurrentImage, namespaceName.c_str(), className.c_str());
-
-		if (!klass) 
-		{
-			TR_ERROR("Class wasn't found");
-			return ScriptClass();
-		}
-		ScriptClass scriptClass(klass);
-		s_Classes[hashedName] = scriptClass;
-
-		return scriptClass;
+	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex)
+	{
+		return s_Data->Assemblies[assemblyIndex]->GetMethodFromDesc(methodDesc);
 	}
 
 	bool ScriptEngine::ClassExists(const std::string& moduleName)
 	{
-		return GetClass(moduleName).GetNativeClassPtr() != nullptr;
+		return ScriptCache::GetCachedClassFromName(moduleName);
 	}
 
-	static ScriptMethod GetMethodFromImage(MonoImage* image, const char* methodSignature)
+	Shared<ScriptAssembly>& ScriptEngine::GetAssembly(int assemblyIndex)
 	{
-		MonoMethodDesc* monoDesc = mono_method_desc_new(methodSignature, false);
-		if (!monoDesc)
-		{
-			TR_ERROR("Couldn't find a matching description ({0}) in the image", methodSignature);
-
-			return NULL;
-		}
-
-		MonoMethod* monoMethod = mono_method_desc_search_in_image(monoDesc, image);
-
-		if (!monoMethod)
-		{
-			TR_ERROR("Couldn't find the method with signature: {0} in image", methodSignature);
-
-			return NULL;
-		}
-
-		mono_method_desc_free(monoDesc);
-
-		return ScriptMethod(monoMethod);
+		return s_Data->Assemblies.at(assemblyIndex);
 	}
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
-		if (s_ScriptableInstanceMap.find(entity.GetID()) == s_ScriptableInstanceMap.end())
+		if (s_Data->ScriptInstanceMap.find(entity.GetID()) == s_Data->ScriptInstanceMap.end())
 		{
-			ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
-			ScriptClass klass = ScriptEngine::GetClass(scriptComponent.ModuleName);
-			if (!klass.GetNativeClassPtr())
-			{
-				TR_WARN("Couldn't find the class: {0}", scriptComponent.ModuleName);
-				return;
-			}
+			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+			ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
+			
+			if (!klass) return;
 
-			ScriptClass parentKlass = klass.GetParent();
-			if ((!parentKlass.GetNativeClassPtr()) ||
-				(strcmp(parentKlass.GetName(), "Scriptable") != 0 && strcmp(parentKlass.GetNamespace(), "TerranScriptCore") != 0))
+			if (klass->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))
 			{
 				// TODO: display error in ui
 				TR_WARN("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
@@ -298,124 +358,24 @@ namespace TerranEngine
 			}
 
 			ScriptableInstance instance;
-			instance.Object = klass.CreateInstance();
-			instance.GetMethods(klass);
+			const ScriptObject object = ScriptObject::CreateInstace(*klass);
+			instance.ObjectHandle = GCManager::CreateStrongHadle(object);
+			instance.GetMethods();
 
-			MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+			
+			MonoException* exc = nullptr;
+			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exc);
+			ScriptUtils::PrintUnhandledException(exc);
+			
+			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
-			void* args[] = { uuidArray };
-
-			instance.Constructor.Invoke(instance.Object, args);
-
-			s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
-
-			if (!s_ScriptFieldBackup.empty()) 
+			scriptComponent.PublicFieldIDs.clear();
+			for (ScriptField& field : klass->GetFields())
 			{
-				std::unordered_map<std::string, ScriptFieldBackup> fieldBackup = s_ScriptFieldBackup.at(entity.GetID());
-				for (auto& [fieldName, field] : fieldBackup)
-				{
-					std::hash<std::string> hasher;
-					uint32_t hashedName = hasher(fieldName);
-					if (instance.Object.GetFieldMap().find(hashedName) != instance.Object.GetFieldMap().end()) 
-					{
-						ScriptField& objectField = instance.Object.GetFieldMap().at(hashedName);
-
-						if (objectField.GetType() == field.Type) 
-						{
-							switch (field.Type)
-							{
-							case ScriptFieldType::Bool: 
-							{
-								bool value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int8:
-							{
-								int8_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int16:
-							{
-								int16_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int:
-							{
-								int32_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int64:
-							{
-								int64_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt8:
-							{
-								uint8_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt16:
-							{
-								uint16_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt:
-							{
-								uint32_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt64:
-							{
-								uint64_t value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Float: 
-							{
-								float value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Double: 
-							{
-								double value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::String: 
-							{
-								const char* value = field.Data;
-								objectField.SetData<const char*>(value);
-								break;
-							}
-							case ScriptFieldType::Vector2: 
-							{
-								glm::vec2 value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Vector3:
-							{
-								glm::vec3 value = field.Data;
-								objectField.SetData(value);
-								break;
-							}
-							}
-						}
-					}
-				}
+				if(field.GetVisibility() == ScriptFieldVisibility::Public)
+					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 			}
-
-			scriptComponent.FieldOrder = instance.Object.GetFieldOrder();
-			scriptComponent.PublicFields = instance.Object.GetFieldMap();
 		}
 	}
 
@@ -423,44 +383,60 @@ namespace TerranEngine
 	{
 		if (!entity || !entity.HasComponent<TagComponent>())
 			return;
-
-		if (s_ScriptableInstanceMap.find(entity.GetSceneID()) != s_ScriptableInstanceMap.end()) 
+		
+		if (s_Data->ScriptInstanceMap.find(entity.GetSceneID()) != s_Data->ScriptInstanceMap.end()) 
 		{
-			if (s_ScriptableInstanceMap[entity.GetSceneID()].find(entity.GetID()) != s_ScriptableInstanceMap[entity.GetSceneID()].end()) 
+			if (s_Data->ScriptInstanceMap[entity.GetSceneID()].find(entity.GetID()) != s_Data->ScriptInstanceMap[entity.GetSceneID()].end()) 
 			{
-				s_ScriptableInstanceMap[entity.GetSceneID()][entity.GetID()].Object.Uninitialize();
-				s_ScriptableInstanceMap[entity.GetSceneID()].erase(entity.GetID());
+				GCHandle& handle = s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()].ObjectHandle;
+				GCManager::FreeHandle(handle);
+				s_Data->ScriptInstanceMap[entity.GetSceneID()].erase(entity.GetID());
 			}
+
+			if(s_Data->ScriptInstanceMap.empty())
+				s_Data->ScriptInstanceMap.erase(entity.GetSceneID());
 		}
 	}
 
 	void ScriptEngine::OnStart(Entity entity) 
 	{
-		ScriptableInstance instace = GetInstance(entity.GetSceneID(), entity.GetID());
+		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		entity.GetComponent<ScriptComponent>().Started = true;
 
-		if (instace.InitMethod.GetNativeMethodPtr())
-			instace.InitMethod.Invoke(instace.Object, nullptr);
+		if (instance.InitMethod)
+		{
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
+			instance.InitMethod.Invoke(monoObject, &exc);
+			ScriptUtils::PrintUnhandledException(exc);
+		}
 	}
 
 	void ScriptEngine::OnUpdate(Entity entity) 
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
-		if (instance.UpdateMethod.GetNativeMethodPtr())
-			instance.UpdateMethod.Invoke(instance.Object, nullptr);
+		if (instance.UpdateMethod) 
+		{
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
+			instance.UpdateMethod.Invoke(monoObject, &exc);
+			ScriptUtils::PrintUnhandledException(exc);
+		}
 	}
 
 	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee)
 	{
 		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
 
-		if (instance.PhysicsBeginContact.GetNativeMethodPtr()) 
+		if (instance.PhysicsBeginContact) 
 		{
-			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			void* args[] = { monoUuidArr };
-			instance.PhysicsBeginContact.Invoke(instance.Object, args);
+			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 
@@ -468,11 +444,13 @@ namespace TerranEngine
 	{
 		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
 
-		if (instance.PhysicsEndContact.GetNativeMethodPtr())
+		if (instance.PhysicsEndContact)
 		{
-			MonoArray* monoUuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			void* args[] = { monoUuidArr };
-			instance.PhysicsEndContact.Invoke(instance.Object, args);
+			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
+			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
+			ScriptUtils::PrintUnhandledException(exc);
 		}
 	}
 
@@ -480,207 +458,83 @@ namespace TerranEngine
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
-		if (instance.PhysicsUpdateMethod.GetNativeMethodPtr())
-			instance.PhysicsUpdateMethod.Invoke(instance.Object, nullptr);
+		if (instance.PhysicsUpdateMethod) 
+		{
+			MonoException* exc = nullptr;
+			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
+			instance.PhysicsUpdateMethod.Invoke(monoObject, &exc);
+			ScriptUtils::PrintUnhandledException(exc);
+		}
 	}
 
 	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
 	{
-		ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
-
-		return instance.Object;
+		const ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
+		return GCManager::GetManagedObject(instance.ObjectHandle);
 	}
 
-	void ScriptEngine::ClearFieldBackupMap()
+	GCHandle ScriptEngine::GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID)
 	{
-		auto scriptFieldBackupCpy = s_ScriptFieldBackup;
-		for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
-		{
-			auto fieldBackupCpy = fieldBackupMap;
-			for (auto& [fieldName, field] : fieldBackupCpy)
-			{
-				switch (field.Type)
-				{
-				case ScriptFieldType::String:
-				{
-					if (field.Data.ptr)
-						delete[](char*)field.Data.ptr;
-					break;
-				}
-				case ScriptFieldType::Vector2:
-				{
-					if (field.Data.ptr)
-						delete (glm::vec2*)field.Data.ptr;
-					break;
-				}
-				case ScriptFieldType::Vector3:
-				{
-					if (field.Data.ptr)
-						delete (glm::vec3*)field.Data.ptr;
-					break;
-				}
-				}
-
-				fieldBackupMap.erase(fieldName);
-			}
-
-			s_ScriptFieldBackup.erase(entityID);
-		}
+		const ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
+		return instance.ObjectHandle;
 	}
 
-	void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
+	// void ScriptEngine::ClearFieldBackupMap()
+	// {
+	// 	auto scriptFieldBackupCpy = s_ScriptFieldBackup;
+	// 	for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
+	// 	{
+	// 		auto fieldBackupCpy = fieldBackupMap;
+	// 		for (auto& [fieldID, fieldData] : fieldBackupCpy)
+	// 		{
+	// 			fieldData.Clear();
+	// 			fieldBackupMap.erase(fieldID);
+	// 		}
+	//
+	// 		s_ScriptFieldBackup.erase(entityID);
+	// 	}
+	// }
+
+	// void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
+	// {
+	// 	if (s_Data->ScriptInstanceMap.find(sceneID) != s_Data->ScriptInstanceMap.end())
+	// 	{
+	// 		std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_Data->ScriptInstanceMap.at(sceneID);
+	// 		for (auto& [id, scriptableInstance] : entityInstanceMap)
+	// 		{
+	// 			std::unordered_map<uint32_t, Utils::Variant> fieldBackupMap;
+	// 			const GCHandle handle = GetScriptInstanceGCHandle(sceneID, id);
+	// 			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+	// 			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+	// 			
+	// 			for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+	// 			{
+	// 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+	// 				Utils::Variant fieldBackup = field->GetData<Utils::Variant>(handle);
+	//
+	// 				fieldBackupMap.emplace(fieldID, fieldBackup);
+	// 			}
+	//
+	// 			s_ScriptFieldBackup.emplace(id, std::move(fieldBackupMap));
+	// 		}
+	// 	}
+	// }
+
+	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData) 
 	{
-		if (s_ScriptableInstanceMap.find(sceneID) != s_ScriptableInstanceMap.end())
+		if (logLevel != nullptr) 
 		{
-			std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_ScriptableInstanceMap.at(sceneID);
-
-			for (auto& [id, scriptableInstance] : entityInstanceMap)
-			{
-				UUID entityID = id;
-				std::unordered_map<std::string, ScriptFieldBackup> fieldBackupMap;
-
-				for (auto& [fieldName, field] : scriptableInstance.Object.GetFieldMap())
-				{
-					ScriptFieldBackup fieldBackup;
-					fieldBackup.Type = field.GetType();
-					switch (field.GetType())
-					{
-					case ScriptFieldType::Int8: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int8_t>();
-						break;
-					}
-					case ScriptFieldType::Int16: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int16_t>();
-						break;
-					}
-					case ScriptFieldType::Int: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int32_t>();
-						break;
-					}
-					case ScriptFieldType::Int64: 
-					{
-						fieldBackup.Data.iValue = field.GetData<int64_t>();
-						break;
-					}
-					case ScriptFieldType::UInt8: 
-					{
-						fieldBackup.Data.iValue = field.GetData<uint8_t>();
-						break;
-					}
-					case ScriptFieldType::UInt16: 
-					{
-						fieldBackup.Data.iValue = field.GetData<uint16_t>();
-						break;
-					}
-					case ScriptFieldType::UInt: 
-					{
-						fieldBackup.Data.iValue = field.GetData<uint32_t>();
-						break;
-					}
-					case ScriptFieldType::UInt64:
-					{
-						fieldBackup.Data.iValue = field.GetData<uint64_t>();
-						break;
-					}
-					case ScriptFieldType::Float:
-					{
-						fieldBackup.Data.dValue = field.GetData<float>();
-						break;
-					}
-					case ScriptFieldType::Double:
-					{
-						fieldBackup.Data.dValue = field.GetData<double>();
-						break;
-					}
-					case ScriptFieldType::Bool:
-					{
-						fieldBackup.Data.bValue = field.GetData<bool>();
-						break;
-					}
-					case ScriptFieldType::String: 
-					{
-						const char* tempVal = field.GetData<const char*>();
-						size_t tempValLength = strlen(tempVal);
-
-						fieldBackup.Data.ptr = new char[tempValLength + 1];
-
-						strcpy((char*)fieldBackup.Data.ptr, tempVal);
-
-						((char*)fieldBackup.Data.ptr)[tempValLength] = '\0';
-						break;
-					}
-					case ScriptFieldType::Vector2: 
-					{
-						glm::vec2 tempVal = field.GetData<glm::vec2>();
-
-						fieldBackup.Data.ptr = new glm::vec2;
-
-						((glm::vec2*)fieldBackup.Data.ptr)->x = tempVal.x;
-						((glm::vec2*)fieldBackup.Data.ptr)->y = tempVal.y;
-
-						break;
-					}
-					case ScriptFieldType::Vector3:
-					{
-						glm::vec3 tempVal = field.GetData<glm::vec3>();
-
-						fieldBackup.Data.ptr = new glm::vec3;
-
-						((glm::vec3*)fieldBackup.Data.ptr)->x = tempVal.x;
-						((glm::vec3*)fieldBackup.Data.ptr)->y = tempVal.y;
-						((glm::vec3*)fieldBackup.Data.ptr)->z = tempVal.z;
-
-						break;
-					}
-					}
-
-					fieldBackupMap.emplace(field.GetName(), std::move(fieldBackup));
-				}
-
-				s_ScriptFieldBackup.emplace(entityID, std::move(fieldBackupMap));
-			}
-		}
-	}
-
-	static MonoAssembly* LoadAssembly(const char* fileName) 
-	{
-		MonoAssembly* newAssembly = mono_domain_assembly_open(s_NewDomain, fileName);
-
-		if (!newAssembly)
-		{
-			TR_ERROR("Couldn't load the C# assembly!");
-			return nullptr;
-		}
-
-		return newAssembly;
-	}
-
-	static MonoImage* GetImageFromAssemly(MonoAssembly* assembly)
-	{
-		MonoImage* newImage = mono_assembly_get_image(assembly);
-
-		if (!newImage)
-		{
-			TR_ERROR("Couldn't find an image in the script assembly!");
-			return nullptr;
-		}
-
-		return newImage;
-	}
-
-	static void OnLogMono(const char* log_domain, const char* log_level, const char* message, mono_bool fatal, void* user_data) 
-	{
-		if (log_level != nullptr) 
-		{
-			if (strcmp(log_level, "info") == 0)
-				TR_INFO("Domain: {0}; Message: {1}", log_domain, message);
-			else if(strcmp(log_level, "debug") == 0)
-				TR_TRACE("Domain: {0}; Message: {1}", log_domain, message);
+			if (strcmp(logLevel, "info") == 0)
+				TR_INFO("Domain: {0}; Message: {1}", logDomain, message);
+			else if(strcmp(logLevel, "debug") == 0)
+				TR_TRACE("Domain: {0}; Message: {1}", logDomain, message);
 			else
-				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", log_domain, message, log_level);
+				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", logDomain, message, logLevel);
 		}
+	}
+
+	static void UnhandledExceptionHook(MonoObject* exc, void *user_data)
+	{
+		ScriptObject object(exc);
 	}
 }

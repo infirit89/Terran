@@ -17,8 +17,6 @@
 
 namespace TerranEditor
 {
-	static void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination);
-
 	EditorLayer* EditorLayer::s_Instance;
 
 	EditorLayer::EditorLayer()
@@ -29,6 +27,7 @@ namespace TerranEditor
 
 	void EditorLayer::OnAttach()
 	{
+		Project::Init("", "SandboxProject");
 		FontAtlas fontAtlas;
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -45,15 +44,15 @@ namespace TerranEditor
 			std::make_shared<EditorConsoleSink>()
 		};
 
-		clientSinks[0]->set_pattern("%^[%T] %n: %v%$");
-		clientSinks[1]->set_pattern("%^[%T] %n: %v%$");
+		clientSinks[0]->set_pattern("%^[%T] %v%$");
+		clientSinks[1]->set_pattern("%^[%T] %v%$");
 
 		Shared<spdlog::logger> clientLogger = CreateShared<spdlog::logger>("Console", clientSinks.begin(), clientSinks.end());
 		clientLogger->set_level(spdlog::level::trace);
 
 		Log::SetClientLogger(clientLogger);
 
-		m_EditorScene = CreateShared<Scene>();
+		m_EditorScene = Scene::CreateEmpty();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		TR_TRACE((uint32_t)cameraEntity);
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
@@ -61,7 +60,7 @@ namespace TerranEditor
 		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
 		
-		SceneManager::SetCurrentScene(m_EditorScene);
+		m_ActiveScene = m_EditorScene;
 
 		// ***** Panel Setup *****
 		m_ContentPanel = ContentPanel(m_ResPath);
@@ -69,11 +68,12 @@ namespace TerranEditor
 		m_SceneViewPanel.SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
 		m_SceneViewPanel.SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
 		m_SceneViewPanel.SetSelectedChangedCallback([this](Entity entity) { m_SceneHierarchyPanel.SetSelected(entity); });
+		m_SceneViewPanel.SetContext(m_ActiveScene);
 
 		m_SceneHierarchyPanel.SetOnSelectedChangedCallback([this](Entity entity) { OnSelectedChanged(entity); });
-		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
+		m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 		
-		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+		m_ECSPanel.SetContext(m_ActiveScene);
 		// ***********************
 
 		FramebufferParameters editorFramebufferParams;
@@ -88,17 +88,15 @@ namespace TerranEditor
 
 		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);
 
-		m_ScriptAssemblyPath = "Resources/Scripts/";
-
-		CopyAssembly((m_ScriptAssemblyPath / "Temp/TerranScriptCore.dll"), m_ScriptAssemblyPath);
-
-		ScriptEngine::Initialize("Resources/Scripts/TerranScriptCore.dll");
-		ScriptBindings::Bind();
+		ScriptEngine::Initialize();
+		Physics2D::Initialize();
 	}
 
 	void EditorLayer::OnDettach()
 	{
+		Project::Uninitialize();
 		ScriptEngine::Shutdown();
+		Physics2D::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -108,14 +106,14 @@ namespace TerranEditor
 		BatchRenderer2D::Get()->ResetStats();
 		m_EditorCamera.Update(time);
 
-		if (m_SceneViewPanel.IsVisible() && SceneManager::GetCurrentScene()) 
+		if (m_SceneViewPanel.IsVisible() && m_ActiveScene) 
 		{
 			switch (m_SceneState) 
 			{
 			case SceneState::Edit: 
 			{
-				SceneManager::GetCurrentScene()->UpdateEditor();
-				SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
+				m_ActiveScene->UpdateEditor();
+				m_ActiveScene->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
 				
 				//m_SceneViewPanel.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 				m_SceneViewPanel.SetFramebuffer(m_EditorSceneRenderer->GetFramebuffer());
@@ -124,7 +122,7 @@ namespace TerranEditor
 			}
 			case SceneState::Play: 
 			{
-				auto primaryCamera = SceneManager::GetCurrentScene()->GetPrimaryCamera();
+				auto primaryCamera = m_ActiveScene->GetPrimaryCamera();
 
 				glm::vec4 backgroundColor = glm::vec4(0.0f);
 
@@ -133,8 +131,8 @@ namespace TerranEditor
 
 				m_RuntimeSceneRenderer->SetClearColor(backgroundColor);
 
-				SceneManager::GetCurrentScene()->Update(time);
-				SceneManager::GetCurrentScene()->OnRender(m_RuntimeSceneRenderer);
+				m_ActiveScene->Update(time);
+				m_ActiveScene->OnRender(m_RuntimeSceneRenderer);
 
 				//m_SceneViewPanel.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 				m_SceneViewPanel.SetFramebuffer(m_RuntimeSceneRenderer->GetFramebuffer());
@@ -223,24 +221,7 @@ namespace TerranEditor
 
 		return false;
 	}
-
-	static void ReloadScriptAssembly(const std::filesystem::path& scriptAssemblyPath) 
-	{
-		ScriptEngine::UnloadDomain();
-		CopyAssembly((scriptAssemblyPath / "Temp/TerranScriptCore.dll").string(), scriptAssemblyPath.string());
-		ScriptEngine::NewDomain();
-
-		auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
-
-		for (auto e : scriptView)
-		{
-			Entity entity(e, SceneManager::GetCurrentScene().get());
-			ScriptEngine::InitializeScriptable(entity);
-		}
-
-		ScriptEngine::ClearFieldBackupMap();
-	}
-
+	
 	void EditorLayer::ShowDockspace() 
 	{
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
@@ -324,7 +305,7 @@ namespace TerranEditor
 			if (ImGui::BeginMenu("Tools")) 
 			{
 				if (ImGui::MenuItem("Reload C# Assembly"))
-					ReloadScriptAssembly(m_ScriptAssemblyPath);
+					ScriptEngine::ReloadAppAssembly();
 				
 				if (ImGui::MenuItem("Show colliders", NULL, m_ShowColliders)) 
 				{
@@ -348,12 +329,13 @@ namespace TerranEditor
 			m_LogPanel.ClearMessageBuffer();
 
 		m_SceneState = SceneState::Play;
-		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
-		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+		m_ActiveScene = Scene::CopyScene(m_EditorScene);
+		m_ActiveScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
-		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
-		SceneManager::GetCurrentScene()->StartRuntime();
+		m_SceneHierarchyPanel.SetScene(m_ActiveScene);
+		m_ECSPanel.SetContext(m_ActiveScene);
+		m_SceneViewPanel.SetContext(m_ActiveScene);
+		m_ActiveScene->StartRuntime();
 
 		m_SceneHierarchyPanel.SetSelected(m_Selected);
 		m_EditModeSelected = m_Selected;
@@ -362,10 +344,11 @@ namespace TerranEditor
 	void EditorLayer::OnSceneStop()
 	{
 		m_SceneState = SceneState::Edit;
-		SceneManager::GetCurrentScene()->StopRuntime();
-		SceneManager::SetCurrentScene(m_EditorScene);
-		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
-		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+		m_ActiveScene->StopRuntime();
+		m_ActiveScene = m_EditorScene;
+		m_SceneHierarchyPanel.SetScene(m_ActiveScene);
+		m_ECSPanel.SetContext(m_ActiveScene);
+		m_SceneViewPanel.SetContext(m_ActiveScene);
 
 		m_SceneHierarchyPanel.SetSelected(m_EditModeSelected);
 	}
@@ -390,7 +373,7 @@ namespace TerranEditor
 		case TerranEditor::SceneState::Play:
 		{
 			m_RuntimeSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			m_ActiveScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 			break;
 		}
@@ -403,6 +386,8 @@ namespace TerranEditor
 		ImGuizmo::BeginFrame();
 
 		ShowDockspace();
+
+		ImGui::ShowDemoWindow();
 
 		m_SceneHierarchyPanel.ImGuiRender();
 		m_SceneViewPanel.ImGuiRender(m_Selected, m_EditorCamera);
@@ -469,7 +454,7 @@ namespace TerranEditor
 		if (!scenePath.empty())
 		{
 			m_CurrentScenePath = scenePath;
-			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
+			SceneSerializer sSerializer(m_ActiveScene);
 			sSerializer.SerializeJson(scenePath);
 
 			m_CurrentScenePath = scenePath;
@@ -478,14 +463,15 @@ namespace TerranEditor
 
 	void EditorLayer::NewScene()
 	{
-		m_EditorScene = CreateShared<Scene>();
+		m_EditorScene = Scene::CreateEmpty();
 		CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
 		cameraComponent.Primary = true;
 		m_EditorScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-		SceneManager::SetCurrentScene(m_EditorScene);
-		m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
-		m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+		m_ActiveScene = m_EditorScene;
+		m_SceneHierarchyPanel.SetScene(m_ActiveScene);
+		m_ECSPanel.SetContext(m_ActiveScene);
+		m_SceneViewPanel.SetContext(m_ActiveScene);
 	}
 
 	void EditorLayer::OpenScene()
@@ -509,16 +495,17 @@ namespace TerranEditor
 			std::string& jsonData = SceneSerializer::ReadJson(scenePath.string());
 			if (jsonData != "")
 			{
-				Shared<Scene> newScene = CreateShared<Scene>();
+				Shared<Scene> newScene = Scene::CreateEmpty();
 				SceneSerializer sSerializer(newScene);
 				if (sSerializer.DesirializeJson(jsonData))
 				{
 					m_EditorScene = newScene;
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
-					SceneManager::SetCurrentScene(newScene);
-					m_SceneHierarchyPanel.SetScene(SceneManager::GetCurrentScene());
-					m_ECSPanel.SetContext(SceneManager::GetCurrentScene());
+					m_ActiveScene = newScene;
+					m_SceneHierarchyPanel.SetScene(m_ActiveScene);
+					m_ECSPanel.SetContext(m_ActiveScene);
+					m_SceneViewPanel.SetContext(m_ActiveScene);
 
 					m_Selected = {};
 
@@ -534,23 +521,8 @@ namespace TerranEditor
 			SaveSceneAs();
 		else 
 		{
-			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
+			SceneSerializer sSerializer(m_ActiveScene);
 			sSerializer.SerializeJson(m_CurrentScenePath);
 		}
-	}
-
-	void CopyAssembly(const std::filesystem::path& source, const std::filesystem::path& destination)
-	{
-		if (std::filesystem::exists(source)) 
-		{
-			if (std::filesystem::exists(destination / source.filename()))
-				std::filesystem::remove(destination / source.filename());
-
-			std::error_code errCode;
-			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing, errCode);
-			
-			TR_TRACE(errCode.message());
-		}
-			
 	}
 }

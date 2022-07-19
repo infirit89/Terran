@@ -12,38 +12,43 @@
 #include "Scripting/ScriptEngine.h"
 
 #include "Physics/Physics.h"
+#include "Scripting/ScriptCache.h"
 
 #include "Utils/Debug/Profiler.h"
-#include "Utils/Utils.h"
-
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace TerranEngine 
 {
 
+	static std::unordered_map<UUID, Shared<Scene>> s_SceneMap;
+	
+	struct SceneComponent
+	{
+		UUID SceneID;
+	};
+	
 	Scene::Scene()
 	{
 		m_ID = UUID();
 
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
-
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
+
+		const auto sceneEntity = m_Registry.create();
+		m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
 	}
 
 	Scene::~Scene()
 	{
-		auto scriptView = m_Registry.view<ScriptComponent>();
-
-		for (auto e : scriptView)
-		{
-			Entity entity(e, this);
-
-			ScriptEngine::UninitalizeScriptable(entity);
-		}
-
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
-
 		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
+	}
+
+	Shared<Scene> Scene::CreateEmpty()
+	{
+		Shared<Scene> scene = CreateShared<Scene>();
+		s_SceneMap.emplace(scene->m_ID, scene);
+		
+		return scene;
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -94,8 +99,12 @@ namespace TerranEngine
 
 	void Scene::StartRuntime()
 	{
-		m_RuntimeStarted = true;
+		if(m_IsPlaying)
+			return;
+		
+		m_IsPlaying = true;
 
+		Physics2D::SetContext(GetScene(m_ID));
 		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
 
 		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
@@ -107,6 +116,8 @@ namespace TerranEngine
 			Physics2D::CreatePhysicsBody(entity);
 		}
 
+
+		ScriptEngine::SetContext(GetScene(m_ID));
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
@@ -119,7 +130,10 @@ namespace TerranEngine
 
 	void Scene::StopRuntime()
 	{
-		m_RuntimeStarted = false;
+		if(!m_IsPlaying)
+			return;
+		
+		m_IsPlaying = false;
 		Physics2D::CleanUpPhysicsWorld();
 	}
 
@@ -225,7 +239,7 @@ namespace TerranEngine
 			sceneRenderer->EndScene();
 		}
 	}
-	static bool f = false;
+	
 	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		sceneRenderer->SetScene(this);
@@ -294,7 +308,7 @@ namespace TerranEngine
 
 	Entity Scene::FindEntityWithName(const std::string& name)
 	{
-		auto tagView = m_Registry.view<TagComponent>();
+		const auto tagView = m_Registry.view<TagComponent>();
 
 		for (auto e : tagView) 
 		{
@@ -308,7 +322,7 @@ namespace TerranEngine
 
 	Entity Scene::GetPrimaryCamera()
 	{
-		auto cameraView = m_Registry.view<CameraComponent>();
+		const auto cameraView = m_Registry.view<CameraComponent>();
 		for (auto e : cameraView)
 		{
 			Entity entity(e, this);
@@ -327,6 +341,30 @@ namespace TerranEngine
 		if (srcRegistry.all_of<Component>(srcHandle)) 
 		{
 			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
+
+			if constexpr (std::is_same<Component, ScriptComponent>::value)
+			{
+				ScriptComponent& sc = dstRegistry.get<ScriptComponent>(dstHandle);
+
+				for (const auto& fieldID : sc.PublicFieldIDs)
+				{
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					
+					const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
+					const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
+
+					const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
+					const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
+
+					const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
+					const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
+					
+					const GCHandle srcEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(srcSceneID, srcEntityID);
+					const GCHandle dstEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(dstSceneID, dstEntityID);
+
+					field->CopyData(srcEntityHandle, dstEntityHandle);
+				}
+			}
 		}
 	}
 
@@ -339,7 +377,7 @@ namespace TerranEngine
 	Entity Scene::DuplicateEntity(Entity srcEntity, Entity parent)
 	{
 		Entity dstEntity = CreateEntity(srcEntity.GetName() + " Copy");
-
+		
 		CopyComponent<TransformComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
@@ -369,7 +407,7 @@ namespace TerranEngine
 		{
 			ScriptEngine::InitializeScriptable(dstEntity);
 
-			if (m_RuntimeStarted)
+			if (m_IsPlaying)
 				ScriptEngine::OnStart(dstEntity);
 
 		}
@@ -383,9 +421,7 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
-		ScriptEngine::SetCurrentFieldStates(srcScene->GetID());
-
-		Shared<Scene> scene = CreateShared<Scene>();
+		Shared<Scene> scene = CreateEmpty();
 
 		auto tagView = srcScene->GetEntitiesWith<TagComponent>();
 
@@ -412,9 +448,15 @@ namespace TerranEngine
 			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
-		ScriptEngine::ClearFieldBackupMap();
-
 		return scene;
+	}
+
+	Shared<Scene> Scene::GetScene(const UUID& id)
+	{
+		if(s_SceneMap.find(id) != s_SceneMap.end())
+			return s_SceneMap.at(id);
+
+		return nullptr;
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)

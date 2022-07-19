@@ -3,12 +3,13 @@
 #include "SceneSerializer.h"
 #include "Entity.h"
 
+#include "Scripting/ScriptField.h"
+#include "Scripting/ScriptCache.h"
 #include "Scripting/ScriptEngine.h"
 
 #include <json.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
@@ -88,7 +89,6 @@ namespace TerranEngine
 		return vec;
 	}
 	
-
 	static json SerializeUUIDVector(const std::vector<UUID>& vec) 
 	{
 		if (vec.size() <= 0)
@@ -102,100 +102,118 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, ScriptComponent& scriptComponent) 
+	static void SerializeField(json& j, Entity entity) 
 	{
-		if (scriptComponent.PublicFields.empty())
-			return;
-
-		for (auto& hashedName : scriptComponent.FieldOrder)
+		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
+		GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+		
+		for (auto& fieldID : sc.PublicFieldIDs)
 		{
-			ScriptField field = scriptComponent.PublicFields.at(hashedName);
+			ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-			switch (field.GetType())
+			switch (field->GetType().TypeEnum)
 			{
-			case ScriptFieldType::Bool: 
+			case ScriptType::Bool: 
 			{
-				bool value = field.GetData<bool>();
-				j[field.GetName()] = value;
+				bool value = field->GetData<bool>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Char: 
+			case ScriptType::Char: 
 			{
-				char value = field.GetData<char>();
-				j[field.GetName()] = value;
+				char value = field->GetData<wchar_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Int8:
+			case ScriptType::Int8:
 			{
-				int8_t value = field.GetData<int8_t>();
-				j[field.GetName()] = value;
+				int8_t value = field->GetData<int8_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Int16:
+			case ScriptType::Int16:
 			{
-				int16_t value = field.GetData<int16_t>();
-				j[field.GetName()] = value;
+				int16_t value = field->GetData<int16_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Int: 
+			case ScriptType::Int32: 
 			{
-				int32_t value = field.GetData<int32_t>();
-				j[field.GetName()] = value;
+				int32_t value = field->GetData<int32_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Int64:
+			case ScriptType::Int64:
 			{
-				int64_t value = field.GetData<int64_t>();
-				j[field.GetName()] = value;
+				int64_t value = field->GetData<int64_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::UInt8:
+			case ScriptType::UInt8:
 			{
-				uint8_t value = field.GetData<uint8_t>();
-				j[field.GetName()] = value;
+				uint8_t value = field->GetData<uint8_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::UInt16:
+			case ScriptType::UInt16:
 			{
-				uint16_t value = field.GetData<uint16_t>();
-				j[field.GetName()] = value;
+				uint16_t value = field->GetData<uint16_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::UInt:
+			case ScriptType::UInt32:
 			{
-				uint32_t value = field.GetData<uint32_t>();
-				j[field.GetName()] = value;
+				uint32_t value = field->GetData<uint32_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::UInt64:
+			case ScriptType::UInt64:
 			{
-				uint64_t value = field.GetData<uint64_t>();
-				j[field.GetName()] = value;
+				uint64_t value = field->GetData<uint64_t>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Float: 
+			case ScriptType::Float: 
 			{
-				float value = field.GetData<float>();
-				j[field.GetName()] = value;
+				float value = field->GetData<float>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Double: 
+			case ScriptType::Double: 
 			{
-				double value = field.GetData<double>();
-				j[field.GetName()] = value;
+				double value = field->GetData<double>(handle);
+				j[field->GetName()] = value;
 				break;
 			}
-			case ScriptFieldType::Vector2: 
+			case ScriptType::String:
+			{
+				std::string value = field->GetData<std::string>(handle);
+				j[field->GetName()] = value;
+				break;
+			}
+			case ScriptType::Vector2: 
 			{
 				// NOTE: might need to box
-				glm::vec2 value = field.GetData<glm::vec2>();
-				j[field.GetName()] = SerializeVec2(value);
+				glm::vec2 value = field->GetData<glm::vec2>(handle);
+				j[field->GetName()] = SerializeVec2(value);
 				break;
 			}
-			case ScriptFieldType::Vector3: 
+			case ScriptType::Vector3: 
 			{
-				glm::vec3 value = field.GetData<glm::vec3>();
-				j[field.GetName()] = SerializeVec3(value);
+				glm::vec3 value = field->GetData<glm::vec3>(handle);
+				j[field->GetName()] = SerializeVec3(value);
+				break;
+			}
+			case ScriptType::Color:
+			{
+				glm::vec4 value = field->GetData<glm::vec4>(handle);
+				j[field->GetName()] = SerializeVec4(value);
+				break;
+			}
+			case ScriptType::Entity:
+			{
+				UUID value = field->GetData<UUID>(handle);
+				j[field->GetName()] = std::to_string(value);
 				break;
 			}
 			
@@ -299,7 +317,7 @@ namespace TerranEngine
 				} }
 			);
 
-			SerializeField(jObject["ScriptComponent"]["Fields"], scriptComponent);
+			SerializeField(jObject["ScriptComponent"]["Fields"], entity);
 		}
 
 		if (entity.HasComponent<Rigidbody2DComponent>()) 
@@ -354,12 +372,19 @@ namespace TerranEngine
 
 		j["Entities"] = {};
 
-		m_Scene->m_Registry.each([&](auto entityID)
-		{
-			Entity entity = { entityID, m_Scene.get() };
+		const auto tcView = m_Scene->GetEntitiesWith<TagComponent>();
+		// m_Scene->m_Registry.each([&](auto entityID)
+		// {
+		// 	Entity entity = { entityID, m_Scene.get() };
+		//
+		// 	SerializeEntity(j["Entities"], entity);
+		// });
 
+		for (auto e : tcView)
+		{
+			Entity entity(e, m_Scene->GetRaw());
 			SerializeEntity(j["Entities"], entity);
-		});
+		}
 
 		std::ofstream ofs(scenePath);
 
@@ -400,104 +425,134 @@ catch(const std::exception& ex)\
 
 	static void DesirializeScriptable(Entity entity, json& jScriptComponent) 
 	{
-		ScriptComponent& scriptComponent = entity.AddComponent<ScriptComponent>();
-
+		auto& scriptComponent = entity.AddComponent<ScriptComponent>();
 		scriptComponent.ModuleName = jScriptComponent["ModuleName"];
 
 		if (ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
 		{
 			ScriptEngine::InitializeScriptable(entity);
-
+			
 			if (jScriptComponent["Fields"] != "null")
 			{
-				for (auto& [hashedName, field] : scriptComponent.PublicFields)
+				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 				{
-					if (jScriptComponent["Fields"].contains(field.GetName()))
-					{
-						json jScriptFieldValue = jScriptComponent["Fields"][field.GetName()];
+					GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-						try 
+					if (!jScriptComponent["Fields"].contains(field->GetName()))
+						return;
+					
+					json jScriptFieldValue = jScriptComponent["Fields"][field->GetName()];
+
+					try 
+					{
+						switch (field->GetType().TypeEnum)
 						{
-							switch (field.GetType())
-							{
-							case ScriptFieldType::Bool:
-							{
-								bool value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int64:
-							{
-								int64_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int:
-							{
-								int32_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int16:
-							{
-								int16_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Int8:
-							{
-								int8_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt64:
-							{
-								uint64_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt:
-							{
-								uint32_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt16:
-							{
-								uint16_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::UInt8:
-							{
-								uint8_t value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Float:
-							{
-								float value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Double:
-							{
-								double value = jScriptFieldValue;
-								field.SetData(value);
-								break;
-							}
-							case ScriptFieldType::Vector3: 
-							{
-								glm::vec3 value = DeserializeVec3(jScriptComponent["Fields"], field.GetName());
-								field.SetData(value);
-							}
-							}
+						case ScriptType::Bool:
+						{
+							const bool value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
 						}
-						catch (const std::exception& ex) 
+						case ScriptType::Char:
 						{
-							TR_ERROR(ex.what());
+							const uint8_t value = jScriptFieldValue;
+							field->SetData<char>((char)value, handle);
+							break;
+						}
+						case ScriptType::Int64:
+						{
+							const int64_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Int32:
+						{
+							const int32_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Int16:
+						{
+							const int16_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Int8:
+						{
+							const int8_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::UInt64:
+						{
+							const uint64_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::UInt32:
+						{
+							const uint32_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::UInt16:
+						{
+							const uint16_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::UInt8:
+						{
+							const uint8_t value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Float:
+						{
+							const float value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Double:
+						{
+							const double value = jScriptFieldValue;
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::String:
+						{
+							std::string value = jScriptFieldValue;
+							field->SetData(value.c_str(), handle);
+							break;
+						}
+						case ScriptType::Vector2: 
+						{
+							const glm::vec2 value = DeserializeVec2(jScriptComponent["Fields"], field->GetName());
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Vector3: 
+						{
+							const glm::vec3 value = DeserializeVec3(jScriptComponent["Fields"], field->GetName());
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Color: 
+						{
+							const glm::vec4 value = DeserializeVec4(jScriptComponent["Fields"], field->GetName());
+							field->SetData(value, handle);
+							break;
+						}
+						case ScriptType::Entity:
+						{
+							UUID value = UUID::FromString(jScriptFieldValue);
+							field->SetData(value, handle);
+							break;
+						}
 						}
 					}
+					PRINT_JSON_ERROR();
 				}
 			}
 		}

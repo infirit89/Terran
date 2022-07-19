@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	class Ball : Scriptable
 	{
@@ -30,13 +30,13 @@ namespace TerranScriptCore
 				int random = m_RNG.Next(2);
 				ballDirection.Y = random % 2 == 0 ? -0.1f : 0.1f;
 				ballDirection = -ballDirection;
-				entity.transform.Position += ballDirection;
+				entity.Transform.Position += ballDirection;
 			}
 
 			if(CollisionUtils.IsCollidingWith(m_TopWall, entity) || CollisionUtils.IsCollidingWith(m_BottomWall, entity))
 				ballDirection = new Vector3(ballDirection.X, -ballDirection.Y, ballDirection.Z);
 
-			entity.transform.Position += ballDirection;
+			entity.Transform.Position += ballDirection;
 		}
 	}
 }

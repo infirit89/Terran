@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ScriptMethod.h"
-#include "ScriptField.h"
+#include "ScriptClass.h"
 
-#include "Core/Base.h"
-
-#include <unordered_map>
+extern "C"
+{
+	typedef struct _MonoObject MonoObject;
+}
 
 namespace TerranEngine 
 {
@@ -13,23 +13,20 @@ namespace TerranEngine
 	{
 	public:
 		ScriptObject() = default;
-		ScriptObject(uint32_t monoGCHandle);
+		ScriptObject(MonoObject* monoObject);
 
 		ScriptObject(const ScriptObject& other) = default;
-		~ScriptObject();
+		~ScriptObject() = default;
 
-		void Uninitialize();
-
-		ScriptField GetPublicField(const char* fieldName);
-		std::unordered_map<uint32_t, ScriptField>& GetFieldMap() { return m_PublicFields; };
-		const std::vector<uint32_t>& GetFieldOrder() const { return m_FieldOrder; }
-		void* GetNativeObject() const;
-
-	private:
-		uint32_t m_MonoGCHandle;
+		inline MonoObject* GetMonoObject() const { return m_MonoObject; }
 		
-		std::vector<uint32_t> m_FieldOrder;
-		std::unordered_map<uint32_t, ScriptField> m_PublicFields;
-		friend class ScriptMethod;
+		static ScriptObject CreateInstace(const ScriptClass& klass);
+
+		ScriptClass GetClass();
+
+		inline operator bool() const { return m_MonoObject; }  
+		
+	private:
+		MonoObject* m_MonoObject;
 	};
 }

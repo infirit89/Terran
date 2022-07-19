@@ -45,7 +45,26 @@ bin-int/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.csproj
+*.csproj.user
 
-!premake5.exe
-!TerranEngine/vendor/mono/mono-2.0-sgen.dll
-!TerranEngine/vendor/mono/mono-2.0-sgen.pdb
+#Terran
+*.log
+premake/
+
+# Mono
+mono/
+
+#Python
+__pycache__
+
+# Scripts Folder
+TerranEditor/Resources/Scripts/
+
+# Jetbrains IDEs
+.idea
+
+# Misc
+.cache
+compile_commands.json
+

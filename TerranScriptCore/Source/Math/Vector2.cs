@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	// based on TMath's TVector2 class
 	// https://github.com/OKAY808/TMath

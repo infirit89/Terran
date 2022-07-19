@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene/Entity.h"
-#include "Scene/SceneManager.h"
 
 #include <box2d/box2d.h>
 

@@ -1,30 +1,52 @@
 #pragma once
 
-#include "ScriptString.h"
+#include "GCManager.h"
+#include "ScriptArray.h"
+#include "ScriptType.h"
+#include "ScriptUtils.h"
+
+#include "Scene/Entity.h"
+
+#include "Utils/Utils.h"
+
+extern "C"
+{
+	typedef struct _MonoClassField MonoClassField;
+	typedef struct _MonoProperty MonoProperty;
+}
 
 namespace TerranEngine 
 {
-	enum class ScriptFieldType
-	{
-		None = 0,
-		Bool,
-		Char,
-		Int,
-		Int8,
-		Int16,
-		Int64,
-		UInt8,
-		UInt16,
-		UInt,
-		UInt64,
-		Float,
-		Double,
-		String,
-		Vector2,
-		Vector3
-	};
+	class ScriptField;
 
-	enum class ScriptFieldVisiblity 
+	namespace detail 
+	{
+		template<typename T>
+        T ScriptFieldGetData(GCHandle handle, ScriptField* field);
+
+		template<typename T>
+        void ScriptFieldSetData(T value, GCHandle handle, ScriptField* field);
+
+		template<>
+        std::string ScriptFieldGetData<std::string>(GCHandle handle, ScriptField* field);
+
+		template<>
+        void ScriptFieldSetData<const char*>(const char* value, GCHandle handle, ScriptField* field);
+
+		template<>
+        void ScriptFieldSetData<Utils::Variant>(Utils::Variant value, GCHandle handle, ScriptField* field);
+
+		template<>
+        Utils::Variant ScriptFieldGetData<Utils::Variant>(GCHandle handle, ScriptField* field);
+
+		template<>
+        void ScriptFieldSetData<UUID>(UUID value, GCHandle handle, ScriptField* field);
+
+		template<>
+        UUID ScriptFieldGetData<UUID>(GCHandle handle, ScriptField* field);
+	}
+
+	enum class ScriptFieldVisibility 
 	{
 		Unknown,
 		Private,
@@ -33,60 +55,77 @@ namespace TerranEngine
 		Internal
 	};
 
-	// NOTE: templates?
 	class ScriptField 
 	{
 	public:
 		ScriptField() = default;
-		ScriptField(void* monoField, uint32_t monoObjectGCHandle);
+		ScriptField(MonoClassField* monoField);
 		
 		ScriptField(const ScriptField& other) = default;
-		~ScriptField();
+		~ScriptField() = default;
 
+		void CopyData(GCHandle from, GCHandle to);
+
+		inline MonoClassField* GetMonoField() const 		{ return m_MonoField; }
 		inline const char* GetName() const					{ return m_Name; }
-		inline ScriptFieldType GetType() const				{ return m_FieldType; }
-		inline ScriptFieldVisiblity GetVisibility() const					{ return m_FieldVisibility; }
+		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
+		bool IsStatic() const;
 
-		void SetDataRaw(void* value);
-		void GetDataRaw(void* result);
+		inline operator bool() const { return m_MonoField != nullptr; }
 
-		const char* GetDataStringRaw();
-		void SetDataStringRaw(const char* value);
+		inline uint32_t GetID() const { return m_ID; }
+		inline const ScriptType& GetType() const { return m_Type; } 
+		
+		void SetDataStringRaw(const char* value, GCHandle handle);
+		std::string GetDataStringRaw(GCHandle handle);
+
+		void SetDataVariantRaw(const Utils::Variant& value, GCHandle handle);
+		Utils::Variant GetDataVariantRaw(GCHandle handle);
+
+		void SetDataUUIDRaw(UUID value, GCHandle handle);
+		UUID GetDataUUIDRaw(GCHandle handle);
+
+		ScriptArray GetArray(GCHandle handle);
+		void SetArray(ScriptArray array, GCHandle handle);
 
 		template<typename T>
-		T GetData() 
+		T GetData(GCHandle handle) 
 		{
-			T value;
-			GetDataRaw(&value);
-			return value;
+			return detail::ScriptFieldGetData<T>(handle, this);
 		}
 
 		template<typename T>
-		void SetData(T value) 
+		void SetData(T value, GCHandle handle) 
 		{
-			SetDataRaw(&value);
+			detail::ScriptFieldSetData(value, handle, this);
 		}
-
-		template<>
-		const char* GetData<const char*>() 
-		{
-			const char* value = GetDataStringRaw();
-			return value;
-		}
-
-		template<>
-		void SetData<const char*>(const char* value) 
-		{
-			SetDataStringRaw(value);
-		}
-
-		// NOTE: maybe marshal vec2 and vec3
+		
+		// NOTE: maybe marshal vec2 and vec3?
 
 	private:
-		void* m_MonoField = nullptr;
-		uint32_t m_MonoObjectGCHandle = 0;
-		const char* m_Name = nullptr;
-		ScriptFieldType m_FieldType = ScriptFieldType::None;
-		ScriptFieldVisiblity m_FieldVisibility = ScriptFieldVisiblity::Unknown;
+		MonoClassField* m_MonoField = nullptr;
+		ScriptType m_Type;
+		const char* m_Name;
+		ScriptFieldVisibility m_FieldVisibility = ScriptFieldVisibility::Unknown;
+		uint32_t m_ID = 0;
+		
+		friend class ScriptCache;
 	};
+
+	namespace detail 
+	{
+		template<typename T>
+        T ScriptFieldGetData(GCHandle handle, ScriptField* field) 
+        {
+            T value{};
+            ScriptUtils::GetFieldDataRaw(&value, field->GetMonoField(), handle);
+            return value;
+        }
+
+        template<typename T>
+        void ScriptFieldSetData(T value, GCHandle handle, ScriptField* field) 
+        {
+            ScriptUtils::SetFieldDataRaw(&value, field->GetMonoField(), handle);
+        }
+	}
 }

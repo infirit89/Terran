@@ -4,45 +4,59 @@
 #include "ScriptObject.h"
 
 #include <mono/jit/jit.h>
+#include <mono/metadata/debug-helpers.h>
+
+#include "GCManager.h"
+#include "ScriptUtils.h"
 
 namespace TerranEngine 
 {
 	ScriptMethod::ScriptMethod(MonoMethod* monoMethod)
-		: m_MonoMethod(monoMethod) { }
-
-	void ScriptMethod::Invoke(ScriptObject& scriptObject, void** args)
+		: m_MonoMethod(monoMethod)
 	{
-		MonoObject* error;
-		size_t paramsSize = 0;
-
-		// NOTE: this causes an access violation when a null reference occurs on the c# side
-		// going to leave the "break when this exception occurs" on for now 
-		// if there's a problem in the future this may be the cause
-		mono_runtime_invoke(m_MonoMethod, scriptObject.GetNativeObject(), args, &error);
-
-		if (error != nullptr) 
+		if(monoMethod)
 		{
-			MonoClass* klass = mono_object_get_class(error);
-			TR_ERROR("Exception {0} caused by {1} method", mono_class_get_name(klass), mono_method_get_name(m_MonoMethod));
+			m_Name = mono_method_get_name(m_MonoMethod);
 		}
 	}
 
-	void ScriptMethod::InvokeStatic(void** args)
+	ScriptObject ScriptMethod::Invoke(ScriptObject& scriptObject, void** args)
 	{
-		MonoObject* error;
+		MonoException* exc;
 		size_t paramsSize = 0;
 
 		// NOTE: this causes an access violation when a null reference occurs on the c# side
 		// going to leave the "break when this exception occurs" on for now 
 		// if there's a problem in the future this may be the cause
-		mono_runtime_invoke(m_MonoMethod, nullptr, args, &error);
+		MonoObject* rtVal = mono_runtime_invoke(m_MonoMethod, scriptObject.GetMonoObject(),
+												args, (MonoObject**)&exc);
 
-		if (error != nullptr)
+		if (exc != nullptr) 
 		{
-			MonoClass* klass = mono_object_get_class(error);
-			TR_ERROR("Exception {0} caused by {1} method", mono_class_get_name(klass), mono_method_get_name(m_MonoMethod));
+			ScriptUtils::PrintUnhandledException(exc);
+			return nullptr;
 		}
 
+		return rtVal;
+	}
+
+	ScriptObject ScriptMethod::InvokeStatic(void** args)
+	{
+		MonoException* exc;
+		size_t paramsSize = 0;
+
+		// NOTE: this causes an access violation when a null reference occurs on the c# side
+		// going to leave the "break when this exception occurs" on for now 
+		// if there's a problem in the future this may be the cause
+		MonoObject* rtVal = mono_runtime_invoke(m_MonoMethod, nullptr, args, (MonoObject**)&exc);
+
+		if (exc != nullptr)
+		{
+			ScriptUtils::PrintUnhandledException(exc);
+			return nullptr;
+		}
+
+		return rtVal;
 	}
 
 

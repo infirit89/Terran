@@ -1,4 +1,6 @@
-﻿#include "SandboxLayer.h"
+﻿#include "glm/gtx/projection.hpp"
+
+#include "SandboxLayer.h"
 
 #include <imgui.h>
 #include <glm/mat4x4.hpp>
@@ -13,7 +15,7 @@ namespace TerranEngine
 		: Layer("Sandbox Layer")
 	{
 		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
-		m_Framebuffer = CreateShared<Framebuffer>();
+		//m_Framebuffer = CreateShared<Framebuffer>();
 #if 0
 		// id test code
 		for (int i = 0; i < 9000; i++)
@@ -88,10 +90,14 @@ namespace TerranEngine
 
 	void SandboxLayer::OnAttach()
 	{
+		Project::Init("", "");
+		ScriptEngine::Initialize();
 	}
 
 	void SandboxLayer::OnDettach()
 	{
+		Project::Uninitialize();
+		ScriptEngine::Shutdown();
 	}
 
 	void SandboxLayer::Update(Time& time)

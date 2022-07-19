@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TerranScriptCore
+namespace Terran
 {
 	class GameManager : Scriptable
 	{
@@ -21,7 +21,7 @@ namespace TerranScriptCore
 			m_LeftWall = Entity.FindWithName("Left Wall");
 			m_RightWall = Entity.FindWithName("Right Wall");
 
-			m_Ball.transform.Position = ballCenter;
+			m_Ball.Transform.Position = ballCenter;
 
 			m_BallScript = m_Ball.GetComponent<Ball>();
 		}
@@ -30,12 +30,12 @@ namespace TerranScriptCore
 		{
 			if (CollisionUtils.IsCollidingWith(m_RightWall, m_Ball) || CollisionUtils.IsCollidingWith(m_LeftWall, m_Ball)) 
 			{
-				if (m_Ball.transform.Position.X < 0.0f)
+				if (m_Ball.Transform.Position.X < 0.0f)
 					m_Player2Score++;
 				else
 					m_Player1Score++;
 
-				m_Ball.transform.Position = ballCenter;
+				m_Ball.Transform.Position = ballCenter;
 				m_BallScript.ballDirection = new Vector3(-0.1f, 0.0f, 0.0f);
 				Log.Trace("Player 1 Score: {0} | Player 2 Score: {1}", m_Player1Score, m_Player2Score);
 			}

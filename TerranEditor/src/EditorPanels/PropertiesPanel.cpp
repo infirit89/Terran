@@ -1,6 +1,7 @@
 #include "PropertiesPanel.h"
 
 #include "EditorLayer.h"
+#include "Scripting/ScriptCache.h"
 
 #include "UI/UI.h"
 
@@ -227,143 +228,27 @@ namespace TerranEditor
 						ImGui::PopStyleColor();
 					}
 
-					if (!component.PublicFields.empty()) 
+					auto scene = Scene::GetScene(entity.GetSceneID());
+					const auto& sc = entity.GetComponent<ScriptComponent>();
+					if (!sc.PublicFieldIDs.empty())
 					{
-						for (auto& hashedName : component.FieldOrder)
+						const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+
+						for (const auto& fieldID : sc.PublicFieldIDs)
 						{
-							ScriptField& field = component.PublicFields.at(hashedName);
+							ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-							switch (field.GetType())
+							if (field->GetType().IsArray()) 
 							{
-							case ScriptFieldType::Bool:
-							{
-								bool value = field.GetData<bool>();
-
-								if (UI::DrawBoolControl(field.GetName(), value))
-									field.SetData(value);
-
-								break;
+								ScriptArray array = field->GetArray(handle);
+								if (UI::DrawScriptArrayField(scene, field->GetName(), array))
+									field->SetArray(array, handle);
 							}
-							case ScriptFieldType::Int8:
-							{
-								int8_t value = field.GetData<int8_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S8, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::Int16:
-							{
-								int16_t value = field.GetData<int16_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S16, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::Int:
-							{
-								int32_t value = field.GetData<int32_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S32, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::Int64:
-							{
-								int64_t value = field.GetData<int64_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_S64, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::UInt8:
-							{
-								uint8_t value = field.GetData<uint8_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U8, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::UInt16:
-							{
-								uint16_t value = field.GetData<uint16_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U16, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::UInt:
-							{
-								uint32_t value = field.GetData<uint32_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U32, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::UInt64:
-							{
-								uint64_t value = field.GetData<uint64_t>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_U64, &value))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::Float:
-							{
-								float value = field.GetData<float>();
-
-								if (UI::DrawFloatControl(field.GetName(), value, 0.1f, "%.2f"))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::Double:
-							{
-								double value = field.GetData<double>();
-
-								if (UI::DrawScalar(field.GetName(), ImGuiDataType_Double, &value, 0.1f, "%.4f"))
-									field.SetData(value);
-
-								break;
-							}
-							case ScriptFieldType::String: 
-							{
-								std::string value = field.GetData<const char*>();
-
-								if (UI::DrawStringControl(field.GetName(), value))
-									field.SetData<const char*>(value.c_str());
-
-								break;
-							}
-							case ScriptFieldType::Vector2: 
-							{
-								glm::vec2 value = field.GetData<glm::vec2>();
-								
-								if (UI::DrawVec2Control(field.GetName(), value))
-									field.SetData<glm::vec2>(value);
-
-								break;
-							}
-							case ScriptFieldType::Vector3: 
-							{
-								glm::vec3 value = field.GetData<glm::vec3>();
-
-								if (UI::DrawVec3Control(field.GetName(), value))
-									field.SetData<glm::vec3>(value);
-
-								break;
-							}
-							}
+							else
+								UI::DrawScriptField(scene, field, handle);
 						}
 					}
+
 				});
 
 				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
@@ -379,7 +264,7 @@ namespace TerranEditor
 
 					// rigidbody body type selection
 					{
-						const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
+						/*const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
 						
 						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
 
@@ -402,7 +287,11 @@ namespace TerranEditor
 
 							ImGui::EndCombo();	
 						}
-						
+						*/
+
+						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
+							isPlay)
+							physicsBody.SetBodyType(rbComponent.BodyType);
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
@@ -410,7 +299,7 @@ namespace TerranEditor
 
 					// rigidbody awake state selection 
 					{
-						const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
+						/*const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
 
 						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
 
@@ -432,7 +321,9 @@ namespace TerranEditor
 							}
 
 							ImGui::EndCombo();
-						}
+						}*/
+
+						UI::DrawComboBox("Sleep State", awakeStateNames, 3, rbComponent.SleepState);
 
 					}
 

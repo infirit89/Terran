@@ -43,6 +43,8 @@ namespace TerranEditor
 		void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
 		void SetSelectedChangedCallback(std::function<void(Entity)> callback) { m_SelectedChangedCallback = callback; }
 
+		void SetContext(const Shared<Scene>& context) { m_SceneContext = context; }
+		
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 
@@ -64,5 +66,6 @@ namespace TerranEditor
 		OpenSceneFN m_OpenSceneCallback;
 		std::function<void(glm::vec2)> m_ViewportSizeChangedCallback;
 		std::function<void(Entity)> m_SelectedChangedCallback;
+		Shared<Scene> m_SceneContext;
 	};
 }

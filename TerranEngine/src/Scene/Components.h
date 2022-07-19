@@ -7,11 +7,7 @@
 #include "Graphics/OrthographicCamera.h"
 #include "Graphics/FontAtlas.h"
 
-#include "Scripting/ScriptField.h"
-
 #include "Physics/PhysicsStates.h"
-
-#include "Utils/Debug/Profiler.h"
 
 #include <glm/glm.hpp>
 
@@ -140,8 +136,7 @@ namespace TerranEngine
 
 		std::string ModuleName;
 		
-		std::vector<uint32_t> FieldOrder;
-		std::unordered_map<uint32_t, ScriptField> PublicFields;
+		std::vector<uint32_t> PublicFieldIDs;
 		
 		bool ClassExists = true;
 		bool Started = false;
