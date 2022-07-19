@@ -12,6 +12,92 @@
 
 namespace TerranEngine
 {
+    namespace detail 
+    {
+        template<>
+        MonoClass* ScriptArrayCreate<uint8_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Byte")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<uint16_t>(uint32_t size) 
+        {
+            return ScriptCache::GetCachedClassFromName("System.UInt16")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<uint32_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.UInt32")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<uint64_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.UInt64")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<int8_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.SByte")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<int16_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Int16")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<int32_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Int32")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<int64_t>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Int64")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<bool>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Bool")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<float>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Single")->GetMonoClass();
+        }
+        template<>
+        MonoClass* ScriptArrayCreate<double>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Double")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<std::string>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.String")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<MonoObject*>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("System.Object")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<glm::vec2>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("Terran.Vector2")->GetMonoClass();
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<UUID>(uint32_t size)
+        {
+            return ScriptCache::GetCachedClassFromName("Terran.UUID")->GetMonoClass();
+        }
+    }
+
     ScriptArray::ScriptArray(MonoClass* arrayClass, uint32_t size)
     {
         m_MonoArray = mono_array_new(mono_domain_get(), arrayClass, size);
@@ -91,4 +177,38 @@ namespace TerranEngine
         m_Length = size;
         m_MonoArray = tempArr;
     }
+
+    //#define TR_REGISTER_ARRAY_TYPE(type, klass)\
+    //if constexpr (std::is_same<T, type>::value) return ScriptCache::GetCachedClassFromName(klass)->GetMonoClass()
+
+    //template<typename  T>
+    //MonoClass* ScriptArray::GetMonoClassFromType()
+    //{
+        //TR_REGISTER_ARRAY_TYPE(uint8_t, "System.Byte");
+        //TR_REGISTER_ARRAY_TYPE(uint16_t, "System.UInt16");
+        //TR_REGISTER_ARRAY_TYPE(uint32_t, "System.UInt32");
+        //TR_REGISTER_ARRAY_TYPE(uint64_t, "System.UInt64");
+        
+        //TR_REGISTER_ARRAY_TYPE(int8_t, "System.SByte");
+        //TR_REGISTER_ARRAY_TYPE(int16_t, "System.Int16");
+        //TR_REGISTER_ARRAY_TYPE(int32_t, "System.Int32");
+        //TR_REGISTER_ARRAY_TYPE(int64_t, "System.Int64");
+
+        //TR_REGISTER_ARRAY_TYPE(bool, "System.Boolean");
+
+        //TR_REGISTER_ARRAY_TYPE(float, "System.Single");
+        //TR_REGISTER_ARRAY_TYPE(double, "System.Double");
+
+        //TR_REGISTER_ARRAY_TYPE(std::string, "System.String");
+        
+        //TR_REGISTER_ARRAY_TYPE(MonoObject*, "System.Object");
+
+        //TR_REGISTER_ARRAY_TYPE(glm::vec2, "Terran.Vector2");
+        
+        //TR_REGISTER_ARRAY_TYPE(UUID, "Terran.UUID");
+        
+        //return nullptr;
+    //}
+
+
 }

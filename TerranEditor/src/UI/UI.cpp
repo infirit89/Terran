@@ -122,7 +122,7 @@ namespace TerranEditor
 		strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
 						
 		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_DontRenderCursor | ImGuiInputTextFlags_DontChangeMouseCursorOnHover;
-		ImGui::InputText("##TextureField", buf, sizeof(buf), inputTextFlags);
+		ImGui::InputText("##EntityField", buf, sizeof(buf), inputTextFlags);
 
 		if (ImGui::BeginDragDropTarget()) 
 		{
@@ -167,190 +167,224 @@ namespace TerranEditor
 		return result;
 	}
 
+	template<typename T>
+	static void DrawFieldValue(ScriptField* field, GCHandle handle, 
+		const std::function<bool(const std::string& fieldName, T& value, const ScriptType& fieldType)>& drawFunc)
+	{
+		T value = field->GetData<T>(handle);
+		std::string fieldName = ProccessFieldName(field->GetName());
+		if (drawFunc(fieldName, value, field->GetType()))
+			field->SetData<T>(value, handle);
+	}
+
 	void UI::DrawScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
 	{
 		TR_ASSERT(handle.IsValid(), "Invalid handle");
+		
+		ScriptClass* typeClass = field->GetType().GetTypeClass();
+		std::vector<ScriptField> enumFields;
+		const char** enumFieldNames = nullptr;
 
-		std::string fieldName = ProccessFieldName(field->GetName());
+		if (field->GetType().IsEnum()) 
+		{
+			enumFields = typeClass->GetEnumFields();
+
+			enumFieldNames = new const char* [enumFields.size()];
+
+			for (size_t i = 0; i < enumFields.size(); i++)
+				enumFieldNames[i] = enumFields[i].GetName();
+		}
+
 		switch (field->GetType().TypeEnum)
 		{
 		case ScriptType::Bool:
 		{
-			bool value = field->GetData<bool>(handle);
-
-			if (UI::DrawBoolControl(fieldName, value))
-				field->SetData(value, handle);
-
+			DrawFieldValue<bool>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawBoolControl(fieldName, value);
+			});
+			
 			break;
 		}
 		case ScriptType::Char:
 		{
-			char value = (char)field->GetData<wchar_t>(handle);
-			// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-			std::string strVal; strVal += value;
-			if (UI::DrawStringControl(fieldName, strVal, 0, 2))
+			DrawFieldValue<wchar_t>(field, handle,
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 			{
-				if (strVal.empty())
-					break;
-				const wchar_t wc = strVal.at(0);
-				field->SetData<wchar_t>(wc, handle);
-			}
+				std::string strVal; strVal += value;
+				bool changed = UI::DrawStringControl(fieldName, strVal, 0, 2);
+
+				if (strVal.empty()) return false;
+				value = strVal.at(0);
+
+				return changed;
+			});
 
 			break;
 		}
 		case ScriptType::Int8:
 		{
-			int8_t value = field->GetData<int8_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<int8_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
+                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::Int16:
 		{
-			int16_t value = field->GetData<int16_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<int16_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) :
+					UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::Int32:
 		{
-			int32_t value = field->GetData<int32_t>(handle);
-			
-			if (!field->GetType().IsEnum()) 
+			DrawFieldValue<int32_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 			{
-				if (UI::DrawScalar(fieldName, value))
-					field->SetData(value, handle);
-			}
-			else 
-			{
-				ScriptClass* klass = field->GetType().GetTypeClass();
-				std::vector<ScriptField> enumFields = klass->GetEnumFields();
-
-				const char** enumFieldNames = new const char*[enumFields.size()];
-
-				for (size_t i = 0; i < enumFields.size(); i++)
-					enumFieldNames[i] = enumFields[i].GetName();
-
-				if (UI::DrawComboBox(field->GetName(), enumFieldNames, enumFields.size(), value))
-					field->SetData(value, handle);
-
-				delete[] enumFieldNames;
-			}
-
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) :
+					UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::Int64:
 		{
-			int64_t value = field->GetData<int64_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<int64_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
+                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::UInt8:
 		{
-			uint8_t value = field->GetData<uint8_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<uint8_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
+                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::UInt16:
 		{
-			uint16_t value = field->GetData<uint16_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<uint16_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
+                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::UInt32:
 		{
-			uint32_t value = field->GetData<uint32_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<uint16_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
+                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::UInt64:
 		{
-			uint64_t value = field->GetData<uint64_t>(handle);
-
-			if (UI::DrawScalar(fieldName, value))
-				field->SetData(value, handle);
+			DrawFieldValue<uint16_t>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
+                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+			});
 
 			break;
 		}
 		case ScriptType::Float:
 		{
-			float value = field->GetData<float>(handle);
-
-			if (UI::DrawFloatControl(fieldName, value, 0.1f, "%.2f"))
-				field->SetData(value, handle);
+			DrawFieldValue<float>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawScalar(fieldName, value);
+			});
 
 			break;
 		}
 		case ScriptType::Double:
 		{
-			double value = field->GetData<double>(handle);
-
-			if (UI::DrawScalar(fieldName, value, 0.1f, "%.4f"))
-				field->SetData(value, handle);
+			DrawFieldValue<double>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawScalar(fieldName, value);
+			});
 
 			break;
 		}
 		case ScriptType::String:
 		{
-			std::string value = field->GetData<std::string>(handle);
-
-			if (UI::DrawStringControl(fieldName, value))
-				field->SetData<const char*>(value.c_str(), handle);
+			DrawFieldValue<std::string>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawStringControl(fieldName, value);
+			});
 
 			break;
 		}
 		case ScriptType::Vector2:
 		{
-			glm::vec2 value = field->GetData<glm::vec2>(handle);
-
-			if (UI::DrawVec2Control(fieldName, value))
-				field->SetData<glm::vec2>(value, handle);
+			DrawFieldValue<glm::vec2>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawVec2Control(fieldName, value);
+			});
 
 			break;
 		}
 		case ScriptType::Vector3:
 		{
-			glm::vec3 value = field->GetData<glm::vec3>(handle);
-
-			if (UI::DrawVec3Control(fieldName, value))
-				field->SetData<glm::vec3>(value, handle);
+			DrawFieldValue<glm::vec3>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawVec3Control(fieldName, value);
+			});
 
 			break;
 		}
 		case ScriptType::Color:
 		{
-			glm::vec4 value = field->GetData<glm::vec4>(handle);
-
-			if (UI::DrawColor4Control(fieldName, value))
-				field->SetData<glm::vec4>(value, handle);
+			DrawFieldValue<glm::vec4>(field, handle, 
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawColor4Control(fieldName, value);
+			});
 
 			break;
 		}
 		case ScriptType::Entity:
 		{
-			UUID value = field->GetData<UUID>(handle);
-			if (UI::DrawEntityControl(fieldName, value, scene))
-				field->SetData<UUID>(value, handle);
+			DrawFieldValue<UUID>(field, handle, 
+			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				return UI::DrawEntityControl(fieldName, value, scene);
+			});
+
 			break;
 		}
 		}
+
+		if (enumFieldNames != nullptr)
+			delete[] enumFieldNames;
 	}
 
 	bool UI::DrawScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)
@@ -771,6 +805,8 @@ namespace TerranEditor
 				value = buf;
 				changed = true;
 			}
+
+			delete[] buf;
 		}
 
 		ImGui::PopID();

@@ -28,11 +28,11 @@ namespace TerranEngine
 {
 	namespace ScriptBindings 
 	{				
-#define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, func);
+#define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)
 
 		static ScriptMethodThunks<MonoArray*> s_IDClassCtor;
 
-		void ScriptBindings::Bind()
+		void Bind()
 		{
 			// ---- entity -----
 			BIND_INTERNAL_FUNC(Entity_HasComponent);

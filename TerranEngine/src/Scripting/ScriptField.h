@@ -17,6 +17,35 @@ extern "C"
 
 namespace TerranEngine 
 {
+	class ScriptField;
+
+	namespace detail 
+	{
+		template<typename T>
+        T ScriptFieldGetData(GCHandle handle, ScriptField* field);
+
+		template<typename T>
+        void ScriptFieldSetData(T value, GCHandle handle, ScriptField* field);
+
+		template<>
+        std::string ScriptFieldGetData<std::string>(GCHandle handle, ScriptField* field);
+
+		template<>
+        void ScriptFieldSetData<const char*>(const char* value, GCHandle handle, ScriptField* field);
+
+		template<>
+        void ScriptFieldSetData<Utils::Variant>(Utils::Variant value, GCHandle handle, ScriptField* field);
+
+		template<>
+        Utils::Variant ScriptFieldGetData<Utils::Variant>(GCHandle handle, ScriptField* field);
+
+		template<>
+        void ScriptFieldSetData<UUID>(UUID value, GCHandle handle, ScriptField* field);
+
+		template<>
+        UUID ScriptFieldGetData<UUID>(GCHandle handle, ScriptField* field);
+	}
+
 	enum class ScriptFieldVisibility 
 	{
 		Unknown,
@@ -37,7 +66,7 @@ namespace TerranEngine
 
 		void CopyData(GCHandle from, GCHandle to);
 
-		
+		inline MonoClassField* GetMonoField() const 		{ return m_MonoField; }
 		inline const char* GetName() const					{ return m_Name; }
 		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 		bool IsStatic() const;
@@ -62,54 +91,13 @@ namespace TerranEngine
 		template<typename T>
 		T GetData(GCHandle handle) 
 		{
-			T value{};
-			ScriptUtils::GetFieldDataRaw(&value, m_MonoField, handle);
-			return value;
+			return detail::ScriptFieldGetData<T>(handle, this);
 		}
 
 		template<typename T>
 		void SetData(T value, GCHandle handle) 
 		{
-			ScriptUtils::SetFieldDataRaw(&value, m_MonoField, handle);
-		}
-
-		template<>
-		std::string GetData<std::string>(GCHandle handle) 
-		{
-			std::string value = GetDataStringRaw(handle);
-			return value;
-		}
-
-		template<>
-		void SetData<const char*>(const char* value, GCHandle handle) 
-		{
-			SetDataStringRaw(value, handle);
-		}
-
-		template<>
-		void SetData<Utils::Variant>(Utils::Variant value, GCHandle handle)
-		{
-			SetDataVariantRaw(value, handle);
-		}		
-
-		template<>
-		Utils::Variant GetData<Utils::Variant>(GCHandle handle) 
-		{
-			Utils::Variant value = GetDataVariantRaw(handle);
-			return value;
-		}
-
-		template<>
-		void SetData<UUID>(UUID value, GCHandle handle)
-		{
-			SetDataUUIDRaw(value, handle);
-		}		
-
-		template<>
-		UUID GetData<UUID>(GCHandle handle) 
-		{
-			UUID value = GetDataUUIDRaw(handle);
-			return value;
+			detail::ScriptFieldSetData(value, handle, this);
 		}
 		
 		// NOTE: maybe marshal vec2 and vec3?
@@ -123,4 +111,21 @@ namespace TerranEngine
 		
 		friend class ScriptCache;
 	};
+
+	namespace detail 
+	{
+		template<typename T>
+        T ScriptFieldGetData(GCHandle handle, ScriptField* field) 
+        {
+            T value{};
+            ScriptUtils::GetFieldDataRaw(&value, field->GetMonoField(), handle);
+            return value;
+        }
+
+        template<typename T>
+        void ScriptFieldSetData(T value, GCHandle handle, ScriptField* field) 
+        {
+            ScriptUtils::SetFieldDataRaw(&value, field->GetMonoField(), handle);
+        }
+	}
 }

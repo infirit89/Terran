@@ -43,7 +43,7 @@ namespace TerranEngine
 
 		const uint8_t* uuidArrayAddr = (uint8_t*)uuidArray.GetElementAddress(0, sizeof(uint8_t));
 
-		memcpy(idData._Elems, uuidArrayAddr, 16 * sizeof(uint8_t));
+		memcpy(&idData, uuidArrayAddr, 16 * sizeof(uint8_t));
 
 		return UUID(idData);
 	}

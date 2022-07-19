@@ -63,3 +63,8 @@ TerranEditor/Resources/Scripts/
 
 # Jetbrains IDEs
 .idea
+
+# Misc
+.cache
+compile_commands.json
+

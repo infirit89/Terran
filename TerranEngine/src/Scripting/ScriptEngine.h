@@ -16,6 +16,7 @@ namespace TerranEngine
 #define TR_APP_ASSEMBLY_INDEX 1
 #define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
 	
+	class ScriptAssembly;
 	class ScriptEngine 
 	{
 	public:

@@ -73,6 +73,12 @@ project "TerranEngine"
     filter "system:windows"
         systemversion "latest"
 
+        links
+        {
+            "Imm32.lib",
+            "Rpcrt4.lib"
+        }
+
     filter "configurations:Debug"
         defines "TR_DEBUG"
         runtime "Debug"

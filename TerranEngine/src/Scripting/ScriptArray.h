@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "ScriptType.h"
+
 #include "Utils/Utils.h"
 
 extern "C"
@@ -12,13 +13,59 @@ extern "C"
 
 namespace TerranEngine
 {
-    class ScriptCache;
+    namespace detail
+    {
+        template<typename  T>
+        MonoClass* ScriptArrayCreate(uint32_t size)
+        {
+            // MonoClass* arrayClass = GetMonoClassFromType<T>();
+            //return MonoClass*(arrayClass, size);
+            //static_assert(false);
+            return nullptr;
+        }
+
+        template<>
+        MonoClass* ScriptArrayCreate<uint8_t>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<uint16_t>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<uint32_t>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<uint64_t>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<int8_t>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<int16_t>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<int32_t>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<int64_t>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<bool>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<float>(uint32_t size);
+        template<>
+        MonoClass* ScriptArrayCreate<double>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<std::string>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<MonoObject*>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<glm::vec2>(uint32_t size);
+
+        template<>
+        MonoClass* ScriptArrayCreate<UUID>(uint32_t size);
+    }
+
     class ScriptArray
     {
     public:
-#define TR_REGISTER_ARRAY_TYPE(type, klass)\
-    if constexpr (std::is_same<T, type>::value) return ScriptCache::GetCachedClassFromName(klass)->GetMonoClass()
-        
         ScriptArray() = default;
         ~ScriptArray() = default;
         ScriptArray(MonoClass* arrayClass, uint32_t size);
@@ -55,10 +102,10 @@ namespace TerranEngine
         inline const ScriptType& GetType() const { return m_Type; }
 
     public:
-        template<typename  T>
+        template<typename T>
         static ScriptArray Create(uint32_t size)
         {
-            MonoClass* arrayClass = GetMonoClassFromType<T>();
+            MonoClass* arrayClass = detail::ScriptArrayCreate<T>(size);
             return ScriptArray(arrayClass, size);
         }
 
@@ -67,34 +114,8 @@ namespace TerranEngine
     private:
         void SetData(const Utils::Variant& value, uint32_t index);
         
-        template<typename  T>
-        static MonoClass* GetMonoClassFromType()
-        {
-            TR_REGISTER_ARRAY_TYPE(uint8_t, "System.Byte");
-            TR_REGISTER_ARRAY_TYPE(uint16_t, "System.UInt16");
-            TR_REGISTER_ARRAY_TYPE(uint32_t, "System.UInt32");
-            TR_REGISTER_ARRAY_TYPE(uint64_t, "System.UInt64");
-            
-            TR_REGISTER_ARRAY_TYPE(int8_t, "System.SByte");
-            TR_REGISTER_ARRAY_TYPE(int16_t, "System.Int16");
-            TR_REGISTER_ARRAY_TYPE(int32_t, "System.Int32");
-            TR_REGISTER_ARRAY_TYPE(int64_t, "System.Int64");
-
-            TR_REGISTER_ARRAY_TYPE(bool, "System.Boolean");
-
-            TR_REGISTER_ARRAY_TYPE(float, "System.Single");
-            TR_REGISTER_ARRAY_TYPE(double, "System.Double");
-
-            TR_REGISTER_ARRAY_TYPE(std::string, "System.String");
-            
-            TR_REGISTER_ARRAY_TYPE(MonoObject*, "System.Object");
-
-            TR_REGISTER_ARRAY_TYPE(glm::vec2, "Terran.Vector2");
-            
-            TR_REGISTER_ARRAY_TYPE(UUID, "Terran.UUID");
-            
-            return nullptr;
-        }
+        // template<typename  T>
+        // static MonoClass* GetMonoClassFromType();
         
         MonoArray* m_MonoArray = nullptr;
         uint32_t m_Length = 0;

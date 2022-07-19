@@ -200,7 +200,7 @@ namespace TerranEngine
 				
 				for (const auto& [fieldID, fieldData] : fieldsState)
 				{
-					GCHandle& handle = GetScriptInstanceGCHandle(sceneID, entityID);
+					GCHandle handle = GetScriptInstanceGCHandle(sceneID, entityID);
 
 					if(!handle.IsValid())
 						break;
@@ -228,7 +228,7 @@ namespace TerranEngine
 				
 				for (const auto& [fieldID, arrayFieldData] : fieldsState)
 				{
-					GCHandle& handle = GetScriptInstanceGCHandle(sceneID, entityID);
+					GCHandle handle = GetScriptInstanceGCHandle(sceneID, entityID);
 
 					if(!handle.IsValid())
 						break;

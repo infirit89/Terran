@@ -2,6 +2,8 @@
 
 #include "VertexArray.h"
 
+#include "Scripting/ScriptCache.h"
+
 #include <glad/glad.h>
 
 #pragma warning (push)

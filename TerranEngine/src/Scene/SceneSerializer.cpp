@@ -105,7 +105,7 @@ namespace TerranEngine
 	static void SerializeField(json& j, Entity entity) 
 	{
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
-		GCHandle& handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+		GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 		
 		for (auto& fieldID : sc.PublicFieldIDs)
 		{
@@ -436,7 +436,7 @@ catch(const std::exception& ex)\
 			{
 				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 				{
-					GCHandle& handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+					GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
 					if (!jScriptComponent["Fields"].contains(field->GetName()))

@@ -13,9 +13,9 @@ namespace TerranEngine
 {
 	#define TR_CLASS(className) ScriptEngine::GetClassFromName("Terran."#className, TR_CORE_ASSEMBLY_INDEX)
 
-	std::unordered_map<uint32_t, ScriptClass> ScriptCache::s_CachedClasses;
-	std::unordered_map<uint32_t, std::vector<ScriptMethod>> ScriptCache::s_CachedMethods;
-	std::unordered_map<uint32_t, ScriptField> ScriptCache::s_CachedFields;
+	static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;
+	static std::unordered_map<uint32_t, std::vector<ScriptMethod>> s_CachedMethods;
+	static std::unordered_map<uint32_t, ScriptField> s_CachedFields;
 
 	void ScriptCache::CacheCoreClasses()
 	{
@@ -192,7 +192,7 @@ namespace TerranEngine
 					uint32_t fieldID = Hash::FNVHash(fullFieldName);
 					field.m_ID = fieldID;
 					s_CachedFields.emplace(fieldID, std::move(field));
-					klass->m_Fields.emplace_back(field);
+					klass->m_Fields.push_back(field);
 				}
 			}
 		}
@@ -233,7 +233,7 @@ namespace TerranEngine
 				uint32_t fieldID = Hash::FNVHash(fullFieldName);
 				field.m_ID = fieldID;
 				s_CachedFields.emplace(fieldID, field);
-				klass.m_Fields.emplace_back(field);
+				klass.m_Fields.push_back(field);
 			}
 		}
 	}
