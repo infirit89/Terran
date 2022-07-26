@@ -68,6 +68,8 @@ namespace TerranEngine
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
+		void OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 		
 	private:
 		// TODO: add scene name and UUID

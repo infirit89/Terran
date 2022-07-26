@@ -23,25 +23,18 @@ namespace TerranEngine
 	{
 		template<typename T>
         T ScriptFieldGetData(GCHandle handle, ScriptField* field);
-
 		template<typename T>
         void ScriptFieldSetData(T value, GCHandle handle, ScriptField* field);
-
 		template<>
         std::string ScriptFieldGetData<std::string>(GCHandle handle, ScriptField* field);
-
 		template<>
         void ScriptFieldSetData<const char*>(const char* value, GCHandle handle, ScriptField* field);
-
 		template<>
         void ScriptFieldSetData<Utils::Variant>(Utils::Variant value, GCHandle handle, ScriptField* field);
-
 		template<>
         Utils::Variant ScriptFieldGetData<Utils::Variant>(GCHandle handle, ScriptField* field);
-
 		template<>
         void ScriptFieldSetData<UUID>(UUID value, GCHandle handle, ScriptField* field);
-
 		template<>
         UUID ScriptFieldGetData<UUID>(GCHandle handle, ScriptField* field);
 	}

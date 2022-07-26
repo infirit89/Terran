@@ -19,7 +19,7 @@
 namespace TerranEngine 
 {
 
-	static std::unordered_map<UUID, Shared<Scene>> s_SceneMap;
+	static std::unordered_map<UUID, Scene*> s_SceneMap;
 	
 	struct SceneComponent
 	{
@@ -29,27 +29,33 @@ namespace TerranEngine
 	Scene::Scene()
 	{
 		m_ID = UUID();
+        const auto sceneEntity = m_Registry.create();
+        m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
+
+        s_SceneMap[m_ID] = this;
 
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
-
-		const auto sceneEntity = m_Registry.create();
-		m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
+        
+		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
+		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
 	}
 
 	Scene::~Scene()
 	{
+        m_Registry.clear();
+
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
+
+		m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
+		m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
+
+        s_SceneMap.erase(m_ID);
 	}
 
 	Shared<Scene> Scene::CreateEmpty()
-	{
-		Shared<Scene> scene = CreateShared<Scene>();
-		s_SceneMap.emplace(scene->m_ID, scene);
-		
-		return scene;
-	}
+	{ return CreateShared<Scene>(); }
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
@@ -153,13 +159,6 @@ namespace TerranEngine
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
-			// NOTE: in case an entity is created during the runtime we want to start that entity's script
-			if (!entity.GetComponent<ScriptComponent>().Started) 
-			{
-				ScriptEngine::InitializeScriptable(entity);
-				ScriptEngine::OnStart(entity);
-			}
-
 			ScriptEngine::OnUpdate(entity);
 		}
 
@@ -389,7 +388,6 @@ namespace TerranEngine
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
-			// TODO: copy children
 			for (int i = 0; i < srcEntity.GetChildCount(); i++)
 			{
 				Entity childEntity = srcEntity.GetChild(i);
@@ -403,14 +401,6 @@ namespace TerranEngine
 				dstEntity.SetParent(parent);
 		}
 
-		if (dstEntity.HasComponent<ScriptComponent>()) 
-		{
-			ScriptEngine::InitializeScriptable(dstEntity);
-
-			if (m_IsPlaying)
-				ScriptEngine::OnStart(dstEntity);
-
-		}
 		return dstEntity;
 	}
 
@@ -453,23 +443,44 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::GetScene(const UUID& id)
 	{
-		if(s_SceneMap.find(id) != s_SceneMap.end())
-			return s_SceneMap.at(id);
+        Shared<Scene> scene = {};
+        if(s_SceneMap.find(id) != s_SceneMap.end())
+            scene.reset(s_SceneMap[id]);
 
-		return nullptr;
+		return scene;
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
-
 		ScriptEngine::InitializeScriptable(entity);
+
+        if(m_IsPlaying)
+            ScriptEngine::OnStart(entity);
 	}
 
 	void Scene::OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
-
 		ScriptEngine::UninitalizeScriptable(entity);
 	}
+
+
+    void Scene::OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Physics2D::CreatePhysicsBody(entity);
+        }
+    }
+
+    void Scene::OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Physics2D::DestroyPhysicsBody(entity);
+        }
+    }
 }

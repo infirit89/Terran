@@ -30,7 +30,7 @@ namespace TerranEditor
 
 		void SetBlockInput(bool block) { m_BlockInput = block; }
 
-		glm::mat4 GetView() { return m_ViewMatrix; }
+		glm::mat4& GetView() { return m_ViewMatrix; }
 	private:
 		float ZoomSpeed();
 

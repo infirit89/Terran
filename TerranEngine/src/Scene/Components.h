@@ -135,11 +135,8 @@ namespace TerranEngine
 		// "can" have more than one script (because of the 1 component of a type per entity)
 
 		std::string ModuleName;
-		
 		std::vector<uint32_t> PublicFieldIDs;
-		
 		bool ClassExists = true;
-		bool Started = false;
 	};
 
 	struct Rigidbody2DComponent 
@@ -160,7 +157,6 @@ namespace TerranEngine
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		glm::vec2 Size = { 1.0f, 1.0f };
-
 		bool IsSensor = false;
 
 		uint32_t ColliderIndex = 0;

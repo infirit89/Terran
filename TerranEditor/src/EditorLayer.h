@@ -21,7 +21,7 @@ namespace TerranEditor
 	class EditorLayer : public Layer 
 	{
 	public:
-		EditorLayer();
+		EditorLayer(const std::string& projectPath);
 
 		void OnAttach() override;
 		void OnDettach() override;
@@ -91,6 +91,7 @@ namespace TerranEditor
 		std::filesystem::path m_CurrentScenePath;
 		const std::filesystem::path m_ResPath = "Resources";
 		std::filesystem::path m_ScriptAssemblyPath;
+        std::filesystem::path m_ProjectPath;
 
 		glm::vec2 m_ViewportSize = { 1280.0f, 780.0f };
 

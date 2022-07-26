@@ -12,15 +12,11 @@ namespace TerranEngine {
 	struct WindowData
 	{
 		const char* Name;
-		uint32_t Width;
-		uint32_t Height;
-		std::array<std::string, 2> IconPaths = { "", "" };
+		uint32_t Width = 1280;
+		uint32_t Height = 960;
 		bool Fullscren = false;
 		bool Maximized = true;
 		bool VSync = true;
-
-		WindowData(const char* name = "Terran Application", uint32_t width = 1080, uint32_t height = 790)
-			: Name(name), Width(width), Height(height) {}
 	};
 	
 	class Window 

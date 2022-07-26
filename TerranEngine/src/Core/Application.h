@@ -12,16 +12,22 @@
 #include <string>
 #include <memory>
 #include <array>
+#include <filesystem>
 
-int main();
+int main(int argc, char** argv);
 
 namespace TerranEngine {
+
+    struct ApplicationData
+    {
+        WindowData Window;
+        std::filesystem::path ScriptCorePath;
+    };
 
 	class Application
 	{
 	public:
-		Application();
-		void Create(const WindowData& data);
+		Application(const ApplicationData& appData);
 		virtual ~Application();
 		void PushLayer(Layer* layer);
 		void Close();
@@ -44,10 +50,10 @@ namespace TerranEngine {
 		bool m_Running = true;
 
 		ImGuiLayer* m_ImGuiLayer;
-		friend int ::main();
+		friend int ::main(int argc, char** argv);
 		
 	};
 
-	Application* CreateApplication();
+	Application* CreateApplication(int argc, char** argv);
 }
 

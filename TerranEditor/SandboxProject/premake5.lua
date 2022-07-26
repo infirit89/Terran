@@ -7,12 +7,12 @@ workspace "SandboxProject"
         "Release"
     }
 
-project "SandboxProject"
+project "ScriptAssembly"
     kind "SharedLib"
     language "C#"
 
-    targetdir ("../Resources/Scripts/")
-    objdir ("../Resources/Scripts/Intermidiates")
+    targetdir ("Scripts")
+    objdir ("Scripts/Intermidiates")
 
     files 
     {

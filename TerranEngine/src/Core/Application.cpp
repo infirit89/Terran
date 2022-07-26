@@ -11,6 +11,10 @@
 #include "Graphics/RenderCommand.h"
 #include "Graphics/BatchRenderer2D.h"
 
+#include "Scripting/ScriptEngine.h"
+
+#include "Physics/Physics.h"
+
 #include "Utils/Debug/Profiler.h"
 
 #include <GLFW/glfw3.h>
@@ -26,17 +30,18 @@ namespace TerranEngine
 
 	static Unique<BatchRenderer2D> s_Renderer;
 
-	Application::Application()
+	Application::Application(const ApplicationData& appData)
 	{
 		m_Instance = this;
-	}
 
-	void Application::Create(const WindowData& data)
-	{
-		m_Window = Window::Create(data);
+		m_Window = Window::Create(appData.Window);
 
 		RenderCommand::Init();
 		s_Renderer = CreateUnique<BatchRenderer2D>(2000);
+        
+        ScriptEngine::Initialize(appData.ScriptCorePath);
+
+        Physics2D::Initialize();
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
@@ -46,6 +51,8 @@ namespace TerranEngine
 
 	Application::~Application()
 	{
+        ScriptEngine::Shutdown();
+        Physics2D::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)

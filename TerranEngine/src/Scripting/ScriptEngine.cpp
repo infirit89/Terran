@@ -42,6 +42,7 @@ namespace TerranEngine
 
 		ScriptMethodThunks<> PhysicsUpdateMethod;
 
+        // TODO: make static?
 		void GetMethods() 
 		{
 			Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
@@ -73,6 +74,7 @@ namespace TerranEngine
 		std::filesystem::path MonoConfigPath = EtcPath / "config";
 		Shared<Scene> SceneContext;
 		ScriptInstanceMap ScriptInstanceMap;
+        std::filesystem::path ScriptCoreAssemblyPath;
 	};
 
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
@@ -94,9 +96,10 @@ namespace TerranEngine
 	}
 
 
-	void ScriptEngine::Initialize()
+	void ScriptEngine::Initialize(const std::filesystem::path& scriptCoreAssemblyPath)
 	{
 		s_Data = new ScriptEngineData;
+        s_Data->ScriptCoreAssemblyPath = scriptCoreAssemblyPath;
 		
 		mono_set_dirs(s_Data->LibPath.string().c_str(), s_Data->EtcPath.string().c_str());
 
@@ -124,7 +127,6 @@ namespace TerranEngine
 		CreateAppDomain();
 
 		LoadCoreAssembly();
-		LoadAppAssembly();
 		
 		ScriptBindings::Bind();
 	}
@@ -260,7 +262,7 @@ namespace TerranEngine
 	void ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
-		coreAssembly = ScriptAssembly::LoadAssembly(Project::GetCoreAssemblyPath());
+		coreAssembly = ScriptAssembly::LoadAssembly(s_Data->ScriptCoreAssemblyPath);
 		ScriptCache::CacheCoreClasses();
 	}
 
@@ -401,8 +403,6 @@ namespace TerranEngine
 	void ScriptEngine::OnStart(Entity entity) 
 	{
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
-
-		entity.GetComponent<ScriptComponent>().Started = true;
 
 		if (instance.InitMethod)
 		{

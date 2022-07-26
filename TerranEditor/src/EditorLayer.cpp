@@ -19,15 +19,19 @@ namespace TerranEditor
 {
 	EditorLayer* EditorLayer::s_Instance;
 
-	EditorLayer::EditorLayer()
-		: Layer("Editor"), m_EditorCamera() 
+	EditorLayer::EditorLayer(const std::string& projectPath)
+		: Layer("Editor"), m_EditorCamera(), m_ProjectPath(projectPath) 
 	{
 		s_Instance = this;
 	}
 
 	void EditorLayer::OnAttach()
 	{
-		Project::Init("", "SandboxProject");
+        if(m_ProjectPath.empty())
+            Project::Init("SandboxProject/");
+        else
+            Project::Init(m_ProjectPath);
+
 		FontAtlas fontAtlas;
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -54,7 +58,6 @@ namespace TerranEditor
 
 		m_EditorScene = Scene::CreateEmpty();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
-		TR_TRACE((uint32_t)cameraEntity);
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
 
 		// TODO: should add an on component added function
@@ -87,16 +90,12 @@ namespace TerranEditor
 		runtimeFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
 
 		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);
-
-		ScriptEngine::Initialize();
-		Physics2D::Initialize();
+        ScriptEngine::LoadAppAssembly();
 	}
 
 	void EditorLayer::OnDettach()
 	{
 		Project::Uninitialize();
-		ScriptEngine::Shutdown();
-		Physics2D::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -480,9 +479,26 @@ namespace TerranEditor
 		OpenScene(scenePath, m_ViewportSize);
 	}
 
+    static bool IsValidAssetPath(const std::filesystem::path& path)
+    {
+        std::filesystem::path tempPath = path;
+        while(tempPath.has_parent_path())
+        {
+            if(tempPath.stem() == "Assets")
+                return true;
+
+            tempPath = tempPath.parent_path();
+        }
+
+        return false;    
+    }
+
 	void EditorLayer::OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize)
 	{
 		std::filesystem::path path = scenePath.empty() ? m_CurrentScenePath : scenePath;
+
+        if(!IsValidAssetPath(path))
+            return;
 
 		if (!path.empty()) 
 		{
@@ -492,7 +508,7 @@ namespace TerranEditor
 				return;
 			}
 
-			std::string& jsonData = SceneSerializer::ReadJson(scenePath.string());
+			std::string jsonData = SceneSerializer::ReadJson(scenePath.string());
 			if (jsonData != "")
 			{
 				Shared<Scene> newScene = Scene::CreateEmpty();

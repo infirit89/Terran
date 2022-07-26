@@ -2,32 +2,41 @@
 
 #include "Core/EntryPoint.h"
 
-namespace TerranEngine
+namespace TerranEditor
 {
-	class TerranEditorApp : public Application 
+	class TerranEditorApplication : public TerranEngine::Application 
 	{
 	public:
-		TerranEditorApp()
-			: Application()
+		TerranEditorApplication(const TerranEngine::ApplicationData& appData, const std::string& projectPath)
+			: Application(appData)
 		{
-			WindowData data;
-			data.Name = "Terran";
-			data.Width = 1080;
-			data.Height = 790;
-			data.VSync = true;
-			Create(data);
-
-			PushLayer(new TerranEditor::EditorLayer());
+			PushLayer(new TerranEditor::EditorLayer(projectPath));
 		}
 
-		~TerranEditorApp()
+		~TerranEditorApplication()
 		{
 
 		}
 	};
+}
 
-	Application* CreateApplication()
-	{
-		return new TerranEditorApp();
-	}
+TerranEngine::Application* TerranEngine::CreateApplication(int argc, char** argv)
+{
+    std::string projectPath = "";
+
+    if(argc > 1)
+        projectPath = argv[1];
+    
+    TerranEngine::ApplicationData applicationData;
+
+    applicationData.Window.Name = "Terran";
+    applicationData.Window.Width = 1080;
+    applicationData.Window.Height = 790;
+    applicationData.Window.VSync = true;
+    applicationData.Window.Maximized = true;
+    applicationData.Window.Fullscren = false;
+
+    applicationData.ScriptCorePath = "Resources/Scripts/TerranScriptCore.dll";
+    
+    return new TerranEditor::TerranEditorApplication(applicationData, projectPath);
 }

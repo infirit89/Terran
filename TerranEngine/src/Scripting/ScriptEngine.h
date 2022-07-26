@@ -20,7 +20,7 @@ namespace TerranEngine
 	class ScriptEngine 
 	{
 	public:
-		static void Initialize();
+		static void Initialize(const std::filesystem::path& scriptCoreAssemblyPath);
 		static void Shutdown();
 
 		static void ReloadAppAssembly();
@@ -50,9 +50,9 @@ namespace TerranEngine
 		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
 
+        static void LoadAppAssembly();
 	private:
 		static void LoadCoreAssembly();
-		static void LoadAppAssembly();
 		
 		static void CreateAppDomain();
 		static void UnloadDomain();
