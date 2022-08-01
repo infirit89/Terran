@@ -7,3 +7,12 @@ C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\SandboxProject
 C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\SandboxProject\Scripts\ScriptAssembly.pdb
 C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\SandboxProject\Scripts\TerranScriptCore.dll
 C:\Users\georg\Documents\Projects\OKAY\github\Terran\TerranEditor\SandboxProject\Scripts\TerranScriptCore.pdb
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\Intermidiates\Debug\ScriptAssembly.csproj.AssemblyReference.cache
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\Intermidiates\Debug\ScriptAssembly.csproj.CoreCompileInputs.cache
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\Intermidiates\Debug\ScriptAssembly.csproj.CopyComplete
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\Intermidiates\Debug\ScriptAssembly.dll
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\Intermidiates\Debug\ScriptAssembly.pdb
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\ScriptAssembly.dll
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\ScriptAssembly.pdb
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\TerranScriptCore.dll
+C:\Users\georg\Documents\Projects\OKAY\Terran\TerranEditor\SandboxProject\Scripts\TerranScriptCore.pdb

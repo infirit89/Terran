@@ -110,17 +110,17 @@ namespace TerranEngine
 		
 		m_IsPlaying = true;
 
-		Physics2D::SetContext(GetScene(m_ID));
-		Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
+		//Physics2D::SetContext(GetScene(m_ID));
+		//Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
 
-		auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
+		/*auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
 
 		for (auto e: rigidbodyView)
 		{
 			Entity entity(e, this);
 
 			Physics2D::CreatePhysicsBody(entity);
-		}
+		}*/
 
 
 		ScriptEngine::SetContext(GetScene(m_ID));
@@ -140,7 +140,6 @@ namespace TerranEngine
 			return;
 		
 		m_IsPlaying = false;
-		Physics2D::CleanUpPhysicsWorld();
 	}
 
 	void Scene::Update(Time time)
@@ -152,8 +151,6 @@ namespace TerranEngine
 
 		TransformSystem::SetContext(this);
 		TransformSystem::Update();
-
-		Physics2D::Update(time);
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 		for (auto e : scriptableComponentView)
@@ -443,11 +440,10 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::GetScene(const UUID& id)
 	{
-        Shared<Scene> scene = {};
-        if(s_SceneMap.find(id) != s_SceneMap.end())
-            scene.reset(s_SceneMap[id]);
+		if (s_SceneMap.find(id) != s_SceneMap.end())
+			return Shared<Scene>(s_SceneMap[id]);
 
-		return scene;
+		return nullptr;
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)

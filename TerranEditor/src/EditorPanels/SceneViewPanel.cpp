@@ -1,6 +1,7 @@
 #include "SceneViewPanel.h"
 
 #include "EditorLayer.h"
+#include "SelectionManager.h"
 
 #include "UI/UI.h"
 
@@ -32,10 +33,13 @@ namespace TerranEditor
 		return (ImGuizmo::OPERATION)0;
 	}
 
-	void SceneViewPanel::ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera)
+	void SceneViewPanel::ImGuiRender()
 	{
 		if (m_Open) 
 		{ 
+			Shared<Framebuffer> framebuffer = m_SceneRenderer->GetFramebuffer();
+			EditorCamera& editorCamera = EditorLayer::GetInstace()->GetEditorCamera();
+
 			UI::ScopedStyleVar styleVar(
 			{
 				{ ImGuiStyleVar_WindowPadding, {0.0f, 0.0f} }
@@ -76,7 +80,7 @@ namespace TerranEditor
 
 			Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-			ImGui::Image((ImTextureID)(m_Framebuffer ? m_Framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
+			ImGui::Image((ImTextureID)(framebuffer ? framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
 
 			m_Visible = ImGui::IsItemVisible();
 
@@ -86,7 +90,7 @@ namespace TerranEditor
 			if (sceneState == SceneState::Edit) 
 			{
 				// Gizmos
-
+				Entity selectedEntity = SelectionManager::GetSelected();
 				bool usingGizmo = false;
 				if (selectedEntity)
 				{
@@ -150,16 +154,16 @@ namespace TerranEditor
 
 					if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)m_ViewportSize.x && mouseY < (int)m_ViewportSize.y)
 					{
-						m_Framebuffer->Bind();
-						int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+						framebuffer->Bind();
+						int pixelData = framebuffer->ReadPixel(1, mouseX, mouseY);
 						TR_TRACE(pixelData);
 
 						//Entity entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
-						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_SceneContext->GetRaw());
+						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_Scene->GetRaw());
 						
-						m_SelectedChangedCallback(entity);
+						SelectionManager::Select(entity);
 
-						m_Framebuffer->Unbind();
+						framebuffer->Unbind();
 					}
 				}
 			}

@@ -1,6 +1,7 @@
 #include "ContentPanel.h"
 
 #include "Core/Log.h"
+#include "Project/Project.h"
 
 #include <imgui.h>
 
@@ -9,8 +10,8 @@
 
 namespace TerranEditor 
 {
-	ContentPanel::ContentPanel(std::filesystem::path resPath) 
-		: m_AssetPath(resPath), m_CurrentPath(resPath)
+	ContentPanel::ContentPanel() 
+		: m_CurrentPath("")
 	{
 		TextureParameters params;
 		m_DirIcon = CreateShared<Texture>("Resources/Textures/temp_folder_icon.png", params);
@@ -29,7 +30,7 @@ namespace TerranEditor
 
 			ImGui::Begin("Content", &m_Open);
 			
-			if (m_CurrentPath != std::filesystem::path(m_AssetPath))
+			if (m_CurrentPath != Project::GetAssetPath())
 			{
 				if (ImGui::Button("<-"))
 					m_CurrentPath = m_CurrentPath.parent_path();

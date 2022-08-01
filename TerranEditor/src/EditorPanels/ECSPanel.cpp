@@ -28,11 +28,11 @@ namespace TerranEditor
 				ImGui::Text("Runtime ID");
 				ImGui::NextColumn();
 
-				auto tagView = m_Context->GetEntitiesWith<TagComponent>();
+				auto tagView = m_Scene->GetEntitiesWith<TagComponent>();
 			
 				for (auto e : tagView)
 				{
-					Entity entity(e, m_Context.get());
+					Entity entity(e, m_Scene->GetRaw());
 
 					const bool selected = (s_Selected == entity);
 				

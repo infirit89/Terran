@@ -40,7 +40,6 @@ namespace TerranEngine
 		s_Renderer = CreateUnique<BatchRenderer2D>(2000);
         
         ScriptEngine::Initialize(appData.ScriptCorePath);
-
         Physics2D::Initialize();
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));

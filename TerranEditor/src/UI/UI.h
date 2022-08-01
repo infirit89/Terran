@@ -61,6 +61,8 @@ namespace TerranEditor
 			size_t m_StyleVarListSize = 0;
 		};
 		
+		void SetupImGuiStyle();
+
 		bool DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth = 100.0f);
 		bool DrawVec3Control(const std::string& label, glm::vec3& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
 		bool DrawFloatControl(const std::string& label, float& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);

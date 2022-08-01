@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EditorPanel.h"
+
 #include "Core/Base.h"
 #include "Scene/Scene.h"
 
@@ -7,20 +9,14 @@ namespace TerranEditor
 {
 	using namespace TerranEngine;
 
-	class ECSPanel 
+	class ECSPanel : public EditorPanel
 	{
 	public:
 		ECSPanel() = default;
 		~ECSPanel() = default;
 
-		void ImGuiRender();
+		virtual void ImGuiRender() override;
 
-		void SetContext(const Shared<Scene>& context) { m_Context = context; }
-
-		void SetOpen(bool open) { m_Open = open; }
-
-	private:
-		Shared<Scene> m_Context;
-		bool m_Open = true;
+		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
 	};
 }

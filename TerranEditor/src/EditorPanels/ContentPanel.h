@@ -3,29 +3,26 @@
 #include "Core/Base.h"
 #include "Graphics/Texture.h"
 
+#include "EditorPanel.h"
+
 #include <filesystem>
 
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
-	class ContentPanel 
+	class ContentPanel : public EditorPanel
 	{
 	public:
-		ContentPanel() = default;
-		ContentPanel(std::filesystem::path resPath);
+		ContentPanel();
 		~ContentPanel() = default;
 
-		void ImGuiRender();
+		virtual void ImGuiRender() override;
 
-		void SetOpen(bool open) { m_Open = open; }
-
+		void SetCurrentPath(const std::filesystem::path& currentPath) { m_CurrentPath = currentPath; }
 	private:
 		Shared<Texture> m_DirIcon;
 		Shared<Texture> m_FileIcon;
 
-		std::filesystem::path m_AssetPath;
 		std::filesystem::path m_CurrentPath;
-
-		bool m_Open = true;
 	};
 }

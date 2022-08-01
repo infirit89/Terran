@@ -1,6 +1,8 @@
 #include "PropertiesPanel.h"
 
 #include "EditorLayer.h"
+#include "SelectionManager.h"
+
 #include "Scripting/ScriptCache.h"
 
 #include "UI/UI.h"
@@ -83,12 +85,13 @@ namespace TerranEditor
 		}
 	}
 
-	void PropertiesPanel::ImGuiRender(Entity entity)
+	void PropertiesPanel::ImGuiRender()
 	{
 		if(m_Open)
 		{
 			ImGui::Begin("Properties", &m_Open);
-			
+			Entity entity = SelectionManager::GetSelected();
+
 			if (entity) 
 			{
 				if (entity.HasComponent<TagComponent>()) 
@@ -228,7 +231,6 @@ namespace TerranEditor
 						ImGui::PopStyleColor();
 					}
 
-					auto scene = Scene::GetScene(entity.GetSceneID());
 					const auto& sc = entity.GetComponent<ScriptComponent>();
 					if (!sc.PublicFieldIDs.empty())
 					{
@@ -241,11 +243,11 @@ namespace TerranEditor
 							if (field->GetType().IsArray()) 
 							{
 								ScriptArray array = field->GetArray(handle);
-								if (UI::DrawScriptArrayField(scene, field->GetName(), array))
+								if (UI::DrawScriptArrayField(m_Scene, field->GetName(), array))
 									field->SetArray(array, handle);
 							}
 							else
-								UI::DrawScriptField(scene, field, handle);
+								UI::DrawScriptField(m_Scene, field, handle);
 						}
 					}
 

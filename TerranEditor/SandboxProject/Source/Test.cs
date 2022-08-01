@@ -12,15 +12,17 @@ namespace SandboxProject
 
     public class Sandbox : Scriptable 
     {
-        public TestEnum Test = TestEnum.Test1;
+        //public TestEnum Test = TestEnum.Test1;
 
         protected override void Init()
         {
+            Log.Trace("brtuh");
             //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
         }
 
         protected override void Update()
         {
+            Log.Trace("small cocks");
         }
     }
 

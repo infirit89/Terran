@@ -1,14 +1,7 @@
 #pragma once
 
 #include "Terran.h"
-
-#include "EditorPanels/SceneHierarchyPanel.h"
-#include "EditorPanels/PropertiesPanel.h"
-#include "EditorPanels/SceneViewPanel.h"
-#include "EditorPanels/GameViewPanel.h"
-#include "EditorPanels/ContentPanel.h"
-#include "EditorPanels/ECSPanel.h"
-#include "EditorPanels/LogPanel.h"
+#include "EditorPanels/PanelManager.h"
 
 #include "EditorCamera.h"
 
@@ -34,6 +27,7 @@ namespace TerranEditor
 		SceneState GetSceneState() { return m_SceneState; }
 
 		static EditorLayer* GetInstace() { return s_Instance; }
+		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
 
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
@@ -64,20 +58,20 @@ namespace TerranEditor
 		Entity m_EditModeSelected = {};
 
 		// ***** Panels *****
-		SceneHierarchyPanel m_SceneHierarchyPanel;
+		/*SceneHierarchyPanel m_SceneHierarchyPanel;
 		PropertiesPanel m_PropertiesPanel;
 		ContentPanel m_ContentPanel;
 		SceneViewPanel m_SceneViewPanel;
 		ECSPanel m_ECSPanel;
-		LogPanel m_LogPanel;
+		LogPanel m_LogPanel;*/
 		//GameView m_GameView;
-
+		Shared<PanelManager> m_PanelManager;
 		// ******************
 		
 		Shared<Scene> m_EditorScene;
 		Shared<Scene> m_ActiveScene;
 
-		Shared<SceneRenderer> m_RuntimeSceneRenderer;
+		//Shared<SceneRenderer> m_RuntimeSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 
 		bool m_PerformanceOpen = true;

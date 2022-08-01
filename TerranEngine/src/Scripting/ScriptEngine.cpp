@@ -13,7 +13,7 @@
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
-#include "Core/Project.h"
+#include "Project/Project.h"
 
 #include "Scene/Components.h"
 

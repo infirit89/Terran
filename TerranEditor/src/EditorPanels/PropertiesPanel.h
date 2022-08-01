@@ -9,20 +9,19 @@
 #include "Scripting/ScriptArray.h"
 #include "Scripting/GCManager.h"
 
+#include "EditorPanel.h"
+
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
-	class PropertiesPanel 
+	class PropertiesPanel : public EditorPanel
 	{
-
 	public:
 		PropertiesPanel() = default;
 		~PropertiesPanel() = default;
 
-		void ImGuiRender(Entity entity);
-		inline void SetOpen(bool open) { m_Open = open; }
+		virtual void ImGuiRender() override;
 
 	private:
-		bool m_Open = true;
 	};
 }

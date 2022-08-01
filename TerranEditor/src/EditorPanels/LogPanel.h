@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EditorPanel.h"
+
 #include "Core/Base.h"
 #include "Graphics/Texture.h"
 
@@ -24,17 +26,15 @@ namespace TerranEditor
 		LogMessageLevel MessageLevel = LogMessageLevel::Trace;
 	};
 
-	class LogPanel 
+	class LogPanel : public EditorPanel
 	{
 	public:
 		LogPanel();
 		~LogPanel();
 
 		void AddLog(LogMessage logMessage);
-		void ImGuiRender();
+		virtual void ImGuiRender() override;
 		void ClearMessageBuffer();
-
-		void SetOpen(bool open) { m_Open = open; }
 
 		bool IsClearOnPlay() { return m_ClearOnPlay; }
 
@@ -42,7 +42,6 @@ namespace TerranEditor
 
 	private:
 		std::vector<LogMessage> m_TextBuffer;
-		bool m_Open = true;
 		bool m_AutoScroll = true;
 		bool m_ClearOnPlay = true;
 		static LogPanel* s_Instance;

@@ -1,10 +1,13 @@
 #include "SceneHierarchyPanel.h"
 
+#include "SelectionManager.h"
+
 #include "UI/UI.h"
 
 #include "Core/Input.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4312)
@@ -13,13 +16,12 @@ namespace TerranEditor
 {
 	SceneHierarchyPanel::SceneHierarchyPanel(const Shared<Scene>& scene)
 	{
-		SetScene(scene);
+		SetSceneContext(scene);
 	}
 
-	void SceneHierarchyPanel::SetScene(const Shared<Scene>& scene)
+	void SceneHierarchyPanel::SetSceneContext(const Shared<Scene>& scene) 
 	{
 		m_Scene = scene;
-		SetSelectedID(UUID({ 0 }));
 	}
 
 	void SceneHierarchyPanel::OnEvent(Event& event)
@@ -49,13 +51,32 @@ namespace TerranEditor
 				if (ImGui::BeginPopupContextWindow(0, 1, false))
 				{
 					if (ImGui::MenuItem("Create an entity"))
-						SetSelected(m_Scene->CreateEntity("Entity"));
+						SelectionManager::Select(m_Scene->CreateEntity("Entity"));
 
 					ImGui::EndPopup();
 				}
 	
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					SetSelectedID(UUID({ 0 }));
+					SelectionManager::Deselect();
+
+				ImGuiWindow* currentWindow = ImGui::GetCurrentWindow();
+				
+
+				if (ImGui::BeginDragDropTargetCustom(currentWindow->Rect(), currentWindow->ID)) 
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect))
+					{
+						TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
+
+						std::array<uint8_t, 16> idArr;
+						memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+						UUID id(idArr);
+						Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
+						receivedEntity.Unparent();
+					}
+
+					ImGui::EndDragDropTarget();
+				}
 			}
 
 			ImGui::End();
@@ -68,7 +89,7 @@ namespace TerranEditor
 		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 
-		Entity selectedEntity = GetSelected();
+		Entity selectedEntity = SelectionManager::GetSelected();
 
 		if (e.GetRepeatCount() > 0)
 			return false;
@@ -79,7 +100,7 @@ namespace TerranEditor
 			if (ctrlPressed) 
 			{
 				if (selectedEntity)
-					SetSelected(m_Scene->DuplicateEntity(selectedEntity));
+					SelectionManager::Select(m_Scene->DuplicateEntity(selectedEntity));
 			}
 
 			break;
@@ -88,7 +109,7 @@ namespace TerranEditor
 			if (ctrlPressed && shiftPressed)
 			{
 				auto entity = m_Scene->CreateEntity();
-				SetSelected(entity);
+				SelectionManager::Select(entity);
 
 				return true;
 			}
@@ -105,7 +126,7 @@ namespace TerranEditor
 		
 		ImGui::PushID(imguiID.c_str());
 
-		Entity selectedEntity = GetSelected();
+		Entity selectedEntity = SelectionManager::GetSelected();
 		ImGuiTreeNodeFlags flags = (selectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | 
 			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_AllowItemOverlap;
 
@@ -133,7 +154,7 @@ namespace TerranEditor
 
 		if (ImGui::BeginDragDropTarget()) 
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID")) 
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect)) 
 			{
 				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
 
@@ -144,7 +165,7 @@ namespace TerranEditor
 
 				if (receivedEntity)
 				{
-					if (!receivedEntity.IsChildOf(entity)) 
+					if (!receivedEntity.IsChildOf(entity) && receivedEntity != entity.GetParent()) 
 					{
 						if (receivedEntity.HasParent())
 							receivedEntity.Unparent();
@@ -160,7 +181,7 @@ namespace TerranEditor
 		style = orgStyle;
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
-			SetSelected(entity);
+			SelectionManager::Select(entity);
 
 		bool isDeleted = false;
 		
@@ -212,7 +233,7 @@ namespace TerranEditor
 		{
 			m_Scene->DestroyEntity(entity, true);
 			if (selectedEntity == entity)
-				SetSelectedID(UUID({ 0 }));
+				SelectionManager::Deselect();
 		}
 
 		ImGui::PopID();

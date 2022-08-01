@@ -1,14 +1,14 @@
 #pragma once
 
 #include "EditorCamera.h"
+#include "EditorPanel.h"
 
 #include "Core/Base.h"
 
 #include "Events/KeyboardEvent.h"
 
 #include "Scene/Entity.h"
-
-#include "Graphics/Framebuffer.h"
+#include "Scene/Systems/SceneRenderer.h"
 
 namespace TerranEditor 
 {
@@ -22,35 +22,31 @@ namespace TerranEditor
 		Scale
 	};
 
-	class SceneViewPanel
+	class SceneViewPanel : public EditorPanel
 	{
 		using OpenSceneFN = std::function<void(const char*, glm::vec2)>;
 	public:
 		SceneViewPanel() = default;
 		~SceneViewPanel() = default;
 
-		void ImGuiRender(Entity selectedEntity, EditorCamera& editorCamera);
+		virtual void ImGuiRender() override;
 
-		void SetFramebuffer(const Shared<Framebuffer>& framebuffer) { m_Framebuffer = framebuffer; }
+		void SetSceneRenderer(const Shared<SceneRenderer>& sceneRenderer) { m_SceneRenderer = sceneRenderer; }
 
-		bool IsVisible() { return m_Visible; }
+		//bool IsVisible() { return m_Visible; }
 
-		void SetOpen(bool open) { m_Open = open; }
-
-		void OnEvent(Event& event);
+		virtual void OnEvent(Event& event) override;
 
 		void SetOpenSceneCallback(OpenSceneFN openSceneCallback) { m_OpenSceneCallback = openSceneCallback; }
 		void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
-		void SetSelectedChangedCallback(std::function<void(Entity)> callback) { m_SelectedChangedCallback = callback; }
 
-		void SetContext(const Shared<Scene>& context) { m_SceneContext = context; }
+		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
 		
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 
-		bool m_Open = true;
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
-		Shared<Framebuffer> m_Framebuffer;
+		Shared<SceneRenderer> m_SceneRenderer;
 
 		GizmoType m_GizmoType = GizmoType::None;
 		int m_GizmoMode = 1;
@@ -65,7 +61,5 @@ namespace TerranEditor
 
 		OpenSceneFN m_OpenSceneCallback;
 		std::function<void(glm::vec2)> m_ViewportSizeChangedCallback;
-		std::function<void(Entity)> m_SelectedChangedCallback;
-		Shared<Scene> m_SceneContext;
 	};
 }
