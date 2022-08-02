@@ -11,15 +11,33 @@ namespace Terran
         #endregion
 
         #region Input
+
+		// ---- Keyboard ----
         [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyPressed(UInt32 keyCode);
+		internal static extern bool Input_KeyPressed(ushort keyCode);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonPressed(UInt16 mouseButton);
+		internal static extern bool Input_KeyDown(ushort keyCode);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_KeyReleased(ushort keyCode);
+		// ------------------
+
+		// ---- Mouse ----
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_MouseButtonPressed(byte mouseButton);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_MouseButtonDown(byte mouseButton);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_MouseButtonReleased(byte mouseButton);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Input_GetMousePosition(out Vector2 outMousePosition);
+		// ---------------
 
+		// ---- Controller ----
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Input_IsControllerConnected(byte controllerIndex);
 
@@ -34,6 +52,7 @@ namespace Terran
      
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern byte[] Input_GetConnectedControllers();
+		// --------------------
 		#endregion
 
         #region Entity

@@ -7,22 +7,22 @@
 
 namespace TerranEngine 
 {
-	bool Input::IsKeyPressed(Key key)
+	bool Input::GetKeyState(Key key)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
 		int state = glfwGetKey(window, (uint32_t)key);
 
-		return state == GLFW_REPEAT || state == GLFW_PRESS;
+		return state == GLFW_PRESS;
 	}
 
-	bool Input::IsMouseButtonPressed(MouseButton button)
+	bool Input::GetMouseButtonState(MouseButton button)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
 		int state = glfwGetMouseButton(window, (uint16_t)button);
 
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
+		return state == GLFW_PRESS;
 	}
 
 	glm::vec2 Input::GetMousePos() 
@@ -35,12 +35,10 @@ namespace TerranEngine
 		return { xpos, ypos };
 	}
 
-	void Input::SetCursorState(CursorState cursorState) 
+	void Input::SetCursorState(CursorMode cursorMode) 
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
-
-		GLFWcursor* cursor = glfwCreateStandardCursor((int)cursorState);
-		glfwSetCursor(window, cursor);
+		glfwSetInputMode(window, GLFW_CURSOR, (int)cursorMode);
 	}
 
 	bool Input::IsControllerConnected(uint8_t controllerIndex)

@@ -44,6 +44,8 @@ namespace TerranEngine
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
+		Input::Init();
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);
 	}
@@ -91,6 +93,7 @@ namespace TerranEngine
 			}
 
 			m_Window->Update();
+			Input::Update();
 
 			Profiler::Get().ClearResults();
 		}

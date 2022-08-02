@@ -4,7 +4,7 @@
 
 namespace TerranEngine {
 
-	enum class MouseButton : uint16_t 
+	enum class MouseButton : uint8_t 
 	{
 		Button1			= 0,
 		Button2			= 1,
@@ -20,4 +20,19 @@ namespace TerranEngine {
 		RightButton		= Button2
 
 	};
+
+	namespace InputUtils 
+	{
+		inline MouseButton MouseButtons[] =
+		{
+			MouseButton::Button1,
+			MouseButton::Button2,
+			MouseButton::Button3,
+			MouseButton::Button4,
+			MouseButton::Button5,
+			MouseButton::Button6,
+			MouseButton::Button7,
+			MouseButton::Button8
+		};
+	}
 }

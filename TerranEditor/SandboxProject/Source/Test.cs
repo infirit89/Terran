@@ -22,7 +22,23 @@ namespace SandboxProject
 
         protected override void Update()
         {
-            Log.Trace("small cocks");
+            if(Input.IsKeyDown(KeyCode.A))
+                Log.Trace("key down");
+
+            if (Input.IsKeyPressed(KeyCode.S))
+                Log.Trace("key pressed");
+
+            if (Input.IsKeyReleased(KeyCode.D))
+                Log.Trace("key released");
+
+            if (Input.IsMouseButtonDown(MouseButton.Button1))
+                Log.Trace("button down");
+
+            if (Input.IsMouseButtonPressed(MouseButton.Button2))
+                Log.Trace("button down");
+
+            if (Input.IsMouseButtonReleased(MouseButton.Button3))
+                Log.Trace("button down");
         }
     }
 

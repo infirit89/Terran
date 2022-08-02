@@ -161,10 +161,8 @@ namespace TerranEngine
 			for (const auto& [entityID, instance] : scriptInstances)
 			{
 				const GCHandle& handle = instance.ObjectHandle;
-				
-				auto scene = Scene::GetScene(sceneID);
 
-				Entity entity = scene->FindEntityWithUUID(entityID);
+				Entity entity = s_Data->SceneContext->FindEntityWithUUID(entityID);
 
 				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
@@ -194,10 +192,10 @@ namespace TerranEngine
 		
 		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
 		{
-			auto scene = Scene::GetScene(sceneID);
+			//auto scene = Scene::GetScene(sceneID);
 			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
 			{
-				Entity entity = scene->FindEntityWithUUID(entityID);
+				Entity entity = s_Data->SceneContext->FindEntityWithUUID(entityID);
 				InitializeScriptable(entity);
 				
 				for (const auto& [fieldID, fieldData] : fieldsState)

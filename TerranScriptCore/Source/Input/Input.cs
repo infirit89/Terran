@@ -5,9 +5,13 @@ namespace Terran
 	public class Input
 	{
 
-		public static bool IsKeyPressed(KeyCode keyCode) => Internal.Input_KeyPressed((UInt32)keyCode);
+		public static bool IsKeyPressed(KeyCode keyCode) => Internal.Input_KeyPressed((ushort)keyCode);
+		public static bool IsKeyDown(KeyCode keyCode) => Internal.Input_KeyDown((ushort)keyCode);
+		public static bool IsKeyReleased(KeyCode keyCode) => Internal.Input_KeyReleased((ushort)keyCode);
 
-		public static bool IsMouseButtonPressed(MouseButton mouseButton) => Internal.Input_MouseButtonPressed((UInt16)mouseButton);
+		public static bool IsMouseButtonPressed(MouseButton mouseButton) => Internal.Input_MouseButtonPressed((byte)mouseButton);
+		public static bool IsMouseButtonDown(MouseButton mouseButton) => Internal.Input_MouseButtonDown((byte)mouseButton);
+		public static bool IsMouseButtonReleased(MouseButton mouseButton) => Internal.Input_MouseButtonReleased((byte)mouseButton);
 
 		public static Vector2 GetMousePosition() 
 		{

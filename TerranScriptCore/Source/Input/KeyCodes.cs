@@ -2,7 +2,7 @@
 
 namespace Terran
 {
-	public enum KeyCode : UInt32
+	public enum KeyCode : ushort
 	{
 		Space			= 32,
 		Apostrophe		= 39,

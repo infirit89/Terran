@@ -147,8 +147,12 @@ namespace TerranEngine
 
 			// ---- input -----
 			BIND_INTERNAL_FUNC(Input_KeyPressed);
+			BIND_INTERNAL_FUNC(Input_KeyDown);
+			BIND_INTERNAL_FUNC(Input_KeyReleased);
 
 			BIND_INTERNAL_FUNC(Input_MouseButtonPressed);
+			BIND_INTERNAL_FUNC(Input_MouseButtonDown);
+			BIND_INTERNAL_FUNC(Input_MouseButtonReleased);
 			BIND_INTERNAL_FUNC(Input_GetMousePosition);
 
 			BIND_INTERNAL_FUNC(Input_IsControllerConnected);
@@ -990,9 +994,15 @@ namespace TerranEngine
 		// -------------
 
 		// ---- Input ----
-		bool Input_KeyPressed(Key keyCode) { return Input::IsKeyPressed(keyCode); }
-		bool Input_MouseButtonPressed(MouseButton mouseButton) { return Input::IsMouseButtonPressed(mouseButton); }
-		void Input_GetMousePosition(glm::vec2& outMousePosition) { outMousePosition = Input::GetMousePos(); }
+		bool Input_KeyPressed(Key keyCode)	{ return Input::IsKeyPressed(keyCode); }
+		bool Input_KeyDown(Key keyCode)		{ return Input::IsKeyDown(keyCode); }
+		bool Input_KeyReleased(Key keyCode) { return Input::IsKeyReleased(keyCode); }
+
+		bool Input_MouseButtonPressed(MouseButton mouseButton)		{ return Input::IsMouseButtonPressed(mouseButton); }
+		bool Input_MouseButtonDown(MouseButton mouseButton)			{ return Input::IsMouseButtonDown(mouseButton); }
+		bool Input_MouseButtonReleased(MouseButton mouseButton)		{ return Input::IsMouseButtonReleased(mouseButton); }
+		void Input_GetMousePosition(glm::vec2& outMousePosition)	{ outMousePosition = Input::GetMousePos(); }
+
 		bool Input_IsControllerConnected(uint8_t controllerIndex) { return Input::IsControllerConnected(controllerIndex); }
 
 		MonoString* Input_GetControllerName(uint8_t controllerIndex)

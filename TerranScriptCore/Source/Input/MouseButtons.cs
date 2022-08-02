@@ -2,7 +2,7 @@
 
 namespace Terran
 {
-	public enum MouseButton : UInt16
+	public enum MouseButton : byte
 	{
 		Button1			= 0,
 		Button2			= 1,

@@ -11,14 +11,29 @@
 
 namespace TerranEngine {
 
+	struct InputState
+	{
+		bool CurrentState = false;
+		bool PreviousState = false;
+	};
+
 	class Input 
 	{
 	public:
+		static void Init();
+
 		static bool IsKeyPressed(Key key);
+		static bool IsKeyDown(Key key);
+		static bool IsKeyReleased(Key key);
+
+		static bool GetKeyState(Key key);
+		static bool GetMouseButtonState(MouseButton button);
 
 		static bool IsMouseButtonPressed(MouseButton button);
+		static bool IsMouseButtonDown(MouseButton button);
+		static bool IsMouseButtonReleased(MouseButton button);
 
-		static void SetCursorState(CursorState cursorState);
+		static void SetCursorState(CursorMode cursorMode);
 
 		static glm::vec2 GetMousePos();
 
@@ -34,5 +49,14 @@ namespace TerranEngine {
 		static std::vector<uint8_t> GetConnectedControllers(); 
 		static float GetMouseX() { return GetMousePos().x; }
 		static float GetMouseY() { return GetMousePos().y; }
+
+		static void Update();
+
+		static std::unordered_map<Key, InputState> GetKeyStates() { return s_KeyStates; }
+		static std::unordered_map<MouseButton, InputState> GetMouseButtonStates() { return s_MouseButtonStates; }
+
+	private:
+		static std::unordered_map<Key, InputState> s_KeyStates;
+		static std::unordered_map<MouseButton, InputState> s_MouseButtonStates;
 	};
 }

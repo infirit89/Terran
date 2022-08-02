@@ -23,8 +23,12 @@ namespace TerranEngine
 
 		// ---- Input ----
 		static bool Input_KeyPressed(Key keyCode);
+		static bool Input_KeyDown(Key keyCode);
+		static bool Input_KeyReleased(Key keyCode);
 
 		static bool Input_MouseButtonPressed(MouseButton mouseButton);
+		static bool Input_MouseButtonDown(MouseButton mouseButton);
+		static bool Input_MouseButtonReleased(MouseButton mouseButton);
 		static void Input_GetMousePosition(glm::vec2& outMousePosition);
 
 		static bool Input_IsControllerConnected(uint8_t controllerIndex);
