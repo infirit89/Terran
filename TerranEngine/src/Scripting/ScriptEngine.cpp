@@ -16,6 +16,7 @@
 #include "Project/Project.h"
 
 #include "Scene/Components.h"
+#include "Scene/SceneManager.h"
 
 #include "Utils/Utils.h"
 
@@ -72,7 +73,7 @@ namespace TerranEngine
 		std::filesystem::path EtcPath = MonoPath / "etc";
 
 		std::filesystem::path MonoConfigPath = EtcPath / "config";
-		Shared<Scene> SceneContext;
+	
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
 	};
@@ -158,11 +159,11 @@ namespace TerranEngine
 
 		for (const auto& [sceneID, scriptInstances] : s_Data->ScriptInstanceMap)
 		{
+			auto scene = SceneManager::GetScene(sceneID);
 			for (const auto& [entityID, instance] : scriptInstances)
 			{
 				const GCHandle& handle = instance.ObjectHandle;
-
-				Entity entity = s_Data->SceneContext->FindEntityWithUUID(entityID);
+				Entity entity = scene->FindEntityWithUUID(entityID);
 
 				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
@@ -192,10 +193,10 @@ namespace TerranEngine
 		
 		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
 		{
-			//auto scene = Scene::GetScene(sceneID);
+			auto scene = SceneManager::GetScene(sceneID);
 			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
 			{
-				Entity entity = s_Data->SceneContext->FindEntityWithUUID(entityID);
+				Entity entity = scene->FindEntityWithUUID(entityID);
 				InitializeScriptable(entity);
 				
 				for (const auto& [fieldID, fieldData] : fieldsState)
@@ -220,7 +221,7 @@ namespace TerranEngine
 		
 		for (const auto& [sceneID, scriptFieldsValues] : arrayScriptFieldsStates)
 		{
-			auto scene = Scene::GetScene(sceneID);
+			auto scene = SceneManager::GetScene(sceneID);
 			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
 			{
 				Entity entity = scene->FindEntityWithUUID(entityID);
@@ -253,9 +254,6 @@ namespace TerranEngine
 			}
 		}
 	}
-
-	void ScriptEngine::SetContext(const Shared<Scene>& context) { s_Data->SceneContext = context; }
-	Shared<Scene>& ScriptEngine::GetContext() { return s_Data->SceneContext; }
 
 	void ScriptEngine::LoadCoreAssembly()
 	{
@@ -300,7 +298,7 @@ namespace TerranEngine
 			{
 				for (const auto& [entityID, instance] : scriptInstances)
 				{
-					auto scene = Scene::GetScene(sceneID);
+					auto scene = SceneManager::GetScene(sceneID);
 
 					if(!scene)
 						continue;

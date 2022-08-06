@@ -69,7 +69,7 @@ namespace TerranEditor
 		// ******************
 		
 		Shared<Scene> m_EditorScene;
-		Shared<Scene> m_ActiveScene;
+		//Shared<Scene> m_ActiveScene;
 
 		//Shared<SceneRenderer> m_RuntimeSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;

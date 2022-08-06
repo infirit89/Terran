@@ -16,12 +16,12 @@ project "ScriptAssembly"
 
     files 
     {
-        "Source/**.cs"
+        "Assets/**.cs"
     }
 
     includedirs
     {
-        "Source"
+        "Assets"
     } 
     
     links 

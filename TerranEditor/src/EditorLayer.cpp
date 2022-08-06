@@ -12,6 +12,8 @@
 #include "EditorPanels/LogPanel.h"
 #include "SelectionManager.h"
 
+#include "Scene/SceneManager.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
@@ -67,14 +69,15 @@ namespace TerranEditor
 
 		Log::SetClientLogger(clientLogger);
 
-		m_EditorScene = Scene::CreateEmpty();
+		m_EditorScene = SceneManager::CreateEmpyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
 
 		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
 		
-		m_ActiveScene = m_EditorScene;
+		//m_ActiveScene = m_EditorScene;
+		SceneManager::SetCurrentScene(m_EditorScene);
 
 		// ***** Panel Setup *****
 		m_PanelManager = CreateShared<PanelManager>();
@@ -97,7 +100,7 @@ namespace TerranEditor
 		m_PanelManager->AddPanel<ECSPanel>("ECSPanel");
 		m_PanelManager->AddPanel<LogPanel>("LogPanel");
 		m_PanelManager->AddPanel<PropertiesPanel>("PropertiesPanel");
-		m_PanelManager->SetScene(m_ActiveScene);
+		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		// ***********************
 
 
@@ -129,14 +132,14 @@ namespace TerranEditor
 		BatchRenderer2D::Get()->ResetStats();
 		m_EditorCamera.Update(time);
 
-		if (/*m_SceneViewPanel.IsVisible() &&*/ m_ActiveScene)
+		if (/*m_SceneViewPanel.IsVisible() &&*/ SceneManager::GetCurrentScene())
 		{
 			switch (m_SceneState) 
 			{
 			case SceneState::Edit: 
 			{
-				m_ActiveScene->UpdateEditor();
-				m_ActiveScene->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
+				SceneManager::GetCurrentScene()->UpdateEditor();
+				SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
 				
 				//m_SceneViewPanel.SetRenderTextureID(m_EditorSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 				//m_SceneViewPanel.SetFramebuffer(m_EditorSceneRenderer->GetFramebuffer());
@@ -145,18 +148,8 @@ namespace TerranEditor
 			}
 			case SceneState::Play: 
 			{
-				auto primaryCamera = m_ActiveScene->GetPrimaryCamera();
-
-				glm::vec4 backgroundColor = glm::vec4(0.0f);
-
-				if (primaryCamera)
-					backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
-
-				//m_RuntimeSceneRenderer->SetClearColor(backgroundColor);
-				m_EditorSceneRenderer->SetClearColor(backgroundColor);
-
-				m_ActiveScene->Update(time);
-				m_ActiveScene->OnRender(m_EditorSceneRenderer);
+				SceneManager::GetCurrentScene()->Update(time);
+				SceneManager::GetCurrentScene()->OnRender(m_EditorSceneRenderer);
 
 				//m_SceneViewPanel.SetRenderTextureID(m_RuntimeSceneRenderer->GetFramebuffer()->GetColorAttachmentID());
 				//m_SceneViewPanel.SetFramebuffer(m_RuntimeSceneRenderer->GetFramebuffer());
@@ -356,12 +349,14 @@ namespace TerranEditor
 			logPanel->ClearMessageBuffer();
 
 		m_SceneState = SceneState::Play;
-		m_ActiveScene = Scene::CopyScene(m_EditorScene);
-		m_ActiveScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+		// TODO: 
+		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
+		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
-		m_PanelManager->SetScene(m_ActiveScene);
-		m_ActiveScene->StartRuntime();
+		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
+		SceneManager::GetCurrentScene()->StartRuntime();
 
 		//m_SceneHierarchyPanel.SetSelected(m_Selected);
 		m_EditModeSelected = m_Selected;
@@ -371,12 +366,12 @@ namespace TerranEditor
 	{
 		SelectionManager::Deselect();
 		m_SceneState = SceneState::Edit;
-		m_ActiveScene->StopRuntime();
-		m_ActiveScene = nullptr;
+		SceneManager::GetCurrentScene()->StopRuntime();
+		//SceneManager::RemoveScene(SceneManager::CurrentScene->GetID());
 		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 		m_PanelManager->SetScene(m_EditorScene);
 		//m_SceneHierarchyPanel.SetSelected(m_EditModeSelected);
-		m_ActiveScene = m_EditorScene;
+		SceneManager::SetCurrentScene(m_EditorScene);
 	}
 
 	void EditorLayer::OnSelectedChanged(Entity newSelected)
@@ -399,7 +394,7 @@ namespace TerranEditor
 		case TerranEditor::SceneState::Play:
 		{
 			//m_RuntimeSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_ActiveScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 
 			break;
@@ -482,7 +477,7 @@ namespace TerranEditor
 		if (!scenePath.empty())
 		{
 			m_CurrentScenePath = scenePath;
-			SceneSerializer sSerializer(m_ActiveScene);
+			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
 			sSerializer.SerializeJson(scenePath);
 
 			m_CurrentScenePath = scenePath;
@@ -491,16 +486,16 @@ namespace TerranEditor
 
 	void EditorLayer::NewScene()
 	{
-		m_EditorScene = Scene::CreateEmpty();
+		m_EditorScene = SceneManager::CreateEmpyScene();
 		CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
 		cameraComponent.Primary = true;
 		m_EditorScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-		m_ActiveScene = m_EditorScene;
+		SceneManager::SetCurrentScene(m_EditorScene);
 		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 		/*m_ECSPanel.SetContext(m_ActiveScene);
 		m_SceneViewPanel.SetContext(m_ActiveScene);*/
-		m_PanelManager->SetScene(m_ActiveScene);
+		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 	}
 
 	void EditorLayer::OpenScene()
@@ -541,18 +536,18 @@ namespace TerranEditor
 			std::string jsonData = SceneSerializer::ReadJson(scenePath.string());
 			if (jsonData != "")
 			{
-				Shared<Scene> newScene = Scene::CreateEmpty();
+				Shared<Scene> newScene = SceneManager::CreateEmpyScene();
 				SceneSerializer sSerializer(newScene);
 				if (sSerializer.DesirializeJson(jsonData))
 				{
 					m_EditorScene = newScene;
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
-					m_ActiveScene = newScene;
+					SceneManager::SetCurrentScene(newScene);
 					//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 					/*m_ECSPanel.SetContext(m_ActiveScene);
 					m_SceneViewPanel.SetContext(m_ActiveScene);*/
-					m_PanelManager->SetScene(m_ActiveScene);
+					m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 
 					m_Selected = {};
 
@@ -568,7 +563,7 @@ namespace TerranEditor
 			SaveSceneAs();
 		else 
 		{
-			SceneSerializer sSerializer(m_ActiveScene);
+			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
 			sSerializer.SerializeJson(m_CurrentScenePath);
 		}
 	}

@@ -33,12 +33,15 @@ namespace TerranEngine
 		const inline bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
 		inline bool operator>(const UUID& other)				{ return m_Data > other.m_Data; }
 		
+		inline operator bool() { return Valid(); }
+
 		bool Valid() 
 		{
 			std::array<uint8_t, 16> empty{ {0} };
 
 			return !(m_Data == empty);
 		}
+
 
 		static UUID FromString(const std::string& str);
 

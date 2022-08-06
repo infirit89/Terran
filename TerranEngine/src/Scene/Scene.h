@@ -24,8 +24,6 @@ namespace TerranEngine
 		Scene();
 		~Scene();
 		
-		static Shared<Scene> CreateEmpty();
-		
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
 
@@ -61,8 +59,6 @@ namespace TerranEngine
 		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
-
-		static Shared<Scene> GetScene(const UUID& id);
 	
 	private:
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);

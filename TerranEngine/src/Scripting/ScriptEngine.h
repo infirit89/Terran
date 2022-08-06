@@ -24,9 +24,6 @@ namespace TerranEngine
 		static void Shutdown();
 
 		static void ReloadAppAssembly();
-
-		static void SetContext(const Shared<Scene>& context);
-		static Shared<Scene>& GetContext();
 		
 		static ScriptClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
 		static ScriptClass GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex);

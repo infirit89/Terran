@@ -13,6 +13,7 @@
 
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
+#include "Scene/SceneManager.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
@@ -203,11 +204,11 @@ namespace TerranEngine
 
         Entity GetEntityFromMonoArray(MonoArray* entityUUIDarr)
         {
-            if(!ScriptEngine::GetContext())
+            if(!SceneManager::GetCurrentScene())
                 return {};
 
             UUID entityUUID = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDarr));
-            return ScriptEngine::GetContext()->FindEntityWithUUID(entityUUID);
+            return SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
         }
 
 		// ---- Entity Utils ----
@@ -305,7 +306,7 @@ namespace TerranEngine
 		MonoArray* Entity_FindEntityWithName(MonoString* monoEntityName)
 		{
 			std::string entityName = ScriptMarshal::MonoStringToUTF8(monoEntityName);
-			Entity entity = ScriptEngine::GetContext()->FindEntityWithName(entityName);
+			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName(entityName);
 
 			if (entity)
 			{
@@ -320,7 +321,7 @@ namespace TerranEngine
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
-				ScriptEngine::GetContext()->DestroyEntity(entity, true);
+				SceneManager::GetCurrentScene()->DestroyEntity(entity, true);
 			else
 				TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 		}
@@ -740,7 +741,7 @@ namespace TerranEngine
 			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDArr));
-				Entity entity = ScriptEngine::GetContext()->FindEntityWithUUID(id);
+				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 				if (physicsBody)

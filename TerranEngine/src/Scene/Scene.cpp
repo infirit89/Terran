@@ -3,6 +3,7 @@
 
 #include "Components.h"
 #include "Entity.h"
+#include "SceneManager.h"
 
 #include "Graphics/BatchRenderer2D.h"
 
@@ -18,9 +19,6 @@
 
 namespace TerranEngine 
 {
-
-	static std::unordered_map<UUID, Scene*> s_SceneMap;
-	
 	struct SceneComponent
 	{
 		UUID SceneID;
@@ -31,8 +29,6 @@ namespace TerranEngine
 		m_ID = UUID();
         const auto sceneEntity = m_Registry.create();
         m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
-
-        s_SceneMap[m_ID] = this;
 
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
@@ -50,12 +46,7 @@ namespace TerranEngine
 
 		m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
-
-        s_SceneMap.erase(m_ID);
 	}
-
-	Shared<Scene> Scene::CreateEmpty()
-	{ return CreateShared<Scene>(); }
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
@@ -123,7 +114,7 @@ namespace TerranEngine
 		}*/
 
 
-		ScriptEngine::SetContext(GetScene(m_ID));
+		//ScriptEngine::SetContext(GetScene(m_ID));
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
@@ -187,9 +178,13 @@ namespace TerranEngine
 	{
 		Entity primaryCamera = GetPrimaryCamera();
 
+		glm::vec4 backgroundColor = glm::vec4(0.0f);
+
 		if (primaryCamera) 
 		{
+			backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
 			sceneRenderer->SetScene(this);
+			sceneRenderer->SetClearColor(backgroundColor);
 
 			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
 			glm::mat4& cameraTransform = primaryCamera.GetWorldMatrix();
@@ -408,7 +403,7 @@ namespace TerranEngine
 
 	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
 	{
-		Shared<Scene> scene = CreateEmpty();
+		Shared<Scene> scene = SceneManager::CreateEmpyScene();
 
 		auto tagView = srcScene->GetEntitiesWith<TagComponent>();
 
@@ -436,14 +431,6 @@ namespace TerranEngine
 		}
 
 		return scene;
-	}
-
-	Shared<Scene> Scene::GetScene(const UUID& id)
-	{
-		if (s_SceneMap.find(id) != s_SceneMap.end())
-			return Shared<Scene>(s_SceneMap[id]);
-
-		return nullptr;
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)

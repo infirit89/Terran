@@ -35,10 +35,10 @@ namespace SandboxProject
                 Log.Trace("button down");
 
             if (Input.IsMouseButtonPressed(MouseButton.Button2))
-                Log.Trace("button down");
+                Log.Trace("button pressed");
 
             if (Input.IsMouseButtonReleased(MouseButton.Button3))
-                Log.Trace("button down");
+                Log.Trace("button released");
         }
     }
 
