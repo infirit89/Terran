@@ -1,7 +1,9 @@
 #include "trpch.h"
+
 #include "PhysicsBody.h"
 #include "PhysicsUtils.h"
 #include "Collider.h"
+#include "Physics.h"
 
 #include <glm/gtx/transform.hpp>
 
@@ -10,10 +12,42 @@
 
 namespace TerranEngine 
 {
-    PhysicsBody2D::PhysicsBody2D(b2Body* physicsBody)
-        : m_Body(physicsBody), m_Entity(PhysicsUtils::GetEntityFromB2DBodyUserData(m_Body->GetUserData()))
+    // TODO: pass the b2World to the contrustor to create a b2Body
+    PhysicsBody2D::PhysicsBody2D(Entity entity)
+        : m_Entity(entity)
+    {
+        auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
+        auto& transform = entity.GetTransform();
+
+        const UUID& id = entity.GetID();
+
+        b2BodyDef bodyDef;
+
+        bodyDef.position = { transform.Position.x, transform.Position.y };
+        bodyDef.angle = transform.Rotation.z;
+        bodyDef.fixedRotation = rigidbody.FixedRotation;
+        bodyDef.gravityScale = rigidbody.GravityScale;
+        bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
+        bodyDef.enabled = rigidbody.Enabled;
+
+        m_Body = Physics2D::GetPhysicsWorld()->CreateBody(&bodyDef);
+        
+        SetBodyType(rigidbody.BodyType);
+        SetSleepState(rigidbody.SleepState);
+
+        AttachColliders(entity);
+    }
+
+    PhysicsBody2D::PhysicsBody2D(b2Body* body) 
+        : m_Body(body), 
+        m_Entity(PhysicsUtils::GetEntityFromB2DUserData(body->GetUserData()))
     { }
 
+    PhysicsBody2D::~PhysicsBody2D() 
+    {
+        Physics2D::GetPhysicsWorld()->DestroyBody(m_Body);
+        m_Body = nullptr;
+    }
 
     bool PhysicsBody2D::GetFixedRotation() const
     {
@@ -191,80 +225,25 @@ namespace TerranEngine
         }
     }
 
-    void PhysicsBody2D::AddCollider(BoxCollider2DComponent& colliderComponent, Entity entity)
+    void PhysicsBody2D::AddBoxCollider(Entity entity)
     {
         // NOTE: think about moving this into box collider creation
         TR_ASSERT(m_Body, "Physics Body is null");
 
-        b2FixtureDef fixtureDef;
-
-        b2PolygonShape polyhonShape;
-        TransformComponent& transform = entity.GetTransform();
-        glm::vec2 colliderSize = { transform.Scale.x * colliderComponent.Size.x, transform.Scale.y * colliderComponent.Size.y };
-
-        glm::mat4 transformMat = glm::translate(glm::mat4(1.0f), { colliderComponent.Offset, 0.0f }) *
-            glm::scale(glm::mat4(1.0f), { colliderSize, 1.0f });
-
-        glm::vec4 positions[4] = {
-            { -0.5f, -0.5f, 0.0f, 1.0f },
-            {  0.5f, -0.5f, 0.0f, 1.0f },
-            {  0.5f,  0.5f, 0.0f, 1.0f },
-            { -0.5f,  0.5f, 0.0f, 1.0f }
-        };
-
-        b2Vec2 vertices[4];
-
-        for (size_t i = 0; i < 4; i++)
-        {
-            glm::vec3 vertexPos = transformMat * positions[i];
-            vertices[i] = { vertexPos.x, vertexPos.y };
-        }
-
-        polyhonShape.Set(vertices, 4);
-        fixtureDef.shape = &polyhonShape;
-
-        // NOTE: these magic numbers are temporary until i make physics materials a thing
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.5f;
-
-        const UUID& id = entity.GetID();
-
-        fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
-        fixtureDef.isSensor = colliderComponent.IsSensor;
-
-        b2Fixture* fixture =  m_Body->CreateFixture(&fixtureDef);
-
-        Shared<BoxCollider2D> boxCollider = CreateShared<BoxCollider2D>(fixture);
+        BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
+        Shared<BoxCollider2D> boxCollider = CreateShared<BoxCollider2D>(entity);
         m_Colliders.push_back(boxCollider);
         colliderComponent.ColliderIndex = m_Colliders.size() - 1;
     }
 
-    void PhysicsBody2D::AddCollider(CircleCollider2DComponent& colliderComponent, Entity entity)
+    void PhysicsBody2D::AddCircleCollider(Entity entity)
     {
         TR_ASSERT(m_Body, "Physics Body is null");
 
         // NOTE: think about moving this into circle collider creation
-        b2FixtureDef fixtureDef;
-        b2CircleShape circleShape;
-
-        auto& transform = entity.GetTransform();
-
-        circleShape.m_p.Set(colliderComponent.Offset.x, colliderComponent.Offset.y);
-        circleShape.m_radius = ((transform.Scale.x + transform.Scale.y) * 0.5f) * colliderComponent.Radius;
-
-        fixtureDef.shape = &circleShape;
-
-        const UUID& id = entity.GetID();
-
-        // NOTE: these magic numbers are temporary until i make physics materials a thing
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.5f;
-
-        fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
-        fixtureDef.isSensor = colliderComponent.IsSensor;
-
-        b2Fixture* fixture = m_Body->CreateFixture(&fixtureDef);
-        Shared<CircleCollider2D> circleCollider = CreateShared<CircleCollider2D>(fixture);
+        
+        CircleCollider2DComponent& colliderComponent = entity.GetComponent<CircleCollider2DComponent>();
+        Shared<CircleCollider2D> circleCollider = CreateShared<CircleCollider2D>(entity);
         m_Colliders.push_back(circleCollider);
         colliderComponent.ColliderIndex = m_Colliders.size() - 1;
     }
@@ -287,5 +266,13 @@ namespace TerranEngine
 
         return ConvertToTerranPhysicsBodyType(m_Body->GetType());
     }
-
+    
+    void PhysicsBody2D::AttachColliders(Entity entity) 
+    {
+        if (entity.HasComponent<BoxCollider2DComponent>())
+            AddBoxCollider(entity);
+        
+        if (entity.HasComponent<CircleCollider2DComponent>())
+            AddCircleCollider(entity);
+    }
 }

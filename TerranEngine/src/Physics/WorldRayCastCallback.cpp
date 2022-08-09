@@ -27,7 +27,7 @@ namespace TerranEngine
         {
             b2FixtureUserData userData = m_Fixture->GetUserData();
 
-            Entity entity = PhysicsUtils::GetEntityFromB2DFixtureUserData(userData);
+            Entity entity = PhysicsUtils::GetEntityFromB2DUserData(userData);
             return entity;
         }
 

@@ -541,9 +541,9 @@ namespace TerranEngine
 			
 			UUID id({ 0 });
 
-			if (hitInfo.PhysicsBody.GetEntity()) 
+			if (hitInfo.PhysicsBody->GetEntity()) 
 			{
-				Entity entity = hitInfo.PhysicsBody.GetEntity();
+				Entity entity = hitInfo.PhysicsBody->GetEntity();
 				id = entity.GetID();
 			}
 
@@ -559,8 +559,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return physicsBody.GetFixedRotation();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return physicsBody->GetFixedRotation();
 			}
 			return false;
 		}
@@ -572,8 +572,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetFixedRotation(FixedRotation);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetFixedRotation(FixedRotation);
 			}
 		}
 
@@ -583,8 +583,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return (uint8_t)physicsBody.GetSleepState();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return (uint8_t)physicsBody->GetSleepState();
 			}
 			return (uint8_t)PhysicsBodySleepState::Awake;
 		}
@@ -596,8 +596,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetSleepState(SleepState);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetSleepState(SleepState);
 			}
 		}
 
@@ -608,8 +608,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return physicsBody.GetGravityScale();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return physicsBody->GetGravityScale();
 			}
 			return GravityScale;
 		}
@@ -621,8 +621,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetGravityScale(GravityScale);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetGravityScale(GravityScale);
 			}
 		}
 
@@ -632,8 +632,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.ApplyForce(force, position, (ForceMode2D)forceMode);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->ApplyForce(force, position, (ForceMode2D)forceMode);
 			}
 		}
 
@@ -643,8 +643,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.ApplyForceAtCenter(force, (ForceMode2D)forceMode);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->ApplyForceAtCenter(force, (ForceMode2D)forceMode);
 			}
 		}
 
@@ -654,8 +654,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				linearVelocity = physicsBody.GetLinearVelocity();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				linearVelocity = physicsBody->GetLinearVelocity();
 				return;
 			}
 			linearVelocity = { 0.0f, 0.0f };
@@ -667,8 +667,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetLinearVelocity(linearVelocity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetLinearVelocity(linearVelocity);
 			}
 		}
 
@@ -678,8 +678,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return physicsBody.GetAngularVelocity();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return physicsBody->GetAngularVelocity();
 			}
 			return 0.0f;
 		}
@@ -690,8 +690,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetAngularVelocity(angularVelocity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetAngularVelocity(angularVelocity);
 			}
 		}
 
@@ -701,8 +701,8 @@ namespace TerranEngine
 
 			if (entity) 
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return (uint8_t)physicsBody.GetBodyType();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return (uint8_t)physicsBody->GetBodyType();
 			}
 			return (uint8_t)PhysicsBodyType::Dynamic;
 		}
@@ -714,8 +714,8 @@ namespace TerranEngine
 
 			if (entity) 
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetBodyType(BodyType);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetBodyType(BodyType);
 			}
 		}
 
@@ -742,11 +742,11 @@ namespace TerranEngine
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDArr));
 				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 				if (physicsBody)
 				{
-					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if (collider)
 						IsSensor = collider->IsSensor();
@@ -760,7 +760,7 @@ namespace TerranEngine
 		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
 		{
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
@@ -769,7 +769,7 @@ namespace TerranEngine
 				case ColliderType2D::Box:
 				{
 					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
 					bcComponent.IsSensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
@@ -777,14 +777,14 @@ namespace TerranEngine
 				case ColliderType2D::Circle:
 				{
 					CircleCollider2DComponent ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 					ccComponent.IsSensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
 				}
 				case ColliderType2D::None:
 				{
-					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if (collider)
 						collider->SetSensor(isSensor);
@@ -831,13 +831,13 @@ namespace TerranEngine
 			{
                 Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 				if (physicsBody)
 				{
 
 					Shared<Collider2D> collider;
-					if (physicsBody.GetColliders().size() > 0)
-						collider = physicsBody.GetColliders()[0];
+					if (physicsBody->GetColliders().size() > 0)
+						collider = physicsBody->GetColliders()[0];
 
 					if (collider)
 					{
@@ -873,7 +873,7 @@ namespace TerranEngine
 		{
 			glm::vec2 Offset = inOffset;
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
@@ -882,7 +882,7 @@ namespace TerranEngine
 				case ColliderType2D::Box: 
 				{
 					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
 					
 					if(collider)
 						collider->SetOffset(Offset);
@@ -891,7 +891,7 @@ namespace TerranEngine
 				case ColliderType2D::Circle: 
 				{
 					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 					if (collider)
 						collider->SetOffset(Offset);
 
@@ -899,7 +899,7 @@ namespace TerranEngine
 				}
 				case ColliderType2D::None: 
 				{
-					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if(collider)
 						collider->SetOffset(Offset);
@@ -941,12 +941,12 @@ namespace TerranEngine
 		{
 			glm::vec2 Size = size;
 			SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
 				BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-				Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+				Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
 				Shared<BoxCollider2D> boxCollider = DynamicCast<BoxCollider2D>(collider);
 
 				if (boxCollider)
@@ -967,12 +967,12 @@ namespace TerranEngine
 		{
 			float Radius = radius;
 			SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
 				CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-				Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+				Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 				Shared<CircleCollider2D> circleCollider = DynamicCast<CircleCollider2D>(collider);
 
 				if (circleCollider)

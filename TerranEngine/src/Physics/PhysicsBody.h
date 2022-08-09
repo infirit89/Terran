@@ -18,8 +18,9 @@ namespace TerranEngine
 	{
 	public:
 		PhysicsBody2D() = default;
-		PhysicsBody2D(b2Body* physicsBody);
-		~PhysicsBody2D() = default;
+		PhysicsBody2D(Entity entity);
+		PhysicsBody2D(b2Body* body);
+		~PhysicsBody2D();
 
 		Entity GetEntity() const { return m_Entity; }
 
@@ -58,17 +59,19 @@ namespace TerranEngine
 		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
 
-		void AddCollider(BoxCollider2DComponent& colliderComponent, Entity entity);
-		void AddCollider(CircleCollider2DComponent& colliderComponent, Entity entity);
+		// NOTE: make a templated function?
+		void AddBoxCollider(Entity entity);
+		void AddCircleCollider(Entity entity);
 
-		b2Body* GetPhysicsBodyInternal() const { return m_Body; }
-		void SetPhysicsBodyInternal(b2Body* body) { m_Body = body; }
-
+		b2Body* GetPhysicsBody() const { return m_Body; }
+		
 		inline operator bool() const { return m_Body != nullptr; }
 
 		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
 
 	private:
+		void AttachColliders(Entity entity);
+
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
 		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;

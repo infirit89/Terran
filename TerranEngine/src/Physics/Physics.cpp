@@ -5,6 +5,8 @@
 
 #include "Core/Settings.h"
 
+#include "Scene/SceneManager.h"
+
 #include "Scripting/ScriptEngine.h"
 
 #include <box2d/box2d.h>
@@ -16,11 +18,10 @@ namespace TerranEngine
 	struct PhysicsEngineState
 	{
 		b2World* PhysicsWorld = nullptr;
-		std::unordered_map<UUID, PhysicsBody2D> PhysicsBodies;
+		std::unordered_map<UUID, Shared<PhysicsBody2D>> PhysicsBodies;
 		float PhysicsDeltaTime = 0.0f;
-		Shared<Scene> SceneContext = nullptr;
 		ContactListener ContactListener;
-		PhysicsBody2D EmptyPhysicsBody;
+		Shared<PhysicsBody2D> EmptyPhysicsBody;
 	};
 	
 
@@ -64,41 +65,12 @@ namespace TerranEngine
 		s_PhysicsEngineState->PhysicsBodies.clear();
 	}
 
+	b2World* Physics2D::GetPhysicsWorld() { return s_PhysicsEngineState->PhysicsWorld; }
+
 	void Physics2D::CreatePhysicsBody(Entity entity)
 	{
-		auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
-		auto& transform = entity.GetTransform();
-
-		const UUID& id = entity.GetID();
-
-		b2BodyDef bodyDef;
-
-		bodyDef.position = { transform.Position.x, transform.Position.y };
-		bodyDef.angle = transform.Rotation.z;
-		bodyDef.fixedRotation = rigidbody.FixedRotation;
-		bodyDef.gravityScale = rigidbody.GravityScale;
-		bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
-		bodyDef.enabled = rigidbody.Enabled;
-
-		b2Body* body = s_PhysicsEngineState->PhysicsWorld->CreateBody(&bodyDef);
-		PhysicsBody2D physicsBody(body);
-
-		physicsBody.SetBodyType(rigidbody.BodyType);
-		physicsBody.SetSleepState(rigidbody.SleepState);
-
-		if (entity.HasComponent<BoxCollider2DComponent>()) 
-		{
-			auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-			physicsBody.AddCollider(bcComponent, entity);
-		}
-
-		if (entity.HasComponent<CircleCollider2DComponent>()) 
-		{
-			auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-			physicsBody.AddCollider(ccComponent, entity);
-		}
-
-		s_PhysicsEngineState->PhysicsBodies.emplace(id, std::move(physicsBody));
+		Shared<PhysicsBody2D> physicsBody = CreateShared<PhysicsBody2D>(entity);
+		s_PhysicsEngineState->PhysicsBodies.emplace(entity.GetID(), std::move(physicsBody));
 	}
 
 	void Physics2D::DestroyPhysicsBody(Entity entity)
@@ -108,16 +80,10 @@ namespace TerranEngine
 			UUID id = entity.GetID();
 			if (s_PhysicsEngineState->PhysicsBodies.find(id) != s_PhysicsEngineState->PhysicsBodies.end()) 
 			{
-				PhysicsBody2D& physicsBody = s_PhysicsEngineState->PhysicsBodies.at(id);
+				auto& physicsBody = s_PhysicsEngineState->PhysicsBodies.at(id);
 
-				b2Body* bodyInternal = physicsBody.GetPhysicsBodyInternal();
-
-				if (bodyInternal) 
-				{
-					s_PhysicsEngineState->PhysicsWorld->DestroyBody(bodyInternal);
-					physicsBody.SetPhysicsBodyInternal(nullptr);
+				if (physicsBody) 
 					s_PhysicsEngineState->PhysicsBodies.erase(id);
-				}
 			}
 		}
 	}
@@ -128,49 +94,46 @@ namespace TerranEngine
 
 		s_PhysicsEngineState->PhysicsDeltaTime += time.GetDeltaTime();
 
-		const auto scriptView = s_PhysicsEngineState->SceneContext->GetEntitiesWith<ScriptComponent>();
+		const auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
 		
 		while (s_PhysicsEngineState->PhysicsDeltaTime > 0.0f)
 		{
 			for (auto e : scriptView)
 			{
-				Entity entity(e, s_PhysicsEngineState->SceneContext->GetRaw());
+				Entity entity(e, SceneManager::GetCurrentScene()->GetRaw());
 				ScriptEngine::OnPhysicsUpdate(entity);
 			}
 
 			s_PhysicsEngineState->PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
 		}
 
-		auto rigidbodyView = s_PhysicsEngineState->SceneContext->GetEntitiesWith<Rigidbody2DComponent>();
+		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
 
 		for (auto e : rigidbodyView)
 		{
-			Entity entity(e, s_PhysicsEngineState->SceneContext->GetRaw());
+			Entity entity(e, SceneManager::GetCurrentScene()->GetRaw());
 
 			auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
 			auto& transform = entity.GetTransform();
 
-			PhysicsBody2D& physicsBody = s_PhysicsEngineState->PhysicsBodies.at(entity.GetID());
+			Shared<PhysicsBody2D>& physicsBody = s_PhysicsEngineState->PhysicsBodies.at(entity.GetID());
 
-			if (transform.Position.x != physicsBody.GetPosition().x || transform.Position.y != physicsBody.GetPosition().y) 
+			if (transform.Position.x != physicsBody->GetPosition().x || transform.Position.y != physicsBody->GetPosition().y) 
 			{
-				transform.Position.x = physicsBody.GetPosition().x;
-				transform.Position.y = physicsBody.GetPosition().y;
+				transform.Position.x = physicsBody->GetPosition().x;
+				transform.Position.y = physicsBody->GetPosition().y;
 				transform.IsDirty = true;
 			}
 
-			if (transform.Rotation.z != physicsBody.GetRotation()) 
+			if (transform.Rotation.z != physicsBody->GetRotation())
 			{
-				transform.Rotation.z = physicsBody.GetRotation();
+				transform.Rotation.z = physicsBody->GetRotation();
 				transform.IsDirty = true;
 			}
 		}
 	}
 
-	void Physics2D::SetContext(const Shared<Scene>& context) { s_PhysicsEngineState->SceneContext = context; }
-	Shared<Scene>& Physics2D::GetContext() { return s_PhysicsEngineState->SceneContext; }
-
-	PhysicsBody2D& Physics2D::GetPhysicsBody(Entity entity)
+	Shared<PhysicsBody2D>& Physics2D::GetPhysicsBody(Entity entity)
 	{
 		if (entity && s_PhysicsEngineState->PhysicsBodies.find(entity.GetID()) != s_PhysicsEngineState->PhysicsBodies.end())
 			return s_PhysicsEngineState->PhysicsBodies.at(entity.GetID());
