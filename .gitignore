@@ -67,4 +67,5 @@ TerranEditor/Resources/Scripts/
 # Misc
 .cache
 compile_commands.json
+.vim/
 
