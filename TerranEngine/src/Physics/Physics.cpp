@@ -58,19 +58,30 @@ namespace TerranEngine
 			TR_ERROR("Physics world is null");
 			return;
 		}
+        s_PhysicsEngineState->PhysicsBodies.clear();
 
 		delete s_PhysicsEngineState->PhysicsWorld;
 		s_PhysicsEngineState->PhysicsWorld = nullptr;
-
-		s_PhysicsEngineState->PhysicsBodies.clear();
 	}
+
+    void Physics2D::CratePhysicsBodies(Scene* scene)
+    {
+        auto rigidbodyView = scene->GetEntitiesWith<Rigidbody2DComponent>();
+
+        for (auto e: rigidbodyView)
+        {
+            Entity entity(e, scene);
+            Physics2D::CreatePhysicsBody(entity);
+        }
+    }
 
 	b2World* Physics2D::GetPhysicsWorld() { return s_PhysicsEngineState->PhysicsWorld; }
 
 	void Physics2D::CreatePhysicsBody(Entity entity)
 	{
 		Shared<PhysicsBody2D> physicsBody = CreateShared<PhysicsBody2D>(entity);
-		s_PhysicsEngineState->PhysicsBodies.emplace(entity.GetID(), std::move(physicsBody));
+		s_PhysicsEngineState->PhysicsBodies.emplace(entity.GetID(), physicsBody);
+        physicsBody->AttachColliders(entity);
 	}
 
 	void Physics2D::DestroyPhysicsBody(Entity entity)

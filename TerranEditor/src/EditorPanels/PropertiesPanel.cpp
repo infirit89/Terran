@@ -260,7 +260,7 @@ namespace TerranEditor
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
 					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					UI::ScopedVarTable::TableInfo tableInfo;
 
@@ -293,7 +293,7 @@ namespace TerranEditor
 
 						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
 							isPlay)
-							physicsBody.SetBodyType(rbComponent.BodyType);
+							physicsBody->SetBodyType(rbComponent.BodyType);
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
@@ -334,7 +334,7 @@ namespace TerranEditor
 						if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
 						{
 							if (isPlay)
-								physicsBody.SetGravityScale(rbComponent.GravityScale);
+								physicsBody->SetGravityScale(rbComponent.GravityScale);
 						}
 					}
 
@@ -352,13 +352,13 @@ namespace TerranEditor
 							{
 								UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
 							
-								ImGui::Text(awakeStateNames[(int)physicsBody.GetSleepState()]);
+								ImGui::Text(awakeStateNames[(int)physicsBody->GetSleepState()]);
 							}
 
 							{
 								UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
 
-								glm::vec2 velocity = physicsBody.GetLinearVelocity();
+								glm::vec2 velocity = physicsBody->GetLinearVelocity();
 								std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
 								ImGui::Text(velocityText.c_str());
 							}
@@ -373,12 +373,12 @@ namespace TerranEditor
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					Shared<BoxCollider2D> boxCollider;
 
 					if(isRuntime)
-						boxCollider = std::dynamic_pointer_cast<BoxCollider2D>(physicsBody.GetColliders()[bcComponent.ColliderIndex]);
+						boxCollider = DynamicCast<BoxCollider2D>(physicsBody->GetColliders()[bcComponent.ColliderIndex]);
 
 					if(UI::DrawVec2Control("Offset", bcComponent.Offset))
 					{
@@ -402,11 +402,11 @@ namespace TerranEditor
 				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent) 
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 					Shared<CircleCollider2D> circleCollider;
 
 					if (isRuntime)
-						circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(physicsBody.GetColliders()[ccComponent.ColliderIndex]);
+						circleCollider = DynamicCast<CircleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
 
 					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
 					{

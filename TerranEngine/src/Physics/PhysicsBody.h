@@ -69,8 +69,8 @@ namespace TerranEngine
 
 		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
 
+        void AttachColliders(Entity entity);
 	private:
-		void AttachColliders(Entity entity);
 
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;

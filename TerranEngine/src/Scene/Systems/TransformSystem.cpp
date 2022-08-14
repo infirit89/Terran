@@ -6,6 +6,7 @@
 #include "Scene/Scene.h"
 
 #include "Physics/Physics.h"
+#include "Physics/PhysicsUtils.h"
 
 #include "Utils/Debug/Profiler.h"
 
@@ -65,8 +66,9 @@ namespace TerranEngine
 				for (b2ContactEdge* contact = physicsBody->GetPhysicsBody()->GetContactList(); contact; contact = contact->next)
 				{
 					b2Body* body = contact->other;
-					PhysicsBody2D otherPhysicsBody(body);
-					otherPhysicsBody.SetSleepState(PhysicsBodySleepState::Awake);
+                    Entity otherEntity = PhysicsUtils::GetEntityFromB2DUserData(body->GetUserData());
+                    Shared<PhysicsBody2D>& otherPhysicsBody = Physics2D::GetPhysicsBody(entity);
+					otherPhysicsBody->SetSleepState(PhysicsBodySleepState::Awake);
 				}
 			}
 		}

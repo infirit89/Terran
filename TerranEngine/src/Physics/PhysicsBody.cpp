@@ -34,8 +34,6 @@ namespace TerranEngine
         
         SetBodyType(rigidbody.BodyType);
         SetSleepState(rigidbody.SleepState);
-
-        AttachColliders(entity);
     }
 
     PhysicsBody2D::PhysicsBody2D(b2Body* body) 

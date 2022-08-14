@@ -86,8 +86,8 @@ namespace TerranEditor
 
 	bool SceneHierarchyPanel::OnKeyPressed(KeyPressedEvent& e)
 	{
-		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
-		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shiftPressed = Input::IsKeyDown(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
 
 		Entity selectedEntity = SelectionManager::GetSelected();
 
@@ -185,7 +185,7 @@ namespace TerranEditor
 
 		bool isDeleted = false;
 		
-		if (Input::IsKeyPressed(Key::Delete))
+		if (Input::IsKeyDown(Key::Delete))
 			if (selectedEntity == entity)
 				isDeleted = true;
 

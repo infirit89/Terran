@@ -33,8 +33,8 @@ namespace TerranEngine
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
         
-		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
-		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
+		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentConstructed>(this);
+		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentDestroyed>(this);
 	}
 
 	Scene::~Scene()
@@ -44,8 +44,8 @@ namespace TerranEngine
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
 
-		m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
-		m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
+		m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnRigidbody2DComponentConstructed>(this);
+		m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnRigidbody2DComponentDestroyed>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -101,20 +101,9 @@ namespace TerranEngine
 		
 		m_IsPlaying = true;
 
-		//Physics2D::SetContext(GetScene(m_ID));
-		//Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
+        Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
+        Physics2D::CratePhysicsBodies(this);
 
-		/*auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
-
-		for (auto e: rigidbodyView)
-		{
-			Entity entity(e, this);
-
-			Physics2D::CreatePhysicsBody(entity);
-		}*/
-
-
-		//ScriptEngine::SetContext(GetScene(m_ID));
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
@@ -131,6 +120,7 @@ namespace TerranEngine
 			return;
 		
 		m_IsPlaying = false;
+        Physics2D::CleanUpPhysicsWorld();
 	}
 
 	void Scene::Update(Time time)
@@ -142,6 +132,8 @@ namespace TerranEngine
 
 		TransformSystem::SetContext(this);
 		TransformSystem::Update();
+
+        Physics2D::Update(time);
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 		for (auto e : scriptableComponentView)

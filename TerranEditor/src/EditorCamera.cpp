@@ -22,7 +22,7 @@ namespace TerranEditor
 
 		if (!m_BlockInput) 
 		{
-			if (Input::IsMouseButtonPressed(MouseButton::MiddleButton))
+			if (Input::IsMouseButtonDown(MouseButton::MiddleButton))
 				PanCamera(mouseDelta, time);
 		}
 

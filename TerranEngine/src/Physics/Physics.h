@@ -26,6 +26,8 @@ namespace TerranEngine
 		static void CreatePhysicsWorld(const glm::vec2& gravity);
 		static void CleanUpPhysicsWorld();
 
+        static void CratePhysicsBodies(Scene* scene);
+
 		static void CreatePhysicsBody(Entity entity);
 		static void DestroyPhysicsBody(Entity entity);
 
