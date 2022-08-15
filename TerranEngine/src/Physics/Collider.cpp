@@ -3,6 +3,7 @@
 #include "Collider.h"
 #include "Physics.h"
 #include "PhysicsUtils.h"
+#include "LayerManager.h"
 
 #include <glm/gtx/transform.hpp>
 
@@ -120,6 +121,7 @@ namespace TerranEngine
 		: Collider2D(ColliderType2D::Box)
 	{
 		BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
+        auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 
 		b2FixtureDef fixtureDef;
 
@@ -156,6 +158,10 @@ namespace TerranEngine
 
 		fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
 		fixtureDef.isSensor = colliderComponent.IsSensor;
+
+        fixtureDef.filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
+        PhysicsLayer physicsLayer = PhysicsLayerManager::GetLayer(rigidbodyComponent.LayerIndex);
+        fixtureDef.filter.maskBits = physicsLayer.Mask;
 
 		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
@@ -211,6 +217,7 @@ namespace TerranEngine
 		: Collider2D(ColliderType2D::Circle)
 	{
 		CircleCollider2DComponent& colliderComponent = entity.GetComponent<CircleCollider2DComponent>();
+        auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 
 		b2FixtureDef fixtureDef;
 		b2CircleShape circleShape;
@@ -231,8 +238,12 @@ namespace TerranEngine
 		fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
 		fixtureDef.isSensor = colliderComponent.IsSensor;
 
+        fixtureDef.filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
+        PhysicsLayer physicsLayer = PhysicsLayerManager::GetLayer(rigidbodyComponent.LayerIndex);
+        fixtureDef.filter.maskBits = physicsLayer.Mask;
+
 		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-		b2Fixture* fixture = physicsBody->GetPhysicsBody()->CreateFixture(&fixtureDef);
+		p_Fixture = physicsBody->GetPhysicsBody()->CreateFixture(&fixtureDef);
 
 		b2Shape* shape = p_Fixture->GetShape();
 		m_CircleShape = dynamic_cast<b2CircleShape*>(shape);

@@ -118,11 +118,12 @@ namespace TerranEditor
 			const char* currentState = stateNames[(int32_t)selected];
 
 			UI::ScopedVarTable::TableInfo tableInfo;
-			UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
+			UI::ScopedVarTable comboBoxTable(label, tableInfo);
 
-			if (ImGui::BeginCombo("##sleep_state", currentState))
+            std::string comboHash = "##" + label;
+			if (ImGui::BeginCombo(comboHash.c_str(), currentState))
 			{
-				for (int i = 0; i < 3; i++)
+				for (int i = 0; i < stateCount; i++)
 				{
 					const bool is_selected = (stateNames[i] == currentState);
 					if (ImGui::Selectable(stateNames[i], is_selected))
@@ -142,3 +143,4 @@ namespace TerranEditor
 		}
 	}
 }
+

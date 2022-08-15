@@ -5,6 +5,8 @@
 
 #include "Scripting/ScriptCache.h"
 
+#include "Physics/LayerManager.h"
+
 #include "UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -260,40 +262,25 @@ namespace TerranEditor
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
 					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
+                    std::vector<const char*> layerNames;
+
+                    for(int i = 0; i < TR_MAX_LAYER_COUNT; i++)
+                    {
+                        PhysicsLayer& layer = PhysicsLayerManager::GetLayer(i);
+                        if(!layer.Name.empty())
+                            layerNames.push_back(layer.Name.c_str());
+                    }
+
 					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					UI::ScopedVarTable::TableInfo tableInfo;
 
 					// rigidbody body type selection
 					{
-						/*const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
-						
-						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
-
-						if (ImGui::BeginCombo("##body_type", currentBodyType)) 
-						{
-							for (int i = 0; i < 3; i++)
-							{
-								const bool is_selected = (bodyTypeNames[i] == currentBodyType);
-								if (ImGui::Selectable(bodyTypeNames[i], is_selected)) 
-								{
-									rbComponent.BodyType = (PhysicsBodyType)i;
-
-									if (isPlay)
-										physicsBody.SetBodyType(rbComponent.BodyType);
-								}
-
-								if (is_selected)
-									ImGui::SetItemDefaultFocus();
-							}
-
-							ImGui::EndCombo();	
-						}
-						*/
-
 						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
 							isPlay)
 							physicsBody->SetBodyType(rbComponent.BodyType);
+
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
@@ -301,33 +288,11 @@ namespace TerranEditor
 
 					// rigidbody awake state selection 
 					{
-						/*const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
-
-						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
-
-						if (ImGui::BeginCombo("##sleep_state", currentAwakeState))
-						{
-							for (int i = 0; i < 3; i++)
-							{
-								const bool is_selected = (awakeStateNames[i] == currentAwakeState);
-								if (ImGui::Selectable(awakeStateNames[i], is_selected)) 
-								{
-									rbComponent.SleepState = (PhysicsBodySleepState)i;
-
-									if (isPlay) 
-										physicsBody.SetSleepState(rbComponent.SleepState);
-								}
-
-								if (is_selected)
-									ImGui::SetItemDefaultFocus();
-							}
-
-							ImGui::EndCombo();
-						}*/
-
 						UI::DrawComboBox("Sleep State", awakeStateNames, 3, rbComponent.SleepState);
-
 					}
+
+                    // rigidbody layer selection
+                    UI::DrawComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
 
 					if (rbComponent.BodyType != PhysicsBodyType::Static) 
 					{

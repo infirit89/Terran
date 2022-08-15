@@ -149,6 +149,7 @@ namespace TerranEngine
 		bool FixedRotation = false;
 		float GravityScale = 1.0f;
 		bool Enabled = true;
+        int LayerIndex = 0;
 	};
 
 	struct BoxCollider2DComponent 

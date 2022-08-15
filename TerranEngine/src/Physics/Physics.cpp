@@ -1,7 +1,9 @@
 #include "trpch.h"
+
 #include "Physics.h"
 #include "ContatctListener.h"
 #include "WorldRayCastCallback.h"
+#include "LayerManager.h"
 
 #include "Core/Settings.h"
 
@@ -30,6 +32,10 @@ namespace TerranEngine
 	void Physics2D::Initialize()
 	{
 		s_PhysicsEngineState = new PhysicsEngineState();
+        PhysicsLayerManager::AddLayer(0, "Default");
+        PhysicsLayerManager::AddLayer(1, "IgnoreRayCast");
+        PhysicsLayer& layer = PhysicsLayerManager::GetLayer(1);
+        layer.Mask = 2;
 	}
 
 	void Physics2D::Shutdown()
