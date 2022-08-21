@@ -4,6 +4,8 @@
 #include "Core/MouseButtons.h"
 #include "Core/ControllerIndices.h"
 
+#include <glm/glm.hpp>
+
 extern "C" 
 {
 	typedef struct _MonoString MonoString;
@@ -61,7 +63,7 @@ namespace TerranEngine
 			MonoArray* UUID;
 		};
 
-		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo);
+		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
 		// --------------------
 		
 		// ---- Rigidbody 2D ----
@@ -104,6 +106,11 @@ namespace TerranEngine
 		static float CircleCollider2D_GetRadius(MonoArray* entityUUIDArr);
 		static void CircleCollider2D_SetRadius(MonoArray* entityUUIDArr, float radius);
 		// ----------------------------
+
+        // ---- Layer Mask ----
+        static MonoString* LayerMask_GetName(uint16_t layer);
+        // --------------------
+
 		// ------------------
 
 		// ---- Tag component ----
@@ -149,3 +156,4 @@ namespace TerranEngine
 		// -----------------------------------
 	}
 }
+

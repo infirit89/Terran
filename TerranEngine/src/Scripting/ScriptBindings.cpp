@@ -18,6 +18,8 @@
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
 #include "Physics/Collider.h"
+#include "Physics/LayerManager.h"
+#include "Physics/LayerManager.h"
 
 #include <glm/glm.hpp>
 
@@ -138,6 +140,10 @@ namespace TerranEngine
 				BIND_INTERNAL_FUNC(CircleCollider2D_GetRadius);
 				BIND_INTERNAL_FUNC(CircleCollider2D_SetRadius);
 				// -----------------------------
+
+                // ---- layer mask ----
+                BIND_INTERNAL_FUNC(LayerMask_GetName);
+                // --------------------
 			}
 
 			// -----------------
@@ -531,10 +537,10 @@ namespace TerranEngine
 		// -------------
 
 		// ---- Physics 2D ----
-		bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo)
+		bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask)
 		{
 			RayCastHitInfo2D hitInfo;
-			bool hasHit = Physics2D::RayCast(origin, direction, length, hitInfo);
+			bool hasHit = Physics2D::RayCast(origin, direction, length, hitInfo, layerMask);
 
 			outHitInfo.Point = hitInfo.Point;
 			outHitInfo.Normal = hitInfo.Normal;
@@ -980,6 +986,15 @@ namespace TerranEngine
 			}
 		}
 		// ----------------------------
+        
+        // ---- Layer Mask ----
+        MonoString* LayerMask_GetName(uint16_t layer)
+        {
+            int index = layer >> 1;
+            PhysicsLayer& physicsLayer = PhysicsLayerManager::GetLayer(index);
+            return ScriptMarshal::UTF8ToMonoString(physicsLayer.Name);
+        }
+        // --------------------
 
 		// ---- Log ----
 		void Log_Log(uint8_t logLevel, MonoString* monoMessage)

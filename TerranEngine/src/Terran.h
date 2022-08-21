@@ -62,3 +62,4 @@
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
 #include "Physics/Collider.h"
+#include "Physics/LayerManager.h"

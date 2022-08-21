@@ -50,6 +50,7 @@ namespace TerranEngine
 		// api core classes
 		CACHE_API_CLASS(Vector2);
 		CACHE_API_CLASS(Vector3);
+		CACHE_API_CLASS(LayerMask);
 		CACHE_API_CLASS(Color);
 		CACHE_API_CLASS(UUID);
 		CACHE_API_CLASS(Entity);

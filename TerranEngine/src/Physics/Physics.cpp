@@ -34,8 +34,6 @@ namespace TerranEngine
 		s_PhysicsEngineState = new PhysicsEngineState();
         PhysicsLayerManager::AddLayer(0, "Default");
         PhysicsLayerManager::AddLayer(1, "IgnoreRayCast");
-        PhysicsLayer& layer = PhysicsLayerManager::GetLayer(1);
-        layer.Mask = 2;
 	}
 
 	void Physics2D::Shutdown()
@@ -64,6 +62,7 @@ namespace TerranEngine
 			TR_ERROR("Physics world is null");
 			return;
 		}
+
         s_PhysicsEngineState->PhysicsBodies.clear();
 
 		delete s_PhysicsEngineState->PhysicsWorld;
@@ -158,9 +157,9 @@ namespace TerranEngine
 		return s_PhysicsEngineState->EmptyPhysicsBody;
 	}
 
-	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo)
+	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask)
 	{
-		WorldRayCastCallback raycastCallback;
+		WorldRayCastCallback raycastCallback(layerMask);
 		const b2Vec2 point1 = { origin.x, origin.y };
 		const b2Vec2 distance = { length * direction.x, length * direction.y };
 		const b2Vec2 point2 = point1 + distance;

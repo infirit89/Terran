@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene/Entity.h"
+#include "LayerManager.h"
 
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_world_callbacks.h>
@@ -12,7 +13,7 @@ namespace TerranEngine
 	class WorldRayCastCallback : public b2RayCastCallback
 	{
 	public:
-		WorldRayCastCallback();
+		WorldRayCastCallback(uint16_t layerMask);
 
 		virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
 
@@ -22,6 +23,7 @@ namespace TerranEngine
 		glm::vec2 GetNormal() const { return m_Normal; }
 
 	private:
+        uint16_t m_LayerMask;
 		b2Fixture* m_Fixture;
 		glm::vec2 m_Point;
 		glm::vec2 m_Normal;
@@ -29,3 +31,4 @@ namespace TerranEngine
 		bool m_Hit;
 	};
 }
+

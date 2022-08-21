@@ -2,6 +2,7 @@
 
 #include "Terran.h"
 #include "Core/Log.h"
+#include "Physics/LayerManager.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -378,6 +379,23 @@ namespace TerranEditor
 			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 			{
 				return UI::DrawEntityControl(fieldName, value, scene);
+			});
+
+			break;
+		}
+		case ScriptType::LayerMask: 
+		{
+			DrawFieldValue<uint16_t>(field, handle,
+			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+			{
+				std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+				if (UI::DrawComboBox(fieldName, layerNames.data(), layerNames.size(), value)) 
+				{
+					value = 1 << value;
+					return true;
+				}
+				
+				return false;
 			});
 
 			break;

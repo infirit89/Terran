@@ -12,6 +12,8 @@
 #include "EditorPanels/LogPanel.h"
 #include "SelectionManager.h"
 
+#include "EditorResources.h"
+
 #include "Scene/SceneManager.h"
 
 #include <imgui.h>
@@ -38,6 +40,7 @@ namespace TerranEditor
 
 	void EditorLayer::OnAttach()
 	{
+		EditorResources::Init();
 		UI::SetupImGuiStyle();
 
         if(m_ProjectPath.empty())
@@ -83,7 +86,6 @@ namespace TerranEditor
 		m_PanelManager = CreateShared<PanelManager>();
 
 		Shared<ContentPanel> contentPanel = m_PanelManager->AddPanel<ContentPanel>("ContentPanel");
-		contentPanel->SetCurrentPath(Project::GetAssetPath());
 		//m_ContentPanel = ContentPanel();
 		
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>("SceneViewPanel");
@@ -123,6 +125,7 @@ namespace TerranEditor
 	void EditorLayer::OnDettach()
 	{
 		Project::Uninitialize();
+		EditorResources::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -351,6 +354,8 @@ namespace TerranEditor
 		m_SceneState = SceneState::Play;
 
 		// TODO: 
+		Entity tempSelected = SelectionManager::GetSelected();
+		SelectionManager::Deselect();
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
@@ -359,11 +364,12 @@ namespace TerranEditor
 		SceneManager::GetCurrentScene()->StartRuntime();
 
 		//m_SceneHierarchyPanel.SetSelected(m_Selected);
-		m_EditModeSelected = m_Selected;
+		SelectionManager::Select(tempSelected);
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
+		UUID tempSelected = SelectionManager::GetSelectedID();
 		SelectionManager::Deselect();
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
@@ -372,11 +378,7 @@ namespace TerranEditor
 		m_PanelManager->SetScene(m_EditorScene);
 		//m_SceneHierarchyPanel.SetSelected(m_EditModeSelected);
 		SceneManager::SetCurrentScene(m_EditorScene);
-	}
-
-	void EditorLayer::OnSelectedChanged(Entity newSelected)
-	{
-		m_Selected = newSelected;
+		SelectionManager::Select(tempSelected);
 	}
 
 	void EditorLayer::OnViewportSizeChanged(glm::vec2 newViewportSize)
@@ -540,6 +542,7 @@ namespace TerranEditor
 				SceneSerializer sSerializer(newScene);
 				if (sSerializer.DesirializeJson(jsonData))
 				{
+					SelectionManager::Deselect();
 					m_EditorScene = newScene;
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
@@ -548,8 +551,6 @@ namespace TerranEditor
 					/*m_ECSPanel.SetContext(m_ActiveScene);
 					m_SceneViewPanel.SetContext(m_ActiveScene);*/
 					m_PanelManager->SetScene(SceneManager::GetCurrentScene());
-
-					m_Selected = {};
 
 					m_CurrentScenePath = scenePath;
 				}

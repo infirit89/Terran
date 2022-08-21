@@ -107,10 +107,7 @@ namespace TerranEditor
 				
 					glm::mat4 transformMatrix = tc.WorldTransformMatrix;
 
-					if (selectedEntity.HasParent())
-						m_GizmoMode = ImGuizmo::LOCAL;
-					else
-						m_GizmoMode = ImGuizmo::WORLD;
+					m_GizmoMode = selectedEntity.HasParent() ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
 					ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
 
@@ -126,7 +123,6 @@ namespace TerranEditor
 						if (selectedEntity.HasParent()) 
 						{
 							glm::mat4 parentMat = selectedEntity.GetParent().GetWorldMatrix();
-
 							transformMatrix = glm::inverse(parentMat) * transformMatrix;
 						}
 

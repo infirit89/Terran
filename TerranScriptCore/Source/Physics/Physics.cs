@@ -26,16 +26,21 @@
 		public Vector2 Normal;
 		public Rigidbody2D Rigidbody;
 		public Collider2D Collider;
+
+        public static implicit operator bool(RayCastHitInfo2D hit) => !hit.Equals(default(RayCastHitInfo2D));
 	}
 
 	public class Physics2D 
 	{
-		public static bool RayCast(out RayCastHitInfo2D hitInfo, Vector2 origin, Vector2 direction, float length = 10.0f) 
+		public static RayCastHitInfo2D RayCast(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF)
 		{
 			Internal.RayCastHitInfo2D_Internal hitInfo_Internal;
-			bool hasHit = Internal.Physics2D_RayCast(in origin, in direction, length, out hitInfo_Internal);
+			bool hasHit = Internal.Physics2D_RayCast(in origin, in direction, length, out hitInfo_Internal, layerMask);
 
-			hitInfo = new RayCastHitInfo2D();
+            if(!hasHit)
+                return default(RayCastHitInfo2D);
+
+			RayCastHitInfo2D hitInfo = new RayCastHitInfo2D();
 
 			hitInfo.Point = hitInfo_Internal.Point;
 			hitInfo.Normal = hitInfo_Internal.Normal;
@@ -49,7 +54,7 @@
 				hitInfo.Collider = entity.GetComponent<Collider2D>();
 			}
 
-			return hasHit;
+			return hitInfo;
 		}
 	}
 }

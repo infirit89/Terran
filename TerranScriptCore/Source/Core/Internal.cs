@@ -89,7 +89,7 @@ namespace Terran
 			public byte[] UUIDArray;
 		}
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D_Internal hitInfo);
+		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D_Internal hitInfo, ushort layerMask);
         #endregion
 
         #region Physics Body 2D
@@ -134,6 +134,9 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Rigidbody2D_SetType(byte[] entityUUID, byte bodyType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern string LayerMask_GetName(ushort layer);
         #endregion
 
         #region Collider 2D

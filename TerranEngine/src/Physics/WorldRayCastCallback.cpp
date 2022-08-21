@@ -5,13 +5,18 @@
 
 namespace TerranEngine 
 {
-    TerranEngine::WorldRayCastCallback::WorldRayCastCallback()
-        : m_Fixture(nullptr), m_Point(0.0f, 0.0f), m_Normal(0.0f, 0.0f), m_Fraction(0.0f), m_Hit(false)
+    TerranEngine::WorldRayCastCallback::WorldRayCastCallback(uint16_t layerMask)
+        : m_LayerMask(layerMask), m_Fixture(nullptr), m_Point(0.0f, 0.0f), m_Normal(0.0f, 0.0f), m_Fraction(0.0f), m_Hit(false)
     {
     }
 
     float TerranEngine::WorldRayCastCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
     {
+        const b2Filter& filterData = fixture->GetFilterData();
+        
+        if((m_LayerMask & filterData.categoryBits) != 0)
+            return fraction == 0.0f ? 0.0f : -1.0f;
+
         m_Fixture = fixture;
         m_Point = { point.x, point.y };
         m_Normal = { normal.x, normal.y };

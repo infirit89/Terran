@@ -17,12 +17,7 @@ namespace TerranEditor
 		~ContentPanel() = default;
 
 		virtual void ImGuiRender() override;
-
-		void SetCurrentPath(const std::filesystem::path& currentPath) { m_CurrentPath = currentPath; }
 	private:
-		Shared<Texture> m_DirIcon;
-		Shared<Texture> m_FileIcon;
-
 		std::filesystem::path m_CurrentPath;
 	};
 }

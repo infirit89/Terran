@@ -39,6 +39,14 @@ namespace TerranEngine
 
 	Scene::~Scene()
 	{
+		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptbleComponentView)
+		{
+			Entity entity(e, this);
+			ScriptEngine::UninitalizeScriptable(entity);
+		}
+
         m_Registry.clear();
 
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);

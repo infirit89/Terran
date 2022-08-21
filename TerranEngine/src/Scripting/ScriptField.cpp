@@ -31,7 +31,6 @@ namespace TerranEngine
         template<>
         void ScriptFieldSetData<Utils::Variant>(Utils::Variant value, GCHandle handle, ScriptField* field)
         {
-            // SetDataVariantRaw(value, handle);
 			switch (field->GetType().TypeEnum)
 			{
 			case ScriptType::Bool:
@@ -136,15 +135,18 @@ namespace TerranEngine
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
+			case ScriptType::LayerMask:
+			{
+				uint16_t val = value;
+				ScriptFieldSetData(val, handle, field);
+				break;
+			}
 			}
         }		
 
         template<>
         Utils::Variant ScriptFieldGetData<Utils::Variant>(GCHandle handle, ScriptField* field) 
         {
-            //Utils::Variant value = GetDataVariantRaw(handle);
-            //return value;
-
 			switch (field->GetType().TypeEnum)
 			{
 			case ScriptType::Bool:		return ScriptFieldGetData<bool>(handle, field);
@@ -164,6 +166,7 @@ namespace TerranEngine
 			case ScriptType::Vector3:	return ScriptFieldGetData<glm::vec3>(handle, field);
 			case ScriptType::Color:		return ScriptFieldGetData<glm::vec4>(handle, field);
 			case ScriptType::Entity:	return ScriptFieldGetData<UUID>(handle, field);
+			case ScriptType::LayerMask: return ScriptFieldGetData<uint16_t>(handle, field);
 			}
 
 			return {};
@@ -232,212 +235,6 @@ namespace TerranEngine
 	}
 
 	bool ScriptField::IsStatic() const { return mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_STATIC; }
-
-	std::string ScriptField::GetDataStringRaw(GCHandle handle)
-	{	
-		if (m_Type.TypeEnum != ScriptType::String) 
-		{
-			TR_ERROR("Can't get the string value of a non-string field");
-			return "";
-		}
-
-		MonoString* monoStr = nullptr;
-		ScriptUtils::GetFieldDataRaw(&monoStr, m_MonoField, handle);
-		const std::string val = ScriptMarshal::MonoStringToUTF8(monoStr);
-		return val;
-	}
-
-	void ScriptField::SetDataStringRaw(const char* value, GCHandle handle)
-	{
-		if (m_Type.TypeEnum != ScriptType::String)
-		{
-			TR_ERROR("Can't set the string value of a non-string field");
-			return;
-		}
-		
-		MonoString* monoStr = ScriptMarshal::UTF8ToMonoString(value);
-		ScriptUtils::SetFieldDataRaw(monoStr, m_MonoField, handle);
-	}
-	
-	void ScriptField::SetDataVariantRaw(const Utils::Variant& value, GCHandle handle)
-	{
-		switch (m_Type.TypeEnum)
-		{
-		case ScriptType::Bool:
-		{
-			bool val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Char:
-		{
-			char val = value;
-			SetData<wchar_t>((wchar_t)val, handle);
-			break;
-		}
-		case ScriptType::Int8:
-		{
-			int8_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Int16:
-		{
-			int16_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Int32:
-		{
-			int32_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Int64:
-		{
-			int64_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::UInt8:
-		{
-			uint8_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::UInt16:
-		{
-			uint16_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::UInt32:
-		{
-			uint32_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::UInt64:
-		{
-			uint64_t val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Float:
-		{
-			float val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Double:
-		{
-			double val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::String:
-		{
-			const char*  val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Vector2:
-		{
-			glm::vec2 val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Vector3:
-		{
-			glm::vec3 val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Color:
-		{
-			glm::vec4 val = value;
-			SetData(val, handle);
-			break;
-		}
-		case ScriptType::Entity:
-		{
-			UUID val = value;
-			SetData(val, handle);
-			break;
-		}
-		}
-	}
-
-	Utils::Variant ScriptField::GetDataVariantRaw(GCHandle handle)
-	{
-		switch (m_Type.TypeEnum)
-		{
-		case ScriptType::Bool:		return GetData<bool>(handle);
-		case ScriptType::Char: 		return (char)GetData<wchar_t>(handle);
-		case ScriptType::Int8: 		return GetData<int8_t>(handle);
-		case ScriptType::Int16: 	return GetData<int16_t>(handle);
-		case ScriptType::Int32: 	return GetData<int32_t>(handle);
-		case ScriptType::Int64: 	return GetData<int64_t>(handle);
-		case ScriptType::UInt8: 	return GetData<uint8_t>(handle);
-		case ScriptType::UInt16: 	return GetData<uint16_t>(handle);
-		case ScriptType::UInt32: 	return GetData<uint32_t>(handle);
-		case ScriptType::UInt64: 	return GetData<uint64_t>(handle);
-		case ScriptType::Float:		return GetData<float>(handle);
-		case ScriptType::Double:	return GetData<double>(handle);
-		case ScriptType::String:	return GetData<std::string>(handle);
-		case ScriptType::Vector2:	return GetData<glm::vec2>(handle);
-		case ScriptType::Vector3:	return GetData<glm::vec3>(handle);
-		case ScriptType::Color:		return GetData<glm::vec4>(handle);
-		case ScriptType::Entity:	return GetData<UUID>(handle);
-		}
-
-		return {};
-	}
-
-	void ScriptField::SetDataUUIDRaw(UUID value, GCHandle handle)
-	{
-		if (m_Type.TypeEnum != ScriptType::Entity)
-		{
-			TR_ERROR("Field isn't of type 'Entity'");
-			return;
-		}
-
-		const ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(value);
-		
-		void* args[] = { uuidArray.GetMonoArray() };
-		ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
-		ScriptMethod* constructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
-		constructor->Invoke(entityObj, args);
-		
-		ScriptUtils::SetFieldDataRaw(entityObj.GetMonoObject(), m_MonoField, handle);
-	}
-
-	UUID ScriptField::GetDataUUIDRaw(GCHandle handle)
-	{
-		if (m_Type.TypeEnum != ScriptType::Entity)
-		{
-			TR_ERROR("Field isn't of type 'Entity'");
-			return {};
-		}
-		
-		ScriptObject entityObj = ScriptUtils::GetFieldValueObject(m_MonoField, handle);
-		ScriptMethod* getIdMethod = ScriptCache::GetCachedMethod("Terran.Entity", ":get_ID");
-
-		if(!entityObj)
-			return {};
-		
-		ScriptObject idObj = getIdMethod->Invoke(entityObj, nullptr);
-
-		if(!idObj)
-			return {};
-		
-		ScriptMethod* getDataMethod = ScriptCache::GetCachedMethod("Terran.UUID", ":get_Data");
-		MonoObject* result  = getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
-		ScriptArray idDataArr = ScriptArray::Create((MonoArray*)result);
-		UUID id = ScriptMarshal::MonoArrayToUUID(idDataArr);
-		
-		return id;
-	}
 
 	ScriptArray ScriptField::GetArray(GCHandle handle)
 	{

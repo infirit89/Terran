@@ -18,8 +18,17 @@ namespace TerranEngine
     public:
         static void AddLayer(int index, const std::string& layerName);
         static void RemoveLayer(int index);
+
         static Layers& GetLayers() { return m_Layers; }
         static PhysicsLayer& GetLayer(int index) { return m_Layers[index]; }
+
+        static uint16_t GetLayerCategory(int index) { return 1 << index; }
+
+        static std::vector<const char*> GetLayerNames();
+        static std::string& GetLayerName(int index);
+        
+        static bool CanLayersCollide(int layer1, int layer2);
+        static void SetLayerMask(int layer1, int layer2, bool canCollide);
 
     private:
         static Layers m_Layers;

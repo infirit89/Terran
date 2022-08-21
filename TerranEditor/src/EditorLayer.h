@@ -45,17 +45,11 @@ namespace TerranEditor
 		void OnScenePlay();
 		void OnSceneStop();
 
-		void OnSelectedChanged(Entity newSelected);
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
-
-		Entity m_RenderableEntity, m_Entity1, m_Entity2;
 
 		EditorCamera m_EditorCamera;
 
 		OrthographicCamera m_Camera;
-
-		Entity m_Selected = {};
-		Entity m_EditModeSelected = {};
 
 		// ***** Panels *****
 		/*SceneHierarchyPanel m_SceneHierarchyPanel;

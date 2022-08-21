@@ -8,6 +8,7 @@
 #include "Physics/LayerManager.h"
 
 #include "UI/UI.h"
+#include "EditorResources.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -44,8 +45,12 @@ namespace TerranEditor
 
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
-			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
+			if (ImGui::ImageButton((ImTextureID)EditorResources::GetSettingsTexture()->GetTextureID(), 
+				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
+
+			ImGui::PopStyleColor();
 
 			ImVec4 windowBGColor = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
 			windowBGColor.w = 1.0f;
@@ -262,15 +267,6 @@ namespace TerranEditor
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
 					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
-                    std::vector<const char*> layerNames;
-
-                    for(int i = 0; i < TR_MAX_LAYER_COUNT; i++)
-                    {
-                        PhysicsLayer& layer = PhysicsLayerManager::GetLayer(i);
-                        if(!layer.Name.empty())
-                            layerNames.push_back(layer.Name.c_str());
-                    }
-
 					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					UI::ScopedVarTable::TableInfo tableInfo;
@@ -292,6 +288,7 @@ namespace TerranEditor
 					}
 
                     // rigidbody layer selection
+					std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
                     UI::DrawComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
 
 					if (rbComponent.BodyType != PhysicsBodyType::Static) 
