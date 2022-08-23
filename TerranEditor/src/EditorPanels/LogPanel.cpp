@@ -1,6 +1,7 @@
 #include "LogPanel.h"
 
 #include "UI/UI.h"
+#include "EditorResources.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -14,10 +15,6 @@ namespace TerranEditor
 
 	LogPanel::LogPanel() 
 	{
-		m_InfoTexture = CreateShared<Texture>("Resources/Textures/info-icon.png");
-		m_WarnTexture = CreateShared<Texture>("Resources/Textures/warning-icon.png");
-		m_ErrorTexture = CreateShared<Texture>("Resources/Textures/error-icon.png");
-
 		s_Instance = this;
 		ClearMessageBuffer();
 	}
@@ -88,25 +85,28 @@ namespace TerranEditor
 
 				ImGui::Indent(4.0f);
 
+                Shared<Texture> logMessageTexture;
 				switch (logMessage.MessageLevel)
 				{
 				case LogMessageLevel::Trace:
 				case LogMessageLevel::Info:
 				{
-					ImGui::Image((ImTextureID)m_InfoTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
+					logMessageTexture = EditorResources::GetInfoTexture();
 					break;
 				}
 				case LogMessageLevel::Warn:
 				{
-					ImGui::Image((ImTextureID)m_WarnTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
+					logMessageTexture = EditorResources::GetWarningTexture();
 					break;
 				}
 				case LogMessageLevel::Error:
 				{
-					ImGui::Image((ImTextureID)m_ErrorTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
+					logMessageTexture = EditorResources::GetErrorTexture();
 					break;
 				}
 				}
+
+                ImGui::Image((ImTextureID)logMessageTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
 
 				ImGui::SameLine();
 

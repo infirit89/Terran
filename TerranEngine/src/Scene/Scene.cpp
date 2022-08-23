@@ -12,6 +12,8 @@
 
 #include "Scripting/ScriptEngine.h"
 
+#include "Project/Project.h"
+
 #include "Physics/Physics.h"
 #include "Scripting/ScriptCache.h"
 
@@ -109,7 +111,7 @@ namespace TerranEngine
 		
 		m_IsPlaying = true;
 
-        Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
+        Physics2D::CreatePhysicsWorld(Project::GetPhysicsSettings());
         Physics2D::CratePhysicsBodies(this);
 
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();

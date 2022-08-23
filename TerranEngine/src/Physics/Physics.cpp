@@ -24,49 +24,52 @@ namespace TerranEngine
 		float PhysicsDeltaTime = 0.0f;
 		ContactListener ContactListener;
 		Shared<PhysicsBody2D> EmptyPhysicsBody;
+        PhysicsSettings Settings;
 	};
 	
 
-	static PhysicsEngineState* s_PhysicsEngineState;
+	static PhysicsEngineState* s_State;
 	
 	void Physics2D::Initialize()
 	{
-		s_PhysicsEngineState = new PhysicsEngineState();
-        PhysicsLayerManager::AddLayer(0, "Default");
-        PhysicsLayerManager::AddLayer(1, "IgnoreRayCast");
+		s_State = new PhysicsEngineState();
+        s_State->Settings = {  };
+        PhysicsLayerManager::SetLayerName(0, "Default");
+        PhysicsLayerManager::SetLayerName(1, "IgnoreRayCast");
 	}
 
 	void Physics2D::Shutdown()
 	{
-		delete s_PhysicsEngineState;
+		delete s_State;
 	}
 
-	void Physics2D::CreatePhysicsWorld(const glm::vec2& gravity)
+	void Physics2D::CreatePhysicsWorld(const PhysicsSettings& settings)
 	{
-		if (s_PhysicsEngineState->PhysicsWorld)
+        s_State->Settings = settings;
+		if (s_State->PhysicsWorld)
 		{
 			TR_ERROR("The existing physics world must be deleted before a new one is created");
 			return;
 		}
 
-		b2Vec2 b2Gravity = { gravity.x, gravity.y };
-		s_PhysicsEngineState->PhysicsWorld = new b2World(b2Gravity);
+		b2Vec2 b2Gravity = { s_State->Settings.Gravity.x, s_State->Settings.Gravity.y };
+		s_State->PhysicsWorld = new b2World(b2Gravity);
 
-		s_PhysicsEngineState->PhysicsWorld->SetContactListener(&s_PhysicsEngineState->ContactListener);
+		s_State->PhysicsWorld->SetContactListener(&s_State->ContactListener);
 	}
 
 	void Physics2D::CleanUpPhysicsWorld()
 	{
-		if (!s_PhysicsEngineState->PhysicsWorld) 
+		if (!s_State->PhysicsWorld) 
 		{
 			TR_ERROR("Physics world is null");
 			return;
 		}
 
-        s_PhysicsEngineState->PhysicsBodies.clear();
+        s_State->PhysicsBodies.clear();
 
-		delete s_PhysicsEngineState->PhysicsWorld;
-		s_PhysicsEngineState->PhysicsWorld = nullptr;
+		delete s_State->PhysicsWorld;
+		s_State->PhysicsWorld = nullptr;
 	}
 
     void Physics2D::CratePhysicsBodies(Scene* scene)
@@ -80,39 +83,39 @@ namespace TerranEngine
         }
     }
 
-	b2World* Physics2D::GetPhysicsWorld() { return s_PhysicsEngineState->PhysicsWorld; }
+	b2World* Physics2D::GetPhysicsWorld() { return s_State->PhysicsWorld; }
 
 	void Physics2D::CreatePhysicsBody(Entity entity)
 	{
 		Shared<PhysicsBody2D> physicsBody = CreateShared<PhysicsBody2D>(entity);
-		s_PhysicsEngineState->PhysicsBodies.emplace(entity.GetID(), physicsBody);
+		s_State->PhysicsBodies.emplace(entity.GetID(), physicsBody);
         physicsBody->AttachColliders(entity);
 	}
 
 	void Physics2D::DestroyPhysicsBody(Entity entity)
 	{
-		if (s_PhysicsEngineState->PhysicsWorld) 
+		if (s_State->PhysicsWorld) 
 		{
 			UUID id = entity.GetID();
-			if (s_PhysicsEngineState->PhysicsBodies.find(id) != s_PhysicsEngineState->PhysicsBodies.end()) 
+			if (s_State->PhysicsBodies.find(id) != s_State->PhysicsBodies.end()) 
 			{
-				auto& physicsBody = s_PhysicsEngineState->PhysicsBodies.at(id);
+				auto& physicsBody = s_State->PhysicsBodies.at(id);
 
 				if (physicsBody) 
-					s_PhysicsEngineState->PhysicsBodies.erase(id);
+					s_State->PhysicsBodies.erase(id);
 			}
 		}
 	}
 
 	void Physics2D::Update(Time time)
 	{		
-		s_PhysicsEngineState->PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
+		s_State->PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
 
-		s_PhysicsEngineState->PhysicsDeltaTime += time.GetDeltaTime();
+		s_State->PhysicsDeltaTime += time.GetDeltaTime();
 
 		const auto scriptView = SceneManager::GetCurrentScene()->GetEntitiesWith<ScriptComponent>();
 		
-		while (s_PhysicsEngineState->PhysicsDeltaTime > 0.0f)
+		while (s_State->PhysicsDeltaTime > 0.0f)
 		{
 			for (auto e : scriptView)
 			{
@@ -120,7 +123,7 @@ namespace TerranEngine
 				ScriptEngine::OnPhysicsUpdate(entity);
 			}
 
-			s_PhysicsEngineState->PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
+			s_State->PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
 		}
 
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
@@ -132,7 +135,7 @@ namespace TerranEngine
 			auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
 			auto& transform = entity.GetTransform();
 
-			Shared<PhysicsBody2D>& physicsBody = s_PhysicsEngineState->PhysicsBodies.at(entity.GetID());
+			Shared<PhysicsBody2D>& physicsBody = s_State->PhysicsBodies.at(entity.GetID());
 
 			if (transform.Position.x != physicsBody->GetPosition().x || transform.Position.y != physicsBody->GetPosition().y) 
 			{
@@ -151,10 +154,10 @@ namespace TerranEngine
 
 	Shared<PhysicsBody2D>& Physics2D::GetPhysicsBody(Entity entity)
 	{
-		if (entity && s_PhysicsEngineState->PhysicsBodies.find(entity.GetID()) != s_PhysicsEngineState->PhysicsBodies.end())
-			return s_PhysicsEngineState->PhysicsBodies.at(entity.GetID());
+		if (entity && s_State->PhysicsBodies.find(entity.GetID()) != s_State->PhysicsBodies.end())
+			return s_State->PhysicsBodies.at(entity.GetID());
 
-		return s_PhysicsEngineState->EmptyPhysicsBody;
+		return s_State->EmptyPhysicsBody;
 	}
 
 	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask)
@@ -164,7 +167,7 @@ namespace TerranEngine
 		const b2Vec2 distance = { length * direction.x, length * direction.y };
 		const b2Vec2 point2 = point1 + distance;
 
-		s_PhysicsEngineState->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
+		s_State->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
 
 		hitInfo.Normal = raycastCallback.GetNormal();
 		hitInfo.Point = raycastCallback.GetPoint();

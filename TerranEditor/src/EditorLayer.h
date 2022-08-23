@@ -30,6 +30,7 @@ namespace TerranEditor
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
 
 	private:
+        void OpenProject(const std::filesystem::path& projectPath);
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 
 		void SaveSceneAs();
@@ -68,8 +69,8 @@ namespace TerranEditor
 		//Shared<SceneRenderer> m_RuntimeSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 
-		bool m_PerformanceOpen = true;
-		bool m_RendererStatsOpen = true;
+		bool m_PerformancePanelOpen = true;
+		bool m_RendererStatsPanelOpen = true;
 
 		bool m_ShowColliders = false;
 
@@ -86,3 +87,4 @@ namespace TerranEditor
 		static EditorLayer* s_Instance;
 	};
 }
+

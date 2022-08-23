@@ -2,6 +2,7 @@
 
 #include "EditorLayer.h"
 #include "SelectionManager.h"
+#include "EditorResources.h"
 
 #include "UI/UI.h"
 
@@ -45,8 +46,8 @@ namespace TerranEditor
 				{ ImGuiStyleVar_WindowPadding, {0.0f, 0.0f} }
 			});
 
-			ImGui::Begin("Scene view", &m_Open);
-			
+			ImGui::Begin("Scene view", &m_Open, ImGuiWindowFlags_NoScrollbar);
+
 			bool isFocused = ImGui::IsWindowFocused();
 			bool isHovered = ImGui::IsWindowHovered();
 
@@ -81,6 +82,26 @@ namespace TerranEditor
 			Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
 			ImGui::Image((ImTextureID)(framebuffer ? framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
+
+#if 0
+			{
+				UI::ScopedStyleVar test({
+					{ ImGuiStyleVar_WindowRounding, { 0.2f, 0.2f } }
+				});
+				constexpr float playButtonSize = 20.0f;
+				constexpr float padding = 20.0f;
+				const ImVec2 windowSize = { playButtonSize + padding, playButtonSize + padding };
+				ImGui::SetNextWindowPos({ ImGui::GetWindowPos().x + regionAvail.x * 0.5f, ImGui::GetWindowPos().y + 30.0f });
+				ImGui::BeginChild("toolbar", windowSize, false, ImGuiWindowFlags_NoDecoration);
+				Shared<Texture> playButtonIcon = EditorResources::GetPlayTexture();
+
+				ImVec2 playButtonPos = { (ImGui::GetContentRegionAvail().x * 0.5f) - (playButtonSize * 0.7f), 
+										(ImGui::GetContentRegionAvail().y * 0.5f) - (playButtonSize * 0.65f) };
+				ImGui::SetCursorPos(playButtonPos);
+				ImGui::ImageButton((ImTextureID)playButtonIcon->GetTextureID(), { playButtonSize, playButtonSize }, { 0, 1 }, { 1, 0 });
+				ImGui::EndChild();
+			}
+#endif
 
 			m_Visible = ImGui::IsItemVisible();
 
@@ -157,7 +178,8 @@ namespace TerranEditor
 						//Entity entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
 						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_Scene->GetRaw());
 						
-						SelectionManager::Select(entity);
+						if(entity)
+							SelectionManager::Select(entity);
 
 						framebuffer->Unbind();
 					}

@@ -13,6 +13,41 @@ namespace TerranEditor
 {
 	using namespace TerranEngine;
 
+    struct ImGuiStyleVarInfo 
+    {
+        ImGuiDataType Type;
+        uint32_t Count;
+    };
+
+    static const ImGuiStyleVarInfo StyleVarInfo[] =
+    {
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_Alpha
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowPadding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowRounding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowBorderSize
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowMinSize
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowTitleAlign
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildRounding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildBorderSize
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupRounding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupBorderSize
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_FramePadding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameRounding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameBorderSize
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemSpacing
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemInnerSpacing
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_IndentSpacing
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_CellPadding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarSize
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarRounding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabMinSize
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabRounding
+        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_TabRounding
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ButtonTextAlign
+        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_SelectableTextAlign
+    };
+
+
 	bool UI::DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth)
 	{
 		bool changed = false;
@@ -883,7 +918,13 @@ namespace TerranEditor
 		for (auto& styleVarIt : styleVarList)
 		{
 			ImVec2 styleVal = { styleVarIt.Val.x, styleVarIt.Val.y };
-			ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
+
+			ImGuiStyleVarInfo varInfo = StyleVarInfo[styleVarIt.StyleVarIdx];
+
+            if(varInfo.Count == 2)
+                ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
+            else
+                ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal.x);
 		}
 	}
 
@@ -928,7 +969,7 @@ namespace TerranEditor
 		style.Colors[ImGuiCol_Text] = ImVec4(0.9742489457130432f, 0.9573628306388855f, 0.8864410519599915f, 1.0f);
 		style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.658823549747467f, 0.6000000238418579f, 0.5176470875740051f, 1.0f);
 		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.0784313753247261f, 0.0784313753247261f, 0.0784313753247261f, 1.0f);
-		style.Colors[ImGuiCol_ChildBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+		style.Colors[ImGuiCol_ChildBg] = ImVec4(0.0784313753247261f, 0.0784313753247261f, 0.0784313753247261f, 0.8f);
 		style.Colors[ImGuiCol_PopupBg] = ImVec4(0.0784313753247261f, 0.0784313753247261f, 0.0784313753247261f, 0.9215686321258545f);
 		style.Colors[ImGuiCol_Border] = ImVec4(0.321568638086319f, 0.2823529541492462f, 0.250980406999588f, 0.5882353186607361f);
 		style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);

@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdint>
 #include <array>
+#include <vector>
 
 namespace TerranEngine 
 {
@@ -16,8 +17,7 @@ namespace TerranEngine
     {
         using Layers = std::array<PhysicsLayer, TR_MAX_LAYER_COUNT>;
     public:
-        static void AddLayer(int index, const std::string& layerName);
-        static void RemoveLayer(int index);
+        static void SetLayerName(int index, const std::string& layerName);
 
         static Layers& GetLayers() { return m_Layers; }
         static PhysicsLayer& GetLayer(int index) { return m_Layers[index]; }

@@ -5,16 +5,10 @@ namespace TerranEngine
 {
     PhysicsLayerManager::Layers PhysicsLayerManager::m_Layers;
 
-    void PhysicsLayerManager::AddLayer(int index, const std::string& layerName)
+    void PhysicsLayerManager::SetLayerName(int index, const std::string& layerName)
     {
-        m_Layers[index] = { 0xFFFF, layerName };
+        m_Layers[index].Name = layerName;
     }
-    
-    void PhysicsLayerManager::RemoveLayer(int index)
-    {
-        m_Layers[index].Name = "";
-    }
-
 
     std::vector<const char*> PhysicsLayerManager::GetLayerNames()
     {

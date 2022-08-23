@@ -16,6 +16,8 @@
 
 #include "Scene/SceneManager.h"
 
+#include "Project/ProjectSerializer.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
@@ -30,33 +32,19 @@
 
 namespace TerranEditor
 {
+#define LOG_PANEL_NAME "LogPanel"
+#define SCENE_HIERARCHY_PANEL_NAME "SceneHierarchyPanel"
+#define PROPERTIES_PANEL_NAME "PropertiesPanel"
+#define ECS_PANEL_NAME "ECSPanel"
+#define CONTENT_PANEL_NAME "ContentPanel"
+#define SCENE_VIEW_PANEL_NAME "SceneViewPanel"
+
 	EditorLayer* EditorLayer::s_Instance;
 
 	EditorLayer::EditorLayer(const std::string& projectPath)
 		: Layer("Editor"), m_EditorCamera(), m_ProjectPath(projectPath) 
 	{
 		s_Instance = this;
-	}
-
-	void EditorLayer::OnAttach()
-	{
-		EditorResources::Init();
-		UI::SetupImGuiStyle();
-
-        if(m_ProjectPath.empty())
-            Project::Init("SandboxProject/");
-        else
-            Project::Init(m_ProjectPath);
-
-		FontAtlas fontAtlas;
-
-		ImGuiIO& io = ImGui::GetIO();
-
-		ImFontConfig config;
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
-		config.MergeMode = true;
-		io.Fonts->Build();
-		io.IniFilename = "Resources/TerranEditorSettings.ini";
 
 		std::vector<spdlog::sink_ptr> clientSinks
 		{
@@ -71,6 +59,30 @@ namespace TerranEditor
 		clientLogger->set_level(spdlog::level::trace);
 
 		Log::SetClientLogger(clientLogger);
+	}
+
+	void EditorLayer::OnAttach()
+	{
+		EditorResources::Init();
+		UI::SetupImGuiStyle();
+
+		m_PanelManager = CreateShared<PanelManager>();
+		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
+
+        if(m_ProjectPath.empty())
+            OpenProject("SandboxProject/");
+        else
+            OpenProject(m_ProjectPath);
+
+		FontAtlas fontAtlas;
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		ImFontConfig config;
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
+		config.MergeMode = true;
+		io.Fonts->Build();
+		io.IniFilename = "Resources/TerranEditorSettings.ini";
 
 		m_EditorScene = SceneManager::CreateEmpyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
@@ -79,29 +91,21 @@ namespace TerranEditor
 		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
 		
-		//m_ActiveScene = m_EditorScene;
 		SceneManager::SetCurrentScene(m_EditorScene);
 
 		// ***** Panel Setup *****
-		m_PanelManager = CreateShared<PanelManager>();
-
-		Shared<ContentPanel> contentPanel = m_PanelManager->AddPanel<ContentPanel>("ContentPanel");
-		//m_ContentPanel = ContentPanel();
+		Shared<ContentPanel> contentPanel = m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
 		
-		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>("SceneViewPanel");
+		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
 		sceneViewPanel->SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
 		sceneViewPanel->SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
-		//m_SceneViewPanel.SetSelectedChangedCallback([this](Entity entity) { m_SceneHierarchyPanel.SetSelected(entity); });
-		//m_SceneViewPanel.SetContext(m_ActiveScene);
 
-		m_PanelManager->AddPanel<SceneHierarchyPanel>("SceneHierarchyPanel");
-		//m_SceneHierarchyPanel.SetOnSelectedChangedCallback([this](Entity entity) { OnSelectedChanged(entity); });
-		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
-		
-		//m_ECSPanel.SetContext(m_ActiveScene);
-		m_PanelManager->AddPanel<ECSPanel>("ECSPanel");
-		m_PanelManager->AddPanel<LogPanel>("LogPanel");
-		m_PanelManager->AddPanel<PropertiesPanel>("PropertiesPanel");
+		m_PanelManager->AddPanel<SceneHierarchyPanel>(SCENE_HIERARCHY_PANEL_NAME);
+
+		m_PanelManager->AddPanel<ECSPanel>(ECS_PANEL_NAME);
+
+		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
+
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		// ***********************
 
@@ -124,7 +128,6 @@ namespace TerranEditor
 
 	void EditorLayer::OnDettach()
 	{
-		Project::Uninitialize();
 		EditorResources::Shutdown();
 	}
 
@@ -297,29 +300,29 @@ namespace TerranEditor
 
 			if (ImGui::BeginMenu("View")) 
 			{
-				/*if (ImGui::MenuItem("Properties"))
-					m_PropertiesPanel.SetOpen(true);
+                if (ImGui::MenuItem("Properties"))
+                    m_PanelManager->SetPanelOpen(PROPERTIES_PANEL_NAME, true);
 
-				if (ImGui::MenuItem("Scene Hierarchy"))
-					m_SceneHierarchyPanel.SetOpen(true);
+                if (ImGui::MenuItem("Scene Hierarchy"))
+                    m_PanelManager->SetPanelOpen(SCENE_HIERARCHY_PANEL_NAME, true);
 
-				if (ImGui::MenuItem("Editor View"))
-					m_SceneViewPanel.SetOpen(true);
+                if (ImGui::MenuItem("Scene View"))
+                    m_PanelManager->SetPanelOpen(SCENE_VIEW_PANEL_NAME, true);
 
-				if (ImGui::MenuItem("Performance"))
-					m_PerformanceOpen = true;
+                if (ImGui::MenuItem("Performance"))
+                    m_PerformancePanelOpen = true;
 
-				if (ImGui::MenuItem("Content Browser"))
-					m_ContentPanel.SetOpen(true);
+                if (ImGui::MenuItem("Content Browser"))
+                    m_PanelManager->SetPanelOpen(CONTENT_PANEL_NAME, true);
 
-				if (ImGui::MenuItem("Renderer Stats"))
-					m_RendererStatsOpen = true;
+                if (ImGui::MenuItem("Renderer Stats"))
+                    m_RendererStatsPanelOpen = true;
 
-				if (ImGui::MenuItem("ECS Panel"))
-					m_ECSPanel.SetOpen(true);
+                if (ImGui::MenuItem("ECS Panel"))
+                    m_PanelManager->SetPanelOpen(ECS_PANEL_NAME, true);
 
-				if (ImGui::MenuItem("Logger"))
-					m_LogPanel.SetOpen(true);*/
+                if (ImGui::MenuItem("Logger"))
+                    m_PanelManager->SetPanelOpen(LOG_PANEL_NAME, true);
 
 				ImGui::EndMenu();
 			}
@@ -353,8 +356,7 @@ namespace TerranEditor
 
 		m_SceneState = SceneState::Play;
 
-		// TODO: 
-		Entity tempSelected = SelectionManager::GetSelected();
+		UUID tempSelected = SelectionManager::GetSelectedID();
 		SelectionManager::Deselect();
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
@@ -364,7 +366,9 @@ namespace TerranEditor
 		SceneManager::GetCurrentScene()->StartRuntime();
 
 		//m_SceneHierarchyPanel.SetSelected(m_Selected);
-		SelectionManager::Select(tempSelected);
+
+		if(tempSelected)
+			SelectionManager::Select(tempSelected);
 	}
 
 	void EditorLayer::OnSceneStop()
@@ -378,7 +382,9 @@ namespace TerranEditor
 		m_PanelManager->SetScene(m_EditorScene);
 		//m_SceneHierarchyPanel.SetSelected(m_EditModeSelected);
 		SceneManager::SetCurrentScene(m_EditorScene);
-		SelectionManager::Select(tempSelected);
+
+		if(tempSelected)
+			SelectionManager::Select(tempSelected);
 	}
 
 	void EditorLayer::OnViewportSizeChanged(glm::vec2 newViewportSize)
@@ -424,9 +430,9 @@ namespace TerranEditor
 
 		// Renderer stats
 		{
-			if (m_RendererStatsOpen) 
+			if (m_RendererStatsPanelOpen) 
 			{
-				ImGui::Begin("Renderer Stats", &m_RendererStatsOpen);
+				ImGui::Begin("Renderer Stats", &m_RendererStatsPanelOpen);
 			
 				BatchRendererStats stats = BatchRenderer2D::Get()->GetStats();
 				ImGui::Indent(4.0f);
@@ -442,9 +448,9 @@ namespace TerranEditor
 
 		// Performance
 		{
-			if (m_PerformanceOpen) 
+			if (m_PerformancePanelOpen) 
 			{
-				ImGui::Begin("Performance", &m_PerformanceOpen);
+				ImGui::Begin("Performance", &m_PerformancePanelOpen);
 
 				ImGui::Text("Frame Time: %.01f ms/frame", m_Frametime);
 			
@@ -457,7 +463,10 @@ namespace TerranEditor
 
 		{
 			// NOTE: temporary toolbar
-			ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+											ImGuiWindowFlags_NoTitleBar;
+            
+			ImGui::Begin("##toolbar", nullptr, toolbarFlags);
 
 			ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2));
 
@@ -568,4 +577,16 @@ namespace TerranEditor
 			sSerializer.SerializeJson(m_CurrentScenePath);
 		}
 	}
+
+    void EditorLayer::OpenProject(const std::filesystem::path& projectPath)
+    {
+        // TODO: close project if theres an already active one
+        Shared<Project> project = CreateShared<Project>();
+        Project::SetActive(project);
+        project->ProjectPath = projectPath;
+
+		ProjectSerialzer projectSerializer(project);
+		projectSerializer.DeserializePhysicsSettings();
+    }
 }
+

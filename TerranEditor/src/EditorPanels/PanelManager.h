@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Core/Hash.h"
 
 #include "Scene/Scene.h"
 
@@ -20,20 +21,28 @@ namespace TerranEditor
         template<typename T>
         TerranEngine::Shared<T> AddPanel(const std::string& panelName)
         {
-            TerranEngine::Shared<T> editorPanel = TerranEngine::CreateShared<T>();
-            m_Panels.emplace(panelName, editorPanel);
-            return editorPanel;
+            TerranEngine::Shared<T> panel = TerranEngine::CreateShared<T>();
+            uint32_t hashedPanelName = TerranEngine::Hash::FNVHash(panelName);
+            m_Panels.emplace(hashedPanelName, panel);
+            return panel;
         }
 
         template<typename T>
-        TerranEngine::Shared<T> GetPanel(const std::string& panelName) { return TerranEngine::DynamicCast<T>(m_Panels[panelName]); }
+        TerranEngine::Shared<T> GetPanel(const std::string& panelName)
+        {
+            uint32_t hashedPanelName = TerranEngine::Hash::FNVHash(panelName);
+            return TerranEngine::DynamicCast<T>(m_Panels[hashedPanelName]);
+        }
+
         void SetScene(const TerranEngine::Shared<TerranEngine::Scene>& scene);
 
         void OnEvent(TerranEngine::Event& event);
         void ImGuiRender();
 
+        void SetPanelOpen(const std::string& panelName, bool open);
+
     private:
-        std::unordered_map<std::string, TerranEngine::Shared<EditorPanel>> m_Panels;
+        std::unordered_map<uint32_t, TerranEngine::Shared<EditorPanel>> m_Panels;
     };
 }
 

@@ -3,40 +3,20 @@
 
 namespace TerranEngine
 {
-    struct ProjectData
+    Shared<Project> Project::s_ActiveProject;
+    void Project::SetActive(Shared<Project>& project)
     {
-        std::filesystem::path ProjectPath;
-        const std::filesystem::path AssetPath = "Assets";
-        const std::filesystem::path ScriptAssembliesPath = "Scripts";
-        const std::filesystem::path AppAssemblyName = "ScriptAssembly.dll";
-    };
-
-    static ProjectData* s_ProjectData;
-    
-    void Project::Init(const std::filesystem::path& projectPath)
-    {
-        s_ProjectData = new ProjectData;
-        s_ProjectData->ProjectPath = projectPath;
-    }
-
-    void Project::Uninitialize()
-    {
-        delete s_ProjectData;
-    }
-
-    void Project::SetProjectPath(const std::filesystem::path& projectPath)
-    {
-        s_ProjectData->ProjectPath = projectPath;
+        s_ActiveProject = project;
     }
 
     std::filesystem::path Project::GetAppAssemblyPath()
     {
-        return s_ProjectData->ProjectPath / 
-            s_ProjectData->ScriptAssembliesPath / s_ProjectData->AppAssemblyName;
+        return s_ActiveProject->ProjectPath / 
+            s_ActiveProject->m_ScriptAssembliesPath / s_ActiveProject->m_AppAssemblyName;
     }
 
     std::filesystem::path Project::GetAssetPath()
     {
-        return s_ProjectData->ProjectPath / s_ProjectData->AssetPath;
+        return s_ActiveProject->ProjectPath / s_ActiveProject->m_AssetPath;
     }
 }

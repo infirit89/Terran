@@ -9,7 +9,6 @@
 #include "Core/Base.h"
 #include "Core/UUID.h"
 #include "Core/Time.h"
-#include "Project/Project.h"
 
 /* ---- Events ---- */
 #include "Events/ApplicationEvent.h"
@@ -63,3 +62,8 @@
 #include "Physics/PhysicsBody.h"
 #include "Physics/Collider.h"
 #include "Physics/LayerManager.h"
+
+/* ---- Project ---- */
+#include "Project/Project.h"
+#include "Project/ProjectSerializer.h"
+
