@@ -18,8 +18,7 @@ namespace TerranEngine
         for (int i = 0; i < TR_MAX_LAYER_COUNT; i++)
         {
             PhysicsLayer& layer = GetLayer(i);
-            if (!layer.Name.empty())
-                layerNames.push_back(layer.Name.c_str());
+            layerNames.push_back(layer.Name.c_str());
         }
 
         return layerNames;

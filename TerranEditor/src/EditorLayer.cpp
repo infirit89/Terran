@@ -10,6 +10,7 @@
 #include "EditorPanels/ContentPanel.h"
 #include "EditorPanels/ECSPanel.h"
 #include "EditorPanels/LogPanel.h"
+#include "EditorPanels/SettingsPanel.h"
 #include "SelectionManager.h"
 
 #include "EditorResources.h"
@@ -38,6 +39,7 @@ namespace TerranEditor
 #define ECS_PANEL_NAME "ECSPanel"
 #define CONTENT_PANEL_NAME "ContentPanel"
 #define SCENE_VIEW_PANEL_NAME "SceneViewPanel"
+#define SETTINGS_PANEL_NAME "SettingPanel"
 
 	EditorLayer* EditorLayer::s_Instance;
 
@@ -107,6 +109,8 @@ namespace TerranEditor
 		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
 
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
+
+        m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
 		// ***********************
 
 
@@ -194,7 +198,6 @@ namespace TerranEditor
 
 		m_Frametime = time.GetDeltaTimeMS();
 	}
-
 
 	void EditorLayer::OnEvent(Event& event)
 	{
@@ -323,6 +326,9 @@ namespace TerranEditor
 
                 if (ImGui::MenuItem("Logger"))
                     m_PanelManager->SetPanelOpen(LOG_PANEL_NAME, true);
+
+                if(ImGui::MenuItem("Settings"))
+                    m_PanelManager->SetPanelOpen(SETTINGS_PANEL_NAME, true);
 
 				ImGui::EndMenu();
 			}
@@ -589,4 +595,3 @@ namespace TerranEditor
 		projectSerializer.DeserializePhysicsSettings();
     }
 }
-

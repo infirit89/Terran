@@ -31,11 +31,12 @@ namespace TerranEngine
 	static PhysicsEngineState* s_State;
 	
 	void Physics2D::Initialize()
-	{
+	{        
 		s_State = new PhysicsEngineState();
         s_State->Settings = {  };
         PhysicsLayerManager::SetLayerName(0, "Default");
         PhysicsLayerManager::SetLayerName(1, "IgnoreRayCast");
+        PhysicsLayerManager::SetLayerName(3, "Test");
 	}
 
 	void Physics2D::Shutdown()

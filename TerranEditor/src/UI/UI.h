@@ -1,10 +1,10 @@
 #pragma once
-
 #include "Scripting/ScriptEngine.h"
 #include <imgui.h>
 
 #include <glm/glm.hpp>
 
+#include <string.h>
 #include <string>
 
 namespace TerranEditor 
@@ -125,6 +125,8 @@ namespace TerranEditor
 			{
 				for (int i = 0; i < stateCount; i++)
 				{
+                    if(strlen(stateNames[i]) == 0) continue;
+
 					const bool is_selected = (stateNames[i] == currentState);
 					if (ImGui::Selectable(stateNames[i], is_selected))
 					{
