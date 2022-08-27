@@ -36,20 +36,18 @@ namespace TerranEditor
             std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
             UI::DrawComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
             
-            ImGui::BeginTable("##LayerCollisionSelection", 2);
+            ImGui::BeginTable("##LayerCollisionSelection", 1);
             for(int row = 0; row < layerNames.size(); row++ )
             {
                 if(strlen(layerNames[row]) == 0) continue;
                 ImGui::TableNextRow();
                 
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text(layerNames[row]);
-                ImGui::TableSetColumnIndex(1);
                 bool canLayersCollide = PhysicsLayerManager::CanLayersCollide(m_LayerIndex, row);
 
-                std::string checkboxId = fmt::format("##CanLayerCollide_{0}", row);
-                if(ImGui::Checkbox(checkboxId.c_str(), &canLayersCollide))
+                if(UI::DrawBoolControl(layerNames[row], canLayersCollide))
                     PhysicsLayerManager::SetLayerMask(m_LayerIndex, row, canLayersCollide);
+
             }
 
             ImGui::EndTable();

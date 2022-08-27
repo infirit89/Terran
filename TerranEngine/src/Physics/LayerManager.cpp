@@ -46,8 +46,8 @@ namespace TerranEngine
         }
         else 
         {
-            m_Layers[layer1].Mask &= !(1 << layer2);
-            m_Layers[layer2].Mask &= !(1 << layer1);
+            m_Layers[layer1].Mask &= ~(1 << layer2);
+            m_Layers[layer2].Mask &= ~(1 << layer1);
         }
     }
 }
