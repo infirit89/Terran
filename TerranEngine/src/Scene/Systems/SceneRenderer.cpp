@@ -47,10 +47,10 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture, entityID);
 	}
 
-	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform)
+	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		BatchRenderer2D::Get()->AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness);
+		BatchRenderer2D::Get()->AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
 	}
 
 	void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer)
@@ -143,7 +143,7 @@ namespace TerranEngine
 				circleRenderer.Color = color;
 				circleRenderer.Thickness = thickness;
 
-				SubmitCircle(circleRenderer, transformMatrix);
+				SubmitCircle(circleRenderer, transformMatrix, -1);
 			}
 		}
 	}

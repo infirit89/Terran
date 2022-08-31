@@ -137,13 +137,13 @@ namespace TerranEngine
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
 		
+        Physics2D::Update(time);
+
 		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
 		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
 		TransformSystem::SetContext(this);
 		TransformSystem::Update();
-
-        Physics2D::Update(time);
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 		for (auto e : scriptableComponentView)
@@ -213,7 +213,7 @@ namespace TerranEngine
 					Entity entity(e, this);
 					auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 
-					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
+					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix(), (int)(uint32_t)(entity));
 				}
 			}
 
@@ -260,7 +260,7 @@ namespace TerranEngine
 				Entity entity(e, this);
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 
-				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
+				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix(), (int)(uint32_t)entity);
 			}
 		}
 
@@ -430,6 +430,7 @@ namespace TerranEngine
 			CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
 		return scene;

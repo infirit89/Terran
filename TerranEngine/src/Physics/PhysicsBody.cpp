@@ -5,6 +5,7 @@
 #include "Collider.h"
 #include "Physics.h"
 
+#include <Scene/Components.h>
 #include <glm/gtx/transform.hpp>
 
 #include <box2d/box2d.h>
@@ -29,7 +30,7 @@ namespace TerranEngine
         bodyDef.gravityScale = rigidbody.GravityScale;
         bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
         bodyDef.enabled = rigidbody.Enabled;
-
+        
         m_Body = Physics2D::GetPhysicsWorld()->CreateBody(&bodyDef);
         
         SetBodyType(rigidbody.BodyType);
@@ -44,6 +45,7 @@ namespace TerranEngine
     PhysicsBody2D::~PhysicsBody2D() 
     {
         Physics2D::GetPhysicsWorld()->DestroyBody(m_Body);
+        m_Colliders.clear();
         m_Body = nullptr;
     }
 
@@ -144,7 +146,6 @@ namespace TerranEngine
         {
         case TerranEngine::PhysicsBodyType::Static:		return b2BodyType::b2_staticBody;
         case TerranEngine::PhysicsBodyType::Dynamic:	return b2BodyType::b2_dynamicBody;
-        case TerranEngine::PhysicsBodyType::Kinematic:	return b2BodyType::b2_kinematicBody;
         }
 
         TR_ASSERT(false, "Unsupported body type");
@@ -223,29 +224,6 @@ namespace TerranEngine
         }
     }
 
-    void PhysicsBody2D::AddBoxCollider(Entity entity)
-    {
-        // NOTE: think about moving this into box collider creation
-        TR_ASSERT(m_Body, "Physics Body is null");
-
-        BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
-        Shared<BoxCollider2D> boxCollider = CreateShared<BoxCollider2D>(entity);
-        m_Colliders.push_back(boxCollider);
-        colliderComponent.ColliderIndex = m_Colliders.size() - 1;
-    }
-
-    void PhysicsBody2D::AddCircleCollider(Entity entity)
-    {
-        TR_ASSERT(m_Body, "Physics Body is null");
-
-        // NOTE: think about moving this into circle collider creation
-        
-        CircleCollider2DComponent& colliderComponent = entity.GetComponent<CircleCollider2DComponent>();
-        Shared<CircleCollider2D> circleCollider = CreateShared<CircleCollider2D>(entity);
-        m_Colliders.push_back(circleCollider);
-        colliderComponent.ColliderIndex = m_Colliders.size() - 1;
-    }
-
     PhysicsBodySleepState PhysicsBody2D::GetSleepState() const
     {
         if (!m_Body)
@@ -268,9 +246,13 @@ namespace TerranEngine
     void PhysicsBody2D::AttachColliders(Entity entity) 
     {
         if (entity.HasComponent<BoxCollider2DComponent>())
-            AddBoxCollider(entity);
+            AddCollider<BoxCollider2DComponent>(entity);
         
         if (entity.HasComponent<CircleCollider2DComponent>())
-            AddCircleCollider(entity);
+            AddCollider<CircleCollider2DComponent>(entity);
+
+        if (entity.HasComponent<CapsuleCollider2DComponent>())
+            AddCollider<CapsuleCollider2DComponent>(entity);
     }
 }
+

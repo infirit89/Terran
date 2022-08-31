@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Core/Base.h"
+
 #include "PhysicsStates.h"
+#include "Collider.h"
 
 #include "Scene/Entity.h"
 
+#include <Scene/Components.h>
 #include <glm/glm.hpp>
 
 #include <vector>
@@ -13,7 +16,6 @@ class b2Body;
 
 namespace TerranEngine 
 {
-	class Collider2D;
 	class PhysicsBody2D
 	{
 	public:
@@ -60,8 +62,24 @@ namespace TerranEngine
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
 
 		// NOTE: make a templated function?
-		void AddBoxCollider(Entity entity);
-		void AddCircleCollider(Entity entity);
+        template<typename T>
+        void AddCollider(Entity entity)
+        {
+            TR_ASSERT(m_Body, "Physics Body is null");
+
+            Shared<Collider2D> collider; 
+            T& colliderComponent = entity.GetComponent<T>();
+
+            if constexpr(std::is_same<T, CircleCollider2DComponent>::value)
+                collider = CreateShared<CircleCollider2D>(entity);
+            else if constexpr(std::is_same<T, BoxCollider2DComponent>::value)
+                collider = CreateShared<BoxCollider2D>(entity);
+            else if constexpr(std::is_same<T, CapsuleCollider2DComponent>::value)
+                collider = CreateShared<CapsuleCollider2D>(entity);
+
+            m_Colliders.push_back(collider);
+            colliderComponent.ColliderIndex = m_Colliders.size() - 1;
+        }
 
 		b2Body* GetPhysicsBody() const { return m_Body; }
 		
@@ -79,3 +97,4 @@ namespace TerranEngine
 		std::vector<Shared<Collider2D>> m_Colliders;
 	};
 }
+

@@ -110,7 +110,7 @@ namespace TerranEngine
 
 	void Physics2D::Update(Time time)
 	{		
-		s_State->PhysicsWorld->Step(Settings::PhysicsFixedTimestep, Settings::PhysicsVelocityIterations, Settings::PhysicsPositionIterations);
+		s_State->PhysicsWorld->Step(s_State->Settings.PhysicsTimestep, s_State->Settings.VelocityIterations, s_State->Settings.PositionIterations);
 
 		s_State->PhysicsDeltaTime += time.GetDeltaTime();
 
@@ -124,7 +124,7 @@ namespace TerranEngine
 				ScriptEngine::OnPhysicsUpdate(entity);
 			}
 
-			s_State->PhysicsDeltaTime -= Settings::PhysicsFixedTimestep;
+			s_State->PhysicsDeltaTime -= s_State->Settings.PhysicsTimestep;
 		}
 
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
@@ -138,18 +138,10 @@ namespace TerranEngine
 
 			Shared<PhysicsBody2D>& physicsBody = s_State->PhysicsBodies.at(entity.GetID());
 
-			if (transform.Position.x != physicsBody->GetPosition().x || transform.Position.y != physicsBody->GetPosition().y) 
-			{
-				transform.Position.x = physicsBody->GetPosition().x;
-				transform.Position.y = physicsBody->GetPosition().y;
-				transform.IsDirty = true;
-			}
-
-			if (transform.Rotation.z != physicsBody->GetRotation())
-			{
-				transform.Rotation.z = physicsBody->GetRotation();
-				transform.IsDirty = true;
-			}
+			transform.Position.x = physicsBody->GetPosition().x;
+			transform.Position.y = physicsBody->GetPosition().y;
+			transform.Rotation.z = physicsBody->GetRotation();
+			transform.IsDirty = true;
 		}
 	}
 

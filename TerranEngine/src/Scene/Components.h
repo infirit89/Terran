@@ -173,4 +173,15 @@ namespace TerranEngine
 
 		uint32_t ColliderIndex = 0;
 	};
+
+	struct CapsuleCollider2DComponent 
+	{
+		CapsuleCollider2DComponent () = default;
+
+		glm::vec2 Offset = { 0.0f, 0.0f };
+        glm::vec2 Size = { 0.5f,  1.0f };
+		bool IsSensor = false;
+
+		uint32_t ColliderIndex = 0;
+	};
 }

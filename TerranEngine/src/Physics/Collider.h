@@ -1,7 +1,6 @@
 #pragma once
 
-#include "PhysicsBody.h"
-
+#include "Scene/Entity.h"
 #include <glm/glm.hpp>
 
 class b2Fixture;
@@ -10,13 +9,15 @@ class b2CircleShape;
 
 namespace TerranEngine 
 {
+    class PhysicsBody2D;
 	enum class ColliderType2D 
 	{
 		None = 0,
 		Box,
 		Circle,
 		Edge,
-		Chain
+		Chain,
+        Capsule
 	};
 
 	class Collider2D
@@ -24,7 +25,8 @@ namespace TerranEngine
 	public:
 		Collider2D() = default;
 		Collider2D(ColliderType2D colliderType);
-		virtual ~Collider2D() = default;
+		Collider2D(ColliderType2D colliderType, size_t fixtureArraySize);
+		virtual ~Collider2D();
 
 		void SetSensor(bool isSensor);
 		void SetFriction(float friction);
@@ -38,7 +40,7 @@ namespace TerranEngine
 		float GetDensity() const;
 		float GetRestitution() const;
 		float GetRestitutionThreshold() const;
-		uintptr_t GetUserData() const;
+        uintptr_t GetUserData() const;
 
 		virtual glm::vec2 GetOffset() const = 0;
 				
@@ -47,7 +49,8 @@ namespace TerranEngine
 		inline ColliderType2D GetType() const { return p_ColliderType; }
 
 	protected:
-		b2Fixture* p_Fixture = nullptr;
+		b2Fixture** p_Fixture = nullptr;
+        size_t p_FixtureArraySize;
 		ColliderType2D p_ColliderType;
 	};
 
@@ -84,4 +87,22 @@ namespace TerranEngine
 	private:
 		b2CircleShape* m_CircleShape = nullptr;
 	};
+
+    class CapsuleCollider2D : public Collider2D
+    {
+    public:
+        CapsuleCollider2D() = default;
+        CapsuleCollider2D(Entity entity);
+        ~CapsuleCollider2D() override;
+        
+		void SetSize(const glm::vec2& size);
+		glm::vec2 GetSize() const;
+
+		virtual void SetOffset(const glm::vec2& offset) override;
+		virtual glm::vec2 GetOffset() const override;
+
+    private:
+        b2CircleShape* m_UpperCircleShape = nullptr, * m_LowerCircleShape = nullptr;
+        b2PolygonShape* m_BoxShape = nullptr;
+    };
 }

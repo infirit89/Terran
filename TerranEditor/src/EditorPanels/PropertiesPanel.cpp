@@ -1,6 +1,8 @@
 #include "PropertiesPanel.h"
 
 #include "EditorLayer.h"
+#include "Physics/Collider.h"
+#include "Scene/Components.h"
 #include "SelectionManager.h"
 
 #include "Scripting/ScriptCache.h"
@@ -389,6 +391,34 @@ namespace TerranEditor
 					}
 				});
 
+				DrawComponent<CapsuleCollider2DComponent>("Capsule Collider 2D", entity, [&](CapsuleCollider2DComponent& ccComponent) 
+				{
+					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<CapsuleCollider2D> capsuleCollider;
+
+					if (isRuntime)
+						capsuleCollider = DynamicCast<CapsuleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
+
+					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
+					{
+						if (isRuntime)
+							capsuleCollider->SetOffset(ccComponent.Offset);
+					}
+
+					if (UI::DrawVec2Control("Size", ccComponent.Size)) 
+					{
+						if (isRuntime)
+							capsuleCollider->SetSize(ccComponent.Size);
+					}
+
+					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
+					{
+						if (isRuntime)
+							capsuleCollider->SetSensor(ccComponent.IsSensor);
+					}
+				});
+
 				DrawComponent<TextRendererComponent>("Text Renderer", entity, [](TextRendererComponent& textRenderer) 
 				{
 					{
@@ -452,6 +482,10 @@ namespace TerranEditor
 					if (!entity.HasComponent<CircleCollider2DComponent>())
 						if (ImGui::MenuItem("Circle Collider 2D"))
 							entity.AddComponent<CircleCollider2DComponent>();
+
+					if (!entity.HasComponent<CapsuleCollider2DComponent>())
+						if (ImGui::MenuItem("Capsule Collider 2D"))
+							entity.AddComponent<CapsuleCollider2DComponent>();
 
 					if (!entity.HasComponent<TextRendererComponent>())
 						if (ImGui::MenuItem("Text Renderer"))
