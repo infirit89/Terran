@@ -1,8 +1,9 @@
 #pragma once
 
-#include "PhysicsBody.h"
-
 #include "Core/Time.h"
+#include "Core/Base.h"
+
+#include "PhysicsBody.h"
 
 #include "Scene/Scene.h"
 
@@ -36,14 +37,14 @@ namespace TerranEngine
 
         static void CratePhysicsBodies(Scene* scene);
 
-		static void CreatePhysicsBody(Entity entity);
+		static Shared<PhysicsBody2D> CreatePhysicsBody(Entity entity);
 		static void DestroyPhysicsBody(Entity entity);
 
 		static void Update(Time time);
 
 		static b2World* GetPhysicsWorld();
 
-		static Shared<PhysicsBody2D>& GetPhysicsBody(Entity entity);
+		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
 		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);
 	};
 }

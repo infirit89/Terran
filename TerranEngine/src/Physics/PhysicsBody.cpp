@@ -144,8 +144,9 @@ namespace TerranEngine
     {
         switch (bodyType)
         {
-        case TerranEngine::PhysicsBodyType::Static:		return b2BodyType::b2_staticBody;
-        case TerranEngine::PhysicsBodyType::Dynamic:	return b2BodyType::b2_dynamicBody;
+        case PhysicsBodyType::Static:       return b2BodyType::b2_staticBody;
+        case PhysicsBodyType::Dynamic:      return b2BodyType::b2_dynamicBody;
+        case PhysicsBodyType::Kinematic:    return b2BodyType::b2_kinematicBody;
         }
 
         TR_ASSERT(false, "Unsupported body type");
@@ -222,6 +223,18 @@ namespace TerranEngine
             m_Body->ApplyLinearImpulseToCenter({ force.x, force.y }, true);
             break;
         }
+    }
+
+    void PhysicsBody2D::RemoveCollider(int index)
+    {
+        if(m_Body)
+        {
+            Shared<Collider2D> collider = m_Colliders.at(index);
+            for(int i = 0; i < collider->p_FixtureArraySize; i++)
+                m_Body->DestroyFixture(collider->p_Fixture[i]);
+        }
+
+        m_Colliders.erase(m_Colliders.begin() + index);
     }
 
     PhysicsBodySleepState PhysicsBody2D::GetSleepState() const

@@ -11,6 +11,7 @@
 
 #include "Scripting/ScriptEngine.h"
 
+#include <Physics/PhysicsBody.h>
 #include <box2d/box2d.h>
 
 #include <glm/gtx/transform.hpp>
@@ -80,17 +81,18 @@ namespace TerranEngine
         for (auto e: rigidbodyView)
         {
             Entity entity(e, scene);
-            Physics2D::CreatePhysicsBody(entity);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
+            physicsBody->AttachColliders(entity);
         }
     }
 
 	b2World* Physics2D::GetPhysicsWorld() { return s_State->PhysicsWorld; }
 
-	void Physics2D::CreatePhysicsBody(Entity entity)
+	Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
 	{
 		Shared<PhysicsBody2D> physicsBody = CreateShared<PhysicsBody2D>(entity);
 		s_State->PhysicsBodies.emplace(entity.GetID(), physicsBody);
-        physicsBody->AttachColliders(entity);
+		return physicsBody;
 	}
 
 	void Physics2D::DestroyPhysicsBody(Entity entity)
@@ -145,12 +147,13 @@ namespace TerranEngine
 		}
 	}
 
-	Shared<PhysicsBody2D>& Physics2D::GetPhysicsBody(Entity entity)
+	Shared<PhysicsBody2D> Physics2D::GetPhysicsBody(Entity entity)
 	{
 		if (entity && s_State->PhysicsBodies.find(entity.GetID()) != s_State->PhysicsBodies.end())
 			return s_State->PhysicsBodies.at(entity.GetID());
 
-		return s_State->EmptyPhysicsBody;
+		//return s_State->EmptyPhysicsBody;
+        return nullptr;
 	}
 
 	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask)

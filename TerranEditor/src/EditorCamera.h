@@ -27,13 +27,11 @@ namespace TerranEditor
 		void OnViewportResize(float width, float height);
 
 		void SetCameraType(EditorCameraType type) { m_CameraType = type; }
-
 		void SetBlockInput(bool block) { m_BlockInput = block; }
+		void SetZoomSpeed(float zoomSpeed) { m_ZoomSpeed = zoomSpeed; }
 
 		glm::mat4& GetView() { return m_ViewMatrix; }
 	private:
-		float ZoomSpeed();
-
 		void RecalculateProjection();
 		void RecalculateView();
 		void CameraZoom(float delta);
@@ -55,6 +53,8 @@ namespace TerranEditor
 		float m_AspectRatio = 0.0f;
 		float m_OrthoGraphicSize = 10.0f;
 		float m_OrthographicFar = 10.0f, m_OrthographicNear = -10.0f;
+
+		float m_ZoomSpeed = 0.25f;
 
 		float m_Pitch = 0.0f, m_Yaw = 0.0f;
 		

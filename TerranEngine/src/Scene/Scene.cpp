@@ -18,6 +18,7 @@
 #include "Scripting/ScriptCache.h"
 
 #include "Utils/Debug/Profiler.h"
+#include <Physics/PhysicsBody.h>
 
 namespace TerranEngine 
 {
@@ -37,6 +38,15 @@ namespace TerranEngine
         
 		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentConstructed>(this);
 		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentConstructed>(this);
+		m_Registry.on_destroy<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentConstructed>(this);
+		m_Registry.on_destroy<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentConstructed>(this);
+		m_Registry.on_destroy<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentDestroyed>(this);
 	}
 
 	Scene::~Scene()
@@ -457,7 +467,8 @@ namespace TerranEngine
         if(m_IsPlaying)
         {
             Entity entity(entityHandle, this);
-            Physics2D::CreatePhysicsBody(entity);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
+            physicsBody->AttachColliders(entity);
         }
     }
 
@@ -469,4 +480,77 @@ namespace TerranEngine
             Physics2D::DestroyPhysicsBody(entity);
         }
     }
+
+    void Scene::OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+            if(physicsBody)
+                physicsBody->AddCollider<BoxCollider2DComponent>(entity);
+        }
+    }
+    void Scene::OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+            auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
+            if(physicsBody)
+                physicsBody->RemoveCollider(bcComponent.ColliderIndex);
+        }
+    }
+
+    void Scene::OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+            if(physicsBody)
+                physicsBody->AddCollider<CircleCollider2DComponent>(entity);
+        }
+    }
+    void Scene::OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+            auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
+            if(physicsBody)
+                physicsBody->RemoveCollider(ccComponent.ColliderIndex);
+        }
+    }
+
+    void Scene::OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+            if(physicsBody)
+                physicsBody->AddCollider<CapsuleCollider2DComponent>(entity);
+        }
+    }
+    void Scene::OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+            auto& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+
+            if(physicsBody)
+                physicsBody->RemoveCollider(ccComponent.ColliderIndex);
+        }
+    }
 }
+

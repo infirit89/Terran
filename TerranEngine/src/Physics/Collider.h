@@ -52,6 +52,8 @@ namespace TerranEngine
 		b2Fixture** p_Fixture = nullptr;
         size_t p_FixtureArraySize;
 		ColliderType2D p_ColliderType;
+
+        friend class PhysicsBody2D;
 	};
 
 	class BoxCollider2D : public Collider2D

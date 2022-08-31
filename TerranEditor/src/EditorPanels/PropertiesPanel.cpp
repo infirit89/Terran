@@ -264,19 +264,19 @@ namespace TerranEditor
 
 				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
 				{
-					bool isPlay = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
-					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+					const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
-					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					UI::ScopedVarTable::TableInfo tableInfo;
 
 					// rigidbody body type selection
 					{
 						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
-							isPlay)
+							isScenePlaying)
 							physicsBody->SetBodyType(rbComponent.BodyType);
 
 					}
@@ -286,7 +286,7 @@ namespace TerranEditor
 
 					// rigidbody awake state selection 
 					{
-						UI::DrawComboBox("Sleep State", awakeStateNames, 3, rbComponent.SleepState);
+						UI::DrawComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
 					}
 
                     // rigidbody layer selection
@@ -297,7 +297,7 @@ namespace TerranEditor
 					{
 						if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
 						{
-							if (isPlay)
+							if (isScenePlaying)
 								physicsBody->SetGravityScale(rbComponent.GravityScale);
 						}
 					}
@@ -315,14 +315,15 @@ namespace TerranEditor
 						{
 							{
 								UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
-							
-								ImGui::Text(awakeStateNames[(int)physicsBody->GetSleepState()]);
+								
+								int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
+								ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
 							}
 
 							{
 								UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
 
-								glm::vec2 velocity = physicsBody->GetLinearVelocity();
+								glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
 								std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
 								ImGui::Text(velocityText.c_str());
 							}
@@ -337,7 +338,7 @@ namespace TerranEditor
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					Shared<BoxCollider2D> boxCollider;
 
@@ -366,7 +367,7 @@ namespace TerranEditor
 				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent) 
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 					Shared<CircleCollider2D> circleCollider;
 
 					if (isRuntime)
@@ -394,7 +395,7 @@ namespace TerranEditor
 				DrawComponent<CapsuleCollider2DComponent>("Capsule Collider 2D", entity, [&](CapsuleCollider2DComponent& ccComponent) 
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 					Shared<CapsuleCollider2D> capsuleCollider;
 
 					if (isRuntime)
