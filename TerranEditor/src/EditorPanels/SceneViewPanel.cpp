@@ -173,9 +173,7 @@ namespace TerranEditor
 					{
 						framebuffer->Bind();
 						int pixelData = framebuffer->ReadPixel(1, mouseX, mouseY);
-						TR_TRACE(pixelData);
 
-						//Entity entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
 						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_Scene->GetRaw());
 						
 						if(entity)
@@ -193,14 +191,12 @@ namespace TerranEditor
 					const char* entryPath = (const char*)payload->Data;
 					m_OpenSceneCallback(entryPath, m_ViewportSize);
 				}
-
 				ImGui::EndDragDropTarget();
 			}
 
 			editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused || !isHovered || m_WindowMoved);
 
 			ImGui::End();
-
 			m_WindowMoved = false;
 		}
 	}

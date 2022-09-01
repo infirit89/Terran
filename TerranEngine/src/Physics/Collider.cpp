@@ -6,26 +6,37 @@
 #include "PhysicsUtils.h"
 #include "LayerManager.h"
 
+#include <Core/Assert.h>
+#include <Core/Log.h>
 #include <Scene/Components.h>
 #include <Scene/Entity.h>
+#include <float.h>
 #include <glm/gtx/transform.hpp>
 
 #include <box2d/b2_fixture.h>
 #include <box2d/box2d.h>
+#include <box2d/b2_common.h>
 
 namespace TerranEngine 
 {
-	Collider2D::Collider2D(ColliderType2D colliderType)
-		: p_FixtureArraySize(1), p_ColliderType(colliderType)
-	{
-        p_Fixture = new b2Fixture*[p_FixtureArraySize];
+    /******************************
+     * Base Values:               *
+     * Density = 1.0              *
+     * Friction = 0.5             *
+     * Restitution = 0.0          *
+     * RestitutionThreshold = 0.5 *
+     ******************************/
+
+    // **** Base Collider ****
+    Collider2D::Collider2D(ColliderType2D colliderType, size_t fixtureArraySize)
+        : p_FixtureArraySize(fixtureArraySize), p_ColliderType(colliderType)
+    {
+        p_Fixture = new b2Fixture*[p_FixtureArraySize]();
     }
 
-    Collider2D::Collider2D(ColliderType2D colliderType, size_t fixtureArraySize)
-		: p_FixtureArraySize(fixtureArraySize), p_ColliderType(colliderType)
-    {
-        p_Fixture = new b2Fixture*[p_FixtureArraySize];
-    }
+	Collider2D::Collider2D(ColliderType2D colliderType)
+		: Collider2D::Collider2D(colliderType, 1)
+	{ }
 
     Collider2D::~Collider2D()
     {
@@ -39,7 +50,10 @@ namespace TerranEngine
 			return;
 
         for(int i = 0; i < p_FixtureArraySize; i++)
-            p_Fixture[i]->SetSensor(isSensor);
+        {
+            if(p_Fixture[i])
+                p_Fixture[i]->SetSensor(isSensor);
+        }
 	}
 
 	void Collider2D::SetFriction(float friction)
@@ -48,7 +62,10 @@ namespace TerranEngine
 			return;
 		
         for(int i = 0; i < p_FixtureArraySize; i++)
-            p_Fixture[i]->SetFriction(friction);
+        {
+            if(p_Fixture[i])
+                p_Fixture[i]->SetFriction(friction);
+        } 
 	}
 
 	void Collider2D::SetDensity(float density)
@@ -57,7 +74,10 @@ namespace TerranEngine
 			return;
 
         for(int i = 0; i < p_FixtureArraySize; i++)
-            p_Fixture[i]->SetDensity(density);
+        {
+            if(p_Fixture[i])
+                p_Fixture[i]->SetDensity(density);
+        }
 	}
 
 	void Collider2D::SetRestitution(float restitution)
@@ -66,7 +86,10 @@ namespace TerranEngine
 			return;
 
         for(int i = 0; i < p_FixtureArraySize; i++)
-            p_Fixture[i]->SetRestitution(restitution);
+        {
+            if(p_Fixture[i])
+                p_Fixture[i]->SetRestitution(restitution);
+        }
 	}
 
 	void Collider2D::SetRestitutionThreshold(float restitutionThreshold)
@@ -75,55 +98,114 @@ namespace TerranEngine
 			return;
 
         for(int i = 0; i < p_FixtureArraySize; i++)
-            p_Fixture[i]->SetRestitutionThreshold(restitutionThreshold);
+        {
+            if(p_Fixture[i])
+                p_Fixture[i]->SetRestitutionThreshold(restitutionThreshold);
+        } 
 	}
 
 	bool Collider2D::IsSensor() const
 	{
 		TR_ASSERT(p_Fixture, "Fixture is null");
-		return p_Fixture[0]->IsSensor();
+        
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+                return p_Fixture[i]->IsSensor();
+        }
+
+        TR_ASSERT(true, "No fixtures exist");
+        return false;
 	}
 
 	float Collider2D::GetFriction() const
 	{
 		TR_ASSERT(p_Fixture, "Fixture is null");
-		return p_Fixture[0]->GetFriction();
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+                return p_Fixture[i]->GetFriction();
+        }
+
+        TR_ASSERT(true, "No fixtures exist");
+        return 0.5f;
 	}
 
 	float Collider2D::GetDensity() const
 	{
 		TR_ASSERT(p_Fixture, "Fixture is null");
 		
-		return p_Fixture[0]->GetDensity();
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+                return p_Fixture[i]->GetDensity();
+        }
+
+        TR_ASSERT(true, "No fixtures exist");
+        return 1.0f;
 	}
 
 	float Collider2D::GetRestitution() const
 	{
 		TR_ASSERT(p_Fixture, "Fixture is null");
 		
-		return p_Fixture[0]->GetRestitution();
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+                return p_Fixture[i]->GetRestitution();
+        }
+
+        TR_ASSERT(true, "No fixtures exist");
+        return 0.0f;
 	}
 
 	float Collider2D::GetRestitutionThreshold() const
 	{
 		TR_ASSERT(p_Fixture, "Fixture is null");
 		
-		return p_Fixture[0]->GetRestitutionThreshold();
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+                return p_Fixture[i]->GetRestitutionThreshold();
+        }        
+
+        TR_ASSERT(true, "No fixtures exist");
+        return 0.5f;
 	}
 
 	uintptr_t Collider2D::GetUserData() const
 	{
 		TR_ASSERT(p_Fixture, "Fixture is null");
 		
-		return p_Fixture[0]->GetUserData().pointer;
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+                return p_Fixture[i]->GetUserData().pointer;
+        }
+
+        TR_ASSERT(true, "No fixtures exist");
+        return NULL;
 	}
 
 	Shared<PhysicsBody2D> Collider2D::GetPhysicsBody() const
 	{
-		Entity entity = PhysicsUtils::GetEntityFromB2DUserData(p_Fixture[0]->GetUserData());
-		return Physics2D::GetPhysicsBody(entity);
-	}
+		TR_ASSERT(p_Fixture, "Fixture is null");
 
+        for (int i = 0; i < p_FixtureArraySize; i++) 
+        {
+            if(p_Fixture[i])
+            {
+                Entity entity = PhysicsUtils::GetEntityFromB2DUserData(p_Fixture[i]->GetUserData());
+                return Physics2D::GetPhysicsBody(entity);
+            }
+        }
+
+        TR_ASSERT(true, "No fixtures exist");
+        return nullptr;
+	}
+    // ***********************
+
+    // **** Box Collider ****
 	BoxCollider2D::BoxCollider2D(Entity entity) 
 		: Collider2D(ColliderType2D::Box)
 	{
@@ -134,8 +216,13 @@ namespace TerranEngine
 
 		b2PolygonShape polyhonShape;
 		TransformComponent& transform = entity.GetTransform();
+
 		glm::vec2 colliderSize = { transform.Scale.x * colliderComponent.Size.x, transform.Scale.y * colliderComponent.Size.y };
 
+        // box2d cant create colliders with a size of 0 on an axis
+        if(colliderSize.x <= b2_epsilon || colliderSize.y <= b2_epsilon)
+            return;
+        
 		glm::mat4 transformMat = glm::translate(glm::mat4(1.0f), { colliderComponent.Offset, 0.0f }) *
 			glm::scale(glm::mat4(1.0f), { colliderSize, 1.0f });
 
@@ -187,7 +274,8 @@ namespace TerranEngine
 	{
 		TR_ASSERT(m_PolygonShape, "Shape is null");
 		glm::vec2 offset = GetOffset();
-
+        
+        // TODO: if the size is invalid and the user changes it to a valid one the collider should be created
 		m_PolygonShape->SetAsBox(size.x * 0.5f, size.y * 0.5f, { offset.x, offset.y }, 0.0f);
 	}
 	
@@ -222,20 +310,28 @@ namespace TerranEngine
 
 		return { offsetX, offsetY };
 	}
+    // **********************
 	
+    // **** Circle Collider ****
 	CircleCollider2D::CircleCollider2D(Entity entity) 
 		: Collider2D(ColliderType2D::Circle)
 	{
 		CircleCollider2DComponent& colliderComponent = entity.GetComponent<CircleCollider2DComponent>();
         auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 
-		b2FixtureDef fixtureDef;
-		b2CircleShape circleShape;
-
 		auto& transform = entity.GetTransform();
+        float radius = ((transform.Scale.x + transform.Scale.y) * 0.5f) * colliderComponent.Radius;
+        radius = std::max(0.0f, radius);
+
+        // box2d cant create a cirlcle shape with a radius of 0
+        if(radius <= b2_epsilon)
+            return;
+
+        b2FixtureDef fixtureDef;
+        b2CircleShape circleShape;
 
 		circleShape.m_p.Set(colliderComponent.Offset.x, colliderComponent.Offset.y);
-		circleShape.m_radius = ((transform.Scale.x + transform.Scale.y) * 0.5f) * colliderComponent.Radius;
+		circleShape.m_radius = radius;
 
 		fixtureDef.shape = &circleShape;
 
@@ -244,6 +340,7 @@ namespace TerranEngine
 		// NOTE: these magic numbers are temporary until i make physics materials a thing
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 0.5f;
+        fixtureDef.restitution = 0.0f;
 		fixtureDef.restitutionThreshold = 0.5f;
 
 		fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
@@ -285,12 +382,17 @@ namespace TerranEngine
 		TR_ASSERT(m_CircleShape, "Shape is null");
 		return { m_CircleShape->m_p.x, m_CircleShape->m_p.y };
 	}
+    // *************************
 
+    // **** Capsule Collider ****
     CapsuleCollider2D::CapsuleCollider2D(Entity entity)
         : Collider2D(ColliderType2D::Capsule, 3)
     {
 		auto& colliderComponent = entity.GetComponent<CapsuleCollider2DComponent>();
         auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
+
+        if(colliderComponent.Size.x <= b2_epsilon || colliderComponent.Size.y <= b2_epsilon)
+            return;
 
 		b2FixtureDef fixtureDef;
 
@@ -299,6 +401,7 @@ namespace TerranEngine
         // NOTE: these magic numbers are temporary until i make physics materials a thing
         fixtureDef.density = 1.0f;
         fixtureDef.friction = 0.5f;
+        fixtureDef.restitution = 0.0f;
 		fixtureDef.restitutionThreshold = 0.5f;
 
         fixtureDef.userData.pointer = (uintptr_t)id.GetRaw();
@@ -311,14 +414,18 @@ namespace TerranEngine
 		auto& transform = entity.GetTransform();
 
         float circleRadius = colliderComponent.Size.x * 0.5f;
+
         glm::vec2 boxSize = { colliderComponent.Size.x, colliderComponent.Size.y - (circleRadius * 2.0f) };
+        boxSize = glm::max({ 0.0f, 0.0f }, boxSize);
+		
         glm::vec2 upperCirclePosition = { colliderComponent.Offset.x, colliderComponent.Offset.y + (boxSize.y * 0.5f) };
         glm::vec2 lowerCirclePosition = { colliderComponent.Offset.x, colliderComponent.Offset.y - (boxSize.y * 0.5f) };
 
         // box
+        if(boxSize.x > b2_epsilon && boxSize.y > b2_epsilon)
         {
             b2PolygonShape boxShape;
-            b2Vec2 boxCenter = { transform.Position.x + colliderComponent.Offset.x, transform.Position.y + colliderComponent.Offset.y };
+            b2Vec2 boxCenter = { colliderComponent.Offset.x, colliderComponent.Offset.y };
             boxShape.SetAsBox(boxSize.x * 0.5f, boxSize.y * 0.5f, boxCenter, 0.0f);
             
             fixtureDef.shape = &boxShape;
@@ -383,5 +490,6 @@ namespace TerranEngine
     {
 		return { 0.0f, 0.0f };
     }
+    // **************************
 }
 

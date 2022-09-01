@@ -8,6 +8,7 @@
 
 namespace TerranEditor 
 {
+	using namespace TerranEngine;
 	EditorCamera::EditorCamera() 
 	{
 		RecalculateProjection();
@@ -35,7 +36,6 @@ namespace TerranEditor
 	void EditorCamera::OnEvent(Event& event) 
 	{
 		EventDispatcher dispatcher(event);
-
 		dispatcher.Dispatch<MouseScrollEvent>(TR_EVENT_BIND_FN(EditorCamera::OnMouseScroll));
 	}
 
@@ -47,6 +47,12 @@ namespace TerranEditor
 		m_AspectRatio = width / height;
 
 		RecalculateProjection();
+	}
+
+	void EditorCamera::SetFocalPoint(const glm::vec3& focalPoint) 
+	{
+		m_FocalPoint = focalPoint;
+		RecalculateView();
 	}
 
 	void EditorCamera::RecalculateProjection()
@@ -85,7 +91,6 @@ namespace TerranEditor
 	bool EditorCamera::OnMouseScroll(MouseScrollEvent& e) 
 	{
 		CameraZoom(e.GetYOffset());
-
 		return false;
 	}
 

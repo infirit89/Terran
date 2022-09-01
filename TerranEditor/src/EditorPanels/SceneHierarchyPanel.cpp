@@ -1,6 +1,7 @@
 #include "SceneHierarchyPanel.h"
 
 #include "SelectionManager.h"
+#include "EditorLayer.h"
 
 #include "UI/UI.h"
 
@@ -182,6 +183,12 @@ namespace TerranEditor
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
 			SelectionManager::Select(entity);
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) 
+		{
+			auto& transformComponent = entity.GetTransform();
+			EditorLayer::GetInstace()->GetEditorCamera().SetFocalPoint(transformComponent.Position);
+		}
 
 		bool isDeleted = false;
 		

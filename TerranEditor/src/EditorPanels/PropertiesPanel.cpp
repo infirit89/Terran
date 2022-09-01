@@ -12,6 +12,7 @@
 #include "UI/UI.h"
 #include "EditorResources.h"
 
+#include <float.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <imgui.h>
@@ -353,9 +354,18 @@ namespace TerranEditor
 
 					if (UI::DrawVec2Control("Size", bcComponent.Size)) 
 					{
+                        bcComponent.Size = glm::max({ 0.0f, 0.0f }, bcComponent.Size);
+
 						if (isRuntime && boxCollider)
 							boxCollider->SetSize(bcComponent.Size);
 					}
+
+                    if(bcComponent.Size.x <= FLT_EPSILON || bcComponent.Size.y <= FLT_EPSILON)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+                        ImGui::PopStyleColor();
+                    }
 
 					if (UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor)) 
 					{
@@ -381,9 +391,18 @@ namespace TerranEditor
 
 					if (UI::DrawFloatControl("Radius", ccComponent.Radius)) 
 					{
+                        ccComponent.Radius = glm::max(0.0f, ccComponent.Radius);
+
 						if (isRuntime)
 							circleCollider->SetRadius(ccComponent.Radius);
 					}
+
+                    if(ccComponent.Radius <= FLT_EPSILON)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+                        ImGui::PopStyleColor();
+                    }
 
 					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
 					{
@@ -409,9 +428,18 @@ namespace TerranEditor
 
 					if (UI::DrawVec2Control("Size", ccComponent.Size)) 
 					{
+                        ccComponent.Size = glm::max({ 0.0f, 0.0f }, ccComponent.Size);
+
 						if (isRuntime)
 							capsuleCollider->SetSize(ccComponent.Size);
 					}
+
+                    if(ccComponent.Size.x <= FLT_EPSILON || ccComponent.Size.y <= FLT_EPSILON)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+                        ImGui::PopStyleColor();
+                    }
 
 					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
 					{

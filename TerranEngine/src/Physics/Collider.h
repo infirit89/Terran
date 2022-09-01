@@ -24,8 +24,8 @@ namespace TerranEngine
 	{
 	public:
 		Collider2D() = default;
+        Collider2D(ColliderType2D colliderType, size_t fixtureArraySize);
 		Collider2D(ColliderType2D colliderType);
-		Collider2D(ColliderType2D colliderType, size_t fixtureArraySize);
 		virtual ~Collider2D();
 
 		void SetSensor(bool isSensor);

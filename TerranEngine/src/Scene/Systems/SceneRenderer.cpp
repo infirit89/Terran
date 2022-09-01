@@ -146,5 +146,34 @@ namespace TerranEngine
 				SubmitCircle(circleRenderer, transformMatrix, -1);
 			}
 		}
+
+		// submit capsule collider bounds
+		{
+			auto capsuleColliderView = m_Scene->GetEntitiesWith<CapsuleCollider2DComponent>();
+
+			for (auto e : capsuleColliderView)
+			{
+				Entity entity(e, m_Scene);
+
+				auto& capsuleCollider = entity.GetComponent<CapsuleCollider2DComponent>();
+				auto& transform = entity.GetTransform();
+
+				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				const float thickness = 0.02f;
+
+				const glm::vec3 size = { transform.Scale.x * capsuleCollider.Size.x, transform.Scale.y * capsuleCollider.Size.y, 1.0f };
+				const glm::vec3 position = { transform.Position.x + capsuleCollider.Offset.x, transform.Position.y + capsuleCollider.Offset.y, 1.0f };
+
+				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) *
+					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
+					glm::scale(glm::mat4(1.0f), size);
+
+				CircleRendererComponent circleRenderer;
+				circleRenderer.Color = color;
+				circleRenderer.Thickness = thickness;
+
+				SubmitCircle(circleRenderer, transformMatrix, -1);
+			}
+		}
 	}
 }

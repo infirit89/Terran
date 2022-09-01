@@ -8,21 +8,20 @@
 
 namespace TerranEditor 
 {
-	using namespace TerranEngine;
 	enum class EditorCameraType 
 	{
 		Orthographic = 0,
 		Perspective
 	};
 
-	class EditorCamera : public Camera
+	class EditorCamera : public TerranEngine::Camera
 	{
 	public:
 		EditorCamera();
 
-		void Update(Time& time);
+		void Update(TerranEngine::Time& time);
 
-		void OnEvent(Event& event);
+		void OnEvent(TerranEngine::Event& event);
 
 		void OnViewportResize(float width, float height);
 
@@ -31,16 +30,20 @@ namespace TerranEditor
 		void SetZoomSpeed(float zoomSpeed) { m_ZoomSpeed = zoomSpeed; }
 
 		glm::mat4& GetView() { return m_ViewMatrix; }
+
+		void SetFocalPoint(const glm::vec3& focalPoint);
+
 	private:
 		void RecalculateProjection();
 		void RecalculateView();
 		void CameraZoom(float delta);
-		void PanCamera(glm::vec2 delta, Time& time);
+		void PanCamera(glm::vec2 delta, TerranEngine::Time& time);
 
-		bool OnMouseScroll(MouseScrollEvent& e);
+		bool OnMouseScroll(TerranEngine::MouseScrollEvent& e);
 		
 		glm::vec3 CalculatePosition();
 		
+	private:
 		glm::vec2 m_OrigMousePos{ 0.0f, 0.0f };
 
 		EditorCameraType m_CameraType = EditorCameraType::Orthographic;

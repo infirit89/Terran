@@ -110,9 +110,9 @@ namespace TerranEditor
 
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 
-        m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
+        Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
+        settingsPanel->SetOpen(false);
 		// ***********************
-
 
 		FramebufferParameters editorFramebufferParams;
 		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::Red32Integer };
