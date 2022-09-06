@@ -63,7 +63,7 @@ namespace TerranEngine
 				physicsBody->SetSleepState(PhysicsBodySleepState::Awake);
 
 				// set all the bodies this physics body is contacing with to be awake
-				for (b2ContactEdge* contact = physicsBody->GetPhysicsBody()->GetContactList(); contact; contact = contact->next)
+				for (b2ContactEdge* contact = physicsBody->GetB2Body()->GetContactList(); contact; contact = contact->next)
 				{
 					b2Body* body = contact->other;
                     Entity otherEntity = PhysicsUtils::GetEntityFromB2DUserData(body->GetUserData());

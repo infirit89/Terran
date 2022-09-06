@@ -6,6 +6,7 @@
 class b2Fixture;
 class b2PolygonShape;
 class b2CircleShape;
+struct b2FixtureDef;
 
 namespace TerranEngine 
 {
@@ -48,8 +49,12 @@ namespace TerranEngine
 
 		inline ColliderType2D GetType() const { return p_ColliderType; }
 
+        void CreateFixture();
+        void DestroyFixture();
+
 	protected:
-		b2Fixture** p_Fixture = nullptr;
+		b2Fixture** p_Fixtures = nullptr;
+        b2FixtureDef* p_FixtureDefs = nullptr;
         size_t p_FixtureArraySize;
 		ColliderType2D p_ColliderType;
 

@@ -202,14 +202,11 @@ namespace TerranEditor
 	void EditorLayer::OnEvent(Event& event)
 	{
 		m_EditorCamera.OnEvent(event);
-		//m_SceneViewPanel.OnEvent(event);
-		//m_SceneHierarchyPanel.OnEvent(event);
-
 		m_PanelManager->OnEvent(event);
 
 		EventDispatcher dispatcher(event);
-
 		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnKeyPressedEvent));
+		dispatcher.Dispatch<WindowCloseEvent>(TR_EVENT_BIND_FN(EditorLayer::OnWindowCloseEvent));
 	}
 	
 	bool EditorLayer::OnKeyPressedEvent(KeyPressedEvent& kEvent)
@@ -246,6 +243,14 @@ namespace TerranEditor
 			break;
 		}
 		}
+
+		return false;
+	}
+
+	bool EditorLayer::OnWindowCloseEvent(WindowCloseEvent& wEvent)
+	{
+		if(m_SceneState == SceneState::Play)
+			OnSceneStop();
 
 		return false;
 	}

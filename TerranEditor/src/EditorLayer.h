@@ -31,7 +31,9 @@ namespace TerranEditor
 
 	private:
         void OpenProject(const std::filesystem::path& projectPath);
+
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
+		bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
 
 		void SaveSceneAs();
 		void NewScene();

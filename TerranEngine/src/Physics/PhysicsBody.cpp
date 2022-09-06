@@ -31,10 +31,12 @@ namespace TerranEngine
         bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
         bodyDef.enabled = rigidbody.Enabled;
         
-        m_Body = Physics2D::GetPhysicsWorld()->CreateBody(&bodyDef);
+        m_Body = Physics2D::GetB2World()->CreateBody(&bodyDef);
         
         SetBodyType(rigidbody.BodyType);
         SetSleepState(rigidbody.SleepState);
+
+        CreateColliders(entity);
     }
 
     PhysicsBody2D::PhysicsBody2D(b2Body* body) 
@@ -44,8 +46,8 @@ namespace TerranEngine
 
     PhysicsBody2D::~PhysicsBody2D() 
     {
-        Physics2D::GetPhysicsWorld()->DestroyBody(m_Body);
         m_Colliders.clear();
+        Physics2D::GetB2World()->DestroyBody(m_Body);
         m_Body = nullptr;
     }
 
@@ -231,7 +233,7 @@ namespace TerranEngine
         {
             Shared<Collider2D> collider = m_Colliders.at(index);
             for(int i = 0; i < collider->p_FixtureArraySize; i++)
-                m_Body->DestroyFixture(collider->p_Fixture[i]);
+                m_Body->DestroyFixture(collider->p_Fixtures[i]);
         }
 
         m_Colliders.erase(m_Colliders.begin() + index);
@@ -256,7 +258,13 @@ namespace TerranEngine
         return ConvertToTerranPhysicsBodyType(m_Body->GetType());
     }
     
-    void PhysicsBody2D::AttachColliders(Entity entity) 
+    void PhysicsBody2D::AttachColliders() 
+    {
+        for (auto& collider : m_Colliders) 
+            collider->CreateFixture();
+    }
+
+    void PhysicsBody2D::CreateColliders(Entity entity)
     {
         if (entity.HasComponent<BoxCollider2DComponent>())
             AddCollider<BoxCollider2DComponent>(entity);

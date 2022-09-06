@@ -132,7 +132,7 @@ namespace TerranEngine
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = transform.Scale * circleCollider.Radius;
+				const glm::vec3 size = transform.Scale * (circleCollider.Radius * 2.0f);
 				const glm::vec3 position = { transform.Position.x + circleCollider.Offset.x, transform.Position.y + circleCollider.Offset.y, 1.0f };
 
 				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) *
@@ -161,7 +161,8 @@ namespace TerranEngine
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = { transform.Scale.x * capsuleCollider.Size.x, transform.Scale.y * capsuleCollider.Size.y, 1.0f };
+				float ySize = capsuleCollider.Size.x > capsuleCollider.Size.y ? capsuleCollider.Size.x : capsuleCollider.Size.y;
+				const glm::vec3 size = { transform.Scale.x * capsuleCollider.Size.x, transform.Scale.y * ySize, 1.0f };
 				const glm::vec3 position = { transform.Position.x + capsuleCollider.Offset.x, transform.Position.y + capsuleCollider.Offset.y, 1.0f };
 
 				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) *

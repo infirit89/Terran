@@ -83,15 +83,17 @@ namespace TerranEngine
 
         void RemoveCollider(int index);
 
-		b2Body* GetPhysicsBody() const { return m_Body; }
+		b2Body* GetB2Body() const { return m_Body; }
 		
 		inline operator bool() const { return m_Body != nullptr; }
 
 		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
 
-        void AttachColliders(Entity entity);
+        void AttachColliders();
 
 	private:
+        void CreateColliders(Entity entity);
+
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
 		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;

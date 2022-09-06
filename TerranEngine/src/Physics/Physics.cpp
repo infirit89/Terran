@@ -82,11 +82,11 @@ namespace TerranEngine
         {
             Entity entity(e, scene);
             Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
-            physicsBody->AttachColliders(entity);
+            physicsBody->AttachColliders();
         }
     }
 
-	b2World* Physics2D::GetPhysicsWorld() { return s_State->PhysicsWorld; }
+	b2World* Physics2D::GetB2World() { return s_State->PhysicsWorld; }
 
 	Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
 	{
@@ -172,3 +172,4 @@ namespace TerranEngine
 		return raycastCallback.HasHit();
 	}
 }
+

@@ -42,7 +42,7 @@ namespace TerranEngine
 
 		static void Update(Time time);
 
-		static b2World* GetPhysicsWorld();
+		static b2World* GetB2World();
 
 		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
 		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);

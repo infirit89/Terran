@@ -6,6 +6,8 @@
 #include <Core/Assert.h>
 #include <box2d/box2d.h>
 
+
+
 // NOTE: to be included only in .cpp files
 namespace TerranEngine 
 {
@@ -28,7 +30,6 @@ namespace TerranEngine
 			UUID id = GetUUIDFromB2DUserData(userData);
 			return SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 		}
-
-
 	}
 }
+

@@ -468,7 +468,7 @@ namespace TerranEngine
         {
             Entity entity(entityHandle, this);
             Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
-            physicsBody->AttachColliders(entity);
+            physicsBody->AttachColliders();
         }
     }
 
