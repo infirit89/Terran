@@ -120,11 +120,25 @@ namespace TerranEditor
 
 				DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
 				{
-					if (UI::DrawVec3Control("Position", component.Position))
+					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+					if (UI::DrawVec3Control("Position", component.Position)) 
+					{
 						component.IsDirty = true;
 
+						if (physicsBody && isScenePlaying) 
+							physicsBody->SetPosition({ component.Position.x, component.Position.y });
+						
+					}
+
 					if (UI::DrawVec3Control("Rotation", component.Rotation)) 
+					{
 						component.IsDirty = true;
+
+						if (physicsBody && isScenePlaying)
+							physicsBody->SetRotation(component.Rotation.z);
+					}
 
 					if (UI::DrawVec3Control("Scale", component.Scale))
 						component.IsDirty = true;
@@ -174,6 +188,7 @@ namespace TerranEditor
 					UI::DrawFloatControl("Thickness", component.Thickness);
 				});
 
+#if 0
 				DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer) 
 				{
 					UI::DrawColor4Control("Color", lineRenderer.Color);
@@ -201,6 +216,7 @@ namespace TerranEditor
 					}
 
 				});
+#endif
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
 				{
@@ -488,9 +504,9 @@ namespace TerranEditor
 						if (ImGui::MenuItem("Circle Renderer"))
 							entity.AddComponent<CircleRendererComponent>();
 
-					if (!entity.HasComponent<LineRendererComponent>())
-						if (ImGui::MenuItem("Line Renderer"))
-							entity.AddComponent<LineRendererComponent>();
+					//if (!entity.HasComponent<LineRendererComponent>())
+					//	if (ImGui::MenuItem("Line Renderer"))
+					//		entity.AddComponent<LineRendererComponent>();
 
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))

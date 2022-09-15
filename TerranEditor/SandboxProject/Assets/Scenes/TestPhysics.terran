@@ -1,0 +1,379 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity f436d8d1-8b9d-4f32-a79f-f5243a14e14c": {
+            "TagComponent": {
+                "Tag": "Entity Copy Copy Copy Copy Copy Copy",
+                "ID": "f436d8d1-8b9d-4f32-a79f-f5243a14e14c"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -0.3399435877799988,
+                    "Y": 2.960340976715088,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity a54e9f51-c20d-4693-9580-5906c8c7abed": {
+            "TagComponent": {
+                "Tag": "Entity Copy Copy Copy Copy Copy",
+                "ID": "a54e9f51-c20d-4693-9580-5906c8c7abed"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 1.572237491607666,
+                    "Y": 0.4249298572540283,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity 8da57bc1-8704-40d7-90f0-1fddfa28d940": {
+            "TagComponent": {
+                "Tag": "Entity Copy Copy Copy Copy",
+                "ID": "8da57bc1-8704-40d7-90f0-1fddfa28d940"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -3.4702558517456055,
+                    "Y": 1.1473089456558228,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity bf304efe-6a44-4630-8296-ecee135d2c9d": {
+            "TagComponent": {
+                "Tag": "Entity Copy Copy Copy",
+                "ID": "bf304efe-6a44-4630-8296-ecee135d2c9d"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -1.6147310733795166,
+                    "Y": 1.9546741247177124,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity aa02d720-5193-401d-ad8b-15d19e3aab0d": {
+            "TagComponent": {
+                "Tag": "Entity Copy Copy",
+                "ID": "aa02d720-5193-401d-ad8b-15d19e3aab0d"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 3.059490442276001,
+                    "Y": -0.08498489856719971,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity 11546028-aea1-4363-b709-71d3cb45c4ec": {
+            "TagComponent": {
+                "Tag": "Entity Copy",
+                "ID": "11546028-aea1-4363-b709-71d3cb45c4ec"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 1.345609426498413,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity 98f2f338-5dba-4da0-b90c-ad1318bfee0d": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "98f2f338-5dba-4da0-b90c-ad1318bfee0d"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": -1.9405102729797363,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 8.41592788696289,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 0,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity f60cc081-c9ab-4b25-a30c-02bc3254721b": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "f60cc081-c9ab-4b25-a30c-02bc3254721b"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

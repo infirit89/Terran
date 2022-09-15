@@ -428,15 +428,6 @@ namespace TerranEditor
 
 		ShowDockspace();
 
-		ImGui::ShowDemoWindow();
-
-		/*m_SceneHierarchyPanel.ImGuiRender();
-		m_SceneViewPanel.ImGuiRender(m_Selected, m_EditorCamera);
-
-		m_PropertiesPanel.ImGuiRender();
-		m_ECSPanel.ImGuiRender();
-		m_LogPanel.ImGuiRender();
-		m_ContentPanel.ImGuiRender();*/
 		m_PanelManager->ImGuiRender();
 
 		// Renderer stats

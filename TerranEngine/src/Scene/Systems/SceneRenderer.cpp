@@ -106,13 +106,22 @@ namespace TerranEngine
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
+				const glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
+
+				const glm::vec3 postition = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
+
+				glm::mat4 transformMatrix = transform.WorldTransformMatrix *
+											glm::translate(glm::mat4(1.0f), postition) * 
+											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
+											glm::scale(glm::mat4(1.0f), size);
+
+				/*const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
 
 				const glm::vec3 postition = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
 
 				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), postition) *
 					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
-					glm::scale(glm::mat4(1.0f), size);
+					glm::scale(glm::mat4(1.0f), size);*/
 
 				SubmitDebugRectangle(transformMatrix, color, thickness);
 			}
@@ -132,7 +141,9 @@ namespace TerranEngine
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = transform.Scale * (circleCollider.Radius * 2.0f);
+				const glm::vec3 size = { (transform.Scale.x + transform.Scale.y) * (circleCollider.Radius), 
+										 (transform.Scale.x + transform.Scale.y) * (circleCollider.Radius), 1.0f };
+				 
 				const glm::vec3 position = { transform.Position.x + circleCollider.Offset.x, transform.Position.y + circleCollider.Offset.y, 1.0f };
 
 				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) *

@@ -2,7 +2,6 @@
 #include "PhysicsUtils.h"
 #include "Physics.h"
 
-namespace TerranEngine 
+namespace TerranEngine::PhysicsUtils
 {
 }
-

@@ -602,9 +602,8 @@ catch(const std::exception& ex)\
 						if (!scene->FindEntityWithUUID(UUID::FromString(id)))
 							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
 
-						Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
-
-						entity.AddChild(e);
+						Entity child = scene->FindEntityWithUUID(UUID::FromString(id));
+						child.SetParent(entity);
 					}
 				}
 				if (jRelation["Parent"] != "null")

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Core/Assert.h"
+
 #include "Scene/Entity.h"
 #include "Scene/SceneManager.h"
 
-#include <Core/Assert.h>
+#include <glm/glm.hpp>
+
 #include <box2d/box2d.h>
-
-
 
 // NOTE: to be included only in .cpp files
 namespace TerranEngine 
@@ -32,4 +33,3 @@ namespace TerranEngine
 		}
 	}
 }
-

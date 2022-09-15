@@ -7,18 +7,23 @@
 
 #include "Graphics/BatchRenderer2D.h"
 
-#include "Systems/TransformSystem.h"
 #include "Systems/SceneRenderer.h"
 
 #include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptCache.h"
+
+#include "Physics/Physics.h"
+#include "Physics/PhysicsBody.h"
 
 #include "Project/Project.h"
 
-#include "Physics/Physics.h"
-#include "Scripting/ScriptCache.h"
-
 #include "Utils/Debug/Profiler.h"
-#include <Physics/PhysicsBody.h>
+#include "Math/Math.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 namespace TerranEngine 
 {
@@ -83,6 +88,7 @@ namespace TerranEngine
 		
 		m_EntityMap[uuid] = e;
 
+		SortEntities();
 		return entity;
 	}
 
@@ -112,6 +118,8 @@ namespace TerranEngine
 			m_EntityMap.erase(entityIt);
 
 		m_Registry.destroy(entity);
+
+		SortEntities();
 	}
 
 	void Scene::StartRuntime()
@@ -146,14 +154,10 @@ namespace TerranEngine
 	void Scene::Update(Time time)
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
-		
+
+		UpdateTransformHierarchy();
+
         Physics2D::Update(time);
-
-		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.IsDirty && !rEntity.IsDirty; });
-
-		TransformSystem::SetContext(this);
-		TransformSystem::Update();
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 		for (auto e : scriptableComponentView)
@@ -166,11 +170,7 @@ namespace TerranEngine
 
 	void Scene::UpdateEditor()
 	{
-		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
-		{ return lEntity.IsDirty && !rEntity.IsDirty; });
-
-		TransformSystem::SetContext(this);
-		TransformSystem::Update();
+		UpdateTransformHierarchy();
 	}
 
 	void Scene::OnResize(float width, float height)
@@ -422,7 +422,6 @@ namespace TerranEngine
 		for (auto e : tagView)
 		{
 			Entity srcEntity(e, srcScene.get());
-
 			Entity dstEntity = scene->CreateEntityWithUUID(srcEntity.GetName(), srcEntity.GetID());
 		}
 
@@ -443,7 +442,92 @@ namespace TerranEngine
 			CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
+		scene->SortEntities();
+
 		return scene;
+	}
+
+	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform)
+	{
+		return glm::translate(glm::mat4(1.0f), transform.Position) *
+			glm::toMat4(glm::quat(transform.Rotation)) *
+			glm::scale(glm::mat4(1.0f), transform.Scale);
+	}
+
+	void Scene::UpdateTransformHierarchy()
+	{
+		TR_PROFILE_FUNCN("Scene::UpdateTransformHierarchy");
+
+		auto transformView = GetEntitiesWith<TransformComponent>();
+
+		for (auto e : transformView)
+		{
+			Entity entity(e, this);
+			Entity parent = entity.GetParent();
+
+			if ((entity.GetTransform().IsDirty))
+				UpdateEntityTransform(entity);
+			else if (parent && parent.GetTransform().IsDirty)
+				UpdateEntityTransform(parent);
+		}
+	}
+
+	void Scene::UpdateEntityTransform(Entity entity)
+	{
+		TransformComponent& tc = entity.GetComponent<TransformComponent>();
+
+		if (entity.HasParent())
+		{
+			glm::mat4 parentTransform = entity.GetParent().GetWorldMatrix();
+			tc.WorldTransformMatrix = CalculateTransformMatrix(tc) * parentTransform;
+			tc.LocalTransformMatrix = glm::inverse(parentTransform) * tc.WorldTransformMatrix;
+		}
+		else
+		{
+			tc.WorldTransformMatrix = CalculateTransformMatrix(tc);
+			tc.LocalTransformMatrix = tc.WorldTransformMatrix;
+		}
+
+		glm::quat rotationQuat = tc.Rotation;
+
+		tc.Forward = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 0.0f, 1.0f)));
+		tc.Up = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 1.0f, 0.0f)));
+		tc.Right = glm::normalize(glm::rotate(rotationQuat, glm::vec3(1.0f, 0.0f, 0.0f)));
+		tc.IsDirty = false;
+
+		for (size_t i = 0; i < entity.GetChildCount(); i++)
+		{
+			Entity currEntity = entity.GetChild(i);
+			currEntity.GetTransform().IsDirty = true;
+			UpdateEntityTransform(currEntity);
+		}
+	}
+
+	void Scene::ConvertToLocalSpace(Entity entity)
+	{
+		auto& tc = entity.GetComponent<TransformComponent>();
+
+		if (!entity.HasParent()) return;
+
+		glm::mat4 parentMat = entity.GetParent().GetWorldMatrix();
+		glm::mat4 transformMatrix = glm::inverse(parentMat) * tc.WorldTransformMatrix;
+
+		Math::Decompose(transformMatrix, tc.Position, tc.Rotation, tc.Scale);
+	}
+
+	void Scene::ConvertToWorldSpace(Entity entity)
+	{
+		auto& tc = entity.GetComponent<TransformComponent>();
+
+		if (!entity.HasParent()) return;
+
+		Math::Decompose(tc.WorldTransformMatrix, tc.Position, tc.Rotation, tc.Scale);
+	}
+
+	void Scene::SortEntities()
+	{
+		m_Registry.sort<TagComponent>([](const entt::entity& lEntity, const entt::entity& rEntity)
+			{ return lEntity < rEntity; });
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)

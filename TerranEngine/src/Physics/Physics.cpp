@@ -11,6 +11,8 @@
 
 #include "Scripting/ScriptEngine.h"
 
+#include "Math/Math.h"
+
 #include <Physics/PhysicsBody.h>
 #include <box2d/box2d.h>
 
@@ -58,6 +60,7 @@ namespace TerranEngine
 		s_State->PhysicsWorld = new b2World(b2Gravity);
 
 		s_State->PhysicsWorld->SetContactListener(&s_State->ContactListener);
+		s_State->PhysicsWorld->SetAutoClearForces(true);
 	}
 
 	void Physics2D::CleanUpPhysicsWorld()
@@ -140,10 +143,48 @@ namespace TerranEngine
 
 			Shared<PhysicsBody2D>& physicsBody = s_State->PhysicsBodies.at(entity.GetID());
 
+
+			if (physicsBody->GetSleepState() == PhysicsBodySleepState::Sleep) continue;
+
+			if (entity.HasParent()) 
+			{
+				Entity parent = entity.GetParent();
+				glm::vec3 position, rotation, scale;
+				Math::Decompose(parent.GetWorldMatrix(), position, rotation, scale);
+				b2Vec2 localPos = physicsBody->GetB2Body()->GetLocalPoint({ position.x, position.y } );
+				transform.Position.x = -localPos.x;
+				transform.Position.y = -localPos.y;
+				transform.IsDirty = true;
+
+				continue;
+			}
+
 			transform.Position.x = physicsBody->GetPosition().x;
 			transform.Position.y = physicsBody->GetPosition().y;
-			transform.Rotation.z = physicsBody->GetRotation();
 			transform.IsDirty = true;
+
+			//if(transform.Position.x != physicsBody->GetPosition().x 
+			//	|| transform.Position.y != physicsBody->GetPosition().y
+			//	|| transform.Rotation.z != physicsBody->GetRotation())
+			//{
+			//	if (entity.HasParent()) 
+			//	{
+			//		Entity parent = entity.GetParent();
+			//		Math::Decompose(parent.GetWorldMatrix(), worldPosition, worldRotation, scale);
+			//		b2Vec2 localPos = physicsBody->GetB2Body()->GetLocalPoint({ worldPosition.x, worldPosition.y } );
+			//		transform.Position.x = localPos.x;
+			//		transform.Position.y = localPos.y;
+			//	}
+			//	else 
+			//	{
+			//		transform.Position.x = physicsBody->GetPosition().x;
+			//		transform.Position.y = physicsBody->GetPosition().y;
+			//	}
+			//	//transform.Rotation.z = physicsBody->GetRotation();
+
+			//	transform.IsDirty = true;
+			//}
+
 		}
 	}
 

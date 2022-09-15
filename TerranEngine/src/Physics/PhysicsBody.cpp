@@ -5,7 +5,10 @@
 #include "Collider.h"
 #include "Physics.h"
 
-#include <Scene/Components.h>
+#include "Scene/Components.h"
+
+#include "Math/Math.h"
+
 #include <glm/gtx/transform.hpp>
 
 #include <box2d/box2d.h>
@@ -24,8 +27,15 @@ namespace TerranEngine
 
         b2BodyDef bodyDef;
 
-        bodyDef.position = { transform.Position.x, transform.Position.y };
-        bodyDef.angle = transform.Rotation.z;
+        glm::vec3 worldPosition = transform.Position;
+        glm::vec3 worldRotation = transform.Rotation;
+        glm::vec3 scale;
+
+        if (entity.HasParent()) 
+            Math::Decompose(transform.WorldTransformMatrix, worldPosition, worldRotation, scale);
+
+        bodyDef.position = { worldPosition.x, worldPosition.y };
+        bodyDef.angle = worldRotation.z;
         bodyDef.fixedRotation = rigidbody.FixedRotation;
         bodyDef.gravityScale = rigidbody.GravityScale;
         bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
@@ -80,6 +90,7 @@ namespace TerranEngine
         TR_ASSERT(m_Body, "Physics Body is null");
         float angle = m_Body->GetAngle();
         m_Body->SetTransform({ position.x, position.y }, angle);
+        SetSleepState(PhysicsBodySleepState::Awake);
     }
 
     float PhysicsBody2D::GetRotation() const
@@ -93,8 +104,10 @@ namespace TerranEngine
     void PhysicsBody2D::SetRotation(float rotation)
     {
         TR_ASSERT(m_Body, "Physics Body is null");
+
         b2Vec2 position = m_Body->GetPosition();
         m_Body->SetTransform(position, rotation);
+        SetSleepState(PhysicsBodySleepState::Awake);
     }
 
     glm::vec2 PhysicsBody2D::GetLinearVelocity() const

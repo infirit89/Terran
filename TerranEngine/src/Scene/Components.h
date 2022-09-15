@@ -41,6 +41,8 @@ namespace TerranEngine
 
 		bool IsDirty = true;
 
+		bool IsWorldSpace = true;
+
 		glm::mat4 WorldTransformMatrix = glm::mat4(1.0f);
 		glm::mat4 LocalTransformMatrix = glm::mat4(1.0f);
 

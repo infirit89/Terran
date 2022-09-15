@@ -59,8 +59,16 @@ namespace TerranEngine
 		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
+
+		void UpdateTransformHierarchy();
+		void UpdateEntityTransform(Entity entity);
+
+		void ConvertToLocalSpace(Entity entity);
+		void ConvertToWorldSpace(Entity entity);
 	
 	private:
+		void SortEntities();
+
         // scripting components
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
