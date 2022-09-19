@@ -433,12 +433,12 @@ namespace TerranEditor
 					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 					Shared<CapsuleCollider2D> capsuleCollider;
 
-					if (isRuntime)
+					if (isRuntime && physicsBody)
 						capsuleCollider = DynamicCast<CapsuleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
 
 					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
 					{
-						if (isRuntime)
+						if (capsuleCollider)
 							capsuleCollider->SetOffset(ccComponent.Offset);
 					}
 
@@ -446,7 +446,7 @@ namespace TerranEditor
 					{
                         ccComponent.Size = glm::max({ 0.0f, 0.0f }, ccComponent.Size);
 
-						if (isRuntime)
+						if (capsuleCollider)
 							capsuleCollider->SetSize(ccComponent.Size);
 					}
 
@@ -459,7 +459,7 @@ namespace TerranEditor
 
 					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
 					{
-						if (isRuntime)
+						if (capsuleCollider)
 							capsuleCollider->SetSensor(ccComponent.IsSensor);
 					}
 				});

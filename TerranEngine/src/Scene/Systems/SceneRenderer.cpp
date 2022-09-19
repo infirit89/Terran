@@ -7,6 +7,8 @@
 
 #include "Graphics/BatchRenderer2D.h"
 
+#include "Math/Math.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace TerranEngine 
@@ -106,9 +108,9 @@ namespace TerranEngine
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
+				glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
 
-				const glm::vec3 postition = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
+				glm::vec3 postition = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
 
 				glm::mat4 worldTransformMatrix = transform.WorldSpaceTransformMatrix;
 				glm::mat4 transformMatrix = worldTransformMatrix *
@@ -141,20 +143,22 @@ namespace TerranEngine
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 				const float thickness = 0.02f;
 
-				const glm::vec3 size = { (transform.Scale.x + transform.Scale.y) * (circleCollider.Radius), 
-										 (transform.Scale.x + transform.Scale.y) * (circleCollider.Radius), 1.0f };
-				 
-				const glm::vec3 position = { transform.Position.x + circleCollider.Offset.x, transform.Position.y + circleCollider.Offset.y, 1.0f };
+				glm::vec3 position, rotation, scale;
 
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) *
-					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
-					glm::scale(glm::mat4(1.0f), size);
+				Math::Decompose(transform.WorldSpaceTransformMatrix, position, rotation, scale);
 
-				CircleRendererComponent circleRenderer;
-				circleRenderer.Color = color;
-				circleRenderer.Thickness = thickness;
+				// choose which component of the scale to apply
+				float scalingFactor = scale.x > scale.y ? scale.x : scale.y;
 
-				SubmitCircle(circleRenderer, transformMatrix, -1);
+				glm::vec3 colliderSize = scalingFactor * glm::vec3(circleCollider.Radius * 2.0f);
+				glm::vec3 colliderPosition = { position.x + circleCollider.Offset.x, 
+												position.y + circleCollider.Offset.y, 1.0f };
+
+				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), colliderPosition) * 
+											glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
+											glm::scale(glm::mat4(1.0f), colliderSize);
+
+				BatchRenderer2D::Get()->AddCircle(transformMatrix, color, thickness, -1);
 			}
 		}
 
@@ -173,18 +177,14 @@ namespace TerranEngine
 				const float thickness = 0.02f;
 
 				float ySize = capsuleCollider.Size.x > capsuleCollider.Size.y ? capsuleCollider.Size.x : capsuleCollider.Size.y;
-				const glm::vec3 size = { transform.Scale.x * capsuleCollider.Size.x, transform.Scale.y * ySize, 1.0f };
-				const glm::vec3 position = { transform.Position.x + capsuleCollider.Offset.x, transform.Position.y + capsuleCollider.Offset.y, 1.0f };
+				const glm::vec3 size = { capsuleCollider.Size.x, ySize, 1.0f };
+				const glm::vec3 position = { capsuleCollider.Offset.x, capsuleCollider.Offset.y, 1.0f };
 
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), position) *
-					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
-					glm::scale(glm::mat4(1.0f), size);
+				glm::mat4 transformMatrix = transform.WorldSpaceTransformMatrix * 
+											glm::translate(glm::mat4(1.0f), position) *
+											glm::scale(glm::mat4(1.0f), size);
 
-				CircleRendererComponent circleRenderer;
-				circleRenderer.Color = color;
-				circleRenderer.Thickness = thickness;
-
-				SubmitCircle(circleRenderer, transformMatrix, -1);
+				BatchRenderer2D::Get()->AddCircle(transformMatrix, color, thickness, -1);
 			}
 		}
 	}

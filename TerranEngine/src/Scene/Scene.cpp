@@ -395,6 +395,7 @@ namespace TerranEngine
 		CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{

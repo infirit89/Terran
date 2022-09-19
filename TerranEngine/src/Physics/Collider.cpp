@@ -1,5 +1,3 @@
-#include "box2d/b2_circle_shape.h"
-#include "box2d/b2_polygon_shape.h"
 #include "trpch.h"
 
 #include "Collider.h"
@@ -8,16 +6,19 @@
 #include "PhysicsUtils.h"
 #include "PhysicsLayerManager.h"
 
-#include <Core/Assert.h>
-#include <Core/Log.h>
-#include <Scene/Components.h>
-#include <Scene/Entity.h>
+#include "Core/Assert.h"
+#include "Core/Log.h"
+
+#include "Scene/Components.h"
+#include "Scene/Entity.h"
+
+#include "Math/Math.h"
+
 #include <float.h>
+
 #include <glm/gtx/transform.hpp>
 
-#include <box2d/b2_fixture.h>
 #include <box2d/box2d.h>
-#include <box2d/b2_common.h>
 
 namespace TerranEngine 
 {
@@ -380,7 +381,12 @@ namespace TerranEngine
 		auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 
 		auto& transform = entity.GetTransform();
-		float radius = ((transform.Scale.x + transform.Scale.y) * 0.5f) * colliderComponent.Radius;
+
+		glm::vec3 position, rotation, scale;
+		Math::Decompose(transform.WorldSpaceTransformMatrix, position, rotation, scale);
+
+		float scalingFactor = scale.x > scale.y ? scale.x : scale.y;
+		float radius = scalingFactor * colliderComponent.Radius;
 		radius = std::max(0.0f, radius);
 
 		m_CircleShape->m_p.Set(colliderComponent.Offset.x, colliderComponent.Offset.y);

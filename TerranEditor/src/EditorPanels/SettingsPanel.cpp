@@ -47,7 +47,6 @@ namespace TerranEditor
 
                 if(UI::DrawBoolControl(layerNames[row], canLayersCollide))
                     PhysicsLayerManager::SetLayerMask(m_LayerIndex, row, canLayersCollide);
-
             }
 
             ImGui::EndTable();
