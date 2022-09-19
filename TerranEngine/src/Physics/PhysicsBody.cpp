@@ -27,15 +27,18 @@ namespace TerranEngine
 
         b2BodyDef bodyDef;
 
-        glm::vec3 worldPosition = transform.Position;
-        glm::vec3 worldRotation = transform.Rotation;
+        glm::vec3 position = transform.Position;
+        glm::vec3 rotation = transform.Rotation;
         glm::vec3 scale;
 
         if (entity.HasParent()) 
-            Math::Decompose(transform.WorldTransformMatrix, worldPosition, worldRotation, scale);
+        {
+            glm::mat4 worldTransformMatrix = entity.GetTransform().WorldSpaceTransformMatrix;
+            Math::Decompose(worldTransformMatrix, position, rotation, scale);
+        }
 
-        bodyDef.position = { worldPosition.x, worldPosition.y };
-        bodyDef.angle = worldRotation.z;
+        bodyDef.position = { position.x, position.y };
+        bodyDef.angle = rotation.z;
         bodyDef.fixedRotation = rigidbody.FixedRotation;
         bodyDef.gravityScale = rigidbody.GravityScale;
         bodyDef.userData.pointer = (uintptr_t)id.GetRaw();

@@ -7,7 +7,7 @@
 
 #include "Scripting/ScriptCache.h"
 
-#include "Physics/LayerManager.h"
+#include "Physics/PhysicsLayerManager.h"
 
 #include "UI/UI.h"
 #include "EditorResources.h"

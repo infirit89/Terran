@@ -20,7 +20,6 @@ namespace TerranEngine
 
 		bool DesirializeJson(const std::string& data);
 	private:
-
 		Shared<Scene> m_Scene;
 	};
 }

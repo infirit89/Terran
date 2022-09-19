@@ -6,7 +6,7 @@
 #include "Physics.h"
 #include "PhysicsBody.h"
 #include "PhysicsUtils.h"
-#include "LayerManager.h"
+#include "PhysicsLayerManager.h"
 
 #include <Core/Assert.h>
 #include <Core/Log.h>

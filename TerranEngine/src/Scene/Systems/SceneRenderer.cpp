@@ -53,10 +53,10 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
 	}
 
-	void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer)
+	/*void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer)
 	{
 		BatchRenderer2D::Get()->AddLine(lineRenderer.Points, lineRenderer.PointCount, lineRenderer.Color, lineRenderer.Thickness);
-	}
+	}*/
 
 	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform)
 	{
@@ -110,9 +110,9 @@ namespace TerranEngine
 
 				const glm::vec3 postition = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
 
-				glm::mat4 transformMatrix = transform.WorldTransformMatrix *
-											glm::translate(glm::mat4(1.0f), postition) * 
-											glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
+				glm::mat4 worldTransformMatrix = transform.WorldSpaceTransformMatrix;
+				glm::mat4 transformMatrix = worldTransformMatrix *
+											glm::translate(glm::mat4(1.0f), postition) *
 											glm::scale(glm::mat4(1.0f), size);
 
 				/*const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };

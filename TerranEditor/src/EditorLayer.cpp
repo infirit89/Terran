@@ -211,8 +211,8 @@ namespace TerranEditor
 	
 	bool EditorLayer::OnKeyPressedEvent(KeyPressedEvent& kEvent)
 	{
-		bool shiftPressed = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
-		bool ctrlPressed = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shiftPressed = Input::IsKeyDown(Key::LeftShift) || Input::IsKeyDown(Key::RightShift);
+		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyDown(Key::RightControl);
 
 		if (kEvent.GetRepeatCount() > 0)
 			return false;

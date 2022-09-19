@@ -6,7 +6,6 @@
 
 namespace TerranEngine 
 {
-#define TR_MAX_LAYER_COUNT 16
     struct PhysicsLayer
     {
         uint16_t Mask = 0xFFFF;
@@ -15,7 +14,8 @@ namespace TerranEngine
 
     class PhysicsLayerManager
     {
-        using Layers = std::array<PhysicsLayer, TR_MAX_LAYER_COUNT>;
+        static constexpr size_t s_MaxLayerCount = 16;
+        using Layers = std::array<PhysicsLayer, s_MaxLayerCount>;
     public:
         static void SetLayerName(int index, const std::string& layerName);
 
@@ -29,6 +29,8 @@ namespace TerranEngine
         
         static bool CanLayersCollide(int layer1, int layer2);
         static void SetLayerMask(int layer1, int layer2, bool canCollide);
+
+        static constexpr size_t GetMaxLayerCount() { return s_MaxLayerCount; }
 
     private:
         static Layers m_Layers;

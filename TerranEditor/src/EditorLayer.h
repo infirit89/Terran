@@ -34,7 +34,7 @@ namespace TerranEditor
 
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
-
+		
 		void SaveSceneAs();
 		void NewScene();
 

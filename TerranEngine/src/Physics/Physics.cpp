@@ -3,7 +3,7 @@
 #include "Physics.h"
 #include "ContatctListener.h"
 #include "WorldRayCastCallback.h"
-#include "LayerManager.h"
+#include "PhysicsLayerManager.h"
 
 #include "Core/Settings.h"
 
@@ -143,17 +143,19 @@ namespace TerranEngine
 
 			Shared<PhysicsBody2D>& physicsBody = s_State->PhysicsBodies.at(entity.GetID());
 
-
 			if (physicsBody->GetSleepState() == PhysicsBodySleepState::Sleep) continue;
 
 			if (entity.HasParent()) 
 			{
 				Entity parent = entity.GetParent();
-				glm::vec3 position, rotation, scale;
-				Math::Decompose(parent.GetWorldMatrix(), position, rotation, scale);
-				b2Vec2 localPos = physicsBody->GetB2Body()->GetLocalPoint({ position.x, position.y } );
-				transform.Position.x = -localPos.x;
-				transform.Position.y = -localPos.y;
+				Shared<PhysicsBody2D> parentBody = GetPhysicsBody(parent);
+
+				b2Transform localTransform = b2MulT(parentBody->GetB2Body()->GetTransform(), 
+													physicsBody->GetB2Body()->GetTransform());
+
+				transform.Position.x = localTransform.p.x;
+				transform.Position.y = localTransform.p.y;
+				transform.Rotation.z = localTransform.q.GetAngle();
 				transform.IsDirty = true;
 
 				continue;
@@ -161,30 +163,8 @@ namespace TerranEngine
 
 			transform.Position.x = physicsBody->GetPosition().x;
 			transform.Position.y = physicsBody->GetPosition().y;
+			transform.Rotation.z = physicsBody->GetRotation();
 			transform.IsDirty = true;
-
-			//if(transform.Position.x != physicsBody->GetPosition().x 
-			//	|| transform.Position.y != physicsBody->GetPosition().y
-			//	|| transform.Rotation.z != physicsBody->GetRotation())
-			//{
-			//	if (entity.HasParent()) 
-			//	{
-			//		Entity parent = entity.GetParent();
-			//		Math::Decompose(parent.GetWorldMatrix(), worldPosition, worldRotation, scale);
-			//		b2Vec2 localPos = physicsBody->GetB2Body()->GetLocalPoint({ worldPosition.x, worldPosition.y } );
-			//		transform.Position.x = localPos.x;
-			//		transform.Position.y = localPos.y;
-			//	}
-			//	else 
-			//	{
-			//		transform.Position.x = physicsBody->GetPosition().x;
-			//		transform.Position.y = physicsBody->GetPosition().y;
-			//	}
-			//	//transform.Rotation.z = physicsBody->GetRotation();
-
-			//	transform.IsDirty = true;
-			//}
-
 		}
 	}
 

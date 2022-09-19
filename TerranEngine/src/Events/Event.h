@@ -13,7 +13,8 @@ namespace TerranEngine
 		KeyPressed, KeyReleased,
 		MouseMoved, MouseScrolled,
 		MouseButtonPressed, MouseButtonReleased,
-		WindowClosed, WindowResized
+		WindowClosed, WindowResized,
+		JoystickChanged
 	};
 
 	enum EventCategory
@@ -21,7 +22,8 @@ namespace TerranEngine
 		None = 0,
 		EventCategoryApplication = 1 << 0,
 		EventCategoryKeyboard = 1 << 1,
-		EventCategoryMouse = 1 << 2
+		EventCategoryMouse = 1 << 2,
+		EventCategoryJoystick = 1 << 3
 	};
 
 	class Event 

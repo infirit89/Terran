@@ -1,0 +1,112 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity 1412e8a3-6093-47ad-84c7-a27bff5d2d48": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "1412e8a3-6093-47ad-84c7-a27bff5d2d48"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity f1acb7c5-7694-4df4-a6d8-b40cd3714881": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "f1acb7c5-7694-4df4-a6d8-b40cd3714881"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -1.0623235702514648,
+                    "Y": 0.3116143047809601,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.7668274641036987
+                },
+                "Scale": {
+                    "X": 0.9999997019767761,
+                    "Y": 0.9999997019767761,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 1,
+                "Children": [
+                    "cf5e1df8-4e1b-4007-9caa-a070824d0f9b"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity cf5e1df8-4e1b-4007-9caa-a070824d0f9b": {
+            "TagComponent": {
+                "Tag": "Entity Copy",
+                "ID": "cf5e1df8-4e1b-4007-9caa-a070824d0f9b"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 3.6595418453216553,
+                    "Y": -1.4286575317382813,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.000001072883606,
+                    "Y": 1.000001072883606,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "f1acb7c5-7694-4df4-a6d8-b40cd3714881"
+            }
+        }
+    }
+}

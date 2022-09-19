@@ -107,7 +107,7 @@ namespace TerranEditor
 
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
-
+			
 			if (sceneState == SceneState::Edit) 
 			{
 				// Gizmos
@@ -126,7 +126,7 @@ namespace TerranEditor
 
 					auto& tc = selectedEntity.GetComponent<TransformComponent>();
 				
-					glm::mat4 transformMatrix = tc.WorldTransformMatrix;
+					glm::mat4 transformMatrix = tc.WorldSpaceTransformMatrix;
 
 					m_GizmoMode = selectedEntity.HasParent() ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
@@ -135,26 +135,24 @@ namespace TerranEditor
 					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
 						gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
 
-					usingGizmo = ImGuizmo::IsUsing();
-
-					if (usingGizmo)
+					if (ImGuizmo::IsUsing())
 					{
 						glm::vec3 position, rotation, scale;
 
-						if (selectedEntity.HasParent()) 
+						Entity parent = selectedEntity.GetParent();
+						if (parent) 
 						{
-							glm::mat4 parentMat = selectedEntity.GetParent().GetWorldMatrix();
+							glm::mat4 parentMat = parent.GetTransform().WorldSpaceTransformMatrix;
 							transformMatrix = glm::inverse(parentMat) * transformMatrix;
 						}
 
-						if (Math::Decompose(transformMatrix, position, rotation, scale))
-						{
-							tc.Position = position;
-							tc.Scale = scale;
-							tc.Rotation = rotation;
+						Math::Decompose(transformMatrix, position, rotation, scale);
 
-							tc.IsDirty = true;
-						}
+						glm::vec3 deltaRotation = rotation - tc.Rotation;
+						tc.Rotation += deltaRotation; 
+						tc.Position = position;
+						tc.Scale = scale;
+						tc.IsDirty = true;
 					}
 				}
 
@@ -164,7 +162,7 @@ namespace TerranEditor
 
 				mousePos.y = m_ViewportSize.y - mousePos.y;
 
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !usingGizmo)
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGuizmo::IsUsing())
 				{
 					int mouseX = (int)mousePos.x;
 					int mouseY = (int)mousePos.y;

@@ -87,8 +87,8 @@ namespace TerranEditor
 
 	bool SceneHierarchyPanel::OnKeyPressed(KeyPressedEvent& e)
 	{
-		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
-		bool shiftPressed = Input::IsKeyDown(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyDown(Key::RightControl);
+		bool shiftPressed = Input::IsKeyDown(Key::LeftShift) || Input::IsKeyDown(Key::RightShift);
 
 		Entity selectedEntity = SelectionManager::GetSelected();
 
@@ -165,15 +165,7 @@ namespace TerranEditor
 				Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
 
 				if (receivedEntity)
-				{
-					if (!receivedEntity.IsChildOf(entity) && receivedEntity != entity.GetParent()) 
-					{
-						if (receivedEntity.HasParent())
-							receivedEntity.Unparent();
-
-						receivedEntity.SetParent(entity);
-					}
-				}
+					receivedEntity.SetParent(entity);
 			}
 
 			ImGui::EndDragDropTarget();
@@ -226,10 +218,13 @@ namespace TerranEditor
 				{
 					auto currEntity = m_Scene->FindEntityWithUUID(eID);
 
-					if (currEntity)
+					TR_ASSERT(currEntity, "Not a valid child");
+
+					DrawEntityNode(currEntity);
+					/*if (currEntity)
 						DrawEntityNode(currEntity);
 					else
-						TR_ERROR("Not a valid child");
+						TR_ERROR("Not a valid child");*/
 				}
 			}
 			

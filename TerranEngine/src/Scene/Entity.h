@@ -72,8 +72,6 @@ namespace TerranEngine
 		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); }
 		inline const TransformComponent& GetTransform() const		{ return GetComponent<TransformComponent>(); }
 		inline bool Valid() const									{ return m_Scene->m_Registry.valid(m_Handle); }
-		inline glm::mat4& GetWorldMatrix()							{ return GetTransform().WorldTransformMatrix; }
-		inline const glm::mat4& GetWorldMatrix() const				{ return GetTransform().WorldTransformMatrix; }
 		inline std::string& GetName()								{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
 		inline const std::string& GetName() const					{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
 
@@ -117,22 +115,7 @@ namespace TerranEngine
 			return m_Scene->FindEntityWithUUID(GetParentID());
 		}
 
-		void SetParent(Entity parent) 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				 AddComponent<RelationshipComponent>();
-
-			if (!parent.HasComponent<RelationshipComponent>())
-				parent.AddComponent<RelationshipComponent>();
-
-			auto& relComp = GetComponent<RelationshipComponent>();
-			relComp.ParentID = parent.GetID();
-			parent.GetChildren().emplace_back(GetID());
-
-			m_Scene->ConvertToLocalSpace(*this);
-		}
-
-		bool IsChildOf(Entity entity) 
+		bool IsChildOf(Entity entity)
 		{
 			if (!HasComponent<RelationshipComponent>())
 				return false;
@@ -141,6 +124,27 @@ namespace TerranEngine
 				return false;
 
 			return GetParentID() == entity.GetID();
+		}
+
+		void SetParent(Entity parent, bool forceTransformUpdate = false) 
+		{
+			if (!HasComponent<RelationshipComponent>())
+				 AddComponent<RelationshipComponent>();
+
+			if (!parent.HasComponent<RelationshipComponent>())
+				parent.AddComponent<RelationshipComponent>();
+
+			if (IsChildOf(parent)) return;
+			if (parent.IsChildOf(*this)) return;
+
+			if (HasParent())
+				Unparent();
+
+			auto& relComp = GetComponent<RelationshipComponent>();
+			relComp.ParentID = parent.GetID();
+			parent.GetChildren().emplace_back(GetID());
+
+			m_Scene->ConvertToLocalSpace(*this);
 		}
 
 		void Unparent() 
@@ -190,7 +194,7 @@ namespace TerranEngine
 
 		void RemoveChild(Entity child, bool removeRelationship) 
 		{
-			Unparent();
+			child.Unparent();
 		}
 
 		void Reparent(Entity previousParent, Entity newParent) 

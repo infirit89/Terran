@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Scene/Entity.h"
-#include "LayerManager.h"
+#include "PhysicsLayerManager.h"
 
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_world_callbacks.h>

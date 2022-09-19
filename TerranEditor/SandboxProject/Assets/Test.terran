@@ -1,0 +1,36 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity fc4af162-418c-4f47-a1a1-d1db57eb4bbe": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "fc4af162-418c-4f47-a1a1-d1db57eb4bbe"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

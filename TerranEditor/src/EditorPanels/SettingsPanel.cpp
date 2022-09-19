@@ -2,7 +2,7 @@
 
 #include "UI/UI.h"
 
-#include "Physics/LayerManager.h"
+#include "Physics/PhysicsLayerManager.h"
 
 #include "Project/Project.h"
 #include "spdlog/fmt/bundled/core.h"
@@ -56,4 +56,3 @@ namespace TerranEditor
         ImGui::End();
     }
 }
-

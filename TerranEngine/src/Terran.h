@@ -61,7 +61,7 @@
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
 #include "Physics/Collider.h"
-#include "Physics/LayerManager.h"
+#include "Physics/PhysicsLayerManager.h"
 
 /* ---- Project ---- */
 #include "Project/Project.h"

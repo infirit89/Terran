@@ -1,5 +1,5 @@
 #include "trpch.h"
-#include "LayerManager.h"
+#include "PhysicsLayerManager.h"
 
 namespace TerranEngine
 {
@@ -15,7 +15,7 @@ namespace TerranEngine
         // TODO: maybe cache?
         std::vector<const char*> layerNames;
 
-        for (int i = 0; i < TR_MAX_LAYER_COUNT; i++)
+        for (int i = 0; i < s_MaxLayerCount; i++)
         {
             PhysicsLayer& layer = GetLayer(i);
             layerNames.push_back(layer.Name.c_str());

@@ -20,6 +20,9 @@
 
 using json = nlohmann::ordered_json;
 
+// NOTE: this is not the final version of the scene serializer, this is a poc
+// NOTE: think about using yaml instead of json, because json has some limitation that i dont really like
+
 namespace TerranEngine 
 {
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
@@ -603,7 +606,7 @@ catch(const std::exception& ex)\
 							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
 
 						Entity child = scene->FindEntityWithUUID(UUID::FromString(id));
-						child.SetParent(entity);
+						child.SetParent(entity, true);
 					}
 				}
 				if (jRelation["Parent"] != "null")

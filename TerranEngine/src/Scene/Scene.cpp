@@ -137,7 +137,6 @@ namespace TerranEngine
 		for (auto e : scriptbleComponentView)
 		{
 			Entity entity(e, this);
-			//ScriptEngine::InitializeScriptable(entity);
 			ScriptEngine::OnStart(entity);
 		}
 	}
@@ -199,7 +198,7 @@ namespace TerranEngine
 			sceneRenderer->SetClearColor(backgroundColor);
 
 			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
-			glm::mat4& cameraTransform = primaryCamera.GetWorldMatrix();
+			glm::mat4& cameraTransform = primaryCamera.GetTransform().WorldSpaceTransformMatrix;
 
 			sceneRenderer->BeginScene(camera, cameraTransform, true);
 			
@@ -210,8 +209,9 @@ namespace TerranEngine
 				{
 					Entity entity(e, this);
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+					auto& transform = entity.GetTransform();
 				
-					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
+					sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (int)((uint32_t)entity));
 				}
 			}
 
@@ -222,8 +222,9 @@ namespace TerranEngine
 				{
 					Entity entity(e, this);
 					auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
+					auto& transform = entity.GetTransform();
 
-					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix(), (int)(uint32_t)(entity));
+					sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (int)(uint32_t)(entity));
 				}
 			}
 
@@ -234,8 +235,9 @@ namespace TerranEngine
 				{
 					Entity entity(e, this);
 					auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+					auto& transform = entity.GetTransform();
 
-					sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+					sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix);
 				}
 			}
 
@@ -257,8 +259,10 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
+				sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, 
+											(int)((uint32_t)entity));
 			}
 		}
 
@@ -269,21 +273,22 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
+				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix(), (int)(uint32_t)entity);
+				sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (int)(uint32_t)entity);
 			}
 		}
 
 		// submit lines
 		{
-			auto lineRendererView = m_Registry.view<LineRendererComponent>();
+			/*auto lineRendererView = m_Registry.view<LineRendererComponent>();
 			for (auto e : lineRendererView)
 			{
 				Entity entity(e, this);
 				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
 
 				sceneRenderer->SubmitLine(lineRenderer);
-			}
+			}*/
 		}
 
 		// submit text
@@ -293,8 +298,9 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 				auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+				sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix);
 			}
 		}
 
@@ -461,14 +467,12 @@ namespace TerranEngine
 		auto transformView = GetEntitiesWith<TransformComponent>();
 
 		for (auto e : transformView)
-		{
+		{ 
 			Entity entity(e, this);
-			Entity parent = entity.GetParent();
-
-			if ((entity.GetTransform().IsDirty))
+			auto& transform = entity.GetTransform();
+			
+			if (!entity.HasParent())
 				UpdateEntityTransform(entity);
-			else if (parent && parent.GetTransform().IsDirty)
-				UpdateEntityTransform(parent);
 		}
 	}
 
@@ -476,31 +480,39 @@ namespace TerranEngine
 	{
 		TransformComponent& tc = entity.GetComponent<TransformComponent>();
 
-		if (entity.HasParent())
+		if (tc.IsDirty) 
 		{
-			glm::mat4 parentTransform = entity.GetParent().GetWorldMatrix();
-			tc.WorldTransformMatrix = CalculateTransformMatrix(tc) * parentTransform;
-			tc.LocalTransformMatrix = glm::inverse(parentTransform) * tc.WorldTransformMatrix;
-		}
-		else
-		{
-			tc.WorldTransformMatrix = CalculateTransformMatrix(tc);
-			tc.LocalTransformMatrix = tc.WorldTransformMatrix;
-		}
+			Entity parent = entity.GetParent();
+			if (parent)
+			{
+				glm::mat4 parentTransform = parent.GetTransform().WorldSpaceTransformMatrix;
+				tc.WorldSpaceTransformMatrix = parentTransform * CalculateTransformMatrix(tc);
+				tc.LocalSpaceTransformMatrix = glm::inverse(parentTransform) * tc.WorldSpaceTransformMatrix;
+			}
+			else
+			{
+				tc.WorldSpaceTransformMatrix = CalculateTransformMatrix(tc);
+				tc.LocalSpaceTransformMatrix = tc.WorldSpaceTransformMatrix;
+			}
 
-		glm::quat rotationQuat = tc.Rotation;
+			glm::quat rotation = tc.Rotation;
 
-		tc.Forward = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 0.0f, 1.0f)));
-		tc.Up = glm::normalize(glm::rotate(rotationQuat, glm::vec3(0.0f, 1.0f, 0.0f)));
-		tc.Right = glm::normalize(glm::rotate(rotationQuat, glm::vec3(1.0f, 0.0f, 0.0f)));
-		tc.IsDirty = false;
+			tc.Forward = glm::normalize(glm::rotate(rotation, glm::vec3(0.0f, 0.0f, 1.0f)));
+			tc.Up = glm::normalize(glm::rotate(rotation, glm::vec3(0.0f, 1.0f, 0.0f)));
+			tc.Right = glm::normalize(glm::rotate(rotation, glm::vec3(1.0f, 0.0f, 0.0f)));
+		}
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{
 			Entity currEntity = entity.GetChild(i);
-			currEntity.GetTransform().IsDirty = true;
+
+			if(tc.IsDirty)
+				currEntity.GetTransform().IsDirty = true;
+
 			UpdateEntityTransform(currEntity);
 		}
+
+		tc.IsDirty = false;
 	}
 
 	void Scene::ConvertToLocalSpace(Entity entity)
@@ -509,10 +521,21 @@ namespace TerranEngine
 
 		if (!entity.HasParent()) return;
 
-		glm::mat4 parentMat = entity.GetParent().GetWorldMatrix();
-		glm::mat4 transformMatrix = glm::inverse(parentMat) * tc.WorldTransformMatrix;
+		if (tc.IsDirty)
+			UpdateEntityTransform(entity);
 
-		Math::Decompose(transformMatrix, tc.Position, tc.Rotation, tc.Scale);
+		Entity parent = entity.GetParent();
+		auto& parentTransform = parent.GetTransform();
+
+		//NOTE: have to calculate it because at this point the local space
+		//		and world space transform matrices are equal
+		glm::mat4 parentWorldMatrix = parentTransform.WorldSpaceTransformMatrix;
+		glm::mat4 localMat = glm::inverse(parentWorldMatrix) * 
+										tc.WorldSpaceTransformMatrix;
+
+		Math::Decompose(localMat, tc.Position, tc.Rotation, tc.Scale);
+
+		tc.IsDirty = true;
 	}
 
 	void Scene::ConvertToWorldSpace(Entity entity)
@@ -521,7 +544,12 @@ namespace TerranEngine
 
 		if (!entity.HasParent()) return;
 
-		Math::Decompose(tc.WorldTransformMatrix, tc.Position, tc.Rotation, tc.Scale);
+		if (tc.IsDirty)
+			UpdateEntityTransform(entity);
+
+		Math::Decompose(tc.WorldSpaceTransformMatrix, tc.Position, tc.Rotation, tc.Scale);
+
+		tc.IsDirty = true;
 	}
 
 	void Scene::SortEntities()
@@ -637,4 +665,3 @@ namespace TerranEngine
         }
     }
 }
-
