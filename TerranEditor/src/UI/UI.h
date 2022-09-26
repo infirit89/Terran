@@ -127,7 +127,7 @@ namespace TerranEditor
 				{
                     if(strlen(stateNames[i]) == 0) continue;
 
-					const bool is_selected = (stateNames[i] == currentState);
+					const bool is_selected = (int)selected == i;
 					if (ImGui::Selectable(stateNames[i], is_selected))
 					{
 						selected = (TEnum)i;
@@ -143,6 +143,8 @@ namespace TerranEditor
 
 			return changed;
 		}
+
+		bool DrawComboBoxMulti(const std::string& label, const char** stateNames, uint32_t stateCount, bool* selectedElements);
 	}
 }
 

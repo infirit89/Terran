@@ -167,9 +167,17 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void CircleCollider2D_SetRadius(byte[] entityID, float radius);
-        #endregion
+		#endregion
 
-        #region Tag
+		#region Capsule Collider 2D
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CapsuleCollider2D_GetSize(byte[] entityID, out Vector2 size);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CapsuleCollider2D_SetSize(byte[] entityID, in Vector2 size);
+		#endregion
+
+		#region Tag
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern string Tag_GetName(byte[] entityID);
         [MethodImpl(MethodImplOptions.InternalCall)]

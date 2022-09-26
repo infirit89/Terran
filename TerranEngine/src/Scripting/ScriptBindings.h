@@ -107,6 +107,11 @@ namespace TerranEngine
 		static void CircleCollider2D_SetRadius(MonoArray* entityUUIDArr, float radius);
 		// ----------------------------
 
+		// ---- Capsule Collider 2D ----
+		static void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size);
+		static void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size);
+		// -----------------------------
+
         // ---- Layer Mask ----
         static MonoString* LayerMask_GetName(uint16_t layer);
         // --------------------
@@ -156,4 +161,3 @@ namespace TerranEngine
 		// -----------------------------------
 	}
 }
-

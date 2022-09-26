@@ -16,7 +16,7 @@ namespace SandboxProject
         public LayerMask LayerMask;
         protected override void Init()
         {
-            Log.Trace("brtuh");
+            //Log.Trace("brtuh");
             //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
             Log.Trace(LayerMask.Value);
         }

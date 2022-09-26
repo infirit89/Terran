@@ -100,7 +100,8 @@ namespace Terran
 		{
 			None = 0,
 			Box,
-			Circle
+			Circle,
+			Capsule
 		}
 		public Collider2D() { }
 
@@ -154,6 +155,23 @@ namespace Terran
 		{
 			get => Internal.CircleCollider2D_GetRadius(entity.ID);
 			set => Internal.CircleCollider2D_SetRadius(entity.ID, value);
+		}
+	}
+
+	public class CapsuleCollider2D : Collider2D
+	{
+		public CapsuleCollider2D() : base(ColliderType.Circle) { }
+
+		public Vector2 Size
+		{
+			get 
+			{
+				Vector2 size;
+				Internal.CapsuleCollider2D_GetSize(entity.ID, out size);
+				return size;
+			}
+
+			set => Internal.CapsuleCollider2D_SetSize(entity.ID, in value);
 		}
 	}
 

@@ -137,7 +137,12 @@ namespace TerranEngine
 
 				// ---- circle collider 2d ----
 				BIND_INTERNAL_FUNC(CircleCollider2D_GetRadius);
-				BIND_INTERNAL_FUNC(CircleCollider2D_SetRadius);
+				BIND_INTERNAL_FUNC(CapsuleCollider2D_SetSize);
+				// -----------------------------
+
+				// ---- capsule collider 2d ----
+				BIND_INTERNAL_FUNC(CapsuleCollider2D_GetSize);
+				BIND_INTERNAL_FUNC(BoxCollider2D_SetSize);
 				// -----------------------------
 
                 // ---- layer mask ----
@@ -972,7 +977,7 @@ namespace TerranEngine
 		{
 			float Radius = radius;
 			SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
-			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
@@ -986,6 +991,34 @@ namespace TerranEngine
 		}
 		// ----------------------------
         
+		// ---- Capsule Collider 2D ----
+		void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size) 
+		{
+			glm::vec2 Size = { 0.0f, 0.0f };
+			GET_COMPONENT_VAR(Size, entityUUIDArr, CapsuleCollider2DComponent);
+			size = Size;
+		}
+
+		void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size) 
+		{
+			glm::vec2 Size = size;
+			SET_COMPONENT_VAR(Size, entityUUIDArr, CapsuleCollider2DComponent);
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+			if (physicsBody) 
+			{
+				CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetCollider(ccComponent.ColliderIndex);
+
+				Shared<CapsuleCollider2D> capsuleCollider = DynamicCast<CapsuleCollider2D>(collider);
+
+				if (capsuleCollider)
+					capsuleCollider->SetSize(size);
+			}
+		}
+
+		// -----------------------------
+
         // ---- Layer Mask ----
         MonoString* LayerMask_GetName(uint16_t layer)
         {

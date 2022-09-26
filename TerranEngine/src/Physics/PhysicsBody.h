@@ -88,6 +88,7 @@ namespace TerranEngine
 		inline operator bool() const { return m_Body != nullptr; }
 
 		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
+		Shared<Collider2D> GetCollider(int index) { return m_Colliders.at(index); }
 
         void AttachColliders();
 

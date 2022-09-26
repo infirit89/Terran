@@ -100,14 +100,13 @@ namespace TerranEngine
 		return os;
 	}
 
-}
-#define TR_TRACE(...) ::TerranEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define TR_INFO(...) ::TerranEngine::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define TR_WARN(...) ::TerranEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define TR_ERROR(...) ::TerranEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
+	#define TR_TRACE(...) Log::GetCoreLogger()->trace(__VA_ARGS__)
+	#define TR_INFO(...) Log::GetCoreLogger()->info(__VA_ARGS__)
+	#define TR_WARN(...) Log::GetCoreLogger()->warn(__VA_ARGS__)
+	#define TR_ERROR(...) Log::GetCoreLogger()->error(__VA_ARGS__)
 
-// TODO: client log macros
-#define TR_CLIENT_TRACE(...) ::TerranEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define TR_CLIENT_INFO(...) ::TerranEngine::Log::GetClientLogger()->info(__VA_ARGS__)
-#define TR_CLIENT_WARN(...) ::TerranEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define TR_CLIENT_ERROR(...) ::TerranEngine::Log::GetClientLogger()->error(__VA_ARGS__)
+	#define TR_CLIENT_TRACE(...) Log::GetClientLogger()->trace(__VA_ARGS__)
+	#define TR_CLIENT_INFO(...) Log::GetClientLogger()->info(__VA_ARGS__)
+	#define TR_CLIENT_WARN(...) Log::GetClientLogger()->warn(__VA_ARGS__)
+	#define TR_CLIENT_ERROR(...) Log::GetClientLogger()->error(__VA_ARGS__)
+}

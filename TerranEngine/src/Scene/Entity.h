@@ -70,9 +70,7 @@ namespace TerranEngine
 		// base stuffs
 		inline const UUID& GetID() const							{ return GetComponent<TagComponent>().ID; }
 		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); }
-		inline const TransformComponent& GetTransform() const		{ return GetComponent<TransformComponent>(); }
 		inline bool Valid() const									{ return m_Scene->m_Registry.valid(m_Handle); }
-		inline std::string& GetName()								{ return GetComponent<TagComponent>().Name; }
 		inline const std::string& GetName() const					{ return GetComponent<TagComponent>().Name; }
 
 		// operators

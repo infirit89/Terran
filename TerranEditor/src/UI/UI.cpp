@@ -214,6 +214,76 @@ namespace TerranEditor
 			field->SetData<T>(value, handle);
 	}
 
+
+	// consider moving these 2 functions to the physics layer manager
+	static std::array<bool, PhysicsLayerManager::GetMaxLayerCount()> GetLayerIndicesFromMask(uint16_t layerMask) 
+	{
+		std::array<bool, PhysicsLayerManager::GetMaxLayerCount()> layerIndices({ false });
+
+		for (size_t i = 0; i < PhysicsLayerManager::GetMaxLayerCount(); i++)
+		{
+			if (((1 << i) & layerMask) != 0)
+				layerIndices[i] = true;
+		}
+
+		return layerIndices;
+	}
+
+	static uint16_t GetLayerMaskFromIndices(const std::array<bool, PhysicsLayerManager::GetMaxLayerCount()>& layerIndices) 
+	{
+		uint16_t layerMask = 0;
+		for (size_t i = 0; i < PhysicsLayerManager::GetMaxLayerCount(); i++)
+		{
+			if (layerIndices[i])
+				layerMask |= 1 << i;
+		}
+
+		return layerMask;
+	}
+
+	bool UI::DrawComboBoxMulti(const std::string& label, const char** stateNames, uint32_t stateCount, bool* selectedElements)
+	{
+		bool changed = false;
+
+		uint32_t selectedCount = 0;
+		uint32_t lastSelectedIndex = 0;
+
+		for (size_t i = 0; i < stateCount; i++)
+		{
+			if (selectedElements[i])
+			{
+				selectedCount++;
+				lastSelectedIndex = i;
+			}
+		}
+
+		const char* currentState = selectedCount >= 0 && selectedCount < 2 ? 
+									stateNames[(int32_t)lastSelectedIndex] : "Mixed";
+
+		UI::ScopedVarTable::TableInfo tableInfo;
+		UI::ScopedVarTable comboBoxTable(label, tableInfo);
+
+		std::string comboHash = "##" + label;
+		if (ImGui::BeginCombo(comboHash.c_str(), currentState))
+		{
+			for (int i = 0; i < stateCount; i++)
+			{
+				if (strlen(stateNames[i]) == 0) continue;
+
+				if (ImGui::Selectable(stateNames[i], selectedElements[i], ImGuiSelectableFlags_DontClosePopups))
+				{
+					selectedElements[i] = !(selectedElements[i]);
+					changed = true;
+				}
+
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return changed;
+	}
+
 	void UI::DrawScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
 	{
 		TR_ASSERT(handle.IsValid(), "Invalid handle");
@@ -424,9 +494,10 @@ namespace TerranEditor
 			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 			{
 				std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-				if (UI::DrawComboBox(fieldName, layerNames.data(), layerNames.size(), value)) 
+				std::array<bool, PhysicsLayerManager::GetMaxLayerCount()> layerIndices = GetLayerIndicesFromMask(value);
+				if (UI::DrawComboBoxMulti(fieldName, layerNames.data(), layerNames.size(), layerIndices.data())) 
 				{
-					value = 1 << value;
+					value = GetLayerMaskFromIndices(layerIndices);
 					return true;
 				}
 				
