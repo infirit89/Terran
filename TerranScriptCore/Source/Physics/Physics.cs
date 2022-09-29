@@ -30,7 +30,7 @@
         public static implicit operator bool(RayCastHitInfo2D hit) => !hit.Equals(default(RayCastHitInfo2D));
 	}
 
-	public class Physics2D 
+	public static class Physics2D 
 	{
 		public static RayCastHitInfo2D RayCast(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF)
 		{
@@ -55,6 +55,12 @@
 			}
 
 			return hitInfo;
+		}
+
+		public static RayCastHitInfo2D[] RayCastAll(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF) 
+		{
+			int hitCount = Internal.Physics2D_RayCastAll(origin, direction, length, layerMask);
+			return new RayCastHitInfo2D[hitCount];
 		}
 	}
 }

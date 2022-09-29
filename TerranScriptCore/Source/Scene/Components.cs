@@ -94,18 +94,20 @@ namespace Terran
 		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter(entity.ID, in force, (byte)forceMode);
 	}
 
+	public enum ColliderType2D : byte
+	{
+		None = 0,
+		Box,
+		Circle,
+		Capsule
+	}
+
 	public class Collider2D : Component
 	{
-		protected enum ColliderType : byte
-		{
-			None = 0,
-			Box,
-			Circle,
-			Capsule
-		}
+		
 		public Collider2D() { }
 
-		protected Collider2D(ColliderType type) 
+		protected Collider2D(ColliderType2D type) 
 		{
 			p_ColliderType = type;
 		}
@@ -127,12 +129,14 @@ namespace Terran
 			set => Internal.Collider2D_SetSensor(entity.ID, (byte)p_ColliderType, value);
 		}
 
-		protected ColliderType p_ColliderType = ColliderType.None;
+		public ColliderType2D ColliderType => p_ColliderType;
+
+		protected ColliderType2D p_ColliderType = ColliderType2D.None;
 	}
 
 	public class BoxCollider2D : Collider2D 
 	{
-		public BoxCollider2D() : base(ColliderType.Box) { }
+		public BoxCollider2D() : base(ColliderType2D.Box) { }
 
 		public Vector2 Size 
 		{
@@ -149,7 +153,7 @@ namespace Terran
 
     public class CircleCollider2D : Collider2D
     {
-		public CircleCollider2D() : base(ColliderType.Circle) { }
+		public CircleCollider2D() : base(ColliderType2D.Circle) { }
 
 		public float Radius 
 		{
@@ -160,7 +164,7 @@ namespace Terran
 
 	public class CapsuleCollider2D : Collider2D
 	{
-		public CapsuleCollider2D() : base(ColliderType.Circle) { }
+		public CapsuleCollider2D() : base(ColliderType2D.Circle) { }
 
 		public Vector2 Size
 		{

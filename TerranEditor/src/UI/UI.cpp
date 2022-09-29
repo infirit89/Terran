@@ -246,7 +246,7 @@ namespace TerranEditor
 		bool changed = false;
 
 		uint32_t selectedCount = 0;
-		uint32_t lastSelectedIndex = 0;
+		int lastSelectedIndex = -1;
 
 		for (size_t i = 0; i < stateCount; i++)
 		{
@@ -257,8 +257,12 @@ namespace TerranEditor
 			}
 		}
 
-		const char* currentState = selectedCount >= 0 && selectedCount < 2 ? 
-									stateNames[(int32_t)lastSelectedIndex] : "Mixed";
+		const char* currentState = "Nothing";
+
+		if (selectedCount == 1)
+			currentState = stateNames[lastSelectedIndex];
+		else if(selectedCount > 1)
+			currentState = "Mixed";
 
 		UI::ScopedVarTable::TableInfo tableInfo;
 		UI::ScopedVarTable comboBoxTable(label, tableInfo);

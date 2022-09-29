@@ -314,6 +314,8 @@ namespace TerranEngine
 		m_PolygonShape->SetAsBox(colliderSize.x * 0.5f, colliderSize.y * 0.5f, { offset.x, offset.y }, 0.0f);
 		p_FixtureDefs[0].shape = m_PolygonShape;
 		CreateFixture();
+
+		bcComponent.Size = size;
 	}
 	
 	glm::vec2 BoxCollider2D::GetSize() const
@@ -341,6 +343,12 @@ namespace TerranEngine
 	{
 		TR_ASSERT(m_PolygonShape, "Shape is null");
 
+		// NOTE: profile the function; may be slow
+		Entity entity = PhysicsUtils::GetEntityFromB2DUserData(p_FixtureDefs[0].userData);
+		TR_ASSERT(entity, "Invalid UUID!");
+
+		auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
 		if(p_Fixtures[0])
 			DestroyFixture();
 
@@ -348,6 +356,8 @@ namespace TerranEngine
 		m_PolygonShape->SetAsBox(size.x * 0.5f, size.y * 0.5f, { offset.x, offset.y }, 0.0f);
 		p_FixtureDefs[0].shape = m_PolygonShape;
 		CreateFixture();
+
+		bcComponent.Offset = offset;
 	}
 	
 	glm::vec2 BoxCollider2D::GetOffset() const
@@ -420,10 +430,18 @@ namespace TerranEngine
 	{
 		TR_ASSERT(m_CircleShape, "Shape is null");
 
+		// NOTE: profile the function; may be slow
+		Entity entity = PhysicsUtils::GetEntityFromB2DUserData(p_FixtureDefs[0].userData);
+		TR_ASSERT(entity, "Invalid UUID!");
+
+		auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
 		DestroyFixture();
 		m_CircleShape->m_radius = radius;
 		p_FixtureDefs[0].shape = m_CircleShape;
 		CreateFixture();
+
+		ccComponent.Radius = radius;
 	}
 	
 	float CircleCollider2D::GetRadius() const
@@ -436,10 +454,18 @@ namespace TerranEngine
 	{
 		TR_ASSERT(m_CircleShape, "Shape is null");
 
+		// NOTE: profile the function; may be slow
+		Entity entity = PhysicsUtils::GetEntityFromB2DUserData(p_FixtureDefs[0].userData);
+		TR_ASSERT(entity, "Invalid UUID!");
+
+		auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
 		DestroyFixture();
 		m_CircleShape->m_p.Set(offset.x, offset.y);
 		p_FixtureDefs[0].shape = m_CircleShape;
 		CreateFixture();
+
+		ccComponent.Offset = offset;
 	}
 	
 	glm::vec2 CircleCollider2D::GetOffset() const
@@ -574,6 +600,8 @@ namespace TerranEngine
 		}
 
 		CreateFixture();
+
+		ccComponent.Size = size;
 	}
 
 	glm::vec2 CapsuleCollider2D::GetSize() const
@@ -635,6 +663,8 @@ namespace TerranEngine
 		}
 
 		CreateFixture();
+
+		ccComponent.Offset = offset;
 	}
 
 	glm::vec2 CapsuleCollider2D::GetOffset() const 

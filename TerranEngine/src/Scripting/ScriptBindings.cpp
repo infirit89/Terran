@@ -98,6 +98,7 @@ namespace TerranEngine
 			{
 				// ---- physics 2d ----
 				BIND_INTERNAL_FUNC(Physics2D_RayCast);
+				BIND_INTERNAL_FUNC(Physics2D_RayCastAll);
 				// --------------------
 
 				// ---- rigidbody 2d ----
@@ -551,6 +552,8 @@ namespace TerranEngine
 			
 			UUID id({ 0 });
 
+			if (!hitInfo.PhysicsBody) return false;
+
 			if (hitInfo.PhysicsBody->GetEntity()) 
 			{
 				Entity entity = hitInfo.PhysicsBody->GetEntity();
@@ -559,6 +562,12 @@ namespace TerranEngine
 
 			outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
 			return hasHit;
+		}
+
+		int Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
+		{
+			std::vector<RayCastHitInfo2D> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
+			return hitInfos.size();
 		}
 		// --------------------
 

@@ -41,11 +41,13 @@ namespace TerranEngine
 		static void DestroyPhysicsBody(Entity entity);
 
 		static void Update(Time time);
+		static void SyncTransforms();
 
 		static b2World* GetB2World();
 
 		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
 		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);
+		static std::vector<RayCastHitInfo2D> RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 	};
 }
 

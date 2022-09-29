@@ -14,6 +14,7 @@ namespace SandboxProject
     {
         //public TestEnum Test = TestEnum.Test1;
         public LayerMask LayerMask;
+        public Vector2 RayOrigin;
         protected override void Init()
         {
             //Log.Trace("brtuh");
@@ -23,6 +24,13 @@ namespace SandboxProject
 
         protected override void Update()
         {
+            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(RayOrigin, -Vector2.Up, 10.0f, LayerMask);
+
+            if(hitInfos.Length > 0)
+            {
+                Log.Trace("hit");
+            }
+
             //if(Input.IsKeyDown(KeyCode.A))
             //    Log.Trace("key down");
 

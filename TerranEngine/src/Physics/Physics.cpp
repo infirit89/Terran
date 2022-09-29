@@ -2,7 +2,7 @@
 
 #include "Physics.h"
 #include "ContatctListener.h"
-#include "WorldRayCastCallback.h"
+#include "RayCastCallbacks.h"
 #include "PhysicsLayerManager.h"
 
 #include "Core/Settings.h"
@@ -132,6 +132,11 @@ namespace TerranEngine
 			s_State->PhysicsDeltaTime -= s_State->Settings.PhysicsTimestep;
 		}
 
+		SyncTransforms();
+	}
+
+	void Physics2D::SyncTransforms()
+	{
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
 
 		for (auto e : rigidbodyView)
@@ -145,13 +150,13 @@ namespace TerranEngine
 
 			if (physicsBody->GetSleepState() == PhysicsBodySleepState::Sleep) continue;
 
-			if (entity.HasParent()) 
+			if (entity.HasParent())
 			{
 				Entity parent = entity.GetParent();
 				Shared<PhysicsBody2D> parentBody = GetPhysicsBody(parent);
 
-				b2Transform localTransform = b2MulT(parentBody->GetB2Body()->GetTransform(), 
-													physicsBody->GetB2Body()->GetTransform());
+				b2Transform localTransform = b2MulT(parentBody->GetB2Body()->GetTransform(),
+					physicsBody->GetB2Body()->GetTransform());
 
 				transform.Position.x = localTransform.p.x;
 				transform.Position.y = localTransform.p.y;
@@ -179,7 +184,7 @@ namespace TerranEngine
 
 	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask)
 	{
-		WorldRayCastCallback raycastCallback(layerMask);
+		RayCastClosestCallback raycastCallback(layerMask);
 		const b2Vec2 point1 = { origin.x, origin.y };
 		const b2Vec2 distance = { length * direction.x, length * direction.y };
 		const b2Vec2 point2 = point1 + distance;
@@ -191,6 +196,34 @@ namespace TerranEngine
 		hitInfo.PhysicsBody = GetPhysicsBody(raycastCallback.GetHitEntity());
 
 		return raycastCallback.HasHit();
+	}
+
+	std::vector<RayCastHitInfo2D> Physics2D::RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
+	{
+		const b2Vec2 point1 = { origin.x, origin.y };
+		const b2Vec2 distance = { length * direction.x, length * direction.y };
+		const b2Vec2 point2 = point1 + distance;
+		RayCastMultipleCallback raycastCallback(layerMask, origin, length);
+
+		s_State->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
+
+		std::vector<RayCastHitInfo2D> hitInfos;
+		hitInfos.reserve(raycastCallback.GetHitCount());
+
+		for (size_t i = 0; i < raycastCallback.GetHitCount(); i++)
+		{
+			RayCastHitInfo2D hitInfo =
+			{
+				{ },
+				{ },
+				nullptr
+			};
+
+			hitInfos.push_back(hitInfo);
+		}
+
+		//return raycastCallback.HasHit();
+		return hitInfos;
 	}
 }
 

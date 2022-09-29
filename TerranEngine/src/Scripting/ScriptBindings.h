@@ -64,6 +64,7 @@ namespace TerranEngine
 		};
 
 		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
+		static int Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 		// --------------------
 		
 		// ---- Rigidbody 2D ----

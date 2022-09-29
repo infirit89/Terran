@@ -90,10 +90,13 @@ namespace Terran
 		}
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D_Internal hitInfo, ushort layerMask);
-        #endregion
 
-        #region Physics Body 2D
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
+		#endregion
+
+		#region Physics Body 2D
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Rigidbody2D_IsFixedRotation(byte[] entityUUID);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]

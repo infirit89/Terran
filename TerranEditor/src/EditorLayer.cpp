@@ -553,14 +553,15 @@ namespace TerranEditor
 				SceneSerializer sSerializer(newScene);
 				if (sSerializer.DesirializeJson(jsonData))
 				{
+					if (SceneManager::GetCurrentScene()->IsPlaying())
+						OnSceneStop();
+
 					SelectionManager::Deselect();
 					m_EditorScene = newScene;
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
 					SceneManager::SetCurrentScene(newScene);
-					//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
-					/*m_ECSPanel.SetContext(m_ActiveScene);
-					m_SceneViewPanel.SetContext(m_ActiveScene);*/
+
 					m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 
 					m_CurrentScenePath = scenePath;
