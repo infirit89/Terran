@@ -191,9 +191,10 @@ namespace TerranEngine
 
 		s_State->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
 
-		hitInfo.Normal = raycastCallback.GetNormal();
-		hitInfo.Point = raycastCallback.GetPoint();
-		hitInfo.PhysicsBody = GetPhysicsBody(raycastCallback.GetHitEntity());
+		//hitInfo.Normal = raycastCallback.GetNormal();
+		//hitInfo.Point = raycastCallback.GetPoint();
+		//hitInfo.PhysicsBody = GetPhysicsBody(raycastCallback.GetHitEntity());
+		hitInfo = raycastCallback.GetHitInfo();
 
 		return raycastCallback.HasHit();
 	}
@@ -207,7 +208,7 @@ namespace TerranEngine
 
 		s_State->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
 
-		std::vector<RayCastHitInfo2D> hitInfos;
+		/*std::vector<RayCastHitInfo2D> hitInfos;
 		hitInfos.reserve(raycastCallback.GetHitCount());
 
 		for (size_t i = 0; i < raycastCallback.GetHitCount(); i++)
@@ -220,10 +221,10 @@ namespace TerranEngine
 			};
 
 			hitInfos.push_back(hitInfo);
-		}
+		}*/
 
 		//return raycastCallback.HasHit();
-		return hitInfos;
+		return raycastCallback.GetHitInfos();
 	}
 }
 

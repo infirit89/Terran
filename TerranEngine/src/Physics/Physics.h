@@ -24,6 +24,8 @@ namespace TerranEngine
 		glm::vec2 Point;
 		glm::vec2 Normal;
 		Shared<PhysicsBody2D> PhysicsBody;
+
+		bool operator<(const RayCastHitInfo2D& other) { return glm::all(glm::lessThan(Point, other.Point)); }
 	};
 
 	class Physics2D
