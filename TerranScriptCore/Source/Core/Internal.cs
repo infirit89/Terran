@@ -3,17 +3,17 @@ using System.Runtime.CompilerServices;
 
 namespace Terran
 {
-    internal class Internal
-    {
-        #region Log
-        [MethodImpl(MethodImplOptions.InternalCall)]
+	internal class Internal
+	{
+		#region Log
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Log_Log(byte level, string text);
-        #endregion
+		#endregion
 
-        #region Input
+		#region Input
 
 		// ---- Keyboard ----
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Input_KeyPressed(ushort keyCode);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -49,14 +49,14 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern float Input_GetControllerAxis(byte controllerAxis, byte controllerIndex);
-     
+
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern byte[] Input_GetConnectedControllers();
 		// --------------------
 		#endregion
 
-        #region Entity
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		#region Entity
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Entity_HasComponent(byte[] runtimeID, string componentTypeStr);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -76,13 +76,13 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Entity_DestroyEntity(byte[] id);
-		
+
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern UUID[] Entity_GetChildren(byte[] id);
 		#endregion
 
-        #region Physics 2D
-        internal struct RayCastHitInfo2D_Internal 
+		#region Physics 2D
+		internal struct RayCastHitInfo2D_Internal
 		{
 			public Vector2 Point;
 			public Vector2 Normal;
@@ -92,7 +92,7 @@ namespace Terran
 		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D_Internal hitInfo, ushort layerMask);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern int Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
+		internal static extern RayCastHitInfo2D_Internal[] Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
 		#endregion
 
 		#region Physics Body 2D

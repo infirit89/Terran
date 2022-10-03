@@ -191,9 +191,6 @@ namespace TerranEngine
 
 		s_State->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
 
-		//hitInfo.Normal = raycastCallback.GetNormal();
-		//hitInfo.Point = raycastCallback.GetPoint();
-		//hitInfo.PhysicsBody = GetPhysicsBody(raycastCallback.GetHitEntity());
 		hitInfo = raycastCallback.GetHitInfo();
 
 		return raycastCallback.HasHit();
@@ -204,27 +201,10 @@ namespace TerranEngine
 		const b2Vec2 point1 = { origin.x, origin.y };
 		const b2Vec2 distance = { length * direction.x, length * direction.y };
 		const b2Vec2 point2 = point1 + distance;
-		RayCastMultipleCallback raycastCallback(layerMask, origin, length);
+
+		RayCastMultipleCallback raycastCallback(layerMask);
 
 		s_State->PhysicsWorld->RayCast(&raycastCallback, point1, point2);
-
-		/*std::vector<RayCastHitInfo2D> hitInfos;
-		hitInfos.reserve(raycastCallback.GetHitCount());
-
-		for (size_t i = 0; i < raycastCallback.GetHitCount(); i++)
-		{
-			RayCastHitInfo2D hitInfo =
-			{
-				{ },
-				{ },
-				nullptr
-			};
-
-			hitInfos.push_back(hitInfo);
-		}*/
-
-		//return raycastCallback.HasHit();
 		return raycastCallback.GetHitInfos();
 	}
 }
-

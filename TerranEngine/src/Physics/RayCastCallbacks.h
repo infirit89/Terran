@@ -40,7 +40,7 @@ namespace TerranEngine
 	class RayCastMultipleCallback : public b2RayCastCallback 
 	{
 	public:
-		RayCastMultipleCallback(uint16_t layerMask, glm::vec2 origin, float length);
+		RayCastMultipleCallback(uint16_t layerMask);
 
 		virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
 

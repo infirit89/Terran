@@ -24,12 +24,11 @@ namespace SandboxProject
 
         protected override void Update()
         {
-           RayCastHitInfo2D hitInfo = Physics2D.RayCast(RayOrigin, -Vector2.Up, 10.0f, LayerMask);
+            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(RayOrigin, -Vector2.Up, 10.0f, LayerMask);
 
-            if(hitInfo)
+            if(hitInfos.Length > 0)
             {
-                //Log.Trace("hit {0}", hitInfos.Length);
-                //Log.Trace("Hit entity: {0}", hitInfo.Rigidbody.Entity.Name);
+                Log.Trace("hit {0}", hitInfos.Length);
             }
 
             //if(Input.IsKeyDown(KeyCode.A))
