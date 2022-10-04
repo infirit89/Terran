@@ -26,10 +26,9 @@ namespace SandboxProject
         {
             RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(RayOrigin, -Vector2.Up, 10.0f, LayerMask);
 
-            if(hitInfos.Length > 0)
-            {
-                Log.Trace("hit {0}", hitInfos.Length);
-            }
+
+            foreach (var hitInfo in hitInfos)
+                Log.Trace(hitInfo.Rigidbody.Entity.Name);
 
             //if(Input.IsKeyDown(KeyCode.A))
             //    Log.Trace("key down");

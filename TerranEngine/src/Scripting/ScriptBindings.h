@@ -60,11 +60,11 @@ namespace TerranEngine
 		{
 			glm::vec2 Point;
 			glm::vec2 Normal;
-			MonoArray* UUID;
+			MonoObject* UUID;
 		};
 
 		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
-		static int Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+		static MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 		// --------------------
 		
 		// ---- Rigidbody 2D ----

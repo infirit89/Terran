@@ -47,6 +47,13 @@ namespace Terran
 
 	public class Rigidbody2D : Component 
 	{
+		public Rigidbody2D() { }
+
+		internal Rigidbody2D(Entity entity) 
+		{
+			Entity = entity;
+		}
+
 		public bool FixedRotation 
 		{
 			get => Internal.Rigidbody2D_IsFixedRotation(Entity.ID);
@@ -184,7 +191,7 @@ namespace Terran
 	{
 		public Scriptable() { }
 
-		internal Scriptable(byte[] id) 
+		internal Scriptable(byte[] id)
 		{
 			if (Entity == null) 
 				Entity = new Entity(id);

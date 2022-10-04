@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Terran
 {
@@ -82,17 +83,11 @@ namespace Terran
 		#endregion
 
 		#region Physics 2D
-		internal struct RayCastHitInfo2D_Internal
-		{
-			public Vector2 Point;
-			public Vector2 Normal;
-			public byte[] UUIDArray;
-		}
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D_Internal hitInfo, ushort layerMask);
+		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D hitInfo, ushort layerMask);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern RayCastHitInfo2D_Internal[] Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
+		internal static extern RayCastHitInfo2D[] Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
 		#endregion
 
 		#region Physics Body 2D

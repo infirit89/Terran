@@ -1,0 +1,143 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity 2470df1c-15ec-449b-93f1-4b22df6e919e": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "2470df1c-15ec-449b-93f1-4b22df6e919e"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity 6956f1c7-d80f-4375-81c1-12bc4e7bbdfa": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "6956f1c7-d80f-4375-81c1-12bc4e7bbdfa"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "SandboxProject.Sandbox",
+                "Fields": {
+                    "RayOrigin": {
+                        "X": 0.0,
+                        "Y": 0.0
+                    }
+                }
+            },
+            "Rigibody2D": {
+                "BodyType": 0,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        },
+        "Entity 33445670-ede9-4259-be08-c1d5bc67aa10": {
+            "TagComponent": {
+                "Tag": "Entity Copy",
+                "ID": "33445670-ede9-4259-be08-c1d5bc67aa10"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": -3.2436256408691406,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 7.588237285614014,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 0,
+                "FixedRotation": false,
+                "SleepState": 1,
+                "GravityScale": 1.0
+            },
+            "BoxCollider2D": {
+                "Offset": {
+                    "X": 0.0,
+                    "Y": 0.0
+                },
+                "Size": {
+                    "X": 1.0,
+                    "Y": 1.0
+                },
+                "IsSensor": false
+            }
+        }
+    }
+}

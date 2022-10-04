@@ -65,6 +65,7 @@ namespace TerranEngine
 		CACHE_API_CLASS(SpriteRenderer);
 		CACHE_API_CLASS(Camera);
 		CACHE_API_CLASS(CircleRenderer);
+		CACHE_API_CLASS(RayCastHitInfo2D);
 	}
 
 	void ScriptCache::ClearCache()

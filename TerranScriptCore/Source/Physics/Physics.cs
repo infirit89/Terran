@@ -1,4 +1,8 @@
-﻿namespace Terran
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace Terran
 {
 	public enum RigidbodyType : byte 
 	{
@@ -20,6 +24,7 @@
 		Impulse
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct RayCastHitInfo2D
 	{
 		public Vector2 Point;
@@ -34,50 +39,18 @@
 	{
 		public static RayCastHitInfo2D RayCast(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF)
 		{
-			Internal.RayCastHitInfo2D_Internal hitInfo_Internal;
-			bool hasHit = Internal.Physics2D_RayCast(in origin, in direction, length, out hitInfo_Internal, layerMask);
+			RayCastHitInfo2D hitInfo;
+			bool hasHit = Internal.Physics2D_RayCast(in origin, in direction, length, out hitInfo, layerMask);
 
             if(!hasHit)
                 return default(RayCastHitInfo2D);
-
-			RayCastHitInfo2D hitInfo = new RayCastHitInfo2D();
-
-			hitInfo.Point = hitInfo_Internal.Point;
-			hitInfo.Normal = hitInfo_Internal.Normal;
-
-			//UUID id = new UUID(hitInfo_Internal.UUIDArray);
-			//Entity entity = Entity.FindWithID(id);
-			Entity entity = new Entity(hitInfo_Internal.UUIDArray);
-
-			if (entity != null) 
-			{
-				hitInfo.Rigidbody = entity.GetComponent<Rigidbody2D>();
-				//hitInfo.Collider = entity.GetComponent<Collider2D>();
-			}
 
 			return hitInfo;
 		}
 
 		public static RayCastHitInfo2D[] RayCastAll(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF) 
 		{
-			Internal.RayCastHitInfo2D_Internal[] hitInfos_Internal = Internal.Physics2D_RayCastAll(origin, direction, length, layerMask);
-
-			RayCastHitInfo2D[] hitInfos = new RayCastHitInfo2D[hitInfos_Internal.Length];
-
-            for (int i = 0; i < hitInfos_Internal.Length; i++)
-            {
-				hitInfos[i].Point = hitInfos_Internal[i].Point;
-				hitInfos[i].Normal = hitInfos_Internal[i].Normal;
-
-				//UUID id = new UUID(hitInfos_Internal[i].UUIDArray);
-				Entity entity = new Entity(hitInfos_Internal[i].UUIDArray);
-
-				if (entity != null) 
-					hitInfos[i].Rigidbody = entity.GetComponent<Rigidbody2D>();
-            }
-
-			return hitInfos;
+			return Internal.Physics2D_RayCastAll(origin, direction, length, layerMask);
 		}
 	}
 }
-

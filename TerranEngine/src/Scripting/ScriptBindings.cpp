@@ -560,14 +560,62 @@ namespace TerranEngine
 				id = entity.GetID();
 			}
 
-			outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
+			//outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
+			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+
+			void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
+			ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
+			ScriptMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+			entityConstructor->Invoke(entityObj, entityCtorArgs);
+
+			void* rigidbodyCtorArgs[] = { entityObj.GetMonoObject() };
+			ScriptObject rigidbodyObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Rigidbody2D));
+			ScriptMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
+			rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
+			outHitInfo.UUID = rigidbodyObj.GetMonoObject();
+
 			return hasHit;
 		}
 
-		int Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
+		MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
 		{
 			std::vector<RayCastHitInfo2D> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
-			return hitInfos.size();
+
+			ScriptArray hitInfos_Internal(TR_API_CACHED_CLASS(RayCastHitInfo2D)->GetMonoClass(), hitInfos.size());
+
+			for (size_t i = 0; i < hitInfos.size(); i++)
+			{
+				RayCastHitInfo2D_Internal hitInfo;
+				hitInfo.Normal = hitInfos[i].Normal;
+				hitInfo.Point = hitInfos[i].Point;
+
+				UUID id({ 0 });
+
+				if (!hitInfos[i].PhysicsBody) return false;
+
+				if (hitInfos[i].PhysicsBody->GetEntity())
+				{
+					Entity entity = hitInfos[i].PhysicsBody->GetEntity();
+					id = entity.GetID();
+				}
+
+				ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+
+				void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
+				ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
+				ScriptMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+				entityConstructor->Invoke(entityObj, entityCtorArgs);
+
+				void* rigidbodyCtorArgs[] = { entityObj.GetMonoObject() };
+				ScriptObject rigidbodyObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Rigidbody2D));
+				ScriptMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
+				rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
+				hitInfo.UUID = rigidbodyObj.GetMonoObject();
+
+				hitInfos_Internal.Set<RayCastHitInfo2D_Internal>(i, hitInfo);
+			}
+
+			return hitInfos_Internal.GetMonoArray();
 		}
 		// --------------------
 
@@ -1043,7 +1091,7 @@ namespace TerranEngine
 			std::string message = ScriptMarshal::MonoStringToUTF8(monoMessage);
 			switch (logLevel)
 			{
-			case 1 << 0: TR_CLIENT_TRACE(message); break;
+			case 1 << 0: TR_CLIENT_TRACE(message); TR_TRACE(message); break;
 			case 1 << 1: TR_CLIENT_WARN(message); break;
 			case 1 << 2: TR_CLIENT_ERROR(message); break;
 			}
