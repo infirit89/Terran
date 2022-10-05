@@ -267,8 +267,11 @@ namespace TerranEngine
 		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
 		appAssembly = ScriptAssembly::LoadAssembly(Project::GetAppAssemblyPath());
 
-		Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
-		ScriptCache::GenerateCacheForAssembly(assemblyInfo);
+        if(appAssembly)
+        {
+            Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
+            ScriptCache::GenerateCacheForAssembly(assemblyInfo);
+        }
 	}
 
 	void ScriptEngine::CreateAppDomain() 

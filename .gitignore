@@ -31,12 +31,16 @@
 *.out
 *.app
 
+# Debug Files
+*.pdb
+
 #.vs
 .vs
 
 #output folder and obj output foler
 bin/
 bin-int/
+Intermidiates/
 
 # Visual Studio Solution
 *.sln
@@ -58,13 +62,14 @@ mono/
 #Python
 __pycache__
 
-# Scripts Folder
-TerranEditor/Resources/Scripts/
-
 # Jetbrains IDEs
 .idea
 
 # Misc
 .cache
 compile_commands.json
+.vim/
+*.plist
+
+
 

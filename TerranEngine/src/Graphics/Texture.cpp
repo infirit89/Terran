@@ -175,6 +175,18 @@ namespace TerranEngine
 				m_DataFormat = GL_RGB;
 				break;
 			}
+			case 2: 
+			{
+				m_InternalFormat = GL_RG8;
+				m_DataFormat = GL_RG;
+
+				// NOTE: for grayscale images
+				/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_GREEN);*/
+				break;
+			}
 			default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
 		}
 

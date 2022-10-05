@@ -36,9 +36,10 @@ namespace TerranEngine
         case MONO_TYPE_VALUETYPE: 
         {
             const ScriptClass typeClass = mono_class_from_mono_type(monoType);
-            if(typeClass == *TR_API_CACHED_CLASS(Vector2))  { TypeEnum = Vector2; return; }
-            if(typeClass == *TR_API_CACHED_CLASS(Vector3))  { TypeEnum = Vector3; return; }
-            if(typeClass == *TR_API_CACHED_CLASS(Color))    { TypeEnum = Color; return; }
+            if (typeClass == *TR_API_CACHED_CLASS(Vector2))     { TypeEnum = Vector2; return; }
+            if (typeClass == *TR_API_CACHED_CLASS(Vector3))     { TypeEnum = Vector3; return; }
+            if (typeClass == *TR_API_CACHED_CLASS(Color))       { TypeEnum = Color; return; }
+            if (typeClass == *TR_API_CACHED_CLASS(LayerMask))   { TypeEnum = LayerMask; return; }
 
             if (mono_class_is_enum(typeClass.GetMonoClass())) 
             {

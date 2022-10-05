@@ -1,6 +1,11 @@
 #pragma once
 
+#include "Core/Assert.h"
+
 #include "Scene/Entity.h"
+#include "Scene/SceneManager.h"
+
+#include <glm/glm.hpp>
 
 #include <box2d/box2d.h>
 
@@ -9,8 +14,22 @@ namespace TerranEngine
 {
 	namespace PhysicsUtils 
 	{
-		// NOTE: make templated?
-		Entity GetEntityFromB2DFixtureUserData(const b2FixtureUserData& userData);
-		Entity GetEntityFromB2DBodyUserData(const b2BodyUserData& userData);
+		template<typename T>
+		UUID GetUUIDFromB2DUserData(const T& userData)
+		{
+            TR_ASSERT(userData.pointer, "User data is null");
+
+			std::array<uint8_t, 16> uuidArr;
+			memcpy(uuidArr._Elems, (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
+			
+			return { uuidArr };
+		}
+
+		template<typename T>
+		Entity GetEntityFromB2DUserData(const T& userData) 
+		{
+			UUID id = GetUUIDFromB2DUserData(userData);
+			return SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+		}
 	}
 }

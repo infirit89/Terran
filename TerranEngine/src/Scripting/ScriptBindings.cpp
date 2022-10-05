@@ -18,6 +18,7 @@
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
 #include "Physics/Collider.h"
+#include "Physics/PhysicsLayerManager.h"
 
 #include <glm/glm.hpp>
 
@@ -97,6 +98,7 @@ namespace TerranEngine
 			{
 				// ---- physics 2d ----
 				BIND_INTERNAL_FUNC(Physics2D_RayCast);
+				BIND_INTERNAL_FUNC(Physics2D_RayCastAll);
 				// --------------------
 
 				// ---- rigidbody 2d ----
@@ -124,6 +126,7 @@ namespace TerranEngine
 				
 				// ---- collider 2d ----
 				BIND_INTERNAL_FUNC(Collider2D_GetOffset);
+				BIND_INTERNAL_FUNC(Collider2D_SetOffset);
 
 				BIND_INTERNAL_FUNC(Collider2D_IsSensor);
 				BIND_INTERNAL_FUNC(Collider2D_SetSensor);
@@ -136,8 +139,17 @@ namespace TerranEngine
 
 				// ---- circle collider 2d ----
 				BIND_INTERNAL_FUNC(CircleCollider2D_GetRadius);
-				BIND_INTERNAL_FUNC(CircleCollider2D_SetRadius);
+				BIND_INTERNAL_FUNC(CapsuleCollider2D_SetSize);
 				// -----------------------------
+
+				// ---- capsule collider 2d ----
+				BIND_INTERNAL_FUNC(CapsuleCollider2D_GetSize);
+				BIND_INTERNAL_FUNC(BoxCollider2D_SetSize);
+				// -----------------------------
+
+                // ---- layer mask ----
+                BIND_INTERNAL_FUNC(LayerMask_GetName);
+                // --------------------
 			}
 
 			// -----------------
@@ -178,6 +190,7 @@ namespace TerranEngine
 			Collider2DComponent,
 			BoxCollider2DComponent,
 			CircleCollider2DComponent,
+			CapsuleCollider2DComponent,
 			SpriteRendererComponent,
 			CameraComponent,
 			CircleRendererComponent
@@ -194,6 +207,7 @@ namespace TerranEngine
 			if (*clazz == *TR_API_CACHED_CLASS(Collider2D))								return ComponentType::Collider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))							return ComponentType::BoxCollider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))						return ComponentType::CircleCollider2DComponent;
+			if (*clazz == *TR_API_CACHED_CLASS(CapsuleCollider2D))						return ComponentType::CapsuleCollider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(SpriteRenderer))							return ComponentType::SpriteRendererComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(Camera))									return ComponentType::CameraComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleRenderer))							return ComponentType::CircleRendererComponent;
@@ -232,6 +246,7 @@ namespace TerranEngine
 			case ComponentType::SpriteRendererComponent:	return entity.HasComponent<SpriteRendererComponent>();
 			case ComponentType::CameraComponent:			return entity.HasComponent<CameraComponent>();
 			case ComponentType::CircleRendererComponent:	return entity.HasComponent<CircleRendererComponent>();
+			case ComponentType::CapsuleCollider2DComponent:	return entity.HasComponent<CapsuleCollider2DComponent>();
 			}
 
 			return false;
@@ -256,6 +271,7 @@ namespace TerranEngine
 			case ComponentType::SpriteRendererComponent:	entity.AddComponent<SpriteRendererComponent>(); break;
 			case ComponentType::CameraComponent:			entity.AddComponent<CameraComponent>(); break;
 			case ComponentType::CircleRendererComponent:	entity.AddComponent<CircleRendererComponent>(); break;
+			case ComponentType::CapsuleCollider2DComponent:	entity.AddComponent<CapsuleCollider2DComponent>(); break;
 			}
 		}
 
@@ -278,6 +294,7 @@ namespace TerranEngine
 			case ComponentType::SpriteRendererComponent:	entity.RemoveComponent<SpriteRendererComponent>(); break;
 			case ComponentType::CameraComponent:			entity.RemoveComponent<CameraComponent>(); break;
 			case ComponentType::CircleRendererComponent:	entity.RemoveComponent<CircleRendererComponent>(); break;
+			case ComponentType::CapsuleCollider2DComponent:	entity.RemoveComponent<CapsuleCollider2DComponent>(); break;
 			}
 		}
 
@@ -531,24 +548,80 @@ namespace TerranEngine
 		// -------------
 
 		// ---- Physics 2D ----
-		bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo)
+		bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask)
 		{
 			RayCastHitInfo2D hitInfo;
-			bool hasHit = Physics2D::RayCast(origin, direction, length, hitInfo);
+			bool hasHit = Physics2D::RayCast(origin, direction, length, hitInfo, layerMask);
 
 			outHitInfo.Point = hitInfo.Point;
 			outHitInfo.Normal = hitInfo.Normal;
 			
 			UUID id({ 0 });
 
-			if (hitInfo.PhysicsBody.GetEntity()) 
+			if (!hitInfo.PhysicsBody) return false;
+
+			if (hitInfo.PhysicsBody->GetEntity()) 
 			{
-				Entity entity = hitInfo.PhysicsBody.GetEntity();
+				Entity entity = hitInfo.PhysicsBody->GetEntity();
 				id = entity.GetID();
 			}
 
-			outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
+			//outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
+			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+
+			void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
+			ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
+			ScriptMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+			entityConstructor->Invoke(entityObj, entityCtorArgs);
+
+			void* rigidbodyCtorArgs[] = { entityObj.GetMonoObject() };
+			ScriptObject rigidbodyObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Rigidbody2D));
+			ScriptMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
+			rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
+			outHitInfo.UUID = rigidbodyObj.GetMonoObject();
+
 			return hasHit;
+		}
+
+		MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
+		{
+			std::vector<RayCastHitInfo2D> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
+
+			ScriptArray hitInfos_Internal(TR_API_CACHED_CLASS(RayCastHitInfo2D)->GetMonoClass(), hitInfos.size());
+
+			for (size_t i = 0; i < hitInfos.size(); i++)
+			{
+				RayCastHitInfo2D_Internal hitInfo;
+				hitInfo.Normal = hitInfos[i].Normal;
+				hitInfo.Point = hitInfos[i].Point;
+
+				UUID id({ 0 });
+
+				if (!hitInfos[i].PhysicsBody) return false;
+
+				if (hitInfos[i].PhysicsBody->GetEntity())
+				{
+					Entity entity = hitInfos[i].PhysicsBody->GetEntity();
+					id = entity.GetID();
+				}
+
+				ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+
+				void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
+				ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
+				ScriptMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+				entityConstructor->Invoke(entityObj, entityCtorArgs);
+
+				void* rigidbodyCtorArgs[] = { entityObj.GetMonoObject() };
+				ScriptObject rigidbodyObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Rigidbody2D));
+				ScriptMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
+				rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
+				hitInfo.UUID = rigidbodyObj.GetMonoObject();
+
+				hitInfos_Internal.Set<RayCastHitInfo2D_Internal>(i, hitInfo);
+			}
+
+			return hitInfos_Internal.GetMonoArray();
 		}
 		// --------------------
 
@@ -559,8 +632,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return physicsBody.GetFixedRotation();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return physicsBody->GetFixedRotation();
 			}
 			return false;
 		}
@@ -572,8 +645,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetFixedRotation(FixedRotation);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetFixedRotation(FixedRotation);
 			}
 		}
 
@@ -583,8 +656,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return (uint8_t)physicsBody.GetSleepState();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return (uint8_t)physicsBody->GetSleepState();
 			}
 			return (uint8_t)PhysicsBodySleepState::Awake;
 		}
@@ -596,8 +669,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetSleepState(SleepState);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetSleepState(SleepState);
 			}
 		}
 
@@ -608,8 +681,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return physicsBody.GetGravityScale();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return physicsBody->GetGravityScale();
 			}
 			return GravityScale;
 		}
@@ -621,8 +694,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetGravityScale(GravityScale);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetGravityScale(GravityScale);
 			}
 		}
 
@@ -632,8 +705,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.ApplyForce(force, position, (ForceMode2D)forceMode);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->ApplyForce(force, position, (ForceMode2D)forceMode);
 			}
 		}
 
@@ -643,8 +716,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.ApplyForceAtCenter(force, (ForceMode2D)forceMode);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->ApplyForceAtCenter(force, (ForceMode2D)forceMode);
 			}
 		}
 
@@ -654,8 +727,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				linearVelocity = physicsBody.GetLinearVelocity();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				linearVelocity = physicsBody->GetLinearVelocity();
 				return;
 			}
 			linearVelocity = { 0.0f, 0.0f };
@@ -667,8 +740,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetLinearVelocity(linearVelocity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetLinearVelocity(linearVelocity);
 			}
 		}
 
@@ -678,8 +751,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return physicsBody.GetAngularVelocity();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return physicsBody->GetAngularVelocity();
 			}
 			return 0.0f;
 		}
@@ -690,8 +763,8 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetAngularVelocity(angularVelocity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetAngularVelocity(angularVelocity);
 			}
 		}
 
@@ -701,8 +774,8 @@ namespace TerranEngine
 
 			if (entity) 
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				return (uint8_t)physicsBody.GetBodyType();
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				return (uint8_t)physicsBody->GetBodyType();
 			}
 			return (uint8_t)PhysicsBodyType::Dynamic;
 		}
@@ -714,8 +787,8 @@ namespace TerranEngine
 
 			if (entity) 
 			{
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
-				physicsBody.SetBodyType(BodyType);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
+				physicsBody->SetBodyType(BodyType);
 			}
 		}
 
@@ -738,15 +811,20 @@ namespace TerranEngine
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
 				break;
 			}
+			case ColliderType2D::Capsule: 
+			{
+				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CapsuleCollider2DComponent);
+				break;
+			}
 			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDArr));
 				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 				if (physicsBody)
 				{
-					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if (collider)
 						IsSensor = collider->IsSensor();
@@ -760,7 +838,7 @@ namespace TerranEngine
 		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
 		{
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
@@ -769,22 +847,30 @@ namespace TerranEngine
 				case ColliderType2D::Box:
 				{
 					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
 					bcComponent.IsSensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
 				}
 				case ColliderType2D::Circle:
 				{
-					CircleCollider2DComponent ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+					ccComponent.IsSensor = isSensor;
+					collider->SetSensor(isSensor);
+					break;
+				}
+				case ColliderType2D::Capsule:
+				{
+					CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 					ccComponent.IsSensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
 				}
 				case ColliderType2D::None:
 				{
-					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if (collider)
 						collider->SetSensor(isSensor);
@@ -800,6 +886,12 @@ namespace TerranEngine
 					case ColliderType2D::Circle: 
 					{
 						CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+						ccComponent.IsSensor = isSensor;
+						break;
+					}
+					case ColliderType2D::Capsule:
+					{
+						CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
 						ccComponent.IsSensor = isSensor;
 						break;
 					}
@@ -827,17 +919,22 @@ namespace TerranEngine
 				GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
 				break;
 			}
+			case ColliderType2D::Capsule: 
+			{
+				GET_COMPONENT_VAR(Offset, entityUUIDArr, CapsuleCollider2DComponent);
+				break;
+			}
 			case ColliderType2D::None:
 			{
                 Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
-				PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 				if (physicsBody)
 				{
 
 					Shared<Collider2D> collider;
-					if (physicsBody.GetColliders().size() > 0)
-						collider = physicsBody.GetColliders()[0];
+					if (physicsBody->GetColliders().size() > 0)
+						collider = physicsBody->GetColliders()[0];
 
 					if (collider)
 					{
@@ -859,6 +956,14 @@ namespace TerranEngine
 
 							break;
 						}
+						case ColliderType2D::Capsule:
+						{
+							Shared<CapsuleCollider2D> capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider2D>(collider);
+							if (capsuleCollider)
+								Offset = capsuleCollider->GetOffset();
+
+							break;
+						}
 						}
 					}
 				}
@@ -873,7 +978,7 @@ namespace TerranEngine
 		{
 			glm::vec2 Offset = inOffset;
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
@@ -882,7 +987,7 @@ namespace TerranEngine
 				case ColliderType2D::Box: 
 				{
 					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
 					
 					if(collider)
 						collider->SetOffset(Offset);
@@ -891,7 +996,16 @@ namespace TerranEngine
 				case ColliderType2D::Circle: 
 				{
 					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-					Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+					if (collider)
+						collider->SetOffset(Offset);
+
+					break;
+				}
+				case ColliderType2D::Capsule:
+				{
+					CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 					if (collider)
 						collider->SetOffset(Offset);
 
@@ -899,7 +1013,7 @@ namespace TerranEngine
 				}
 				case ColliderType2D::None: 
 				{
-					Shared<Collider2D> collider = physicsBody.GetColliders()[0];
+					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if(collider)
 						collider->SetOffset(Offset);
@@ -917,6 +1031,12 @@ namespace TerranEngine
 					case ColliderType2D::Circle: 
 					{
 						CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+						ccComponent.Offset = Offset;
+						break;
+					}
+					case ColliderType2D::Capsule:
+					{
+						CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
 						ccComponent.Offset = Offset;
 						break;
 					}
@@ -941,12 +1061,12 @@ namespace TerranEngine
 		{
 			glm::vec2 Size = size;
 			SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
 				BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-				Shared<Collider2D> collider = physicsBody.GetColliders()[bcComponent.ColliderIndex];
+				Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
 				Shared<BoxCollider2D> boxCollider = DynamicCast<BoxCollider2D>(collider);
 
 				if (boxCollider)
@@ -967,12 +1087,12 @@ namespace TerranEngine
 		{
 			float Radius = radius;
 			SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
-			PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
 			{
 				CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-				Shared<Collider2D> collider = physicsBody.GetColliders()[ccComponent.ColliderIndex];
+				Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 				Shared<CircleCollider2D> circleCollider = DynamicCast<CircleCollider2D>(collider);
 
 				if (circleCollider)
@@ -980,6 +1100,43 @@ namespace TerranEngine
 			}
 		}
 		// ----------------------------
+        
+		// ---- Capsule Collider 2D ----
+		void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size) 
+		{
+			glm::vec2 Size = { 0.0f, 0.0f };
+			GET_COMPONENT_VAR(Size, entityUUIDArr, CapsuleCollider2DComponent);
+			size = Size;
+		}
+
+		void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size) 
+		{
+			glm::vec2 Size = size;
+			SET_COMPONENT_VAR(Size, entityUUIDArr, CapsuleCollider2DComponent);
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+			if (physicsBody) 
+			{
+				CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetCollider(ccComponent.ColliderIndex);
+
+				Shared<CapsuleCollider2D> capsuleCollider = DynamicCast<CapsuleCollider2D>(collider);
+
+				if (capsuleCollider)
+					capsuleCollider->SetSize(size);
+			}
+		}
+
+		// -----------------------------
+
+        // ---- Layer Mask ----
+        MonoString* LayerMask_GetName(uint16_t layer)
+        {
+            int index = layer >> 1;
+            PhysicsLayer& physicsLayer = PhysicsLayerManager::GetLayer(index);
+            return ScriptMarshal::UTF8ToMonoString(physicsLayer.Name);
+        }
+        // --------------------
 
 		// ---- Log ----
 		void Log_Log(uint8_t logLevel, MonoString* monoMessage)
@@ -987,7 +1144,7 @@ namespace TerranEngine
 			std::string message = ScriptMarshal::MonoStringToUTF8(monoMessage);
 			switch (logLevel)
 			{
-			case 1 << 0: TR_CLIENT_TRACE(message); break;
+			case 1 << 0: TR_CLIENT_TRACE(message); TR_TRACE(message); break;
 			case 1 << 1: TR_CLIENT_WARN(message); break;
 			case 1 << 2: TR_CLIENT_ERROR(message); break;
 			}

@@ -52,7 +52,8 @@ namespace TerranEngine
             Vector3,
             Color,
             UUID,
-            Entity
+            Entity,
+            LayerMask
         } TypeEnum = None;
         
     private:
@@ -63,5 +64,4 @@ namespace TerranEngine
         int m_TypeEncoding = 0;
         int m_Size = 0;
     };
-    
 }

@@ -109,7 +109,8 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 1 },
 				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 }
+				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 }
 			});
 
 			m_CircleVAO->AddIndexBuffer(m_IndexBuffer);
@@ -273,7 +274,7 @@ namespace TerranEngine
 		m_QuadIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness)
+	void BatchRenderer2D::AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID)
 	{
 		if (!CircleBatchHasRoom())
 		{
@@ -288,6 +289,7 @@ namespace TerranEngine
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Thickness = thickness;
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].Color = color;
 			m_CircleVertexPtr[m_CircleVertexPtrIndex].LocalPosition = glm::vec2(m_VertexPositions[i].x, m_VertexPositions[i].y) * 2.0f;
+			m_CircleVertexPtr[m_CircleVertexPtrIndex].EntityID = entityID;
 
 			m_CircleVertexPtrIndex++;
 		}

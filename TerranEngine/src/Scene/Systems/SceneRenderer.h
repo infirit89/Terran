@@ -22,9 +22,9 @@ namespace TerranEngine
 
 		void BeginScene(Camera& camera, glm::mat4& cameraTransform, bool invereTransform);
 
-		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID = -1);
-		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform);
-		void SubmitLine(LineRendererComponent& lineRenderer);
+		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID);
+		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID);
+		//void SubmitLine(LineRendererComponent& lineRenderer);
 
 		void SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform);
 

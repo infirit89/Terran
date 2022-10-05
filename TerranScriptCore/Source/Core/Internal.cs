@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Terran
 {
-    internal class Internal
-    {
-        #region Log
-        [MethodImpl(MethodImplOptions.InternalCall)]
+	internal class Internal
+	{
+		#region Log
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Log_Log(byte level, string text);
-        #endregion
+		#endregion
 
-        #region Input
+		#region Input
 
 		// ---- Keyboard ----
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Input_KeyPressed(ushort keyCode);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -49,14 +50,14 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern float Input_GetControllerAxis(byte controllerAxis, byte controllerIndex);
-     
+
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern byte[] Input_GetConnectedControllers();
 		// --------------------
 		#endregion
 
-        #region Entity
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		#region Entity
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Entity_HasComponent(byte[] runtimeID, string componentTypeStr);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -76,24 +77,21 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Entity_DestroyEntity(byte[] id);
-		
+
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern UUID[] Entity_GetChildren(byte[] id);
 		#endregion
 
-        #region Physics 2D
-        internal struct RayCastHitInfo2D_Internal 
-		{
-			public Vector2 Point;
-			public Vector2 Normal;
-			public byte[] UUIDArray;
-		}
+		#region Physics 2D
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D_Internal hitInfo);
-        #endregion
+		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D hitInfo, ushort layerMask);
 
-        #region Physics Body 2D
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern RayCastHitInfo2D[] Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
+		#endregion
+
+		#region Physics Body 2D
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern bool Rigidbody2D_IsFixedRotation(byte[] entityUUID);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -134,6 +132,9 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Rigidbody2D_SetType(byte[] entityUUID, byte bodyType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern string LayerMask_GetName(ushort layer);
         #endregion
 
         #region Collider 2D
@@ -164,9 +165,17 @@ namespace Terran
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void CircleCollider2D_SetRadius(byte[] entityID, float radius);
-        #endregion
+		#endregion
 
-        #region Tag
+		#region Capsule Collider 2D
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CapsuleCollider2D_GetSize(byte[] entityID, out Vector2 size);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CapsuleCollider2D_SetSize(byte[] entityID, in Vector2 size);
+		#endregion
+
+		#region Tag
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern string Tag_GetName(byte[] entityID);
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -246,3 +255,4 @@ namespace Terran
 
     }
 }
+

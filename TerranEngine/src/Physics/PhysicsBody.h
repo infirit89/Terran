@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Core/Base.h"
+
 #include "PhysicsStates.h"
+#include "Collider.h"
 
 #include "Scene/Entity.h"
 
+#include <Scene/Components.h>
 #include <glm/glm.hpp>
 
 #include <vector>
@@ -13,13 +16,13 @@ class b2Body;
 
 namespace TerranEngine 
 {
-	class Collider2D;
 	class PhysicsBody2D
 	{
 	public:
 		PhysicsBody2D() = default;
-		PhysicsBody2D(b2Body* physicsBody);
-		~PhysicsBody2D() = default;
+		PhysicsBody2D(Entity entity);
+		PhysicsBody2D(b2Body* body);
+		~PhysicsBody2D();
 
 		Entity GetEntity() const { return m_Entity; }
 
@@ -58,17 +61,40 @@ namespace TerranEngine
 		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
 		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
 
-		void AddCollider(BoxCollider2DComponent& colliderComponent, Entity entity);
-		void AddCollider(CircleCollider2DComponent& colliderComponent, Entity entity);
+		// NOTE: make a templated function?
+        template<typename T>
+        void AddCollider(Entity entity)
+        {
+            TR_ASSERT(m_Body, "Physics Body is null");
 
-		b2Body* GetPhysicsBodyInternal() const { return m_Body; }
-		void SetPhysicsBodyInternal(b2Body* body) { m_Body = body; }
+            Shared<Collider2D> collider; 
+            T& colliderComponent = entity.GetComponent<T>();
 
+            if constexpr(std::is_same<T, CircleCollider2DComponent>::value)
+                collider = CreateShared<CircleCollider2D>(entity);
+            else if constexpr(std::is_same<T, BoxCollider2DComponent>::value)
+                collider = CreateShared<BoxCollider2D>(entity);
+            else if constexpr(std::is_same<T, CapsuleCollider2DComponent>::value)
+                collider = CreateShared<CapsuleCollider2D>(entity);
+
+            m_Colliders.push_back(collider);
+            colliderComponent.ColliderIndex = m_Colliders.size() - 1;
+        }
+
+        void RemoveCollider(int index);
+
+		b2Body* GetB2Body() const { return m_Body; }
+		
 		inline operator bool() const { return m_Body != nullptr; }
 
 		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
+		Shared<Collider2D> GetCollider(int index) { return m_Colliders.at(index); }
+
+        void AttachColliders();
 
 	private:
+        void CreateColliders(Entity entity);
+
 		b2Body* m_Body = nullptr;
 		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
 		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;
@@ -76,3 +102,4 @@ namespace TerranEngine
 		std::vector<Shared<Collider2D>> m_Colliders;
 	};
 }
+

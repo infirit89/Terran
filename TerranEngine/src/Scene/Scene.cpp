@@ -7,15 +7,23 @@
 
 #include "Graphics/BatchRenderer2D.h"
 
-#include "Systems/TransformSystem.h"
 #include "Systems/SceneRenderer.h"
 
 #include "Scripting/ScriptEngine.h"
-
-#include "Physics/Physics.h"
 #include "Scripting/ScriptCache.h"
 
+#include "Physics/Physics.h"
+#include "Physics/PhysicsBody.h"
+
+#include "Project/Project.h"
+
 #include "Utils/Debug/Profiler.h"
+#include "Math/Math.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 namespace TerranEngine 
 {
@@ -33,19 +41,36 @@ namespace TerranEngine
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
         
-		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
-		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
+		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentConstructed>(this);
+		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentConstructed>(this);
+		m_Registry.on_destroy<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentConstructed>(this);
+		m_Registry.on_destroy<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentConstructed>(this);
+		m_Registry.on_destroy<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentDestroyed>(this);
 	}
 
 	Scene::~Scene()
 	{
+		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
+
+		for (auto e : scriptbleComponentView)
+		{
+			Entity entity(e, this);
+			ScriptEngine::UninitalizeScriptable(entity);
+		}
+
         m_Registry.clear();
 
 		m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
 
-		m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
-		m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
+		m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnRigidbody2DComponentConstructed>(this);
+		m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnRigidbody2DComponentDestroyed>(this);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -63,6 +88,7 @@ namespace TerranEngine
 		
 		m_EntityMap[uuid] = e;
 
+		SortEntities();
 		return entity;
 	}
 
@@ -92,6 +118,8 @@ namespace TerranEngine
 			m_EntityMap.erase(entityIt);
 
 		m_Registry.destroy(entity);
+
+		SortEntities();
 	}
 
 	void Scene::StartRuntime()
@@ -101,26 +129,14 @@ namespace TerranEngine
 		
 		m_IsPlaying = true;
 
-		//Physics2D::SetContext(GetScene(m_ID));
-		//Physics2D::CreatePhysicsWorld({ 0.0f, -9.8f });
+        Physics2D::CreatePhysicsWorld(Project::GetPhysicsSettings());
+        Physics2D::CratePhysicsBodies(this);
 
-		/*auto rigidbodyView = m_Registry.view<Rigidbody2DComponent>();
-
-		for (auto e: rigidbodyView)
-		{
-			Entity entity(e, this);
-
-			Physics2D::CreatePhysicsBody(entity);
-		}*/
-
-
-		//ScriptEngine::SetContext(GetScene(m_ID));
 		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
 
 		for (auto e : scriptbleComponentView)
 		{
 			Entity entity(e, this);
-			//ScriptEngine::InitializeScriptable(entity);
 			ScriptEngine::OnStart(entity);
 		}
 	}
@@ -131,17 +147,16 @@ namespace TerranEngine
 			return;
 		
 		m_IsPlaying = false;
+        Physics2D::CleanUpPhysicsWorld();
 	}
 
 	void Scene::Update(Time time)
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
-		
-		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.IsDirty && !rEntity.IsDirty; });
 
-		TransformSystem::SetContext(this);
-		TransformSystem::Update();
+		UpdateTransformHierarchy();
+
+        Physics2D::Update(time);
 
 		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 		for (auto e : scriptableComponentView)
@@ -154,11 +169,7 @@ namespace TerranEngine
 
 	void Scene::UpdateEditor()
 	{
-		m_Registry.sort<TransformComponent>([](const auto& lEntity, const auto& rEntity)
-		{ return lEntity.IsDirty && !rEntity.IsDirty; });
-
-		TransformSystem::SetContext(this);
-		TransformSystem::Update();
+		UpdateTransformHierarchy();
 	}
 
 	void Scene::OnResize(float width, float height)
@@ -187,7 +198,7 @@ namespace TerranEngine
 			sceneRenderer->SetClearColor(backgroundColor);
 
 			Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
-			glm::mat4& cameraTransform = primaryCamera.GetWorldMatrix();
+			glm::mat4& cameraTransform = primaryCamera.GetTransform().WorldSpaceTransformMatrix;
 
 			sceneRenderer->BeginScene(camera, cameraTransform, true);
 			
@@ -198,8 +209,9 @@ namespace TerranEngine
 				{
 					Entity entity(e, this);
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+					auto& transform = entity.GetTransform();
 				
-					sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
+					sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (int)((uint32_t)entity));
 				}
 			}
 
@@ -210,8 +222,9 @@ namespace TerranEngine
 				{
 					Entity entity(e, this);
 					auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
+					auto& transform = entity.GetTransform();
 
-					sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
+					sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (int)(uint32_t)(entity));
 				}
 			}
 
@@ -222,8 +235,9 @@ namespace TerranEngine
 				{
 					Entity entity(e, this);
 					auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+					auto& transform = entity.GetTransform();
 
-					sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+					sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix);
 				}
 			}
 
@@ -245,8 +259,10 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitSprite(spriteRenderer, entity.GetWorldMatrix(), (int)((uint32_t)entity));
+				sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, 
+											(int)((uint32_t)entity));
 			}
 		}
 
@@ -257,21 +273,22 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
+				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitCircle(circleRenderer, entity.GetWorldMatrix());
+				sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (int)(uint32_t)entity);
 			}
 		}
 
 		// submit lines
 		{
-			auto lineRendererView = m_Registry.view<LineRendererComponent>();
+			/*auto lineRendererView = m_Registry.view<LineRendererComponent>();
 			for (auto e : lineRendererView)
 			{
 				Entity entity(e, this);
 				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
 
 				sceneRenderer->SubmitLine(lineRenderer);
-			}
+			}*/
 		}
 
 		// submit text
@@ -281,8 +298,9 @@ namespace TerranEngine
 			{
 				Entity entity(e, this);
 				auto& textRenderer = entity.GetComponent<TextRendererComponent>();
+				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitText(textRenderer, entity.GetWorldMatrix());
+				sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix);
 			}
 		}
 
@@ -377,6 +395,7 @@ namespace TerranEngine
 		CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 
 		if (srcEntity.HasComponent<RelationshipComponent>()) 
 		{
@@ -410,7 +429,6 @@ namespace TerranEngine
 		for (auto e : tagView)
 		{
 			Entity srcEntity(e, srcScene.get());
-
 			Entity dstEntity = scene->CreateEntityWithUUID(srcEntity.GetName(), srcEntity.GetID());
 		}
 
@@ -428,9 +446,117 @@ namespace TerranEngine
 			CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 		}
 
+		scene->SortEntities();
+
 		return scene;
+	}
+
+	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform)
+	{
+		return glm::translate(glm::mat4(1.0f), transform.Position) *
+			glm::toMat4(glm::quat(transform.Rotation)) *
+			glm::scale(glm::mat4(1.0f), transform.Scale);
+	}
+
+	void Scene::UpdateTransformHierarchy()
+	{
+		TR_PROFILE_FUNCN("Scene::UpdateTransformHierarchy");
+
+		auto transformView = GetEntitiesWith<TransformComponent>();
+
+		for (auto e : transformView)
+		{ 
+			Entity entity(e, this);
+			auto& transform = entity.GetTransform();
+			
+			if (!entity.HasParent())
+				UpdateEntityTransform(entity);
+		}
+	}
+
+	void Scene::UpdateEntityTransform(Entity entity)
+	{
+		TransformComponent& tc = entity.GetComponent<TransformComponent>();
+
+		if (tc.IsDirty) 
+		{
+			Entity parent = entity.GetParent();
+			if (parent)
+			{
+				glm::mat4 parentTransform = parent.GetTransform().WorldSpaceTransformMatrix;
+				tc.WorldSpaceTransformMatrix = parentTransform * CalculateTransformMatrix(tc);
+				tc.LocalSpaceTransformMatrix = glm::inverse(parentTransform) * tc.WorldSpaceTransformMatrix;
+			}
+			else
+			{
+				tc.WorldSpaceTransformMatrix = CalculateTransformMatrix(tc);
+				tc.LocalSpaceTransformMatrix = tc.WorldSpaceTransformMatrix;
+			}
+
+			glm::quat rotation = tc.Rotation;
+
+			tc.Forward = glm::normalize(glm::rotate(rotation, glm::vec3(0.0f, 0.0f, 1.0f)));
+			tc.Up = glm::normalize(glm::rotate(rotation, glm::vec3(0.0f, 1.0f, 0.0f)));
+			tc.Right = glm::normalize(glm::rotate(rotation, glm::vec3(1.0f, 0.0f, 0.0f)));
+		}
+
+		for (size_t i = 0; i < entity.GetChildCount(); i++)
+		{
+			Entity currEntity = entity.GetChild(i);
+
+			if(tc.IsDirty)
+				currEntity.GetTransform().IsDirty = true;
+
+			UpdateEntityTransform(currEntity);
+		}
+
+		tc.IsDirty = false;
+	}
+
+	void Scene::ConvertToLocalSpace(Entity entity)
+	{
+		auto& tc = entity.GetComponent<TransformComponent>();
+
+		if (!entity.HasParent()) return;
+
+		if (tc.IsDirty)
+			UpdateEntityTransform(entity);
+
+		Entity parent = entity.GetParent();
+		auto& parentTransform = parent.GetTransform();
+
+		//NOTE: have to calculate it because at this point the local space
+		//		and world space transform matrices are equal
+		glm::mat4 parentWorldMatrix = parentTransform.WorldSpaceTransformMatrix;
+		glm::mat4 localMat = glm::inverse(parentWorldMatrix) * 
+										tc.WorldSpaceTransformMatrix;
+
+		Math::Decompose(localMat, tc.Position, tc.Rotation, tc.Scale);
+
+		tc.IsDirty = true;
+	}
+
+	void Scene::ConvertToWorldSpace(Entity entity)
+	{
+		auto& tc = entity.GetComponent<TransformComponent>();
+
+		if (!entity.HasParent()) return;
+
+		if (tc.IsDirty)
+			UpdateEntityTransform(entity);
+
+		Math::Decompose(tc.WorldSpaceTransformMatrix, tc.Position, tc.Rotation, tc.Scale);
+
+		tc.IsDirty = true;
+	}
+
+	void Scene::SortEntities()
+	{
+		m_Registry.sort<TagComponent>([](const entt::entity& lEntity, const entt::entity& rEntity)
+			{ return lEntity < rEntity; });
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
@@ -454,7 +580,8 @@ namespace TerranEngine
         if(m_IsPlaying)
         {
             Entity entity(entityHandle, this);
-            Physics2D::CreatePhysicsBody(entity);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
+            physicsBody->AttachColliders();
         }
     }
 
@@ -464,6 +591,78 @@ namespace TerranEngine
         {
             Entity entity(entityHandle, this);
             Physics2D::DestroyPhysicsBody(entity);
+        }
+    }
+
+    void Scene::OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+            if(physicsBody)
+                physicsBody->AddCollider<BoxCollider2DComponent>(entity);
+        }
+    }
+    void Scene::OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+            auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+
+            if(physicsBody)
+                physicsBody->RemoveCollider(bcComponent.ColliderIndex);
+        }
+    }
+
+    void Scene::OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+            if(physicsBody)
+                physicsBody->AddCollider<CircleCollider2DComponent>(entity);
+        }
+    }
+    void Scene::OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+            auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+
+            if(physicsBody)
+                physicsBody->RemoveCollider(ccComponent.ColliderIndex);
+        }
+    }
+
+    void Scene::OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+            if(physicsBody)
+                physicsBody->AddCollider<CapsuleCollider2DComponent>(entity);
+        }
+    }
+    void Scene::OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+    {
+        if(m_IsPlaying)
+        {
+            Entity entity(entityHandle, this);
+            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+            auto& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+
+            if(physicsBody)
+                physicsBody->RemoveCollider(ccComponent.ColliderIndex);
         }
     }
 }

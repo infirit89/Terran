@@ -4,6 +4,8 @@
 #include "Core/MouseButtons.h"
 #include "Core/ControllerIndices.h"
 
+#include <glm/glm.hpp>
+
 extern "C" 
 {
 	typedef struct _MonoString MonoString;
@@ -58,10 +60,11 @@ namespace TerranEngine
 		{
 			glm::vec2 Point;
 			glm::vec2 Normal;
-			MonoArray* UUID;
+			MonoObject* UUID;
 		};
 
-		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo);
+		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
+		static MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 		// --------------------
 		
 		// ---- Rigidbody 2D ----
@@ -104,6 +107,16 @@ namespace TerranEngine
 		static float CircleCollider2D_GetRadius(MonoArray* entityUUIDArr);
 		static void CircleCollider2D_SetRadius(MonoArray* entityUUIDArr, float radius);
 		// ----------------------------
+
+		// ---- Capsule Collider 2D ----
+		static void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size);
+		static void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size);
+		// -----------------------------
+
+        // ---- Layer Mask ----
+        static MonoString* LayerMask_GetName(uint16_t layer);
+        // --------------------
+
 		// ------------------
 
 		// ---- Tag component ----

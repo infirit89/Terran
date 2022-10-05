@@ -21,8 +21,8 @@ namespace TerranEngine
 		b2FixtureUserData userDataA = collidee->GetUserData();
 		b2FixtureUserData userDataB = collider->GetUserData();
 
-		Entity entityA = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataA);
-		Entity entityB = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataB);
+		Entity entityA = PhysicsUtils::GetEntityFromB2DUserData(userDataA);
+		Entity entityB = PhysicsUtils::GetEntityFromB2DUserData(userDataB);
 
 		if (entityA && entityB) 
 		{
@@ -40,8 +40,8 @@ namespace TerranEngine
 		b2FixtureUserData userDataA = collidee->GetUserData();
 		b2FixtureUserData userDataB = collider->GetUserData();
 
-		Entity entityA = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataA);
-		Entity entityB = PhysicsUtils::GetEntityFromB2DFixtureUserData(userDataB);
+		Entity entityA = PhysicsUtils::GetEntityFromB2DUserData(userDataA);
+		Entity entityB = PhysicsUtils::GetEntityFromB2DUserData(userDataB);
 
 		if (entityA && entityB) 
 		{

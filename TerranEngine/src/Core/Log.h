@@ -105,7 +105,6 @@ namespace TerranEngine
 	#define TR_WARN(...) Log::GetCoreLogger()->warn(__VA_ARGS__)
 	#define TR_ERROR(...) Log::GetCoreLogger()->error(__VA_ARGS__)
 
-	// TODO: client log macros
 	#define TR_CLIENT_TRACE(...) Log::GetClientLogger()->trace(__VA_ARGS__)
 	#define TR_CLIENT_INFO(...) Log::GetClientLogger()->info(__VA_ARGS__)
 	#define TR_CLIENT_WARN(...) Log::GetClientLogger()->warn(__VA_ARGS__)

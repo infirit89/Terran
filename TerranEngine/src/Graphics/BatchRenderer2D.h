@@ -31,6 +31,7 @@ namespace TerranEngine
 		float Thickness;
 		glm::vec4 Color;
 		glm::vec2 LocalPosition;
+		int EntityID;
 	};
 
 	struct LineVertex 
@@ -75,7 +76,7 @@ namespace TerranEngine
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, int entityID = -1);
 		void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID = -1);
 
-		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness);
+		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID = -1);
 
 		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
 		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);

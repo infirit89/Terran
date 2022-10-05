@@ -21,7 +21,7 @@ namespace TerranEditor
 	};
 
 	struct LogMessage 
-	{
+        {
 		std::string Message;
 		LogMessageLevel MessageLevel = LogMessageLevel::Trace;
 	};
@@ -45,8 +45,5 @@ namespace TerranEditor
 		bool m_AutoScroll = true;
 		bool m_ClearOnPlay = true;
 		static LogPanel* s_Instance;
-		Shared<Texture> m_ErrorTexture;
-		Shared<Texture> m_WarnTexture;
-		Shared<Texture> m_InfoTexture;
 	};
 }

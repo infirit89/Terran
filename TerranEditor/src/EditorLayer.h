@@ -30,8 +30,11 @@ namespace TerranEditor
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
 
 	private:
-		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
+        void OpenProject(const std::filesystem::path& projectPath);
 
+		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
+		bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
+		
 		void SaveSceneAs();
 		void NewScene();
 
@@ -45,17 +48,11 @@ namespace TerranEditor
 		void OnScenePlay();
 		void OnSceneStop();
 
-		void OnSelectedChanged(Entity newSelected);
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
-
-		Entity m_RenderableEntity, m_Entity1, m_Entity2;
 
 		EditorCamera m_EditorCamera;
 
 		OrthographicCamera m_Camera;
-
-		Entity m_Selected = {};
-		Entity m_EditModeSelected = {};
 
 		// ***** Panels *****
 		/*SceneHierarchyPanel m_SceneHierarchyPanel;
@@ -74,8 +71,8 @@ namespace TerranEditor
 		//Shared<SceneRenderer> m_RuntimeSceneRenderer;
 		Shared<SceneRenderer> m_EditorSceneRenderer;
 
-		bool m_PerformanceOpen = true;
-		bool m_RendererStatsOpen = true;
+		bool m_PerformancePanelOpen = true;
+		bool m_RendererStatsPanelOpen = true;
 
 		bool m_ShowColliders = false;
 
@@ -92,3 +89,4 @@ namespace TerranEditor
 		static EditorLayer* s_Instance;
 	};
 }
+

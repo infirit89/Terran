@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace TerranEngine {
 
 	enum class Key : uint16_t

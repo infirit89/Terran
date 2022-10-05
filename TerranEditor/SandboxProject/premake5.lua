@@ -11,8 +11,8 @@ project "ScriptAssembly"
     kind "SharedLib"
     language "C#"
 
-    targetdir ("Scripts")
-    objdir ("Scripts/Intermidiates")
+    targetdir ("ScriptAssemblies")
+    objdir ("ScriptAssemblies/Intermidiates")
 
     files 
     {

@@ -59,14 +59,32 @@ namespace TerranEngine
 		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
+
+		void UpdateTransformHierarchy();
+		void UpdateEntityTransform(Entity entity);
+
+		void ConvertToLocalSpace(Entity entity);
+		void ConvertToWorldSpace(Entity entity);
 	
 	private:
+		void SortEntities();
+
+        // scripting components
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
+        // phyiscs components
 		void OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 		
+		void OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
+		void OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
+		void OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 	private:
 		// TODO: add scene name and UUID
 

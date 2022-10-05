@@ -25,18 +25,18 @@ namespace Terran
 
 		void Update() 
 		{
-			if (CollisionUtils.IsCollidingWith(m_Player1, entity) || CollisionUtils.IsCollidingWith(m_Player2, entity))
+			if (CollisionUtils.IsCollidingWith(m_Player1, Entity) || CollisionUtils.IsCollidingWith(m_Player2, Entity))
 			{
 				int random = m_RNG.Next(2);
 				ballDirection.Y = random % 2 == 0 ? -0.1f : 0.1f;
 				ballDirection = -ballDirection;
-				entity.Transform.Position += ballDirection;
+				Entity.Transform.Position += ballDirection;
 			}
 
-			if(CollisionUtils.IsCollidingWith(m_TopWall, entity) || CollisionUtils.IsCollidingWith(m_BottomWall, entity))
+			if(CollisionUtils.IsCollidingWith(m_TopWall, Entity) || CollisionUtils.IsCollidingWith(m_BottomWall, Entity))
 				ballDirection = new Vector3(ballDirection.X, -ballDirection.Y, ballDirection.Z);
 
-			entity.Transform.Position += ballDirection;
+			Entity.Transform.Position += ballDirection;
 		}
 	}
 }

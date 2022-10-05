@@ -36,7 +36,7 @@ namespace Terran
 		private CircleRenderer _CircleRenderer;
 		protected override void Init()
 		{
-			_CircleRenderer = entity.GetComponent<CircleRenderer>();
+			_CircleRenderer = Entity.GetComponent<CircleRenderer>();
 			Log.Trace(_CircleRenderer.Thickness);
 			Log.Trace(_CircleRenderer.Color);
 		}
@@ -72,7 +72,7 @@ namespace Terran
 		{
 			
 			//RayCastHitInfo2D hitInfo = Physics2D.RayCast(entity.transform.Position, -Vector2.Up);
-			rb = entity.GetComponent<Rigidbody2D>();	
+			rb = Entity.GetComponent<Rigidbody2D>();	
 			Log.Trace(JumpForce);
 		}
 

@@ -3,21 +3,21 @@ namespace Terran
 {
 	public class Component
 	{
-		public Entity entity;
+		public Entity Entity { internal set; get; }
 	}
 
 	public class CircleRenderer : Component
 	{
 		public Color Color
 		{
-			get => Internal.CircleRenderer_GetColor(entity.ID);
-			set => Internal.CircleRenderer_SetColor(entity.ID, value);
+			get => Internal.CircleRenderer_GetColor(Entity.ID);
+			set => Internal.CircleRenderer_SetColor(Entity.ID, value);
 		}
 
 		public float Thickness
 		{
-			get => Internal.CircleRenderer_GetThickness(entity.ID);
-			set => Internal.CircleRenderer_SetThickness(entity.ID, value);
+			get => Internal.CircleRenderer_GetThickness(Entity.ID);
+			set => Internal.CircleRenderer_SetThickness(Entity.ID, value);
 		}
 	}
 
@@ -25,14 +25,14 @@ namespace Terran
 	{
 		public bool IsPrimary
 		{
-			get => Internal.Camera_IsPrimary(entity.ID);
-			set => Internal.Camera_SetPrimary(entity.ID, value);
+			get => Internal.Camera_IsPrimary(Entity.ID);
+			set => Internal.Camera_SetPrimary(Entity.ID, value);
 		}
 
 		public Color BackgroundColor
 		{
-			get => Internal.Camera_GetBackgroundColor(entity.ID);
-			set => Internal.Camera_SetBackgroundColor(entity.ID, value);
+			get => Internal.Camera_GetBackgroundColor(Entity.ID);
+			set => Internal.Camera_SetBackgroundColor(Entity.ID, value);
 		}
 	}
 	
@@ -40,35 +40,42 @@ namespace Terran
 	{
 		public Color Color
 		{
-			get => Internal.SpriteRenderer_GetColor(entity.ID);
-			set => Internal.SpriteRenderer_SetColor(entity.ID, value);
+			get => Internal.SpriteRenderer_GetColor(Entity.ID);
+			set => Internal.SpriteRenderer_SetColor(Entity.ID, value);
 		}
 	}
 
 	public class Rigidbody2D : Component 
 	{
+		public Rigidbody2D() { }
+
+		internal Rigidbody2D(Entity entity) 
+		{
+			Entity = entity;
+		}
+
 		public bool FixedRotation 
 		{
-			get => Internal.Rigidbody2D_IsFixedRotation(entity.ID);
-			set => Internal.Rigidbody2D_SetFixedRotation(entity.ID, value);
+			get => Internal.Rigidbody2D_IsFixedRotation(Entity.ID);
+			set => Internal.Rigidbody2D_SetFixedRotation(Entity.ID, value);
 		}
 
 		public RigidbodySleepState AwakeState 
 		{
-			get => (RigidbodySleepState)Internal.Rigidbody2D_GetSleepState(entity.ID);
-			set => Internal.Rigidbody2D_SetSleepState(entity.ID, (byte)value);
+			get => (RigidbodySleepState)Internal.Rigidbody2D_GetSleepState(Entity.ID);
+			set => Internal.Rigidbody2D_SetSleepState(Entity.ID, (byte)value);
 		}
 
 		public float GravityScale
 		{
-			get => Internal.Rigidbody2D_GetGravityScale(entity.ID);
-			set => Internal.Rigidbody2D_SetGravityScale(entity.ID, value);
+			get => Internal.Rigidbody2D_GetGravityScale(Entity.ID);
+			set => Internal.Rigidbody2D_SetGravityScale(Entity.ID, value);
 		}
 		
 		public RigidbodyType BodyType 
 		{
-			get => (RigidbodyType)Internal.Rigidbody2D_GetType(entity.ID);
-			set => Internal.Rigidbody2D_SetType(entity.ID, (byte)value);
+			get => (RigidbodyType)Internal.Rigidbody2D_GetType(Entity.ID);
+			set => Internal.Rigidbody2D_SetType(Entity.ID, (byte)value);
 		}
 
 		public Vector2 LinearVelocity 
@@ -76,35 +83,37 @@ namespace Terran
 			get
 			{
 				Vector2 linearVelocity;
-				Internal.Rigidbody2D_GetLinearVelocity(entity.ID, out linearVelocity);
+				Internal.Rigidbody2D_GetLinearVelocity(Entity.ID, out linearVelocity);
 				return linearVelocity;
 			}
 
-			set => Internal.Rigidbody2D_SetLinearVelocity(entity.ID, in value);
+			set => Internal.Rigidbody2D_SetLinearVelocity(Entity.ID, in value);
 		}
 
 		public float AngularVelocity 
 		{
-			get => Internal.Rigidbody2D_GetAngularVelocity(entity.ID);
-			set => Internal.Rigidbody2D_SetAngularVelocity(entity.ID, value);
+			get => Internal.Rigidbody2D_GetAngularVelocity(Entity.ID);
+			set => Internal.Rigidbody2D_SetAngularVelocity(Entity.ID, value);
 		}
 
-		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForce(entity.ID, in force, in position, (byte)forceMode);
+		public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForce(Entity.ID, in force, in position, (byte)forceMode);
 
-		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter(entity.ID, in force, (byte)forceMode);
+		public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter(Entity.ID, in force, (byte)forceMode);
+	}
+
+	public enum ColliderType2D : byte
+	{
+		None = 0,
+		Box,
+		Circle,
+		Capsule
 	}
 
 	public class Collider2D : Component
 	{
-		protected enum ColliderType : byte
-		{
-			None = 0,
-			Box,
-			Circle
-		}
 		public Collider2D() { }
 
-		protected Collider2D(ColliderType type) 
+		protected Collider2D(ColliderType2D type) 
 		{
 			p_ColliderType = type;
 		}
@@ -114,46 +123,65 @@ namespace Terran
 			get 
 			{
 				Vector2 offset;
-				Internal.Collider2D_GetOffset(entity.ID, (byte)p_ColliderType, out offset);
+				Internal.Collider2D_GetOffset(Entity.ID, (byte)p_ColliderType, out offset);
 				return offset;
 			}
-			set => Internal.Collider2D_SetOffset(entity.ID, (byte)p_ColliderType, in value);
+			set => Internal.Collider2D_SetOffset(Entity.ID, (byte)p_ColliderType, in value);
 		}
 
 		public bool IsSensor 
 		{
-			get => Internal.Collider2D_IsSensor(entity.ID, (byte)p_ColliderType);
-			set => Internal.Collider2D_SetSensor(entity.ID, (byte)p_ColliderType, value);
+			get => Internal.Collider2D_IsSensor(Entity.ID, (byte)p_ColliderType);
+			set => Internal.Collider2D_SetSensor(Entity.ID, (byte)p_ColliderType, value);
 		}
 
-		protected ColliderType p_ColliderType = ColliderType.None;
+		public ColliderType2D ColliderType => p_ColliderType;
+
+		protected ColliderType2D p_ColliderType = ColliderType2D.None;
 	}
 
 	public class BoxCollider2D : Collider2D 
 	{
-		public BoxCollider2D() : base(ColliderType.Box) { }
+		public BoxCollider2D() : base(ColliderType2D.Box) { }
 
 		public Vector2 Size 
 		{
 			get 
 			{
 				Vector2 size;
-				Internal.BoxCollider2D_GetSize(entity.ID, out size);
+				Internal.BoxCollider2D_GetSize(Entity.ID, out size);
 				return size;
 			}
 
-			set => Internal.BoxCollider2D_SetSize(entity.ID, in value);
+			set => Internal.BoxCollider2D_SetSize(Entity.ID, in value);
 		}
     }
 
     public class CircleCollider2D : Collider2D
     {
-		public CircleCollider2D() : base(ColliderType.Circle) { }
+		public CircleCollider2D() : base(ColliderType2D.Circle) { }
 
 		public float Radius 
 		{
-			get => Internal.CircleCollider2D_GetRadius(entity.ID);
-			set => Internal.CircleCollider2D_SetRadius(entity.ID, value);
+			get => Internal.CircleCollider2D_GetRadius(Entity.ID);
+			set => Internal.CircleCollider2D_SetRadius(Entity.ID, value);
+		}
+	}
+
+	public class CapsuleCollider2D : Collider2D
+	{
+		public CapsuleCollider2D() : base(ColliderType2D.Capsule) { }
+
+		public Vector2 Size
+		{
+			get 
+			{
+				Vector2 size;
+				Internal.CapsuleCollider2D_GetSize(Entity.ID, out size);
+				return size;
+			}
+
+			set => Internal.CapsuleCollider2D_SetSize(Entity.ID, in value);
 		}
 	}
 
@@ -162,10 +190,10 @@ namespace Terran
 	{
 		public Scriptable() { }
 
-		internal Scriptable(byte[] id) 
+		internal Scriptable(byte[] id)
 		{
-			if (entity == null) 
-				entity = new Entity(id);
+			if (Entity == null) 
+				Entity = new Entity(id);
 		}
 
 		protected virtual void Init() { }
@@ -185,8 +213,8 @@ namespace Terran
 		{
 			get
 			{
-				if (entity != null) 
-					return Internal.Tag_GetName(entity.ID);
+				if (Entity != null) 
+					return Internal.Tag_GetName(Entity.ID);
 
 				// TODO: log that the entity is null
 				return "";
@@ -194,8 +222,8 @@ namespace Terran
 
 			set
 			{
-				if(entity != null)
-					Internal.Tag_SetName(entity.ID, value);
+				if(Entity != null)
+					Internal.Tag_SetName(Entity.ID, value);
 
 				// TODO: log that the entity is null
 			}
@@ -211,9 +239,9 @@ namespace Terran
 		{
 			get
 			{
-				if (entity != null) 
+				if (Entity != null) 
 				{
-					Vector3 outVec =  Internal.Transform_GetPosition(entity.ID);
+					Vector3 outVec =  Internal.Transform_GetPosition(Entity.ID);
 					return outVec;
 				}
 
@@ -223,8 +251,8 @@ namespace Terran
 
 			set
 			{
-				if (entity != null) 
-					Internal.Transform_SetPosition(entity.ID, in value);
+				if (Entity != null) 
+					Internal.Transform_SetPosition(Entity.ID, in value);
 				// TODO: log that the entity is null
 			}
 		}
@@ -233,8 +261,8 @@ namespace Terran
 		{
 			get
 			{
-				if (entity != null) 
-					return Internal.Transform_GetRotation(entity.ID);
+				if (Entity != null) 
+					return Internal.Transform_GetRotation(Entity.ID);
 
 				// TODO: log that the entity is null
 				return new Vector3(0.0f, 0.0f, 0.0f);
@@ -242,8 +270,8 @@ namespace Terran
 
 			set
 			{
-				if (entity != null) 
-					Internal.Transform_SetRotation(entity.ID, in value);
+				if (Entity != null) 
+					Internal.Transform_SetRotation(Entity.ID, in value);
 
 				// TODO: log that the entity is null
 			}
@@ -253,8 +281,8 @@ namespace Terran
 		{
 			get
 			{
-				if (entity != null) 
-					return Internal.Transform_GetScale(entity.ID);
+				if (Entity != null) 
+					return Internal.Transform_GetScale(Entity.ID);
 
 				// TODO: log that the entity is null
 				return new Vector3(0.0f, 0.0f, 0.0f);
@@ -262,18 +290,18 @@ namespace Terran
 
 			set
 			{
-				if (entity != null) 
-					Internal.Transform_SetScale(entity.ID, in value);
+				if (Entity != null) 
+					Internal.Transform_SetScale(Entity.ID, in value);
 
 				// TODO: log that the entity is null
 			}
 		}
 
-		public bool IsDirty => Internal.Transform_IsDirty(entity.ID);
+		public bool IsDirty => Internal.Transform_IsDirty(Entity.ID);
 
-		public Vector3 Forward => Internal.Transform_GetForward(entity.ID);
-		public Vector3 Up => Internal.Transform_GetUp(entity.ID);
-		public Vector3 Right => Internal.Transform_GetRight(entity.ID);
+		public Vector3 Forward => Internal.Transform_GetForward(Entity.ID);
+		public Vector3 Up => Internal.Transform_GetUp(Entity.ID);
+		public Vector3 Right => Internal.Transform_GetRight(Entity.ID);
 	}
 	// -------------------
 }

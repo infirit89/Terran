@@ -2,6 +2,7 @@
 
 #include "EditorLayer.h"
 #include "SelectionManager.h"
+#include "EditorResources.h"
 
 #include "UI/UI.h"
 
@@ -45,8 +46,8 @@ namespace TerranEditor
 				{ ImGuiStyleVar_WindowPadding, {0.0f, 0.0f} }
 			});
 
-			ImGui::Begin("Scene view", &m_Open);
-			
+			ImGui::Begin("Scene view", &m_Open, ImGuiWindowFlags_NoScrollbar);
+
 			bool isFocused = ImGui::IsWindowFocused();
 			bool isHovered = ImGui::IsWindowHovered();
 
@@ -82,11 +83,31 @@ namespace TerranEditor
 
 			ImGui::Image((ImTextureID)(framebuffer ? framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
 
+#if 0
+			{
+				UI::ScopedStyleVar test({
+					{ ImGuiStyleVar_WindowRounding, { 0.2f, 0.2f } }
+				});
+				constexpr float playButtonSize = 20.0f;
+				constexpr float padding = 20.0f;
+				const ImVec2 windowSize = { playButtonSize + padding, playButtonSize + padding };
+				ImGui::SetNextWindowPos({ ImGui::GetWindowPos().x + regionAvail.x * 0.5f, ImGui::GetWindowPos().y + 30.0f });
+				ImGui::BeginChild("toolbar", windowSize, false, ImGuiWindowFlags_NoDecoration);
+				Shared<Texture> playButtonIcon = EditorResources::GetPlayTexture();
+
+				ImVec2 playButtonPos = { (ImGui::GetContentRegionAvail().x * 0.5f) - (playButtonSize * 0.7f), 
+										(ImGui::GetContentRegionAvail().y * 0.5f) - (playButtonSize * 0.65f) };
+				ImGui::SetCursorPos(playButtonPos);
+				ImGui::ImageButton((ImTextureID)playButtonIcon->GetTextureID(), { playButtonSize, playButtonSize }, { 0, 1 }, { 1, 0 });
+				ImGui::EndChild();
+			}
+#endif
+
 			m_Visible = ImGui::IsItemVisible();
 
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(viewportBounds[0].x, viewportBounds[0].y, viewportBounds[1].x - viewportBounds[0].x, viewportBounds[1].y - viewportBounds[0].y);
-
+			
 			if (sceneState == SceneState::Edit) 
 			{
 				// Gizmos
@@ -105,39 +126,33 @@ namespace TerranEditor
 
 					auto& tc = selectedEntity.GetComponent<TransformComponent>();
 				
-					glm::mat4 transformMatrix = tc.WorldTransformMatrix;
+					glm::mat4 transformMatrix = tc.WorldSpaceTransformMatrix;
 
-					if (selectedEntity.HasParent())
-						m_GizmoMode = ImGuizmo::LOCAL;
-					else
-						m_GizmoMode = ImGuizmo::WORLD;
+					m_GizmoMode = selectedEntity.HasParent() ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
 					ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
 
 					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
 						gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
 
-					usingGizmo = ImGuizmo::IsUsing();
-
-					if (usingGizmo)
+					if (ImGuizmo::IsUsing())
 					{
 						glm::vec3 position, rotation, scale;
 
-						if (selectedEntity.HasParent()) 
+						Entity parent = selectedEntity.GetParent();
+						if (parent) 
 						{
-							glm::mat4 parentMat = selectedEntity.GetParent().GetWorldMatrix();
-
+							glm::mat4 parentMat = parent.GetTransform().WorldSpaceTransformMatrix;
 							transformMatrix = glm::inverse(parentMat) * transformMatrix;
 						}
 
-						if (Math::Decompose(transformMatrix, position, rotation, scale))
-						{
-							tc.Position = position;
-							tc.Scale = scale;
-							tc.Rotation = rotation;
+						Math::Decompose(transformMatrix, position, rotation, scale);
 
-							tc.IsDirty = true;
-						}
+						glm::vec3 deltaRotation = rotation - tc.Rotation;
+						tc.Rotation += deltaRotation; 
+						tc.Position = position;
+						tc.Scale = scale;
+						tc.IsDirty = true;
 					}
 				}
 
@@ -147,7 +162,7 @@ namespace TerranEditor
 
 				mousePos.y = m_ViewportSize.y - mousePos.y;
 
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !usingGizmo)
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGuizmo::IsUsing())
 				{
 					int mouseX = (int)mousePos.x;
 					int mouseY = (int)mousePos.y;
@@ -156,12 +171,11 @@ namespace TerranEditor
 					{
 						framebuffer->Bind();
 						int pixelData = framebuffer->ReadPixel(1, mouseX, mouseY);
-						TR_TRACE(pixelData);
 
-						//Entity entity((entt::entity)pixelData, SceneManager::GetCurrentScene()->GetRaw());
 						Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_Scene->GetRaw());
 						
-						SelectionManager::Select(entity);
+						if(entity)
+							SelectionManager::Select(entity);
 
 						framebuffer->Unbind();
 					}
@@ -175,14 +189,12 @@ namespace TerranEditor
 					const char* entryPath = (const char*)payload->Data;
 					m_OpenSceneCallback(entryPath, m_ViewportSize);
 				}
-
 				ImGui::EndDragDropTarget();
 			}
 
 			editorCamera.SetBlockInput(ImGuizmo::IsUsing() || !isFocused || !isHovered || m_WindowMoved);
 
 			ImGui::End();
-
 			m_WindowMoved = false;
 		}
 	}

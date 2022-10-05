@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <cstdint>
 
 namespace TerranEngine 
@@ -10,6 +11,16 @@ namespace TerranEngine
 		Dynamic,
 		Kinematic
 	};
+
+	static std::string PhysicsBodyTypeToString(PhysicsBodyType bodyType) 
+	{
+		switch (bodyType)
+		{
+		case PhysicsBodyType::Static:		return "Static";
+		case PhysicsBodyType::Dynamic:		return "Dynamic";
+		case PhysicsBodyType::Kinematic:	return "Kinematic";
+		}
+	}
 
 	enum class PhysicsBodySleepState : uint8_t
 	{
@@ -23,5 +34,4 @@ namespace TerranEngine
 		Force = 0,
 		Impulse
 	};
-
 }

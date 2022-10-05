@@ -14,6 +14,13 @@
 
 namespace TerranEngine 
 {
+	struct JoystickDataPtr
+	{
+		Window::EventCallbackFn EventCallback;
+	};
+
+	static std::array<JoystickDataPtr, GLFW_JOYSTICK_LAST> s_JoystickData;
+
 	GLFWWindow::GLFWWindow(WindowData data)
 	{
 		InitWindow(data);
@@ -32,6 +39,14 @@ namespace TerranEngine
 	{
 		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
+	}
+
+	void GLFWWindow::SetEventCallbackFN(const EventCallbackFn& eventCallbackFN)
+	{
+		m_WindowDataPtr.EventCallback = eventCallbackFN;
+		
+		for (int jid = 0; jid < GLFW_JOYSTICK_LAST; jid++)
+			s_JoystickData[jid].EventCallback = eventCallbackFN;
 	}
 
 	void GLFWWindow::SetTitle(const char* title)
@@ -57,6 +72,7 @@ namespace TerranEngine
 		const GLFWvidmode* vidMode = glfwGetVideoMode(montitor);
 
 		m_WindowDataPtr.VideoMode = vidMode;
+
 		m_Window = glfwCreateWindow(data.Width, data.Height, data.Name, NULL, NULL);
 
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");

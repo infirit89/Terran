@@ -1,20 +1,22 @@
 #pragma once
 
-#include "PhysicsBody.h"
-
+#include "Scene/Entity.h"
 #include <glm/glm.hpp>
 
 class b2Fixture;
 class b2PolygonShape;
 class b2CircleShape;
+struct b2FixtureDef;
 
 namespace TerranEngine 
 {
+    class PhysicsBody2D;
 	enum class ColliderType2D 
 	{
 		None = 0,
 		Box,
 		Circle,
+        Capsule,
 		Edge,
 		Chain
 	};
@@ -23,7 +25,8 @@ namespace TerranEngine
 	{
 	public:
 		Collider2D() = default;
-		Collider2D(b2Fixture* fixture);
+        Collider2D(ColliderType2D colliderType, size_t fixtureArraySize);
+		Collider2D(ColliderType2D colliderType);
 		virtual ~Collider2D();
 
 		void SetSensor(bool isSensor);
@@ -38,24 +41,31 @@ namespace TerranEngine
 		float GetDensity() const;
 		float GetRestitution() const;
 		float GetRestitutionThreshold() const;
-		uintptr_t GetUserData() const;
+        uintptr_t GetUserData() const;
 
 		virtual glm::vec2 GetOffset() const = 0;
 				
-		PhysicsBody2D GetPhysicsBody() const;
+		Shared<PhysicsBody2D> GetPhysicsBody() const;
 
-		inline ColliderType2D GetType() const { return m_ColliderType; }
+		inline ColliderType2D GetType() const { return p_ColliderType; }
+
+        void CreateFixture();
+        void DestroyFixture();
 
 	protected:
-		b2Fixture* p_Fixture = nullptr;
-		ColliderType2D m_ColliderType;
+		b2Fixture** p_Fixtures = nullptr;
+        b2FixtureDef* p_FixtureDefs = nullptr;
+        size_t p_FixtureArraySize;
+		ColliderType2D p_ColliderType;
+
+        friend class PhysicsBody2D;
 	};
 
 	class BoxCollider2D : public Collider2D
 	{
 	public:
 		BoxCollider2D() = default;
-		BoxCollider2D(b2Fixture* fixture);
+		BoxCollider2D(Entity entity);
 		~BoxCollider2D() override;
 
 		void SetSize(const glm::vec2& size);
@@ -72,7 +82,7 @@ namespace TerranEngine
 	{
 	public:
 		CircleCollider2D() = default;
-		CircleCollider2D(b2Fixture* fixture);
+		CircleCollider2D(Entity entity);
 		~CircleCollider2D() override;
 
 		void SetRadius(float radius);
@@ -84,4 +94,22 @@ namespace TerranEngine
 	private:
 		b2CircleShape* m_CircleShape = nullptr;
 	};
+
+    class CapsuleCollider2D : public Collider2D
+    {
+    public:
+        CapsuleCollider2D() = default;
+        CapsuleCollider2D(Entity entity);
+        ~CapsuleCollider2D() override;
+        
+		void SetSize(const glm::vec2& size);
+		glm::vec2 GetSize() const;
+
+		virtual void SetOffset(const glm::vec2& offset) override;
+		virtual glm::vec2 GetOffset() const override;
+
+    private:
+        b2CircleShape* m_UpperCircleShape = nullptr, * m_LowerCircleShape = nullptr;
+        b2PolygonShape* m_BoxShape = nullptr;
+    };
 }

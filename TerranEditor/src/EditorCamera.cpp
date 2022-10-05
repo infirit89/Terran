@@ -8,6 +8,7 @@
 
 namespace TerranEditor 
 {
+	using namespace TerranEngine;
 	EditorCamera::EditorCamera() 
 	{
 		RecalculateProjection();
@@ -22,7 +23,7 @@ namespace TerranEditor
 
 		if (!m_BlockInput) 
 		{
-			if (Input::IsMouseButtonPressed(MouseButton::MiddleButton))
+			if (Input::IsMouseButtonDown(MouseButton::MiddleButton))
 				PanCamera(mouseDelta, time);
 		}
 
@@ -35,7 +36,6 @@ namespace TerranEditor
 	void EditorCamera::OnEvent(Event& event) 
 	{
 		EventDispatcher dispatcher(event);
-
 		dispatcher.Dispatch<MouseScrollEvent>(TR_EVENT_BIND_FN(EditorCamera::OnMouseScroll));
 	}
 
@@ -49,13 +49,10 @@ namespace TerranEditor
 		RecalculateProjection();
 	}
 
-	float EditorCamera::ZoomSpeed()
+	void EditorCamera::SetFocalPoint(const glm::vec3& focalPoint) 
 	{
-		float distance = m_OrthoGraphicSize * 0.2f;
-		distance = std::max(distance, 0.1f);
-		float speed = distance * distance;
-		speed = std::min(speed, 100.0f);
-		return speed;
+		m_FocalPoint = focalPoint;
+		RecalculateView();
 	}
 
 	void EditorCamera::RecalculateProjection()
@@ -77,10 +74,8 @@ namespace TerranEditor
 	{
 		if (m_CameraType == EditorCameraType::Orthographic)
 		{
-			m_OrthoGraphicSize -= delta * ZoomSpeed();
-
-			if (m_OrthoGraphicSize <= 0.0f)
-				m_OrthoGraphicSize = 0.0f;
+			m_OrthoGraphicSize -= delta * m_OrthoGraphicSize * m_ZoomSpeed;
+			m_OrthoGraphicSize = std::max(0.01f, m_OrthoGraphicSize);
 
 			RecalculateProjection();
 		}
@@ -96,7 +91,6 @@ namespace TerranEditor
 	bool EditorCamera::OnMouseScroll(MouseScrollEvent& e) 
 	{
 		CameraZoom(e.GetYOffset());
-
 		return false;
 	}
 

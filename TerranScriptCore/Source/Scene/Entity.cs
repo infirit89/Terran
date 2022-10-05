@@ -105,7 +105,7 @@ namespace Terran
 				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
 					return Internal.Entity_GetScriptableComponent(ID.Data, typeof(T).FullName) as T;
 
-				T component = new T { entity = this };
+				T component = new T { Entity = new Entity(ID) };
 				return component;
 			}
 

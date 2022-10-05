@@ -8,41 +8,42 @@
 
 namespace TerranEditor 
 {
-	using namespace TerranEngine;
 	enum class EditorCameraType 
 	{
 		Orthographic = 0,
 		Perspective
 	};
 
-	class EditorCamera : public Camera
+	class EditorCamera : public TerranEngine::Camera
 	{
 	public:
 		EditorCamera();
 
-		void Update(Time& time);
+		void Update(TerranEngine::Time& time);
 
-		void OnEvent(Event& event);
+		void OnEvent(TerranEngine::Event& event);
 
 		void OnViewportResize(float width, float height);
 
 		void SetCameraType(EditorCameraType type) { m_CameraType = type; }
-
 		void SetBlockInput(bool block) { m_BlockInput = block; }
+		void SetZoomSpeed(float zoomSpeed) { m_ZoomSpeed = zoomSpeed; }
 
 		glm::mat4& GetView() { return m_ViewMatrix; }
-	private:
-		float ZoomSpeed();
 
+		void SetFocalPoint(const glm::vec3& focalPoint);
+
+	private:
 		void RecalculateProjection();
 		void RecalculateView();
 		void CameraZoom(float delta);
-		void PanCamera(glm::vec2 delta, Time& time);
+		void PanCamera(glm::vec2 delta, TerranEngine::Time& time);
 
-		bool OnMouseScroll(MouseScrollEvent& e);
+		bool OnMouseScroll(TerranEngine::MouseScrollEvent& e);
 		
 		glm::vec3 CalculatePosition();
 		
+	private:
 		glm::vec2 m_OrigMousePos{ 0.0f, 0.0f };
 
 		EditorCameraType m_CameraType = EditorCameraType::Orthographic;
@@ -55,6 +56,8 @@ namespace TerranEditor
 		float m_AspectRatio = 0.0f;
 		float m_OrthoGraphicSize = 10.0f;
 		float m_OrthographicFar = 10.0f, m_OrthographicNear = -10.0f;
+
+		float m_ZoomSpeed = 0.25f;
 
 		float m_Pitch = 0.0f, m_Yaw = 0.0f;
 		

@@ -1,18 +1,31 @@
 #pragma once
 
-#include "PhysicsBody.h"
-
 #include "Core/Time.h"
+#include "Core/Base.h"
+
+#include "PhysicsBody.h"
 
 #include "Scene/Scene.h"
 
+class b2World;
+
 namespace TerranEngine 
 {
+    struct PhysicsSettings
+    {
+        glm::vec2 Gravity = { 0.0f, -9.81f };
+        int32_t VelocityIterations = 6;
+        int32_t PositionIterations = 2;
+        float PhysicsTimestep = 0.02f;
+    };
+
 	struct RayCastHitInfo2D 
 	{
 		glm::vec2 Point;
 		glm::vec2 Normal;
-		PhysicsBody2D PhysicsBody;
+		Shared<PhysicsBody2D> PhysicsBody;
+
+		bool operator<(const RayCastHitInfo2D& other) { return glm::all(glm::lessThan(Point, other.Point)); }
 	};
 
 	class Physics2D
@@ -20,19 +33,23 @@ namespace TerranEngine
 	public:
 		static void Initialize();
 		static void Shutdown();
-		
-		static void CreatePhysicsWorld(const glm::vec2& gravity);
+
+		static void CreatePhysicsWorld(const PhysicsSettings& settings);
 		static void CleanUpPhysicsWorld();
 
-		static void CreatePhysicsBody(Entity entity);
+        static void CratePhysicsBodies(Scene* scene);
+
+		static Shared<PhysicsBody2D> CreatePhysicsBody(Entity entity);
 		static void DestroyPhysicsBody(Entity entity);
 
 		static void Update(Time time);
+		static void SyncTransforms();
 
-		static void SetContext(const Shared<Scene>& context);
-		static Shared<Scene>& GetContext();
-		
-		static PhysicsBody2D& GetPhysicsBody(Entity entity);
-		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo);
+		static b2World* GetB2World();
+
+		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
+		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);
+		static std::vector<RayCastHitInfo2D> RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 	};
 }
+

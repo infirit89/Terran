@@ -1,7 +1,9 @@
 #include "ContentPanel.h"
 
 #include "Core/Log.h"
+
 #include "Project/Project.h"
+#include "EditorResources.h"
 
 #include <imgui.h>
 
@@ -11,12 +13,8 @@
 namespace TerranEditor 
 {
 	ContentPanel::ContentPanel() 
-		: m_CurrentPath("")
-	{
-		TextureParameters params;
-		m_DirIcon = CreateShared<Texture>("Resources/Textures/temp_folder_icon.png", params);
-		m_FileIcon = CreateShared<Texture>("Resources/Textures/temp_file_icon.png", params);
-	}
+		: m_CurrentPath(Project::GetAssetPath())
+	{  }
 
 	void ContentPanel::ImGuiRender()
 	{
@@ -36,10 +34,10 @@ namespace TerranEditor
 					m_CurrentPath = m_CurrentPath.parent_path();
 			}
 
-			const float padding = 32.0f;
+			const float padding = 18.0f;
 			const float cellSize = 74.0f;
 
-			float totalSize = padding + cellSize + 10.0f;
+			float totalSize = padding + cellSize;
 			float availRegionWidth = ImGui::GetContentRegionAvailWidth();
 			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
 
@@ -55,11 +53,11 @@ namespace TerranEditor
 				ImGui::PushID(entryName.c_str());
 
 				ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-
-				Shared<Texture> entryIcon = dirEntry.is_directory() ? m_DirIcon : m_FileIcon;
+				
+				Shared<Texture> entryIcon = dirEntry.is_directory() ? EditorResources::GetDirectoryTexture() : EditorResources::GetFileTexture();
 
 				// if the entry is a directory then use the folder icon else use the file icon
-				ImGui::ImageButton((ImTextureID)entryIcon->GetTextureID(), { cellSize + 10.0f, cellSize }, { 0, 1 }, { 1, 0 });
+				ImGui::ImageButton((ImTextureID)entryIcon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
 
 				ImGui::PopStyleColor();
 
@@ -87,7 +85,7 @@ namespace TerranEditor
 				ImVec2 cursorPos = ImGui::GetCursorPos();
 
 				// some indent calculations, just did something that didn't look bad
-				float textIndent = ((cellSize + 20.0f) - textWidth) * 0.5f;
+				float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
 				textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
 
 				ImGui::SetCursorPosX(cursorPos.x + textIndent);

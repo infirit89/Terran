@@ -1,12 +1,18 @@
 #include "PropertiesPanel.h"
 
 #include "EditorLayer.h"
+#include "Physics/Collider.h"
+#include "Scene/Components.h"
 #include "SelectionManager.h"
 
 #include "Scripting/ScriptCache.h"
 
-#include "UI/UI.h"
+#include "Physics/PhysicsLayerManager.h"
 
+#include "UI/UI.h"
+#include "EditorResources.h"
+
+#include <float.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <imgui.h>
@@ -42,8 +48,12 @@ namespace TerranEditor
 
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
-			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
+			if (ImGui::ImageButton((ImTextureID)EditorResources::GetSettingsTexture()->GetTextureID(), 
+				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
+
+			ImGui::PopStyleColor();
 
 			ImVec4 windowBGColor = ImGui::GetStyleColorVec4(ImGuiCol_PopupBg);
 			windowBGColor.w = 1.0f;
@@ -110,11 +120,25 @@ namespace TerranEditor
 
 				DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
 				{
-					if (UI::DrawVec3Control("Position", component.Position))
+					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+					if (UI::DrawVec3Control("Position", component.Position)) 
+					{
 						component.IsDirty = true;
 
+						if (physicsBody && isScenePlaying) 
+							physicsBody->SetPosition({ component.Position.x, component.Position.y });
+						
+					}
+
 					if (UI::DrawVec3Control("Rotation", component.Rotation)) 
+					{
 						component.IsDirty = true;
+
+						if (physicsBody && isScenePlaying)
+							physicsBody->SetRotation(component.Rotation.z);
+					}
 
 					if (UI::DrawVec3Control("Scale", component.Scale))
 						component.IsDirty = true;
@@ -164,6 +188,7 @@ namespace TerranEditor
 					UI::DrawFloatControl("Thickness", component.Thickness);
 				});
 
+#if 0
 				DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer) 
 				{
 					UI::DrawColor4Control("Color", lineRenderer.Color);
@@ -191,6 +216,7 @@ namespace TerranEditor
 					}
 
 				});
+#endif
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
 				{
@@ -255,45 +281,21 @@ namespace TerranEditor
 
 				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
 				{
-					bool isPlay = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
 					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
-					const char* awakeStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+					const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					UI::ScopedVarTable::TableInfo tableInfo;
 
 					// rigidbody body type selection
 					{
-						/*const char* currentBodyType = bodyTypeNames[(int)rbComponent.BodyType];
-						
-						UI::ScopedVarTable bodyTypeTable("Body Type", tableInfo);
-
-						if (ImGui::BeginCombo("##body_type", currentBodyType)) 
-						{
-							for (int i = 0; i < 3; i++)
-							{
-								const bool is_selected = (bodyTypeNames[i] == currentBodyType);
-								if (ImGui::Selectable(bodyTypeNames[i], is_selected)) 
-								{
-									rbComponent.BodyType = (PhysicsBodyType)i;
-
-									if (isPlay)
-										physicsBody.SetBodyType(rbComponent.BodyType);
-								}
-
-								if (is_selected)
-									ImGui::SetItemDefaultFocus();
-							}
-
-							ImGui::EndCombo();	
-						}
-						*/
-
 						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
-							isPlay)
-							physicsBody.SetBodyType(rbComponent.BodyType);
+							isScenePlaying)
+							physicsBody->SetBodyType(rbComponent.BodyType);
+
 					}
 
 					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
@@ -301,40 +303,19 @@ namespace TerranEditor
 
 					// rigidbody awake state selection 
 					{
-						/*const char* currentAwakeState = awakeStateNames[(int)rbComponent.SleepState];
-
-						UI::ScopedVarTable awakeStateTable("Sleep State", tableInfo);
-
-						if (ImGui::BeginCombo("##sleep_state", currentAwakeState))
-						{
-							for (int i = 0; i < 3; i++)
-							{
-								const bool is_selected = (awakeStateNames[i] == currentAwakeState);
-								if (ImGui::Selectable(awakeStateNames[i], is_selected)) 
-								{
-									rbComponent.SleepState = (PhysicsBodySleepState)i;
-
-									if (isPlay) 
-										physicsBody.SetSleepState(rbComponent.SleepState);
-								}
-
-								if (is_selected)
-									ImGui::SetItemDefaultFocus();
-							}
-
-							ImGui::EndCombo();
-						}*/
-
-						UI::DrawComboBox("Sleep State", awakeStateNames, 3, rbComponent.SleepState);
-
+						UI::DrawComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
 					}
+
+                    // rigidbody layer selection
+					std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+                    UI::DrawComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
 
 					if (rbComponent.BodyType != PhysicsBodyType::Static) 
 					{
 						if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
 						{
-							if (isPlay)
-								physicsBody.SetGravityScale(rbComponent.GravityScale);
+							if (isScenePlaying)
+								physicsBody->SetGravityScale(rbComponent.GravityScale);
 						}
 					}
 
@@ -351,14 +332,15 @@ namespace TerranEditor
 						{
 							{
 								UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
-							
-								ImGui::Text(awakeStateNames[(int)physicsBody.GetSleepState()]);
+								
+								int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
+								ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
 							}
 
 							{
 								UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
 
-								glm::vec2 velocity = physicsBody.GetLinearVelocity();
+								glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
 								std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
 								ImGui::Text(velocityText.c_str());
 							}
@@ -373,12 +355,12 @@ namespace TerranEditor
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 					Shared<BoxCollider2D> boxCollider;
 
 					if(isRuntime)
-						boxCollider = std::dynamic_pointer_cast<BoxCollider2D>(physicsBody.GetColliders()[bcComponent.ColliderIndex]);
+						boxCollider = DynamicCast<BoxCollider2D>(physicsBody->GetColliders()[bcComponent.ColliderIndex]);
 
 					if(UI::DrawVec2Control("Offset", bcComponent.Offset))
 					{
@@ -388,9 +370,18 @@ namespace TerranEditor
 
 					if (UI::DrawVec2Control("Size", bcComponent.Size)) 
 					{
+                        bcComponent.Size = glm::max({ 0.0f, 0.0f }, bcComponent.Size);
+
 						if (isRuntime && boxCollider)
 							boxCollider->SetSize(bcComponent.Size);
 					}
+
+                    if(bcComponent.Size.x <= FLT_EPSILON || bcComponent.Size.y <= FLT_EPSILON)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+                        ImGui::PopStyleColor();
+                    }
 
 					if (UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor)) 
 					{
@@ -402,11 +393,11 @@ namespace TerranEditor
 				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent) 
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					PhysicsBody2D& physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 					Shared<CircleCollider2D> circleCollider;
 
 					if (isRuntime)
-						circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(physicsBody.GetColliders()[ccComponent.ColliderIndex]);
+						circleCollider = DynamicCast<CircleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
 
 					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
 					{
@@ -416,14 +407,60 @@ namespace TerranEditor
 
 					if (UI::DrawFloatControl("Radius", ccComponent.Radius)) 
 					{
+                        ccComponent.Radius = glm::max(0.0f, ccComponent.Radius);
+
 						if (isRuntime)
 							circleCollider->SetRadius(ccComponent.Radius);
 					}
+
+                    if(ccComponent.Radius <= FLT_EPSILON)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+                        ImGui::PopStyleColor();
+                    }
 
 					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
 					{
 						if (isRuntime)
 							circleCollider->SetSensor(ccComponent.IsSensor);
+					}
+				});
+
+				DrawComponent<CapsuleCollider2DComponent>("Capsule Collider 2D", entity, [&](CapsuleCollider2DComponent& ccComponent) 
+				{
+					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+					Shared<CapsuleCollider2D> capsuleCollider;
+
+					if (isRuntime && physicsBody)
+						capsuleCollider = DynamicCast<CapsuleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
+
+					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
+					{
+						if (capsuleCollider)
+							capsuleCollider->SetOffset(ccComponent.Offset);
+					}
+
+					if (UI::DrawVec2Control("Size", ccComponent.Size)) 
+					{
+                        ccComponent.Size = glm::max({ 0.0f, 0.0f }, ccComponent.Size);
+
+						if (capsuleCollider)
+							capsuleCollider->SetSize(ccComponent.Size);
+					}
+
+                    if(ccComponent.Size.x <= FLT_EPSILON || ccComponent.Size.y <= FLT_EPSILON)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+                        ImGui::PopStyleColor();
+                    }
+
+					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
+					{
+						if (capsuleCollider)
+							capsuleCollider->SetSensor(ccComponent.IsSensor);
 					}
 				});
 
@@ -467,9 +504,9 @@ namespace TerranEditor
 						if (ImGui::MenuItem("Circle Renderer"))
 							entity.AddComponent<CircleRendererComponent>();
 
-					if (!entity.HasComponent<LineRendererComponent>())
-						if (ImGui::MenuItem("Line Renderer"))
-							entity.AddComponent<LineRendererComponent>();
+					//if (!entity.HasComponent<LineRendererComponent>())
+					//	if (ImGui::MenuItem("Line Renderer"))
+					//		entity.AddComponent<LineRendererComponent>();
 
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))
@@ -490,6 +527,10 @@ namespace TerranEditor
 					if (!entity.HasComponent<CircleCollider2DComponent>())
 						if (ImGui::MenuItem("Circle Collider 2D"))
 							entity.AddComponent<CircleCollider2DComponent>();
+
+					if (!entity.HasComponent<CapsuleCollider2DComponent>())
+						if (ImGui::MenuItem("Capsule Collider 2D"))
+							entity.AddComponent<CapsuleCollider2DComponent>();
 
 					if (!entity.HasComponent<TextRendererComponent>())
 						if (ImGui::MenuItem("Text Renderer"))

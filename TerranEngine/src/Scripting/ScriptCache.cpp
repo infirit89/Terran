@@ -50,6 +50,7 @@ namespace TerranEngine
 		// api core classes
 		CACHE_API_CLASS(Vector2);
 		CACHE_API_CLASS(Vector3);
+		CACHE_API_CLASS(LayerMask);
 		CACHE_API_CLASS(Color);
 		CACHE_API_CLASS(UUID);
 		CACHE_API_CLASS(Entity);
@@ -58,12 +59,14 @@ namespace TerranEngine
 		CACHE_API_CLASS(Rigidbody2D);
 		CACHE_API_CLASS(BoxCollider2D);
 		CACHE_API_CLASS(CircleCollider2D);
+		CACHE_API_CLASS(CapsuleCollider2D);
 		CACHE_API_CLASS(Scriptable);
 		CACHE_API_CLASS(Tag);
 		CACHE_API_CLASS(Transform);
 		CACHE_API_CLASS(SpriteRenderer);
 		CACHE_API_CLASS(Camera);
 		CACHE_API_CLASS(CircleRenderer);
+		CACHE_API_CLASS(RayCastHitInfo2D);
 	}
 
 	void ScriptCache::ClearCache()

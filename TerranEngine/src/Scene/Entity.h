@@ -70,12 +70,8 @@ namespace TerranEngine
 		// base stuffs
 		inline const UUID& GetID() const							{ return GetComponent<TagComponent>().ID; }
 		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); }
-		inline const TransformComponent& GetTransform() const		{ return GetComponent<TransformComponent>(); }
 		inline bool Valid() const									{ return m_Scene->m_Registry.valid(m_Handle); }
-		inline glm::mat4& GetWorldMatrix()							{ return GetTransform().WorldTransformMatrix; }
-		inline const glm::mat4& GetWorldMatrix() const				{ return GetTransform().WorldTransformMatrix; }
-		inline std::string& GetName()								{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
-		inline const std::string& GetName() const					{ return HasComponent<TagComponent>() ? GetComponent<TagComponent>().Name : ErrorName; }
+		inline const std::string& GetName() const					{ return GetComponent<TagComponent>().Name; }
 
 		// operators
 		inline operator entt::entity() const						{ return m_Handle; }
@@ -87,7 +83,7 @@ namespace TerranEngine
 		// relationship component stuffs
 		inline std::vector<UUID>& GetChildren()	const				{ return GetComponent<RelationshipComponent>().Children; }
 		inline size_t GetChildCount() const							{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
-		inline const UUID& GetParentID() const						{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : m_EmptyUUID; }
+		inline UUID GetParentID() const								{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : UUID::Empty(); }
 		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false; }
 
 		inline const UUID& GetSceneID() const						{ return m_Scene->GetID(); }
@@ -117,33 +113,7 @@ namespace TerranEngine
 			return m_Scene->FindEntityWithUUID(GetParentID());
 		}
 
-		void SetParent(Entity parent) 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				 AddComponent<RelationshipComponent>();
-
-			if (!parent.HasComponent<RelationshipComponent>())
-				parent.AddComponent<RelationshipComponent>();
-
-			auto& relComp = GetComponent<RelationshipComponent>();
-			relComp.ParentID = parent.GetID();
-			parent.GetChildren().emplace_back(GetID());
-		}
-		
-		void AddChild(Entity child) 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				AddComponent<RelationshipComponent>();
-
-			if (!child.HasComponent<RelationshipComponent>())
-				child.AddComponent<RelationshipComponent>();
-
-			auto& relComp = child.GetComponent<RelationshipComponent>();
-			relComp.ParentID = GetID();
-			GetChildren().emplace_back(child.GetID());
-		}
-
-		bool IsChildOf(Entity entity) 
+		bool IsChildOf(Entity entity)
 		{
 			if (!HasComponent<RelationshipComponent>())
 				return false;
@@ -152,6 +122,27 @@ namespace TerranEngine
 				return false;
 
 			return GetParentID() == entity.GetID();
+		}
+
+		void SetParent(Entity parent, bool forceTransformUpdate = false) 
+		{
+			if (!HasComponent<RelationshipComponent>())
+				 AddComponent<RelationshipComponent>();
+
+			if (!parent.HasComponent<RelationshipComponent>())
+				parent.AddComponent<RelationshipComponent>();
+
+			if (IsChildOf(parent)) return;
+			if (parent.IsChildOf(*this)) return;
+
+			if (HasParent())
+				Unparent();
+
+			auto& relComp = GetComponent<RelationshipComponent>();
+			relComp.ParentID = parent.GetID();
+			parent.GetChildren().emplace_back(GetID());
+
+			m_Scene->ConvertToLocalSpace(*this);
 		}
 
 		void Unparent() 
@@ -165,15 +156,19 @@ namespace TerranEngine
 			if (!parent)
 				return;
 
+			m_Scene->ConvertToWorldSpace(*this);
+
 			const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), GetID());
 
 			if (it != parent.GetChildren().end())
 				parent.GetChildren().erase(it);
 
 			SetParentID(UUID({ 0 }));
+
+			// TODO: if the relationship component is no longer necessary than remove it
 		}
 
-		void RemoveChildFrom(Entity parent, Entity child, bool removeRelationship) 
+		/*void Unparent(Entity parent, Entity child, bool removeRelationship) 
 		{
 			if (!parent.HasComponent<RelationshipComponent>())
 				return;
@@ -193,25 +188,22 @@ namespace TerranEngine
 				RelationshipComponent& rc = child.GetComponent<RelationshipComponent>();
 				rc.ParentID = UUID({ 0 });
 			}
-		}
+		}*/
 
 		void RemoveChild(Entity child, bool removeRelationship) 
 		{
-			RemoveChildFrom(*this, child, removeRelationship);
+			child.Unparent();
 		}
 
 		void Reparent(Entity previousParent, Entity newParent) 
 		{
-			RemoveChildFrom(previousParent, *this, false);
+			Unparent();
 			SetParent(newParent);
 		}
 
 	private:
 		entt::entity m_Handle { entt::null };
 		Scene* m_Scene = nullptr;
-		std::string ErrorName = "Unnamed";
-		UUID m_EmptyUUID = UUID::Empty();
 	};
 }
-
 #pragma warning(pop)

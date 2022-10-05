@@ -7,6 +7,8 @@
 #include "Scripting/ScriptCache.h"
 #include "Scripting/ScriptEngine.h"
 
+#include "Utils/SerializerUtils.h"
+
 #include <json.hpp>
 
 #include <glm/glm.hpp>
@@ -18,6 +20,9 @@
 
 using json = nlohmann::ordered_json;
 
+// NOTE: this is not the final version of the scene serializer, this is a poc
+// NOTE: think about using yaml instead of json, because json has some limitation that i dont really like
+
 namespace TerranEngine 
 {
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
@@ -25,70 +30,7 @@ namespace TerranEngine
 	{
 	}
 
-	static json SerializeVec2(const glm::vec2& value) 
-	{
-		return
-		{
-			{ "X", value.x },
-			{ "Y", value.y },
-		};
-	}
-
-	static glm::vec2 DeserializeVec2(json& j, const std::string& name)
-	{
-		glm::vec2 vec = glm::vec2(0.0f);
-
-		vec.x = j[name]["X"];
-		vec.y = j[name]["Y"];
-
-		return vec;
-	}
-
-	static json SerializeVec3(const glm::vec3& value)
-	{
-		return
-		{
-			{ "X", value.x },
-			{ "Y", value.y },
-			{ "Z", value.z }
-		};
-	}
-
-	static glm::vec3 DeserializeVec3(json& j, const std::string& name) 
-	{
-		glm::vec3 vec = glm::vec3(0.0f);
-
-		vec.x = j[name]["X"];
-		vec.y = j[name]["Y"];
-		vec.z = j[name]["Z"];
-
-		return vec;
-	}
-
-	static json SerializeVec4(const glm::vec4& value)
-	{
-		return
-		{
-			{ "X", value.x },
-			{ "Y", value.y },
-			{ "Z", value.z },
-			{ "W", value.w }
-		};
-	}
-
-
-	static glm::vec4 DeserializeVec4(json& j, const std::string& name)
-	{
-		glm::vec4 vec = glm::vec4(0.0f);
-
-		vec.x = j[name]["X"];
-		vec.y = j[name]["Y"];
-		vec.z = j[name]["Z"];
-		vec.w = j[name]["W"];
-
-		return vec;
-	}
-	
+		
 	static json SerializeUUIDVector(const std::vector<UUID>& vec) 
 	{
 		if (vec.size() <= 0)
@@ -195,19 +137,19 @@ namespace TerranEngine
 			{
 				// NOTE: might need to box
 				glm::vec2 value = field->GetData<glm::vec2>(handle);
-				j[field->GetName()] = SerializeVec2(value);
+				j[field->GetName()] = SerializerUtils::SerializeVec2(value);
 				break;
 			}
 			case ScriptType::Vector3: 
 			{
 				glm::vec3 value = field->GetData<glm::vec3>(handle);
-				j[field->GetName()] = SerializeVec3(value);
+				j[field->GetName()] = SerializerUtils::SerializeVec3(value);
 				break;
 			}
 			case ScriptType::Color:
 			{
 				glm::vec4 value = field->GetData<glm::vec4>(handle);
-				j[field->GetName()] = SerializeVec4(value);
+				j[field->GetName()] = SerializerUtils::SerializeVec4(value);
 				break;
 			}
 			case ScriptType::Entity:
@@ -240,9 +182,9 @@ namespace TerranEngine
 			jObject.push_back(
 				{"TransformComponent", 
 				{
-					{ "Position", SerializeVec3(entity.GetTransform().Position) },
-					{ "Rotation", SerializeVec3(entity.GetTransform().Rotation) },
-					{ "Scale",	SerializeVec3(entity.GetTransform().Scale) },
+					{ "Position", SerializerUtils::SerializeVec3(entity.GetTransform().Position) },
+					{ "Rotation", SerializerUtils::SerializeVec3(entity.GetTransform().Rotation) },
+					{ "Scale",	SerializerUtils::SerializeVec3(entity.GetTransform().Scale) },
 				}}
 			);
 		}
@@ -271,7 +213,7 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "SpriteRendererComponent",
 				{
-					{ "Color", SerializeVec4(sprComp.Color) },
+					{ "Color", SerializerUtils::SerializeVec4(sprComp.Color) },
 					{ "ZIndex", sprComp.ZIndex }
 				} }
 			);
@@ -284,7 +226,7 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "CircleRendererComponent",
 				{
-					{ "Color", SerializeVec4(crComp.Color) },
+					{ "Color", SerializerUtils::SerializeVec4(crComp.Color) },
 					{ "Thickness", crComp.Thickness }
 				}}
 			);
@@ -342,8 +284,8 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "BoxCollider2D",
 				{
-					{ "Offset", SerializeVec2(bcComponent.Offset) },
-					{ "Size", SerializeVec2(bcComponent.Size) },
+					{ "Offset", SerializerUtils::SerializeVec2(bcComponent.Offset) },
+					{ "Size", SerializerUtils::SerializeVec2(bcComponent.Size) },
 					{ "IsSensor", bcComponent.IsSensor }
 				} }
 			);
@@ -356,7 +298,7 @@ namespace TerranEngine
 			jObject.push_back(
 				{ "CircleCollider2D",
 				{
-					{ "Offset", SerializeVec2(ccComponent.Offset) },
+					{ "Offset", SerializerUtils::SerializeVec2(ccComponent.Offset) },
 					{ "Radius", ccComponent.Radius },
 					{ "IsSensor", ccComponent.IsSensor }
 				} }
@@ -528,19 +470,19 @@ catch(const std::exception& ex)\
 						}
 						case ScriptType::Vector2: 
 						{
-							const glm::vec2 value = DeserializeVec2(jScriptComponent["Fields"], field->GetName());
+							const glm::vec2 value = SerializerUtils::DeserializeVec2(jScriptComponent["Fields"], field->GetName());
 							field->SetData(value, handle);
 							break;
 						}
 						case ScriptType::Vector3: 
 						{
-							const glm::vec3 value = DeserializeVec3(jScriptComponent["Fields"], field->GetName());
+							const glm::vec3 value = SerializerUtils::DeserializeVec3(jScriptComponent["Fields"], field->GetName());
 							field->SetData(value, handle);
 							break;
 						}
 						case ScriptType::Color: 
 						{
-							const glm::vec4 value = DeserializeVec4(jScriptComponent["Fields"], field->GetName());
+							const glm::vec4 value = SerializerUtils::DeserializeVec4(jScriptComponent["Fields"], field->GetName());
 							field->SetData(value, handle);
 							break;
 						}
@@ -588,9 +530,9 @@ catch(const std::exception& ex)\
 
 			try
 			{
-				glm::vec3 position = DeserializeVec3(jEntity["TransformComponent"], "Position");
-				glm::vec3 scale = DeserializeVec3(jEntity["TransformComponent"], "Scale");
-				glm::vec3 rotation = DeserializeVec3(jEntity["TransformComponent"], "Rotation");
+				glm::vec3 position = SerializerUtils::DeserializeVec3(jEntity["TransformComponent"], "Position");
+				glm::vec3 scale = SerializerUtils::DeserializeVec3(jEntity["TransformComponent"], "Scale");
+				glm::vec3 rotation = SerializerUtils::DeserializeVec3(jEntity["TransformComponent"], "Rotation");
 					
 				transform.Position = position;
 				transform.Rotation = rotation;
@@ -627,7 +569,7 @@ catch(const std::exception& ex)\
 
 			try 
 			{
-				glm::vec4 color = DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
+				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
 
 				spriteRenderer.Color = color;
 			}
@@ -639,7 +581,7 @@ catch(const std::exception& ex)\
 
 			try
 			{
-				glm::vec4 color = DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
+				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
 				float thickness = jEntity["CircleRendererComponent"]["Thickness"];
 
 				circleRenderer.Color = color;
@@ -663,9 +605,8 @@ catch(const std::exception& ex)\
 						if (!scene->FindEntityWithUUID(UUID::FromString(id)))
 							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
 
-						Entity e = scene->FindEntityWithUUID(UUID::FromString(id));
-
-						entity.AddChild(e);
+						Entity child = scene->FindEntityWithUUID(UUID::FromString(id));
+						child.SetParent(entity, true);
 					}
 				}
 				if (jRelation["Parent"] != "null")
@@ -720,8 +661,8 @@ catch(const std::exception& ex)\
 
 			try 
 			{
-				glm::vec2 offset = DeserializeVec2(jBoxCollider2DComponent, "Offset");
-				glm::vec2 size = DeserializeVec2(jBoxCollider2DComponent, "Size");
+				glm::vec2 offset = SerializerUtils::DeserializeVec2(jBoxCollider2DComponent, "Offset");
+				glm::vec2 size = SerializerUtils::DeserializeVec2(jBoxCollider2DComponent, "Size");
 				bool isSensor = jBoxCollider2DComponent["IsSensor"];
 
 				bcComponent.Offset = offset;
@@ -739,7 +680,7 @@ catch(const std::exception& ex)\
 
 			try 
 			{
-				glm::vec2 offset = DeserializeVec2(jCircleCollider2DComponent, "Offset");
+				glm::vec2 offset = SerializerUtils::DeserializeVec2(jCircleCollider2DComponent, "Offset");
 				float radius = jCircleCollider2DComponent["Radius"];
 				bool isSensor = jCircleCollider2DComponent["IsSensor"];
 

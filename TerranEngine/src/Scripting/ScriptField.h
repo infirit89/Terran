@@ -68,21 +68,12 @@ namespace TerranEngine
 
 		inline uint32_t GetID() const { return m_ID; }
 		inline const ScriptType& GetType() const { return m_Type; } 
-		
-		void SetDataStringRaw(const char* value, GCHandle handle);
-		std::string GetDataStringRaw(GCHandle handle);
-
-		void SetDataVariantRaw(const Utils::Variant& value, GCHandle handle);
-		Utils::Variant GetDataVariantRaw(GCHandle handle);
-
-		void SetDataUUIDRaw(UUID value, GCHandle handle);
-		UUID GetDataUUIDRaw(GCHandle handle);
 
 		ScriptArray GetArray(GCHandle handle);
 		void SetArray(ScriptArray array, GCHandle handle);
 
 		template<typename T>
-		T GetData(GCHandle handle) 
+		T GetData(GCHandle handle)
 		{
 			return detail::ScriptFieldGetData<T>(handle, this);
 		}

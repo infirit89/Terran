@@ -10,6 +10,9 @@
 #include "Physics/PhysicsStates.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include <vector>
 
@@ -39,10 +42,12 @@ namespace TerranEngine
 		glm::vec3 Up =			{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 Right =		{ 1.0f, 0.0f, 0.0f };
 
+		// dirty flag used for optimization
 		bool IsDirty = true;
 
-		glm::mat4 WorldTransformMatrix = glm::mat4(1.0f);
-		glm::mat4 LocalTransformMatrix = glm::mat4(1.0f);
+		// cached transform matrices
+		glm::mat4 WorldSpaceTransformMatrix = glm::mat4(1.0f);
+		glm::mat4 LocalSpaceTransformMatrix = glm::mat4(1.0f);
 
 		TransformComponent() = default;
 	};
@@ -76,6 +81,8 @@ namespace TerranEngine
 		CircleRendererComponent() = default;
 	};
 
+// bullshit; fix
+#if 0
 	struct LineRendererComponent 
 	{
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -100,6 +107,7 @@ namespace TerranEngine
 		}
 
 	};
+#endif
 
 	struct TextRendererComponent 
 	{
@@ -149,6 +157,7 @@ namespace TerranEngine
 		bool FixedRotation = false;
 		float GravityScale = 1.0f;
 		bool Enabled = true;
+        int LayerIndex = 0;
 	};
 
 	struct BoxCollider2DComponent 
@@ -168,6 +177,17 @@ namespace TerranEngine
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Radius = 0.5f;
+		bool IsSensor = false;
+
+		uint32_t ColliderIndex = 0;
+	};
+
+	struct CapsuleCollider2DComponent 
+	{
+		CapsuleCollider2DComponent () = default;
+
+		glm::vec2 Offset = { 0.0f, 0.0f };
+        glm::vec2 Size = { 0.5f,  1.0f };
 		bool IsSensor = false;
 
 		uint32_t ColliderIndex = 0;
