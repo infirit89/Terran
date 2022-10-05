@@ -126,6 +126,7 @@ namespace TerranEngine
 				
 				// ---- collider 2d ----
 				BIND_INTERNAL_FUNC(Collider2D_GetOffset);
+				BIND_INTERNAL_FUNC(Collider2D_SetOffset);
 
 				BIND_INTERNAL_FUNC(Collider2D_IsSensor);
 				BIND_INTERNAL_FUNC(Collider2D_SetSensor);
@@ -189,6 +190,7 @@ namespace TerranEngine
 			Collider2DComponent,
 			BoxCollider2DComponent,
 			CircleCollider2DComponent,
+			CapsuleCollider2DComponent,
 			SpriteRendererComponent,
 			CameraComponent,
 			CircleRendererComponent
@@ -205,6 +207,7 @@ namespace TerranEngine
 			if (*clazz == *TR_API_CACHED_CLASS(Collider2D))								return ComponentType::Collider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))							return ComponentType::BoxCollider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))						return ComponentType::CircleCollider2DComponent;
+			if (*clazz == *TR_API_CACHED_CLASS(CapsuleCollider2D))						return ComponentType::CapsuleCollider2DComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(SpriteRenderer))							return ComponentType::SpriteRendererComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(Camera))									return ComponentType::CameraComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleRenderer))							return ComponentType::CircleRendererComponent;
@@ -243,6 +246,7 @@ namespace TerranEngine
 			case ComponentType::SpriteRendererComponent:	return entity.HasComponent<SpriteRendererComponent>();
 			case ComponentType::CameraComponent:			return entity.HasComponent<CameraComponent>();
 			case ComponentType::CircleRendererComponent:	return entity.HasComponent<CircleRendererComponent>();
+			case ComponentType::CapsuleCollider2DComponent:	return entity.HasComponent<CapsuleCollider2DComponent>();
 			}
 
 			return false;
@@ -267,6 +271,7 @@ namespace TerranEngine
 			case ComponentType::SpriteRendererComponent:	entity.AddComponent<SpriteRendererComponent>(); break;
 			case ComponentType::CameraComponent:			entity.AddComponent<CameraComponent>(); break;
 			case ComponentType::CircleRendererComponent:	entity.AddComponent<CircleRendererComponent>(); break;
+			case ComponentType::CapsuleCollider2DComponent:	entity.AddComponent<CapsuleCollider2DComponent>(); break;
 			}
 		}
 
@@ -289,6 +294,7 @@ namespace TerranEngine
 			case ComponentType::SpriteRendererComponent:	entity.RemoveComponent<SpriteRendererComponent>(); break;
 			case ComponentType::CameraComponent:			entity.RemoveComponent<CameraComponent>(); break;
 			case ComponentType::CircleRendererComponent:	entity.RemoveComponent<CircleRendererComponent>(); break;
+			case ComponentType::CapsuleCollider2DComponent:	entity.RemoveComponent<CapsuleCollider2DComponent>(); break;
 			}
 		}
 
@@ -805,6 +811,11 @@ namespace TerranEngine
 				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
 				break;
 			}
+			case ColliderType2D::Capsule: 
+			{
+				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CapsuleCollider2DComponent);
+				break;
+			}
 			case ColliderType2D::None:
 			{
 				UUID id = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDArr));
@@ -843,7 +854,15 @@ namespace TerranEngine
 				}
 				case ColliderType2D::Circle:
 				{
-					CircleCollider2DComponent ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+					ccComponent.IsSensor = isSensor;
+					collider->SetSensor(isSensor);
+					break;
+				}
+				case ColliderType2D::Capsule:
+				{
+					CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
 					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
 					ccComponent.IsSensor = isSensor;
 					collider->SetSensor(isSensor);
@@ -870,6 +889,12 @@ namespace TerranEngine
 						ccComponent.IsSensor = isSensor;
 						break;
 					}
+					case ColliderType2D::Capsule:
+					{
+						CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+						ccComponent.IsSensor = isSensor;
+						break;
+					}
 					}
 
 					break;
@@ -892,6 +917,11 @@ namespace TerranEngine
 			case ColliderType2D::Circle:
 			{
 				GET_COMPONENT_VAR(Offset, entityUUIDArr, CircleCollider2DComponent);
+				break;
+			}
+			case ColliderType2D::Capsule: 
+			{
+				GET_COMPONENT_VAR(Offset, entityUUIDArr, CapsuleCollider2DComponent);
 				break;
 			}
 			case ColliderType2D::None:
@@ -923,6 +953,14 @@ namespace TerranEngine
 							Shared<CircleCollider2D> circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(collider);
 							if (circleCollider)
 								Offset = circleCollider->GetOffset();
+
+							break;
+						}
+						case ColliderType2D::Capsule:
+						{
+							Shared<CapsuleCollider2D> capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider2D>(collider);
+							if (capsuleCollider)
+								Offset = capsuleCollider->GetOffset();
 
 							break;
 						}
@@ -964,6 +1002,15 @@ namespace TerranEngine
 
 					break;
 				}
+				case ColliderType2D::Capsule:
+				{
+					CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+					if (collider)
+						collider->SetOffset(Offset);
+
+					break;
+				}
 				case ColliderType2D::None: 
 				{
 					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
@@ -984,6 +1031,12 @@ namespace TerranEngine
 					case ColliderType2D::Circle: 
 					{
 						CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+						ccComponent.Offset = Offset;
+						break;
+					}
+					case ColliderType2D::Capsule:
+					{
+						CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
 						ccComponent.Offset = Offset;
 						break;
 					}

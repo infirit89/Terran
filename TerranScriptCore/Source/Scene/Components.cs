@@ -111,7 +111,6 @@ namespace Terran
 
 	public class Collider2D : Component
 	{
-		
 		public Collider2D() { }
 
 		protected Collider2D(ColliderType2D type) 
@@ -171,7 +170,7 @@ namespace Terran
 
 	public class CapsuleCollider2D : Collider2D
 	{
-		public CapsuleCollider2D() : base(ColliderType2D.Circle) { }
+		public CapsuleCollider2D() : base(ColliderType2D.Capsule) { }
 
 		public Vector2 Size
 		{

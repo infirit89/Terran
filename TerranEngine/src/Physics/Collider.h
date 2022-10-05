@@ -16,9 +16,9 @@ namespace TerranEngine
 		None = 0,
 		Box,
 		Circle,
+        Capsule,
 		Edge,
-		Chain,
-        Capsule
+		Chain
 	};
 
 	class Collider2D

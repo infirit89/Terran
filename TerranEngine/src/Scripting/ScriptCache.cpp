@@ -59,6 +59,7 @@ namespace TerranEngine
 		CACHE_API_CLASS(Rigidbody2D);
 		CACHE_API_CLASS(BoxCollider2D);
 		CACHE_API_CLASS(CircleCollider2D);
+		CACHE_API_CLASS(CapsuleCollider2D);
 		CACHE_API_CLASS(Scriptable);
 		CACHE_API_CLASS(Tag);
 		CACHE_API_CLASS(Transform);

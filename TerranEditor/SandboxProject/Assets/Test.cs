@@ -3,63 +3,36 @@ using Terran;
 
 namespace SandboxProject 
 {
-    public enum TestEnum 
-    {
-        None = 0,
-        Test1,
-        Test2
-    }
-
     public class Sandbox : Scriptable 
     {
-        //public TestEnum Test = TestEnum.Test1;
-        public LayerMask LayerMask;
-        public Vector2 RayOrigin;
+        private CapsuleCollider2D _CapsuleCollider;
         protected override void Init()
         {
-            //Log.Trace("brtuh");
-            //Log.Trace("{0}", string.Format(" ", m_Test.GetArr));
-            Log.Trace(LayerMask.Value);
+            _CapsuleCollider = Entity.GetComponent<CapsuleCollider2D>();
+
+            if (_CapsuleCollider != null)
+                Log.Trace("cock");
         }
 
         protected override void Update()
         {
-            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(RayOrigin, -Vector2.Up, 10.0f, LayerMask);
+            Log.Trace(_CapsuleCollider.Offset);
+            Log.Trace(_CapsuleCollider.Size);
+            Log.Trace(_CapsuleCollider.IsSensor);
 
+            if (Input.IsKeyPressed(KeyCode.I)) _CapsuleCollider.IsSensor = !_CapsuleCollider.IsSensor;
 
-            foreach (var hitInfo in hitInfos)
-                Log.Trace(hitInfo.Rigidbody.Entity.Name);
+            if (Input.IsKeyPressed(KeyCode.W)) _CapsuleCollider.Offset += new Vector2(0.0f, 1.0f);
+            else if (Input.IsKeyPressed(KeyCode.S)) _CapsuleCollider.Offset -= new Vector2(0.0f, 1.0f);
 
-            //if(Input.IsKeyDown(KeyCode.A))
-            //    Log.Trace("key down");
+            if (Input.IsKeyPressed(KeyCode.D)) _CapsuleCollider.Offset += new Vector2(1.0f, 0.0f);
+            else if (Input.IsKeyPressed(KeyCode.A)) _CapsuleCollider.Offset -= new Vector2(1.0f, 0.0f);
 
-            //if (Input.IsKeyPressed(KeyCode.S))
-            //    Log.Trace("key pressed");
+            if (Input.IsKeyPressed(KeyCode.Up)) _CapsuleCollider.Size += new Vector2(0.0f, 1.0f);
+            else if (Input.IsKeyPressed(KeyCode.Down)) _CapsuleCollider.Size -= new Vector2(0.0f, 1.0f);
 
-            //if (Input.IsKeyReleased(KeyCode.D))
-            //    Log.Trace("key released");
-
-            //if (Input.IsMouseButtonDown(MouseButton.Button1))
-            //    Log.Trace("button down");
-
-            //if (Input.IsMouseButtonPressed(MouseButton.Button2))
-            //    Log.Trace("button pressed");
-
-            //if (Input.IsMouseButtonReleased(MouseButton.Button3))
-            //    Log.Trace("button released");
-        }
-    }
-
-    public class TestSandbox : Scriptable 
-    {
-        protected override void Init()
-        {
-            base.Init();
-        }
-
-        protected override void Update()
-        {
-            base.Update();
+            if (Input.IsKeyPressed(KeyCode.Right)) _CapsuleCollider.Size += new Vector2(1.0f, 0.0f);
+            else if (Input.IsKeyPressed(KeyCode.Left)) _CapsuleCollider.Size -= new Vector2(1.0f, 0.0f);
         }
     }
 }
