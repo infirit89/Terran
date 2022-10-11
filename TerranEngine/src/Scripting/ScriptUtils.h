@@ -17,7 +17,7 @@ namespace TerranEngine
     class ScriptUtils
     {
     public:
-        static void PrintUnhandledException(MonoException* monoException);
+        static std::string GetExceptionMessage(MonoException* monoException);
 
         static void SetFieldDataRaw(void* value, MonoClassField* monoField, GCHandle handle);
         static void GetFieldDataRaw(void* result, MonoClassField* monoField, GCHandle handle);

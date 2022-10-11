@@ -15,10 +15,10 @@ namespace TerranEngine
 #define TR_CORE_ASSEMBLY_INDEX 0
 #define TR_APP_ASSEMBLY_INDEX 1
 #define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
-	
 	class ScriptAssembly;
 	class ScriptEngine 
 	{
+		using LogFN = std::function<void(std::string, spdlog::level::level_enum)>;
 	public:
 		static void Initialize(const std::filesystem::path& scriptCoreAssemblyPath);
 		static void Shutdown();
@@ -48,6 +48,8 @@ namespace TerranEngine
 		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
 
         static void LoadAppAssembly();
+
+		static void SetLogCallback(LogFN logCallback);
 	private:
 		static void LoadCoreAssembly();
 		

@@ -76,6 +76,7 @@ namespace TerranEngine
 	
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
+		std::function<void(std::string, spdlog::level::level_enum)> LogCallback;
 	};
 
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
@@ -253,12 +254,32 @@ namespace TerranEngine
 				}
 			}
 		}
+
+		if (scriptFieldsStates.empty() && arrayScriptFieldsStates.empty())
+		{
+			for (auto [sceneID, scene] : SceneManager::GetActiveScenes())
+			{
+				auto scriptView = scene->GetEntitiesWith<ScriptComponent>();
+
+				for (auto e : scriptView)
+				{
+					Entity entity(e, scene.get());
+					InitializeScriptable(entity);
+				}
+
+			}
+		}
+
+		TR_INFO("Reloaded assemblies!");
+		s_Data->LogCallback("Reloaded assemblies!", spdlog::level::info);
 	}
 
 	void ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
 		coreAssembly = ScriptAssembly::LoadAssembly(s_Data->ScriptCoreAssemblyPath);
+		if (!coreAssembly) s_Data->LogCallback("Couldn't load the TerranScriptCore assembly", spdlog::level::err);
+
 		ScriptCache::CacheCoreClasses();
 	}
 
@@ -267,12 +288,17 @@ namespace TerranEngine
 		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
 		appAssembly = ScriptAssembly::LoadAssembly(Project::GetAppAssemblyPath());
 
-        if(appAssembly)
-        {
-            Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
-            ScriptCache::GenerateCacheForAssembly(assemblyInfo);
-        }
+		if (!appAssembly) 
+		{
+			s_Data->LogCallback("Couldn't load the ScriptAssembly assembly", spdlog::level::err);
+			return;
+		}
+
+        Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
+        ScriptCache::GenerateCacheForAssembly(assemblyInfo);
 	}
+
+	void ScriptEngine::SetLogCallback(LogFN logCallback) { s_Data->LogCallback = logCallback; }
 
 	void ScriptEngine::CreateAppDomain() 
 	{
@@ -344,9 +370,21 @@ namespace TerranEngine
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
+		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+
+		if (scriptComponent.ModuleName.empty()) return;
+
+		if (!ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
+		{
+			scriptComponent.ClassExists = false;
+			TR_ERROR("Class {0} doesn't exist", scriptComponent.ModuleName);
+			return;
+		}
+
+		scriptComponent.ClassExists = true;
+
 		if (s_Data->ScriptInstanceMap.find(entity.GetID()) == s_Data->ScriptInstanceMap.end())
 		{
-			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 			ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
 			
 			if (!klass) return;
@@ -367,7 +405,7 @@ namespace TerranEngine
 			
 			MonoException* exc = nullptr;
 			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exc);
-			ScriptUtils::PrintUnhandledException(exc);
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
 			
 			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
@@ -408,7 +446,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.InitMethod.Invoke(monoObject, &exc);
-			ScriptUtils::PrintUnhandledException(exc);
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
 		}
 	}
 
@@ -421,7 +459,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.UpdateMethod.Invoke(monoObject, &exc);
-			ScriptUtils::PrintUnhandledException(exc);
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
 		}
 	}
 
@@ -435,7 +473,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
-			ScriptUtils::PrintUnhandledException(exc);
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
 		}
 	}
 
@@ -449,7 +487,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
-			ScriptUtils::PrintUnhandledException(exc);
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
 		}
 	}
 
@@ -462,7 +500,7 @@ namespace TerranEngine
 			MonoException* exc = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
 			instance.PhysicsUpdateMethod.Invoke(monoObject, &exc);
-			ScriptUtils::PrintUnhandledException(exc);
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
 		}
 	}
 

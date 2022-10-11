@@ -63,7 +63,7 @@ namespace TerranEngine
 			}
 			case ScriptType::Char: 
 			{
-				char value = field->GetData<wchar_t>(handle);
+				char value = (char)field->GetData<wchar_t>(handle);
 				j[field->GetName()] = value;
 				break;
 			}

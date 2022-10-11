@@ -1144,7 +1144,7 @@ namespace TerranEngine
 			std::string message = ScriptMarshal::MonoStringToUTF8(monoMessage);
 			switch (logLevel)
 			{
-			case 1 << 0: TR_CLIENT_TRACE(message); TR_TRACE(message); break;
+			case 1 << 0: TR_CLIENT_TRACE(message); break;
 			case 1 << 1: TR_CLIENT_WARN(message); break;
 			case 1 << 2: TR_CLIENT_ERROR(message); break;
 			}

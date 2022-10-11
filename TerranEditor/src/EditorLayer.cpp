@@ -126,6 +126,8 @@ namespace TerranEditor
 
 		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);*/
 
+		ScriptEngine::SetLogCallback([this](std::string message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
+
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
         ScriptEngine::LoadAppAssembly();
 	}
@@ -396,6 +398,25 @@ namespace TerranEditor
 
 		if(tempSelected)
 			SelectionManager::Select(tempSelected);
+	}
+
+	void EditorLayer::OnScriptEngineLog(std::string message, spdlog::level::level_enum level)
+	{
+		switch (level)
+		{
+		case spdlog::level::trace:
+		case spdlog::level::debug:
+		case spdlog::level::info:
+			TR_CLIENT_INFO(message);
+			break;
+		case spdlog::level::warn:
+			TR_CLIENT_WARN(message);
+			break;
+		case spdlog::level::err:
+		case spdlog::level::critical:
+			TR_CLIENT_ERROR(message);
+			break;
+		}
 	}
 
 	void EditorLayer::OnViewportSizeChanged(glm::vec2 newViewportSize)

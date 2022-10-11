@@ -33,7 +33,7 @@ namespace TerranEngine
 
 		if (exc != nullptr) 
 		{
-			ScriptUtils::PrintUnhandledException(exc);
+			TR_ERROR(ScriptUtils::GetExceptionMessage(exc));
 			return nullptr;
 		}
 
@@ -52,7 +52,7 @@ namespace TerranEngine
 
 		if (exc != nullptr)
 		{
-			ScriptUtils::PrintUnhandledException(exc);
+			TR_ERROR(ScriptUtils::GetExceptionMessage(exc));
 			return nullptr;
 		}
 

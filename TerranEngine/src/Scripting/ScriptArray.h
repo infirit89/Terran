@@ -76,9 +76,9 @@ namespace TerranEngine
         Utils::Variant At(uint32_t index) const;
         Utils::Variant operator[](uint32_t index) const { return At(index); }
         
-        uint32_t Length() const { return m_Length; }
+        size_t Length() const { return m_Length; }
 
-        void Resize(uint32_t size);
+        void Resize(size_t size);
         
         template<typename T>
         void Set(uint32_t index, T value)
@@ -118,7 +118,7 @@ namespace TerranEngine
         // static MonoClass* GetMonoClassFromType();
         
         MonoArray* m_MonoArray = nullptr;
-        uint32_t m_Length = 0;
+        size_t m_Length = 0;
         ScriptType m_Type = {};        
     };
 }

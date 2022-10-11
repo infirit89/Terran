@@ -18,6 +18,8 @@ namespace TerranEngine
 		static const Shared<Scene>& GetCurrentScene() { return s_CurrentScene; }
 		static void SetCurrentScene(const Shared<Scene>& scene);
 
+		static std::unordered_map<UUID, Shared<Scene>>& GetActiveScenes() { return s_ActiveScenes; }
+
 	private:
 		static std::unordered_map<UUID, Shared<Scene>> s_ActiveScenes;
 		static Shared<Scene> s_CurrentScene;

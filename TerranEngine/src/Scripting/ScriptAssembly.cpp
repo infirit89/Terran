@@ -158,7 +158,7 @@ namespace TerranEngine
             status = MonoImageOpenStatus::MONO_IMAGE_OK;
             MonoAssembly* assembly = mono_assembly_load_from(assemblyImage, assemblyPath.string().c_str(), &status);
             TR_ASSERT(status == MonoImageOpenStatus::MONO_IMAGE_OK, "Couldn't load the mono assembly in location: {0}", assemblyPath.string());
-                
+
             scriptAssembly = CreateShared<ScriptAssembly>(assembly);
 
             mono_image_close(assemblyImage);

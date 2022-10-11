@@ -241,7 +241,7 @@ namespace TerranEditor
 		return layerMask;
 	}
 
-	bool UI::DrawComboBoxMulti(const std::string& label, const char** stateNames, uint32_t stateCount, bool* selectedElements)
+	bool UI::DrawComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
 		bool changed = false;
 
@@ -253,7 +253,7 @@ namespace TerranEditor
 			if (selectedElements[i])
 			{
 				selectedCount++;
-				lastSelectedIndex = i;
+				lastSelectedIndex = (int)i;
 			}
 		}
 
@@ -270,7 +270,7 @@ namespace TerranEditor
 		std::string comboHash = "##" + label;
 		if (ImGui::BeginCombo(comboHash.c_str(), currentState))
 		{
-			for (int i = 0; i < stateCount; i++)
+			for (size_t i = 0; i < stateCount; i++)
 			{
 				if (strlen(stateNames[i]) == 0) continue;
 
@@ -323,7 +323,8 @@ namespace TerranEditor
 			DrawFieldValue<wchar_t>(field, handle,
 			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 			{
-				std::string strVal; strVal += value;
+				// TODO: support wide strings
+				std::string strVal; strVal += (char)value;
 				bool changed = UI::DrawStringControl(fieldName, strVal, 0, 2);
 
 				if (strVal.empty()) return false;
@@ -531,8 +532,8 @@ namespace TerranEditor
 		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
 
 		ImGui::PushItemWidth(lineHeight * 1.5f);
-		uint32_t arrayLength = array.Length();
-		if (ImGui::DragScalar("##array_size", ImGuiDataType_U32, &arrayLength, 0.1f, nullptr, nullptr, nullptr))
+		size_t arrayLength = array.Length();
+		if (ImGui::DragScalar("##array_size", ImGuiDataType_U64, &arrayLength, 0.1f, nullptr, nullptr, nullptr))
 		{
 			array.Resize(arrayLength);
 			hasChanged = true;
@@ -916,6 +917,7 @@ namespace TerranEditor
 		return changed;
 	}
 
+	// TODO: support wide strings
 	bool UI::DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
 		bool changed = false;

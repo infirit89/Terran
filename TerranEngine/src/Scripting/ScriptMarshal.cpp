@@ -57,7 +57,7 @@ namespace TerranEngine
 	std::string ScriptMarshal::MonoStringToUTF8(MonoString* monoStr)
 	{
 		MonoError error;
-		const char* str = mono_string_to_utf8_checked(monoStr, &error);
+		char* str = mono_string_to_utf8_checked(monoStr, &error);
 
 		if (error.error_code != MONO_ERROR_NONE) 
 		{
@@ -92,7 +92,9 @@ namespace TerranEngine
 		case ScriptType::Vector3:	return *UnboxAddr<glm::vec3>(monoObject);
 		case ScriptType::Color:		return *UnboxAddr<glm::vec4>(monoObject);
 		case ScriptType::Entity: break;
-		}		
+		}	
+
+		return { };
 	}
 
 	Utils::Variant::Type ScriptMarshal::ScriptTypeToVariantType(const ScriptType& type)

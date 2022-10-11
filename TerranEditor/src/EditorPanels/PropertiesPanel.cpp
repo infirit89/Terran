@@ -49,7 +49,7 @@ namespace TerranEditor
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
 			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-			if (ImGui::ImageButton((ImTextureID)EditorResources::GetSettingsTexture()->GetTextureID(), 
+			if (ImGui::ImageButton((ImTextureID)(EditorResources::GetSettingsTexture()->GetTextureID()), 
 				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
 
@@ -239,16 +239,8 @@ namespace TerranEditor
 
 				DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component) 
 				{
-					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) 
-					{
-						if (ScriptEngine::ClassExists(component.ModuleName)) 
-						{
+					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
 							ScriptEngine::InitializeScriptable(entity);
-							component.ClassExists = true;
-						}
-						else
-							component.ClassExists = false;
-					}
 
 					if (!component.ClassExists) 
 					{
@@ -257,12 +249,11 @@ namespace TerranEditor
 						ImGui::PopStyleColor();
 					}
 
-					const auto& sc = entity.GetComponent<ScriptComponent>();
-					if (!sc.PublicFieldIDs.empty())
+					if (!component.PublicFieldIDs.empty())
 					{
 						const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 
-						for (const auto& fieldID : sc.PublicFieldIDs)
+						for (const auto& fieldID : component.PublicFieldIDs)
 						{
 							ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 

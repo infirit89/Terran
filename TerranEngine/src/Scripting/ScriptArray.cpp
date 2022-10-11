@@ -165,11 +165,11 @@ namespace TerranEngine
         return { };
     }
 
-    void ScriptArray::Resize(uint32_t size)
+    void ScriptArray::Resize(size_t size)
     {
         MonoArray* tempArr = mono_array_new(mono_domain_get(), (*m_Type.GetTypeClass()).GetMonoClass(), size);
 
-        const uint32_t copyCount = m_Length > size ? size : m_Length;
+        const size_t copyCount = m_Length > size ? size : m_Length;
         char* tempArrAddr = mono_array_addr_with_size(tempArr, m_Type.GetSize(), 0);
         char* arrAddr = GetElementAddress(0, m_Type.GetSize());
         memcpy(tempArrAddr, arrAddr, copyCount * m_Type.GetSize());

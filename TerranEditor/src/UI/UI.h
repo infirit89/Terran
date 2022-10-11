@@ -112,7 +112,7 @@ namespace TerranEditor
 		bool DrawScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, const std::string& fieldName, TerranEngine::ScriptArray& array);
 
 		template<typename TEnum>
-		bool DrawComboBox(const std::string& label, const char** stateNames, uint32_t stateCount, TEnum& selected) 
+		bool DrawComboBox(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected) 
 		{
 			bool changed = false;
 			const char* currentState = stateNames[(int32_t)selected];
@@ -123,7 +123,7 @@ namespace TerranEditor
             std::string comboHash = "##" + label;
 			if (ImGui::BeginCombo(comboHash.c_str(), currentState))
 			{
-				for (int i = 0; i < stateCount; i++)
+				for (size_t i = 0; i < stateCount; i++)
 				{
                     if(strlen(stateNames[i]) == 0) continue;
 
@@ -144,7 +144,7 @@ namespace TerranEditor
 			return changed;
 		}
 
-		bool DrawComboBoxMulti(const std::string& label, const char** stateNames, uint32_t stateCount, bool* selectedElements);
+		bool DrawComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
 	}
 }
 
