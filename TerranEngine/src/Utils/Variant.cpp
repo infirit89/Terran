@@ -1,16 +1,10 @@
 #include "trpch.h"
-#include "Utils.h"
+#include "Variant.h"
 
 namespace TerranEngine 
 {
     namespace Utils
     {
-        
-        glm::vec4 NormalizeColor4(const glm::vec4& color)
-        {
-            return { color.x / 255, color.y / 255, color.z / 255, color.w / 255 };
-        }
-
         Variant::Variant()
         {
             m_Type = Type::None;

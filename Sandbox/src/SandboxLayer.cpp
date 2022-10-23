@@ -90,14 +90,14 @@ namespace TerranEngine
 
 	void SandboxLayer::OnAttach()
 	{
-		Project::Init("", "");
-		ScriptEngine::Initialize();
+		//Project::Init("", "");
+		//ScriptEngine::Initialize();
 	}
 
 	void SandboxLayer::OnDettach()
 	{
-		Project::Uninitialize();
-		ScriptEngine::Shutdown();
+		/*Project::Uninitialize();
+		ScriptEngine::Shutdown();*/
 	}
 
 	void SandboxLayer::Update(Time& time)

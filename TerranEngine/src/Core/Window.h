@@ -33,7 +33,8 @@ namespace TerranEngine {
 		virtual void SetVsync(bool enable) = 0;
 		virtual bool IsVsync() const = 0;
 
-		virtual void Update() = 0;	
+		virtual void SwapBuffers() = 0;
+		virtual void PollEvents() = 0;
 		virtual void SetTitle(const char* title) = 0;
 
 		// NOTE: Using this, because I plan to be able to support other windowing libraries

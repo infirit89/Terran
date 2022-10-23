@@ -7,6 +7,8 @@
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <stb_image.h>
 
 #pragma warning (push)
@@ -35,9 +37,16 @@ namespace TerranEngine
 		m_Vsync = enable;
 		glfwSwapInterval(m_Vsync ? 1 : 0);
 	}
-	void GLFWWindow::Update()
+
+	void GLFWWindow::SwapBuffers()
 	{
+		TR_PROFILE_FUNCTION();
 		glfwSwapBuffers(m_Window);
+	}
+
+	void GLFWWindow::PollEvents()
+	{
+		TR_PROFILE_FUNCTION();
 		glfwPollEvents();
 	}
 

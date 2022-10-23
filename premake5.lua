@@ -25,6 +25,7 @@ group "Dependencies"
     include "TerranEngine/vendor/msdf-atlas-gen/msdfgen/Freetype"
     --include "TerranEngine/vendor/Freetype-GL"
     include "TerranEngine/vendor/Box2D"
+    include "TerranEngine/vendor/Optick"
 
 group ""
 

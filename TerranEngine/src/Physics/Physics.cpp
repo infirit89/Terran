@@ -4,6 +4,7 @@
 #include "ContatctListener.h"
 #include "RayCastCallbacks.h"
 #include "PhysicsLayerManager.h"
+#include "PhysicsBody.h"
 
 #include "Core/Settings.h"
 
@@ -13,7 +14,8 @@
 
 #include "Math/Math.h"
 
-#include <Physics/PhysicsBody.h>
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <box2d/box2d.h>
 
 #include <glm/gtx/transform.hpp>
@@ -93,6 +95,7 @@ namespace TerranEngine
 
 	Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
 	{
+		TR_PROFILE_FUNCTION();
 		Shared<PhysicsBody2D> physicsBody = CreateShared<PhysicsBody2D>(entity);
 		s_State->PhysicsBodies.emplace(entity.GetID(), physicsBody);
 		return physicsBody;
@@ -100,6 +103,7 @@ namespace TerranEngine
 
 	void Physics2D::DestroyPhysicsBody(Entity entity)
 	{
+		TR_PROFILE_FUNCTION();
 		if (s_State->PhysicsWorld) 
 		{
 			UUID id = entity.GetID();
@@ -114,7 +118,8 @@ namespace TerranEngine
 	}
 
 	void Physics2D::Update(Time time)
-	{		
+	{	
+		TR_PROFILE_FUNCTION();
 		s_State->PhysicsWorld->Step(s_State->Settings.PhysicsTimestep, s_State->Settings.VelocityIterations, s_State->Settings.PositionIterations);
 
 		s_State->PhysicsDeltaTime += time.GetDeltaTime();
@@ -137,6 +142,7 @@ namespace TerranEngine
 
 	void Physics2D::SyncTransforms()
 	{
+		TR_PROFILE_FUNCTION();
 		auto rigidbodyView = SceneManager::GetCurrentScene()->GetEntitiesWith<Rigidbody2DComponent>();
 
 		for (auto e : rigidbodyView)
@@ -184,6 +190,7 @@ namespace TerranEngine
 
 	bool Physics2D::RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask)
 	{
+		TR_PROFILE_FUNCTION();
 		RayCastClosestCallback raycastCallback(layerMask);
 		const b2Vec2 point1 = { origin.x, origin.y };
 		const b2Vec2 distance = { length * direction.x, length * direction.y };
@@ -198,6 +205,7 @@ namespace TerranEngine
 
 	std::vector<RayCastHitInfo2D> Physics2D::RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
 	{
+		TR_PROFILE_FUNCTION();
 		const b2Vec2 point1 = { origin.x, origin.y };
 		const b2Vec2 distance = { length * direction.x, length * direction.y };
 		const b2Vec2 point2 = point1 + distance;

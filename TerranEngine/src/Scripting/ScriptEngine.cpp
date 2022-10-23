@@ -18,7 +18,9 @@
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 
-#include "Utils/Utils.h"
+#include "Utils/Variant.h"
+
+#include "Utils/Debug/OptickProfiler.h"
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
@@ -80,7 +82,6 @@ namespace TerranEngine
 	};
 
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
-	static void UnhandledExceptionHook(MonoObject* exc, void *user_data);
 	
 	static ScriptEngineData* s_Data;
 
@@ -123,8 +124,6 @@ namespace TerranEngine
 		
 		for (size_t i = 0; i < TR_ASSEMBLIES; i++)
 			s_Data->Assemblies[i] = CreateShared<ScriptAssembly>();
-		
-		mono_install_unhandled_exception_hook(UnhandledExceptionHook, nullptr);		
 		
 		CreateAppDomain();
 
@@ -370,6 +369,7 @@ namespace TerranEngine
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
+		TR_PROFILE_FUNCTION();
 		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 
 		if (scriptComponent.ModuleName.empty()) return;
@@ -439,6 +439,7 @@ namespace TerranEngine
 
 	void ScriptEngine::OnStart(Entity entity) 
 	{
+		TR_PROFILE_FUNCTION();
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		if (instance.InitMethod)
@@ -452,6 +453,7 @@ namespace TerranEngine
 
 	void ScriptEngine::OnUpdate(Entity entity) 
 	{
+		TR_PROFILE_FUNCTION();
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		if (instance.UpdateMethod) 
@@ -465,6 +467,7 @@ namespace TerranEngine
 
 	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee)
 	{
+		TR_PROFILE_FUNCTION();
 		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
 
 		if (instance.PhysicsBeginContact) 
@@ -479,6 +482,7 @@ namespace TerranEngine
 
 	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee)
 	{
+		TR_PROFILE_FUNCTION();
 		ScriptableInstance instance = GetInstance(collider.GetSceneID(), collider.GetID());
 
 		if (instance.PhysicsEndContact)
@@ -493,6 +497,7 @@ namespace TerranEngine
 
 	void ScriptEngine::OnPhysicsUpdate(Entity entity)
 	{
+		TR_PROFILE_FUNCTION();
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
 
 		if (instance.PhysicsUpdateMethod) 
@@ -516,47 +521,6 @@ namespace TerranEngine
 		return instance.ObjectHandle;
 	}
 
-	// void ScriptEngine::ClearFieldBackupMap()
-	// {
-	// 	auto scriptFieldBackupCpy = s_ScriptFieldBackup;
-	// 	for (auto& [entityID, fieldBackupMap] : scriptFieldBackupCpy)
-	// 	{
-	// 		auto fieldBackupCpy = fieldBackupMap;
-	// 		for (auto& [fieldID, fieldData] : fieldBackupCpy)
-	// 		{
-	// 			fieldData.Clear();
-	// 			fieldBackupMap.erase(fieldID);
-	// 		}
-	//
-	// 		s_ScriptFieldBackup.erase(entityID);
-	// 	}
-	// }
-
-	// void ScriptEngine::SetCurrentFieldStates(const UUID& sceneID)
-	// {
-	// 	if (s_Data->ScriptInstanceMap.find(sceneID) != s_Data->ScriptInstanceMap.end())
-	// 	{
-	// 		std::unordered_map<UUID, ScriptableInstance> entityInstanceMap = s_Data->ScriptInstanceMap.at(sceneID);
-	// 		for (auto& [id, scriptableInstance] : entityInstanceMap)
-	// 		{
-	// 			std::unordered_map<uint32_t, Utils::Variant> fieldBackupMap;
-	// 			const GCHandle handle = GetScriptInstanceGCHandle(sceneID, id);
-	// 			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-	// 			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
-	// 			
-	// 			for (const auto& fieldID : scriptComponent.PublicFieldIDs)
-	// 			{
-	// 				ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-	// 				Utils::Variant fieldBackup = field->GetData<Utils::Variant>(handle);
-	//
-	// 				fieldBackupMap.emplace(fieldID, fieldBackup);
-	// 			}
-	//
-	// 			s_ScriptFieldBackup.emplace(id, std::move(fieldBackupMap));
-	// 		}
-	// 	}
-	// }
-
 	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData) 
 	{
 		if (logLevel != nullptr) 
@@ -568,10 +532,5 @@ namespace TerranEngine
 			else
 				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", logDomain, message, logLevel);
 		}
-	}
-
-	static void UnhandledExceptionHook(MonoObject* exc, void *user_data)
-	{
-		ScriptObject object(exc);
 	}
 }

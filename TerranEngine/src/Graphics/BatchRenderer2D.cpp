@@ -5,6 +5,8 @@
 
 #include "Math/Math.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <glm/mat4x4.hpp>
 #include <glm/glm.hpp>
 
@@ -190,6 +192,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView)
 	{
+		TR_PROFILE_FUNCTION();
 		Clear();
 
 		m_QuadShader->Bind();
@@ -214,6 +217,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID)
 	{
+		TR_PROFILE_FUNCTION();
 		glm::vec2 textureCoords[4] = 
 		{
 			{ 0.0f, 0.0f },
@@ -227,11 +231,13 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
+		TR_PROFILE_FUNCTION();
 		AddQuad(transform, color, nullptr, entityID);
 	}
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID)
 	{
+		TR_PROFILE_FUNCTION();
 		if (!QuadBatchHasRoom()) 
 		{
 			// Begin New Batch
@@ -276,6 +282,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID)
 	{
+		TR_PROFILE_FUNCTION();
 		if (!CircleBatchHasRoom())
 		{
 			// Begin New Batch
@@ -299,6 +306,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness)
 	{
+		TR_PROFILE_FUNCTION();
 		if (!LineBatchHasRoom()) 
 		{
 			EndFrame();
@@ -346,6 +354,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
 	{
+		TR_PROFILE_FUNCTION();
 		int timesToAdd = pointCount / 2;
 
 		for (size_t i = 0; i < timesToAdd; i++) 
@@ -357,6 +366,7 @@ namespace TerranEngine
 
 	static glm::vec2 CalculateTextSize(float size, const std::string& text, Shared<FontAtlas> fontAtlas) 
 	{
+		TR_PROFILE_FUNCTION();
 		glm::vec2 textSize = { 0.0f, 0.0f };
 		float lineWidth = 0.0f;
 
@@ -386,6 +396,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing, float lineWidth)
 	{
+		TR_PROFILE_FUNCTION();
 		if (!fontAtlas || !fontAtlas->GetTexture())
 			return;
 
@@ -534,6 +545,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
+		TR_PROFILE_FUNCTION();
 		glm::vec3 linePositions[4];
 
 		for (size_t i = 0; i < 4; i++)
@@ -547,6 +559,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
 	{
+		TR_PROFILE_FUNCTION();
 		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
 		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
 		AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
@@ -555,6 +568,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::EndFrame()
 	{
+		TR_PROFILE_FUNCTION();
 		m_Stats.VertexCount += m_QuadVertexPtrIndex + m_CircleVertexPtrIndex + m_LineVertexPtrIndex;
 		m_Stats.IndexCount +=  m_QuadIndexCount + m_CircleIndexCount + m_LineIndexCount;
 

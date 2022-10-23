@@ -8,14 +8,17 @@ namespace TerranEngine
 	class SandboxApp : public Application 
 	{
 	public:
-		SandboxApp() : Application()
+		SandboxApp(const ApplicationData& appData) 
+			: Application(appData)
 		{
+			// NOTE: this doesnt fuckinbg work anymore
+
 			WindowData data;
 			data.Name = "Sandbox";
 			data.Width = 1080;
 			data.Height = 790;
 
-			Create(data);
+			//Create(data);
 
 			PushLayer(new SandboxLayer());
 		}
@@ -26,8 +29,9 @@ namespace TerranEngine
 		}
 	};
 
-	Application* CreateApplication() 
+	Application* CreateApplication(int argc, char** argv) 
 	{
-		return new SandboxApp();
+		ApplicationData appData;
+		return new SandboxApp(appData);
 	}
 }

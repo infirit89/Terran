@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "Input.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 namespace TerranEngine 
 {
 	std::unordered_map<Key, InputState> Input::s_KeyStates;
@@ -20,6 +22,7 @@ namespace TerranEngine
 
 	void Input::Update() 
 	{
+		TR_PROFILE_FUNCTION();
 		for (auto& [key, keyState] : s_KeyStates)
 		{
 			keyState.PreviousState = keyState.CurrentState;

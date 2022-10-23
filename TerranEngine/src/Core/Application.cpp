@@ -16,6 +16,7 @@
 #include "Physics/Physics.h"
 
 #include "Utils/Debug/Profiler.h"
+#include "Utils/Debug/OptickProfiler.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -75,6 +76,7 @@ namespace TerranEngine
 
 		while (m_Running)
 		{
+			TR_PROFILE_FRAME("MainThread");
 			// NOTE: think about changing frametime to be a double
 			frameTime = glfwGetTime();
 			Time time(frameTime - lastFrameTime);
@@ -83,16 +85,26 @@ namespace TerranEngine
 			if (!m_Minimized)
 			{
 				RenderCommand::Clear();
-				for (Layer* layer : m_Stack.GetLayers())
-					layer->Update(time);
+				{
+					TR_PROFILE_SCOPE("Layer::OnUpdate");
+					for (Layer* layer : m_Stack.GetLayers())
+						layer->Update(time);
 
-				m_ImGuiLayer->BeginFrame();
-				for (Layer* layer : m_Stack.GetLayers())
-					layer->ImGuiRender();
+				}
+
+				m_ImGuiLayer->BeginFrame(); 
+				{
+					TR_PROFILE_SCOPE("Layer::ImGuiRender");
+					for (Layer* layer : m_Stack.GetLayers())
+						layer->ImGuiRender();
+				}
 				m_ImGuiLayer->EndFrame();
+
+				m_Window->SwapBuffers();
 			}
 
-			m_Window->Update();
+			m_Window->PollEvents();
+
 			Input::Update();
 
 			Profiler::Get().ClearResults();

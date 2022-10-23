@@ -33,7 +33,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/",
         "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
         "%{wks.location}/TerranEngine/vendor/mono/include/",
-        "%{wks.location}/TerranEngine/vendor/Box2D/include/"
+        "%{wks.location}/TerranEngine/vendor/Box2D/include/",
+        "%{wks.location}/TerranEngine/vendor/Optick/src/"
     } 
 
     libdirs 
@@ -49,7 +50,8 @@ project "TerranEngine"
         "GLAD",
         "opengl32.lib",
         "msdf-atlas-gen",
-        "Box2D"
+        "Box2D",
+        "OptickCore"
     }
 
     pchheader "trpch.h"

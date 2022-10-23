@@ -17,8 +17,10 @@
 
 #include "Project/Project.h"
 
-#include "Utils/Debug/Profiler.h"
 #include "Math/Math.h"
+
+#include "Utils/Debug/Profiler.h"
+#include "Utils/Debug/OptickProfiler.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -153,6 +155,7 @@ namespace TerranEngine
 	void Scene::Update(Time time)
 	{
 		TR_PROFILE_FUNCN("Scene::Update");
+		TR_PROFILE_FUNCTION();
 
 		UpdateTransformHierarchy();
 
@@ -169,6 +172,7 @@ namespace TerranEngine
 
 	void Scene::UpdateEditor()
 	{
+		TR_PROFILE_FUNCTION();
 		UpdateTransformHierarchy();
 	}
 
@@ -187,6 +191,7 @@ namespace TerranEngine
 
 	void Scene::OnRender(Shared<SceneRenderer>& sceneRenderer)
 	{
+		TR_PROFILE_FUNCTION();
 		Entity primaryCamera = GetPrimaryCamera();
 
 		glm::vec4 backgroundColor = glm::vec4(0.0f);
@@ -247,6 +252,7 @@ namespace TerranEngine
 	
 	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
+		TR_PROFILE_FUNCTION();
 		sceneRenderer->SetScene(this);
 		sceneRenderer->BeginScene(camera, cameraView, false);
 
@@ -464,6 +470,7 @@ namespace TerranEngine
 	void Scene::UpdateTransformHierarchy()
 	{
 		TR_PROFILE_FUNCN("Scene::UpdateTransformHierarchy");
+		TR_PROFILE_FUNCTION();
 
 		auto transformView = GetEntitiesWith<TransformComponent>();
 

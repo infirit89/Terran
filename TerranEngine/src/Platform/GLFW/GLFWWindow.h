@@ -18,7 +18,8 @@ namespace TerranEngine
 		inline int GetWidth() const override { return m_WindowDataPtr.Width; }
 		inline int GetHeight() const override { return m_WindowDataPtr.Height; }
 
-		void Update() override;
+		virtual void SwapBuffers() override;
+		virtual void PollEvents() override;
 		
 		virtual void* GetNativeWindow() { return m_Window; }
 		
