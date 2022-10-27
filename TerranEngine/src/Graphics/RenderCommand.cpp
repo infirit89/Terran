@@ -122,6 +122,12 @@ namespace TerranEngine
 		glDrawArrays(GL_TRIANGLES, 0, numIndices);
 	}
 
+	void RenderCommand::DrawInstanced(const Shared<VertexArray>& vertexArray, int instanceCount)
+	{
+		vertexArray->GetIndexBuffer()->Bind();
+		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+	}
+
 	uint32_t RenderCommand::GetAPIVersion()
 	{
 		return (GLVersion.major * 100) + (GLVersion.minor * 10);

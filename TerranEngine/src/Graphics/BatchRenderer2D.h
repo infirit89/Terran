@@ -37,9 +37,10 @@ namespace TerranEngine
 	struct LineVertex 
 	{
 		glm::vec3 Position;
-		float Thickness;
+		glm::vec3 PositionA;
+		glm::vec3 PositionB;
 		glm::vec4 Color;
-		glm::vec2 Normal;
+		float Thickness;
 	};
 	
 	struct TextVertex 
@@ -62,6 +63,7 @@ namespace TerranEngine
 		uint32_t GetQuadCount() { return VertexCount / 4; }
 	};
 
+	// TODO: make it static
 	class BatchRenderer2D
 	{
 	public:
@@ -78,7 +80,7 @@ namespace TerranEngine
 
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID = -1);
 
-		void AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness);
+		void AddLine();
 		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);
 
 		// TODO: use wide string
@@ -109,7 +111,9 @@ namespace TerranEngine
 		static BatchRenderer2D* m_Instance;
 		BatchRendererStats m_Stats;
 		glm::vec4 m_VertexPositions[4];
+		glm::vec4 m_LineVertexPositions[4];
 		uint32_t m_MaxVertices, m_MaxIndices;
+		uint32_t m_LineCount = 0;
 
 		static const uint32_t m_MaxTextureSlots = 16;
 		// *****************************

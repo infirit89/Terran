@@ -258,6 +258,8 @@ namespace TerranEngine
 
 		sceneRenderer->GetFramebuffer()->SetColorAttachment(1, -1);
 
+		BatchRenderer2D::Get()->AddLine();
+
 		// submit sprites
 		{
 			auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();

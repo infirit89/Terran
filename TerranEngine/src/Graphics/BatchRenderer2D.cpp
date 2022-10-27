@@ -131,9 +131,10 @@ namespace TerranEngine
 
 			m_LineVAO->AddVertexBufferLayout({
 				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 1 },
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 }
+				{ GL_FLOAT, 1 }
 			});
 
 			m_LineVAO->AddIndexBuffer(m_IndexBuffer);
@@ -168,6 +169,11 @@ namespace TerranEngine
 		m_VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
 		m_VertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
 		m_VertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		m_LineVertexPositions[0] = {  0.0f, -0.5f, 0.0f, 1.0f };
+		m_LineVertexPositions[1] = {  1.0f, -0.5f, 0.0f, 1.0f };
+		m_LineVertexPositions[2] = {  1.0f,  0.5f, 0.0f, 1.0f };
+		m_LineVertexPositions[3] = {  0.0f,  0.5f, 0.0f, 1.0f };
 
 		m_QuadShader->Bind();
 		m_CircleShader->Bind();
@@ -304,7 +310,7 @@ namespace TerranEngine
 		m_CircleIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec4& color, float thickness)
+	void BatchRenderer2D::AddLine()
 	{
 		TR_PROFILE_FUNCTION();
 		if (!LineBatchHasRoom()) 
@@ -313,41 +319,19 @@ namespace TerranEngine
 			Clear();
 		}
 
-		const glm::vec3 points[2] = { point1, point2 };
+		const glm::vec3 posA = { 0.0f, 0.0f, 0.0f };
+		const glm::vec3 posB = { 3.0f, 4.0f, 0.0f };
+		const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 
-		glm::vec3 lineNormal = glm::cross(point1, point2);
-		
-		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
-		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
-		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
-
-		m_LineVertexPtrIndex++;
-
-		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[0];
-		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
-
-		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
-
-		m_LineVertexPtrIndex++;
-
-		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
-		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
-
-		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = glm::normalize(lineNormal);
-
-		m_LineVertexPtrIndex++;
-
-		m_LineVertexPtr[m_LineVertexPtrIndex].Position = points[1];
-		m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
-		m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
-
-		m_LineVertexPtr[m_LineVertexPtrIndex].Normal = -glm::normalize(lineNormal);
-
-		m_LineVertexPtrIndex++;
-
+		for (size_t i = 0; i < 4; i++)
+		{
+			m_LineVertexPtr[m_LineVertexPtrIndex].Position = m_LineVertexPositions[i];
+			m_LineVertexPtr[m_LineVertexPtrIndex].PositionA = posA;
+			m_LineVertexPtr[m_LineVertexPtrIndex].PositionB = posB;
+			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
+			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = 0.1f;
+			m_LineVertexPtrIndex++;
+		}
 
 		m_LineIndexCount += 6;
 	}
@@ -360,7 +344,7 @@ namespace TerranEngine
 		for (size_t i = 0; i < timesToAdd; i++) 
 		{
 			int ind = i + 1 * i;
-			AddLine(points[ind], points[ind + 1], color, thickness);
+			//AddLine(points[ind], points[ind + 1], color, thickness);
 		}
 	}
 
@@ -551,19 +535,19 @@ namespace TerranEngine
 		for (size_t i = 0; i < 4; i++)
 			linePositions[i] = transform * m_VertexPositions[i];
 
-		AddLine(linePositions[0], linePositions[1], color, thickness);
+		/*AddLine(linePositions[0], linePositions[1], color, thickness);
 		AddLine(linePositions[1], linePositions[2], color, thickness);
 		AddLine(linePositions[2], linePositions[3], color, thickness);
-		AddLine(linePositions[3], linePositions[0], color, thickness);
+		AddLine(linePositions[3], linePositions[0], color, thickness);*/
 	}
 
 	void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
 	{
 		TR_PROFILE_FUNCTION();
-		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+		/*AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
 		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
 		AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
-		AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+		AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);*/
 	}
 
 	void BatchRenderer2D::EndFrame()
@@ -612,6 +596,7 @@ namespace TerranEngine
 			m_LineVBO->SetData(m_LineVertexPtr, m_LineVertexPtrIndex * sizeof(LineVertex));
 
 			RenderCommand::Draw(RenderMode::Triangles, m_LineVAO, m_LineIndexCount);
+			//RenderCommand::DrawInstanced(m_LineVAO, m_LineCount);
 
 			m_Stats.DrawCalls++;
 
@@ -638,6 +623,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::Clear()
 	{
+		m_LineCount = 0;
 		m_QuadVertexPtrIndex = 0;
 		m_QuadIndexCount = 0;
 		m_QuadTextureIndex = 1;
