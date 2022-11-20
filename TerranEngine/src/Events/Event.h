@@ -14,7 +14,7 @@ namespace TerranEngine
 		MouseMoved, MouseScrolled,
 		MouseButtonPressed, MouseButtonReleased,
 		WindowClosed, WindowResized,
-		JoystickChanged
+		GamepadConnected, GamepadDisconnected
 	};
 
 	enum EventCategory
@@ -23,7 +23,7 @@ namespace TerranEngine
 		EventCategoryApplication = 1 << 0,
 		EventCategoryKeyboard = 1 << 1,
 		EventCategoryMouse = 1 << 2,
-		EventCategoryJoystick = 1 << 3
+		EventCategoryGamepad = 1 << 3
 	};
 
 	class Event 
@@ -36,7 +36,7 @@ namespace TerranEngine
 
 		inline bool IsInCategory(EventCategory category) { return GetCategory() & category; }
 
-		bool isHandled = false;
+		bool IsHandled = false;
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
@@ -58,9 +58,9 @@ virtual EventType GetType() const override { return GetStaticType(); }
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{
-				if (!m_Event.isHandled) 
+				if (!m_Event.IsHandled) 
 				{
-					m_Event.isHandled |= func((T&)m_Event);
+					m_Event.IsHandled |= func((T&)m_Event);
 					return true;
 				}
 

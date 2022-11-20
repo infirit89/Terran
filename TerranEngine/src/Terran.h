@@ -14,6 +14,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
+#include "Events/GamepadEvent.h"
 #include "Events/Event.h"
 
 /* ---- ImGui ---- */

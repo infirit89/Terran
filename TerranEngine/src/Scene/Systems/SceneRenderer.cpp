@@ -29,6 +29,9 @@ namespace TerranEngine
 	{
 		m_Framebuffer->Bind();
 		
+		if (Input::IsKeyDown(Key::W))
+			RenderCommand::WireframeMode(true);
+
 		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
 		RenderCommand::Clear();
 
@@ -106,7 +109,7 @@ namespace TerranEngine
 				auto& transform = entity.GetTransform();
 
 				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				const float thickness = 0.02f;
+				const float thickness = 0.05f;
 
 				glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
 

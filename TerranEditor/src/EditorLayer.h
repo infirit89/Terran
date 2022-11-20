@@ -34,6 +34,8 @@ namespace TerranEditor
 
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
+		bool OnGamepadConnectedEvent(GamepadConnectedEvent& gEvent);
+		bool OnGamepadDisconnectedEvent(GamepadDisconnectedEvent& gEvent);
 		
 		void SaveSceneAs();
 		void NewScene();

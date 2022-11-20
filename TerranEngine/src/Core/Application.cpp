@@ -121,7 +121,7 @@ namespace TerranEngine
 
 		for (Layer* layer : m_Stack.GetLayers()) 
 		{
-			if (event.isHandled)
+			if (event.IsHandled)
 				break;
 
 			layer->OnEvent(event);

@@ -52,11 +52,7 @@ namespace TerranEngine {
 
 		static void Update();
 
-		static std::unordered_map<Key, InputState> GetKeyStates() { return s_KeyStates; }
-		static std::unordered_map<MouseButton, InputState> GetMouseButtonStates() { return s_MouseButtonStates; }
-
-	private:
-		static std::unordered_map<Key, InputState> s_KeyStates;
-		static std::unordered_map<MouseButton, InputState> s_MouseButtonStates;
+		static std::unordered_map<Key, InputState> GetKeyStates();
+		static std::unordered_map<MouseButton, InputState> GetMouseButtonStates();
 	};
 }

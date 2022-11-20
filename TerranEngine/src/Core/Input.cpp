@@ -5,9 +5,9 @@
 
 namespace TerranEngine 
 {
-	std::unordered_map<Key, InputState> Input::s_KeyStates;
-	std::unordered_map<MouseButton, InputState> Input::s_MouseButtonStates;
-
+	static std::unordered_map<Key, InputState> s_KeyStates;
+	static std::unordered_map<MouseButton, InputState> s_MouseButtonStates;
+	
 	void Input::Init() 
 	{
 		s_KeyStates.reserve(sizeof(InputUtils::Keys));
@@ -45,4 +45,7 @@ namespace TerranEngine
 	bool Input::IsMouseButtonDown(MouseButton button) { return s_MouseButtonStates[button].CurrentState == true; }
 	bool Input::IsMouseButtonReleased(MouseButton button) 
 	{ return s_MouseButtonStates[button].PreviousState == true && s_MouseButtonStates[button].CurrentState == false; }
+
+	std::unordered_map<MouseButton, InputState> Input::GetMouseButtonStates() { return s_MouseButtonStates; }
+	std::unordered_map<Key, InputState> Input::GetKeyStates() { return s_KeyStates; }
 }

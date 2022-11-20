@@ -6,6 +6,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
+#include "Events/GamepadEvent.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 
@@ -16,15 +17,11 @@
 
 namespace TerranEngine 
 {
-	struct JoystickDataPtr
-	{
-		Window::EventCallbackFn EventCallback;
-	};
-
-	static std::array<JoystickDataPtr, GLFW_JOYSTICK_LAST> s_JoystickData;
+	static GLFWWindow* s_CurrentWindow = nullptr;
 
 	GLFWWindow::GLFWWindow(WindowData data)
 	{
+		s_CurrentWindow = this;
 		InitWindow(data);
 	}
 	GLFWWindow::~GLFWWindow()
@@ -53,9 +50,6 @@ namespace TerranEngine
 	void GLFWWindow::SetEventCallbackFN(const EventCallbackFn& eventCallbackFN)
 	{
 		m_WindowDataPtr.EventCallback = eventCallbackFN;
-		
-		for (int jid = 0; jid < GLFW_JOYSTICK_LAST; jid++)
-			s_JoystickData[jid].EventCallback = eventCallbackFN;
 	}
 
 	void GLFWWindow::SetTitle(const char* title)
@@ -71,7 +65,9 @@ namespace TerranEngine
 		int glfwSuccess = glfwInit();
 		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
 		
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+#ifdef TR_DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 
 		if(data.Maximized)
 			glfwWindowHint(GLFW_MAXIMIZED, 1);
@@ -174,6 +170,26 @@ namespace TerranEngine
 				case GLFW_RELEASE: 
 				{
 					MouseButtonReleasedEvent e((MouseButton)button);
+					data.EventCallback(e);
+					break;
+				}
+			}
+		});
+
+		glfwSetJoystickCallback([](int joystickID, int event) 
+		{
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer((GLFWwindow*)s_CurrentWindow->GetNativeWindow());
+			switch (event)
+			{
+				case GLFW_CONNECTED: 
+				{
+					GamepadConnectedEvent e(joystickID);
+					data.EventCallback(e);
+					break;
+				}
+				case GLFW_DISCONNECTED: 
+				{
+					GamepadDisconnectedEvent e(joystickID);
 					data.EventCallback(e);
 					break;
 				}

@@ -56,8 +56,8 @@ namespace TerranEngine
 		if (m_BlockInput) 
 		{
 			ImGuiIO io = ImGui::GetIO();
-			event.isHandled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-			event.isHandled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+			event.IsHandled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+			event.IsHandled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
 		}
 	}
 

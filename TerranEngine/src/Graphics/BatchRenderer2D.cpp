@@ -310,7 +310,7 @@ namespace TerranEngine
 		m_CircleIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddLine()
+	void BatchRenderer2D::AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness)
 	{
 		TR_PROFILE_FUNCTION();
 		if (!LineBatchHasRoom()) 
@@ -319,34 +319,30 @@ namespace TerranEngine
 			Clear();
 		}
 
-		const glm::vec3 posA = { 0.0f, 0.0f, 0.0f };
-		const glm::vec3 posB = { 3.0f, 4.0f, 0.0f };
-		const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-
 		for (size_t i = 0; i < 4; i++)
 		{
 			m_LineVertexPtr[m_LineVertexPtrIndex].Position = m_LineVertexPositions[i];
-			m_LineVertexPtr[m_LineVertexPtrIndex].PositionA = posA;
-			m_LineVertexPtr[m_LineVertexPtrIndex].PositionB = posB;
+			m_LineVertexPtr[m_LineVertexPtrIndex].PositionA = startPoint;
+			m_LineVertexPtr[m_LineVertexPtrIndex].PositionB = endPoint;
 			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
-			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = 0.1f;
+			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
 			m_LineVertexPtrIndex++;
 		}
 
 		m_LineIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
-	{
-		TR_PROFILE_FUNCTION();
-		int timesToAdd = pointCount / 2;
+	//void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
+	//{
+	//	TR_PROFILE_FUNCTION();
+	//	int timesToAdd = pointCount / 2;
 
-		for (size_t i = 0; i < timesToAdd; i++) 
-		{
-			int ind = i + 1 * i;
-			//AddLine(points[ind], points[ind + 1], color, thickness);
-		}
-	}
+	//	for (size_t i = 0; i < timesToAdd; i++) 
+	//	{
+	//		int ind = i + 1 * i;
+	//		//AddLine(points[ind], points[ind + 1], color, thickness);
+	//	}
+	//}
 
 	static glm::vec2 CalculateTextSize(float size, const std::string& text, Shared<FontAtlas> fontAtlas) 
 	{
@@ -535,20 +531,21 @@ namespace TerranEngine
 		for (size_t i = 0; i < 4; i++)
 			linePositions[i] = transform * m_VertexPositions[i];
 
-		/*AddLine(linePositions[0], linePositions[1], color, thickness);
+		//AddLine({ 0.5f, 0.5f, 0.0f }, { 0.5f, -1.0f, 0.0f }, color, thickness);
+		AddLine(linePositions[0], linePositions[1], color, thickness);
 		AddLine(linePositions[1], linePositions[2], color, thickness);
 		AddLine(linePositions[2], linePositions[3], color, thickness);
-		AddLine(linePositions[3], linePositions[0], color, thickness);*/
+		AddLine(linePositions[3], linePositions[0], color, thickness);
 	}
 
-	void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
-	{
-		TR_PROFILE_FUNCTION();
-		/*AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
-		AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
-		AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
-		AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);*/
-	}
+	//void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
+	//{
+	//	TR_PROFILE_FUNCTION();
+	//	/*AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+	//	AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
+	//	AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
+	//	AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);*/
+	//}
 
 	void BatchRenderer2D::EndFrame()
 	{

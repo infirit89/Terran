@@ -80,13 +80,11 @@ namespace TerranEngine
 
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID = -1);
 
-		void AddLine();
-		void AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness);
-
+		void AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness);
+		
 		// TODO: use wide string
 		void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing = 1.0f, float lineWidth = 10.0f);
 		
-		void AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness);
 		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }

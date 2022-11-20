@@ -211,6 +211,8 @@ namespace TerranEditor
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnKeyPressedEvent));
 		dispatcher.Dispatch<WindowCloseEvent>(TR_EVENT_BIND_FN(EditorLayer::OnWindowCloseEvent));
+		dispatcher.Dispatch<GamepadConnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadConnectedEvent));
+		dispatcher.Dispatch<GamepadDisconnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadDisconnectedEvent));
 	}
 	
 	bool EditorLayer::OnKeyPressedEvent(KeyPressedEvent& kEvent)
@@ -256,6 +258,18 @@ namespace TerranEditor
 		if(m_SceneState == SceneState::Play)
 			OnSceneStop();
 
+		return false;
+	}
+
+	bool EditorLayer::OnGamepadConnectedEvent(GamepadConnectedEvent& gEvent)
+	{
+		TR_CLIENT_INFO("Connected controller: {0}", Input::GetControllerName(gEvent.GetGamepadID()));
+		return false;
+	}
+
+	bool EditorLayer::OnGamepadDisconnectedEvent(GamepadDisconnectedEvent& gEvent)
+	{
+		TR_CLIENT_INFO("Disconnected controller: {0}", Input::GetControllerName(gEvent.GetGamepadID()));
 		return false;
 	}
 	

@@ -31,8 +31,8 @@ void main()
 }*/
 
 layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec3 a_PositionA;
-layout(location = 2) in vec3 a_PositionB;
+layout(location = 1) in vec3 a_StartPoint;
+layout(location = 2) in vec3 a_EndPoint;
 layout(location = 3) in vec4 a_Color;
 layout(location = 4) in float a_Thickness;
 
@@ -54,9 +54,11 @@ layout(location = 0) out VS_OUT vsOut;
 
 void main(void) 
 {
-	vec2 xBasis = a_PositionA.xy + a_PositionB.xy;
+	vec2 xBasis = a_EndPoint.xy - a_StartPoint.xy;
 	vec2 yBasis = normalize(vec2(-xBasis.y, xBasis.x));
-	vec2 point = a_PositionA.xy + xBasis * a_Position.x + yBasis * (a_Thickness * 0.1) * a_Position.y;
-	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(point, 0.0, 1.0);
+	//vec2 point = a_StartPoint.xy + xBasis * a_Position.x + yBasis * (a_Thickness * 0.1) * a_Position.y;
+	vec2 point = a_StartPoint.xy + xBasis * a_Position.x + yBasis * a_Thickness * a_Position.y;
+	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * mat4(1.0) * vec4(point, 0.0, 1.0);
 	vsOut.Color = a_Color;
+
 }
