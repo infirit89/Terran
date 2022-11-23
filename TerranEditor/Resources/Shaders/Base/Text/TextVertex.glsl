@@ -4,6 +4,7 @@ layout(location = 0) in vec3	a_WorldPos;
 layout(location = 1) in int		a_TexIndex;
 layout(location = 2) in vec4	a_TextColor;
 layout(location = 3) in vec2	a_TexCoords;
+layout(location = 4) in int		a_EntityID;
 
 layout(std140, binding = 0) uniform Camera 
 {
@@ -16,10 +17,11 @@ struct VS_OUT
 {
 	vec4	TextColor;
 	vec2	TexCoords;
+	int		EntityID;
 };
 
-layout(location = 0) out VS_OUT vsOut;
-layout(location = 2) out flat int i_TexIndex;
+layout(location = 0) out VS_OUT		vsOut;
+layout(location = 3) out flat int	i_TexIndex;
 
 void main() 
 {
@@ -27,5 +29,7 @@ void main()
 
 	vsOut.TextColor = a_TextColor;
 	vsOut.TexCoords = a_TexCoords;
+	vsOut.EntityID = a_EntityID;
+
 	i_TexIndex = a_TexIndex;
 }

@@ -41,6 +41,14 @@ namespace TerranEngine
 		glm::vec3 PositionB;
 		glm::vec4 Color;
 		float Thickness;
+		int EntityID;
+	};
+
+	struct DebugLineVertex 
+	{
+		glm::vec3 StartPoint;
+		glm::vec3 EndPoint;
+		glm::vec4 Color;
 	};
 	
 	struct TextVertex 
@@ -49,6 +57,7 @@ namespace TerranEngine
 		int TextureIndex;
 		glm::vec4 TextColor;
 		glm::vec2 TextureCoordinates;
+		int EntityID;
 	};
 
 	struct BatchRendererStats
@@ -80,10 +89,13 @@ namespace TerranEngine
 
 		void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID = -1);
 
-		void AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness);
+		void AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness, int entityID = -1);
+
+		void AddDebugLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color);
 		
 		// TODO: use wide string
-		void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing = 1.0f, float lineWidth = 10.0f);
+		void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, 
+			float lineSpacing = 1.0f, float lineWidth = 10.0f, int entityID = -1);
 		
 		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
@@ -92,6 +104,8 @@ namespace TerranEngine
 		inline bool CircleBatchHasRoom() const { return !(m_CircleIndexCount >= m_MaxIndices); }
 
 		inline bool LineBatchHasRoom() const { return !(m_LineIndexCount >= m_MaxIndices); }
+
+		inline bool DebugLineBatchHasRoom() const { return !(m_DebugLineIndexCount >= m_MaxIndices); }
 		
 		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 
@@ -111,7 +125,6 @@ namespace TerranEngine
 		glm::vec4 m_VertexPositions[4];
 		glm::vec4 m_LineVertexPositions[4];
 		uint32_t m_MaxVertices, m_MaxIndices;
-		uint32_t m_LineCount = 0;
 
 		static const uint32_t m_MaxTextureSlots = 16;
 		// *****************************
@@ -143,7 +156,7 @@ namespace TerranEngine
 		uint32_t m_CircleVertexPtrIndex = 0;
 		// ************************
 
-		// NOTE: shitty line renderer should change soon
+		// NOTE: not so shitty anymore; still a bit bad
 		// ******** Line ******** 
 		uint32_t m_LineIndexCount = 0;
 		Shared<Shader> m_LineShader;
@@ -154,6 +167,17 @@ namespace TerranEngine
 		LineVertex* m_LineVertexPtr = nullptr;
 		uint32_t m_LineVertexPtrIndex = 0;
 		// **********************
+
+		// ******** Debug Line ******** 
+		uint32_t m_DebugLineIndexCount = 0;
+		Shared<Shader> m_DebugLineShader;
+
+		Shared<VertexArray> m_DebugLineVAO;
+		Shared<VertexBuffer> m_DebugLineVBO;
+
+		DebugLineVertex* m_DebugLineVertexPtr = nullptr;
+		uint32_t m_DebugLineVertexPtrIndex = 0;
+		// ****************************
 
 		// ******** Text ********
 		uint32_t m_TextIndexCount = 0;

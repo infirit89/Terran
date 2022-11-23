@@ -8,15 +8,16 @@ struct VS_OUT
 {
 	vec4	TextColor;
 	vec2	TexCoords;
+	int		EntityID;
 };
 
 layout(location = 0) in VS_OUT fsIn;
 
 // TODO change this to an int
-layout(location = 2) in flat int i_TexIndex;
+layout(location = 3) in flat int i_TexIndex;
 
-layout(location = 0) out vec4 o_Color;
-layout(location = 1) out int entityID;
+layout(location = 0) out vec4	o_Color;
+layout(location = 1) out int	entityID;
 
 uniform sampler2D u_Samplers[16];
 
@@ -57,5 +58,5 @@ void main()
 
 	//o_Color = fsIn.Color * vec4(1.0, 1.0, 1.0, texture(u_Samplers[index], fsIn.TexCoords).r);
 
-	entityID = 1;
+	entityID = fsIn.EntityID;
 }

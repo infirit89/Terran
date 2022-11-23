@@ -30,11 +30,12 @@ void main()
 	vsOut.Color = a_Color;
 }*/
 
-layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec3 a_StartPoint;
-layout(location = 2) in vec3 a_EndPoint;
-layout(location = 3) in vec4 a_Color;
-layout(location = 4) in float a_Thickness;
+layout(location = 0) in vec3	a_Position;
+layout(location = 1) in vec3	a_StartPoint;
+layout(location = 2) in vec3	a_EndPoint;
+layout(location = 3) in vec4	a_Color;
+layout(location = 4) in float	a_Thickness;
+layout(location = 5) in int		a_EntityID;
 
 layout(std140, binding = 0) uniform Camera 
 {
@@ -46,11 +47,11 @@ layout(std140, binding = 0) uniform Camera
 
 struct VS_OUT 
 {
-	vec4 Color;
+	vec4	Color;
+	int		EntityID;
 };
 
 layout(location = 0) out VS_OUT vsOut;
-
 
 void main(void) 
 {
@@ -60,5 +61,6 @@ void main(void)
 	vec2 point = a_StartPoint.xy + xBasis * a_Position.x + yBasis * a_Thickness * a_Position.y;
 	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * mat4(1.0) * vec4(point, 0.0, 1.0);
 	vsOut.Color = a_Color;
+	vsOut.EntityID = a_EntityID;
 
 }

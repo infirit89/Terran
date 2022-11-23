@@ -2,7 +2,8 @@
 
 struct VS_OUT 
 {
-	vec4 Color;
+	vec4	Color;
+	int		EntityID;
 };
 
 layout(location = 0) in VS_OUT fsIn;
@@ -13,5 +14,5 @@ layout(location = 1) out int entityID;
 void main() 
 {
 	color = fsIn.Color;
-	entityID = 1;
+	entityID = fsIn.EntityID;
 }

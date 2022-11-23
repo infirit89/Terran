@@ -134,7 +134,8 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 3 },
 				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 1 }
+				{ GL_FLOAT, 1 },
+				{ GL_INT,	1 }
 			});
 
 			m_LineVAO->AddIndexBuffer(m_IndexBuffer);
@@ -153,7 +154,8 @@ namespace TerranEngine
 				{ GL_FLOAT, 3 },
 				{ GL_INT,	1 },
 				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 }
+				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 }
 			});
 
 			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
@@ -164,6 +166,29 @@ namespace TerranEngine
 			m_TextShader->Unbind();
 		}
 		// **********************
+
+		// ******** Debug Line ******** 
+		{
+			m_DebugLineVertexPtr = new DebugLineVertex[m_MaxVertices];
+			m_DebugLineVAO = CreateShared<VertexArray>();
+			m_DebugLineVBO = CreateShared<VertexBuffer>(m_MaxVertices * sizeof(DebugLineVertex));
+
+			m_DebugLineVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_INT,	1 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 }
+				});
+
+			m_DebugLineVAO->AddIndexBuffer(m_IndexBuffer);
+
+			m_DebugLineShader = CreateShared<Shader>("DefaultTextShader", "Resources/Shaders/Debug/Line/LineVertex.glsl", "Resources/Shaders/Debug/Line/LineFragment.glsl");
+			m_DebugLineShader->Bind();
+			m_DebugLineShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
+			m_DebugLineShader->Unbind();
+		}
+		// ****************************
 
 		m_VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		m_VertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
@@ -179,6 +204,7 @@ namespace TerranEngine
 		m_CircleShader->Bind();
 		m_LineShader->Bind();
 		m_TextShader->Bind();
+		m_DebugLineShader->Bind();
 
 		m_CameraBuffer = CreateShared<UniformBuffer>(sizeof(CameraData), 0);
 
@@ -186,6 +212,7 @@ namespace TerranEngine
 		m_CircleShader->Unbind();
 		m_LineShader->Unbind();
 		m_TextShader->Unbind();
+		m_DebugLineShader->Unbind();
 	}
 
 	void BatchRenderer2D::Shutdown()
@@ -194,6 +221,7 @@ namespace TerranEngine
 		delete[] m_CircleVertexPtr;
 		delete[] m_LineVertexPtr;
 		delete[] m_TextVertexPtr;
+		delete[] m_DebugLineVertexPtr;
 	}
 
 	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView)
@@ -205,6 +233,7 @@ namespace TerranEngine
 		m_CircleShader->Bind();
 		m_LineShader->Bind();
 		m_TextShader->Bind();
+		m_DebugLineShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
 		m_CameraData.View = transform;
@@ -219,6 +248,7 @@ namespace TerranEngine
 		m_CircleShader->Unbind();
 		m_LineShader->Unbind();
 		m_TextShader->Unbind();
+		m_DebugLineShader->Unbind();
 	}
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID)
@@ -310,7 +340,7 @@ namespace TerranEngine
 		m_CircleIndexCount += 6;
 	}
 
-	void BatchRenderer2D::AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness)
+	void BatchRenderer2D::AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness, int entityID)
 	{
 		TR_PROFILE_FUNCTION();
 		if (!LineBatchHasRoom()) 
@@ -326,10 +356,31 @@ namespace TerranEngine
 			m_LineVertexPtr[m_LineVertexPtrIndex].PositionB = endPoint;
 			m_LineVertexPtr[m_LineVertexPtrIndex].Color = color;
 			m_LineVertexPtr[m_LineVertexPtrIndex].Thickness = thickness;
+			m_LineVertexPtr[m_LineVertexPtrIndex].EntityID = entityID;
 			m_LineVertexPtrIndex++;
 		}
 
 		m_LineIndexCount += 6;
+	}
+
+	void BatchRenderer2D::AddDebugLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color)
+	{
+		TR_PROFILE_FUNCTION();
+		if (!DebugLineBatchHasRoom())
+		{
+			EndFrame();
+			Clear();
+		}
+
+		for (size_t i = 0; i < 2; i++)
+		{
+			m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].StartPoint = startPoint;
+			m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].EndPoint = endPoint;
+			m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].Color = color;
+			m_DebugLineVertexPtrIndex++;
+		}
+
+		m_DebugLineIndexCount += 2;
 	}
 
 	//void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
@@ -374,7 +425,8 @@ namespace TerranEngine
 		return textSize;
 	}
 
-	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, float lineSpacing, float lineWidth)
+	void BatchRenderer2D::AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, 
+		Shared<FontAtlas> fontAtlas, float lineSpacing, float lineWidth, int entityID)
 	{
 		TR_PROFILE_FUNCTION();
 		if (!fontAtlas || !fontAtlas->GetTexture())
@@ -461,6 +513,7 @@ namespace TerranEngine
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = color;
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = glyph.UVs[i];
 				m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
+				m_TextVertexPtr[m_TextVertexPtrIndex].EntityID = entityID;
 
 				m_TextVertexPtrIndex++;
 			}
@@ -472,57 +525,6 @@ namespace TerranEngine
 		}
 	}
 
-#if 0
-	void BatchRenderer2D::AddText(glm::mat4& transform, Shared<FontAtlas> fontAtlas)
-	{
-		if (!TextBatchHasRoom())
-		{
-			// Begin New Batch
-			EndFrame();
-			Clear();
-		}
-
-		int texIndex = -1;
-
-		for (size_t i = 0; i < m_TextTextureIndex; i++)
-		{
-			if (m_TextTextures[i] == fontAtlas->GetTexture())
-			{
-				texIndex = i;
-				break;
-			}
-		}
-
-		if (texIndex == -1)
-		{
-			texIndex = m_TextTextureIndex;
-			m_TextTextures[m_TextTextureIndex] = fontAtlas->GetTexture();
-			m_TextTextureIndex++;
-		}
-
-		constexpr glm::vec2 textureCoords[4] =
-		{
-			{ 0.0f, 0.0f },
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f },
-			{ 0.0f, 1.0f },
-		};
-
-		for (size_t i = 0; i < 4; i++)
-		{
-			m_TextVertexPtr[m_TextVertexPtrIndex].Position = transform * m_VertexPositions[i];
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextureCoordinates = textureCoords[i];
-			m_TextVertexPtr[m_TextVertexPtrIndex].TextureIndex = texIndex;
-
-			m_TextVertexPtrIndex++;
-		}
-
-		m_TextIndexCount += 6;
-
-	}
-#endif
-
 	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
 	{
 		TR_PROFILE_FUNCTION();
@@ -531,21 +533,11 @@ namespace TerranEngine
 		for (size_t i = 0; i < 4; i++)
 			linePositions[i] = transform * m_VertexPositions[i];
 
-		//AddLine({ 0.5f, 0.5f, 0.0f }, { 0.5f, -1.0f, 0.0f }, color, thickness);
 		AddLine(linePositions[0], linePositions[1], color, thickness);
 		AddLine(linePositions[1], linePositions[2], color, thickness);
 		AddLine(linePositions[2], linePositions[3], color, thickness);
 		AddLine(linePositions[3], linePositions[0], color, thickness);
 	}
-
-	//void BatchRenderer2D::AddRect(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, float thickness)
-	//{
-	//	TR_PROFILE_FUNCTION();
-	//	/*AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
-	//	AddLine({ position.x - size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, color, thickness);
-	//	AddLine({ position.x + size.x * 0.5f, position.y + size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);
-	//	AddLine({ position.x - size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, { position.x + size.x * 0.5f, position.y - size.y * 0.5f, 1.0f }, color, thickness);*/
-	//}
 
 	void BatchRenderer2D::EndFrame()
 	{
@@ -616,11 +608,25 @@ namespace TerranEngine
 
 			m_TextShader->Unbind();
 		}
+
+		// Submit debug line
+		if (m_LineIndexCount) 
+		{
+			m_DebugLineShader->Bind();
+			m_DebugLineVAO->Bind();
+			m_DebugLineVBO->SetData(m_DebugLineVertexPtr, m_DebugLineVertexPtrIndex * sizeof(DebugLineVertex));
+
+			RenderCommand::Draw(RenderMode::Lines, m_DebugLineVAO, m_DebugLineIndexCount);
+
+			// TODO: maybe add a line section in the batch renderer stats
+			//m_Stats.DrawCalls++;
+
+			m_DebugLineShader->Unbind();
+		}
 	}
 
 	void BatchRenderer2D::Clear()
 	{
-		m_LineCount = 0;
 		m_QuadVertexPtrIndex = 0;
 		m_QuadIndexCount = 0;
 		m_QuadTextureIndex = 1;
@@ -634,5 +640,8 @@ namespace TerranEngine
 		m_TextIndexCount = 0;
 		m_TextVertexPtrIndex = 0;
 		m_TextTextureIndex = 0;
+
+		m_DebugLineVertexPtrIndex = 0;
+		m_DebugLineIndexCount = 0;
 	}
 }
