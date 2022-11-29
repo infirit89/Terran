@@ -33,8 +33,9 @@ namespace TerranEngine
 		static void EnableDepthTesting(bool state);
 
 		static void Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices);
-		static void DrawArrays(int numIndices);
+		static void DrawArrays(RenderMode mode, int numVertices);
 		static void DrawInstanced(const Shared<VertexArray>& vertexArray, int instanceCount);
+		static void SetLineWidth(float lineWidth);
 
 		static uint32_t GetAPIVersion();
 	};

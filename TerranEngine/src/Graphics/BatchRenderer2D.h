@@ -46,8 +46,7 @@ namespace TerranEngine
 
 	struct DebugLineVertex 
 	{
-		glm::vec3 StartPoint;
-		glm::vec3 EndPoint;
+		glm::vec3 Position;
 		glm::vec4 Color;
 	};
 	
@@ -68,11 +67,9 @@ namespace TerranEngine
 		uint32_t IndexCount = 0;
 
 		uint32_t DrawCalls = 0;
-
-		uint32_t GetQuadCount() { return VertexCount / 4; }
 	};
 
-	// TODO: make it static
+	// TODO: make it static; because every other system is static
 	class BatchRenderer2D
 	{
 	public:
@@ -92,12 +89,12 @@ namespace TerranEngine
 		void AddLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color, float thickness, int entityID = -1);
 
 		void AddDebugLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color);
+		void AddDebugRect(const glm::mat4& transform, const glm::vec4& color);
 		
 		// TODO: use wide string
 		void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, 
 			float lineSpacing = 1.0f, float lineWidth = 10.0f, int entityID = -1);
 		
-		void AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness);
 
 		inline bool QuadBatchHasRoom() const { return !(m_QuadIndexCount >= m_MaxIndices) && !(m_QuadTextureIndex >= m_MaxTextureSlots); }
 		
@@ -105,8 +102,6 @@ namespace TerranEngine
 
 		inline bool LineBatchHasRoom() const { return !(m_LineIndexCount >= m_MaxIndices); }
 
-		inline bool DebugLineBatchHasRoom() const { return !(m_DebugLineIndexCount >= m_MaxIndices); }
-		
 		inline bool TextBatchHasRoom() const { return !(m_TextIndexCount >= m_MaxIndices) && !(m_TextTextureIndex >= m_MaxTextureSlots); }
 
 		inline void ResetStats() { memset(&m_Stats, 0, sizeof(BatchRendererStats)); }
@@ -168,8 +163,7 @@ namespace TerranEngine
 		uint32_t m_LineVertexPtrIndex = 0;
 		// **********************
 
-		// ******** Debug Line ******** 
-		uint32_t m_DebugLineIndexCount = 0;
+		// ******** Debug Line ********
 		Shared<Shader> m_DebugLineShader;
 
 		Shared<VertexArray> m_DebugLineVAO;

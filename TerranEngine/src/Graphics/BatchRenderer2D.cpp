@@ -155,7 +155,7 @@ namespace TerranEngine
 				{ GL_INT,	1 },
 				{ GL_FLOAT, 4 },
 				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 }
+				{ GL_INT,	1 },
 			});
 
 			m_TextVAO->AddIndexBuffer(m_IndexBuffer);
@@ -175,18 +175,10 @@ namespace TerranEngine
 
 			m_DebugLineVAO->AddVertexBufferLayout({
 				{ GL_FLOAT, 3 },
-				{ GL_INT,	1 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 }
-				});
-
-			m_DebugLineVAO->AddIndexBuffer(m_IndexBuffer);
+				{ GL_FLOAT, 4 }
+			});
 
 			m_DebugLineShader = CreateShared<Shader>("DefaultTextShader", "Resources/Shaders/Debug/Line/LineVertex.glsl", "Resources/Shaders/Debug/Line/LineFragment.glsl");
-			m_DebugLineShader->Bind();
-			m_DebugLineShader->UploadIntArray("u_Samplers", m_MaxTextureSlots, samplers);
-			m_DebugLineShader->Unbind();
 		}
 		// ****************************
 
@@ -236,10 +228,7 @@ namespace TerranEngine
 		m_DebugLineShader->Bind();
 
 		m_CameraData.Projection = camera.GetProjection();
-		m_CameraData.View = transform;
-
-		if (inverseView)
-			m_CameraData.View = glm::inverse(m_CameraData.View);
+		m_CameraData.View = inverseView ? glm::inverse(transform) : transform;
 
 		m_CameraBuffer->Bind();
 		m_CameraBuffer->SetData(&m_CameraData, 0, sizeof(CameraData));
@@ -366,21 +355,19 @@ namespace TerranEngine
 	void BatchRenderer2D::AddDebugLine(const glm::vec3& startPoint, const glm::vec3& endPoint, const glm::vec4& color)
 	{
 		TR_PROFILE_FUNCTION();
-		if (!DebugLineBatchHasRoom())
+		/*if (!DebugLineBatchHasRoom())
 		{
 			EndFrame();
 			Clear();
-		}
+		}*/
 
-		for (size_t i = 0; i < 2; i++)
-		{
-			m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].StartPoint = startPoint;
-			m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].EndPoint = endPoint;
-			m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].Color = color;
-			m_DebugLineVertexPtrIndex++;
-		}
+		m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].Position = startPoint;
+		m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].Color = color;
+		m_DebugLineVertexPtrIndex++;
 
-		m_DebugLineIndexCount += 2;
+		m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].Position = endPoint;
+		m_DebugLineVertexPtr[m_DebugLineVertexPtrIndex].Color = color;
+		m_DebugLineVertexPtrIndex++;
 	}
 
 	//void BatchRenderer2D::AddLine(const glm::vec3 points[], int pointCount, const glm::vec4& color, float thickness)
@@ -525,18 +512,20 @@ namespace TerranEngine
 		}
 	}
 
-	void BatchRenderer2D::AddRect(const glm::mat4& transform, const glm::vec4& color, float thickness)
+	void BatchRenderer2D::AddDebugRect(const glm::mat4& transform, const glm::vec4& color)
 	{
 		TR_PROFILE_FUNCTION();
 		glm::vec3 linePositions[4];
 
-		for (size_t i = 0; i < 4; i++)
-			linePositions[i] = transform * m_VertexPositions[i];
-
-		AddLine(linePositions[0], linePositions[1], color, thickness);
-		AddLine(linePositions[1], linePositions[2], color, thickness);
-		AddLine(linePositions[2], linePositions[3], color, thickness);
-		AddLine(linePositions[3], linePositions[0], color, thickness);
+		linePositions[0] = transform * glm::vec4({ -0.5f, -0.5f, 0.0f, 1.0f });
+		linePositions[1] = transform * glm::vec4({	0.5f, -0.5f, 0.0f, 1.0f });
+		linePositions[2] = transform * glm::vec4({	0.5f,  0.5f, 0.0f, 1.0f });
+		linePositions[3] = transform * glm::vec4({ -0.5f,  0.5f, 0.0f, 1.0f });
+		
+		AddDebugLine(linePositions[0], linePositions[1], color);
+		AddDebugLine(linePositions[2], linePositions[1], color);
+		AddDebugLine(linePositions[3], linePositions[2], color);
+		AddDebugLine(linePositions[0], linePositions[3], color);
 	}
 
 	void BatchRenderer2D::EndFrame()
@@ -585,8 +574,7 @@ namespace TerranEngine
 			m_LineVBO->SetData(m_LineVertexPtr, m_LineVertexPtrIndex * sizeof(LineVertex));
 
 			RenderCommand::Draw(RenderMode::Triangles, m_LineVAO, m_LineIndexCount);
-			//RenderCommand::DrawInstanced(m_LineVAO, m_LineCount);
-
+			
 			m_Stats.DrawCalls++;
 
 			m_LineShader->Unbind();
@@ -610,13 +598,15 @@ namespace TerranEngine
 		}
 
 		// Submit debug line
-		if (m_LineIndexCount) 
+		if (m_DebugLineVertexPtrIndex) 
 		{
 			m_DebugLineShader->Bind();
 			m_DebugLineVAO->Bind();
 			m_DebugLineVBO->SetData(m_DebugLineVertexPtr, m_DebugLineVertexPtrIndex * sizeof(DebugLineVertex));
 
-			RenderCommand::Draw(RenderMode::Lines, m_DebugLineVAO, m_DebugLineIndexCount);
+			constexpr float debugLineWidth = 2.0f;
+			RenderCommand::SetLineWidth(debugLineWidth);
+			RenderCommand::DrawArrays(RenderMode::Lines, m_DebugLineVertexPtrIndex);
 
 			// TODO: maybe add a line section in the batch renderer stats
 			//m_Stats.DrawCalls++;
@@ -642,6 +632,5 @@ namespace TerranEngine
 		m_TextTextureIndex = 0;
 
 		m_DebugLineVertexPtrIndex = 0;
-		m_DebugLineIndexCount = 0;
 	}
 }

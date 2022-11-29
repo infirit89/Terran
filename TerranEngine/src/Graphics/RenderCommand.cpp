@@ -117,15 +117,21 @@ namespace TerranEngine
 		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void RenderCommand::DrawArrays(int numIndices)
+	void RenderCommand::DrawArrays(RenderMode mode, int numVertices)
 	{
-		glDrawArrays(GL_TRIANGLES, 0, numIndices);
+		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+		glDrawArrays(nativeMode, 0, numVertices);
 	}
 
 	void RenderCommand::DrawInstanced(const Shared<VertexArray>& vertexArray, int instanceCount)
 	{
 		vertexArray->GetIndexBuffer()->Bind();
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+	}
+
+	void RenderCommand::SetLineWidth(float lineWidth)
+	{
+		glLineWidth(lineWidth);
 	}
 
 	uint32_t RenderCommand::GetAPIVersion()

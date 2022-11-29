@@ -124,7 +124,7 @@ namespace TerranEngine
 				atlasPacker.setDimensionsConstraint(dimensionConstraint);
 				atlasPacker.setPadding(1);
 				//atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
-				atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE * 2);
+				atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
 
 				const double defaultPixelRange = 2.0;
 				atlasPacker.setPixelRange(defaultPixelRange);

@@ -216,7 +216,7 @@ namespace TerranEngine
 					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 					auto& transform = entity.GetTransform();
 				
-					sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (int)((uint32_t)entity));
+					sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
 				}
 			}
 
@@ -229,7 +229,7 @@ namespace TerranEngine
 					auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 					auto& transform = entity.GetTransform();
 
-					sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (int)(uint32_t)(entity));
+					sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)(entity));
 				}
 			}
 
@@ -242,7 +242,20 @@ namespace TerranEngine
 					auto& textRenderer = entity.GetComponent<TextRendererComponent>();
 					auto& transform = entity.GetTransform();
 
-					sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix);
+					sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix, entity);
+				}
+			}
+
+			// submit lines 
+			{
+				auto lineRendererView = m_Registry.view<LineRendererComponent>();
+
+				for (auto e : lineRendererView)
+				{
+					Entity entity(e, this);
+					auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
+
+					sceneRenderer->SubmitLine(lineRenderer, (uint32_t)entity);
 				}
 			}
 
@@ -257,7 +270,7 @@ namespace TerranEngine
 		sceneRenderer->BeginScene(camera, cameraView, false);
 
 		sceneRenderer->GetFramebuffer()->SetColorAttachment(1, -1);
-		
+
 		// submit sprites
 		{
 			auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
@@ -267,8 +280,7 @@ namespace TerranEngine
 				auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, 
-											(int)((uint32_t)entity));
+				sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
 			}
 		}
 
@@ -281,20 +293,8 @@ namespace TerranEngine
 				auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
 				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (int)(uint32_t)entity);
+				sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
 			}
-		}
-
-		// submit lines
-		{
-			/*auto lineRendererView = m_Registry.view<LineRendererComponent>();
-			for (auto e : lineRendererView)
-			{
-				Entity entity(e, this);
-				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
-
-				sceneRenderer->SubmitLine(lineRenderer);
-			}*/
 		}
 
 		// submit text
@@ -306,7 +306,19 @@ namespace TerranEngine
 				auto& textRenderer = entity.GetComponent<TextRendererComponent>();
 				auto& transform = entity.GetTransform();
 
-				sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix);
+				sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
+			}
+		}
+
+		// submit lines
+		{
+			auto lineRendererView = m_Registry.view<LineRendererComponent>();
+			for (auto e : lineRendererView)
+			{
+				Entity entity(e, this);
+				auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
+
+				sceneRenderer->SubmitLine(lineRenderer, (uint32_t)entity);
 			}
 		}
 

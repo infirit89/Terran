@@ -24,11 +24,9 @@ namespace TerranEngine
 
 		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID);
 		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID);
-		//void SubmitLine(LineRendererComponent& lineRenderer);
+		void SubmitLine(LineRendererComponent& lineRenderer, int entityID);
 
-		void SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform);
-
-		void SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness);
+		void SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID);
 
 		uint32_t GetViewportWidth() { return m_Width; }
 		uint32_t GetViewportHeight() { return m_Height; }

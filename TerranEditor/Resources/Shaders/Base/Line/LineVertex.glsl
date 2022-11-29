@@ -48,10 +48,10 @@ layout(std140, binding = 0) uniform Camera
 struct VS_OUT 
 {
 	vec4	Color;
-	int		EntityID;
 };
 
-layout(location = 0) out VS_OUT vsOut;
+layout(location = 0) out VS_OUT o_VsOut;
+layout(location = 1) out flat int o_EntityID;
 
 void main(void) 
 {
@@ -59,8 +59,7 @@ void main(void)
 	vec2 yBasis = normalize(vec2(-xBasis.y, xBasis.x));
 	//vec2 point = a_StartPoint.xy + xBasis * a_Position.x + yBasis * (a_Thickness * 0.1) * a_Position.y;
 	vec2 point = a_StartPoint.xy + xBasis * a_Position.x + yBasis * a_Thickness * a_Position.y;
-	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * mat4(1.0) * vec4(point, 0.0, 1.0);
-	vsOut.Color = a_Color;
-	vsOut.EntityID = a_EntityID;
-
+	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(point, 0.0, 1.0);
+	o_VsOut.Color = a_Color;
+	o_EntityID = a_EntityID;
 }

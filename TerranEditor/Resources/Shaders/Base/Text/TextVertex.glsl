@@ -17,19 +17,19 @@ struct VS_OUT
 {
 	vec4	TextColor;
 	vec2	TexCoords;
-	int		EntityID;
 };
 
-layout(location = 0) out VS_OUT		vsOut;
-layout(location = 3) out flat int	i_TexIndex;
+layout(location = 0) out VS_OUT		o_VsOut;
+layout(location = 2) out flat int	o_TexIndex;
+layout(location = 3) out flat int	o_EntityID;
 
 void main() 
 {
 	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(a_WorldPos, 1.0); 
 
-	vsOut.TextColor = a_TextColor;
-	vsOut.TexCoords = a_TexCoords;
-	vsOut.EntityID = a_EntityID;
+	o_VsOut.TextColor = a_TextColor;
+	o_VsOut.TexCoords = a_TexCoords;
 
-	i_TexIndex = a_TexIndex;
+	o_TexIndex = a_TexIndex;
+	o_EntityID = a_EntityID;
 }

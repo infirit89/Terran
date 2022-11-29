@@ -58,19 +58,15 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
 	}
 
-	/*void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer)
+	void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer, int entityID)
 	{
-		BatchRenderer2D::Get()->AddLine(lineRenderer.Points, lineRenderer.PointCount, lineRenderer.Color, lineRenderer.Thickness);
-	}*/
-
-	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform)
-	{
-		BatchRenderer2D::Get()->AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, textRenderer.LineSpacing, textRenderer.LineWidth);
+		BatchRenderer2D::Get()->AddLine(lineRenderer.StartPoint, lineRenderer.EndPoint, lineRenderer.Color, lineRenderer.Thickness, entityID);
 	}
 
-	void SceneRenderer::SubmitDebugRectangle(const glm::mat4& transform, const glm::vec4& color, float thickness)
+	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
 	{
-		BatchRenderer2D::Get()->AddRect(transform, color, thickness);
+		BatchRenderer2D::Get()->AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
+										textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
 	}
 
 	void SceneRenderer::EndScene()
@@ -128,7 +124,7 @@ namespace TerranEngine
 					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
 					glm::scale(glm::mat4(1.0f), size);*/
 
-				SubmitDebugRectangle(transformMatrix, color, thickness);
+				BatchRenderer2D::Get()->AddDebugRect(transformMatrix, color);
 			}
 		}
 

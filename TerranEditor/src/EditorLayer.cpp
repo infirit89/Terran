@@ -476,7 +476,6 @@ namespace TerranEditor
 				BatchRendererStats stats = BatchRenderer2D::Get()->GetStats();
 				ImGui::Indent(4.0f);
 				ImGui::Text("Draw calls: %d", stats.DrawCalls);
-				ImGui::Text("Total Quad count: %d", stats.GetQuadCount());
 				ImGui::Text("Total Vertex count: %d", stats.VertexCount);
 				ImGui::Text("Total Index count: %d", stats.IndexCount);
 				ImGui::Unindent(4.0f);

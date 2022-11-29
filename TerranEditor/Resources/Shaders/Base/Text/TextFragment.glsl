@@ -8,16 +8,14 @@ struct VS_OUT
 {
 	vec4	TextColor;
 	vec2	TexCoords;
-	int		EntityID;
 };
 
-layout(location = 0) in VS_OUT fsIn;
-
-// TODO change this to an int
-layout(location = 3) in flat int i_TexIndex;
+layout(location = 0) in VS_OUT a_FsIn;
+layout(location = 2) in flat int a_TexIndex;
+layout(location = 3) in flat int a_EntityID;
 
 layout(location = 0) out vec4	o_Color;
-layout(location = 1) out int	entityID;
+layout(location = 1) out int	o_EntityID;
 
 uniform sampler2D u_Samplers[16];
 
@@ -30,33 +28,18 @@ const vec4 bgColor = vec4(0.0, 0.0, 0.0, 0.0);
 
 float screenPxRange() 
 {
-	vec2 unitRange = vec2(2.0) / vec2(textureSize(u_Samplers[i_TexIndex], 0));
-	vec2 screenTextSize = vec2(1.0) / fwidth(fsIn.TexCoords);
+	vec2 unitRange = vec2(5.0) / vec2(textureSize(u_Samplers[a_TexIndex], 0));
+	vec2 screenTextSize = vec2(1.0) / fwidth(a_FsIn.TexCoords);
 	return max(0.5 * dot(unitRange, screenTextSize), 1.0);
 }
 
 void main() 
 {
-	vec3 msd = texture(u_Samplers[i_TexIndex], fsIn.TexCoords).rgb; 
+	vec3 msd = texture(u_Samplers[a_TexIndex], a_FsIn.TexCoords).rgb; 
 	float sd = median(msd.r, msd.g, msd.b);
 	float screenPxDistance = screenPxRange() * (sd - 0.5);
 	float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
-	//o_Color = vec4(1.0, 1.0, 1.0, opacity);
-	o_Color = mix(bgColor, fsIn.TextColor, opacity);
-	//int index = int(f_TexIndex);
+	o_Color = mix(bgColor, a_FsIn.TextColor, opacity);
 
-	//vec4 color = texture2D(u_Samplers[index], fsIn.TexCoords);
-	//float dist = color.r;
-	//float width = fwidth(dist);
-	//float alpha = smoothstep(glyph_center - width, glyph_center + width, dist);
-
-	//o_Color = vec4(fsIn.Color.rgb, fsIn.Color.a * alpha);
-
-	//float mu = smoothstep(outline_center - width, outline_center + width, dist);
-	//vec3 rgb = mix(outline_color, fsIn.Color.rbg, mu);
-	//o_Color = vec4(rgb, max(alpha, mu));
-
-	//o_Color = fsIn.Color * vec4(1.0, 1.0, 1.0, texture(u_Samplers[index], fsIn.TexCoords).r);
-
-	entityID = fsIn.EntityID;
+	o_EntityID = a_EntityID;
 }

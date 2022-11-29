@@ -188,35 +188,15 @@ namespace TerranEditor
 					UI::DrawFloatControl("Thickness", component.Thickness);
 				});
 
-#if 0
 				DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer) 
 				{
 					UI::DrawColor4Control("Color", lineRenderer.Color);
 					UI::DrawFloatControl("Thickness", lineRenderer.Thickness);
 
-					int origPointCount = lineRenderer.PointCount;
-
-					if (UI::DrawIntControl("Point Count", lineRenderer.PointCount))
-					{
-						if(lineRenderer.Points)
-							lineRenderer.Points = (glm::vec3*)realloc(lineRenderer.Points, lineRenderer.PointCount * sizeof(glm::vec3));
-
-						if (lineRenderer.PointCount > origPointCount)
-						{
-							for (size_t i = 0; i < lineRenderer.PointCount - origPointCount; i++)
-								lineRenderer.Points[i + origPointCount] = { 0.0f, 0.0f, 0.0f };
-						}
-					}
-
-					for (size_t i = 0; i < lineRenderer.PointCount; i++)
-					{
-						std::string formatedLabel = fmt::format("Point {0}", i + 1);
-
-						UI::DrawVec3Control(formatedLabel.c_str(), lineRenderer.Points[i]);
-					}
+					UI::DrawVec3Control("Start Point", lineRenderer.StartPoint);
+					UI::DrawVec3Control("End Point", lineRenderer.EndPoint);
 
 				});
-#endif
 
 				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
 				{
@@ -495,9 +475,9 @@ namespace TerranEditor
 						if (ImGui::MenuItem("Circle Renderer"))
 							entity.AddComponent<CircleRendererComponent>();
 
-					//if (!entity.HasComponent<LineRendererComponent>())
-					//	if (ImGui::MenuItem("Line Renderer"))
-					//		entity.AddComponent<LineRendererComponent>();
+					if (!entity.HasComponent<LineRendererComponent>())
+						if (ImGui::MenuItem("Line Renderer"))
+							entity.AddComponent<LineRendererComponent>();
 
 					if (!entity.HasComponent<CameraComponent>())
 						if (ImGui::MenuItem("Camera"))
