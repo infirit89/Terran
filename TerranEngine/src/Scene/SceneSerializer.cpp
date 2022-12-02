@@ -214,6 +214,7 @@ namespace TerranEngine
 				{ "SpriteRendererComponent",
 				{
 					{ "Color", SerializerUtils::SerializeVec4(sprComp.Color) },
+					{ "TexturePath", sprComp.Texture ? sprComp.Texture->GetPath().string() : ""},
 					{ "ZIndex", sprComp.ZIndex }
 				} }
 			);
@@ -230,6 +231,28 @@ namespace TerranEngine
 					{ "Thickness", crComp.Thickness }
 				}}
 			);
+		}
+
+		if (entity.HasComponent<TextRendererComponent>()) 
+		{
+			auto& textRendererComponent = entity.GetComponent<TextRendererComponent>();
+			
+			try 
+			{
+				
+				jObject.push_back(
+					{ "TextRendererComponent",
+					{
+						{ "Color", SerializerUtils::SerializeVec4(textRendererComponent.TextColor) },
+						{ "Text", textRendererComponent.Text },
+						{ "FontPath", textRendererComponent.FontAtlas ? textRendererComponent.FontAtlas->GetPath() : "" }
+					} }
+				);
+			}
+			catch (const std::exception& ex) 
+			{
+				TR_TRACE(ex.what());
+			}
 		}
 
 		if (entity.HasComponent<RelationshipComponent>()) 
@@ -359,7 +382,7 @@ namespace TerranEngine
 		return j.dump();
 	}
 
-#define PRINT_JSON_ERROR()\
+#define CATCH_JSON_EXCEPTION()\
 catch(const std::exception& ex)\
 {\
 	TR_ERROR(ex.what());\
@@ -494,7 +517,7 @@ catch(const std::exception& ex)\
 						}
 						}
 					}
-					PRINT_JSON_ERROR();
+					CATCH_JSON_EXCEPTION();
 				}
 			}
 		}
@@ -538,7 +561,7 @@ catch(const std::exception& ex)\
 				transform.Rotation = rotation;
 				transform.Scale = scale;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
 		}
 
 		if (jEntity.contains("CameraComponent"))
@@ -560,7 +583,7 @@ catch(const std::exception& ex)\
 
 				cameraComponent = tempCamComponent;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
 		}
 
 		if (jEntity.contains("SpriteRendererComponent")) 
@@ -571,10 +594,17 @@ catch(const std::exception& ex)\
 			{
 				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
 
+				if (jEntity["SpriteRendererComponent"]["TexturePath"] != "") 
+				{
+					TextureParameters textureParameters;
+					spriteRenderer.Texture = CreateShared<Texture>((std::string)jEntity["SpriteRendererComponent"]["TexturePath"], textureParameters);
+				}
+
 				spriteRenderer.Color = color;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
 		}
+
 		if (jEntity.contains("CircleRendererComponent"))
 		{
 			CircleRendererComponent& circleRenderer = entity.AddComponent<CircleRendererComponent>();
@@ -587,7 +617,24 @@ catch(const std::exception& ex)\
 				circleRenderer.Color = color;
 				circleRenderer.Thickness = thickness;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
+		}
+
+		if (jEntity.contains("TextRendererComponent")) 
+		{
+			TextRendererComponent& textRenderer = entity.AddComponent<TextRendererComponent>();
+
+			try 
+			{
+				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["TextRendererComponent"], "Color");
+				textRenderer.TextColor = color;
+
+				textRenderer.Text = jEntity["TextRendererComponent"]["Text"];
+
+				if (jEntity["TextRendererComponent"]["FontPath"] != "")
+					textRenderer.FontAtlas = CreateShared<FontAtlas>(jEntity["TextRendererComponent"]["FontPath"]);
+			}
+			CATCH_JSON_EXCEPTION();
 		}
 
 		if (jEntity.contains("RelationshipComponent"))
@@ -650,7 +697,7 @@ catch(const std::exception& ex)\
 				rbComponent.SleepState = sleepState;
 				rbComponent.GravityScale = gravityScale;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
 		}
 
 		if (jEntity.contains("BoxCollider2D")) 
@@ -669,7 +716,7 @@ catch(const std::exception& ex)\
 				bcComponent.Size = size;
 				bcComponent.IsSensor = isSensor;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
 		}
 
 		if (jEntity.contains("CircleCollider2D")) 
@@ -688,7 +735,7 @@ catch(const std::exception& ex)\
 				ccComponent.Radius = radius;
 				ccComponent.IsSensor = isSensor;
 			}
-			PRINT_JSON_ERROR();
+			CATCH_JSON_EXCEPTION();
 		}
 		
 		return true;

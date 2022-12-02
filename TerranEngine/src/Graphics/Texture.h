@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 #include <stdint.h>
 
 namespace TerranEngine 
@@ -43,7 +44,7 @@ namespace TerranEngine
 		Texture();
 
 		Texture(uint32_t width, uint32_t height, TextureParameters parameters = {});
-		Texture(const char* filePath, TextureParameters parameters = {});
+		Texture(const std::filesystem::path& filePath, TextureParameters parameters = {});
 
 		~Texture();
 
@@ -57,18 +58,19 @@ namespace TerranEngine
 		inline const int GetHeight() const { return m_Height; }
 		inline const uint32_t GetTextureID() const { return m_TextureID; }
 
-		inline const std::string GetName() const { return m_Name; }
+		inline const std::filesystem::path GetPath() const { return m_Path; }
+		inline const std::string GetName() const { return m_Path.stem().string(); }
 
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
 
 	private:
-		void LoadTexture(const char* filePath);
+		void LoadTexture(const std::filesystem::path& filePath);
 
 		uint32_t m_TextureID;
 		int m_Width, m_Height, m_Channels;
 		uint32_t m_InternalFormat, m_DataFormat;
-		std::string m_Name;
+		std::filesystem::path m_Path;
 
 		TextureParameters m_TexParameters;
 	};

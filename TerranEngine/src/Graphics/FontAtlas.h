@@ -37,6 +37,7 @@ namespace TerranEngine
 		GlyphData GetGlyphData(char c);
 
 		double GetKerning(char c1, char c2);
+		std::string GetPath() { return m_Path; }
 
 	private:
 		Shared<Texture> LoadFont(const std::string& fontPath);
@@ -46,5 +47,6 @@ namespace TerranEngine
 		std::vector<msdf_atlas::GlyphGeometry>* m_Glyphs;
 		msdf_atlas::FontGeometry* m_FontGeometry;
 		int m_AtlasWidth, m_AtlasHeight;
+		std::string m_Path;
 	};
 }

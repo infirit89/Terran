@@ -61,6 +61,7 @@
                     "Z": 1.0,
                     "W": 1.0
                 },
+                "TexturePath": "",
                 "ZIndex": 0
             },
             "ScriptComponent": {
@@ -69,38 +70,6 @@
                     "UpKey": "w",
                     "DownKey": "s"
                 }
-            }
-        },
-        "Entity 9e1676b4-bad7-4afd-a5eb-76e9b33d91b2": {
-            "TagComponent": {
-                "Tag": "Top Wall",
-                "ID": "9e1676b4-bad7-4afd-a5eb-76e9b33d91b2"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": 0.0,
-                    "Y": 5.115273952484131,
-                    "Z": 0.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 18.55991554260254,
-                    "Y": 1.0,
-                    "Z": 1.0
-                }
-            },
-            "SpriteRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "ZIndex": 0
             }
         },
         "Entity 5208e8b2-d99e-4b78-9e8a-f9896504fee9": {
@@ -116,7 +85,7 @@
                 },
                 "Rotation": {
                     "X": 0.0,
-                    "Y": 0.0,
+                    "Y": -0.0,
                     "Z": 0.0
                 },
                 "Scale": {
@@ -132,7 +101,89 @@
                     "Z": 1.0,
                     "W": 1.0
                 },
+                "TexturePath": "",
                 "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "null"
+            }
+        },
+        "Entity 0c328cbc-e073-41be-8d76-5ab9902d7746": {
+            "TagComponent": {
+                "Tag": "Left Wall",
+                "ID": "0c328cbc-e073-41be-8d76-5ab9902d7746"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -9.229999542236328,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 9.391308784484863,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "TexturePath": "",
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "null"
+            }
+        },
+        "Entity e57a2426-618b-4752-8799-fb0a3fd83643": {
+            "TagComponent": {
+                "Tag": "Right Wall",
+                "ID": "e57a2426-618b-4752-8799-fb0a3fd83643"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 9.229999542236328,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 9.391308784484863,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "TexturePath": "",
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "null"
             }
         },
         "Entity ce5ecdb5-5649-44e3-ba27-4650b726235e": {
@@ -164,6 +215,7 @@
                     "Z": 1.0,
                     "W": 1.0
                 },
+                "TexturePath": "",
                 "ZIndex": 0
             },
             "ScriptComponent": {
@@ -172,70 +224,6 @@
                     "UpKey": "up",
                     "DownKey": "down"
                 }
-            }
-        },
-        "Entity 0c328cbc-e073-41be-8d76-5ab9902d7746": {
-            "TagComponent": {
-                "Tag": "Left Wall",
-                "ID": "0c328cbc-e073-41be-8d76-5ab9902d7746"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": -9.229999542236328,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 1.0,
-                    "Y": 9.391308784484863,
-                    "Z": 1.0
-                }
-            },
-            "SpriteRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "ZIndex": 0
-            }
-        },
-        "Entity e57a2426-618b-4752-8799-fb0a3fd83643": {
-            "TagComponent": {
-                "Tag": "Right Wall",
-                "ID": "e57a2426-618b-4752-8799-fb0a3fd83643"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": 9.229999542236328,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 1.0,
-                    "Y": 9.391308784484863,
-                    "Z": 1.0
-                }
-            },
-            "SpriteRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "ZIndex": 0
             }
         },
         "Entity cd9b0020-61a0-44ec-85d0-86fa2325866d": {
@@ -295,6 +283,116 @@
                     "Y": 1.0,
                     "Z": 1.0
                 }
+            },
+            "ScriptComponent": {
+                "ModuleName": "Pong.GameManager",
+                "Fields": {
+                    "ballCenter": {
+                        "X": 0.0,
+                        "Y": 0.0,
+                        "Z": 0.0
+                    },
+                    "maxPoints": 5
+                }
+            }
+        },
+        "Entity a3a4c3a8-de53-44f7-8c54-e2e2632ea60f": {
+            "TagComponent": {
+                "Tag": "Top Wall",
+                "ID": "a3a4c3a8-de53-44f7-8c54-e2e2632ea60f"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 5.099999904632568,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 18.55991554260254,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "TexturePath": "",
+                "ZIndex": 0
+            }
+        },
+        "Entity d69c714e-84ef-4385-9d40-db1c8eca098c": {
+            "TagComponent": {
+                "Tag": "Score 1",
+                "ID": "d69c714e-84ef-4385-9d40-db1c8eca098c"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -7.507205009460449,
+                    "Y": 3.1844370365142822,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "TextRendererComponent": {
+                "Color": {
+                    "X": 0.36936473846435547,
+                    "Y": 0.7663551568984985,
+                    "Z": 0.07162196934223175,
+                    "W": 1.0
+                },
+                "Text": "0",
+                "FontPath": "Resources/Fonts/Roboto/Roboto-Regular.ttf"
+            }
+        },
+        "Entity cd39dcfc-2157-439e-81aa-13fc3c88a980": {
+            "TagComponent": {
+                "Tag": "Score 2",
+                "ID": "cd39dcfc-2157-439e-81aa-13fc3c88a980"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 6.959655284881592,
+                    "Y": 3.1844370365142822,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "TextRendererComponent": {
+                "Color": {
+                    "X": 0.36936473846435547,
+                    "Y": 0.7663551568984985,
+                    "Z": 0.07162196934223175,
+                    "W": 1.0
+                },
+                "Text": "0",
+                "FontPath": "Resources/Fonts/Roboto/Roboto-Regular.ttf"
             }
         }
     }

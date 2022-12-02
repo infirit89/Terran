@@ -69,9 +69,14 @@ namespace TerranEngine
 		return ScriptClass(monoClass);
 	}
 
-	bool ScriptClass::IsInstanceOf(ScriptClass* parent, bool checkInterfaces)
+	bool ScriptClass::IsInstanceOf(ScriptClass* parent)
 	{
 		return mono_class_is_assignable_from(m_MonoClass, parent->m_MonoClass);
+	}
+
+	bool ScriptClass::IsSubclassOf(ScriptClass* parent, bool checkInterfaces)
+	{
+		return mono_class_is_subclass_of(m_MonoClass, parent->m_MonoClass, checkInterfaces);
 	}
 
 	std::vector<ScriptField> ScriptClass::GetEnumFields() const

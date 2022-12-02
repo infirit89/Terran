@@ -14,14 +14,14 @@ namespace Pong
             m_UpKey = (KeyCode)Enum.Parse(typeof(KeyCode), UpKey, true);
             m_DownKey = (KeyCode)Enum.Parse(typeof(KeyCode), DownKey, true);
 
-            Log.Trace(m_UpKey);
-
             TopWall = Entity.FindWithName("Top Wall");
             BottomWall = Entity.FindWithName("Bottom Wall");
         }
 
         protected override void Update()
         {
+            if (GameStateManager.CurrentGameState == GameState.WonScreen) return;
+            
             if (CollisionUtils.IsCollidingWith(BottomWall, Entity))
             {
                 float newYPos = BottomWall.Transform.Position.Y + (BottomWall.Transform.Scale.Y * 0.5f) + 

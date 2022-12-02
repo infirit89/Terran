@@ -33,7 +33,8 @@ namespace TerranEngine
 		bool operator==(MonoClass* monoClass) const { return m_MonoClass == monoClass; }
 		operator bool() const { return m_MonoClass != nullptr; }
 		
-		bool IsInstanceOf(ScriptClass* parent, bool checkInterfaces = true);
+		bool IsInstanceOf(ScriptClass* parent);
+		bool IsSubclassOf(ScriptClass* parent, bool checkInterfaces = false);
 
 		inline std::vector<ScriptField>& GetFields() { return m_Fields; }
 		std::vector<ScriptField> GetEnumFields() const;

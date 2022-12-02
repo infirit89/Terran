@@ -221,7 +221,7 @@ namespace TerranEngine
 			if (*clazz == *TR_API_CACHED_CLASS(Camera))									return ComponentType::CameraComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleRenderer))							return ComponentType::CircleRendererComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(TextRenderer))							return ComponentType::TextRendererComponent;
-			if (!clazz && clazz->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))	return ComponentType::ScriptableComponent;
+			if (clazz->IsSubclassOf(TR_API_CACHED_CLASS(Scriptable)))					return ComponentType::ScriptableComponent;
 		
 			return ComponentType::None;
 		}

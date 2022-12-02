@@ -6,12 +6,12 @@
 namespace TerranEngine 
 {
 	FontAtlas::FontAtlas()
-		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1)
+		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1), m_Path("")
 	{
 	}
 
 	FontAtlas::FontAtlas(const std::string& fontPath)
-		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1)
+		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1), m_Path(fontPath)
 	{
 		m_Texture = LoadFont(fontPath);
 	}
@@ -155,6 +155,7 @@ namespace TerranEngine
 				TextureParameters params;
 				params.TextureType = TextureType::RGB;
 
+				// TODO: cache texture to disk?
 				texture = CreateShared<Texture>(bitmap.width, bitmap.height, params);
 				texture->SetData(bitmap.pixels);
 

@@ -84,7 +84,7 @@ namespace TerranEngine
 	}
 
 	Texture::Texture() 
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Name("") {}
+		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path("") {}
 	
 	Texture::Texture(uint32_t width, uint32_t height, TextureParameters parameters) 
 		: m_TextureID(0), m_Width(width), m_Height(height), m_Channels(0), 
@@ -104,12 +104,9 @@ namespace TerranEngine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 	}
 
-	Texture::Texture(const char* filePath, TextureParameters parameters)
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0)
+	Texture::Texture(const std::filesystem::path& filePath, TextureParameters parameters)
+		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path(filePath)
 	{
-		std::filesystem::path path = filePath;
-		m_Name = path.stem().string();
-
 		LoadTexture(filePath);
 	}
 
@@ -147,10 +144,10 @@ namespace TerranEngine
 			&& m_Channels == other.m_Channels && m_TextureID == other.m_TextureID;
 	}
 
-	void Texture::LoadTexture(const char* filePath)
+	void Texture::LoadTexture(const std::filesystem::path& filePath)
 	{
 		stbi_set_flip_vertically_on_load(1);
-		stbi_uc* pixels = stbi_load(filePath, &m_Width, &m_Height, &m_Channels, 0);
+		stbi_uc* pixels = stbi_load(filePath.string().c_str(), &m_Width, &m_Height, &m_Channels, 0);
 
 		if (pixels == nullptr)
 		{

@@ -26,6 +26,8 @@ namespace Pong
 
         protected override void Update()
         {
+            if (GameStateManager.CurrentGameState == GameState.WonScreen) return;
+
             if (CollisionUtils.IsCollidingWith(m_Player1, Entity) || CollisionUtils.IsCollidingWith(m_Player2, Entity))
             {
                 int random = m_RNG.Next(2);
