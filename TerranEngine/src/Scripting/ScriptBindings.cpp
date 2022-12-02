@@ -93,6 +93,14 @@ namespace TerranEngine
 			BIND_INTERNAL_FUNC(CircleRenderer_GetColor);
 			BIND_INTERNAL_FUNC(CircleRenderer_SetColor);
 			// -------------------------
+
+			// ---- text renderer ---
+			BIND_INTERNAL_FUNC(TextRenderer_GetColor);
+			BIND_INTERNAL_FUNC(TextRenderer_SetColor);
+
+			BIND_INTERNAL_FUNC(TextRenderer_GetText);
+			BIND_INTERNAL_FUNC(TextRenderer_SetText);
+			// ----------------------
 			
 			// ---- physics ----
 			{
@@ -193,7 +201,8 @@ namespace TerranEngine
 			CapsuleCollider2DComponent,
 			SpriteRendererComponent,
 			CameraComponent,
-			CircleRendererComponent
+			CircleRendererComponent,
+			TextRendererComponent
 		};
 
 		static ComponentType GetComponentType(MonoString* componentTypeStr)
@@ -211,6 +220,7 @@ namespace TerranEngine
 			if (*clazz == *TR_API_CACHED_CLASS(SpriteRenderer))							return ComponentType::SpriteRendererComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(Camera))									return ComponentType::CameraComponent;
 			if (*clazz == *TR_API_CACHED_CLASS(CircleRenderer))							return ComponentType::CircleRendererComponent;
+			if (*clazz == *TR_API_CACHED_CLASS(TextRenderer))							return ComponentType::TextRendererComponent;
 			if (!clazz && clazz->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))	return ComponentType::ScriptableComponent;
 		
 			return ComponentType::None;
@@ -247,6 +257,7 @@ namespace TerranEngine
 			case ComponentType::CameraComponent:			return entity.HasComponent<CameraComponent>();
 			case ComponentType::CircleRendererComponent:	return entity.HasComponent<CircleRendererComponent>();
 			case ComponentType::CapsuleCollider2DComponent:	return entity.HasComponent<CapsuleCollider2DComponent>();
+			case ComponentType::TextRendererComponent:		return entity.HasComponent<TextRendererComponent>();
 			}
 
 			return false;
@@ -272,6 +283,7 @@ namespace TerranEngine
 			case ComponentType::CameraComponent:			entity.AddComponent<CameraComponent>(); break;
 			case ComponentType::CircleRendererComponent:	entity.AddComponent<CircleRendererComponent>(); break;
 			case ComponentType::CapsuleCollider2DComponent:	entity.AddComponent<CapsuleCollider2DComponent>(); break;
+			case ComponentType::TextRendererComponent:		entity.AddComponent<TextRendererComponent>(); break;
 			}
 		}
 
@@ -295,6 +307,7 @@ namespace TerranEngine
 			case ComponentType::CameraComponent:			entity.RemoveComponent<CameraComponent>(); break;
 			case ComponentType::CircleRendererComponent:	entity.RemoveComponent<CircleRendererComponent>(); break;
 			case ComponentType::CapsuleCollider2DComponent:	entity.RemoveComponent<CapsuleCollider2DComponent>(); break;
+			case ComponentType::TextRendererComponent:		entity.RemoveComponent<TextRendererComponent>(); break;
 			}
 		}
 
@@ -531,6 +544,34 @@ namespace TerranEngine
 			SET_COMPONENT_VAR(Thickness, entityUUIDArr, CircleRendererComponent);
 		}
 		// -------------------------
+
+		// ---- Text Renderer ----
+		glm::vec4 TextRenderer_GetColor(MonoArray* entityUUIDArr) 
+		{
+			glm::vec4 TextColor = {1.0f, 1.0f, 1.0f, 1.0f};
+			GET_COMPONENT_VAR(TextColor, entityUUIDArr, TextRendererComponent);
+			return TextColor;
+		}
+
+		void TextRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color) 
+		{
+			glm::vec4 TextColor = color;
+			SET_COMPONENT_VAR(TextColor, entityUUIDArr, TextRendererComponent);
+		}
+
+		MonoString* TextRenderer_GetText(MonoArray* entityUUIDArr) 
+		{
+			std::string Text = "";
+			GET_COMPONENT_VAR(Text, entityUUIDArr, TextRendererComponent);
+			return ScriptMarshal::UTF8ToMonoString(Text);
+		}
+
+		void TextRenderer_SetText(MonoArray* entityUUIDArr, MonoString* text) 
+		{
+			std::string Text = ScriptMarshal::MonoStringToUTF8(text);
+			SET_COMPONENT_VAR(Text, entityUUIDArr, TextRendererComponent);
+		}
+		// -----------------------
 
 		// ---- Tag ----
 		void Tag_SetName(MonoArray* entityUUIDArr, MonoString* name)

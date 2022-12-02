@@ -13,7 +13,7 @@ namespace TerranEditor
         EditorPanel() = default;
         virtual ~EditorPanel() = default;
 
-        virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) { }
+        virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) { m_Scene = scene; }
         virtual void ImGuiRender() = 0;
 		virtual void OnEvent(TerranEngine::Event& event) {  }
 

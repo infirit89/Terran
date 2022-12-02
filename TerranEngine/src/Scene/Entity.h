@@ -26,7 +26,7 @@ namespace TerranEngine
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
-			TR_ASSERT(!HasComponent<Component>(), "Entity: {0} already has component", GetName());
+			TR_ASSERT(!HasComponent<Component>(), "Entity already has component");
 
 			Component& component = m_Scene->m_Registry.emplace<Component>(m_Handle, std::forward<Args>(parameters)...);
 			return component;

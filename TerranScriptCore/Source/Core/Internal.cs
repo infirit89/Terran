@@ -250,9 +250,22 @@ namespace Terran
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal static extern void CircleRenderer_SetColor(byte[] entityID, in Color color);
+		#endregion
+
+		#region TextRenderer
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern Color TextRenderer_GetColor(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void TextRenderer_SetColor(byte[] entityID, in Color color);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern string TextRenderer_GetText(byte[] entityID);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern void TextRenderer_SetText(byte[] entityID, string text);
         #endregion
-
-
     }
 }
 

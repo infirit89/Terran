@@ -160,5 +160,13 @@ namespace TerranEngine
 		static float CircleRenderer_GetThickness(MonoArray* entityUUIDArr);
 		static void CircleRenderer_SetThickness(MonoArray* entityUUIDArr, float thickness);
 		// -----------------------------------
+
+		// ---- Text Renderer Component ----
+		static glm::vec4 TextRenderer_GetColor(MonoArray* entityUUIDArr);
+		static void TextRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+
+		static MonoString* TextRenderer_GetText(MonoArray* entityUUIDArr);
+		static void TextRenderer_SetText(MonoArray* entityUUIDArr, MonoString* text);
+		// ---------------------------------
 	}
 }

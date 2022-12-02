@@ -465,7 +465,7 @@ catch(const std::exception& ex)\
 						case ScriptType::String:
 						{
 							std::string value = jScriptFieldValue;
-							field->SetData(value.c_str(), handle);
+							field->SetData(value, handle);
 							break;
 						}
 						case ScriptType::Vector2: 

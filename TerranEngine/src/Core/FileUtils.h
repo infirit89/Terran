@@ -12,5 +12,6 @@ namespace TerranEngine
 		static std::filesystem::path SaveFile(const char* filter);
 
 		static std::filesystem::path GetEnvironmentVariable(const char* name);
+		static void RevealInExplorer(const std::filesystem::path& path);
 	};
 }

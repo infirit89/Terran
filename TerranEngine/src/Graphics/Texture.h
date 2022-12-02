@@ -7,8 +7,7 @@ namespace TerranEngine
 {
 	enum class TextureType
 	{
-		None = 0,
-		Red,
+		Red = 0,
 		Red32Integer,
 		RGB,
 		RGBA
@@ -16,15 +15,13 @@ namespace TerranEngine
 
 	enum class TextureFilter
 	{
-		None = 0,
-		Linear,
+		Linear = 0,
 		Nearest
 	};
 
 	enum class TextureWrapMode
 	{
-		None = 0,
-		Repeat,
+		Repeat = 0,
 		Mirror,
 		MirrorOnce,
 		ClampToEdge

@@ -2,7 +2,10 @@
 
 #include "Core/Log.h"
 
+#include "Core/FileUtils.h"
+
 #include "Project/Project.h"
+
 #include "EditorResources.h"
 
 #include <imgui.h>
@@ -32,6 +35,14 @@ namespace TerranEditor
 			{
 				if (ImGui::Button("<-"))
 					m_CurrentPath = m_CurrentPath.parent_path();
+			}
+
+			if (ImGui::BeginPopupContextWindow("CONTENT_PANEL_ACTIONS", ImGuiMouseButton_Right, false)) 
+			{
+				if (ImGui::MenuItem("Reveal in explorer"))
+					FileUtils::RevealInExplorer(m_CurrentPath);
+
+				ImGui::EndPopup();
 			}
 
 			const float padding = 18.0f;

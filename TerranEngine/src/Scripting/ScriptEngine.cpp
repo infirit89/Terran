@@ -403,9 +403,11 @@ namespace TerranEngine
 
 			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 			
-			MonoException* exc = nullptr;
-			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exc);
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
+			MonoException* exception = nullptr;
+			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exception);
+
+			if(exception)
+				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 			
 			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
@@ -444,10 +446,12 @@ namespace TerranEngine
 
 		if (instance.InitMethod)
 		{
-			MonoException* exc = nullptr;
+			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.InitMethod.Invoke(monoObject, &exc);
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
+			instance.InitMethod.Invoke(monoObject, &exception);
+
+			if(exception)
+				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -458,10 +462,12 @@ namespace TerranEngine
 
 		if (instance.UpdateMethod) 
 		{
-			MonoException* exc = nullptr;
+			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.UpdateMethod.Invoke(monoObject, &exc);
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
+			instance.UpdateMethod.Invoke(monoObject, &exception);
+
+			if(exception)
+				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -473,10 +479,12 @@ namespace TerranEngine
 		if (instance.PhysicsBeginContact) 
 		{
 			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			MonoException* exc = nullptr;
+			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exception);
+
+			if(exception)
+				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -488,10 +496,12 @@ namespace TerranEngine
 		if (instance.PhysicsEndContact)
 		{
 			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
-			MonoException* exc = nullptr;
+			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exc);
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
+			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exception);
+
+			if(exception)
+				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -502,10 +512,12 @@ namespace TerranEngine
 
 		if (instance.PhysicsUpdateMethod) 
 		{
-			MonoException* exc = nullptr;
+			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsUpdateMethod.Invoke(monoObject, &exc);
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exc), spdlog::level::err);
+			instance.PhysicsUpdateMethod.Invoke(monoObject, &exception);
+
+			if(exception)
+				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 

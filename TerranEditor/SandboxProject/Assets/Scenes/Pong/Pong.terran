@@ -1,0 +1,301 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity 92d02431-b0f1-42fb-abbc-1e5cedf84b03": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "92d02431-b0f1-42fb-abbc-1e5cedf84b03"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity 52cb8d9c-151f-49af-bb26-907866d3cb25": {
+            "TagComponent": {
+                "Tag": "Player 1",
+                "ID": "52cb8d9c-151f-49af-bb26-907866d3cb25"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -7.233429908752441,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 0.626168429851532,
+                    "Y": 2.698863983154297,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "Pong.Player",
+                "Fields": {
+                    "UpKey": "w",
+                    "DownKey": "s"
+                }
+            }
+        },
+        "Entity 9e1676b4-bad7-4afd-a5eb-76e9b33d91b2": {
+            "TagComponent": {
+                "Tag": "Top Wall",
+                "ID": "9e1676b4-bad7-4afd-a5eb-76e9b33d91b2"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 5.115273952484131,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 18.55991554260254,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            }
+        },
+        "Entity 5208e8b2-d99e-4b78-9e8a-f9896504fee9": {
+            "TagComponent": {
+                "Tag": "Bottom Wall",
+                "ID": "5208e8b2-d99e-4b78-9e8a-f9896504fee9"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": -5.097867965698242,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 18.55991554260254,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            }
+        },
+        "Entity ce5ecdb5-5649-44e3-ba27-4650b726235e": {
+            "TagComponent": {
+                "Tag": "Player 2",
+                "ID": "ce5ecdb5-5649-44e3-ba27-4650b726235e"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 7.230000019073486,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 0.626168429851532,
+                    "Y": 2.698863983154297,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "Pong.Player",
+                "Fields": {
+                    "UpKey": "up",
+                    "DownKey": "down"
+                }
+            }
+        },
+        "Entity 0c328cbc-e073-41be-8d76-5ab9902d7746": {
+            "TagComponent": {
+                "Tag": "Left Wall",
+                "ID": "0c328cbc-e073-41be-8d76-5ab9902d7746"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -9.229999542236328,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 9.391308784484863,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            }
+        },
+        "Entity e57a2426-618b-4752-8799-fb0a3fd83643": {
+            "TagComponent": {
+                "Tag": "Right Wall",
+                "ID": "e57a2426-618b-4752-8799-fb0a3fd83643"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 9.229999542236328,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 9.391308784484863,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            }
+        },
+        "Entity cd9b0020-61a0-44ec-85d0-86fa2325866d": {
+            "TagComponent": {
+                "Tag": "Ball",
+                "ID": "cd9b0020-61a0-44ec-85d0-86fa2325866d"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 0.5,
+                    "Y": 0.5,
+                    "Z": 1.0
+                }
+            },
+            "CircleRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "Thickness": 1.0
+            },
+            "ScriptComponent": {
+                "ModuleName": "Pong.Ball",
+                "Fields": null
+            }
+        },
+        "Entity cfd82465-f3ce-4f69-b26f-2eb93d7a7fb9": {
+            "TagComponent": {
+                "Tag": "Game Manager",
+                "ID": "cfd82465-f3ce-4f69-b26f-2eb93d7a7fb9"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            }
+        }
+    }
+}

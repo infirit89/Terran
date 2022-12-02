@@ -5,15 +5,16 @@ namespace SandboxProject
 {
     public class Sandbox : Scriptable 
     {
+        private TextRenderer m_TextRenderer;
         protected override void Init()
         {
-            
+            m_TextRenderer = Entity.GetComponent<TextRenderer>();
         }
 
         protected override void Update()
         {
-            //if (hitInfo)
-            //    Log.Trace("cock");
+            if (Input.IsKeyPressed(KeyCode.A))
+                m_TextRenderer.Text = "Todd Howard";
         }
     }
 }

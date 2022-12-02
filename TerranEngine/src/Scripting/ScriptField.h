@@ -28,7 +28,7 @@ namespace TerranEngine
 		template<>
         std::string ScriptFieldGetData<std::string>(GCHandle handle, ScriptField* field);
 		template<>
-        void ScriptFieldSetData<const char*>(const char* value, GCHandle handle, ScriptField* field);
+        void ScriptFieldSetData<std::string>(std::string value, GCHandle handle, ScriptField* field);
 		template<>
         void ScriptFieldSetData<Utils::Variant>(Utils::Variant value, GCHandle handle, ScriptField* field);
 		template<>

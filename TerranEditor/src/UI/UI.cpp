@@ -211,7 +211,7 @@ namespace TerranEditor
 		T value = field->GetData<T>(handle);
 		std::string fieldName = ProccessFieldName(field->GetName());
 		if (drawFunc(fieldName, value, field->GetType()))
-			field->SetData<T>(value, handle);
+			field->SetData<Utils::Variant> (value, handle);
 	}
 
 

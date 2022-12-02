@@ -43,9 +43,10 @@ namespace TerranEngine
 
 #define CACHE_API_CLASS(klass)\
 	ScriptClass managedClass##klass = TR_CLASS(klass);\
-	s_CachedClasses.emplace(TR_API_CLASS_ID(klass), managedClass##klass);\
-	CacheFields(ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX), managedClass##klass);\
-	CacheMethods(ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX), managedClass##klass)
+	uint32_t klass##ID = TR_API_CLASS_ID(klass);\
+	s_CachedClasses.emplace(klass##ID, managedClass##klass);\
+	CacheFields(ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX), s_CachedClasses.at(klass##ID));\
+	CacheMethods(ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX), s_CachedClasses.at(klass##ID))
 		
 		// api core classes
 		CACHE_API_CLASS(Vector2);
@@ -66,7 +67,9 @@ namespace TerranEngine
 		CACHE_API_CLASS(SpriteRenderer);
 		CACHE_API_CLASS(Camera);
 		CACHE_API_CLASS(CircleRenderer);
+		CACHE_API_CLASS(TextRenderer);
 		CACHE_API_CLASS(RayCastHitInfo2D);
+		CACHE_API_CLASS(KeyCode);
 	}
 
 	void ScriptCache::ClearCache()

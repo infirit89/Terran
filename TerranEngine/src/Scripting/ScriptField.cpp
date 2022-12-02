@@ -23,9 +23,9 @@ namespace TerranEngine
         }
 
         template<>
-        void ScriptFieldSetData<const char*>(const char* value, GCHandle handle, ScriptField* field) 
+        void ScriptFieldSetData<std::string>(std::string value, GCHandle handle, ScriptField* field)
         {
-            ScriptUtils::SetFieldDataString(value, handle, field->GetMonoField());
+            ScriptUtils::SetFieldDataString(value.c_str(), handle, field->GetMonoField());
         }
 
         template<>
@@ -108,7 +108,7 @@ namespace TerranEngine
 			case ScriptType::String:
 			{
 				const char*  val = value;
-				ScriptFieldSetData(val, handle, field);
+				ScriptFieldSetData<std::string>(val, handle, field);
 				break;
 			}
 			case ScriptType::Vector2:

@@ -9,6 +9,7 @@
 #include "GLFW/glfw3native.h"
 
 #include <commdlg.h>
+#include <shellapi.h>
 
 namespace TerranEngine 
 {
@@ -66,6 +67,23 @@ namespace TerranEngine
 			return ofn.lpstrFile;
 
 		return "";
+	}
+
+	void FileUtils::RevealInExplorer(const std::filesystem::path& path)
+	{
+		std::string stringPath = path.string();
+		SHELLEXECUTEINFOA shellInfo;
+		shellInfo.cbSize = sizeof(SHELLEXECUTEINFOA);
+		shellInfo.fMask = NULL;
+		shellInfo.hwnd = NULL;
+		shellInfo.lpVerb = "explore";
+		shellInfo.lpDirectory = stringPath.c_str();
+		shellInfo.lpFile = NULL;
+		shellInfo.lpParameters = NULL;
+		shellInfo.nShow = SW_NORMAL;
+		shellInfo.hInstApp = NULL;
+
+		ShellExecuteExA(&shellInfo);
 	}
 }
 #endif

@@ -409,6 +409,7 @@ namespace TerranEngine
 		CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
+		CopyComponent<TextRendererComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
 		CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
@@ -459,6 +460,7 @@ namespace TerranEngine
 			CopyComponent<CameraComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+			CopyComponent<TextRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
 			CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);

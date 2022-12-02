@@ -29,9 +29,6 @@ namespace TerranEngine
 	{
 		m_Framebuffer->Bind();
 		
-		if (Input::IsKeyDown(Key::W))
-			RenderCommand::WireframeMode(true);
-
 		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
 		RenderCommand::Clear();
 

@@ -6,6 +6,21 @@ namespace Terran
 		public Entity Entity { internal set; get; }
 	}
 
+	public class TextRenderer : Component 
+	{
+		public Color Color 
+		{
+			get => Internal.TextRenderer_GetColor(Entity.ID);
+			set => Internal.TextRenderer_SetColor(Entity.ID, value);
+		}
+
+		public string Text 
+		{
+			get => Internal.TextRenderer_GetText(Entity.ID);
+			set => Internal.TextRenderer_SetText(Entity.ID, value);
+		}
+	}
+
 	public class CircleRenderer : Component
 	{
 		public Color Color
