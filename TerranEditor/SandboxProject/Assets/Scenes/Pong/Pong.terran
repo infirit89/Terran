@@ -107,7 +107,78 @@
             "RelationshipComponent": {
                 "ChildrenCount": 0,
                 "Children": 0,
+                "Parent": "06fc46e2-7788-4cc9-a763-6c3b692c19b3"
+            }
+        },
+        "Entity 06fc46e2-7788-4cc9-a763-6c3b692c19b3": {
+            "TagComponent": {
+                "Tag": "Walls",
+                "ID": "06fc46e2-7788-4cc9-a763-6c3b692c19b3"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 4,
+                "Children": [
+                    "a3a4c3a8-de53-44f7-8c54-e2e2632ea60f",
+                    "5208e8b2-d99e-4b78-9e8a-f9896504fee9",
+                    "0c328cbc-e073-41be-8d76-5ab9902d7746",
+                    "e57a2426-618b-4752-8799-fb0a3fd83643"
+                ],
                 "Parent": "null"
+            }
+        },
+        "Entity a3a4c3a8-de53-44f7-8c54-e2e2632ea60f": {
+            "TagComponent": {
+                "Tag": "Top Wall",
+                "ID": "a3a4c3a8-de53-44f7-8c54-e2e2632ea60f"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 5.099999904632568,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 18.55991554260254,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "TexturePath": "",
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "06fc46e2-7788-4cc9-a763-6c3b692c19b3"
             }
         },
         "Entity 0c328cbc-e073-41be-8d76-5ab9902d7746": {
@@ -145,7 +216,7 @@
             "RelationshipComponent": {
                 "ChildrenCount": 0,
                 "Children": 0,
-                "Parent": "null"
+                "Parent": "06fc46e2-7788-4cc9-a763-6c3b692c19b3"
             }
         },
         "Entity e57a2426-618b-4752-8799-fb0a3fd83643": {
@@ -183,7 +254,7 @@
             "RelationshipComponent": {
                 "ChildrenCount": 0,
                 "Children": 0,
-                "Parent": "null"
+                "Parent": "06fc46e2-7788-4cc9-a763-6c3b692c19b3"
             }
         },
         "Entity ce5ecdb5-5649-44e3-ba27-4650b726235e": {
@@ -296,15 +367,15 @@
                 }
             }
         },
-        "Entity a3a4c3a8-de53-44f7-8c54-e2e2632ea60f": {
+        "Entity ddf89b69-12cd-462e-88d5-6d7a6c7f7904": {
             "TagComponent": {
-                "Tag": "Top Wall",
-                "ID": "a3a4c3a8-de53-44f7-8c54-e2e2632ea60f"
+                "Tag": "Score 1",
+                "ID": "ddf89b69-12cd-462e-88d5-6d7a6c7f7904"
             },
             "TransformComponent": {
                 "Position": {
-                    "X": 0.0,
-                    "Y": 5.099999904632568,
+                    "X": -7.473774433135986,
+                    "Y": 3.1844370365142822,
                     "Z": 0.0
                 },
                 "Rotation": {
@@ -313,39 +384,6 @@
                     "Z": 0.0
                 },
                 "Scale": {
-                    "X": 18.55991554260254,
-                    "Y": 1.0,
-                    "Z": 1.0
-                }
-            },
-            "SpriteRendererComponent": {
-                "Color": {
-                    "X": 1.0,
-                    "Y": 1.0,
-                    "Z": 1.0,
-                    "W": 1.0
-                },
-                "TexturePath": "",
-                "ZIndex": 0
-            }
-        },
-        "Entity d69c714e-84ef-4385-9d40-db1c8eca098c": {
-            "TagComponent": {
-                "Tag": "Score 1",
-                "ID": "d69c714e-84ef-4385-9d40-db1c8eca098c"
-            },
-            "TransformComponent": {
-                "Position": {
-                    "X": -7.507205009460449,
-                    "Y": 3.1844370365142822,
-                    "Z": 0.0
-                },
-                "Rotation": {
-                    "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
                     "X": 1.0,
                     "Y": 1.0,
                     "Z": 1.0
@@ -360,22 +398,59 @@
                 },
                 "Text": "0",
                 "FontPath": "Resources/Fonts/Roboto/Roboto-Regular.ttf"
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "23500134-8a19-4261-99e4-be2d6cb418c4"
             }
         },
-        "Entity cd39dcfc-2157-439e-81aa-13fc3c88a980": {
+        "Entity 23500134-8a19-4261-99e4-be2d6cb418c4": {
+            "TagComponent": {
+                "Tag": "UI",
+                "ID": "23500134-8a19-4261-99e4-be2d6cb418c4"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 3,
+                "Children": [
+                    "ddf89b69-12cd-462e-88d5-6d7a6c7f7904",
+                    "bfe9deaa-6faf-41e7-a422-11f4f73580d8",
+                    "76ce0269-94b5-48ee-a6b3-2891ee1004ef"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity bfe9deaa-6faf-41e7-a422-11f4f73580d8": {
             "TagComponent": {
                 "Tag": "Score 2",
-                "ID": "cd39dcfc-2157-439e-81aa-13fc3c88a980"
+                "ID": "bfe9deaa-6faf-41e7-a422-11f4f73580d8"
             },
             "TransformComponent": {
                 "Position": {
-                    "X": 6.959655284881592,
+                    "X": 7.030478000640869,
                     "Y": 3.1844370365142822,
                     "Z": 0.0
                 },
                 "Rotation": {
                     "X": 0.0,
-                    "Y": 0.0,
+                    "Y": -0.0,
                     "Z": 0.0
                 },
                 "Scale": {
@@ -393,6 +468,49 @@
                 },
                 "Text": "0",
                 "FontPath": "Resources/Fonts/Roboto/Roboto-Regular.ttf"
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "23500134-8a19-4261-99e4-be2d6cb418c4"
+            }
+        },
+        "Entity 76ce0269-94b5-48ee-a6b3-2891ee1004ef": {
+            "TagComponent": {
+                "Tag": "Won Text",
+                "ID": "76ce0269-94b5-48ee-a6b3-2891ee1004ef"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": -3.8526923656463623,
+                    "Y": 1.6572237014770508,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 0.800000011920929,
+                    "Y": 0.800000011920929,
+                    "Z": 1.0
+                }
+            },
+            "TextRendererComponent": {
+                "Color": {
+                    "X": 0.3686274588108063,
+                    "Y": 0.7647058963775635,
+                    "Z": 0.07058823853731155,
+                    "W": 1.0
+                },
+                "Text": "Player 1 won! Points: 10\n\tPress R to restart",
+                "FontPath": "Resources/Fonts/Roboto/Roboto-Regular.ttf"
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "23500134-8a19-4261-99e4-be2d6cb418c4"
             }
         }
     }

@@ -19,8 +19,8 @@ namespace Pong
         private Entity m_LeftWall, m_RightWall;
 
         private Entity m_Ball;
-//        private TextRenderer m_Score1Renderer, m_Score2Renderer;
-        //private TextRenderer m_GameWonTextRenderer;
+        private TextRenderer m_Score1Renderer, m_Score2Renderer;
+        private TextRenderer m_GameWonTextRenderer;
 
         public Vector3 ballCenter = new Vector3(0.0f, 0.0f, 0.0f);
         public int maxPoints = 5;
@@ -42,51 +42,50 @@ namespace Pong
             m_BallScript = m_Ball.GetComponent<Ball>();
             m_Rng = new Random();
 
-            //m_Score1Renderer = Entity.FindWithName("Score 1").GetComponent<TextRenderer>();
-            //m_Score2Renderer = Entity.FindWithName("Score 2").GetComponent<TextRenderer>();
+            m_Score1Renderer = Entity.FindWithName("Score 1").GetComponent<TextRenderer>();
+            m_Score2Renderer = Entity.FindWithName("Score 2").GetComponent<TextRenderer>();
 
-            //m_Score1Renderer.Text = "0";
-            //m_Score2Renderer.Text = "0";
+            m_Score1Renderer.Text = "0";
+            m_Score2Renderer.Text = "0";
 
-            //m_GameWonTextRenderer = Entity.FindWithName("Game Won").GetComponent<TextRenderer>();
-            //m_GameWonTextRenderer.Text = "";
-            //GameStateManager.CurrentGameState = GameState.Game;
+            m_GameWonTextRenderer = Entity.FindWithName("Won Text").GetComponent<TextRenderer>();
+            m_GameWonTextRenderer.Text = "";
+            GameStateManager.CurrentGameState = GameState.Game;
         }
 
         protected override void Update()
         {
+            if (GameStateManager.CurrentGameState == GameState.WonScreen)
+            {
+                //m_Ball.Transform.Position = ballCenter;
+                //m_BallScript.ballDirection = new Vector3(0.0f, 0.0f, 0.0f);
 
-            //if (GameStateManager.CurrentGameState == GameState.WonScreen)
-            //{
-            //    //m_Ball.Transform.Position = ballCenter;
-            //    //m_BallScript.ballDirection = new Vector3(0.0f, 0.0f, 0.0f);
-
-            //    if(Input.IsKeyPressed(KeyCode.R))
-            //        Reset();
-            //}
+                if (Input.IsKeyPressed(KeyCode.R))
+                    Reset();
+            }
 
             if (CollisionUtils.IsCollidingWith(m_RightWall, m_Ball) || CollisionUtils.IsCollidingWith(m_LeftWall, m_Ball))
             {
                 if (m_Ball.Transform.Position.X < 0.0f)
                 {
                     m_Player2Score++;
-                    //m_Score2Renderer.Text = m_Player2Score.ToString();
-                    //if (m_Player2Score >= maxPoints) 
-                    //{
-                    //    GameStateManager.CurrentGameState = GameState.WonScreen;
-                    //    m_GameWonTextRenderer.Text = $"Player 2 won! Points: {m_Player2Score}\n\tPress R to restart";
-                    //}
+                    m_Score2Renderer.Text = m_Player2Score.ToString();
+                    if (m_Player2Score >= maxPoints)
+                    {
+                        GameStateManager.CurrentGameState = GameState.WonScreen;
+                        m_GameWonTextRenderer.Text = $"Player 2 won! Points: {m_Player2Score}\n\tPress R to restart";
+                    }
                 }
                 else
                 {
                     m_Player1Score++;
-                    //m_Score1Renderer.Text = m_Player1Score.ToString();
+                    m_Score1Renderer.Text = m_Player1Score.ToString();
 
-                    //if(m_Player1Score >= maxPoints)
-                    //{
-                    //    GameStateManager.CurrentGameState = GameState.WonScreen;
-                    //    m_GameWonTextRenderer.Text = $"Player 1 won! Points: {m_Player1Score}\n\tPress R to restart";
-                    //}
+                    if (m_Player1Score >= maxPoints)
+                    {
+                        GameStateManager.CurrentGameState = GameState.WonScreen;
+                        m_GameWonTextRenderer.Text = $"Player 1 won! Points: {m_Player1Score}\n\tPress R to restart";
+                    }
                 }
 
                 m_Ball.Transform.Position = ballCenter;
@@ -97,16 +96,15 @@ namespace Pong
 
         private void Reset() 
         {
-            //GameStateManager.CurrentGameState = GameState.Game;
-            //m_GameWonTextRenderer.Text = "";
-            //m_Player1Score = 0;
-            //m_Player2Score = 0;
+            GameStateManager.CurrentGameState = GameState.Game;
+            m_GameWonTextRenderer.Text = "";
+            m_Player1Score = 0;
+            m_Player2Score = 0;
 
-            //m_Score1Renderer.Text = "0";
-            //m_Score2Renderer.Text = "0";
+            m_Score1Renderer.Text = "0";
+            m_Score2Renderer.Text = "0";
 
-            //m_BallScript.ballDirection = new Vector3(m_Rng.Next(0, 2) == 0 ? -0.1f : 0.1f, 0.0f, 0.0f);
+            m_BallScript.ballDirection = new Vector3(m_Rng.Next(0, 2) == 0 ? -0.1f : 0.1f, 0.0f, 0.0f);
         }
     }
-
 }

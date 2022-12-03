@@ -642,7 +642,7 @@ catch(const std::exception& ex)\
 			json jRelation = jEntity["RelationshipComponent"];
 
 			RelationshipComponent& relationshipComponent = entity.AddComponent<RelationshipComponent>();
-
+			
 			try 
 			{
 				if (jRelation["ChildrenCount"] > 0)
@@ -661,15 +661,12 @@ catch(const std::exception& ex)\
 					if (!scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"])))
 						DesirializeEntity(jScene["Entity " + std::string(jRelation["Parent"])], jScene, scene);
 
-					entity.SetParentID(UUID::FromString(jRelation["Parent"]));
+					Entity parent = scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"]));
+					entity.SetParent(parent);
 				}
 
 			}
-			catch (const std::exception& ex) 
-			{
-				TR_ERROR(ex.what());
-				relationshipComponent = RelationshipComponent();
-			}
+			CATCH_JSON_EXCEPTION();
 		}
 
 		if (jEntity.contains("ScriptComponent")) 
