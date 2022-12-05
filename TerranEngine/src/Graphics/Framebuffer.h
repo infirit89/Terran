@@ -40,8 +40,8 @@ namespace TerranEngine
 
 		inline uint32_t GetColorAttachmentID(uint32_t colorAttachmentIndex) { return m_ColorAttachments[colorAttachmentIndex]; }
 		
-		uint32_t GetWidth() { return m_Width; }
-		uint32_t GetHeight() { return m_Height; }
+		uint32_t GetWidth() const { return m_Width; }
+		uint32_t GetHeight() const { return m_Height; }
 
 		void SetColorAttachment(uint32_t colorAttachmentIndex, int value);
 

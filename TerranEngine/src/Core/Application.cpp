@@ -29,8 +29,6 @@ namespace TerranEngine
 {
 	Application* Application::m_Instance = nullptr;
 
-	static Unique<BatchRenderer2D> s_Renderer;
-
 	Application::Application(const ApplicationData& appData)
 	{
 		m_Instance = this;
@@ -38,7 +36,7 @@ namespace TerranEngine
 		m_Window = Window::Create(appData.Window);
 
 		RenderCommand::Init();
-		s_Renderer = CreateUnique<BatchRenderer2D>(2000);
+		BatchRenderer2D::Initialize(2000);
         
         ScriptEngine::Initialize(appData.ScriptCorePath);
         Physics2D::Initialize();
@@ -55,6 +53,7 @@ namespace TerranEngine
 	{
         ScriptEngine::Shutdown();
         Physics2D::Shutdown();
+		BatchRenderer2D::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)

@@ -6,6 +6,7 @@
 #include "Core/Input.h"
 
 #include "Graphics/BatchRenderer2D.h"
+#include "Graphics/RenderCommand.h"
 
 #include "Math/Math.h"
 
@@ -32,7 +33,7 @@ namespace TerranEngine
 		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
 		RenderCommand::Clear();
 
-		BatchRenderer2D::Get()->BeginFrame(camera, cameraTransform, invereTransform);
+		BatchRenderer2D::BeginFrame(camera, cameraTransform, invereTransform);
 		m_BegunScene = true;
 		
 		/* TODO: better sorting
@@ -46,23 +47,23 @@ namespace TerranEngine
 	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		BatchRenderer2D::Get()->AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture, entityID);
+		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture, entityID);
 	}
 
 	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		BatchRenderer2D::Get()->AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
+		BatchRenderer2D::AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
 	}
 
 	void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer, int entityID)
 	{
-		BatchRenderer2D::Get()->AddLine(lineRenderer.StartPoint, lineRenderer.EndPoint, lineRenderer.Color, lineRenderer.Thickness, entityID);
+		BatchRenderer2D::AddLine(lineRenderer.StartPoint, lineRenderer.EndPoint, lineRenderer.Color, lineRenderer.Thickness, entityID);
 	}
 
 	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
 	{
-		BatchRenderer2D::Get()->AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
+		BatchRenderer2D::AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
 										textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
 	}
 
@@ -74,7 +75,7 @@ namespace TerranEngine
 
 		TR_ASSERT(m_BegunScene, "BeginScene has to be called before EndScene!");
 
-		BatchRenderer2D::Get()->EndFrame();
+		BatchRenderer2D::EndFrame();
 		m_Framebuffer->Unbind();
 
 		m_BegunScene = false;
@@ -121,7 +122,7 @@ namespace TerranEngine
 					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
 					glm::scale(glm::mat4(1.0f), size);*/
 
-				BatchRenderer2D::Get()->AddDebugRect(transformMatrix, color);
+				BatchRenderer2D::AddDebugRect(transformMatrix, color);
 			}
 		}
 
@@ -154,7 +155,7 @@ namespace TerranEngine
 											glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
 											glm::scale(glm::mat4(1.0f), colliderSize);
 
-				BatchRenderer2D::Get()->AddCircle(transformMatrix, color, thickness, -1);
+				BatchRenderer2D::AddCircle(transformMatrix, color, thickness, -1);
 			}
 		}
 
@@ -180,7 +181,7 @@ namespace TerranEngine
 											glm::translate(glm::mat4(1.0f), position) *
 											glm::scale(glm::mat4(1.0f), size);
 
-				BatchRenderer2D::Get()->AddCircle(transformMatrix, color, thickness, -1);
+				BatchRenderer2D::AddCircle(transformMatrix, color, thickness, -1);
 			}
 		}
 	}

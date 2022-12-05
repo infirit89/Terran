@@ -6,7 +6,7 @@
 
 namespace TerranEngine 
 {
-	class GLFWWindow : public Window
+	class GLFWWindow final : public Window
 	{
 	public:
 		GLFWWindow(WindowData data);

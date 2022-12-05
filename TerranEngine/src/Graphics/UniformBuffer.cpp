@@ -23,10 +23,7 @@ namespace TerranEngine
 		glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_Buffer, offset, size);
 	}
 
-	UniformBuffer::~UniformBuffer()
-	{
-		glDeleteBuffers(1, &m_Buffer);
-	}
+	UniformBuffer::~UniformBuffer() { glDeleteBuffers(1, &m_Buffer); }
 
 	void UniformBuffer::SetData(const void* data, uint32_t offset, uint32_t size)
 	{	 
@@ -44,14 +41,6 @@ namespace TerranEngine
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 		 
-	void UniformBuffer::Bind() const
-	{
-		glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-	}	 
-		 
-	void UniformBuffer::Unbind() const
-	{
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
+	void UniformBuffer::Bind() const { glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer); }	 
+	void UniformBuffer::Unbind() const { glBindBuffer(GL_UNIFORM_BUFFER, 0); }
 }
-

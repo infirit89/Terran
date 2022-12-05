@@ -28,6 +28,7 @@ namespace TerranEngine
 		operator bool() const { return m_MonoMethod != nullptr; }
 
 		inline const std::string& GetName() const { return m_Name; }
+
 	private:
 		MonoMethod* m_MonoMethod = nullptr;
 		std::string m_Name;

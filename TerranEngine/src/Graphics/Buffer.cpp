@@ -5,7 +5,6 @@
 
 namespace TerranEngine 
 {
-
 	/* ---- Vertex Buffer Element --- */
 	uint8_t VertexBufferElement::GetSize()
 	{

@@ -143,7 +143,7 @@ namespace TerranEditor
 	{
 		TR_PROFILE_FUNCN("EditorLayer::Update");
 
-		BatchRenderer2D::Get()->ResetStats();
+		BatchRenderer2D::ResetStats();
 		m_EditorCamera.Update(time);
 
 		if (/*m_SceneViewPanel.IsVisible() &&*/ SceneManager::GetCurrentScene())
@@ -473,7 +473,7 @@ namespace TerranEditor
 			{
 				ImGui::Begin("Renderer Stats", &m_RendererStatsPanelOpen);
 			
-				BatchRendererStats stats = BatchRenderer2D::Get()->GetStats();
+				BatchRendererStats stats = BatchRenderer2D::GetStats();
 				ImGui::Indent(4.0f);
 				ImGui::Text("Draw calls: %d", stats.DrawCalls);
 				ImGui::Text("Total Vertex count: %d", stats.VertexCount);

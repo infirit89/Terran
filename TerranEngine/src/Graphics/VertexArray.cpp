@@ -18,20 +18,10 @@ namespace TerranEngine
 		glBindVertexArray(m_Vao);
 	}
 
-	VertexArray::~VertexArray()
-	{
-		glDeleteVertexArrays(1, &m_Vao);
-	}
+	VertexArray::~VertexArray() { glDeleteVertexArrays(1, &m_Vao); }
 
-	const void VertexArray::Bind() const
-	{
-		glBindVertexArray(m_Vao);
-	}
-
-	const void VertexArray::Unbind() const
-	{
-		glBindVertexArray(0);
-	}
+	const void VertexArray::Bind() const { glBindVertexArray(m_Vao); }
+	const void VertexArray::Unbind() const { glBindVertexArray(0); }
 
 	void VertexArray::AddVertexBufferLayout(const VertexBufferLayout& layout)
 	{

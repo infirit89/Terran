@@ -4,8 +4,12 @@
 
 #include "ScriptMethod.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <mono/metadata/object.h>
 #include <mono/metadata/exception.h>
+
+#include <format>
 
 namespace TerranEngine 
 {
@@ -33,10 +37,12 @@ namespace TerranEngine
 
 		void Invoke(MonoObject* obj, TParameters... params, MonoException** exc) 
 		{
+			TR_PROFILE_FUNCTION();
+
 			if(m_MethodThunk != nullptr)
 				m_MethodThunk(obj, params..., exc);
 		}
-
+		 
 		operator bool() { return m_MethodThunk != nullptr; }
 
 	private:

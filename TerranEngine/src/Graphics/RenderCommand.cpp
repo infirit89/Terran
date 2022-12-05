@@ -38,20 +38,10 @@ namespace TerranEngine
 		EnableDepthTesting(true);
 	}
 
-	void RenderCommand::SetClearColor(float r, float g, float b, float a)
-	{
-		glClearColor(r, g, b, a);
-	}
+	void RenderCommand::SetClearColor(float r, float g, float b, float a) { glClearColor(r, g, b, a); }
+	void RenderCommand::Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
-	void RenderCommand::Clear()
-	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void RenderCommand::Resize(int width, int height)
-	{
-		glViewport(0, 0, width, height);
-	}
+	void RenderCommand::Resize(int width, int height) { glViewport(0, 0, width, height); }
 
 	void RenderCommand::WireframeMode(bool enable)
 	{
@@ -123,20 +113,15 @@ namespace TerranEngine
 		glDrawArrays(nativeMode, 0, numVertices);
 	}
 
-	void RenderCommand::DrawInstanced(const Shared<VertexArray>& vertexArray, int instanceCount)
+	void RenderCommand::DrawInstanced(RenderMode mode, const Shared<VertexArray>& vertexArray, int instanceCount)
 	{
+		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
 		vertexArray->GetIndexBuffer()->Bind();
-		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
-	}
+		glDrawElementsInstanced(nativeMode, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+	} 
 
-	void RenderCommand::SetLineWidth(float lineWidth)
-	{
-		glLineWidth(lineWidth);
-	}
+	void RenderCommand::SetLineWidth(float lineWidth) { glLineWidth(lineWidth); }
 
-	uint32_t RenderCommand::GetAPIVersion()
-	{
-		return (GLVersion.major * 100) + (GLVersion.minor * 10);
-	}
+	uint32_t RenderCommand::GetAPIVersion() { return (GLVersion.major * 100) + (GLVersion.minor * 10); }
 }
 

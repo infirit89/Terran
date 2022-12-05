@@ -3,6 +3,8 @@
 
 #include "ScriptObject.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/object.h>
 
@@ -32,6 +34,7 @@ namespace TerranEngine
 
     MonoObject* GCManager::GetManagedObject(const GCHandle& handle)
     {
+        TR_PROFILE_FUNCTION();
         if (!handle.IsValid())
             return nullptr;
 
