@@ -41,8 +41,8 @@ namespace TerranEngine
         TR_ASSERT(monoField, "Invalid Field!");
 
         mono_field_get_value(monoObject, monoField, result);
-    }
 
+    }
     MonoObject* ScriptUtils::GetFieldValueObject(MonoClassField* monoField, GCHandle handle)
     {
         MonoObject* monoObject = GCManager::GetManagedObject(handle);

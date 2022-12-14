@@ -127,7 +127,6 @@ namespace TerranEngine
 			s_Data->Assemblies[i] = CreateShared<ScriptAssembly>();
 		
 		CreateAppDomain();
-
 		LoadCoreAssembly();
 		
 		ScriptBindings::Bind();
@@ -186,12 +185,25 @@ namespace TerranEngine
 			}
 		}
 		
+		s_Data->ScriptInstanceMap.clear();
 		UnloadDomain();
 		CreateAppDomain();
 
 		LoadCoreAssembly();
 		LoadAppAssembly();
 		
+		for (auto [sceneID, scene] : SceneManager::GetActiveScenes())
+		{
+			auto scriptView = scene->GetEntitiesWith<ScriptComponent>();
+
+			for (auto e : scriptView)
+			{
+				Entity entity(e, scene.get());
+				InitializeScriptable(entity);
+			}
+
+		}
+
 		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
 		{
 			auto scene = SceneManager::GetScene(sceneID);
@@ -255,21 +267,6 @@ namespace TerranEngine
 			}
 		}
 
-		if (scriptFieldsStates.empty() && arrayScriptFieldsStates.empty())
-		{
-			for (auto [sceneID, scene] : SceneManager::GetActiveScenes())
-			{
-				auto scriptView = scene->GetEntitiesWith<ScriptComponent>();
-
-				for (auto e : scriptView)
-				{
-					Entity entity(e, scene.get());
-					InitializeScriptable(entity);
-				}
-
-			}
-		}
-
 		TR_INFO("Reloaded assemblies!");
 		s_Data->LogCallback("Reloaded assemblies!", spdlog::level::info);
 	}
@@ -322,7 +319,7 @@ namespace TerranEngine
 			
 			GCManager::CollectAll();
 
-			ScriptInstanceMap oldInstanceMap = s_Data->ScriptInstanceMap;
+			/*ScriptInstanceMap oldInstanceMap = s_Data->ScriptInstanceMap;
 			for (const auto& [sceneID, scriptInstances] : oldInstanceMap)
 			{
 				for (const auto& [entityID, instance] : scriptInstances)
@@ -335,7 +332,7 @@ namespace TerranEngine
 					Entity entity = scene->FindEntityWithUUID(entityID);
 					UninitalizeScriptable(entity);
 				}
-			}
+			}*/
 			
 			mono_domain_unload(s_Data->AppDomain);
 		}
@@ -343,30 +340,11 @@ namespace TerranEngine
 		ScriptCache::ClearCache();
 	}
 
-	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName, int assemblyIndex)
-	{
-		return s_Data->Assemblies[assemblyIndex]->GetClassFromName(moduleName);
-	}
-
-	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex)
-	{
-		return s_Data->Assemblies[assemblyIndex]->GetClassFromTypeToken(typeToken);
-	}
-
-	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex)
-	{
-		return s_Data->Assemblies[assemblyIndex]->GetMethodFromDesc(methodDesc);
-	}
-
-	bool ScriptEngine::ClassExists(const std::string& moduleName)
-	{
-		return ScriptCache::GetCachedClassFromName(moduleName);
-	}
-
-	Shared<ScriptAssembly>& ScriptEngine::GetAssembly(int assemblyIndex)
-	{
-		return s_Data->Assemblies.at(assemblyIndex);
-	}
+	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetClassFromName(moduleName); }
+	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetClassFromTypeToken(typeToken); }
+	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetMethodFromDesc(methodDesc); }
+	bool ScriptEngine::ClassExists(const std::string& moduleName) { return ScriptCache::GetCachedClassFromName(moduleName); }
+	Shared<ScriptAssembly>& ScriptEngine::GetAssembly(int assemblyIndex) { return s_Data->Assemblies.at(assemblyIndex); }
 
 	void ScriptEngine::InitializeScriptable(Entity entity)
 	{
@@ -384,40 +362,39 @@ namespace TerranEngine
 
 		scriptComponent.ClassExists = true;
 
-		if (s_Data->ScriptInstanceMap.find(entity.GetID()) == s_Data->ScriptInstanceMap.end())
+		if (s_Data->ScriptInstanceMap.find(entity.GetID()) != s_Data->ScriptInstanceMap.end()) return;
+
+		ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
+			
+		if (!klass) return;
+
+		if (klass->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))
 		{
-			ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
+			std::string errorMessage = fmt::format("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
+			s_Data->LogCallback(errorMessage, spdlog::level::warn);
+			return;
+		}
+
+		ScriptableInstance instance;
+		const ScriptObject object = ScriptObject::CreateInstace(*klass);
+		instance.ObjectHandle = GCManager::CreateStrongHadle(object);
+		instance.GetMethods();
+
+		ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 			
-			if (!klass) return;
+		MonoException* exception = nullptr;
+		instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exception);
 
-			if (klass->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))
-			{
-				// TODO: display error in ui
-				TR_WARN("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
-				return;
-			}
-
-			ScriptableInstance instance;
-			const ScriptObject object = ScriptObject::CreateInstace(*klass);
-			instance.ObjectHandle = GCManager::CreateStrongHadle(object);
-			instance.GetMethods();
-
-			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
+		if(exception)
+			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 			
-			MonoException* exception = nullptr;
-			instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exception);
+		s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
-			if(exception)
-				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
-			
-			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
-
-			scriptComponent.PublicFieldIDs.clear();
-			for (ScriptField& field : klass->GetFields())
-			{
-				if(field.GetVisibility() == ScriptFieldVisibility::Public)
-					scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
-			}
+		scriptComponent.PublicFieldIDs.clear();
+		for (ScriptField& field : klass->GetFields())
+		{
+			if(field.GetVisibility() == ScriptFieldVisibility::Public)
+				scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 		}
 	}
 
