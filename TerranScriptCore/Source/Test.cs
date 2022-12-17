@@ -41,7 +41,7 @@ namespace Terran
 			Log.Trace(_CircleRenderer.Color);
 		}
 
-		protected override void Update() 
+		protected override void Update(float deltaTime) 
 		{
 			if (Input.IsKeyPressed(KeyCode.Q))
 				_CircleRenderer.Color = Color.Cyan;
@@ -76,7 +76,7 @@ namespace Terran
 			Log.Trace(JumpForce);
 		}
 
-		protected override void Update()
+		protected override void Update(float deltaTime)
 		{
 			// RayCastHitInfo2D hitInfo;
 			// float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;

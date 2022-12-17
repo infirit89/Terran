@@ -26,7 +26,8 @@ project "TerranEditor"
         "%{wks.location}/TerranEngine/vendor/glm/",
         "%{wks.location}/TerranEngine/vendor/entt/include/",
         
-        "%{wks.location}/TerranEditor/vendor/ImGuizmo/"
+        "%{wks.location}/TerranEditor/vendor/ImGuizmo/",
+        "%{wks.location}/TerranEditor/vendor/FontAwesome/",
     } 
     
     links 

@@ -29,6 +29,8 @@
 
 #include <filesystem>
 
+#include <IconFontAwesome6.h>
+
 #pragma warning(push, 0)
 #include <spdlog/sinks/basic_file_sink.h>
 #pragma warning(pop)
@@ -85,6 +87,8 @@ namespace TerranEditor
 		ImFontConfig config;
 		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
 		config.MergeMode = true;
+		//static constexpr ImWchar fontawesomeRange[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		//io.Fonts->AddFontFromFileTTF("Resources/Fonts/FontAwesome/Font Awesome 6 Free-Regular-400.otf", 18.0f, &config, fontawesomeRange);
 		io.Fonts->Build();
 		io.IniFilename = "Resources/TerranEditorSettings.ini";
 

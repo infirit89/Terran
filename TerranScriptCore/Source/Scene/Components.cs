@@ -212,7 +212,7 @@ namespace Terran
 		}
 
 		protected virtual void Init() { }
-		protected virtual void Update() { }
+		protected virtual void Update(float deltaTime) { }
 
 		protected virtual void OnCollisionBegin(Entity entity) { }
 		protected virtual void OnCollisionEnd(Entity entity) { }

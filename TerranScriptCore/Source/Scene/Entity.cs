@@ -60,7 +60,7 @@ namespace Terran
 				return;
 			}
 
-			Internal.Entity_AddComponent(ID.Data, typeof(T).FullName);
+			Internal.Entity_AddComponent(ID.Data, typeof(T));
 		}
 
 		public Entity[] GetChildren()
@@ -82,7 +82,7 @@ namespace Terran
 			return children;
 		}
 
-		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(ID.Data, typeof(T).FullName);
+		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(ID.Data, typeof(T));
 
 		public void RemoveComponent<T>() where T : Component 
 		{
@@ -94,7 +94,7 @@ namespace Terran
 					return;
 				}
 
-				Internal.Entity_RemoveComponent(ID.Data, typeof(T).FullName);
+				Internal.Entity_RemoveComponent(ID.Data, typeof(T));
 			}
 		} 
 
@@ -103,7 +103,7 @@ namespace Terran
 			if (HasComponent<T>())
 			{
 				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
-					return Internal.Entity_GetScriptableComponent(ID.Data, typeof(T).FullName) as T;
+					return Internal.Entity_GetScriptableComponent(ID.Data) as T;
 
 				T component = new T { Entity = new Entity(ID) };
 				return component;

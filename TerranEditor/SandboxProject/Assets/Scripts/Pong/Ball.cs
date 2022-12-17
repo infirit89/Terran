@@ -24,7 +24,7 @@ namespace Pong
             m_RNG = new Random();
         }
 
-        protected override void Update()
+        protected override void Update(float deltaTime)
         {
             if (GameStateManager.CurrentGameState == GameState.WonScreen) return;
 

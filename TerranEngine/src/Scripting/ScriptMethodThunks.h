@@ -29,8 +29,7 @@ namespace TerranEngine
 
 		void SetFromMethod(ScriptMethod* method) 
 		{
-			if (method == nullptr)
-				return;
+			TR_ASSERT(method, "Invalid method");
 
 			m_MethodThunk = (M)mono_method_get_unmanaged_thunk(method->GetMonoMethod());
 		}

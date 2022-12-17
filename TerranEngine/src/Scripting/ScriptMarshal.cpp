@@ -3,6 +3,8 @@
 #include "ScriptCache.h"
 #include "ScriptClass.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <mono/metadata/appdomain.h>
 
 namespace TerranEngine 
@@ -10,17 +12,20 @@ namespace TerranEngine
 	template<typename T>
 	static T Unbox(MonoObject* monoObject)
 	{
+		TR_PROFILE_FUNCTION();
 		return *(T*)mono_object_unbox(monoObject);
 	}
 
 	template<typename T>
 	static T* UnboxAddr(MonoObject* monoObject)
 	{
+		TR_PROFILE_FUNCTION();
 		return (T*)mono_object_unbox(monoObject);
 	}
 	
 	ScriptArray ScriptMarshal::UUIDToMonoArray(const UUID& id)
 	{
+		TR_PROFILE_FUNCTION();
 		const uint8_t* idData = id.GetRaw();
 		ScriptArray uuidArray = ScriptArray::Create<uint8_t>(16);
 
@@ -31,9 +36,10 @@ namespace TerranEngine
 		return uuidArray;
 	}
 
-	UUID ScriptMarshal::MonoArrayToUUID(ScriptArray uuidArray)
+	UUID ScriptMarshal::MonoArrayToUUID(MonoArray* id)
 	{
-		if (uuidArray.Length() != 16)
+		TR_PROFILE_FUNCTION();
+		if (mono_array_length(id) != 16)
 		{
 			TR_ERROR("Mono UUID array is invalid");
 			return UUID({ 0 });
@@ -41,8 +47,7 @@ namespace TerranEngine
 
 		std::array<uint8_t, 16> idData = { 0 };
 
-		const uint8_t* uuidArrayAddr = (uint8_t*)uuidArray.GetElementAddress(0, sizeof(uint8_t));
-
+		const uint8_t* uuidArrayAddr = mono_array_addr(id, uint8_t, 0);
 		memcpy(&idData, uuidArrayAddr, 16 * sizeof(uint8_t));
 
 		return UUID(idData);
@@ -50,12 +55,14 @@ namespace TerranEngine
 
 	MonoString* ScriptMarshal::UTF8ToMonoString(const std::string& str)
 	{
+		TR_PROFILE_FUNCTION();
 		MonoDomain* mainDomain = mono_domain_get();
 		return mono_string_new(mainDomain, str.c_str());
 	}
 
 	std::string ScriptMarshal::MonoStringToUTF8(MonoString* monoStr)
 	{
+		TR_PROFILE_FUNCTION();
 		MonoError error;
 		char* str = mono_string_to_utf8_checked(monoStr, &error);
 
@@ -73,6 +80,7 @@ namespace TerranEngine
 
 	Utils::Variant ScriptMarshal::MonoObjectToVariant(MonoObject* monoObject, const ScriptType& type)
 	{
+		TR_PROFILE_FUNCTION();
 		switch (type.TypeEnum)
 		{
 		case ScriptType::Bool: 		return Unbox<bool>(monoObject);
@@ -99,6 +107,7 @@ namespace TerranEngine
 
 	Utils::Variant::Type ScriptMarshal::ScriptTypeToVariantType(const ScriptType& type)
 	{
+		TR_PROFILE_FUNCTION();
 		using namespace Utils;
 		switch (type.TypeEnum)
 		{

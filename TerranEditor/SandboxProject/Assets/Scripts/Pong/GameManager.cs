@@ -53,7 +53,7 @@ namespace Pong
             GameStateManager.CurrentGameState = GameState.Game;
         }
 
-        protected override void Update()
+        protected override void Update(float deltaTime)
         {
             if (GameStateManager.CurrentGameState == GameState.WonScreen)
             {

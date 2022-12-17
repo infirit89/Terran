@@ -20,9 +20,12 @@
 #include "Physics/Collider.h"
 #include "Physics/PhysicsLayerManager.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <glm/glm.hpp>
 
 #include <mono/metadata/object.h>
+#include <mono/metadata/reflection.h>
 
 #include <box2d/box2d.h>
 
@@ -30,12 +33,33 @@ namespace TerranEngine
 {
 	namespace ScriptBindings 
 	{				
+
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)
 
 		static ScriptMethodThunks<MonoArray*> s_IDClassCtor;
+		static std::unordered_map <MonoType*, std::function<bool(Entity)>> s_HasComponentFuncs;
+		static std::unordered_map <MonoType*, std::function<void(Entity)>> s_AddComponentFuncs;
+		static std::unordered_map <MonoType*, std::function<void(Entity)>> s_RemoveComponentFuncs;
+
+#define REGISTER_COMPONENT(type, component)\
+	MonoType* monoType_##type = mono_reflection_type_from_name("Terran."#type, ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX)->GetMonoImage());\
+	TR_ASSERT(monoType_##type, "Invaled type");\
+	s_HasComponentFuncs[monoType_##type] = [](Entity entity) { return entity.HasComponent<component>(); };\
+	s_AddComponentFuncs[monoType_##type] = [](Entity entity) { return entity.AddComponent<component>(); };\
+	s_RemoveComponentFuncs[monoType_##type] = [](Entity entity) { return entity.RemoveComponent<component>(); }\
 
 		void Bind()
 		{
+			REGISTER_COMPONENT(Transform,			TransformComponent);
+			REGISTER_COMPONENT(Tag,					TagComponent);
+			REGISTER_COMPONENT(CapsuleCollider2D,	CapsuleCollider2DComponent);
+			REGISTER_COMPONENT(CircleCollider2D,	CircleCollider2DComponent);
+			REGISTER_COMPONENT(BoxCollider2D,		BoxCollider2DComponent);
+			REGISTER_COMPONENT(Rigidbody2D,			Rigidbody2DComponent);
+			REGISTER_COMPONENT(Camera,				CameraComponent);
+			REGISTER_COMPONENT(CircleRenderer,		CircleRendererComponent);
+			REGISTER_COMPONENT(TextRenderer,		TextRendererComponent);
+
 			// ---- entity -----
 			BIND_INTERNAL_FUNC(Entity_HasComponent);
 			BIND_INTERNAL_FUNC(Entity_AddComponent);
@@ -188,7 +212,7 @@ namespace TerranEngine
 			s_IDClassCtor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.UUID", ":.ctor(byte[])"));
 		}
 
-		enum class ComponentType
+		/*enum class ComponentType
 		{
 			None = 0,
 			TransformComponent,
@@ -203,10 +227,11 @@ namespace TerranEngine
 			CameraComponent,
 			CircleRendererComponent,
 			TextRendererComponent
-		};
+		};*/
 
-		static ComponentType GetComponentType(MonoString* componentTypeStr)
+		/*static ComponentType GetComponentType(MonoString* componentTypeStr)
 		{
+			TR_PROFILE_FUNCTION();
 			std::string moduleName = ScriptMarshal::MonoStringToUTF8(componentTypeStr);
 			ScriptClass* clazz = ScriptCache::GetCachedClassFromName(moduleName);
 
@@ -224,54 +249,61 @@ namespace TerranEngine
 			if (clazz->IsSubclassOf(TR_API_CACHED_CLASS(Scriptable)))					return ComponentType::ScriptableComponent;
 		
 			return ComponentType::None;
-		}
+		}*/
 
-        Entity GetEntityFromMonoArray(MonoArray* entityUUIDarr)
+        Entity GetEntityFromMonoArray(MonoArray* id)
         {
+			TR_PROFILE_FUNCTION();
             if(!SceneManager::GetCurrentScene())
                 return {};
 
-            UUID entityUUID = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDarr));
+            UUID entityUUID = ScriptMarshal::MonoArrayToUUID(id);
             return SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
         }
 
 		// ---- Entity Utils ----
-		bool Entity_HasComponent(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
+		bool Entity_HasComponent(MonoArray* uuid, MonoReflectionType* monoRefType)
 		{
-			ComponentType type = GetComponentType(componentTypeStr);
+			TR_PROFILE_FUNCTION();
+			//ComponentType type = GetComponentType(componentTypeStr);
 			
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+            Entity entity = GetEntityFromMonoArray(uuid);
             if(!entity)
                 return false;
 
-			switch (type)
-			{
-			case ComponentType::TransformComponent:			return entity.HasComponent<TransformComponent>();
-			case ComponentType::TagComponent:				return entity.HasComponent<TagComponent>();
-			case ComponentType::Rigibody2DComponent:		return entity.HasComponent<Rigidbody2DComponent>();
-			case ComponentType::Collider2DComponent:		return entity.HasComponent<BoxCollider2DComponent>() || entity.HasComponent<CircleCollider2DComponent>();
-			case ComponentType::BoxCollider2DComponent:		return entity.HasComponent<BoxCollider2DComponent>();
-			case ComponentType::CircleCollider2DComponent:	return entity.HasComponent<CircleCollider2DComponent>();
-			case ComponentType::ScriptableComponent:		return entity.HasComponent<ScriptComponent>();
-			case ComponentType::SpriteRendererComponent:	return entity.HasComponent<SpriteRendererComponent>();
-			case ComponentType::CameraComponent:			return entity.HasComponent<CameraComponent>();
-			case ComponentType::CircleRendererComponent:	return entity.HasComponent<CircleRendererComponent>();
-			case ComponentType::CapsuleCollider2DComponent:	return entity.HasComponent<CapsuleCollider2DComponent>();
-			case ComponentType::TextRendererComponent:		return entity.HasComponent<TextRendererComponent>();
-			}
+			MonoType* monoType = mono_reflection_type_get_type(monoRefType);
+			
+			if (s_HasComponentFuncs.find(monoType) != s_HasComponentFuncs.end())
+				return s_HasComponentFuncs[monoType](entity);
 
+			ScriptClass klass(mono_class_from_mono_type(monoType));
+			if (klass.IsSubclassOf(TR_API_CACHED_CLASS(Scriptable))) return entity.HasComponent<ScriptComponent>() && 
+																	entity.GetComponent<ScriptComponent>().ModuleName == mono_type_get_name(monoType);
 			return false;
 		}
 
-		void Entity_AddComponent(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
+		void Entity_AddComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType)
 		{
-			ComponentType type = GetComponentType(componentTypeStr);
+			TR_PROFILE_FUNCTION();
+			//ComponentType type = GetComponentType(componentTypeStr);
 
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
             if(!entity)
                 return;
 
-			switch (type)
+			MonoType* monoType = mono_reflection_type_get_type(monoRefType);
+
+
+			if (s_AddComponentFuncs.find(monoType) != s_AddComponentFuncs.end()) 
+			{
+				s_AddComponentFuncs[monoType](entity);
+				return;
+			}
+
+			ScriptClass klass (mono_class_from_mono_type(monoType));
+			if (klass.IsSubclassOf(TR_API_CACHED_CLASS(Scriptable))) entity.AddComponent<ScriptComponent>(mono_type_get_name(monoType));
+
+			/*switch (type)
 			{
 			case ComponentType::TransformComponent:         entity.AddComponent<TransformComponent>(); break;
 			case ComponentType::TagComponent:               entity.AddComponent<TagComponent>(); break;
@@ -284,35 +316,29 @@ namespace TerranEngine
 			case ComponentType::CircleRendererComponent:	entity.AddComponent<CircleRendererComponent>(); break;
 			case ComponentType::CapsuleCollider2DComponent:	entity.AddComponent<CapsuleCollider2DComponent>(); break;
 			case ComponentType::TextRendererComponent:		entity.AddComponent<TextRendererComponent>(); break;
-			}
+			}*/
 		}
 
-		void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoString* componentTypeStr)
+		void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType)
 		{
-			ComponentType type = GetComponentType(componentTypeStr);
+			TR_PROFILE_FUNCTION();
+			//ComponentType type = GetComponentType(componentTypeStr);
 
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
             if(!entity)
                 return;
 
-			switch (type)
-			{
-			case ComponentType::TransformComponent:			entity.RemoveComponent<TransformComponent>(); break;
-			case ComponentType::TagComponent:				entity.RemoveComponent<TagComponent>(); break;
-			case ComponentType::ScriptableComponent:		entity.RemoveComponent<ScriptComponent>();  break;
-			case ComponentType::Rigibody2DComponent:		entity.RemoveComponent<Rigidbody2DComponent>(); break;
-			case ComponentType::BoxCollider2DComponent:		entity.RemoveComponent<BoxCollider2DComponent>(); break;
-			case ComponentType::CircleCollider2DComponent:	entity.RemoveComponent<CircleCollider2DComponent>(); break;
-			case ComponentType::SpriteRendererComponent:	entity.RemoveComponent<SpriteRendererComponent>(); break;
-			case ComponentType::CameraComponent:			entity.RemoveComponent<CameraComponent>(); break;
-			case ComponentType::CircleRendererComponent:	entity.RemoveComponent<CircleRendererComponent>(); break;
-			case ComponentType::CapsuleCollider2DComponent:	entity.RemoveComponent<CapsuleCollider2DComponent>(); break;
-			case ComponentType::TextRendererComponent:		entity.RemoveComponent<TextRendererComponent>(); break;
-			}
+			MonoType* monoType = mono_reflection_type_get_type(monoRefType);
+
+			if (s_RemoveComponentFuncs.find(monoType) != s_RemoveComponentFuncs.end())
+				s_RemoveComponentFuncs[monoType](entity);
+
+			// TODO: handle removing script component
 		}
 
-		MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr, MonoString* moduleName)
+		MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
             if(!entity)
                 return nullptr;
@@ -323,6 +349,7 @@ namespace TerranEngine
 
 		MonoArray* Entity_FindEntityWithID(MonoArray* monoIDArray)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(monoIDArray);
 
 			if (entity)
@@ -335,6 +362,7 @@ namespace TerranEngine
 
 		MonoArray* Entity_FindEntityWithName(MonoString* monoEntityName)
 		{
+			TR_PROFILE_FUNCTION();
 			std::string entityName = ScriptMarshal::MonoStringToUTF8(monoEntityName);
 			Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName(entityName);
 
@@ -348,6 +376,7 @@ namespace TerranEngine
 
 		void Entity_DestroyEntity(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -359,6 +388,7 @@ namespace TerranEngine
 		// TODO: find a better way to do this
 		MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
             if(!entity)
                 return nullptr;
@@ -405,6 +435,7 @@ namespace TerranEngine
 		// ---- Transform ----
 		void Transform_SetPosition(MonoArray* entityUUIDArr, const glm::vec3& Position)
 		{
+			TR_PROFILE_FUNCTION();
 			SET_COMPONENT_VAR(Position, entityUUIDArr, TransformComponent);
 			if (entity)
 				entity.GetComponent<TransformComponent>().IsDirty = true;
@@ -412,6 +443,7 @@ namespace TerranEngine
 
 		glm::vec3 Transform_GetPosition(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
 			GET_COMPONENT_VAR(Position, entityUUIDArr, TransformComponent);
 			return Position;
@@ -419,6 +451,7 @@ namespace TerranEngine
 
 		void Transform_SetRotation(MonoArray* entityUUIDArr, const glm::vec3& Rotation)
 		{
+			TR_PROFILE_FUNCTION();
 			SET_COMPONENT_VAR(Rotation, entityUUIDArr, TransformComponent);
 			if (entity)
 				entity.GetComponent<TransformComponent>().IsDirty = true;
@@ -426,6 +459,7 @@ namespace TerranEngine
 
 		glm::vec3 Transform_GetRotation(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
 			GET_COMPONENT_VAR(Rotation, entityUUIDArr, TransformComponent);
 			return Rotation;
@@ -433,6 +467,7 @@ namespace TerranEngine
 
 		void Transform_SetScale(MonoArray* entityUUIDArr, const glm::vec3& Scale)
 		{
+			TR_PROFILE_FUNCTION();
 			SET_COMPONENT_VAR(Scale, entityUUIDArr, TransformComponent);
 			if (entity)
 				entity.GetComponent<TransformComponent>().IsDirty = true;
@@ -440,6 +475,7 @@ namespace TerranEngine
 
 		glm::vec3 Transform_GetScale(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec3 Scale = { 0.0f, 0.0f, 0.0f };
 			GET_COMPONENT_VAR(Scale, entityUUIDArr, TransformComponent);
 			return Scale;
@@ -447,6 +483,7 @@ namespace TerranEngine
 
 		bool Transform_IsDirty(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             bool IsDirty = false;
             GET_COMPONENT_VAR(IsDirty, entityUUIDArr, TransformComponent);
             return IsDirty;
@@ -454,6 +491,7 @@ namespace TerranEngine
 
 		glm::vec3 Transform_GetForward(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec3 Forward = { 0.0f, 0.0f, 1.0f };
 			GET_COMPONENT_VAR(Forward, entityUUIDArr, TransformComponent);
 			return Forward;
@@ -461,6 +499,7 @@ namespace TerranEngine
 
 		glm::vec3 Transform_GetUp(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec3 Up = { 0.0f, 1.0f, 0.0f };
 			GET_COMPONENT_VAR(Up, entityUUIDArr, TransformComponent);
 			return Up;
@@ -468,6 +507,7 @@ namespace TerranEngine
 
 		glm::vec3 Transform_GetRight(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec3 Right = { 1.0f, 0.0f, 0.0f };
 			GET_COMPONENT_VAR(Right, entityUUIDArr, TransformComponent);
 			return Right;
@@ -477,6 +517,7 @@ namespace TerranEngine
 		// ---- Sprite Renderer ----
 		glm::vec4 SpriteRenderer_GetColor(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 Color = {0.0f, 0.0f, 0.0f, 1.0f};
 			GET_COMPONENT_VAR(Color, entityUUIDArr, SpriteRendererComponent);
 			return Color;
@@ -484,6 +525,7 @@ namespace TerranEngine
 
 		void SpriteRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 Color = color;
 			SET_COMPONENT_VAR(Color, entityUUIDArr, SpriteRendererComponent);
 		}
@@ -492,6 +534,7 @@ namespace TerranEngine
 		// ---- Camera ----
 		bool Camera_IsPrimary(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			bool Primary = false;
 			GET_COMPONENT_VAR(Primary, entityUUIDArr, CameraComponent);
 			return Primary;
@@ -499,12 +542,14 @@ namespace TerranEngine
 
 		void Camera_SetPrimary(MonoArray* entityUUIDArr, bool togglePrimary)
 		{
+			TR_PROFILE_FUNCTION();
 			bool Primary = togglePrimary;
 			SET_COMPONENT_VAR(Primary, entityUUIDArr, CameraComponent);
 		}
 
 		glm::vec4 Camera_GetBackgroundColor(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 BackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 			GET_COMPONENT_VAR(BackgroundColor, entityUUIDArr, CameraComponent);
 			return BackgroundColor;
@@ -512,6 +557,7 @@ namespace TerranEngine
 
 		void Camera_SetBackgroundColor(MonoArray* entityUUIDArr, const glm::vec4& color)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 BackgroundColor = color;
 			SET_COMPONENT_VAR(BackgroundColor, entityUUIDArr, CameraComponent);
 		}
@@ -520,6 +566,7 @@ namespace TerranEngine
 		// ---- Circle Renderer ----
 		glm::vec4 CircleRenderer_GetColor(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 			GET_COMPONENT_VAR(Color, entityUUIDArr, CircleRendererComponent);
 			return Color;
@@ -527,12 +574,14 @@ namespace TerranEngine
 
 		void CircleRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 Color = color;
 			SET_COMPONENT_VAR(Color, entityUUIDArr, CircleRendererComponent);
 		}
 
 		float CircleRenderer_GetThickness(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			float Thickness = 1.0f;
 			GET_COMPONENT_VAR(Thickness, entityUUIDArr, CircleRendererComponent);
 			return Thickness;
@@ -540,6 +589,7 @@ namespace TerranEngine
 
 		void CircleRenderer_SetThickness(MonoArray* entityUUIDArr, float thickness)
 		{
+			TR_PROFILE_FUNCTION();
 			float Thickness = thickness;
 			SET_COMPONENT_VAR(Thickness, entityUUIDArr, CircleRendererComponent);
 		}
@@ -548,6 +598,7 @@ namespace TerranEngine
 		// ---- Text Renderer ----
 		glm::vec4 TextRenderer_GetColor(MonoArray* entityUUIDArr) 
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 TextColor = {1.0f, 1.0f, 1.0f, 1.0f};
 			GET_COMPONENT_VAR(TextColor, entityUUIDArr, TextRendererComponent);
 			return TextColor;
@@ -555,12 +606,14 @@ namespace TerranEngine
 
 		void TextRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color) 
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec4 TextColor = color;
 			SET_COMPONENT_VAR(TextColor, entityUUIDArr, TextRendererComponent);
 		}
 
 		MonoString* TextRenderer_GetText(MonoArray* entityUUIDArr) 
 		{
+			TR_PROFILE_FUNCTION();
 			std::string Text = "";
 			GET_COMPONENT_VAR(Text, entityUUIDArr, TextRendererComponent);
 			return ScriptMarshal::UTF8ToMonoString(Text);
@@ -568,6 +621,7 @@ namespace TerranEngine
 
 		void TextRenderer_SetText(MonoArray* entityUUIDArr, MonoString* text) 
 		{
+			TR_PROFILE_FUNCTION();
 			std::string Text = ScriptMarshal::MonoStringToUTF8(text);
 			SET_COMPONENT_VAR(Text, entityUUIDArr, TextRendererComponent);
 		}
@@ -576,12 +630,14 @@ namespace TerranEngine
 		// ---- Tag ----
 		void Tag_SetName(MonoArray* entityUUIDArr, MonoString* name)
 		{
+			TR_PROFILE_FUNCTION();
 			std::string Name = ScriptMarshal::MonoStringToUTF8(name);
 			SET_COMPONENT_VAR(Name, entityUUIDArr, TagComponent);
 		}
 
 		MonoString* Tag_GetName(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			std::string Name = "";
 			GET_COMPONENT_VAR(Name, entityUUIDArr, TagComponent);
 			return ScriptMarshal::UTF8ToMonoString(Name);
@@ -591,6 +647,7 @@ namespace TerranEngine
 		// ---- Physics 2D ----
 		bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask)
 		{
+			TR_PROFILE_FUNCTION();
 			RayCastHitInfo2D hitInfo;
 			bool hasHit = Physics2D::RayCast(origin, direction, length, hitInfo, layerMask);
 
@@ -626,6 +683,7 @@ namespace TerranEngine
 
 		MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
 		{
+			TR_PROFILE_FUNCTION();
 			std::vector<RayCastHitInfo2D> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
 
 			ScriptArray hitInfos_Internal(TR_API_CACHED_CLASS(RayCastHitInfo2D)->GetMonoClass(), hitInfos.size());
@@ -669,6 +727,7 @@ namespace TerranEngine
 		// ---- Rigidbody 2D ----
 		static bool Rigidbody2D_IsFixedRotation(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -681,6 +740,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_SetFixedRotation(MonoArray* entityUUIDArr, bool fixedRotation)
 		{
+			TR_PROFILE_FUNCTION();
 			bool FixedRotation = fixedRotation;
 			SET_COMPONENT_VAR(FixedRotation, entityUUIDArr, Rigidbody2DComponent);
 
@@ -693,6 +753,7 @@ namespace TerranEngine
 
 		static uint8_t Rigidbody2D_GetSleepState(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -705,6 +766,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_SetSleepState(MonoArray* entityUUIDArr, uint8_t sleepState)
 		{
+			TR_PROFILE_FUNCTION();
 			PhysicsBodySleepState SleepState = (PhysicsBodySleepState)sleepState;
 			SET_COMPONENT_VAR(SleepState, entityUUIDArr, Rigidbody2DComponent);
 
@@ -717,6 +779,7 @@ namespace TerranEngine
 
 		static float Rigidbody2D_GetGravityScale(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			float GravityScale = 0.0f;
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
@@ -730,6 +793,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_SetGravityScale(MonoArray* entityUUIDArr, float gravityScale)
 		{
+			TR_PROFILE_FUNCTION();
 			float GravityScale = gravityScale;
 			SET_COMPONENT_VAR(GravityScale, entityUUIDArr, Rigidbody2DComponent);
 
@@ -742,6 +806,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_ApplyForce(MonoArray* entityUUIDArr, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -753,6 +818,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_ApplyForceAtCenter(MonoArray* entityUUIDArr, const glm::vec2& force, uint8_t forceMode)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -764,6 +830,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_GetLinearVelocity(MonoArray* entityUUIDArr, glm::vec2& linearVelocity)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -777,6 +844,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_SetLinearVelocity(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -788,6 +856,7 @@ namespace TerranEngine
 
 		static float Rigidbody2D_GetAngularVelocity(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -800,6 +869,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_SetAngularVelocity(MonoArray* entityUUIDArr, float angularVelocity)
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
@@ -811,6 +881,7 @@ namespace TerranEngine
 
 		static uint8_t Rigidbody2D_GetType(MonoArray* entityUUIDArr) 
 		{
+			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity) 
@@ -823,6 +894,7 @@ namespace TerranEngine
 
 		static void Rigidbody2D_SetType(MonoArray* entityUUIDArr, uint8_t bodyType) 
 		{
+			TR_PROFILE_FUNCTION();
 			PhysicsBodyType BodyType = (PhysicsBodyType)bodyType;
 			SET_COMPONENT_VAR(BodyType, entityUUIDArr, Rigidbody2DComponent);
 
@@ -838,6 +910,7 @@ namespace TerranEngine
 		// ---- Collider 2D ----
 		static bool Collider2D_IsSensor(MonoArray* entityUUIDArr, uint8_t colliderType) 
 		{
+			TR_PROFILE_FUNCTION();
 			bool IsSensor = false;
 
 			switch ((ColliderType2D)colliderType)
@@ -859,7 +932,7 @@ namespace TerranEngine
 			}
 			case ColliderType2D::None:
 			{
-				UUID id = ScriptMarshal::MonoArrayToUUID(ScriptArray::Create(entityUUIDArr));
+				UUID id = ScriptMarshal::MonoArrayToUUID(entityUUIDArr);
 				Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
 				Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
 
@@ -946,6 +1019,7 @@ namespace TerranEngine
 
 		static void Collider2D_GetOffset(MonoArray* entityUUIDArr, uint8_t colliderType, glm::vec2& outOffset) 
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec2 Offset = { 0.0f, 0.0f };
 
 			switch ((ColliderType2D)colliderType)
@@ -1017,6 +1091,7 @@ namespace TerranEngine
 
 		static void Collider2D_SetOffset(MonoArray* entityUUIDArr, uint8_t colliderType, const glm::vec2& inOffset) 
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec2 Offset = inOffset;
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
@@ -1093,6 +1168,7 @@ namespace TerranEngine
 		// ---- Box Collider 2D ----
 		void BoxCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec2 Size = { 0.0f, 0.0f };
 			GET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
 			size = Size;
@@ -1100,6 +1176,7 @@ namespace TerranEngine
 
 		void BoxCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size)
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec2 Size = size;
 			SET_COMPONENT_VAR(Size, entityUUIDArr, BoxCollider2DComponent);
 			Shared<PhysicsBody2D>& physicsBody = Physics2D::GetPhysicsBody(entity);
@@ -1119,6 +1196,7 @@ namespace TerranEngine
 		// ---- Circle Collider 2D ----
 		float CircleCollider2D_GetRadius(MonoArray* entityUUIDArr)
 		{
+			TR_PROFILE_FUNCTION();
 			float Radius = 0.0f;
 			GET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
 			return Radius;
@@ -1126,6 +1204,7 @@ namespace TerranEngine
 
 		void CircleCollider2D_SetRadius(MonoArray* entityUUIDArr, float radius)
 		{
+			TR_PROFILE_FUNCTION();
 			float Radius = radius;
 			SET_COMPONENT_VAR(Radius, entityUUIDArr, CircleCollider2DComponent);
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
@@ -1145,6 +1224,7 @@ namespace TerranEngine
 		// ---- Capsule Collider 2D ----
 		void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size) 
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec2 Size = { 0.0f, 0.0f };
 			GET_COMPONENT_VAR(Size, entityUUIDArr, CapsuleCollider2DComponent);
 			size = Size;
@@ -1152,6 +1232,7 @@ namespace TerranEngine
 
 		void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size) 
 		{
+			TR_PROFILE_FUNCTION();
 			glm::vec2 Size = size;
 			SET_COMPONENT_VAR(Size, entityUUIDArr, CapsuleCollider2DComponent);
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
@@ -1173,6 +1254,7 @@ namespace TerranEngine
         // ---- Layer Mask ----
         MonoString* LayerMask_GetName(uint16_t layer)
         {
+			TR_PROFILE_FUNCTION();
             int index = layer >> 1;
             PhysicsLayer& physicsLayer = PhysicsLayerManager::GetLayer(index);
             return ScriptMarshal::UTF8ToMonoString(physicsLayer.Name);
@@ -1182,6 +1264,7 @@ namespace TerranEngine
 		// ---- Log ----
 		void Log_Log(uint8_t logLevel, MonoString* monoMessage)
 		{
+			TR_PROFILE_FUNCTION();
 			std::string message = ScriptMarshal::MonoStringToUTF8(monoMessage);
 			switch (logLevel)
 			{
@@ -1193,28 +1276,32 @@ namespace TerranEngine
 		// -------------
 
 		// ---- Input ----
-		bool Input_KeyPressed(Key keyCode)	{ return Input::IsKeyPressed(keyCode); }
-		bool Input_KeyDown(Key keyCode)		{ return Input::IsKeyDown(keyCode); }
-		bool Input_KeyReleased(Key keyCode) { return Input::IsKeyReleased(keyCode); }
+		bool Input_KeyPressed(Key keyCode)	{ TR_PROFILE_FUNCTION(); return Input::IsKeyPressed(keyCode); }
+		bool Input_KeyDown(Key keyCode)		{ TR_PROFILE_FUNCTION(); return Input::IsKeyDown(keyCode); }
+		bool Input_KeyReleased(Key keyCode) { TR_PROFILE_FUNCTION(); return Input::IsKeyReleased(keyCode); }
 
-		bool Input_MouseButtonPressed(MouseButton mouseButton)		{ return Input::IsMouseButtonPressed(mouseButton); }
-		bool Input_MouseButtonDown(MouseButton mouseButton)			{ return Input::IsMouseButtonDown(mouseButton); }
-		bool Input_MouseButtonReleased(MouseButton mouseButton)		{ return Input::IsMouseButtonReleased(mouseButton); }
-		void Input_GetMousePosition(glm::vec2& outMousePosition)	{ outMousePosition = Input::GetMousePos(); }
+		bool Input_MouseButtonPressed(MouseButton mouseButton)		{ TR_PROFILE_FUNCTION(); return Input::IsMouseButtonPressed(mouseButton); }
+		bool Input_MouseButtonDown(MouseButton mouseButton)			{ TR_PROFILE_FUNCTION(); return Input::IsMouseButtonDown(mouseButton); }
+		bool Input_MouseButtonReleased(MouseButton mouseButton)		{ TR_PROFILE_FUNCTION(); return Input::IsMouseButtonReleased(mouseButton); }
+		void Input_GetMousePosition(glm::vec2& outMousePosition)	{ TR_PROFILE_FUNCTION(); outMousePosition = Input::GetMousePos(); }
 
-		bool Input_IsControllerConnected(uint8_t controllerIndex) { return Input::IsControllerConnected(controllerIndex); }
+		bool Input_IsControllerConnected(uint8_t controllerIndex) { TR_PROFILE_FUNCTION(); return Input::IsControllerConnected(controllerIndex); }
 
 		MonoString* Input_GetControllerName(uint8_t controllerIndex)
 		{
+			TR_PROFILE_FUNCTION();
 			const char* controllerName = Input::GetControllerName(controllerIndex);
 			return ScriptMarshal::UTF8ToMonoString(controllerName);
 		}
 
-		bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex) { return Input::IsControllerButtonPressed(controllerButton, controllerIndex); }
-		float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex) { return Input::GetControllerAxis(controllerAxis, controllerIndex); }
+		bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex) 
+		{ TR_PROFILE_FUNCTION(); return Input::IsControllerButtonPressed(controllerButton, controllerIndex); }
+		float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex) 
+		{ TR_PROFILE_FUNCTION(); return Input::GetControllerAxis(controllerAxis, controllerIndex); }
 
 		MonoArray* Input_GetConnectedControllers()
 		{
+			TR_PROFILE_FUNCTION();
 			std::vector<uint8_t> connectedControllers = Input::GetConnectedControllers();
 			ScriptArray connectedControllersArr = ScriptArray::Create<uint8_t>(connectedControllers.size());
 

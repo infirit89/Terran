@@ -165,7 +165,7 @@ namespace TerranEngine
 		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
-			ScriptEngine::OnUpdate(entity);
+			ScriptEngine::OnUpdate(entity, time.GetDeltaTime());
 		}
 
 	}
@@ -327,6 +327,7 @@ namespace TerranEngine
 
 	Entity Scene::FindEntityWithUUID(UUID uuid)
 	{
+		TR_PROFILE_FUNCTION();
 		if (m_EntityMap.find(uuid) != m_EntityMap.end()) 
 			return Entity(m_EntityMap[uuid], this);
 
@@ -335,6 +336,7 @@ namespace TerranEngine
 
 	Entity Scene::FindEntityWithName(const std::string& name)
 	{
+		TR_PROFILE_FUNCTION();
 		const auto tagView = m_Registry.view<TagComponent>();
 
 		for (auto e : tagView) 

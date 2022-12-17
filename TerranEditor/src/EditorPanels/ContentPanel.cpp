@@ -9,6 +9,7 @@
 #include "EditorResources.h"
 
 #include <imgui.h>
+#include <IconFontAwesome6.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4312)

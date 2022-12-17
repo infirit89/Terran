@@ -7,6 +7,8 @@
 #include "ScriptClass.h"
 #include "ScriptMarshal.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <mono/metadata/object.h>
 #include <mono/metadata/appdomain.h>
 
@@ -100,6 +102,7 @@ namespace TerranEngine
 
     ScriptArray::ScriptArray(MonoClass* arrayClass, uint32_t size)
     {
+        TR_PROFILE_FUNCTION();
         m_MonoArray = mono_array_new(mono_domain_get(), arrayClass, size);
         m_Length = size;
         m_Type = ScriptType::FromClass(arrayClass);
@@ -107,6 +110,7 @@ namespace TerranEngine
     
     ScriptArray ScriptArray::Create(MonoArray* monoArray)
     {
+        TR_PROFILE_FUNCTION();
         ScriptObject arrayObject((MonoObject*)monoArray);
         const ScriptType arrayType = ScriptType::FromClass(arrayObject.GetClass());
         ScriptType elementType = arrayType.GetElementType();
@@ -119,6 +123,7 @@ namespace TerranEngine
 
     void ScriptArray::SetData(const Utils::Variant& value, uint32_t index)
     {
+        TR_PROFILE_FUNCTION();
         switch (value.GetType())
         {
         case Utils::Variant::Type::Bool:        mono_array_set(m_MonoArray, bool, index, (bool)value); return;
@@ -146,11 +151,13 @@ namespace TerranEngine
 
     char* ScriptArray::GetElementAddress(uint32_t index, int dataSize) const
     {
+        TR_PROFILE_FUNCTION();
         return mono_array_addr_with_size(m_MonoArray, dataSize, index);
     }
 
     Utils::Variant ScriptArray::At(uint32_t index) const
     {
+        TR_PROFILE_FUNCTION();
         if(m_Type.IsObject() || m_Type.TypeEnum == ScriptType::String)
         {
             MonoObject* obj = mono_array_get(m_MonoArray, MonoObject*, index);

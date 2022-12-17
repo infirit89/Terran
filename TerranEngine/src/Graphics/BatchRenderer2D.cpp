@@ -353,7 +353,6 @@ namespace TerranEngine
 		s_Data->CameraData.Projection = camera.GetProjection();
 		s_Data->CameraData.View = inverseView ? glm::inverse(transform) : transform;
 
-		s_Data->CameraBuffer->Bind();
 		s_Data->CameraBuffer->SetData(&s_Data->CameraData, 0, sizeof(CameraData));
 
 		s_Data->QuadShader->Unbind();

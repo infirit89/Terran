@@ -37,7 +37,7 @@ namespace TerranEngine
 		static void UninitalizeScriptable(Entity entity);
 
 		static void OnStart(Entity entity);
-		static void OnUpdate(Entity entity);
+		static void OnUpdate(Entity entity, float deltaTime);
 
 		static void OnPhysicsBeginContact(Entity collider, Entity collidee);
 		static void OnPhysicsEndContact(Entity collider, Entity collidee);

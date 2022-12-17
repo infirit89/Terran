@@ -58,16 +58,16 @@ namespace Terran
 
 		#region Entity
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Entity_HasComponent(byte[] runtimeID, string componentTypeStr);
+		internal static extern bool Entity_HasComponent(byte[] runtimeID, Type componentType);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_AddComponent(byte[] runtimeID, string componentTypeStr);
+		internal static extern void Entity_AddComponent(byte[] runtimeID, Type componentType);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_RemoveComponent(byte[] runtimeID, string componentTypeStr);
+		internal static extern void Entity_RemoveComponent(byte[] runtimeID, Type componentType);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern object Entity_GetScriptableComponent(byte[] uuid, string moduleName);
+		internal static extern object Entity_GetScriptableComponent(byte[] uuid);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern byte[] Entity_FindEntityWithName(string name);

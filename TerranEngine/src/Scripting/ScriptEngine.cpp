@@ -38,7 +38,7 @@ namespace TerranEngine
 		GCHandle ObjectHandle;
 		ScriptMethodThunks<MonoArray*> Constructor;
 		ScriptMethodThunks<> InitMethod;
-		ScriptMethodThunks<> UpdateMethod;
+		ScriptMethodThunks<float> UpdateMethod;
 		
 		ScriptMethodThunks<MonoArray*> PhysicsBeginContact;
 		ScriptMethodThunks<MonoArray*> PhysicsEndContact;
@@ -51,7 +51,7 @@ namespace TerranEngine
 			Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
 
 			InitMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
-			UpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update()"));
+			UpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update(single)"));
 
 			PhysicsBeginContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
 			PhysicsEndContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
@@ -318,21 +318,6 @@ namespace TerranEngine
 			}
 			
 			GCManager::CollectAll();
-
-			/*ScriptInstanceMap oldInstanceMap = s_Data->ScriptInstanceMap;
-			for (const auto& [sceneID, scriptInstances] : oldInstanceMap)
-			{
-				for (const auto& [entityID, instance] : scriptInstances)
-				{
-					auto scene = SceneManager::GetScene(sceneID);
-
-					if(!scene)
-						continue;
-
-					Entity entity = scene->FindEntityWithUUID(entityID);
-					UninitalizeScriptable(entity);
-				}
-			}*/
 			
 			mono_domain_unload(s_Data->AppDomain);
 		}
@@ -433,7 +418,7 @@ namespace TerranEngine
 		}
 	}
 
-	void ScriptEngine::OnUpdate(Entity entity) 
+	void ScriptEngine::OnUpdate(Entity entity, float deltaTime) 
 	{
 		TR_PROFILE_FUNCTION();
 		ScriptableInstance instance = GetInstance(entity.GetSceneID(), entity.GetID());
@@ -442,7 +427,7 @@ namespace TerranEngine
 		{
 			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.UpdateMethod.Invoke(monoObject, &exception);
+			instance.UpdateMethod.Invoke(monoObject, deltaTime, &exception);
 
 			if(exception)
 				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);

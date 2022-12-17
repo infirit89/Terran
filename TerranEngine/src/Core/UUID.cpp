@@ -14,6 +14,17 @@ namespace TerranEngine
 	{
 	}
 
+	UUID UUID::CreateFromRaw(uint8_t* data)
+	{
+		UUID id({ 0 });
+		const uint8_t* idData = id.GetRaw();
+		constexpr uint32_t uuidArrayLength = 16 * sizeof(uint8_t);
+
+		memcpy(data, idData, uuidArrayLength);
+
+		return id;
+	}
+
 	static unsigned char CharToHex(const char& ch)
 	{
 		if (ch >= '0' && ch <= '9')

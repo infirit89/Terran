@@ -11,6 +11,7 @@ extern "C"
 	typedef struct _MonoString MonoString;
 	typedef struct _MonoArray MonoArray;
 	typedef struct _MonoObject MonoObject;
+	typedef struct _MonoReflectionType MonoReflectionType;
 }
 
 namespace TerranEngine 
@@ -41,10 +42,10 @@ namespace TerranEngine
 		// ---------------
 
 		// ---- Entity ----
-		static bool Entity_HasComponent(MonoArray* entityUUIDArr, MonoString* componentType);
-		static void Entity_AddComponent(MonoArray* entityUUIDArr, MonoString* componentType);
-		static void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoString* componentType);
-		static MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr, MonoString* moduleName);
+		static bool Entity_HasComponent(MonoArray* uuid, MonoReflectionType* monoRefType);
+		static void Entity_AddComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
+		static void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
+		static MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr);
 
 		static MonoArray* Entity_FindEntityWithName(MonoString* monoName);
 		static MonoArray* Entity_FindEntityWithID(MonoArray* monoIDArray);

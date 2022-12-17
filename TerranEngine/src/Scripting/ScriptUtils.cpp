@@ -117,8 +117,7 @@ namespace TerranEngine
 		
 		ScriptMethod* getDataMethod = ScriptCache::GetCachedMethod("Terran.UUID", ":get_Data");
 		MonoObject* result  = getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
-		ScriptArray idDataArr = ScriptArray::Create((MonoArray*)result);
-		UUID id = ScriptMarshal::MonoArrayToUUID(idDataArr);
+		UUID id = ScriptMarshal::MonoArrayToUUID((MonoArray*)result);
 		
 		return id;
     }

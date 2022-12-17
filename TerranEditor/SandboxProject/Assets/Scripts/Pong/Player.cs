@@ -18,7 +18,7 @@ namespace Pong
             BottomWall = Entity.FindWithName("Bottom Wall");
         }
 
-        protected override void Update()
+        protected override void Update(float deltaTime)
         {
             if (GameStateManager.CurrentGameState == GameState.WonScreen) return;
             

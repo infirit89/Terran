@@ -10,7 +10,7 @@ namespace ScriptAssembly
             base.Init();
         }
 
-        protected override void Update()
+        protected override void Update(float deltaTime)
         {
             if (Input.IsKeyPressed(KeyCode.W))
                 Entity.Transform.Position += new Vector3(0.0f, Speed, 0.0f);

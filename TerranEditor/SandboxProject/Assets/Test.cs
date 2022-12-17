@@ -11,7 +11,7 @@ namespace SandboxProject
             m_TextRenderer = Entity.GetComponent<TextRenderer>();
         }
 
-        protected override void Update()
+        protected override void Update(float deltaTime)
         {
             if (Input.IsKeyPressed(KeyCode.A))
                 m_TextRenderer.Text = "Todd Howard";

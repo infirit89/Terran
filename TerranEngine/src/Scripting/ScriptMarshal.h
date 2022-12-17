@@ -11,6 +11,7 @@ extern "C"
 {
 	typedef struct _MonoString MonoString;
 	typedef struct _MonoObject MonoObject;
+	typedef struct _MonoArray MonoArray;
 }
 
 namespace TerranEngine 
@@ -19,7 +20,7 @@ namespace TerranEngine
 	{
 	public:
 		static ScriptArray UUIDToMonoArray(const UUID& id);
-		static UUID MonoArrayToUUID(ScriptArray uuidArray);
+		static UUID MonoArrayToUUID(MonoArray* id);
 
 		static MonoString* UTF8ToMonoString(const std::string& str);
 		static std::string MonoStringToUTF8(MonoString* monoStr);
