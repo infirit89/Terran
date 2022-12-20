@@ -12,7 +12,7 @@ namespace TerranEngine
 		UUID();
 		UUID(const std::array<uint8_t, 16>& data);
 		UUID(const UUID& other) = default;
-		static UUID Empty() { return UUID({ 0 }); }
+		static UUID Invalid() { return s_Empty; }
 
 		const inline std::array<uint8_t, 16> GetData() const { return m_Data; }
 		inline std::array<uint8_t, 16> GetData() { return m_Data; }
@@ -34,9 +34,9 @@ namespace TerranEngine
 		const inline bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
 		inline bool operator>(const UUID& other)				{ return m_Data > other.m_Data; }
 		
-		inline operator bool() { return Valid(); }
+		inline operator bool() { return IsValid(); }
 
-		bool Valid() 
+		bool IsValid() 
 		{
 			std::array<uint8_t, 16> empty{ {0} };
 
@@ -65,6 +65,7 @@ namespace TerranEngine
 		* 11-16: node
 		*/
 		std::array<uint8_t, 16> m_Data;
+		static UUID s_Empty;
 	};
 }
 

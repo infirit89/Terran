@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Assets/Asset.h"
+
 #include <string>
 #include <filesystem>
 #include <stdint.h>
@@ -30,6 +32,7 @@ namespace TerranEngine
 
 	struct TextureParameters 
 	{
+		// TODO: put pixel data, width and height into the texture parameters
 		TextureType TextureType = TextureType::RGBA;
 
 		TextureFilter MinFilter = TextureFilter::Linear;
@@ -38,7 +41,7 @@ namespace TerranEngine
 		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
 	};
 
-	class Texture 
+	class Texture : public Asset
 	{
 	public:
 		Texture();
@@ -73,5 +76,7 @@ namespace TerranEngine
 		std::filesystem::path m_Path;
 
 		TextureParameters m_TexParameters;
+
+		friend class TextureAssetLoader;
 	};
 }

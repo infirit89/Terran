@@ -64,6 +64,10 @@
 #include "Physics/Collider.h"
 #include "Physics/PhysicsLayerManager.h"
 
+/* ---- Assets ---- */
+#include "Assets/Asset.h"
+#include "Assets/AssetManager.h"
+
 /* ---- Project ---- */
 #include "Project/Project.h"
 #include "Project/ProjectSerializer.h"

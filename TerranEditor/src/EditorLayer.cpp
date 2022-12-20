@@ -15,11 +15,7 @@
 
 #include "EditorResources.h"
 
-#include "Scene/SceneManager.h"
-
-#include "Project/ProjectSerializer.h"
-
-#include "Utils/Debug/Profiler.h"
+#include "Terran.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -136,11 +132,21 @@ namespace TerranEditor
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
         ScriptEngine::LoadAppAssembly();
+		AssetManager::Init();
+
+		Entity test = m_EditorScene->CreateEntity("Test");
+		SpriteRendererComponent& spriteRenderer = test.AddComponent<SpriteRendererComponent>();
+
+		UUID id = AssetManager::ImportAsset("Resources/floor.png");
+		Shared<Texture> texture = AssetManager::GetAsset<Texture>(id);
+
+		spriteRenderer.Texture = texture;
 	}
 
 	void EditorLayer::OnDettach()
 	{
 		EditorResources::Shutdown();
+		AssetManager::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)

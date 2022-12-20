@@ -3,6 +3,8 @@
 
 namespace TerranEngine
 {
+	UUID UUID::s_Empty({ 0 });
+
 	UUID::UUID()
 		: m_Data({ 0 })
 	{
