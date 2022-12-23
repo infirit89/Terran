@@ -34,11 +34,10 @@ namespace TerranEngine
 
 		bool IsValid() { return m_Handle.IsValid(); }
 		UUID GetHandle() { return m_Handle; }
-		AssetType GetType() { return m_Type; }
+		virtual AssetType GetType() const = 0;
 
 	protected:
 		UUID m_Handle;
-		AssetType m_Type;
 		friend class AssetManager;
 	};
 }

@@ -33,8 +33,7 @@ namespace TerranEngine
 
         Shared<Texture> texture = CreateShared<Texture>(width, height, textureParamters);
         texture->SetData(data);
-        texture->m_Type = assetInfo.Type;
-
+        
         stbi_image_free(data);
 
         return texture;

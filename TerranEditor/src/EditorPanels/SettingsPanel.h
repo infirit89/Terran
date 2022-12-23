@@ -12,6 +12,10 @@ namespace TerranEditor
 
         virtual void ImGuiRender() override;
 		virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& context) override { m_Scene = context; }
+
+    private:
+        void DrawPhysicsSettings();
+
     private:
         int m_LayerIndex;
     };

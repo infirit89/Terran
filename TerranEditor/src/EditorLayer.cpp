@@ -132,8 +132,7 @@ namespace TerranEditor
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
         ScriptEngine::LoadAppAssembly();
-		AssetManager::Init();
-
+		
 		Entity test = m_EditorScene->CreateEntity("Test");
 		SpriteRendererComponent& spriteRenderer = test.AddComponent<SpriteRendererComponent>();
 
@@ -146,11 +145,10 @@ namespace TerranEditor
 	void EditorLayer::OnDettach()
 	{
 		EditorResources::Shutdown();
-		AssetManager::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
-	{
+	{		
 		TR_PROFILE_FUNCN("EditorLayer::Update");
 
 		BatchRenderer2D::ResetStats();
@@ -634,7 +632,7 @@ namespace TerranEditor
         Project::SetActive(project);
         project->ProjectPath = projectPath;
 
-		ProjectSerialzer projectSerializer(project);
+		ProjectSerializer projectSerializer(project);
 		projectSerializer.DeserializePhysicsSettings();
     }
 }

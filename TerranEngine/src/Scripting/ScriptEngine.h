@@ -47,11 +47,11 @@ namespace TerranEngine
 		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
 
-        static void LoadAppAssembly();
+        static bool LoadAppAssembly();
 
 		static void SetLogCallback(LogFN logCallback);
 	private:
-		static void LoadCoreAssembly();
+		static bool LoadCoreAssembly();
 		
 		static void CreateAppDomain();
 		static void UnloadDomain();

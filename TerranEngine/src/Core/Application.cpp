@@ -15,8 +15,11 @@
 
 #include "Physics/Physics.h"
 
+#include "Assets/AssetManager.h"
+
 #include "Utils/Debug/Profiler.h"
 #include "Utils/Debug/OptickProfiler.h"
+
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -45,6 +48,9 @@ namespace TerranEngine
 
 		Input::Init();
 
+		AssetManager::Init();
+		AssetManager::RegisterAssetLoaders();
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);
 	}
@@ -54,6 +60,7 @@ namespace TerranEngine
         ScriptEngine::Shutdown();
         Physics2D::Shutdown();
 		BatchRenderer2D::Shutdown();
+		AssetManager::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)

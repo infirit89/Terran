@@ -166,6 +166,8 @@ namespace TerranEngine
 				Entity entity = scene->FindEntityWithUUID(entityID);
 
 				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+
+				scriptFieldsStates[sceneID][entityID] = { };
 				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 				{
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
@@ -189,20 +191,14 @@ namespace TerranEngine
 		UnloadDomain();
 		CreateAppDomain();
 
-		LoadCoreAssembly();
-		LoadAppAssembly();
+		bool coreAssemblyLoaded = LoadCoreAssembly();
+		TR_ASSERT(coreAssemblyLoaded, "Couldn't load the core assembly");
+
+		bool appAssemblyLoaded = LoadAppAssembly();
 		
-		for (auto [sceneID, scene] : SceneManager::GetActiveScenes())
-		{
-			auto scriptView = scene->GetEntitiesWith<ScriptComponent>();
-
-			for (auto e : scriptView)
-			{
-				Entity entity(e, scene.get());
-				InitializeScriptable(entity);
-			}
-
-		}
+		// TODO: if the app assembly couldn't be loaded then return from method
+		// this also means that the scriptFieldStates should be saved more globally than the function scope
+		// because we still want to set them back in case the assembly was loaded successfuly in the future
 
 		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
 		{
@@ -271,16 +267,22 @@ namespace TerranEngine
 		s_Data->LogCallback("Reloaded assemblies!", spdlog::level::info);
 	}
 
-	void ScriptEngine::LoadCoreAssembly()
+	bool ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
 		coreAssembly = ScriptAssembly::LoadAssembly(s_Data->ScriptCoreAssemblyPath);
-		if (!coreAssembly) s_Data->LogCallback("Couldn't load the TerranScriptCore assembly", spdlog::level::err);
+		if (!coreAssembly)
+		{
+			s_Data->LogCallback("Couldn't load the TerranScriptCore assembly", spdlog::level::err);
+			return false;
+		}
 
 		ScriptCache::CacheCoreClasses();
+
+		return true;
 	}
 
-	void ScriptEngine::LoadAppAssembly()
+	bool ScriptEngine::LoadAppAssembly()
 	{
 		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
 		appAssembly = ScriptAssembly::LoadAssembly(Project::GetAppAssemblyPath());
@@ -288,11 +290,13 @@ namespace TerranEngine
 		if (!appAssembly) 
 		{
 			s_Data->LogCallback("Couldn't load the ScriptAssembly assembly", spdlog::level::err);
-			return;
+			return false;
 		}
 
         Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
         ScriptCache::GenerateCacheForAssembly(assemblyInfo);
+
+		return true;
 	}
 
 	void ScriptEngine::SetLogCallback(LogFN logCallback) { s_Data->LogCallback = logCallback; }

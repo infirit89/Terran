@@ -67,6 +67,8 @@ namespace TerranEngine
 		bool operator==(Texture& other);
 		bool operator==(const Texture& other);
 
+		virtual AssetType GetType() const override { return AssetType::Texture; }
+
 	private:
 		void LoadTexture(const std::filesystem::path& filePath);
 

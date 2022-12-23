@@ -4,11 +4,11 @@
 
 namespace TerranEngine
 {
-    class ProjectSerialzer
+    class ProjectSerializer
     {
     public:
-        ProjectSerialzer() = default;
-        ProjectSerialzer(Shared<Project>& project);
+        ProjectSerializer() = default;
+        ProjectSerializer(Shared<Project>& project);
 
         void SerializePhysicsSettings();
         bool DeserializePhysicsSettings();

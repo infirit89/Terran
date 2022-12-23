@@ -15,13 +15,13 @@ namespace TerranEngine
 {
     using json = nlohmann::ordered_json;
 
-    ProjectSerialzer::ProjectSerialzer(Shared<Project>& project)
+    ProjectSerializer::ProjectSerializer(Shared<Project>& project)
        : m_Project(project)
     {
 
     }
 
-    void ProjectSerialzer::SerializePhysicsSettings()
+    void ProjectSerializer::SerializePhysicsSettings()
     {
         json j;
         
@@ -46,7 +46,7 @@ namespace TerranEngine
         ofs << j.dump(4) << std::endl;
     }
 
-    bool ProjectSerialzer::DeserializePhysicsSettings()
+    bool ProjectSerializer::DeserializePhysicsSettings()
     {
         auto physicsSettingsPath = m_Project->ProjectPath / m_ProjectSettingsPath / m_PhysicsSettingsFile;
         std::ifstream ifs(physicsSettingsPath);

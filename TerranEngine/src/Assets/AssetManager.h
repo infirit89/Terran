@@ -2,6 +2,7 @@
 
 #include "Asset.h"
 #include "Loaders/TextureAssetLoader.h"
+#include "AssetLoader.h"
 
 #include "Core/Base.h"
 
@@ -16,9 +17,12 @@ namespace TerranEngine
 
 	public:
 		static void Init();
+		static void RegisterAssetLoaders();
+
 		static void Shutdown();
 
 		static AssetInfo& GetAssetInfo(const UUID& assetID);
+		static const AssetInfo& GetAssetInfo(const std::filesystem::path& assetPath);
 
 		static AssetInfoMap& GetAssetInfoMap() { return s_AssetsInfos; }
 
@@ -34,10 +38,9 @@ namespace TerranEngine
 				AssetInfo& info = GetAssetInfo(assetID);
 
 				// NOTE: poc code
-				TextureAssetLoader testLoader;
-				Shared<Asset> asset = testLoader.Load(info);
+				Shared<Asset> asset = s_Loaders[info.Type]->Load(info);
 
-				if (!asset) 
+				if (!asset)
 				{
 					TR_ERROR("Failed to load asset with path: {0}", info.Path);
 					return nullptr;
@@ -51,9 +54,10 @@ namespace TerranEngine
 
 	private:
 		static void WriteAssetInfos();
-
+		
 	private:
 		static std::unordered_map<UUID, Shared<Asset>> s_LoadedAssets;
 		static AssetInfoMap s_AssetsInfos;
+		static std::unordered_map<AssetType, Shared<AssetLoader>> s_Loaders;
 	};
 }
