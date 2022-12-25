@@ -132,18 +132,14 @@ namespace TerranEditor
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
         ScriptEngine::LoadAppAssembly();
-		
-		Entity test = m_EditorScene->CreateEntity("Test");
-		SpriteRendererComponent& spriteRenderer = test.AddComponent<SpriteRendererComponent>();
 
-		UUID id = AssetManager::ImportAsset("Resources/floor.png");
-		Shared<Texture> texture = AssetManager::GetAsset<Texture>(id);
-
-		spriteRenderer.Texture = texture;
+		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
+		FileSystem::StartWatch();
 	}
 
 	void EditorLayer::OnDettach()
 	{
+		FileSystem::StopWatch();
 		EditorResources::Shutdown();
 	}
 
@@ -530,7 +526,7 @@ namespace TerranEditor
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::filesystem::path scenePath = FileUtils::SaveFile("Terran Scene\0*.terran\0");
+		std::filesystem::path scenePath = FileSystem::SaveFile("Terran Scene\0*.terran\0");
 		if (!scenePath.empty())
 		{
 			m_CurrentScenePath = scenePath;
@@ -557,7 +553,7 @@ namespace TerranEditor
 
 	void EditorLayer::OpenScene()
 	{
-		std::filesystem::path scenePath = FileUtils::OpenFile("Terran Scene\0*.terran\0");		
+		std::filesystem::path scenePath = FileSystem::OpenFile("Terran Scene\0*.terran\0");		
 		OpenScene(scenePath, m_ViewportSize);
 	}
 

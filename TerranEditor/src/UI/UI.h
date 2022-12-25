@@ -17,10 +17,10 @@ namespace TerranEditor
 		public:
 			struct TableInfo 
 			{
-				uint32_t columnCount = 2;
-				float firstColumnWidth = 100.0f;
-				bool border = false;
-				uint32_t itemCount = 1;
+				uint32_t ColumnCount = 2;
+				float FirstColumnWidth = 100.0f;
+				bool Border = false;
+				uint32_t ItemCount = 1;
 			};
 
 			ScopedVarTable(const std::string& name, TableInfo tableInfo);

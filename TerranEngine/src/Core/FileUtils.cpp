@@ -3,8 +3,21 @@
 
 namespace TerranEngine 
 {
-	std::filesystem::path FileUtils::GetEnvironmentVariable(const char* name)
+	FileSystem::FileSystemChangeCallbackFn FileSystem::s_ChangeCallback;
+	std::filesystem::path FileSystem::s_PathToWatch;
+
+	std::filesystem::path FileSystem::GetEnvironmentVariable(const char* name)
 	{
 		return std::getenv(name);
+	}
+
+	void FileSystem::SetFileSystemChangeCallback(const FileSystemChangeCallbackFn& changeCallback)
+	{
+		s_ChangeCallback = changeCallback;
+	}
+
+	void FileSystem::SetDirectoryToWatch(const std::filesystem::path& directoryPath)
+	{
+		s_PathToWatch = directoryPath;
 	}
 }

@@ -82,7 +82,7 @@ namespace TerranEditor
 			const ImGuiIO io = ImGui::GetIO();
 			
 			ScopedVarTable::TableInfo tableInfo;
-			tableInfo.itemCount = 2;
+			tableInfo.ItemCount = 2;
 			ScopedVarTable vec2Table(label, tableInfo);
 
 			ScopedStyleVar itemSpacingStyleVar({
@@ -774,7 +774,7 @@ namespace TerranEditor
 			const ImGuiIO io = ImGui::GetIO();
 			
 			ScopedVarTable::TableInfo tableInfo;
-			tableInfo.itemCount = 3;
+			tableInfo.ItemCount = 3;
 			ScopedVarTable vec3Table(label, tableInfo);
 
 			ScopedStyleVar itemSpacingStyleVar({
@@ -955,13 +955,13 @@ namespace TerranEditor
 		strcpy_s(tableID + 1, sizeof(tableID) - 1, name.c_str());
 		tableID[strlen(name.c_str()) + 1] = '\0';
 
-		ImGui::Columns(tableInfo.columnCount, tableID, tableInfo.border);
-		ImGui::SetColumnWidth(0, tableInfo.firstColumnWidth);
+		ImGui::Columns(tableInfo.ColumnCount, tableID, tableInfo.Border);
+		ImGui::SetColumnWidth(0, tableInfo.FirstColumnWidth);
 		ImGui::Text(name.c_str());
 		ImGui::NextColumn();
 
-		if (tableInfo.itemCount > 1)
-			ImGui::PushMultiItemsWidths(tableInfo.itemCount, ImGui::CalcItemWidth());
+		if (tableInfo.ItemCount > 1)
+			ImGui::PushMultiItemsWidths(tableInfo.ItemCount, ImGui::CalcItemWidth());
 		else
 			ImGui::PushItemWidth(ImGui::CalcItemWidth());
 
@@ -969,7 +969,7 @@ namespace TerranEditor
 
 	UI::ScopedVarTable::~ScopedVarTable()
 	{
-		if (m_TableInfo.itemCount == 1)
+		if (m_TableInfo.ItemCount == 1)
 			ImGui::PopItemWidth();
 
 		ImGui::Columns(1);

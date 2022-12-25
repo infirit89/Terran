@@ -41,7 +41,7 @@ namespace TerranEditor
 			if (ImGui::BeginPopupContextWindow("CONTENT_PANEL_ACTIONS", ImGuiMouseButton_Right, false)) 
 			{
 				if (ImGui::MenuItem("Reveal in explorer"))
-					FileUtils::RevealInExplorer(m_CurrentPath);
+					FileSystem::RevealInExplorer(m_CurrentPath);
 
 				ImGui::EndPopup();
 			}

@@ -10,10 +10,11 @@
 
 #include <commdlg.h>
 #include <shellapi.h>
+#include <Windows.h>
 
 namespace TerranEngine 
 {
-	std::filesystem::path FileUtils::OpenFile(const char* filter) 
+	std::filesystem::path FileSystem::OpenFile(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
 
@@ -40,7 +41,7 @@ namespace TerranEngine
 		return "";
 	}
 
-	std::filesystem::path FileUtils::SaveFile(const char* filter) 
+	std::filesystem::path FileSystem::SaveFile(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
 
@@ -69,7 +70,7 @@ namespace TerranEngine
 		return "";
 	}
 
-	void FileUtils::RevealInExplorer(const std::filesystem::path& path)
+	void FileSystem::RevealInExplorer(const std::filesystem::path& path)
 	{
 		std::string stringPath = path.string();
 		SHELLEXECUTEINFOA shellInfo;
@@ -84,6 +85,103 @@ namespace TerranEngine
 		shellInfo.hInstApp = NULL;
 
 		ShellExecuteExA(&shellInfo);
+	}
+
+	static HANDLE s_FileWatchThread;
+	static bool s_Watching;
+
+	void FileSystem::StartWatch()
+	{
+		s_Watching = true;
+		s_FileWatchThread = CreateThread(NULL, 0, Watch, 0, 0, NULL);
+		TR_ASSERT(s_FileWatchThread != NULL, "Couldn't create the watcher thread");
+	}
+
+	void FileSystem::StopWatch()
+	{
+		// terminate the watch thread
+		if (!s_Watching) return;
+
+		s_Watching = false;
+
+		TerminateThread(s_FileWatchThread, 1);
+		CloseHandle(s_FileWatchThread);
+	}
+
+	// this is the win32api thread proc signiture
+	unsigned long FileSystem::Watch(void* params)
+	{
+		// read directory changes; append them to a list of file change events
+		std::wstring dirStr = s_PathToWatch.wstring();
+		HANDLE hDir = CreateFile(dirStr.c_str(),
+			FILE_LIST_DIRECTORY,
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			NULL,
+			OPEN_EXISTING,
+			FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+			NULL);
+
+		TR_ASSERT(hDir != INVALID_HANDLE_VALUE, "Couldn't open directory");
+
+		OVERLAPPED overlap;
+
+		overlap.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+		FILE_NOTIFY_INFORMATION buf[1024];
+		DWORD bytesReturned;
+
+		bool result = true;
+
+		while(s_Watching && result) 
+		{
+			result = ReadDirectoryChangesW(hDir,
+				&buf,
+				sizeof(buf),
+				TRUE,
+				FILE_NOTIFY_CHANGE_SIZE |
+				FILE_NOTIFY_CHANGE_LAST_WRITE |
+				FILE_NOTIFY_CHANGE_DIR_NAME |
+				FILE_NOTIFY_CHANGE_FILE_NAME,
+				&bytesReturned,
+				&overlap,
+				NULL);
+
+			WaitForSingleObject(overlap.hEvent, INFINITE);
+
+			int offset = 0;
+			FILE_NOTIFY_INFORMATION* pNotify;
+
+			do 
+			{
+				pNotify = (FILE_NOTIFY_INFORMATION*)((char*)buf + offset);
+
+				size_t fileNameLength = pNotify->FileNameLength / sizeof(wchar_t);
+				std::filesystem::path filePath = std::filesystem::path(std::wstring(pNotify->FileName, fileNameLength));
+
+				switch (pNotify->Action)
+				{
+				case FILE_ACTION_ADDED:
+					TR_TRACE("file added {0}", filePath.string());
+					break;
+				case FILE_ACTION_MODIFIED:
+					TR_TRACE("file modified {0}", filePath.string());
+					break;
+				case FILE_ACTION_REMOVED:
+					TR_TRACE("file removed {0}", filePath.string());
+					break;
+				case FILE_ACTION_RENAMED_OLD_NAME:
+					TR_TRACE("file renamed (old name) {0}", filePath.string());
+					break;
+				case FILE_ACTION_RENAMED_NEW_NAME:
+					TR_TRACE("file renamed (new name) {0}", filePath.string());
+					break;
+				}
+
+				offset += pNotify->NextEntryOffset;
+			} while (pNotify->NextEntryOffset != 0);
+		}
+
+		return 1;
 	}
 }
 #endif
