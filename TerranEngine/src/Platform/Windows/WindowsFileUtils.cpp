@@ -125,10 +125,14 @@ namespace TerranEngine
 
 		OVERLAPPED overlap;
 
-		overlap.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		constexpr size_t maxFileInformationBufferSize = 20;
 
-		FILE_NOTIFY_INFORMATION buf[1024];
+		overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+		FILE_NOTIFY_INFORMATION buf[maxFileInformationBufferSize];
 		DWORD bytesReturned;
+
+		std::vector<FileSystemChangeEvent> fileChanges;
 
 		bool result = true;
 
@@ -153,32 +157,40 @@ namespace TerranEngine
 
 			do 
 			{
+				FileSystemChangeEvent e;
+
 				pNotify = (FILE_NOTIFY_INFORMATION*)((char*)buf + offset);
 
 				size_t fileNameLength = pNotify->FileNameLength / sizeof(wchar_t);
-				std::filesystem::path filePath = std::filesystem::path(std::wstring(pNotify->FileName, fileNameLength));
+				std::filesystem::path fileName = std::filesystem::path(std::wstring(pNotify->FileName, fileNameLength));
+				e.FileName = fileName;
 
 				switch (pNotify->Action)
 				{
 				case FILE_ACTION_ADDED:
-					TR_TRACE("file added {0}", filePath.string());
+					e.Action = FileAction::Added;
 					break;
 				case FILE_ACTION_MODIFIED:
-					TR_TRACE("file modified {0}", filePath.string());
+					e.Action = FileAction::Modified;
 					break;
 				case FILE_ACTION_REMOVED:
-					TR_TRACE("file removed {0}", filePath.string());
+					e.Action = FileAction::Removed;
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
-					TR_TRACE("file renamed (old name) {0}", filePath.string());
+					e.Action = FileAction::RenamedOldName;
 					break;
 				case FILE_ACTION_RENAMED_NEW_NAME:
-					TR_TRACE("file renamed (new name) {0}", filePath.string());
+					e.Action = FileAction::RenamedNewName;
 					break;
 				}
 
 				offset += pNotify->NextEntryOffset;
+
+				fileChanges.emplace_back(e);
 			} while (pNotify->NextEntryOffset != 0);
+
+			s_ChangeCallback(fileChanges);
+			fileChanges.clear();
 		}
 
 		return 1;

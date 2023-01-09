@@ -3,9 +3,9 @@ import os
 
 class PremakeSetup:
 
-    premakeVersion = "5.0.0-beta1"
+    premakeVersion = "5.0.0-beta2"
     premakeDir = "../premake"
-    premakeURL = f"https://github.com/premake/premake-core/releases/download/v{premakeVersion}/premake-5.0.0-beta1-windows.zip" 
+    premakeURL = f"https://github.com/premake/premake-core/releases/download/v{premakeVersion}/premake-{premakeVersion}-windows.zip" 
     premakeLicenseURL = "https://github.com/premake/premake-core/blob/master/LICENSE.txt"
 
     @classmethod

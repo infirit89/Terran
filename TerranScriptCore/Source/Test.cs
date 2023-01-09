@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.ConstrainedExecution;
-
-namespace Terran
+﻿namespace Terran
 {
 	public class TestScript : Scriptable
 	{
@@ -43,6 +40,8 @@ namespace Terran
 
 		protected override void Update(float deltaTime) 
 		{
+
+
 			if (Input.IsKeyPressed(KeyCode.Q))
 				_CircleRenderer.Color = Color.Cyan;
 
@@ -107,19 +106,19 @@ namespace Terran
 		}
 		protected override void PhysicsUpdate() 
 		{
-			
+			Log.Trace("cum");
 		}
 
 		protected override void OnCollisionBegin(Entity entity)
-        {
-            Log.Trace("collided");
-            m_HasCollided = true;
-        }
+		{
+			Log.Trace("collided");
+			m_HasCollided = true;
+		}
 
 		protected override void OnCollisionEnd(Entity entity)
-        {
-            m_HasCollided = false;
-        }
+		{
+			m_HasCollided = false;
+		}
 	}
 
 }

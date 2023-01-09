@@ -8,19 +8,17 @@ namespace TerranEngine
 	enum class AssetType 
 	{
 		None = 0,
-		Directory,
-		Texture
+		Texture,
+		Text
 	};
-
-	namespace AssetUtility 
-	{
-		AssetType GetAssetTypeFromFileExtenstion(const std::filesystem::path& extenstion);
-	}
 
 	struct AssetInfo 
 	{
 		AssetInfo() = default;
 		~AssetInfo() = default;
+
+		bool operator==(const AssetInfo& other) { return Path == other.Path && Type == other.Type; }
+		bool operator!=(const AssetInfo& other) { return !((*this) == other); };
 
 		std::filesystem::path Path;
 		AssetType Type;
@@ -39,5 +37,21 @@ namespace TerranEngine
 	protected:
 		UUID m_Handle;
 		friend class AssetManager;
+	};
+
+	class TextAsset : public Asset 
+	{
+	public:
+		TextAsset(const std::string& text) 
+			: m_Text(text)
+		{}
+		virtual ~TextAsset() override = default;
+
+		virtual AssetType GetType() const { return AssetType::Text; }
+
+		const std::string& GetText() { return m_Text; }
+
+	private:
+		std::string m_Text;
 	};
 }

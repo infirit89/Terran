@@ -22,6 +22,7 @@ namespace TerranEngine {
     {
         WindowData Window;
         std::filesystem::path ScriptCorePath;
+		std::filesystem::path ProjectPath;
     };
 
 	class Application

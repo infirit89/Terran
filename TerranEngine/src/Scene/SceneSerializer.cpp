@@ -15,9 +15,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include <fstream>
-#include <iomanip>
-
 using json = nlohmann::ordered_json;
 
 // NOTE: this is not the final version of the scene serializer, this is a poc
@@ -29,7 +26,6 @@ namespace TerranEngine
 		: m_Scene(scene)
 	{
 	}
-
 		
 	static json SerializeUUIDVector(const std::vector<UUID>& vec) 
 	{

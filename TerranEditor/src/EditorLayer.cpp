@@ -76,6 +76,10 @@ namespace TerranEditor
         else
             OpenProject(m_ProjectPath);
 
+
+		AssetManager::Init();
+		AssetManager::RegisterAssetLoaders();
+
 		FontAtlas fontAtlas;
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -135,12 +139,18 @@ namespace TerranEditor
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
+
+		UUID id = AssetManager::ImportAsset(Project::GetAssetPath() / "asdasdasd.txt");
+		Shared<TextAsset> text = AssetManager::GetAsset<TextAsset>(id);
+
+		TR_TRACE(text->GetText());
 	}
 
 	void EditorLayer::OnDettach()
 	{
 		FileSystem::StopWatch();
 		EditorResources::Shutdown();
+		AssetManager::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)

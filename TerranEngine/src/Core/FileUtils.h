@@ -10,19 +10,21 @@ namespace TerranEngine
 	{
 		Added = 0,
 		Removed,
-		Modified
+		Modified,
+		RenamedOldName,
+		RenamedNewName
 	};
 
-	struct FileChangeEvent
+	struct FileSystemChangeEvent
 	{
 		FileAction Action;
-		std::string FileName;
+		std::filesystem::path FileName;
 	};
 
 	class FileSystem 
 	{
 	private:
-		using FileSystemChangeCallbackFn = std::function<void(const std::vector<FileChangeEvent>&)>;
+		using FileSystemChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;
 
 	public:
 

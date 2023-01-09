@@ -23,3 +23,6 @@
 [submodule "TerranEngine/vendor/Optick"]
 	path = TerranEngine/vendor/Optick
 	url = https://github.com/OKAY808/optick
+[submodule "TerranEngine/vendor/yaml-cpp"]
+	path = TerranEngine/vendor/yaml-cpp
+	url = https://github.com/OKAY808/yaml-cpp

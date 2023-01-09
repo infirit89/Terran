@@ -34,7 +34,8 @@ project "TerranEngine"
         "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
         "%{wks.location}/TerranEngine/vendor/mono/include/",
         "%{wks.location}/TerranEngine/vendor/Box2D/include/",
-        "%{wks.location}/TerranEngine/vendor/Optick/src/"
+        "%{wks.location}/TerranEngine/vendor/Optick/src/",
+        "%{wks.location}/TerranEngine/vendor/yaml-cpp/include/",
     } 
 
     libdirs 
@@ -51,7 +52,8 @@ project "TerranEngine"
         "opengl32.lib",
         "msdf-atlas-gen",
         "Box2D",
-        "OptickCore"
+        "OptickCore",
+        "yaml-cpp"
     }
 
     pchheader "trpch.h"
@@ -69,7 +71,8 @@ project "TerranEngine"
     defines 
     {
         "_CRT_SECURE_NO_WARNINGS",
-        "GLFW_INCLUDE_NONE"
+        "GLFW_INCLUDE_NONE",
+        "YAML_CPP_STATIC_DEFINE"
     }
 
     filter "system:windows"

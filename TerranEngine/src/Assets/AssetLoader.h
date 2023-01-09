@@ -9,7 +9,7 @@ namespace TerranEngine
 	class AssetLoader 
 	{
 	public:
-		virtual Shared<Asset> Load(const AssetInfo& assetInfo) = 0;
+		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) = 0;
 		virtual bool Save(const Shared<Asset>& asset) = 0;
 	};
 }

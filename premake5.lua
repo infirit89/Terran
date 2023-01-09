@@ -26,6 +26,7 @@ group "Dependencies"
     --include "TerranEngine/vendor/Freetype-GL"
     include "TerranEngine/vendor/Box2D"
     include "TerranEngine/vendor/Optick"
+    include "TerranEngine/vendor/yaml-cpp"
 
 group ""
 
