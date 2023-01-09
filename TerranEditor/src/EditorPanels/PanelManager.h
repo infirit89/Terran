@@ -37,6 +37,8 @@ namespace TerranEditor
         void SetScene(const TerranEngine::Shared<TerranEngine::Scene>& scene);
 
         void OnEvent(TerranEngine::Event& event);
+        void OnProjectChanged(const std::filesystem::path& projectPath);
+
         void ImGuiRender();
 
         void SetPanelOpen(const std::string& panelName, bool open);

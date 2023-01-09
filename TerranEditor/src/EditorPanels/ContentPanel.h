@@ -17,6 +17,8 @@ namespace TerranEditor
 		~ContentPanel() = default;
 
 		virtual void ImGuiRender() override;
+
+		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
 	private:
 		std::filesystem::path m_CurrentPath;
 	};

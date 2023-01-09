@@ -1,12 +1,13 @@
 #include "ContentPanel.h"
 
-#include "Core/Log.h"
+#include "EditorResources.h"
 
+#include "Core/Log.h"
 #include "Core/FileUtils.h"
 
-#include "Project/Project.h"
+#include "Assets/AssetManager.h"
 
-#include "EditorResources.h"
+#include "Project/Project.h"
 
 #include <imgui.h>
 #include <IconFontAwesome6.h>
@@ -17,7 +18,6 @@
 namespace TerranEditor 
 {
 	ContentPanel::ContentPanel() 
-		: m_CurrentPath(Project::GetAssetPath())
 	{  }
 
 	void ContentPanel::ImGuiRender()
@@ -113,6 +113,23 @@ namespace TerranEditor
 
 			ImGui::End();
 		}
+	}
+
+	static void ProcessDirectory(const std::filesystem::path& directoryPath)
+	{
+		for (auto& directoryEntry : std::filesystem::directory_iterator(directoryPath))
+		{
+			if (directoryEntry.is_directory())
+				ProcessDirectory(directoryEntry);
+			else
+				AssetManager::ImportAsset(directoryEntry);
+		}
+	}
+
+	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
+	{
+		m_CurrentPath = Project::GetAssetPath();
+		ProcessDirectory(m_CurrentPath);
 	}
 }
 #pragma warning(pop)

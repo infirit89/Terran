@@ -70,6 +70,7 @@ namespace TerranEditor
 
 		m_PanelManager = CreateShared<PanelManager>();
 		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
+		m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
 
         if(m_ProjectPath.empty())
             OpenProject("SandboxProject/");
@@ -102,7 +103,6 @@ namespace TerranEditor
 		SceneManager::SetCurrentScene(m_EditorScene);
 
 		// ***** Panel Setup *****
-		Shared<ContentPanel> contentPanel = m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
 		
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
 		sceneViewPanel->SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
@@ -640,5 +640,7 @@ namespace TerranEditor
 
 		ProjectSerializer projectSerializer(project);
 		projectSerializer.DeserializePhysicsSettings();
+
+		m_PanelManager->OnProjectChanged(projectPath);
     }
 }

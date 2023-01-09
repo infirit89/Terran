@@ -60,7 +60,7 @@ namespace TerranEngine
 
 	const AssetInfo& AssetManager::GetAssetInfo(const std::filesystem::path& assetPath)
 	{
-		for (auto [id, assetInfo] : s_AssetsInfos)
+		for (const auto& [id, assetInfo] : s_AssetsInfos)
 		{
 			if (assetInfo.Path == assetPath)
 				return assetInfo;
@@ -103,7 +103,7 @@ namespace TerranEngine
 		out << YAML::BeginMap;
 		out << YAML::Key << "AssetInfos" << YAML::Value << YAML::BeginSeq;
 
-		for (auto [assetID, assetInfo] : s_AssetsInfos) 
+		for (const auto& [assetID, assetInfo] : s_AssetsInfos) 
 		{
 			out << YAML::BeginMap;
 			out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetID);
@@ -141,7 +141,7 @@ namespace TerranEngine
 			auto assetInfos = node["AssetInfos"];
 			if (assetInfos)
 			{
-				for (auto assetInfo : assetInfos)
+				for (const auto& assetInfo : assetInfos)
 				{
 					AssetInfo info;
 
@@ -212,7 +212,7 @@ namespace TerranEngine
 
 	const UUID& AssetManager::GetAssetID(const std::filesystem::path& assetPath)
 	{
-		for (auto [assetID, assetInfo] : s_AssetsInfos)
+		for (const auto& [assetID, assetInfo] : s_AssetsInfos)
 		{
 			if (assetInfo.Path == assetPath)
 				return assetID;

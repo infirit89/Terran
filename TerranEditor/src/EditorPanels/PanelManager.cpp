@@ -15,6 +15,12 @@ namespace TerranEditor
             panel->OnEvent(event);
     }
 
+    void PanelManager::OnProjectChanged(const std::filesystem::path& projectPath)
+    {
+        for (const auto& [panelName, panel] : m_Panels)
+            panel->OnProjectChanged(projectPath);
+    }
+
     void PanelManager::ImGuiRender()
     {
         for (const auto& [panelName, panel] : m_Panels)
