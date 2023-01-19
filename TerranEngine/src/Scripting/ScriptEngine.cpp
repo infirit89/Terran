@@ -85,6 +85,12 @@ namespace TerranEngine
 	
 	static ScriptEngineData* s_Data;
 
+	static void Log(const std::string& message, spdlog::level::level_enum logLevel) 
+	{
+		if (s_Data->LogCallback)
+			s_Data->LogCallback(message, logLevel);
+	}
+
 	static ScriptableInstance s_EmptyInstance;
 
 	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
@@ -264,18 +270,14 @@ namespace TerranEngine
 		}
 
 		TR_INFO("Reloaded assemblies!");
-		s_Data->LogCallback("Reloaded assemblies!", spdlog::level::info);
+		Log("Reloaded assemblies!", spdlog::level::info);
 	}
 
 	bool ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
 		coreAssembly = ScriptAssembly::LoadAssembly(s_Data->ScriptCoreAssemblyPath);
-		if (!coreAssembly)
-		{
-			s_Data->LogCallback("Couldn't load the TerranScriptCore assembly", spdlog::level::err);
-			return false;
-		}
+		TR_ASSERT(coreAssembly, "Couldn't load the TerranScriptCore assembly");
 
 		ScriptCache::CacheCoreClasses();
 
@@ -289,7 +291,7 @@ namespace TerranEngine
 
 		if (!appAssembly) 
 		{
-			s_Data->LogCallback("Couldn't load the ScriptAssembly assembly", spdlog::level::err);
+			Log("Couldn't load the ScriptAssembly assembly", spdlog::level::err);
 			return false;
 		}
 
@@ -360,7 +362,7 @@ namespace TerranEngine
 		if (klass->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))
 		{
 			std::string errorMessage = fmt::format("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
-			s_Data->LogCallback(errorMessage, spdlog::level::warn);
+			Log(errorMessage, spdlog::level::warn);
 			return;
 		}
 
@@ -375,7 +377,7 @@ namespace TerranEngine
 		instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exception);
 
 		if(exception)
-			s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+			Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 			
 		s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
@@ -418,7 +420,7 @@ namespace TerranEngine
 			instance.InitMethod.Invoke(monoObject, &exception);
 
 			if(exception)
-				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -434,7 +436,7 @@ namespace TerranEngine
 			instance.UpdateMethod.Invoke(monoObject, deltaTime, &exception);
 
 			if(exception)
-				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -451,7 +453,7 @@ namespace TerranEngine
 			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exception);
 
 			if(exception)
-				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -468,7 +470,7 @@ namespace TerranEngine
 			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exception);
 
 			if(exception)
-				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 
@@ -484,7 +486,7 @@ namespace TerranEngine
 			instance.PhysicsUpdateMethod.Invoke(monoObject, &exception);
 
 			if(exception)
-				s_Data->LogCallback(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
 		}
 	}
 

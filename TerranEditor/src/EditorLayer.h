@@ -50,7 +50,7 @@ namespace TerranEditor
 		void OnScenePlay();
 		void OnSceneStop();
 
-		void OnScriptEngineLog(std::string message, spdlog::level::level_enum level);
+		void OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level);
 
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
 

@@ -18,10 +18,11 @@ namespace TerranEngine
 		~AssetInfo() = default;
 
 		bool operator==(const AssetInfo& other) { return Path == other.Path && Type == other.Type; }
-		bool operator!=(const AssetInfo& other) { return !((*this) == other); };
+		bool operator!=(const AssetInfo& other) { return !((*this) == other); }
+		operator bool() { return Path != "" && Type != AssetType::None; }
 
-		std::filesystem::path Path;
-		AssetType Type;
+		std::filesystem::path Path = "";
+		AssetType Type = AssetType::None;
 	};
 
 	class Asset

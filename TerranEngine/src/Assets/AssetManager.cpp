@@ -1,4 +1,4 @@
-#include "trpch.h"
+ #include "trpch.h"
 #include "AssetManager.h"
 
 #include "AssetUtils.h"
@@ -55,7 +55,7 @@ namespace TerranEngine
 		if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
 			return s_AssetsInfos[assetID];
 
-		return { };
+		return s_EmptyAssetInfo;
 	}
 
 	const AssetInfo& AssetManager::GetAssetInfo(const std::filesystem::path& assetPath)
@@ -66,7 +66,7 @@ namespace TerranEngine
 				return assetInfo;
 		}
 
-		return { };
+		return s_EmptyAssetInfo;
 	}
 
 	UUID AssetManager::ImportAsset(const std::filesystem::path& assetPath)
@@ -127,8 +127,7 @@ namespace TerranEngine
 		try 
 		{
 			std::filesystem::path assetInfoPath = Project::GetActive()->ProjectPath / "AssetInfoDB";
-			std::string temp = assetInfoPath.string();
-			node = YAML::LoadFile(temp);
+			node = YAML::LoadFile(assetInfoPath.string());
 		}
 		catch (const YAML::Exception& e) 
 		{
@@ -210,7 +209,7 @@ namespace TerranEngine
 			s_ChangeCallback(fileSystemEvents);
 	}
 
-	const UUID& AssetManager::GetAssetID(const std::filesystem::path& assetPath)
+	UUID AssetManager::GetAssetID(const std::filesystem::path& assetPath)
 	{
 		for (const auto& [assetID, assetInfo] : s_AssetsInfos)
 		{

@@ -23,7 +23,7 @@ namespace TerranEngine
 
 		static const AssetInfo& GetAssetInfo(UUID assetID);
 		static const AssetInfo& GetAssetInfo(const std::filesystem::path& assetPath);
-		static const UUID& GetAssetID(const std::filesystem::path& assetPath);
+		static UUID GetAssetID(const std::filesystem::path& assetPath);
 
 		static std::filesystem::path GetFileSystemPath(const std::filesystem::path& path);
 

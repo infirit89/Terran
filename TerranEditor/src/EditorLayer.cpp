@@ -132,7 +132,7 @@ namespace TerranEditor
 
 		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);*/
 
-		ScriptEngine::SetLogCallback([this](std::string message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
+		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
         ScriptEngine::LoadAppAssembly();
@@ -430,7 +430,7 @@ namespace TerranEditor
 			SelectionManager::Select(tempSelected);
 	}
 
-	void EditorLayer::OnScriptEngineLog(std::string message, spdlog::level::level_enum level)
+	void EditorLayer::OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level)
 	{
 		switch (level)
 		{

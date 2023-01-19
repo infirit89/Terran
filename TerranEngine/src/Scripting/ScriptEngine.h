@@ -18,7 +18,7 @@ namespace TerranEngine
 	class ScriptAssembly;
 	class ScriptEngine 
 	{
-		using LogFN = std::function<void(std::string, spdlog::level::level_enum)>;
+		using LogFN = std::function<void(const std::string&, spdlog::level::level_enum)>;
 	public:
 		static void Initialize(const std::filesystem::path& scriptCoreAssemblyPath);
 		static void Shutdown();

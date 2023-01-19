@@ -10,6 +10,13 @@
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
+
+	struct DirectoryInfo 
+	{
+		std::filesystem::path Path;
+		std::vector<Shared<DirectoryInfo>> Subdirectories;
+	};
+
 	class ContentPanel : public EditorPanel
 	{
 	public:
@@ -21,5 +28,6 @@ namespace TerranEditor
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
 	private:
 		std::filesystem::path m_CurrentPath;
+		std::unordered_map<UUID, Shared<DirectoryInfo>> m_DirectoryInfoMap;
 	};
 }
