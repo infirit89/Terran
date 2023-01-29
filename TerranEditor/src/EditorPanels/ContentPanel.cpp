@@ -56,80 +56,194 @@ namespace TerranEditor
 			ImGui::Columns(columnCount, (const char*)0, false);
 
 			// for every entry in the current 
-			for (auto& dirEntry : std::filesystem::directory_iterator(m_CurrentPath))
+			for (const auto& item : m_CurrentItems)
 			{
-				const auto& entryPath = dirEntry.path();
-				
-				std::string entryName = entryPath.filename().string();
-				
-				ImGui::PushID(entryName.c_str());
+				ContentBrowserPanelAction action = item->OnRender();
 
-				ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-				
-				Shared<Texture> entryIcon = dirEntry.is_directory() ? EditorResources::GetDirectoryTexture() : EditorResources::GetFileTexture();
+				if (action == ContentBrowserPanelAction::NavigateTo)
+					m_PostRenderActions.push([&item, this]() { ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo()); });
 
-				// if the entry is a directory then use the folder icon else use the file icon
-				ImGui::ImageButton((ImTextureID)entryIcon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
+				//const auto& entryPath = dirEntry.path();
+				//
+				//std::string entryName = entryPath.filename().string();
+				//
+				//ImGui::PushID(entryName.c_str());
 
-				ImGui::PopStyleColor();
+				//ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
+				//
+				//Shared<Texture> entryIcon = dirEntry.is_directory() ? EditorResources::GetDirectoryTexture() : EditorResources::GetFileTexture();
 
-				if (!dirEntry.is_directory()) 
-				{
-					if (ImGui::BeginDragDropSource()) 
-					{
-						std::string entryPathStr = entryPath.string();
-						ImGui::SetDragDropPayload("ASSET", entryPathStr.c_str(), entryPathStr.size() + 1);
+				//// if the entry is a directory then use the folder icon else use the file icon
+				//ImGui::ImageButton((ImTextureID)entryIcon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
 
-						ImGui::Text("File %s", entryName.c_str());
+				//ImGui::PopStyleColor();
 
-						ImGui::EndDragDropSource();
-					}
-				}
+				//if (!dirEntry.is_directory()) 
+				//{
+				//	if (ImGui::BeginDragDropSource()) 
+				//	{
+				//		std::string entryPathStr = entryPath.string();
+				//		ImGui::SetDragDropPayload("ASSET", entryPathStr.c_str(), entryPathStr.size() + 1);
 
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && dirEntry.is_directory()) 
-				{
-					// if the entry is a folder and is clicked then concatinate that current path
-					// with the folder name
-					m_CurrentPath /= entryPath.filename();
-				}
+				//		ImGui::Text("File %s", entryName.c_str());
 
-				float textWidth = ImGui::CalcTextSize(entryName.c_str()).x;
-				ImVec2 cursorPos = ImGui::GetCursorPos();
+				//		ImGui::EndDragDropSource();
+				//	}
+				//}
 
-				// some indent calculations, just did something that didn't look bad
-				float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
-				textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
+				//if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && dirEntry.is_directory()) 
+				//{
+				//	// if the entry is a folder and is clicked then concatinate that current path
+				//	// with the folder name
+				//	m_CurrentPath /= entryPath.filename();
+				//}
 
-				ImGui::SetCursorPosX(cursorPos.x + textIndent);
-				ImGui::TextWrapped(entryName.c_str());
-				ImGui::SetCursorPosX(cursorPos.x);
+				//float textWidth = ImGui::CalcTextSize(entryName.c_str()).x;
+				//ImVec2 cursorPos = ImGui::GetCursorPos();
+
+				//// some indent calculations, just did something that didn't look bad
+				//float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
+				//textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
+
+				//ImGui::SetCursorPosX(cursorPos.x + textIndent);
+				//ImGui::TextWrapped(entryName.c_str());
+				//ImGui::SetCursorPosX(cursorPos.x);
 
 				ImGui::NextColumn();
 
-				ImGui::PopID();
+				//ImGui::PopID();
 			}
 
 			ImGui::Columns(1);
+
+			while (!m_PostRenderActions.empty())
+			{
+				auto postRenderAction = m_PostRenderActions.front();
+				postRenderAction();
+				m_PostRenderActions.pop();
+			}
 
 			ImGui::End();
 		}
 	}
 
-	static void ProcessDirectory(const std::filesystem::path& directoryPath)
+	UUID ContentPanel::ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent)
 	{
+		const auto& directory = GetDirectory(directoryPath);
+		if (directory) return directory->ID;
+
+		Shared<DirectoryInfo> directoryInfo = CreateShared<DirectoryInfo>();
+		directoryInfo->ID = UUID();
+		directoryInfo->Parent = parent;
+
+		if (directoryPath == Project::GetAssetPath())
+			directoryInfo->Path = "";
+		else
+			directoryInfo->Path = std::filesystem::relative(directoryPath, Project::GetAssetPath());
+
 		for (auto& directoryEntry : std::filesystem::directory_iterator(directoryPath))
 		{
-			if (directoryEntry.is_directory())
-				ProcessDirectory(directoryEntry);
+			if (directoryEntry.is_directory()) 
+			{
+				UUID subdirectoryID = ProcessDirectory(directoryEntry, directoryInfo);
+				directoryInfo->Subdirectories.push_back(m_DirectoryInfoMap[subdirectoryID]);
+			}
 			else
 				AssetManager::ImportAsset(directoryEntry);
 		}
+
+		m_DirectoryInfoMap[directoryInfo->ID] = directoryInfo;
+		return directoryInfo->ID;
+	}
+
+	const Shared<DirectoryInfo>& ContentPanel::GetDirectory(const std::filesystem::path& directoryPath)
+	{
+		for (const auto&[id, directoryInfo] : m_DirectoryInfoMap)
+		{
+			if (directoryInfo->Path == directoryPath)
+				return directoryInfo;
+		}
+
+		return nullptr;
+	}
+
+	const Shared<DirectoryInfo>& ContentPanel::GetDirectory(const UUID& id) 
+	{
+		if (m_DirectoryInfoMap.find(id) != m_DirectoryInfoMap.end())
+			return m_DirectoryInfoMap.at(id);
+
+		return nullptr;
+	}
+
+	void ContentPanel::ChangeDirectory(const Shared<DirectoryInfo>& directory)
+	{
+		if (!directory) return;
+
+		m_CurrentItems.clear();
+
+		for (const auto& subdirectory : directory->Subdirectories)
+			m_CurrentItems.push_back(CreateShared<ContentBrowserPanelDirectory>(subdirectory));
+	}
+
+	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0) 
+	{
+		std::string childStr = std::string(level, '-');
+
+		if (level == 0)
+			TR_TRACE("Assets");
+		else
+			TR_TRACE("{0}{1}", childStr, parent->Path.string());
+
+		for (const auto& subdirectory : parent->Subdirectories)
+			PrintDirectoryInfo(subdirectory, level + 1);
 	}
 
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
 	{
 		m_CurrentPath = Project::GetAssetPath();
-		ProcessDirectory(m_CurrentPath);
+		UUID dirID = ProcessDirectory(m_CurrentPath);
+
+		const auto& directory = GetDirectory(dirID);
+		ChangeDirectory(directory);
+		PrintDirectoryInfo(directory);
 	}
+
+	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::filesystem::path& name, Shared<Texture> icon)
+		: m_Name(name), m_Icon(icon)
+	{ }
+
+	ContentBrowserPanelDirectory::ContentBrowserPanelDirectory(const Shared<DirectoryInfo>& directoryInfo)
+		: ContentBrowserPanelItem(directoryInfo->Path.filename(), EditorResources::GetDirectoryTexture()), m_DirectoryInfo(directoryInfo)
+	{
+	}
+
+	ContentBrowserPanelAction ContentBrowserPanelDirectory::OnRender()
+	{
+		ContentBrowserPanelAction action = ContentBrowserPanelAction::None;
+		const float cellSize = 74.0f;
+		ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
+		ImGui::ImageButton((ImTextureID)m_Icon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
+		ImGui::PopStyleColor();
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			action = ContentBrowserPanelAction::NavigateTo;
+
+		std::string nameStr = m_Name.string();
+		float textWidth = ImGui::CalcTextSize(nameStr.c_str()).x;
+		ImVec2 cursorPos = ImGui::GetCursorPos();
+
+		// some indent calculations, just did something that didn't look bad
+		float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
+		textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
+
+		ImGui::SetCursorPosX(cursorPos.x + textIndent);
+		ImGui::TextWrapped(nameStr.c_str());
+		ImGui::SetCursorPosX(cursorPos.x);
+
+		return action;
+	}
+
+	const Shared<DirectoryInfo>& ContentBrowserPanelDirectory::GetDirectoryInfo() { return m_DirectoryInfo; }
+	
 }
 #pragma warning(pop)
