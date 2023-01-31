@@ -210,7 +210,7 @@ namespace TerranEngine
 				{ "SpriteRendererComponent",
 				{
 					{ "Color", SerializerUtils::SerializeVec4(sprComp.Color) },
-					{ "TexturePath", sprComp.Texture ? sprComp.Texture->GetPath().string() : ""},
+					{ "Texture", sprComp.Texture ? std::to_string(sprComp.Texture->GetHandle()) : "" },
 					{ "ZIndex", sprComp.ZIndex }
 				} }
 			);

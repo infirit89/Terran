@@ -18,6 +18,7 @@ namespace TerranEditor
 		std::filesystem::path Path;
 		std::vector<Shared<DirectoryInfo>> Subdirectories;
 		Shared<DirectoryInfo> Parent;
+		std::vector<UUID> AssetHandles;
 	};
 
 	enum class ContentBrowserPanelAction
@@ -29,27 +30,44 @@ namespace TerranEditor
 	class ContentBrowserPanelItem
 	{
 	public:
-		ContentBrowserPanelItem(const std::filesystem::path& name, TerranEngine::Shared<TerranEngine::Texture> icon);
+		ContentBrowserPanelItem(const std::string& name, const UUID& id, TerranEngine::Shared<TerranEngine::Texture> icon);
 		virtual ~ContentBrowserPanelItem() = default;
 
-		virtual ContentBrowserPanelAction OnRender() { return ContentBrowserPanelAction::None; };
-	protected:
-		std::filesystem::path m_Name;
+		void BeginRender();
+		void EndRender();
+		ContentBrowserPanelAction OnRender();
+		virtual ContentBrowserPanelAction OnClick() = 0;
+
+	private:
+		std::string m_Name;
 		TerranEngine::Shared<TerranEngine::Texture> m_Icon;
+		UUID m_ID;
 	};
 
 	class ContentBrowserPanelDirectory : public ContentBrowserPanelItem
 	{
 	public:
 		ContentBrowserPanelDirectory(const Shared<DirectoryInfo>& directoryInfo);
-
 		virtual ~ContentBrowserPanelDirectory() override = default;
-		virtual ContentBrowserPanelAction OnRender() override;
 
+		virtual ContentBrowserPanelAction OnClick() override;
 		const Shared<DirectoryInfo>& GetDirectoryInfo();
 
 	private:
 		Shared<DirectoryInfo> m_DirectoryInfo;
+	};
+
+	class ContentBrowserPanelAsset : public ContentBrowserPanelItem 
+	{
+	public:
+		ContentBrowserPanelAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon);
+		virtual ~ContentBrowserPanelAsset() override = default;
+
+		virtual ContentBrowserPanelAction OnClick() override;
+		const AssetInfo& GetAssetInfo() { return m_AssetInfo; }
+
+	private:
+		AssetInfo m_AssetInfo;
 	};
 
 	class ContentPanel : public EditorPanel

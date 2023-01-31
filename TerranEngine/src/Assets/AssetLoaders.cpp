@@ -17,7 +17,6 @@ namespace TerranEngine
         return false;
     }
 
-
     void TextAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
     {
         std::ifstream in(AssetManager::GetFileSystemPath(assetInfo.Path), std::ios::in);
@@ -45,6 +44,16 @@ namespace TerranEngine
     bool TextAssetLoader::Save(const Shared<Asset>& asset)
     {
         return false;
+    }
+
+    void SceneAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
+    {
+
+    }
+
+    bool SceneAssetLoader::Save(const Shared<Asset>& asset)
+    {
+        return true;
     }
 
 }

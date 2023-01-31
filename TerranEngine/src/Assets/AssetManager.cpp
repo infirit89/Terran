@@ -26,13 +26,10 @@ namespace TerranEngine
 
 		s_LoadedAssets.clear();
 		s_AssetsInfos.clear();
-
-		ReadAssetInfos();
 	}
 
 	void AssetManager::Shutdown()
 	{
-		WriteAssetInfosToFile();
 		s_LoadedAssets.clear();
 		s_AssetsInfos.clear();
 	}
@@ -85,11 +82,16 @@ namespace TerranEngine
 
 		type = AssetUtility::GetAssetTypeFromFileExtenstion(assetPath.extension());
 		
-		if (type == AssetType::None) return UUID::Invalid();
+		if (type == AssetType::None)
+		{
+			TR_ERROR("File type of file {0} is unknown", path);
+			return UUID::Invalid();
+		}
 
 		AssetInfo assetInfo;
 		assetInfo.Path = path;
 		assetInfo.Type = type;
+		assetInfo.Handle = assetID;
 
 		s_AssetsInfos[assetID] = assetInfo;
 
@@ -106,7 +108,7 @@ namespace TerranEngine
 		for (const auto& [assetID, assetInfo] : s_AssetsInfos) 
 		{
 			out << YAML::BeginMap;
-			out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetID);
+			out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.Handle);
 			out << YAML::Key << "Type" << YAML::Value << (uint32_t)assetInfo.Type;
 			out << YAML::Key << "Path" << YAML::Value << assetInfo.Path.string();
 			out << YAML::EndMap;
@@ -120,7 +122,7 @@ namespace TerranEngine
 		ofs << out.c_str();
 	}
 
-	void AssetManager::ReadAssetInfos()
+	void AssetManager::LoadAssetInfos()
 	{
 		YAML::Node node;
 
@@ -150,6 +152,7 @@ namespace TerranEngine
 
 					info.Type = (AssetType)assetInfo["Type"].as<uint32_t>();
 					info.Path = assetInfo["Path"].as<std::string>();
+					info.Handle = id;
 
 					s_AssetsInfos[id] = info;
 				}
@@ -200,7 +203,10 @@ namespace TerranEngine
 				break;
 			}
 			case FileAction::Modified:
-				ReloadAsset(GetAssetID(e.FileName));
+				UUID assetHandle = GetAssetID(e.FileName);
+
+				if(s_LoadedAssets.find(assetHandle) != s_LoadedAssets.end())
+					ReloadAsset(GetAssetID(e.FileName));
 				break;
 			}
 		}

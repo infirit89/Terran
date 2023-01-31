@@ -165,13 +165,11 @@ namespace TerranEditor
 						{
 							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")) 
 							{
-								std::filesystem::path texturePath = (const char*)payload->Data;
-								std::string texturePathStr = texturePath.string();
-								TextureParameters parameters;
-								parameters.MagFilter = TextureFilter::Nearest;
-								parameters.MinFilter = TextureFilter::Nearest;
-								Shared<Texture> texture = CreateShared<Texture>(texturePathStr.c_str(), parameters);
-								component.Texture = texture;
+								UUID assetHandle = UUID::CreateFromRaw((uint8_t*)payload->Data);
+								AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
+
+								if (info.Type == AssetType::Texture)
+									component.Texture = AssetManager::GetAsset<Texture>(assetHandle);
 							}
 
 							ImGui::EndDragDropTarget();

@@ -9,7 +9,9 @@ namespace TerranEngine
 	{
 		None = 0,
 		Texture,
-		Text
+		Text,
+		CSFile,
+		Scene
 	};
 
 	struct AssetInfo 
@@ -23,6 +25,7 @@ namespace TerranEngine
 
 		std::filesystem::path Path = "";
 		AssetType Type = AssetType::None;
+		UUID Handle = UUID::Invalid();
 	};
 
 	class Asset
@@ -40,6 +43,10 @@ namespace TerranEngine
 		friend class AssetManager;
 	};
 
+#define ASSET_CLASS_TYPE(type)\
+	static AssetType GetStaticType() { return AssetType::type; }\
+	virtual AssetType GetType() const override { return GetStaticType(); }
+
 	class TextAsset : public Asset 
 	{
 	public:
@@ -48,9 +55,9 @@ namespace TerranEngine
 		{}
 		virtual ~TextAsset() override = default;
 
-		virtual AssetType GetType() const { return AssetType::Text; }
-
 		const std::string& GetText() { return m_Text; }
+
+		ASSET_CLASS_TYPE(Text)
 
 	private:
 		std::string m_Text;

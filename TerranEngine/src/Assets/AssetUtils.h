@@ -26,10 +26,12 @@ namespace TerranEngine
 	{
 		inline std::unordered_map<std::filesystem::path, AssetType> s_FileExtensionMap = 
 		{
-			{ ".png",  AssetType::Texture },
-			{ ".jpg",  AssetType::Texture },
-			{ ".jpeg", AssetType::Texture },
-			{ ".txt",  AssetType::Text	  }
+			{ ".png",		AssetType::Texture	},
+			{ ".jpg",		AssetType::Texture	},
+			{ ".jpeg",		AssetType::Texture	},
+			{ ".txt",		AssetType::Text		},
+			{ ".cs",		AssetType::CSFile	},
+			{ ".terran",	AssetType::Scene	}
 		};
 
 		AssetType GetAssetTypeFromFileExtenstion(const std::filesystem::path& extension);

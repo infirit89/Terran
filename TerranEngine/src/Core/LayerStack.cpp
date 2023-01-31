@@ -25,6 +25,4 @@ namespace TerranEngine {
 		m_Layers.erase(iterator);
 		m_LastInsertIndex--;
 	}
-
-
 }

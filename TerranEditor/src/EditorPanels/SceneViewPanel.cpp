@@ -186,8 +186,11 @@ namespace TerranEditor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
 				{
-					const char* entryPath = (const char*)payload->Data;
-					m_OpenSceneCallback(entryPath, m_ViewportSize);
+					UUID id = UUID::CreateFromRaw((uint8_t*)payload->Data);
+					AssetInfo info = AssetManager::GetAssetInfo(id);
+
+					if (info.Type == AssetType::Scene)
+						m_OpenSceneCallback(info.Path, m_ViewportSize);
 				}
 				ImGui::EndDragDropTarget();
 			}

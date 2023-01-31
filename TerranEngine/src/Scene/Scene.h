@@ -4,6 +4,8 @@
 #include "Core/Time.h"
 #include "Core/Base.h"
 
+#include "Assets/Asset.h"
+
 #include "Graphics/Camera.h"
 
 #pragma warning(push)
@@ -18,12 +20,14 @@ namespace TerranEngine
 	class Entity;
 	class SceneRenderer;
 	
-	class Scene 
+	class Scene : public Asset
 	{
 	public:
 		Scene();
-		~Scene();
-		
+		virtual ~Scene() override;
+
+		ASSET_CLASS_TYPE(Scene)
+
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
 

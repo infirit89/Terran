@@ -24,7 +24,7 @@ namespace TerranEditor
 
 	class SceneViewPanel : public EditorPanel
 	{
-		using OpenSceneFN = std::function<void(const char*, glm::vec2)>;
+		using OpenSceneFN = std::function<void(const std::filesystem::path&, glm::vec2)>;
 	public:
 		SceneViewPanel() = default;
 		~SceneViewPanel() = default;

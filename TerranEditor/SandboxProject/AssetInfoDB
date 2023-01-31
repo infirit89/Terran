@@ -1,4 +1,52 @@
 AssetInfos:
-  - Asset: 44a4e180-1dd4-429a-ad92-27946802e822
+  - Asset: 9aa397c9-2585-4dad-80a7-3e43bb4e0703
     Type: 2
     Path: asdasdasd.txt
+  - Asset: e315c1b9-7f25-442e-9a2d-59f78d90ba54
+    Type: 2
+    Path: Scenes\asdasdasd.txt
+  - Asset: dea61913-65cb-4a0f-b67b-00cd094f41e9
+    Type: 3
+    Path: Scripts\Pong\GameManager.cs
+  - Asset: 34210908-6d72-4069-ad8b-1028f410611d
+    Type: 3
+    Path: Scripts\Player.cs
+  - Asset: f08142f4-0ae6-4c33-9edc-309d2fce1fa1
+    Type: 4
+    Path: Scenes\Physics\BasicPhysicsTest.terran
+  - Asset: d302be4d-c389-44a6-88de-475c064e6c62
+    Type: 4
+    Path: Scenes\Transform\TransformHierarchyTest.terran
+  - Asset: d60a5230-91ea-4c35-a5c6-ac6aced6a7a0
+    Type: 4
+    Path: Scenes\Physics\RayCastTest.terran
+  - Asset: 8773474b-5c0b-423d-9f39-4a117c761efe
+    Type: 4
+    Path: Scenes\Physics\HierarchyPhysicsTest.terran
+  - Asset: d094674e-c0ea-41f2-8956-105cb4c0e963
+    Type: 4
+    Path: Scenes\Pong\Pong.terran
+  - Asset: b816fedc-be40-4cce-8db5-339d0ae5f4bd
+    Type: 4
+    Path: Scenes\Physics\TestPhysics.terran
+  - Asset: df428e6e-1f1d-4ca4-a368-bf5cac1da716
+    Type: 3
+    Path: Scripts\Pong\Ball.cs
+  - Asset: 96ccaa8f-2571-4c9e-b9d2-0ba2d7234479
+    Type: 3
+    Path: Scripts\Pong\CollisionUtils.cs
+  - Asset: 150f6484-d74e-4d8a-b7b5-3a64629ef36e
+    Type: 4
+    Path: Test.terran
+  - Asset: af4ede2f-1ed8-4a75-9ef9-dd9e44a8d992
+    Type: 3
+    Path: Scripts\Pong\Player.cs
+  - Asset: 9427faf2-bf7c-4e06-aa59-b663fc41d8d5
+    Type: 3
+    Path: Scripts\Test2.cs
+  - Asset: fee9a86b-af69-47cc-bcb4-7ac420782faa
+    Type: 3
+    Path: Test.cs
+  - Asset: 4ab24564-899b-4418-97c8-c8093ae40b9d
+    Type: 1
+    Path: floor.png

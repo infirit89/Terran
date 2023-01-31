@@ -62,9 +62,27 @@ namespace TerranEngine
 			}
 		}
 
-	private:
+		template<typename T>
+		static Shared<T> CreateAsset(const std::filesystem::path& filePath) 
+		{
+			AssetInfo info;
+			info.Handle = UUID();
+			info.Path = GetRelativePath(filePath);
+			info.Type = T::GetStaticType();
+
+			s_AssetsInfos[info.Handle] = info;
+
+			// TODO: add parameter options
+			Shared<T> asset = CreateShared<T>();
+
+			s_LoadedAssets[info.Handle] = asset;
+			s_Loaders[info.Type]->Save(asset);
+		}
+
+		static void LoadAssetInfos();
 		static void WriteAssetInfosToFile();
-		static void ReadAssetInfos();
+
+	private:
 		static void OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents);
 		static void OnAssetRemoved(UUID assetID);
 		static void OnAssetRenamed(UUID assetID, const std::filesystem::path& newFileName);

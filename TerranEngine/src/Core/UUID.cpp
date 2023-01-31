@@ -18,13 +18,12 @@ namespace TerranEngine
 
 	UUID UUID::CreateFromRaw(uint8_t* data)
 	{
-		UUID id({ 0 });
-		const uint8_t* idData = id.GetRaw();
+		std::array<uint8_t, 16> idData = { 0 };
 		constexpr uint32_t uuidArrayLength = 16 * sizeof(uint8_t);
 
-		memcpy(data, idData, uuidArrayLength);
+		memcpy(&idData, data, uuidArrayLength);
 
-		return id;
+		return UUID({ idData });
 	}
 
 	static unsigned char CharToHex(const char& ch)

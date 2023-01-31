@@ -58,6 +58,7 @@ namespace TerranEditor
 			// for every entry in the current 
 			for (const auto& item : m_CurrentItems)
 			{
+				item->BeginRender();
 				ContentBrowserPanelAction action = item->OnRender();
 
 				if (action == ContentBrowserPanelAction::NavigateTo)
@@ -111,6 +112,7 @@ namespace TerranEditor
 
 				ImGui::NextColumn();
 
+				item->EndRender();
 				//ImGui::PopID();
 			}
 
@@ -148,8 +150,13 @@ namespace TerranEditor
 				UUID subdirectoryID = ProcessDirectory(directoryEntry, directoryInfo);
 				directoryInfo->Subdirectories.push_back(m_DirectoryInfoMap[subdirectoryID]);
 			}
-			else
-				AssetManager::ImportAsset(directoryEntry);
+			else 
+			{
+				UUID assetID = AssetManager::ImportAsset(directoryEntry);
+
+				if(assetID)
+					directoryInfo->AssetHandles.push_back(assetID);
+			}
 		}
 
 		m_DirectoryInfoMap[directoryInfo->ID] = directoryInfo;
@@ -183,6 +190,12 @@ namespace TerranEditor
 
 		for (const auto& subdirectory : directory->Subdirectories)
 			m_CurrentItems.push_back(CreateShared<ContentBrowserPanelDirectory>(subdirectory));
+
+		for (const auto& assetHandle : directory->AssetHandles)
+		{
+			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
+			m_CurrentItems.push_back(CreateShared<ContentBrowserPanelAsset>(info, EditorResources::GetFileTexture()));
+		}
 	}
 
 	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0) 
@@ -205,19 +218,23 @@ namespace TerranEditor
 
 		const auto& directory = GetDirectory(dirID);
 		ChangeDirectory(directory);
-		PrintDirectoryInfo(directory);
 	}
 
-	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::filesystem::path& name, Shared<Texture> icon)
-		: m_Name(name), m_Icon(icon)
+	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::string& name, const UUID& id, Shared<Texture> icon)
+		: m_Name(name), m_Icon(icon), m_ID(id)
 	{ }
 
-	ContentBrowserPanelDirectory::ContentBrowserPanelDirectory(const Shared<DirectoryInfo>& directoryInfo)
-		: ContentBrowserPanelItem(directoryInfo->Path.filename(), EditorResources::GetDirectoryTexture()), m_DirectoryInfo(directoryInfo)
+	void ContentBrowserPanelItem::BeginRender()
 	{
+		ImGui::PushID(&m_ID);
 	}
 
-	ContentBrowserPanelAction ContentBrowserPanelDirectory::OnRender()
+	void ContentBrowserPanelItem::EndRender()
+	{
+		ImGui::PopID();
+	}
+
+	ContentBrowserPanelAction ContentBrowserPanelItem::OnRender()
 	{
 		ContentBrowserPanelAction action = ContentBrowserPanelAction::None;
 		const float cellSize = 74.0f;
@@ -225,11 +242,17 @@ namespace TerranEditor
 		ImGui::ImageButton((ImTextureID)m_Icon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
 		ImGui::PopStyleColor();
 
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			action = ContentBrowserPanelAction::NavigateTo;
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("ASSET", m_ID.GetRaw(), sizeof(UUID));
+			ImGui::Text("File %s", m_Name.c_str());
+			ImGui::EndDragDropSource();
+		}
 
-		std::string nameStr = m_Name.string();
-		float textWidth = ImGui::CalcTextSize(nameStr.c_str()).x;
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			action = OnClick();
+
+		float textWidth = ImGui::CalcTextSize(m_Name.c_str()).x;
 		ImVec2 cursorPos = ImGui::GetCursorPos();
 
 		// some indent calculations, just did something that didn't look bad
@@ -237,13 +260,25 @@ namespace TerranEditor
 		textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
 
 		ImGui::SetCursorPosX(cursorPos.x + textIndent);
-		ImGui::TextWrapped(nameStr.c_str());
+		ImGui::TextWrapped(m_Name.c_str());
 		ImGui::SetCursorPosX(cursorPos.x);
 
 		return action;
 	}
 
+	ContentBrowserPanelDirectory::ContentBrowserPanelDirectory(const Shared<DirectoryInfo>& directoryInfo)
+		: ContentBrowserPanelItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture()), m_DirectoryInfo(directoryInfo)
+	{ }
+
+	ContentBrowserPanelAction ContentBrowserPanelDirectory::OnClick() { return ContentBrowserPanelAction::NavigateTo; }
 	const Shared<DirectoryInfo>& ContentBrowserPanelDirectory::GetDirectoryInfo() { return m_DirectoryInfo; }
+
+
 	
+	ContentBrowserPanelAsset::ContentBrowserPanelAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon)
+		: ContentBrowserPanelItem(assetInfo.Path.filename().string(), assetInfo.Handle, icon), m_AssetInfo(assetInfo)
+	{ }
+
+	ContentBrowserPanelAction ContentBrowserPanelAsset::OnClick() { return ContentBrowserPanelAction::None; }
 }
 #pragma warning(pop)

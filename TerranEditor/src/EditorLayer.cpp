@@ -68,19 +68,6 @@ namespace TerranEditor
 		EditorResources::Init();
 		UI::SetupImGuiStyle();
 
-		m_PanelManager = CreateShared<PanelManager>();
-		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
-		m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
-
-        if(m_ProjectPath.empty())
-            OpenProject("SandboxProject/");
-        else
-            OpenProject(m_ProjectPath);
-
-
-		AssetManager::Init();
-		AssetManager::RegisterAssetLoaders();
-
 		FontAtlas fontAtlas;
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -88,8 +75,6 @@ namespace TerranEditor
 		ImFontConfig config;
 		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
 		config.MergeMode = true;
-		//static constexpr ImWchar fontawesomeRange[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-		//io.Fonts->AddFontFromFileTTF("Resources/Fonts/FontAwesome/Font Awesome 6 Free-Regular-400.otf", 18.0f, &config, fontawesomeRange);
 		io.Fonts->Build();
 		io.IniFilename = "Resources/TerranEditorSettings.ini";
 
@@ -97,28 +82,29 @@ namespace TerranEditor
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
 
-		// TODO: should add an on component added function
 		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
 		
 		SceneManager::SetCurrentScene(m_EditorScene);
 
 		// ***** Panel Setup *****
-		
+		m_PanelManager = CreateShared<PanelManager>();
+		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
+		m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
-		sceneViewPanel->SetOpenSceneCallback([this](const char* sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
+		sceneViewPanel->SetOpenSceneCallback([this](const std::filesystem::path& sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
 		sceneViewPanel->SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
-
 		m_PanelManager->AddPanel<SceneHierarchyPanel>(SCENE_HIERARCHY_PANEL_NAME);
-
 		m_PanelManager->AddPanel<ECSPanel>(ECS_PANEL_NAME);
-
 		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
-
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
-
         Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
         settingsPanel->SetOpen(false);
 		// ***********************
+
+		if (m_ProjectPath.empty())
+			OpenProject("SandboxProject/");
+		else
+			OpenProject(m_ProjectPath);
 
 		FramebufferParameters editorFramebufferParams;
 		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::Red32Integer };
@@ -126,12 +112,6 @@ namespace TerranEditor
 
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
-		/*FramebufferParameters runtimeFramebufferParams;
-		runtimeFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA };
-		runtimeFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
-
-		m_RuntimeSceneRenderer = CreateShared<SceneRenderer>(runtimeFramebufferParams);*/
-
 		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
@@ -139,18 +119,12 @@ namespace TerranEditor
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
-
-		UUID id = AssetManager::ImportAsset(Project::GetAssetPath() / "asdasdasd.txt");
-		Shared<TextAsset> text = AssetManager::GetAsset<TextAsset>(id);
-
-		TR_TRACE(text->GetText());
 	}
 
 	void EditorLayer::OnDettach()
 	{
 		FileSystem::StopWatch();
 		EditorResources::Shutdown();
-		AssetManager::Shutdown();
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -271,6 +245,8 @@ namespace TerranEditor
 	{
 		if(m_SceneState == SceneState::Play)
 			OnSceneStop();
+
+		AssetManager::WriteAssetInfosToFile();
 
 		return false;
 	}
@@ -587,8 +563,8 @@ namespace TerranEditor
 	{
 		std::filesystem::path path = scenePath.empty() ? m_CurrentScenePath : scenePath;
 
-        if(!IsValidAssetPath(path))
-            return;
+        //if(!IsValidAssetPath(path))
+            //return;
 
 		if (!path.empty()) 
 		{
@@ -598,7 +574,7 @@ namespace TerranEditor
 				return;
 			}
 
-			std::string jsonData = SceneSerializer::ReadJson(scenePath.string());
+			std::string jsonData = SceneSerializer::ReadJson(AssetManager::GetFileSystemPath(scenePath).string());
 			if (jsonData != "")
 			{
 				Shared<Scene> newScene = SceneManager::CreateEmpyScene();
@@ -642,6 +618,8 @@ namespace TerranEditor
 
 		ProjectSerializer projectSerializer(project);
 		projectSerializer.DeserializePhysicsSettings();
+
+		AssetManager::LoadAssetInfos();
 
 		m_PanelManager->OnProjectChanged(projectPath);
     }

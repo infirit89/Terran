@@ -48,6 +48,11 @@ namespace TerranEngine
 
 		Input::Init();
 
+		AssetManager::Init();
+
+		// TODO: may need to remove when doing an actual runtime asset manager
+		AssetManager::RegisterAssetLoaders();
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);
 	}
@@ -57,6 +62,7 @@ namespace TerranEngine
         ScriptEngine::Shutdown();
         Physics2D::Shutdown();
 		BatchRenderer2D::Shutdown();
+		AssetManager::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
