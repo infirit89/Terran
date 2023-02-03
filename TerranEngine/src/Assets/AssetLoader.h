@@ -10,6 +10,6 @@ namespace TerranEngine
 	{
 	public:
 		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) = 0;
-		virtual bool Save(const Shared<Asset>& asset) = 0;
+		virtual bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) = 0;
 	};
 }

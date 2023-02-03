@@ -3,6 +3,8 @@
 
 #include "Core/Application.h"
 
+#include "Project/Project.h"
+
 #ifdef TR_WINDOWS_64
 #include "GLFW/glfw3.h"
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -28,8 +30,11 @@ namespace TerranEngine
 		ofn.lpstrFile = fileName;
 		ofn.nMaxFile = 260;
 
-		if (GetCurrentDirectoryA(256, currentDir))
-			ofn.lpstrInitialDir = currentDir;
+		/*if (GetCurrentDirectoryA(256, currentDir))
+			ofn.lpstrInitialDir = currentDir;*/
+
+		std::string assetPathStr = Project::GetAssetPath().string();
+		ofn.lpstrInitialDir = assetPathStr.c_str();
 
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
@@ -55,8 +60,11 @@ namespace TerranEngine
 		ofn.lpstrFile = fileName;
 		ofn.nMaxFile = sizeof(fileName);
 
-		if (GetCurrentDirectoryA(256, currentDir))
-			ofn.lpstrInitialDir = currentDir;
+		/*if (GetCurrentDirectoryA(256, currentDir))
+			ofn.lpstrInitialDir = currentDir;*/
+
+		std::string assetPathStr = Project::GetAssetPath().string();
+		ofn.lpstrInitialDir = assetPathStr.c_str();
 
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;

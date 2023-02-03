@@ -9,8 +9,10 @@
 
 #include "Project/Project.h"
 
+#include "UI/UI.h"
+
 #include <imgui.h>
-#include <IconFontAwesome6.h>
+#include <imgui_internal.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4312)
@@ -18,105 +20,89 @@
 namespace TerranEditor 
 {
 	ContentPanel::ContentPanel() 
-	{  }
+	{
+		AssetManager::SetAssetChangedCallback(TR_EVENT_BIND_FN(ContentPanel::OnFileSystemChanged));
+	}
 
+
+	static std::mutex s_ContentBrowserMutex;
 	void ContentPanel::ImGuiRender()
 	{
 		if (m_Open) 
 		{
-			if (!std::filesystem::exists(m_CurrentPath)) 
-			{
-				TR_ERROR("Asset path doesn't exist");
-				return;
-			}
-
 			ImGui::Begin("Content", &m_Open);
 			
-			if (m_CurrentPath != Project::GetAssetPath())
+			
+			auto buttonFunc = [this](const std::string& buttonText, bool condition)
 			{
-				if (ImGui::Button("<-"))
-					m_CurrentPath = m_CurrentPath.parent_path();
+				bool result = false;
+				if (!condition)
+				{
+					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+					float alpha = ImGui::GetStyle().Alpha * 0.5f;
+					UI::ScopedStyleVar scoped({ { ImGuiStyleVar_Alpha, {alpha, alpha} } });
+					ImGui::Button(buttonText.c_str());
+					ImGui::PopItemFlag();
+				}
+				else 
+					result = ImGui::Button(buttonText.c_str());
+
+				return result;
+			};
+
+			// back button
+			if (buttonFunc("<-", m_PreviousDirectory != nullptr)) 
+			{
+				m_NextDirectoryStack.push(m_CurrentDirectory);
+				ChangeDirectory(m_PreviousDirectory);
 			}
+			
+			ImGui::SameLine();
+			if (buttonFunc("->", m_NextDirectoryStack.size() > 0))
+			{
+				ChangeDirectory(m_NextDirectoryStack.top());
+				m_NextDirectoryStack.pop();
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Reload"))
+				Reload();
 
 			if (ImGui::BeginPopupContextWindow("CONTENT_PANEL_ACTIONS", ImGuiMouseButton_Right, false)) 
 			{
 				if (ImGui::MenuItem("Reveal in explorer"))
-					FileSystem::RevealInExplorer(m_CurrentPath);
+					FileSystem::RevealInExplorer(m_CurrentDirectory->Path);
 
 				ImGui::EndPopup();
 			}
 
-			const float padding = 18.0f;
-			const float cellSize = 74.0f;
-
-			float totalSize = padding + cellSize;
-			float availRegionWidth = ImGui::GetContentRegionAvailWidth();
-			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
-
-			ImGui::Columns(columnCount, (const char*)0, false);
-
-			// for every entry in the current 
-			for (const auto& item : m_CurrentItems)
+			// render items
 			{
-				item->BeginRender();
-				ContentBrowserPanelAction action = item->OnRender();
+				std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
+				const float padding = 18.0f;
+				const float cellSize = 74.0f;
 
-				if (action == ContentBrowserPanelAction::NavigateTo)
-					m_PostRenderActions.push([&item, this]() { ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo()); });
+				float totalSize = padding + cellSize;
+				float availRegionWidth = ImGui::GetContentRegionAvailWidth();
+				int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
 
-				//const auto& entryPath = dirEntry.path();
-				//
-				//std::string entryName = entryPath.filename().string();
-				//
-				//ImGui::PushID(entryName.c_str());
+				ImGui::Columns(columnCount, (const char*)0, false);
 
-				//ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-				//
-				//Shared<Texture> entryIcon = dirEntry.is_directory() ? EditorResources::GetDirectoryTexture() : EditorResources::GetFileTexture();
+				// for every entry in the current 
+				for (const auto& item : m_CurrentItems)
+				{
+					item->BeginRender();
+					ContentBrowserPanelAction action = item->OnRender();
 
-				//// if the entry is a directory then use the folder icon else use the file icon
-				//ImGui::ImageButton((ImTextureID)entryIcon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
+					if (action == ContentBrowserPanelAction::NavigateTo)
+						m_PostRenderActions.push([&item, this]() { ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo()); });
 
-				//ImGui::PopStyleColor();
+					ImGui::NextColumn();
+					item->EndRender();
+				}
 
-				//if (!dirEntry.is_directory()) 
-				//{
-				//	if (ImGui::BeginDragDropSource()) 
-				//	{
-				//		std::string entryPathStr = entryPath.string();
-				//		ImGui::SetDragDropPayload("ASSET", entryPathStr.c_str(), entryPathStr.size() + 1);
-
-				//		ImGui::Text("File %s", entryName.c_str());
-
-				//		ImGui::EndDragDropSource();
-				//	}
-				//}
-
-				//if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && dirEntry.is_directory()) 
-				//{
-				//	// if the entry is a folder and is clicked then concatinate that current path
-				//	// with the folder name
-				//	m_CurrentPath /= entryPath.filename();
-				//}
-
-				//float textWidth = ImGui::CalcTextSize(entryName.c_str()).x;
-				//ImVec2 cursorPos = ImGui::GetCursorPos();
-
-				//// some indent calculations, just did something that didn't look bad
-				//float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
-				//textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
-
-				//ImGui::SetCursorPosX(cursorPos.x + textIndent);
-				//ImGui::TextWrapped(entryName.c_str());
-				//ImGui::SetCursorPosX(cursorPos.x);
-
-				ImGui::NextColumn();
-
-				item->EndRender();
-				//ImGui::PopID();
+				ImGui::Columns(1);
 			}
-
-			ImGui::Columns(1);
 
 			while (!m_PostRenderActions.empty())
 			{
@@ -127,6 +113,14 @@ namespace TerranEditor
 
 			ImGui::End();
 		}
+	}
+
+	void ContentPanel::Reload()
+	{
+		m_DirectoryInfoMap.clear();
+		UUID dirID = ProcessDirectory(Project::GetAssetPath());
+		m_CurrentDirectory = GetDirectory(dirID);
+		ChangeDirectory(m_CurrentDirectory);
 	}
 
 	UUID ContentPanel::ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent)
@@ -196,6 +190,14 @@ namespace TerranEditor
 			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
 			m_CurrentItems.push_back(CreateShared<ContentBrowserPanelAsset>(info, EditorResources::GetFileTexture()));
 		}
+
+		m_CurrentDirectory = directory;
+		m_PreviousDirectory = m_CurrentDirectory->Parent;
+	}
+
+	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
+	{
+		Reload();
 	}
 
 	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0) 
@@ -213,11 +215,10 @@ namespace TerranEditor
 
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
 	{
-		m_CurrentPath = Project::GetAssetPath();
-		UUID dirID = ProcessDirectory(m_CurrentPath);
+		UUID dirID = ProcessDirectory(Project::GetAssetPath());
 
-		const auto& directory = GetDirectory(dirID);
-		ChangeDirectory(directory);
+		m_CurrentDirectory = GetDirectory(dirID);
+		ChangeDirectory(m_CurrentDirectory);
 	}
 
 	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::string& name, const UUID& id, Shared<Texture> icon)

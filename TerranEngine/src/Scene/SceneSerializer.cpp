@@ -22,6 +22,8 @@ using json = nlohmann::ordered_json;
 
 namespace TerranEngine 
 {
+	const char* SceneSerializer::SceneFilter = "Terran Scene\0*.terran\0";
+
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
 		: m_Scene(scene)
 	{

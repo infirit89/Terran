@@ -5,6 +5,8 @@
 
 #include "Graphics/Texture.h"
 
+#include "Scene/SceneSerializer.h"
+
 namespace TerranEngine 
 {
     void TextureAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
@@ -12,7 +14,7 @@ namespace TerranEngine
         asset = CreateShared<Texture>(AssetManager::GetFileSystemPath(assetInfo.Path));
     }
 
-    bool TextureAssetLoader::Save(const Shared<Asset>& asset)
+    bool TextureAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
     {
         return false;
     }
@@ -41,19 +43,20 @@ namespace TerranEngine
         asset = CreateShared<TextAsset>(result);
     }
 
-    bool TextAssetLoader::Save(const Shared<Asset>& asset)
+    bool TextAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
     {
         return false;
     }
 
     void SceneAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
     {
-
+        
     }
 
-    bool SceneAssetLoader::Save(const Shared<Asset>& asset)
+    bool SceneAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
     {
+        SceneSerializer serializer(DynamicCast<Scene>(asset));
+        serializer.SerializeJson(AssetManager::GetFileSystemPath(assetInfo.Path));
         return true;
     }
-
 }

@@ -32,10 +32,7 @@ namespace TerranEngine
 		static UUID ImportAsset(const std::filesystem::path& assetPath);
 		static void ReloadAsset(UUID assetID);
 
-		inline static void SetAssetChangedCallback(AssetChangeCallbackFn callback) 
-		{
-			s_ChangeCallback = callback;
-		}
+		inline static void SetAssetChangedCallback(AssetChangeCallbackFn callback) { s_ChangeCallback = callback; }
 
 		template<typename T>
 		inline static Shared<T> GetAsset(const UUID& assetID) 
@@ -76,7 +73,7 @@ namespace TerranEngine
 			Shared<T> asset = CreateShared<T>();
 
 			s_LoadedAssets[info.Handle] = asset;
-			s_Loaders[info.Type]->Save(asset);
+			s_Loaders[info.Type]->Save(info, asset);
 		}
 
 		static void LoadAssetInfos();

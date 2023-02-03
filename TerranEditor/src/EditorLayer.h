@@ -45,7 +45,7 @@ namespace TerranEditor
 		
 		void SaveScene();
 
-		void ShowDockspace();
+		void RenderDockspace();
 
 		void OnScenePlay();
 		void OnSceneStop();

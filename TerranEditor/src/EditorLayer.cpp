@@ -263,7 +263,7 @@ namespace TerranEditor
 		return false;
 	}
 	
-	void EditorLayer::ShowDockspace() 
+	void EditorLayer::RenderDockspace() 
 	{
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
 			
@@ -300,7 +300,17 @@ namespace TerranEditor
 		
 		if (ImGui::BeginMenuBar())
 		{
-			if (ImGui::BeginMenu("File"))
+			auto menu = [](const char* name, std::function<void()> callback)
+			{
+				if (ImGui::BeginMenu(name)) 
+				{
+					callback();
+					ImGui::EndMenu();
+				}
+			};
+
+			// file menu
+			menu("File", [this]() 
 			{
 				if (ImGui::MenuItem("Open", "Ctrl+O"))
 					OpenScene();
@@ -310,56 +320,52 @@ namespace TerranEditor
 					SaveScene();
 				if (ImGui::MenuItem("New", "Ctrl+N"))
 					NewScene();
+			});
 
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("View")) 
+			// view menu
+			menu("View", [this]() 
 			{
-                if (ImGui::MenuItem("Properties"))
-                    m_PanelManager->SetPanelOpen(PROPERTIES_PANEL_NAME, true);
+				if (ImGui::MenuItem("Properties"))
+					m_PanelManager->SetPanelOpen(PROPERTIES_PANEL_NAME, true);
 
-                if (ImGui::MenuItem("Scene Hierarchy"))
-                    m_PanelManager->SetPanelOpen(SCENE_HIERARCHY_PANEL_NAME, true);
+				if (ImGui::MenuItem("Scene Hierarchy"))
+					m_PanelManager->SetPanelOpen(SCENE_HIERARCHY_PANEL_NAME, true);
 
-                if (ImGui::MenuItem("Scene View"))
-                    m_PanelManager->SetPanelOpen(SCENE_VIEW_PANEL_NAME, true);
+				if (ImGui::MenuItem("Scene View"))
+					m_PanelManager->SetPanelOpen(SCENE_VIEW_PANEL_NAME, true);
 
-                if (ImGui::MenuItem("Performance"))
-                    m_PerformancePanelOpen = true;
+				if (ImGui::MenuItem("Performance"))
+					m_PerformancePanelOpen = true;
 
-                if (ImGui::MenuItem("Content Browser"))
-                    m_PanelManager->SetPanelOpen(CONTENT_PANEL_NAME, true);
+				if (ImGui::MenuItem("Content Browser"))
+					m_PanelManager->SetPanelOpen(CONTENT_PANEL_NAME, true);
 
-                if (ImGui::MenuItem("Renderer Stats"))
-                    m_RendererStatsPanelOpen = true;
+				if (ImGui::MenuItem("Renderer Stats"))
+					m_RendererStatsPanelOpen = true;
 
-                if (ImGui::MenuItem("ECS Panel"))
-                    m_PanelManager->SetPanelOpen(ECS_PANEL_NAME, true);
+				if (ImGui::MenuItem("ECS Panel"))
+					m_PanelManager->SetPanelOpen(ECS_PANEL_NAME, true);
 
-                if (ImGui::MenuItem("Logger"))
-                    m_PanelManager->SetPanelOpen(LOG_PANEL_NAME, true);
+				if (ImGui::MenuItem("Logger"))
+					m_PanelManager->SetPanelOpen(LOG_PANEL_NAME, true);
 
-                if(ImGui::MenuItem("Settings"))
-                    m_PanelManager->SetPanelOpen(SETTINGS_PANEL_NAME, true);
+				if (ImGui::MenuItem("Settings"))
+					m_PanelManager->SetPanelOpen(SETTINGS_PANEL_NAME, true);
+			});
 
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Tools")) 
+			// tools menu
+			menu("Tools", [this]() 
 			{
 				if (ImGui::MenuItem("Reload C# Assembly"))
 					ScriptEngine::ReloadAppAssembly();
-				
-				if (ImGui::MenuItem("Show colliders", NULL, m_ShowColliders)) 
+
+				if (ImGui::MenuItem("Show colliders", NULL, m_ShowColliders))
 				{
 					m_ShowColliders = !m_ShowColliders;
 					m_EditorSceneRenderer->SetShowColliders(m_ShowColliders);
 					//m_RuntimeSceneRenderer->SetShowColliders(m_ShowColliders);
 				}
-
-				ImGui::EndMenu();
-			}
+			});
 
 			ImGui::EndMenuBar();
 		}
@@ -380,11 +386,8 @@ namespace TerranEditor
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		SceneManager::GetCurrentScene()->StartRuntime();
-
-		//m_SceneHierarchyPanel.SetSelected(m_Selected);
 
 		if(tempSelected)
 			SelectionManager::Select(tempSelected);
@@ -397,9 +400,7 @@ namespace TerranEditor
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
 		//SceneManager::RemoveScene(SceneManager::CurrentScene->GetID());
-		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
 		m_PanelManager->SetScene(m_EditorScene);
-		//m_SceneHierarchyPanel.SetSelected(m_EditModeSelected);
 		SceneManager::SetCurrentScene(m_EditorScene);
 
 		if(tempSelected)
@@ -453,7 +454,7 @@ namespace TerranEditor
 		ImGuizmo::SetOrthographic(true);
 		ImGuizmo::BeginFrame();
 
-		ShowDockspace();
+		RenderDockspace();
 
 		ImGui::ShowDemoWindow();
 
@@ -514,7 +515,7 @@ namespace TerranEditor
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::filesystem::path scenePath = FileSystem::SaveFile("Terran Scene\0*.terran\0");
+		std::filesystem::path scenePath = FileSystem::SaveFile(SceneSerializer::SceneFilter);
 		if (!scenePath.empty())
 		{
 			m_CurrentScenePath = scenePath;
@@ -533,15 +534,12 @@ namespace TerranEditor
 		m_EditorScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 		SceneManager::SetCurrentScene(m_EditorScene);
-		//m_SceneHierarchyPanel.SetScene(m_ActiveScene);
-		/*m_ECSPanel.SetContext(m_ActiveScene);
-		m_SceneViewPanel.SetContext(m_ActiveScene);*/
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 	}
 
 	void EditorLayer::OpenScene()
 	{
-		std::filesystem::path scenePath = FileSystem::OpenFile("Terran Scene\0*.terran\0");		
+		std::filesystem::path scenePath = FileSystem::OpenFile(SceneSerializer::SceneFilter);
 		OpenScene(scenePath, m_ViewportSize);
 	}
 

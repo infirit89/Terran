@@ -203,10 +203,11 @@ namespace TerranEngine
 				break;
 			}
 			case FileAction::Modified:
-				UUID assetHandle = GetAssetID(e.FileName);
+				AssetInfo info = GetAssetInfo(e.FileName);
 
-				if(s_LoadedAssets.find(assetHandle) != s_LoadedAssets.end())
-					ReloadAsset(GetAssetID(e.FileName));
+				if(info)
+					ReloadAsset(info.Handle);
+
 				break;
 			}
 		}

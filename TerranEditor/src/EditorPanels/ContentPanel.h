@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Core/FileUtils.h"
 #include "Graphics/Texture.h"
 
 #include "EditorPanel.h"
 
 #include <filesystem>
 #include <queue>
+#include <stack>
 
 namespace TerranEditor 
 {
@@ -80,12 +82,16 @@ namespace TerranEditor
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
 	private:
+		void Reload();
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent = nullptr);
 		const Shared<DirectoryInfo>& GetDirectory(const std::filesystem::path& directoryPath);
 		const Shared<DirectoryInfo>& GetDirectory(const UUID& id);
-	void ChangeDirectory(const Shared<DirectoryInfo>& directory);
+		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
+		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
 
-		std::filesystem::path m_CurrentPath;
+		Shared<DirectoryInfo> m_CurrentDirectory;
+		Shared<DirectoryInfo> m_PreviousDirectory;
+		std::stack<Shared<DirectoryInfo>> m_NextDirectoryStack;
 		std::unordered_map<UUID, Shared<DirectoryInfo>> m_DirectoryInfoMap;
 		std::vector <TerranEngine::Shared<ContentBrowserPanelItem>> m_CurrentItems;
 		std::queue<std::function<void()>> m_PostRenderActions;

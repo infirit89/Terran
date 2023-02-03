@@ -19,6 +19,7 @@ namespace TerranEngine
 		static std::string ReadJson(const std::filesystem::path& scenePath);
 
 		bool DesirializeJson(const std::string& data);
+		static const char* SceneFilter;
 	private:
 		Shared<Scene> m_Scene;
 	};

@@ -50,3 +50,27 @@ AssetInfos:
   - Asset: 4ab24564-899b-4418-97c8-c8093ae40b9d
     Type: 1
     Path: floor.png
+  - Asset: 620a554e-b50e-4e75-8379-02e540c13d13
+    Type: 4
+    Path: Test2.terran
+  - Asset: b9126a28-99f4-4095-bfb9-90af0db0d5d8
+    Type: 4
+    Path: Test5.terran
+  - Asset: 4d1c29f4-2bbb-4a1a-8595-80c81f23ebb8
+    Type: 4
+    Path: Test3.terran
+  - Asset: 5bbc1464-aa62-4607-85be-60bb47e576be
+    Type: 4
+    Path: Test4.terran
+  - Asset: 26a104a6-3143-4661-bbc8-6762688aa0a1
+    Type: 4
+    Path: Test6.terran
+  - Asset: e347e656-23f3-4791-8fdc-ad1e6e6c1253
+    Type: 4
+    Path: Test7.terran
+  - Asset: d0f2e4ea-3dbd-467a-8e42-2f6b09bdc38e
+    Type: 4
+    Path: Test8.terran
+  - Asset: 38720710-f229-499f-afa4-3bd0aaee2af8
+    Type: 2
+    Path: i cum.txt
