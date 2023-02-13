@@ -92,16 +92,50 @@ namespace TerranEditor
 		{
 			ImGuiDataType dataType;
 
-			if constexpr (std::is_same<T, int8_t>::value)			dataType = ImGuiDataType_S8;
-			else if constexpr (std::is_same<T, int16_t>::value)		dataType = ImGuiDataType_S16;
-			else if constexpr (std::is_same<T, int32_t>::value)		dataType = ImGuiDataType_S32;
-			else if constexpr (std::is_same<T, int64_t>::value)		dataType = ImGuiDataType_S64;
-			else if constexpr (std::is_same<T, uint8_t>::value)		dataType = ImGuiDataType_U8;
-			else if constexpr (std::is_same<T, uint16_t>::value)	dataType = ImGuiDataType_U16;
-			else if constexpr (std::is_same<T, uint32_t>::value)	dataType = ImGuiDataType_U32;
-			else if constexpr (std::is_same<T, uint64_t>::value)	dataType = ImGuiDataType_U64;
-			else if constexpr (std::is_same<T, float>::value)		dataType = ImGuiDataType_Float;
-			else if constexpr (std::is_same<T, double>::value)		dataType = ImGuiDataType_Double;
+			if constexpr (std::is_same<T, int8_t>::value) 
+			{
+				dataType = ImGuiDataType_S8;
+				format = "%d";
+			}
+			else if constexpr (std::is_same<T, int16_t>::value) 
+			{
+				dataType = ImGuiDataType_S16;
+				format = "%d";
+			}
+			else if constexpr (std::is_same<T, int32_t>::value) 
+			{
+				dataType = ImGuiDataType_S32;
+				format = "%d";
+			}
+			else if constexpr (std::is_same<T, int64_t>::value) 
+			{
+				dataType = ImGuiDataType_S64;
+				format = "%d";
+			}
+			else if constexpr (std::is_same<T, uint8_t>::value) 
+			{
+				dataType = ImGuiDataType_U8;
+				format = "%u";
+			}
+			else if constexpr (std::is_same<T, uint16_t>::value) 
+			{
+				dataType = ImGuiDataType_U16;
+				format = "%u";
+			}
+			else if constexpr (std::is_same<T, uint32_t>::value) 
+			{
+				dataType = ImGuiDataType_U32;
+				format = "%u";
+			}
+			else if constexpr (std::is_same<T, uint64_t>::value) 
+			{
+				dataType = ImGuiDataType_U64;
+				format = "%u";
+			}
+			else if constexpr (std::is_same<T, float>::value)		
+				dataType = ImGuiDataType_Float;
+			else if constexpr (std::is_same<T, double>::value)		
+				dataType = ImGuiDataType_Double;
 
 			bool modified = false;
 				
@@ -111,6 +145,25 @@ namespace TerranEditor
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
 			return modified;
+		}
+
+		template<typename T>
+		bool PropertyScalar(const std::string& label, T& value) 
+		{
+			bool changed = false;
+			ImGui::PushID(label.c_str());
+
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text(label.c_str());
+
+			ImGui::TableSetColumnIndex(1);
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			changed = UI::DragScalar<T>(("##DR" + label).c_str(), &value, power, "%.2f");
+
+			ImGui::PopID();
+
+			return changed;
 		}
 
 		template<typename TEnum>

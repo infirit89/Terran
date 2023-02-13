@@ -731,7 +731,7 @@ namespace TerranEditor
 			DrawFieldValue<int8_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -742,7 +742,7 @@ namespace TerranEditor
 			DrawFieldValue<int16_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -753,7 +753,7 @@ namespace TerranEditor
 			DrawFieldValue<int32_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -764,7 +764,7 @@ namespace TerranEditor
 			DrawFieldValue<int64_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -775,7 +775,7 @@ namespace TerranEditor
 			DrawFieldValue<uint8_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -786,7 +786,7 @@ namespace TerranEditor
 			DrawFieldValue<uint16_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -797,7 +797,7 @@ namespace TerranEditor
 			DrawFieldValue<uint16_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -808,7 +808,7 @@ namespace TerranEditor
 			DrawFieldValue<uint16_t>(field, handle,
 				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					return !fieldType.IsEnum() ? UI::PropertyScalar(fieldName, value) :
 					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
 				});
 
@@ -819,7 +819,7 @@ namespace TerranEditor
 			DrawFieldValue<float>(field, handle,
 				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return UI::DragScalar(fieldName.c_str(), &value);
+					return UI::PropertyScalar(fieldName, value);
 				});
 
 			break;
@@ -829,7 +829,7 @@ namespace TerranEditor
 			DrawFieldValue<double>(field, handle,
 				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
 				{
-					return UI::DragScalar(fieldName.c_str(), &value);
+					return UI::PropertyScalar(fieldName, value);
 				});
 
 			break;

@@ -5,7 +5,10 @@ namespace SandboxProject
 {
     public class Sandbox : Scriptable 
     {
-        private TextRenderer m_TextRenderer;
+        public int A = 1;
+		public float B = 2.0f;
+		public bool C = true;
+		private TextRenderer m_TextRenderer;
         protected override void Init()
         {
             m_TextRenderer = Entity.GetComponent<TextRenderer>();

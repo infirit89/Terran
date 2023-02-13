@@ -225,10 +225,11 @@ namespace TerranEditor
 
 			DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component)
 			{
-				UI::BeginPropertyGroup("script");
+				UI::BeginPropertyGroup("script_module");
 				ImGui::TableNextRow();
 				if (UI::PropertyString("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
 					ScriptEngine::InitializeScriptable(entity);
+				UI::EndPropertyGroup();
 
 				if (!component.ClassExists)
 				{
@@ -237,12 +238,14 @@ namespace TerranEditor
 					ImGui::PopStyleColor();
 				}
 
+				UI::BeginPropertyGroup("script_properties");
 				if (!component.PublicFieldIDs.empty())
 				{
 					const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 
 					for (const auto& fieldID : component.PublicFieldIDs)
 					{
+						ImGui::TableNextRow();
 						ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
 						if (field->GetType().IsArray())
@@ -253,83 +256,85 @@ namespace TerranEditor
 						}
 						else
 							UI::PropertyScriptField(m_Scene, field, handle);
+
+
 					}
 				}
-
 				UI::EndPropertyGroup();
+
 			});
 
 			DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent)
-				{
-					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-
-			const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
-			const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
-
-			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-			UI::ScopedVarTable::TableInfo tableInfo;
-
-			// rigidbody body type selection
-			if (UI::PropertyComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
-				isScenePlaying)
-				physicsBody->SetBodyType(rbComponent.BodyType);
-
-			if (UI::PropertyAssetField<PhysicsMaterial2DAsset>("Material", AssetType::PhysicsMaterial2D, rbComponent.PhysicsMaterialHandle))
 			{
-				// TODO: change in scene runtime
-			}
+				bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-			UI::PropertyBool("Fixed Rotation", rbComponent.FixedRotation);
-			UI::PropertyBool("Enabled", rbComponent.Enabled);
+				const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+				const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
-			// rigidbody awake state selection 
-			UI::PropertyComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
+				Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
-			// rigidbody layer selection
-			std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-			UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
+				UI::ScopedVarTable::TableInfo tableInfo;
 
-			if (rbComponent.BodyType != PhysicsBodyType::Static)
-			{
-				if (UI::PropertyFloat("Gravity Scale", rbComponent.GravityScale))
+				// rigidbody body type selection
+				if (UI::PropertyComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
+					isScenePlaying)
+					physicsBody->SetBodyType(rbComponent.BodyType);
+
+				if (UI::PropertyAssetField<PhysicsMaterial2DAsset>("Material", AssetType::PhysicsMaterial2D, rbComponent.PhysicsMaterialHandle))
 				{
-					if (isScenePlaying)
-						physicsBody->SetGravityScale(rbComponent.GravityScale);
+					// TODO: change in scene runtime
 				}
-			}
 
-			{
-				ImGui::Unindent(20.0f);
+				UI::PropertyBool("Fixed Rotation", rbComponent.FixedRotation);
+				UI::PropertyBool("Enabled", rbComponent.Enabled);
 
-				UI::ScopedStyleColor stlyeColor({
-					{ ImGuiCol_HeaderHovered,	{ 1.0f, 0.0f, 0.0f, 0.0f } },
-					{ ImGuiCol_HeaderActive,	{ 1.0f, 0.0f, 0.0f, 0.0f } }
-					});
-				bool treeNode = ImGui::TreeNodeEx("Details", ImGuiTreeNodeFlags_None);
+				// rigidbody awake state selection 
+				UI::PropertyComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
 
-				if (treeNode)
+				// rigidbody layer selection
+				std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+				UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
+
+				if (rbComponent.BodyType != PhysicsBodyType::Static)
 				{
+					if (UI::PropertyFloat("Gravity Scale", rbComponent.GravityScale))
 					{
-						UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
-
-						int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
-						ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
+						if (isScenePlaying)
+							physicsBody->SetGravityScale(rbComponent.GravityScale);
 					}
-
-					{
-						UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
-
-						glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
-						std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
-						ImGui::Text(velocityText.c_str());
-					}
-
-					ImGui::TreePop();
 				}
-				ImGui::Indent(20.0f);
-			}
-				});
+
+				{
+					ImGui::Unindent(20.0f);
+
+					UI::ScopedStyleColor stlyeColor({
+						{ ImGuiCol_HeaderHovered,	{ 1.0f, 0.0f, 0.0f, 0.0f } },
+						{ ImGuiCol_HeaderActive,	{ 1.0f, 0.0f, 0.0f, 0.0f } }
+						});
+					bool treeNode = ImGui::TreeNodeEx("Details", ImGuiTreeNodeFlags_None);
+
+					if (treeNode)
+					{
+						{
+							UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
+
+							int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
+							ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
+						}
+
+						{
+							UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
+
+							glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
+							std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
+							ImGui::Text(velocityText.c_str());
+						}
+
+						ImGui::TreePop();
+					}
+					ImGui::Indent(20.0f);
+				}
+			});
 
 			DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [&](BoxCollider2DComponent& bcComponent)
 				{
