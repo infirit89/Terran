@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Asset.h"
-#include "AssetLoader.h"
+#include "AssetImporter.h"
 
 #include "Core/Base.h"
 #include "Core/FileUtils.h"
+#include "Core/Log.h"
 
 #include <unordered_map>
 #include <filesystem>
@@ -17,8 +18,7 @@ namespace TerranEngine
 		using AssetChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;
 	public:
 		static void Init();
-		static void RegisterAssetLoaders();
-
+		
 		static void Shutdown();
 
 		static const AssetInfo& GetAssetInfo(UUID assetID);
@@ -43,10 +43,13 @@ namespace TerranEngine
 			{
 				AssetInfo& info = GetAssetInfo_Internal(assetID);
 
+				if (!info)
+					return nullptr;
+
 				// NOTE: poc code
 				Shared<Asset> asset = nullptr;
-				s_Loaders[info.Type]->Load(info, asset);
-
+				AssetImporter::Load(info, asset);
+				
 				if (!asset)
 				{
 					TR_ERROR("Failed to load asset with path: {0}", info.Path);
@@ -64,7 +67,7 @@ namespace TerranEngine
 		{
 			AssetInfo info;
 			info.Handle = UUID();
-			info.Path = GetRelativePath(filePath);
+			info.Path = filePath;
 			info.Type = T::GetStaticType();
 
 			s_AssetsInfos[info.Handle] = info;
@@ -73,7 +76,19 @@ namespace TerranEngine
 			Shared<T> asset = CreateShared<T>();
 
 			s_LoadedAssets[info.Handle] = asset;
-			s_Loaders[info.Type]->Save(info, asset);
+			AssetImporter::Save(info, asset);
+			
+			return DynamicCast<T>(s_LoadedAssets[info.Handle]);
+		}
+
+		
+		template <typename T>
+		static Shared<T> CreateMemoryAsset() 
+		{
+			Shared<Asset> asset = CreateShared<T>();
+			s_LoadedAssets[asset->m_Handle] = asset;
+
+			return DynamicCast<T>(s_LoadedAssets[asset->m_Handle]);
 		}
 
 		static void LoadAssetInfos();
@@ -89,7 +104,6 @@ namespace TerranEngine
 	private:
 		static std::unordered_map<UUID, Shared<Asset>> s_LoadedAssets;
 		static AssetInfoMap s_AssetsInfos;
-		static std::unordered_map<AssetType, Shared<AssetLoader>> s_Loaders;
 		static AssetChangeCallbackFn s_ChangeCallback;
 	};
 }

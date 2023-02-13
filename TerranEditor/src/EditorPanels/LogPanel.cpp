@@ -31,8 +31,7 @@ namespace TerranEditor
 
 	void LogPanel::ImGuiRender() 
 	{
-		if (!m_Open)
-			return;
+		if (!m_Open) return;
 		
 		ImGui::Begin("Log", &m_Open);
 
@@ -81,7 +80,7 @@ namespace TerranEditor
 
 				ImVec2 textSize = ImGui::CalcTextSize(logMessage.Message.c_str());
 
-				backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvailWidth() + 2.0f,  y + textSize.y + 8.0f }, color);
+				backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvail().x + 2.0f,  y + textSize.y + 8.0f}, color);
 
 				ImGui::Indent(4.0f);
 

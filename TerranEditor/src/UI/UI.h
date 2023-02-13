@@ -1,5 +1,9 @@
 #pragma once
+
 #include "Scripting/ScriptEngine.h"
+
+#include "Assets/AssetManager.h"
+
 #include <imgui.h>
 
 #include <glm/glm.hpp>
@@ -61,58 +65,56 @@ namespace TerranEditor
 			size_t m_StyleVarListSize = 0;
 		};
 		
+		void ShiftCursor(float x, float y);
+		void ShiftCursorX(float x);
+		void ShiftCursorY(float y);
+		void Image(ImTextureID textureID, glm::vec2 size);
+		void ImageButton(ImTextureID textureID, glm::vec2 size);
+
 		void SetupImGuiStyle();
 
-		bool DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth = 100.0f);
-		bool DrawVec3Control(const std::string& label, glm::vec3& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
-		bool DrawFloatControl(const std::string& label, float& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
-		bool DrawIntControl(const std::string& label, int& value, float power = 0.1f, float columnWidth = 100.0f);
-		bool DrawBoolControl(const std::string& label, bool& value, float columnWidth = 100.0f);
-		bool DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+		void BeginPropertyGroup(const char* propertyGroupName);
+		void EndPropertyGroup();
+
+		bool PropertyColor(const std::string& label, glm::vec4& value);
+		bool PropertyVec3(const std::string& label, glm::vec3& value);
+		bool PropertyVec2(const std::string& label, glm::vec2& value);
+		bool PropertyEntity(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
+		void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle);
+		bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, const std::string& fieldName, TerranEngine::ScriptArray& array);
+		bool PropertyFloat(const std::string& label, float& value);
+		bool PropertyInt(const std::string& label, int& value);
+		bool PropertyBool(const std::string& label, bool& value);
+		bool PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
 
 		template<typename T>
-		bool DrawScalar(const std::string& label, T& value, float power = 0.1f, const char* format = nullptr, float columnWidth = 100.0f) 
+		bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0) 
 		{
 			ImGuiDataType dataType;
 
-			if constexpr (std::is_same<T, int8_t>::value) dataType = ImGuiDataType_S8;
-			if constexpr (std::is_same<T, int16_t>::value) dataType = ImGuiDataType_S16;
-			if constexpr (std::is_same<T, int32_t>::value) dataType = ImGuiDataType_S32;
-			if constexpr (std::is_same<T, int64_t>::value) dataType = ImGuiDataType_S64;
-			if constexpr (std::is_same<T, uint8_t>::value) dataType = ImGuiDataType_U8;
-			if constexpr (std::is_same<T, uint16_t>::value) dataType = ImGuiDataType_U16;
-			if constexpr (std::is_same<T, uint32_t>::value) dataType = ImGuiDataType_U32;
-			if constexpr (std::is_same<T, uint64_t>::value) dataType = ImGuiDataType_U64;
-			if constexpr (std::is_same<T, float>::value) dataType = ImGuiDataType_Float;
-			if constexpr (std::is_same<T, double>::value) dataType = ImGuiDataType_Double;
+			if constexpr (std::is_same<T, int8_t>::value)			dataType = ImGuiDataType_S8;
+			else if constexpr (std::is_same<T, int16_t>::value)		dataType = ImGuiDataType_S16;
+			else if constexpr (std::is_same<T, int32_t>::value)		dataType = ImGuiDataType_S32;
+			else if constexpr (std::is_same<T, int64_t>::value)		dataType = ImGuiDataType_S64;
+			else if constexpr (std::is_same<T, uint8_t>::value)		dataType = ImGuiDataType_U8;
+			else if constexpr (std::is_same<T, uint16_t>::value)	dataType = ImGuiDataType_U16;
+			else if constexpr (std::is_same<T, uint32_t>::value)	dataType = ImGuiDataType_U32;
+			else if constexpr (std::is_same<T, uint64_t>::value)	dataType = ImGuiDataType_U64;
+			else if constexpr (std::is_same<T, float>::value)		dataType = ImGuiDataType_Float;
+			else if constexpr (std::is_same<T, double>::value)		dataType = ImGuiDataType_Double;
 
-			bool changed = false;
-			ImGui::PushID(label.c_str());
+			bool modified = false;
+				
+			modified = ImGui::DragScalar(label, dataType, value, power, nullptr, nullptr, format, flags);
+			
+			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
-			{
-				const ScopedVarTable::TableInfo tableInfo;
-				ScopedVarTable floatTable(label, tableInfo);
-
-				if (ImGui::DragScalar("##val", dataType, &value, power, nullptr, nullptr, format))
-					changed = true;
-
-				if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-					ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-
-			}
-
-			ImGui::PopID();
-
-			return changed;
+			return modified;
 		}
 
-		bool DrawVec2Control(const std::string& label, glm::vec2& value, float power = 0.1f, const char* format = "%.2f", float columnWidth = 100.0f);
-		bool DrawEntityControl(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);			
-		void DrawScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle);
-		bool DrawScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, const std::string& fieldName, TerranEngine::ScriptArray& array);
-
 		template<typename TEnum>
-		bool DrawComboBox(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected) 
+		bool PropertyComboBox(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected) 
 		{
 			bool changed = false;
 			const char* currentState = stateNames[(int32_t)selected];
@@ -144,7 +146,50 @@ namespace TerranEditor
 			return changed;
 		}
 
-		bool DrawComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
+		template<typename TAsset>
+		bool PropertyAssetField(const std::string& label, TerranEngine::AssetType type, TerranEngine::UUID& outHandle)
+		{
+			bool result = false;
+			ImGui::PushID(label.c_str());
+			
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text(label.c_str());
+
+			ImGui::TableSetColumnIndex(1);
+
+			char buf[256];
+			memset(buf, 0, sizeof(buf));
+			TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfo(outHandle);
+			std::string assetName = assetInfo.Path.stem().string();
+			strcpy_s(buf, sizeof(buf), assetName == "" ? "None" : assetName.c_str());
+
+			ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputText("##AssetField", buf, sizeof(buf), inputTextFlags);
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
+				{
+					TerranEngine::UUID assetHandle = TerranEngine::UUID::CreateFromRaw((uint8_t*)payload->Data);
+					TerranEngine::AssetInfo info = TerranEngine::AssetManager::GetAssetInfo(assetHandle);
+
+					if (info.Type == TerranEngine::AssetType::Texture)
+					{
+						outHandle = assetHandle;
+						result = true;
+					}
+				}
+
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
+
+			return result;
+		}
+
+		bool PropertyComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
 	}
 }
 

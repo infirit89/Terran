@@ -212,7 +212,7 @@ namespace TerranEngine
 				{ "SpriteRendererComponent",
 				{
 					{ "Color", SerializerUtils::SerializeVec4(sprComp.Color) },
-					{ "Texture", sprComp.Texture ? std::to_string(sprComp.Texture->GetHandle()) : "" },
+					{ "Texture", sprComp.TextureHandle ? std::to_string(sprComp.TextureHandle) : "" },
 					{ "ZIndex", sprComp.ZIndex }
 				} }
 			);
@@ -336,13 +336,7 @@ namespace TerranEngine
 		j["Entities"] = {};
 
 		const auto tcView = m_Scene->GetEntitiesWith<TagComponent>();
-		// m_Scene->m_Registry.each([&](auto entityID)
-		// {
-		// 	Entity entity = { entityID, m_Scene.get() };
-		//
-		// 	SerializeEntity(j["Entities"], entity);
-		// });
-
+		
 		for (auto e : tcView)
 		{
 			Entity entity(e, m_Scene->GetRaw());
@@ -591,12 +585,7 @@ catch(const std::exception& ex)\
 			try 
 			{
 				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
-
-				if (jEntity["SpriteRendererComponent"]["TexturePath"] != "") 
-				{
-					TextureParameters textureParameters;
-					spriteRenderer.Texture = CreateShared<Texture>((std::string)jEntity["SpriteRendererComponent"]["TexturePath"], textureParameters);
-				}
+				spriteRenderer.TextureHandle = UUID::FromString(jEntity["SpriteRendererComponent"]["Texture"]);
 
 				spriteRenderer.Color = color;
 			}

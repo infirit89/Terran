@@ -100,340 +100,351 @@ namespace TerranEditor
 		if(m_Open)
 		{
 			ImGui::Begin("Properties", &m_Open);
-			Entity entity = SelectionManager::GetSelected();
+			DrawComponents();
+			ImGui::End();
+		}
+	}
+	void PropertiesPanel::DrawComponents()
+	{
+		Entity entity = SelectionManager::GetSelected();
 
-			if (entity) 
+		if (entity)
+		{
+			if (entity.HasComponent<TagComponent>())
 			{
-				if (entity.HasComponent<TagComponent>()) 
-				{
-					auto& tagComp = entity.GetComponent<TagComponent>();
-					char buf[256];
-					memset(buf, 0, sizeof(buf));
-					strcpy_s(buf, sizeof(buf), tagComp.Name.c_str());
+				auto& tagComp = entity.GetComponent<TagComponent>();
+				char buf[256];
+				memset(buf, 0, sizeof(buf));
+				strcpy_s(buf, sizeof(buf), tagComp.Name.c_str());
 
-					if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((int)Key::Enter)) 
-						tagComp.Name = buf;
+				if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((ImGuiKey)Key::Enter))
+					tagComp.Name = buf;
+			}
+
+			ImGui::Separator();
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
+
+			DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
+			{
+				bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
+				Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+				UI::BeginPropertyGroup("transform");
+				ImGui::TableNextRow();
+
+				if (UI::PropertyVec3("Position", component.Position))
+				{
+					component.IsDirty = true;
+
+					if (physicsBody && isScenePlaying)
+						physicsBody->SetPosition({ component.Position.x, component.Position.y });
+
 				}
 
-				ImGui::Separator();
-				ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 2.0f);
-
-				DrawComponent<TransformComponent>("Transform", entity, [&](TransformComponent& component)
+				ImGui::TableNextRow();
+				if (UI::PropertyVec3("Rotation", component.Rotation))
 				{
-					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+					component.IsDirty = true;
 
-					if (UI::DrawVec3Control("Position", component.Position)) 
-					{
-						component.IsDirty = true;
+					if (physicsBody && isScenePlaying)
+						physicsBody->SetRotation(component.Rotation.z);
+				}
 
-						if (physicsBody && isScenePlaying) 
-							physicsBody->SetPosition({ component.Position.x, component.Position.y });
-						
-					}
+				ImGui::TableNextRow();
+				if (UI::PropertyVec3("Scale", component.Scale))
+					component.IsDirty = true;
 
-					if (UI::DrawVec3Control("Rotation", component.Rotation)) 
-					{
-						component.IsDirty = true;
+				UI::EndPropertyGroup();
 
-						if (physicsBody && isScenePlaying)
-							physicsBody->SetRotation(component.Rotation.z);
-					}
+			}, false);
 
-					if (UI::DrawVec3Control("Scale", component.Scale))
-						component.IsDirty = true;
+			DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
+			{
+				UI::BeginPropertyGroup("sprite_renderer");
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", component.Color);
+				ImGui::TableNextRow();
+				UI::PropertyAssetField<Texture>("Sprite", AssetType::Texture, component.TextureHandle);
+				ImGui::TableNextRow();
+				UI::PropertyInt("Z index", component.ZIndex);
+				UI::EndPropertyGroup();
+			});
 
-				}, false);
+			DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](CircleRendererComponent& component)
+			{
+				UI::BeginPropertyGroup("circle_renderer");
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", component.Color);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Thickness", component.Thickness);
+				UI::EndPropertyGroup();
+			});
 
-				DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
+			DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer)
+			{
+				UI::BeginPropertyGroup("line_renderer");
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", lineRenderer.Color);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Thickness", lineRenderer.Thickness);
+				ImGui::TableNextRow();
+				UI::PropertyVec3("Start Point", lineRenderer.StartPoint);
+				ImGui::TableNextRow();
+				UI::PropertyVec3("End Point", lineRenderer.EndPoint);
+				UI::EndPropertyGroup();
+
+			});
+
+			DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
+			{
+				UI::BeginPropertyGroup("camera_1");
+				ImGui::TableNextRow();
+				UI::PropertyColor("Background", component.BackgroundColor);
+				ImGui::TableNextRow();
+
+				float camSize = component.Camera.GetOrthographicSize();
+				if (UI::PropertyFloat("Size", camSize))
+					component.Camera.SetOrthographicSize(camSize);
+
+				UI::EndPropertyGroup();
+
+				ImGui::Text("Clipping planes");
+
+				UI::BeginPropertyGroup("camera_2");
+				ImGui::TableNextRow();
+				float camNear = component.Camera.GetOrthographicNear();
+				if (UI::PropertyFloat("Near", camNear))
+					component.Camera.SetOrthographicNear(camNear);
+				ImGui::TableNextRow();
+
+				float camFar = component.Camera.GetOrthographicFar();
+				if (UI::PropertyFloat("Far", camFar))
+					component.Camera.SetOrthographicFar(camFar);
+				UI::EndPropertyGroup();
+			});
+
+			DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component)
+			{
+				UI::BeginPropertyGroup("script");
+				ImGui::TableNextRow();
+				if (UI::PropertyString("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
+					ScriptEngine::InitializeScriptable(entity);
+
+				if (!component.ClassExists)
 				{
-					UI::DrawColor4Control("Color", component.Color);
-					
+					ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+					ImGui::Text("The class could not be found");
+					ImGui::PopStyleColor();
+				}
+
+				if (!component.PublicFieldIDs.empty())
+				{
+					const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+
+					for (const auto& fieldID : component.PublicFieldIDs)
 					{
-						ImGui::PushID("TEXTURE_FIELD");
-						UI::ScopedVarTable::TableInfo tableInfo;
-						UI::ScopedVarTable textureTable("Sprite", tableInfo);
+						ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-						char buf[256];
-						memset(buf, 0, sizeof(buf));
-						strcpy_s(buf, sizeof(buf), component.Texture == nullptr ? "None" : component.Texture->GetName().c_str());
-						
-						ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_DontRenderCursor | ImGuiInputTextFlags_DontChangeMouseCursorOnHover;
-						ImGui::InputText("##TextureField", buf, sizeof(buf), inputTextFlags);
-
-						if (ImGui::BeginDragDropTarget()) 
+						if (field->GetType().IsArray())
 						{
-							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")) 
-							{
-								UUID assetHandle = UUID::CreateFromRaw((uint8_t*)payload->Data);
-								AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-
-								if (info.Type == AssetType::Texture)
-									component.Texture = AssetManager::GetAsset<Texture>(assetHandle);
-							}
-
-							ImGui::EndDragDropTarget();
+							ScriptArray array = field->GetArray(handle);
+							if (UI::PropertyScriptArrayField(m_Scene, field->GetName(), array))
+								field->SetArray(array, handle);
 						}
-						ImGui::PopID();
+						else
+							UI::PropertyScriptField(m_Scene, field, handle);
 					}
+				}
 
-					UI::DrawIntControl("Z index", component.ZIndex);
-				});
+				UI::EndPropertyGroup();
+			});
 
-				DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](CircleRendererComponent& component)
-				{
-					UI::DrawColor4Control("Color", component.Color);
-					UI::DrawFloatControl("Thickness", component.Thickness);
-				});
-
-				DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer) 
-				{
-					UI::DrawColor4Control("Color", lineRenderer.Color);
-					UI::DrawFloatControl("Thickness", lineRenderer.Thickness);
-
-					UI::DrawVec3Control("Start Point", lineRenderer.StartPoint);
-					UI::DrawVec3Control("End Point", lineRenderer.EndPoint);
-
-				});
-
-				DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
-				{
-					UI::DrawColor4Control("Background color", component.BackgroundColor);
-
-					float camSize = component.Camera.GetOrthographicSize();
-					if (UI::DrawFloatControl("Size", camSize))
-						component.Camera.SetOrthographicSize(camSize);
-
-					ImGui::Text("Clipping planes");
-
-					float camNear = component.Camera.GetOrthographicNear();
-					if (UI::DrawFloatControl("Near", camNear))
-						component.Camera.SetOrthographicNear(camNear);
-
-					float camFar = component.Camera.GetOrthographicFar();
-					if (UI::DrawFloatControl("Far", camFar))
-						component.Camera.SetOrthographicFar(camFar);
-				});
-
-				DrawComponent<ScriptComponent>("Script", entity, [&](ScriptComponent& component) 
-				{
-					if (UI::DrawStringControl("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
-							ScriptEngine::InitializeScriptable(entity);
-
-					if (!component.ClassExists) 
-					{
-						ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-						ImGui::Text("The class could not be found");
-						ImGui::PopStyleColor();
-					}
-
-					if (!component.PublicFieldIDs.empty())
-					{
-						const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
-
-						for (const auto& fieldID : component.PublicFieldIDs)
-						{
-							ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-
-							if (field->GetType().IsArray()) 
-							{
-								ScriptArray array = field->GetArray(handle);
-								if (UI::DrawScriptArrayField(m_Scene, field->GetName(), array))
-									field->SetArray(array, handle);
-							}
-							else
-								UI::DrawScriptField(m_Scene, field, handle);
-						}
-					}
-
-				});
-
-				DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent) 
+			DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent)
 				{
 					bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-					const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
-					const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+			const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+			const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
-					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
-					UI::ScopedVarTable::TableInfo tableInfo;
+			UI::ScopedVarTable::TableInfo tableInfo;
 
-					// rigidbody body type selection
+			// rigidbody body type selection
+			if (UI::PropertyComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
+				isScenePlaying)
+				physicsBody->SetBodyType(rbComponent.BodyType);
+
+			if (UI::PropertyAssetField<PhysicsMaterial2DAsset>("Material", AssetType::PhysicsMaterial2D, rbComponent.PhysicsMaterialHandle))
+			{
+				// TODO: change in scene runtime
+			}
+
+			UI::PropertyBool("Fixed Rotation", rbComponent.FixedRotation);
+			UI::PropertyBool("Enabled", rbComponent.Enabled);
+
+			// rigidbody awake state selection 
+			UI::PropertyComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
+
+			// rigidbody layer selection
+			std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+			UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
+
+			if (rbComponent.BodyType != PhysicsBodyType::Static)
+			{
+				if (UI::PropertyFloat("Gravity Scale", rbComponent.GravityScale))
+				{
+					if (isScenePlaying)
+						physicsBody->SetGravityScale(rbComponent.GravityScale);
+				}
+			}
+
+			{
+				ImGui::Unindent(20.0f);
+
+				UI::ScopedStyleColor stlyeColor({
+					{ ImGuiCol_HeaderHovered,	{ 1.0f, 0.0f, 0.0f, 0.0f } },
+					{ ImGuiCol_HeaderActive,	{ 1.0f, 0.0f, 0.0f, 0.0f } }
+					});
+				bool treeNode = ImGui::TreeNodeEx("Details", ImGuiTreeNodeFlags_None);
+
+				if (treeNode)
+				{
 					{
-						if (UI::DrawComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
-							isScenePlaying)
-							physicsBody->SetBodyType(rbComponent.BodyType);
+						UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
 
+						int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
+						ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
 					}
 
-					UI::DrawBoolControl("Fixed Rotation", rbComponent.FixedRotation);
-					UI::DrawBoolControl("Enabled", rbComponent.Enabled);
-
-					// rigidbody awake state selection 
 					{
-						UI::DrawComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
+						UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
+
+						glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
+						std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
+						ImGui::Text(velocityText.c_str());
 					}
 
-                    // rigidbody layer selection
-					std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-                    UI::DrawComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
-
-					if (rbComponent.BodyType != PhysicsBodyType::Static) 
-					{
-						if(UI::DrawFloatControl("Gravity Scale", rbComponent.GravityScale)) 
-						{
-							if (isScenePlaying)
-								physicsBody->SetGravityScale(rbComponent.GravityScale);
-						}
-					}
-
-					{
-						ImGui::Unindent(20.0f);
-
-						UI::ScopedStyleColor stlyeColor({
-							{ ImGuiCol_HeaderHovered,	{ 1.0f, 0.0f, 0.0f, 0.0f } },
-							{ ImGuiCol_HeaderActive,	{ 1.0f, 0.0f, 0.0f, 0.0f } }
-						});
-						bool treeNode = ImGui::TreeNodeEx("Details", ImGuiTreeNodeFlags_None);
-
-						if (treeNode) 
-						{
-							{
-								UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
-								
-								int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
-								ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
-							}
-
-							{
-								UI::ScopedVarTable currentLinearVelocityTable("Linear Velocity", tableInfo);
-
-								glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
-								std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
-								ImGui::Text(velocityText.c_str());
-							}
-
-							ImGui::TreePop();
-						}
-						ImGui::Indent(20.0f);
-					}
+					ImGui::TreePop();
+				}
+				ImGui::Indent(20.0f);
+			}
 				});
 
-				DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [&](BoxCollider2DComponent& bcComponent) 
+			DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [&](BoxCollider2DComponent& bcComponent)
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
-					Shared<BoxCollider2D> boxCollider;
+			Shared<BoxCollider2D> boxCollider;
 
-					if(isRuntime)
-						boxCollider = DynamicCast<BoxCollider2D>(physicsBody->GetColliders()[bcComponent.ColliderIndex]);
+			if (isRuntime)
+				boxCollider = DynamicCast<BoxCollider2D>(physicsBody->GetColliders()[bcComponent.ColliderIndex]);
 
-					if(UI::DrawVec2Control("Offset", bcComponent.Offset))
-					{
-						if (isRuntime && boxCollider) 
-							boxCollider->SetOffset(bcComponent.Offset);
-					}
+			if (UI::PropertyVec2("Offset", bcComponent.Offset))
+			{
+				if (isRuntime && boxCollider)
+					boxCollider->SetOffset(bcComponent.Offset);
+			}
 
-					if (UI::DrawVec2Control("Size", bcComponent.Size)) 
-					{
-                        bcComponent.Size = glm::max({ 0.0f, 0.0f }, bcComponent.Size);
+			if (UI::PropertyVec2("Size", bcComponent.Size))
+			{
+				bcComponent.Size = glm::max({ 0.0f, 0.0f }, bcComponent.Size);
 
-						if (isRuntime && boxCollider)
-							boxCollider->SetSize(bcComponent.Size);
-					}
+				if (isRuntime && boxCollider)
+					boxCollider->SetSize(bcComponent.Size);
+			}
 
-                    if(bcComponent.Size.x <= FLT_EPSILON || bcComponent.Size.y <= FLT_EPSILON)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
-                        ImGui::PopStyleColor();
-                    }
+			if (bcComponent.Size.x <= FLT_EPSILON || bcComponent.Size.y <= FLT_EPSILON)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+				ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+				ImGui::PopStyleColor();
+			}
 
-					if (UI::DrawBoolControl("Is Sensor", bcComponent.IsSensor)) 
-					{
-						if (isRuntime && boxCollider)
-							boxCollider->SetSensor(bcComponent.IsSensor);
-					}
+			if (UI::PropertyBool("Is Sensor", bcComponent.IsSensor))
+			{
+				if (isRuntime && boxCollider)
+					boxCollider->SetSensor(bcComponent.IsSensor);
+			}
 				});
 
-				DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent) 
+			DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [&](CircleCollider2DComponent& ccComponent)
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-					Shared<CircleCollider2D> circleCollider;
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<CircleCollider2D> circleCollider;
 
-					if (isRuntime)
-						circleCollider = DynamicCast<CircleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
+			if (isRuntime)
+				circleCollider = DynamicCast<CircleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
 
-					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
-					{
-						if (isRuntime)
-							circleCollider->SetOffset(ccComponent.Offset);
-					}
+			if (UI::PropertyVec2("Offset", ccComponent.Offset))
+			{
+				if (isRuntime)
+					circleCollider->SetOffset(ccComponent.Offset);
+			}
 
-					if (UI::DrawFloatControl("Radius", ccComponent.Radius)) 
-					{
-                        ccComponent.Radius = glm::max(0.0f, ccComponent.Radius);
+			if (UI::PropertyFloat("Radius", ccComponent.Radius))
+			{
+				ccComponent.Radius = glm::max(0.0f, ccComponent.Radius);
 
-						if (isRuntime)
-							circleCollider->SetRadius(ccComponent.Radius);
-					}
+				if (isRuntime)
+					circleCollider->SetRadius(ccComponent.Radius);
+			}
 
-                    if(ccComponent.Radius <= FLT_EPSILON)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
-                        ImGui::PopStyleColor();
-                    }
+			if (ccComponent.Radius <= FLT_EPSILON)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+				ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+				ImGui::PopStyleColor();
+			}
 
-					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
-					{
-						if (isRuntime)
-							circleCollider->SetSensor(ccComponent.IsSensor);
-					}
+			if (UI::PropertyBool("Is Sensor", ccComponent.IsSensor))
+			{
+				if (isRuntime)
+					circleCollider->SetSensor(ccComponent.IsSensor);
+			}
 				});
 
-				DrawComponent<CapsuleCollider2DComponent>("Capsule Collider 2D", entity, [&](CapsuleCollider2DComponent& ccComponent) 
+			DrawComponent<CapsuleCollider2DComponent>("Capsule Collider 2D", entity, [&](CapsuleCollider2DComponent& ccComponent)
 				{
 					bool isRuntime = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
-					Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-					Shared<CapsuleCollider2D> capsuleCollider;
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+			Shared<CapsuleCollider2D> capsuleCollider;
 
-					if (isRuntime && physicsBody)
-						capsuleCollider = DynamicCast<CapsuleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
+			if (isRuntime && physicsBody)
+				capsuleCollider = DynamicCast<CapsuleCollider2D>(physicsBody->GetColliders()[ccComponent.ColliderIndex]);
 
-					if (UI::DrawVec2Control("Offset", ccComponent.Offset))
-					{
-						if (capsuleCollider)
-							capsuleCollider->SetOffset(ccComponent.Offset);
-					}
+			if (UI::PropertyVec2("Offset", ccComponent.Offset))
+			{
+				if (capsuleCollider)
+					capsuleCollider->SetOffset(ccComponent.Offset);
+			}
 
-					if (UI::DrawVec2Control("Size", ccComponent.Size)) 
-					{
-                        ccComponent.Size = glm::max({ 0.0f, 0.0f }, ccComponent.Size);
+			if (UI::PropertyVec2("Size", ccComponent.Size))
+			{
+				ccComponent.Size = glm::max({ 0.0f, 0.0f }, ccComponent.Size);
 
-						if (capsuleCollider)
-							capsuleCollider->SetSize(ccComponent.Size);
-					}
+				if (capsuleCollider)
+					capsuleCollider->SetSize(ccComponent.Size);
+			}
 
-                    if(ccComponent.Size.x <= FLT_EPSILON || ccComponent.Size.y <= FLT_EPSILON)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-                        ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
-                        ImGui::PopStyleColor();
-                    }
+			if (ccComponent.Size.x <= FLT_EPSILON || ccComponent.Size.y <= FLT_EPSILON)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+				ImGui::TextWrapped("The collider did not create any collision shapes. This is because the size was too small.");
+				ImGui::PopStyleColor();
+			}
 
-					if (UI::DrawBoolControl("Is Sensor", ccComponent.IsSensor))
-					{
-						if (capsuleCollider)
-							capsuleCollider->SetSensor(ccComponent.IsSensor);
-					}
+			if (UI::PropertyBool("Is Sensor", ccComponent.IsSensor))
+			{
+				if (capsuleCollider)
+					capsuleCollider->SetSensor(ccComponent.IsSensor);
+			}
 				});
 
-				DrawComponent<TextRendererComponent>("Text Renderer", entity, [](TextRendererComponent& textRenderer) 
+			DrawComponent<TextRendererComponent>("Text Renderer", entity, [](TextRendererComponent& textRenderer)
 				{
 					{
 						UI::ScopedVarTable textScopedVarTable("Text", {});
@@ -442,76 +453,73 @@ namespace TerranEditor
 						memset(buf, 0, sizeof(buf));
 						strcpy_s(buf, textRenderer.Text.c_str());
 
-						if (ImGui::InputTextMultiline("##text", buf, sizeof(buf), {0.0f, 0.0f}, ImGuiInputTextFlags_AllowTabInput))
+						if (ImGui::InputTextMultiline("##text", buf, sizeof(buf), { 0.0f, 0.0f }, ImGuiInputTextFlags_AllowTabInput))
 							textRenderer.Text = buf;
 					}
 
-					// TODO: make it changeable
-					if(!textRenderer.FontAtlas)
-						textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
-					
-					UI::DrawColor4Control("Text Color", textRenderer.TextColor);
+			// TODO: make it changeable
+			if (!textRenderer.FontAtlas)
+				textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
-					UI::DrawFloatControl("Line Spacing", textRenderer.LineSpacing);
-					UI::DrawFloatControl("Line Width", textRenderer.LineWidth);
+			UI::PropertyColor("Text Color", textRenderer.TextColor);
+
+			UI::PropertyFloat("Line Spacing", textRenderer.LineSpacing);
+			UI::PropertyFloat("Line Width", textRenderer.LineWidth);
 				});
 
-				ImVec2 cursorPos = ImGui::GetCursorPos();
-				ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvailWidth() / 4.0f, cursorPos.y += 5.0f });
+			ImVec2 cursorPos = ImGui::GetCursorPos();
+			ImGui::SetCursorPos(ImVec2{ cursorPos.x + ImGui::GetContentRegionAvail().x / 4.0f, cursorPos.y += 5.0f });
 
-				float buttonWidth = (ImGui::GetContentRegionAvailWidth() / 2.0f) + GImGui->Font->FontSize + 5.0f;
-				if (ImGui::Button("Add Component", ImVec2{ buttonWidth, 0 }))
-					ImGui::OpenPopup("AddComponent");
-				
-				if (ImGui::BeginPopup("AddComponent")) 
-				{
-					if(!entity.HasComponent<SpriteRendererComponent>())
-						if (ImGui::MenuItem("Sprite Renderer"))
-							entity.AddComponent<SpriteRendererComponent>();
+			float buttonWidth = (ImGui::GetContentRegionAvail().x / 2.0f) + GImGui->Font->FontSize + 5.0f;
+			if (ImGui::Button("Add Component", ImVec2{ buttonWidth, 0 }))
+				ImGui::OpenPopup("AddComponent");
 
-					if (!entity.HasComponent<CircleRendererComponent>())
-						if (ImGui::MenuItem("Circle Renderer"))
-							entity.AddComponent<CircleRendererComponent>();
+			if (ImGui::BeginPopup("AddComponent"))
+			{
+				if (!entity.HasComponent<SpriteRendererComponent>())
+					if (ImGui::MenuItem("Sprite Renderer"))
+						entity.AddComponent<SpriteRendererComponent>();
 
-					if (!entity.HasComponent<LineRendererComponent>())
-						if (ImGui::MenuItem("Line Renderer"))
-							entity.AddComponent<LineRendererComponent>();
+				if (!entity.HasComponent<CircleRendererComponent>())
+					if (ImGui::MenuItem("Circle Renderer"))
+						entity.AddComponent<CircleRendererComponent>();
 
-					if (!entity.HasComponent<CameraComponent>())
-						if (ImGui::MenuItem("Camera"))
-							entity.AddComponent<CameraComponent>();
+				if (!entity.HasComponent<LineRendererComponent>())
+					if (ImGui::MenuItem("Line Renderer"))
+						entity.AddComponent<LineRendererComponent>();
 
-					if (!entity.HasComponent<ScriptComponent>())
-						if (ImGui::MenuItem("Script"))
-							entity.AddComponent<ScriptComponent>();
+				if (!entity.HasComponent<CameraComponent>())
+					if (ImGui::MenuItem("Camera"))
+						entity.AddComponent<CameraComponent>();
 
-					if (!entity.HasComponent<Rigidbody2DComponent>())
-						if (ImGui::MenuItem("Rigidbody 2D"))
-							entity.AddComponent<Rigidbody2DComponent>();
+				if (!entity.HasComponent<ScriptComponent>())
+					if (ImGui::MenuItem("Script"))
+						entity.AddComponent<ScriptComponent>();
 
-					if (!entity.HasComponent<BoxCollider2DComponent>())
-						if (ImGui::MenuItem("Box Collider 2D"))
-							entity.AddComponent<BoxCollider2DComponent>();
+				if (!entity.HasComponent<Rigidbody2DComponent>())
+					if (ImGui::MenuItem("Rigidbody 2D"))
+						entity.AddComponent<Rigidbody2DComponent>();
 
-					if (!entity.HasComponent<CircleCollider2DComponent>())
-						if (ImGui::MenuItem("Circle Collider 2D"))
-							entity.AddComponent<CircleCollider2DComponent>();
+				if (!entity.HasComponent<BoxCollider2DComponent>())
+					if (ImGui::MenuItem("Box Collider 2D"))
+						entity.AddComponent<BoxCollider2DComponent>();
 
-					if (!entity.HasComponent<CapsuleCollider2DComponent>())
-						if (ImGui::MenuItem("Capsule Collider 2D"))
-							entity.AddComponent<CapsuleCollider2DComponent>();
+				if (!entity.HasComponent<CircleCollider2DComponent>())
+					if (ImGui::MenuItem("Circle Collider 2D"))
+						entity.AddComponent<CircleCollider2DComponent>();
 
-					if (!entity.HasComponent<TextRendererComponent>())
-						if (ImGui::MenuItem("Text Renderer"))
-							entity.AddComponent<TextRendererComponent>();
+				if (!entity.HasComponent<CapsuleCollider2DComponent>())
+					if (ImGui::MenuItem("Capsule Collider 2D"))
+						entity.AddComponent<CapsuleCollider2DComponent>();
 
-					ImGui::EndPopup();
-				}
+				if (!entity.HasComponent<TextRendererComponent>())
+					if (ImGui::MenuItem("Text Renderer"))
+						entity.AddComponent<TextRendererComponent>();
 
-				ImGui::SetCursorPos(cursorPos);
+				ImGui::EndPopup();
 			}
 
-			ImGui::End();
+			ImGui::SetCursorPos(cursorPos);
 		}
 	}
 }

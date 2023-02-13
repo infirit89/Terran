@@ -45,10 +45,7 @@ namespace TerranEngine
 		std::array<uint8_t, 16> data{ {0} };
 
 		if (str.empty())
-		{
-			TR_ERROR("Empty UUID!");
 			return UUID({ 0 });
-		}
 
 		for (size_t i = 0; i < str.size(); ++i)
 		{
@@ -67,10 +64,7 @@ namespace TerranEngine
 		}
 
 		if (index < 16)
-		{
-			TR_ERROR("Invalid UUID!");
 			return UUID({ 0 });
-		}
 
 		return UUID{ data };
 	}

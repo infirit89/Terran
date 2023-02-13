@@ -11,6 +11,8 @@
 
 #include "EditorPanel.h"
 
+#include "SelectionManager.h"
+
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
@@ -23,5 +25,6 @@ namespace TerranEditor
 		virtual void ImGuiRender() override;
 
 	private:
+		void DrawComponents();
 	};
 }

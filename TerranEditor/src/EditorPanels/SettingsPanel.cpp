@@ -33,18 +33,18 @@ namespace TerranEditor
     {
         bool serializeSettings = false;
         Shared<Project> activeProject = Project::GetActive();
-        serializeSettings |= UI::DrawVec2Control("Gravity", activeProject->Settings.Gravity);
-        serializeSettings |= UI::DrawFloatControl("Fixed Timestep", activeProject->Settings.PhysicsTimestep);
+        serializeSettings |= UI::PropertyVec2("Gravity", activeProject->Settings.Gravity);
+        serializeSettings |= UI::PropertyFloat("Fixed Timestep", activeProject->Settings.PhysicsTimestep);
         activeProject->Settings.PhysicsTimestep = std::max(activeProject->Settings.PhysicsTimestep, 0.001f);
 
-        serializeSettings |= UI::DrawIntControl("Position Iterations", activeProject->Settings.PositionIterations);
+        serializeSettings |= UI::PropertyInt("Position Iterations", activeProject->Settings.PositionIterations);
         activeProject->Settings.PositionIterations = std::max(activeProject->Settings.PositionIterations, 1);
-        serializeSettings |= UI::DrawIntControl("Velocity Iterations", activeProject->Settings.VelocityIterations);
+        serializeSettings |= UI::PropertyInt("Velocity Iterations", activeProject->Settings.VelocityIterations);
         activeProject->Settings.VelocityIterations = std::max(activeProject->Settings.VelocityIterations, 1);
 
         {
             std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-            serializeSettings |= UI::DrawComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
+            serializeSettings |= UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
 
             ImGui::BeginTable("##LayerCollisionSelection", 1);
             for (int row = 0; row < layerNames.size(); row++)
@@ -55,7 +55,7 @@ namespace TerranEditor
                 ImGui::TableSetColumnIndex(0);
                 bool canLayersCollide = PhysicsLayerManager::CanLayersCollide(m_LayerIndex, row);
 
-                if (UI::DrawBoolControl(layerNames[row], canLayersCollide)) 
+                if (UI::PropertyBool(layerNames[row], canLayersCollide)) 
                 {
                     PhysicsLayerManager::SetLayerMask(m_LayerIndex, row, canLayersCollide);
                     serializeSettings |= true;

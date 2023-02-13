@@ -9,6 +9,8 @@
 
 #include "Project/Project.h"
 
+#include "SelectionManager.h"
+
 #include "UI/UI.h"
 
 #include <imgui.h>
@@ -24,28 +26,26 @@ namespace TerranEditor
 		AssetManager::SetAssetChangedCallback(TR_EVENT_BIND_FN(ContentPanel::OnFileSystemChanged));
 	}
 
-
 	static std::mutex s_ContentBrowserMutex;
 	void ContentPanel::ImGuiRender()
 	{
-		if (m_Open) 
+		if (!m_Open) return;
+
+		ImGui::Begin("Content", &m_Open);
+
+		ImGui::BeginChild("##topbar", { 0.0f, 40.0f });
+		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
-			ImGui::Begin("Content", &m_Open);
-			
-			
 			auto buttonFunc = [this](const std::string& buttonText, bool condition)
 			{
 				bool result = false;
 				if (!condition)
-				{
-					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-					float alpha = ImGui::GetStyle().Alpha * 0.5f;
-					UI::ScopedStyleVar scoped({ { ImGuiStyleVar_Alpha, {alpha, alpha} } });
-					ImGui::Button(buttonText.c_str());
-					ImGui::PopItemFlag();
-				}
-				else 
-					result = ImGui::Button(buttonText.c_str());
+					ImGui::BeginDisabled();
+
+				result = ImGui::Button(buttonText.c_str());
+
+				if (!condition)
+					ImGui::EndDisabled();
 
 				return result;
 			};
@@ -56,63 +56,76 @@ namespace TerranEditor
 				m_NextDirectoryStack.push(m_CurrentDirectory);
 				ChangeDirectory(m_PreviousDirectory);
 			}
+
+			ImGui::Spring(-1.0f, 4.0f);
 			
-			ImGui::SameLine();
 			if (buttonFunc("->", m_NextDirectoryStack.size() > 0))
 			{
 				ChangeDirectory(m_NextDirectoryStack.top());
 				m_NextDirectoryStack.pop();
 			}
-
-			ImGui::SameLine();
+			//ImGui::Spring(-1.0f, 4.0f * 2.0f);
 			if (ImGui::Button("Reload"))
 				Reload();
 
-			if (ImGui::BeginPopupContextWindow("CONTENT_PANEL_ACTIONS", ImGuiMouseButton_Right, false)) 
+			//ImGui::Spring(-1.0f, 4.0f * 2.0f);
+		}
+		ImGui::EndHorizontal();
+		ImGui::EndChild();
+
+		if (ImGui::BeginPopupContextWindow("CONTENT_PANEL_ACTIONS", ImGuiMouseButton_Right)) 
+		{
+			if (ImGui::MenuItem("Reveal in explorer"))
+				FileSystem::RevealInExplorer(m_CurrentDirectory->Path);
+
+			if (ImGui::MenuItem("Create physics material"))
+				CreateAssetInDirectory<PhysicsMaterial2DAsset>("test.trpm2d");
+
+			ImGui::EndPopup();
+		}
+
+		// render items
+		{
+			std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
+			const float padding = 18.0f;
+			const float cellSize = 74.0f;
+
+			float totalSize = padding + cellSize;
+			float availRegionWidth = ImGui::GetContentRegionAvail().x;
+			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
+
+			ImGui::Columns(columnCount, (const char*)0, false);
+
+			// for every entry in the current 
+			for (const auto& item : m_CurrentItems)
 			{
-				if (ImGui::MenuItem("Reveal in explorer"))
-					FileSystem::RevealInExplorer(m_CurrentDirectory->Path);
+				item->BeginRender();
+				ContentBrowserPanelAction action = item->OnRender();
 
-				ImGui::EndPopup();
-			}
-
-			// render items
-			{
-				std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
-				const float padding = 18.0f;
-				const float cellSize = 74.0f;
-
-				float totalSize = padding + cellSize;
-				float availRegionWidth = ImGui::GetContentRegionAvailWidth();
-				int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
-
-				ImGui::Columns(columnCount, (const char*)0, false);
-
-				// for every entry in the current 
-				for (const auto& item : m_CurrentItems)
+				if (action == ContentBrowserPanelAction::NavigateTo) 
 				{
-					item->BeginRender();
-					ContentBrowserPanelAction action = item->OnRender();
-
-					if (action == ContentBrowserPanelAction::NavigateTo)
-						m_PostRenderActions.push([&item, this]() { ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo()); });
-
-					ImGui::NextColumn();
-					item->EndRender();
+					m_PostRenderActions.push([&item, this]() { ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo()); });
+					while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
 				}
 
-				ImGui::Columns(1);
+				if (action == ContentBrowserPanelAction::Activate)
+					SelectionManager::Select(SelectionContext::ContentPanel, item->GetID());
+
+				ImGui::NextColumn();
+				item->EndRender();
 			}
 
-			while (!m_PostRenderActions.empty())
-			{
-				auto postRenderAction = m_PostRenderActions.front();
-				postRenderAction();
-				m_PostRenderActions.pop();
-			}
-
-			ImGui::End();
+			ImGui::Columns(1);
 		}
+
+		while (!m_PostRenderActions.empty())
+		{
+			auto postRenderAction = m_PostRenderActions.front();
+			postRenderAction();
+			m_PostRenderActions.pop();
+		}
+
+		ImGui::End();
 	}
 
 	void ContentPanel::Reload()
@@ -221,8 +234,8 @@ namespace TerranEditor
 		ChangeDirectory(m_CurrentDirectory);
 	}
 
-	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::string& name, const UUID& id, Shared<Texture> icon)
-		: m_Name(name), m_Icon(icon), m_ID(id)
+	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::string& name, const UUID& id, Shared<Texture> icon, ContentBrowserPanelItemType type)
+		: m_Name(name), m_Icon(icon), m_ID(id), m_Type(type)
 	{ }
 
 	void ContentBrowserPanelItem::BeginRender()
@@ -238,12 +251,56 @@ namespace TerranEditor
 	ContentBrowserPanelAction ContentBrowserPanelItem::OnRender()
 	{
 		ContentBrowserPanelAction action = ContentBrowserPanelAction::None;
-		const float cellSize = 74.0f;
-		ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-		ImGui::ImageButton((ImTextureID)m_Icon->GetTextureID(), { cellSize, cellSize }, { 0, 1 }, { 1, 0 });
-		ImGui::PopStyleColor();
 
-		if (ImGui::BeginDragDropSource())
+		ImGui::BeginGroup();
+		const float cellSize = 74.0f;
+		const float edgeOffset = 4.0f;
+
+		const float textLineHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0f + edgeOffset * 2.0f;
+		const float infoPanelHeight = std::min(false ? cellSize * 0.5f : textLineHeight, textLineHeight);
+
+		const ImVec2 topLeft = ImGui::GetCursorScreenPos();
+		const ImVec2 thumbBottomRight = { topLeft.x + cellSize, topLeft.y + cellSize };
+		const ImVec2 infoTopLeft = { topLeft.x, topLeft.y + cellSize };
+		const ImVec2 bottomRight = { topLeft.x + cellSize, topLeft.y + cellSize + infoPanelHeight };
+
+		if (ImGui::ItemHoverable(ImRect(topLeft, bottomRight), ImGui::GetID(&m_ID)))
+		{
+			auto* drawList = ImGui::GetWindowDrawList();
+			ImGuiStyle& style = ImGui::GetStyle();
+
+			drawList->AddRectFilled(topLeft, bottomRight,
+				ImGui::ColorConvertFloat4ToU32(style.Colors[ImGuiCol_Header]), 6.0f);
+		}
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 4.0f });
+
+		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize }, ImGuiButtonFlags_PressedOnClickRelease);
+		UI::ShiftCursor(edgeOffset, -cellSize);
+		UI::Image((ImTextureID)m_Icon->GetTextureID(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
+		
+		UI::ShiftCursor(edgeOffset, edgeOffset);
+
+		ImGui::BeginVertical((std::string("InfoPanel") + m_Name).c_str(), ImVec2(cellSize - edgeOffset * 2.0f, infoPanelHeight - edgeOffset));
+		ImGui::BeginHorizontal(m_Name.c_str(), { cellSize - 2.0f, 0.0f });
+		ImGui::Spring();
+		ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + (cellSize - edgeOffset * 3.0f));
+		const float textWidth = std::min(ImGui::CalcTextSize(m_Name.c_str()).x, cellSize);
+		ImGui::SetNextItemWidth(textWidth);
+		ImGui::Text(m_Name.c_str());
+		ImGui::PopTextWrapPos();
+		ImGui::Spring();
+		ImGui::EndHorizontal();
+		ImGui::Spring();
+		ImGui::EndVertical();
+
+		ImGui::PopStyleVar();
+
+		UI::ShiftCursor(-edgeOffset, -edgeOffset);
+
+		ImGui::EndGroup();
+
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			ImGui::SetDragDropPayload("ASSET", m_ID.GetRaw(), sizeof(UUID));
 			ImGui::Text("File %s", m_Name.c_str());
@@ -253,22 +310,19 @@ namespace TerranEditor
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			action = OnClick();
 
-		float textWidth = ImGui::CalcTextSize(m_Name.c_str()).x;
-		ImVec2 cursorPos = ImGui::GetCursorPos();
+		//// some indent calculations, just did something that didn't look bad
+		//float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
+		//textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
 
-		// some indent calculations, just did something that didn't look bad
-		float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
-		textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
+		//ImGui::TextWrapped(m_Name.c_str());
+		//ImGui::SetCursorPosX(cursorPos.x);
 
-		ImGui::SetCursorPosX(cursorPos.x + textIndent);
-		ImGui::TextWrapped(m_Name.c_str());
-		ImGui::SetCursorPosX(cursorPos.x);
 
 		return action;
 	}
 
 	ContentBrowserPanelDirectory::ContentBrowserPanelDirectory(const Shared<DirectoryInfo>& directoryInfo)
-		: ContentBrowserPanelItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture()), m_DirectoryInfo(directoryInfo)
+		: ContentBrowserPanelItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture(), ContentBrowserPanelItemType::Directory), m_DirectoryInfo(directoryInfo)
 	{ }
 
 	ContentBrowserPanelAction ContentBrowserPanelDirectory::OnClick() { return ContentBrowserPanelAction::NavigateTo; }
@@ -277,9 +331,9 @@ namespace TerranEditor
 
 	
 	ContentBrowserPanelAsset::ContentBrowserPanelAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon)
-		: ContentBrowserPanelItem(assetInfo.Path.filename().string(), assetInfo.Handle, icon), m_AssetInfo(assetInfo)
+		: ContentBrowserPanelItem(assetInfo.Path.stem().string(), assetInfo.Handle, icon, ContentBrowserPanelItemType::File), m_AssetInfo(assetInfo)
 	{ }
 
-	ContentBrowserPanelAction ContentBrowserPanelAsset::OnClick() { return ContentBrowserPanelAction::None; }
+	ContentBrowserPanelAction ContentBrowserPanelAsset::OnClick() { return ContentBrowserPanelAction::Activate; }
 }
 #pragma warning(pop)

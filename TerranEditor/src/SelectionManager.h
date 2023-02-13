@@ -4,18 +4,23 @@
 
 namespace TerranEditor 
 {
+	enum class SelectionContext 
+	{
+		Scene, ContentPanel
+	};
+
 	class SelectionManager 
 	{
 	public:
 		static void Select(TerranEngine::Entity entity);
-		static void Select(TerranEngine::UUID id);
+		static void Select(SelectionContext context, TerranEngine::UUID id);
 
-		static void Deselect();
+		static void Deselect(SelectionContext context);
 
 		static TerranEngine::Entity GetSelected();
-		static TerranEngine::UUID GetSelectedID();
+		static TerranEngine::UUID GetSelectedID(SelectionContext context);
 
 	private:
-		static TerranEngine::UUID s_SelectedUUID;
+		static std::unordered_map<SelectionContext, TerranEngine::UUID> s_Selections;
 	};
 }

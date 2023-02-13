@@ -66,7 +66,7 @@ namespace TerranEngine
 	struct SpriteRendererComponent 
 	{
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		Shared<Texture> Texture = nullptr;
+		UUID TextureHandle;
 
 		int ZIndex = 0;
 
@@ -142,6 +142,8 @@ namespace TerranEngine
 		float GravityScale = 1.0f;
 		bool Enabled = true;
         int LayerIndex = 0;
+
+		UUID PhysicsMaterialHandle = UUID::Invalid();
 	};
 
 	struct BoxCollider2DComponent 

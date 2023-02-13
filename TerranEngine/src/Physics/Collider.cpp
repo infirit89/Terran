@@ -12,6 +12,8 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 
+#include "Assets/AssetManager.h"
+
 #include "Math/Math.h"
 
 #include <float.h>
@@ -246,6 +248,18 @@ namespace TerranEngine
 
 	// ***********************
 
+	static float s_DefaultDensity = 1.0f;
+	static float s_DefaultFriction = 0.5f;
+	static float s_DefaultRestitution = 0.0f;
+	static float s_DefaultRestitutionThreshold = 0.5f;
+
+	static void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2DAsset>& material) 
+	{
+		fixtureDef.density = material->Density;
+		fixtureDef.friction = material->Friction;
+		fixtureDef.restitution = material->Restitution;
+	}
+
 	// **** Box Collider ****
 	BoxCollider2D::BoxCollider2D(Entity entity) 
 		: Collider2D(ColliderType2D::Box)
@@ -254,16 +268,19 @@ namespace TerranEngine
 
 		BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
 		auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
+		// NOTE: maybe change in the future, cause this intagles the systems a bit
+		Shared<PhysicsMaterial2DAsset> material = AssetManager::GetAsset<PhysicsMaterial2DAsset>(rigidbodyComponent.PhysicsMaterialHandle);
 
 		TransformComponent& transform = entity.GetTransform();
 
 		glm::vec2 colliderSize = { transform.Scale.x * colliderComponent.Size.x, transform.Scale.y * colliderComponent.Size.y };
 
-		// NOTE: these magic numbers are temporary until i make physics materials a thing
-		p_FixtureDefs[0].density = 1.0f;
-		p_FixtureDefs[0].friction = 0.5f;
-		p_FixtureDefs[0].restitution = 0.0f;
-		p_FixtureDefs[0].restitutionThreshold = 0.5f;
+		if (!material)
+			material = Physics2D::GetDefaultMaterial();
+
+		SetFixtureDefMaterial(p_FixtureDefs[0], material);
+
+		p_FixtureDefs[0].restitutionThreshold = s_DefaultRestitutionThreshold;
 
 		const UUID& id = entity.GetID();
 

@@ -8,6 +8,8 @@
 #include "Graphics/BatchRenderer2D.h"
 #include "Graphics/RenderCommand.h"
 
+#include "Assets/AssetManager.h"
+
 #include "Math/Math.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -47,7 +49,8 @@ namespace TerranEngine
 	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, spriteRenderer.Texture, entityID);
+		Shared<Texture> texture = AssetManager::GetAsset<Texture>(spriteRenderer.TextureHandle);
+		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, texture, entityID);
 	}
 
 	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID)

@@ -31,7 +31,8 @@ namespace TerranEngine
 			{ ".jpeg",		AssetType::Texture	},
 			{ ".txt",		AssetType::Text		},
 			{ ".cs",		AssetType::CSFile	},
-			{ ".terran",	AssetType::Scene	}
+			{ ".terran",	AssetType::Scene	},
+			{ ".trpm2d",	AssetType::PhysicsMaterial2D }
 		};
 
 		AssetType GetAssetTypeFromFileExtenstion(const std::filesystem::path& extension);

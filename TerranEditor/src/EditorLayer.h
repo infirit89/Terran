@@ -29,6 +29,7 @@ namespace TerranEditor
 		static EditorLayer* GetInstace() { return s_Instance; }
 		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
 
+		Shared<PanelManager> GetPanelManager() { return m_PanelManager; }
 	private:
         void OpenProject(const std::filesystem::path& projectPath);
 
@@ -77,6 +78,7 @@ namespace TerranEditor
 
 		bool m_PerformancePanelOpen = true;
 		bool m_RendererStatsPanelOpen = true;
+		bool m_PhysicsMaterial2DAssetEditorOpen = false;
 
 		bool m_ShowColliders = false;
 

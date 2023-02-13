@@ -49,7 +49,7 @@ namespace TerranEditor
 						DrawEntityNode(entity);
 				}
 
-				if (ImGui::BeginPopupContextWindow(0, 1, false))
+				if (ImGui::BeginPopupContextWindow(0, 1))
 				{
 					if (ImGui::MenuItem("Create an entity"))
 						SelectionManager::Select(m_Scene->CreateEntity("Entity"));
@@ -58,7 +58,7 @@ namespace TerranEditor
 				}
 	
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					SelectionManager::Deselect();
+					SelectionManager::Deselect(SelectionContext::Scene);
 
 				ImGuiWindow* currentWindow = ImGui::GetCurrentWindow();
 				
@@ -131,8 +131,10 @@ namespace TerranEditor
 		ImGuiTreeNodeFlags flags = (selectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | 
 			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_AllowItemOverlap;
 
-		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
-			flags |= ImGuiTreeNodeFlags_NoButton;
+		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0) 
+		{
+			flags |= ImGuiTreeNodeFlags_Leaf;
+		}
 		else
 			flags |= ImGuiTreeNodeFlags_DefaultOpen;
 
@@ -235,7 +237,7 @@ namespace TerranEditor
 		{
 			m_Scene->DestroyEntity(entity, true);
 			if (selectedEntity == entity)
-				SelectionManager::Deselect();
+				SelectionManager::Deselect(SelectionContext::Scene);
 		}
 
 		ImGui::PopID();

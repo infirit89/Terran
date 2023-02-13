@@ -15,7 +15,6 @@ namespace TerranEngine
 
 	std::unordered_map<UUID, Shared<Asset>> AssetManager::s_LoadedAssets;
 	std::unordered_map<UUID, AssetInfo> AssetManager::s_AssetsInfos;
-	std::unordered_map<AssetType, Shared<AssetLoader>> AssetManager::s_Loaders;
 	AssetManager::AssetChangeCallbackFn AssetManager::s_ChangeCallback;
 
 	static AssetInfo s_EmptyAssetInfo;
@@ -170,7 +169,7 @@ namespace TerranEngine
 		const AssetInfo& info = GetAssetInfo(assetID);
 		TR_ASSERT(s_LoadedAssets.find(assetID) != s_LoadedAssets.end(), "Asset can't be reloaded");
 		Shared<Asset>& asset = s_LoadedAssets.at(assetID);
-		s_Loaders[info.Type]->Load(info, asset);
+		AssetImporter::Load(info, asset);
 	}
 
 	void AssetManager::OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents)
@@ -230,12 +229,6 @@ namespace TerranEngine
 	std::filesystem::path AssetManager::GetFileSystemPath(const std::filesystem::path& path)
 	{
 		return Project::GetAssetPath() / path;
-	}
-
-	void AssetManager::RegisterAssetLoaders()
-	{
-		s_Loaders[AssetType::Texture] = CreateShared<TextureAssetLoader>();
-		s_Loaders[AssetType::Text] = CreateShared<TextAssetLoader>();
 	}
 
 	void AssetManager::OnAssetRemoved(UUID assetID) 

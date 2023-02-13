@@ -70,8 +70,8 @@ namespace TerranEngine
 		void ConvertToLocalSpace(Entity entity);
 		void ConvertToWorldSpace(Entity entity);
 	
-	private:
 		void SortEntities();
+	private:
 
         // scripting components
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);

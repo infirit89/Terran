@@ -5,9 +5,6 @@
 [submodule "TerranEngine/vendor/GLFW"]
 	path = TerranEngine/vendor/GLFW
 	url = https://github.com/OKAY808/glfw
-[submodule "TerranEngine/vendor/ImGui"]
-	path = TerranEngine/vendor/ImGui
-	url = https://github.com/OKAY808/imgui
 [submodule "TerranEngine/vendor/glm"]
 	path = TerranEngine/vendor/glm
 	url = https://github.com/g-truc/glm
@@ -26,3 +23,6 @@
 [submodule "TerranEngine/vendor/yaml-cpp"]
 	path = TerranEngine/vendor/yaml-cpp
 	url = https://github.com/OKAY808/yaml-cpp
+[submodule "TerranEngine/vendor/ImGui"]
+	path = TerranEngine/vendor/ImGui
+	url = https://github.com/OKAY808/imgui

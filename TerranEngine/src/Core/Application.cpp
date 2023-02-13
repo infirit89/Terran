@@ -41,17 +41,13 @@ namespace TerranEngine
 		RenderCommand::Init();
 		BatchRenderer2D::Initialize(2000);
         
+		AssetManager::Init();
         ScriptEngine::Initialize(appData.ScriptCorePath);
         Physics2D::Initialize();
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
 
 		Input::Init();
-
-		AssetManager::Init();
-
-		// TODO: may need to remove when doing an actual runtime asset manager
-		AssetManager::RegisterAssetLoaders();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);

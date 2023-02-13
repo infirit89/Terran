@@ -7,6 +7,8 @@
 
 #include "Scene/SceneSerializer.h"
 
+#include <yaml-cpp/yaml.h>
+
 namespace TerranEngine 
 {
     void TextureAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
@@ -57,6 +59,57 @@ namespace TerranEngine
     {
         SceneSerializer serializer(DynamicCast<Scene>(asset));
         serializer.SerializeJson(AssetManager::GetFileSystemPath(assetInfo.Path));
+        return true;
+    }
+
+    void PhysicsMaterial2DAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
+    {
+        YAML::Node node;
+
+        try
+        {
+            node = YAML::LoadFile(AssetManager::GetFileSystemPath(assetInfo.Path).string());
+        }
+        catch (const YAML::Exception& e)
+        {
+            TR_ERROR(e.what());
+            return;
+        }
+
+        try
+        {
+            auto physicsMaterial = node["PhysicsMaterial2D"];
+            Shared<PhysicsMaterial2DAsset> physicsMaterialAsset = CreateShared<PhysicsMaterial2DAsset>();
+            physicsMaterialAsset->Density = physicsMaterial["Density"].as<float>();
+            physicsMaterialAsset->Friction = physicsMaterial["Friction"].as<float>();
+            physicsMaterialAsset->Restitution = physicsMaterial["Restitution"].as<float>();
+
+            asset = physicsMaterialAsset;
+        }
+        catch (const YAML::BadSubscript& e)
+        {
+            TR_ERROR(e.what());
+            return;
+        }
+    }
+
+    bool PhysicsMaterial2DAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
+    {
+        YAML::Emitter out;
+
+        Shared<PhysicsMaterial2DAsset> physicsMaterial = DynamicCast<PhysicsMaterial2DAsset>(asset);
+        out << YAML::BeginMap;
+        out << YAML::Key << "PhysicsMaterial2D" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Density" << YAML::Value << physicsMaterial->Density;
+        out << YAML::Key << "Friction" << YAML::Value << physicsMaterial->Friction;
+        out << YAML::Key << "Restitution" << YAML::Value << physicsMaterial->Restitution;
+
+        out << YAML::EndMap;
+        out << YAML::EndMap;
+
+        std::ofstream ofs(AssetManager::GetFileSystemPath(assetInfo.Path));
+        ofs << out.c_str();
+
         return true;
     }
 }

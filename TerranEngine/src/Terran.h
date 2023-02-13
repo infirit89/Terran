@@ -67,6 +67,7 @@
 /* ---- Assets ---- */
 #include "Assets/Asset.h"
 #include "Assets/AssetManager.h"
+#include "Assets/AssetImporter.h"
 
 /* ---- Project ---- */
 #include "Project/Project.h"

@@ -12,6 +12,8 @@
 
 #include "Scripting/ScriptEngine.h"
 
+#include "Assets/AssetManager.h"
+
 #include "Math/Math.h"
 
 #include "Utils/Debug/OptickProfiler.h"
@@ -30,6 +32,7 @@ namespace TerranEngine
 		ContactListener ContactListener;
 		Shared<PhysicsBody2D> EmptyPhysicsBody;
         PhysicsSettings Settings;
+		Shared<PhysicsMaterial2DAsset> DefaultMaterial;
 	};
 	
 
@@ -42,6 +45,7 @@ namespace TerranEngine
         PhysicsLayerManager::SetLayerName(0, "Default");
         PhysicsLayerManager::SetLayerName(1, "IgnoreRayCast");
         PhysicsLayerManager::SetLayerName(3, "Test");
+		s_State->DefaultMaterial = AssetManager::CreateMemoryAsset<PhysicsMaterial2DAsset>();
 	}
 
 	void Physics2D::Shutdown()
@@ -92,6 +96,8 @@ namespace TerranEngine
     }
 
 	b2World* Physics2D::GetB2World() { return s_State->PhysicsWorld; }
+
+	Shared<PhysicsMaterial2DAsset> Physics2D::GetDefaultMaterial() { return s_State->DefaultMaterial; }
 
 	Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
 	{

@@ -11,6 +11,7 @@
 #include "EditorPanels/ECSPanel.h"
 #include "EditorPanels/LogPanel.h"
 #include "EditorPanels/SettingsPanel.h"
+#include "EditorPanels/AssetPropertiesPanel.h"
 #include "SelectionManager.h"
 
 #include "EditorResources.h"
@@ -40,6 +41,7 @@ namespace TerranEditor
 #define CONTENT_PANEL_NAME "ContentPanel"
 #define SCENE_VIEW_PANEL_NAME "SceneViewPanel"
 #define SETTINGS_PANEL_NAME "SettingPanel"
+#define ASSET_PROPERTIES_PANEL_NAME "AssetProperties"
 
 	EditorLayer* EditorLayer::s_Instance;
 
@@ -86,19 +88,23 @@ namespace TerranEditor
 		
 		SceneManager::SetCurrentScene(m_EditorScene);
 
+		AssetImporter::RegisterLoaders();
+
 		// ***** Panel Setup *****
 		m_PanelManager = CreateShared<PanelManager>();
 		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
+		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
 		m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
 		sceneViewPanel->SetOpenSceneCallback([this](const std::filesystem::path& sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
 		sceneViewPanel->SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
 		m_PanelManager->AddPanel<SceneHierarchyPanel>(SCENE_HIERARCHY_PANEL_NAME);
 		m_PanelManager->AddPanel<ECSPanel>(ECS_PANEL_NAME);
-		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
         Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
         settingsPanel->SetOpen(false);
+
+		m_PanelManager->AddPanel<AssetPropertiesPanel>(ASSET_PROPERTIES_PANEL_NAME);
 		// ***********************
 
 		if (m_ProjectPath.empty())
@@ -351,6 +357,9 @@ namespace TerranEditor
 
 				if (ImGui::MenuItem("Settings"))
 					m_PanelManager->SetPanelOpen(SETTINGS_PANEL_NAME, true);
+
+				if (ImGui::MenuItem("Asset Properties"))
+					m_PanelManager->SetPanelOpen(ASSET_PROPERTIES_PANEL_NAME, true);
 			});
 
 			// tools menu
@@ -381,8 +390,8 @@ namespace TerranEditor
 
 		m_SceneState = SceneState::Play;
 
-		UUID tempSelected = SelectionManager::GetSelectedID();
-		SelectionManager::Deselect();
+		UUID tempSelected = SelectionManager::GetSelectedID(SelectionContext::Scene);
+		SelectionManager::Deselect(SelectionContext::Scene);
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
@@ -390,13 +399,13 @@ namespace TerranEditor
 		SceneManager::GetCurrentScene()->StartRuntime();
 
 		if(tempSelected)
-			SelectionManager::Select(tempSelected);
+			SelectionManager::Select(SelectionContext::Scene, tempSelected);
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
-		UUID tempSelected = SelectionManager::GetSelectedID();
-		SelectionManager::Deselect();
+		UUID tempSelected = SelectionManager::GetSelectedID(SelectionContext::Scene);
+		SelectionManager::Deselect(SelectionContext::Scene);
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
 		//SceneManager::RemoveScene(SceneManager::CurrentScene->GetID());
@@ -404,7 +413,7 @@ namespace TerranEditor
 		SceneManager::SetCurrentScene(m_EditorScene);
 
 		if(tempSelected)
-			SelectionManager::Select(tempSelected);
+			SelectionManager::Select(SelectionContext::Scene, tempSelected);
 	}
 
 	void EditorLayer::OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level)
@@ -582,7 +591,7 @@ namespace TerranEditor
 					if (SceneManager::GetCurrentScene()->IsPlaying())
 						OnSceneStop();
 
-					SelectionManager::Deselect();
+					SelectionManager::Deselect(SelectionContext::Scene);
 					m_EditorScene = newScene;
 					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					

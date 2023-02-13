@@ -1,9 +1,18 @@
 #pragma once
 
-#include "AssetLoader.h"
+#include "Core/Base.h"
+
+#include "Asset.h"
 
 namespace TerranEngine 
 {
+	class AssetLoader
+	{
+	public:
+		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) = 0;
+		virtual bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) = 0;
+	};
+
 	class TextureAssetLoader : public AssetLoader
 	{
 	public:
@@ -19,6 +28,13 @@ namespace TerranEngine
 	};
 
 	class SceneAssetLoader : public AssetLoader 
+	{
+	public:
+		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;
+		virtual bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) override;
+	};
+
+	class PhysicsMaterial2DAssetLoader : public AssetLoader 
 	{
 	public:
 		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;

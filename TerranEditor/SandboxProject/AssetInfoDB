@@ -5,6 +5,9 @@ AssetInfos:
   - Asset: e315c1b9-7f25-442e-9a2d-59f78d90ba54
     Type: 2
     Path: Scenes\asdasdasd.txt
+  - Asset: 1af77b1b-b366-45af-8c38-825bedb38ff5
+    Type: 5
+    Path: test.trpm2d
   - Asset: dea61913-65cb-4a0f-b67b-00cd094f41e9
     Type: 3
     Path: Scripts\Pong\GameManager.cs
@@ -74,3 +77,15 @@ AssetInfos:
   - Asset: 38720710-f229-499f-afa4-3bd0aaee2af8
     Type: 2
     Path: i cum.txt
+  - Asset: 67d0694d-96cb-45d5-9ad8-952040622e91
+    Type: 5
+    Path: TestAsset.trpm2d
+  - Asset: 2effa35c-2d4f-4c0a-9ad6-99d2da2abb86
+    Type: 5
+    Path: Assets\test.trpm2d
+  - Asset: 4b6a01ef-4850-4a3e-82bb-695aa26857d0
+    Type: 5
+    Path: Assets\test.trpm2d
+  - Asset: 9b923486-c471-4460-9092-d41f024c6e39
+    Type: 5
+    Path: Assets\test.trpm2d

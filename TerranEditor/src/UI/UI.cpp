@@ -13,176 +13,43 @@ namespace TerranEditor
 {
 	using namespace TerranEngine;
 
-    struct ImGuiStyleVarInfo 
-    {
-        ImGuiDataType Type;
-        uint32_t Count;
-    };
-
-    static const ImGuiStyleVarInfo StyleVarInfo[] =
-    {
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_Alpha
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowPadding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowRounding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowBorderSize
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowMinSize
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowTitleAlign
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildRounding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildBorderSize
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupRounding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupBorderSize
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_FramePadding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameRounding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameBorderSize
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemSpacing
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemInnerSpacing
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_IndentSpacing
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_CellPadding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarSize
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarRounding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabMinSize
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabRounding
-        { ImGuiDataType_Float, 1 },     // ImGuiStyleVar_TabRounding
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ButtonTextAlign
-        { ImGuiDataType_Float, 2 },     // ImGuiStyleVar_SelectableTextAlign
-    };
-
-
-	bool UI::DrawColor4Control(const std::string& label, glm::vec4& value, float columnWidth)
+	struct ImGuiStyleVarInfo 
 	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
-		
-		{
-			const ScopedVarTable::TableInfo tableInfo;
-			ScopedVarTable colorControlTable(label, tableInfo);
-			const ImVec2 buttonSize = ImVec2{ ImGui::CalcItemWidth(), 0.0f };
+		ImGuiDataType Type;
+		uint32_t Count;
+	};
 
-			if (ImGui::ColorButton("##colbutton", ImVec4{ value.r, value.g, value.b, value.a }, 0, buttonSize))
-				ImGui::OpenPopup("picker");
-
-			if (ImGui::BeginPopup("picker"))
-			{
-				changed = ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
-				ImGui::EndPopup();
-			}
-		}
-		
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	bool UI::DrawVec2Control(const std::string& label, glm::vec2& value, float power, const char* format, float columnWidth)
+	static const ImGuiStyleVarInfo StyleVarInfo[] =
 	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_Alpha
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_DisabledAlpha 
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowPadding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowRounding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowBorderSize
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowMinSize
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowTitleAlign
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildRounding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildBorderSize
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupRounding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupBorderSize
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_FramePadding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameRounding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameBorderSize
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemSpacing
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemInnerSpacing
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_IndentSpacing
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_CellPadding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarSize
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarRounding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabMinSize
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabRounding
+		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_TabRounding
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ButtonTextAlign
+		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_SelectableTextAlign
+	};
 
-		{
-			const ImGuiIO io = ImGui::GetIO();
-			
-			ScopedVarTable::TableInfo tableInfo;
-			tableInfo.ItemCount = 2;
-			ScopedVarTable vec2Table(label, tableInfo);
 
-			ScopedStyleVar itemSpacingStyleVar({
-				{ ImGuiStyleVar_ItemSpacing, { 2, GImGui->Style.ItemSpacing.y } }
-				});
-
-			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 buttonSize = { lineHeight, lineHeight };
-		
-			ScopedStyleColor buttonStyleColor({
-				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
-				{ ImGuiCol_ButtonHovered, { 0.0f, 0.0f, 0.0f, 0.0f } },
-				{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
-				});
-
-			ImGui::Button("X", buttonSize);
-			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-				value.x += io.MouseDelta.x * power;
-			}
-
-			ImGui::SameLine();
-
-			ImVec2 cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-			if (ImGui::DragFloat("##DRX", &value.x, power, 0.0f, 0.0f, format))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-
-			ImGui::PopItemWidth();
-
-			ImGui::SameLine();
-
-			ImGui::Button("Y", buttonSize);
-			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-				value.y += io.MouseDelta.x * power;
-			}
-
-			ImGui::SameLine();
-
-			cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-			if (ImGui::DragFloat("##DRY", &value.y, power, 0.0f, 0.0f, format))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-
-			ImGui::PopItemWidth();
-
-		}
-
-		ImGui::Columns(1);
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	bool UI::DrawEntityControl(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
-	{
-		ScopedVarTable::TableInfo tableInfo;
-		ScopedVarTable textureTable(label, tableInfo);
-
-		Entity entity = scene->FindEntityWithUUID(value);
-		
-		char buf[256];
-		memset(buf, 0, sizeof(buf));
-
-		strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
-						
-		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_DontRenderCursor | ImGuiInputTextFlags_DontChangeMouseCursorOnHover;
-		ImGui::InputText("##EntityField", buf, sizeof(buf), inputTextFlags);
-
-		if (ImGui::BeginDragDropTarget()) 
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID")) 
-			{
-				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
-				std::array<uint8_t, 16> idArr = { 0 };
-				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
-				UUID id(idArr);
-				Entity receivedEntity = scene->FindEntityWithUUID(id);
-
-				if(receivedEntity)
-				{
-					value = receivedEntity.GetID();
-					return true;
-				}
-			}
-
-			ImGui::EndDragDropTarget();
-		}
-
-		return false;
-	}
+	
 
 	static std::string ProccessFieldName(std::string name)
 	{
@@ -203,17 +70,6 @@ namespace TerranEditor
 
 		return result;
 	}
-
-	template<typename T>
-	static void DrawFieldValue(ScriptField* field, GCHandle handle, 
-		const std::function<bool(const std::string& fieldName, T& value, const ScriptType& fieldType)>& drawFunc)
-	{
-		T value = field->GetData<T>(handle);
-		std::string fieldName = ProccessFieldName(field->GetName());
-		if (drawFunc(fieldName, value, field->GetType()))
-			field->SetData<Utils::Variant> (value, handle);
-	}
-
 
 	// consider moving these 2 functions to the physics layer manager
 	static std::array<bool, PhysicsLayerManager::GetMaxLayerCount()> GetLayerIndicesFromMask(uint16_t layerMask) 
@@ -241,7 +97,7 @@ namespace TerranEditor
 		return layerMask;
 	}
 
-	bool UI::DrawComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
+	bool UI::PropertyComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
 		bool changed = false;
 
@@ -284,663 +140,6 @@ namespace TerranEditor
 
 			ImGui::EndCombo();
 		}
-
-		return changed;
-	}
-
-	void UI::DrawScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
-	{
-		TR_ASSERT(handle.IsValid(), "Invalid handle");
-		
-		ScriptClass* typeClass = field->GetType().GetTypeClass();
-		std::vector<ScriptField> enumFields;
-		const char** enumFieldNames = nullptr;
-
-		if (field->GetType().IsEnum()) 
-		{
-			enumFields = typeClass->GetEnumFields();
-
-			enumFieldNames = new const char* [enumFields.size()];
-
-			for (size_t i = 0; i < enumFields.size(); i++)
-				enumFieldNames[i] = enumFields[i].GetName();
-		}
-
-		switch (field->GetType().TypeEnum)
-		{
-		case ScriptType::Bool:
-		{
-			DrawFieldValue<bool>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawBoolControl(fieldName, value);
-			});
-			
-			break;
-		}
-		case ScriptType::Char:
-		{
-			DrawFieldValue<wchar_t>(field, handle,
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				// TODO: support wide strings
-				std::string strVal; strVal += (char)value;
-				bool changed = UI::DrawStringControl(fieldName, strVal, 0, 2);
-
-				if (strVal.empty()) return false;
-				value = strVal.at(0);
-
-				return changed;
-			});
-
-			break;
-		}
-		case ScriptType::Int8:
-		{
-			DrawFieldValue<int8_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
-                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::Int16:
-		{
-			DrawFieldValue<int16_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) :
-					UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::Int32:
-		{
-			DrawFieldValue<int32_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) :
-					UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::Int64:
-		{
-			DrawFieldValue<int64_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
-                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::UInt8:
-		{
-			DrawFieldValue<uint8_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
-                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::UInt16:
-		{
-			DrawFieldValue<uint16_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
-                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::UInt32:
-		{
-			DrawFieldValue<uint16_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
-                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::UInt64:
-		{
-			DrawFieldValue<uint16_t>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return !fieldType.IsEnum() ? UI::DrawScalar(fieldName, value) : 
-                    UI::DrawComboBox(fieldName, enumFieldNames, enumFields.size(), value);
-			});
-
-			break;
-		}
-		case ScriptType::Float:
-		{
-			DrawFieldValue<float>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawScalar(fieldName, value);
-			});
-
-			break;
-		}
-		case ScriptType::Double:
-		{
-			DrawFieldValue<double>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawScalar(fieldName, value);
-			});
-
-			break;
-		}
-		case ScriptType::String:
-		{
-			DrawFieldValue<std::string>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawStringControl(fieldName, value);
-			});
-
-			break;
-		}
-		case ScriptType::Vector2:
-		{
-			DrawFieldValue<glm::vec2>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawVec2Control(fieldName, value);
-			});
-
-			break;
-		}
-		case ScriptType::Vector3:
-		{
-			DrawFieldValue<glm::vec3>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawVec3Control(fieldName, value);
-			});
-
-			break;
-		}
-		case ScriptType::Color:
-		{
-			DrawFieldValue<glm::vec4>(field, handle, 
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawColor4Control(fieldName, value);
-			});
-
-			break;
-		}
-		case ScriptType::Entity:
-		{
-			DrawFieldValue<UUID>(field, handle, 
-			[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				return UI::DrawEntityControl(fieldName, value, scene);
-			});
-
-			break;
-		}
-		case ScriptType::LayerMask: 
-		{
-			DrawFieldValue<uint16_t>(field, handle,
-			[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
-			{
-				std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-				std::array<bool, PhysicsLayerManager::GetMaxLayerCount()> layerIndices = GetLayerIndicesFromMask(value);
-				if (UI::DrawComboBoxMulti(fieldName, layerNames.data(), layerNames.size(), layerIndices.data())) 
-				{
-					value = GetLayerMaskFromIndices(layerIndices);
-					return true;
-				}
-				
-				return false;
-			});
-
-			break;
-		}
-		}
-
-		if (enumFieldNames != nullptr)
-			delete[] enumFieldNames;
-	}
-
-	bool UI::DrawScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)
-	{
-		bool hasChanged = false;
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding |
-			ImGuiTreeNodeFlags_AllowItemOverlap;
-
-		ImGui::Unindent(20.0f);
-		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-
-		bool opened = ImGui::TreeNodeEx(fieldName.c_str(), flags);
-
-		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
-
-		ImGui::PushItemWidth(lineHeight * 1.5f);
-		size_t arrayLength = array.Length();
-		if (ImGui::DragScalar("##array_size", ImGuiDataType_U64, &arrayLength, 0.1f, nullptr, nullptr, nullptr))
-		{
-			array.Resize(arrayLength);
-			hasChanged = true;
-		}
-		ImGui::PopItemWidth();
-
-		ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow |
-			ImGuiTreeNodeFlags_NoButton | ImGuiTreeNodeFlags_FramePadding;
-
-		if (opened)
-		{
-			for (uint32_t i = 0; i < array.Length(); i++)
-			{
-				std::string elementName = std::to_string(i);
-				switch (array.GetType().TypeEnum)
-				{
-				case ScriptType::Bool:
-				{
-					bool value = array.Get<bool>(i);
-					if (UI::DrawBoolControl(elementName, value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Char:
-				{
-					char value = (char)array.Get<wchar_t>(i);
-					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-					std::string strVal; strVal += value;
-					if (UI::DrawStringControl(elementName, strVal, 0, 2))
-					{
-						if (strVal.empty())
-							break;
-						const wchar_t wc = strVal.at(0);
-						array.Set<wchar_t>(i, wc);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int8:
-				{
-					int8_t value = array.Get<int8_t>(i);
-
-					if (UI::DrawScalar(elementName, value)) 
-					{
-						array.Set(i, value); 
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int16:
-				{
-					int16_t value = array.Get<int16_t>(i);
-
-					if (UI::DrawScalar(elementName, value)) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int32:
-				{
-					int32_t value = array.Get<int32_t>(i);
-
-					if (UI::DrawScalar(elementName, value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int64:
-				{
-					int64_t value = array.Get<int64_t>(i);
-
-					if (UI::DrawScalar(elementName, value)) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt8:
-				{
-					uint8_t value = array.Get<uint8_t>(i);
-
-					if (UI::DrawScalar(elementName, value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt16:
-				{
-					uint16_t value = array.Get<uint16_t>(i);
-
-					if (UI::DrawScalar(elementName, value)) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt32:
-				{
-					uint32_t value = array.Get<uint32_t>(i);
-
-					if (UI::DrawScalar(elementName, value)) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt64:
-				{
-					uint64_t value = array.Get<uint64_t>(i);
-
-					if (UI::DrawScalar(elementName, value)) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Float:
-				{
-					float value = array.Get<float>(i);
-
-					if (UI::DrawFloatControl(elementName, value, 0.1f, "%.2f")) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Double:
-				{
-					double value = array.Get<double>(i);
-
-					if (UI::DrawScalar(elementName, value, 0.1f, "%.4f")) 
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::String:
-				{
-					std::string value = array.At(i);
-
-					if (UI::DrawStringControl(fieldName, value)) 
-					{
-						array.Set<Utils::Variant>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Vector2:
-				{
-					glm::vec2 value = array.Get<glm::vec2>(i);
-
-					if (UI::DrawVec2Control(elementName, value)) 
-					{
-						array.Set<glm::vec2>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Vector3:
-				{
-					glm::vec3 value = array.Get<glm::vec3>(i);
-
-					if (UI::DrawVec3Control(elementName, value)) 
-					{
-						array.Set<glm::vec3>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Color:
-				{
-					glm::vec4 value = array.Get<glm::vec4>(i);
-
-					if (UI::DrawColor4Control(elementName, value)) 
-					{
-						array.Set<glm::vec4>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Entity:
-				{
-					UUID value = array.Get<UUID>(i);
-					if (UI::DrawEntityControl(elementName, value, scene)) 
-					{
-						array.Set<UUID>(i, value);
-						hasChanged = true;
-					}
-					break;
-				}
-				}
-			}
-
-			ImGui::TreePop();
-		}
-		ImGui::Indent(20.0f);
-
-		return hasChanged;
-	}
-
-	bool UI::DrawVec3Control(const std::string& label, glm::vec3& value, float power, const char* format, float columnWidth)
-	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
-
-		{
-			const ImGuiIO io = ImGui::GetIO();
-			
-			ScopedVarTable::TableInfo tableInfo;
-			tableInfo.ItemCount = 3;
-			ScopedVarTable vec3Table(label, tableInfo);
-
-			ScopedStyleVar itemSpacingStyleVar({
-			   { ImGuiStyleVar_ItemSpacing, { 2, GImGui->Style.ItemSpacing.y } }
-				});
-
-			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 buttonSize = { lineHeight, lineHeight };
-
-			ScopedStyleColor buttonStyleColor({
-				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
-				{ ImGuiCol_ButtonHovered, { 0.0f, 0.0f, 0.0f, 0.0f } },
-				{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
-				});
-
-			ImGui::Button("X", buttonSize);
-			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) 
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-				value.x += io.MouseDelta.x * power;
-			}
-
-			ImGui::SameLine();
-
-			ImVec2 cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-			if (ImGui::DragFloat("##DRX", &value.x, power, 0.0f, 0.0f, format))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::Button("Y", buttonSize);
-			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) 
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-				value.y += io.MouseDelta.x * power;
-			}
-
-			ImGui::SameLine();
-
-			cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-			if (ImGui::DragFloat("##DRY", &value.y, power, 0.0f, 0.0f, format))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::Button("Z", buttonSize);
-			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) 
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-				value.z += io.MouseDelta.x * power;
-			}
-
-			ImGui::SameLine();
-
-			cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPosX(cursorPos.x - 4.5f);
-			if (ImGui::DragFloat("##DRZ", &value.z, power, 0.0f, 0.0f, format))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-
-			ImGui::PopItemWidth();
-		}
-		
-		ImGui::Columns(1);
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	bool UI::DrawFloatControl(const std::string& label, float& value, float power, const char* format, float columnWidth)
-	{
-		bool changed = false;
-
-		ImGui::PushID(label.c_str());
-		
-		{
-			ScopedVarTable::TableInfo tableInfo;
-
-			ScopedVarTable floatTable(label, tableInfo);
-
-			if (ImGui::DragFloat("##val", &value, power, 0.0f, 0.0f, format))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-		}
-
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	bool UI::DrawIntControl(const std::string& label, int& value, float power, float columnWidth)
-	{
-		bool changed = false;
-
-		ImGui::PushID(label.c_str());
-
-		{
-			ScopedVarTable::TableInfo tableInfo;
-			ScopedVarTable intTable(label, tableInfo);
-
-			if (ImGui::DragInt("##val", &value, power))
-				changed = true;
-
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-		}
-		
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	bool UI::DrawBoolControl(const std::string& label, bool& value, float columnWidth)
-	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
-
-		{
-			ScopedVarTable::TableInfo tableInfo;
-			ScopedVarTable floatTable(label, tableInfo);
-			changed = ImGui::Checkbox("##val", &value);
-		}
-
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	// TODO: support wide strings
-	bool UI::DrawStringControl(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
-	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
-
-		{
-			const ScopedVarTable::TableInfo tableInfo;
-			ScopedVarTable floatTable(label, tableInfo);
-
-			char* buf = new char[maxBufSize];
-			memset(buf, 0, maxBufSize);
-			strcpy_s(buf, maxBufSize, value.c_str());
-
-			if (ImGui::InputText("##val", buf, maxBufSize, flags))
-			{
-				value = buf;
-				changed = true;
-			}
-
-			delete[] buf;
-		}
-
-		ImGui::PopID();
 
 		return changed;
 	}
@@ -998,14 +197,115 @@ namespace TerranEditor
 
 			ImGuiStyleVarInfo varInfo = StyleVarInfo[styleVarIt.StyleVarIdx];
 
-            if(varInfo.Count == 2)
-                ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
-            else
-                ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal.x);
+			if(varInfo.Count == 2)
+				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
+			else
+				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal.x);
 		}
 	}
 
 	UI::ScopedStyleVar::~ScopedStyleVar() { ImGui::PopStyleVar((int)m_StyleVarListSize); }
+
+	void UI::ShiftCursor(float x, float y)
+	{
+		ImGui::SetCursorPos({ ImGui::GetCursorPos().x  +  x, ImGui::GetCursorPos().y + y });
+	}
+
+	void UI::ShiftCursorX(float x)
+	{
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + x);
+	}
+
+	void UI::ShiftCursorY(float y)
+	{
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + y);
+	}
+
+	void UI::Image(ImTextureID textureID, glm::vec2 size)
+	{
+		ImGui::Image(textureID, { size.x, size.y }, { 0, 1 }, { 1, 0 });
+	}
+
+	void UI::ImageButton(ImTextureID textureID, glm::vec2 size)
+	{
+	}
+
+	
+	void Test() 
+	{
+		ImGuiStyle* style = &ImGui::GetStyle();
+		style->WindowPadding = ImVec2(15.0f, 15.0f);
+		style->WindowRounding = 5.0f;
+		style->FramePadding = ImVec2(5.0f, 5.0f);
+		style->FrameRounding = 4.0f;
+		style->ItemSpacing = ImVec2(12.0f, 8.0f);
+		style->ItemInnerSpacing = ImVec2(8.0f, 6.0f);
+		style->IndentSpacing = 25.0f;
+		style->ScrollbarSize = 15.0f;
+		style->ScrollbarRounding = 4.0f;
+		style->GrabMinSize = 5.0f;
+		style->GrabRounding = 0.0f;
+		style->TabRounding = 4.0f;
+		style->ChildRounding = 0.0f;
+		style->PopupRounding = 0.0f;
+
+		style->WindowBorderSize = 1.0f;
+		style->FrameBorderSize = 0.0f;
+		style->PopupBorderSize = 1.0f;
+
+		ImVec4* colors = ImGui::GetStyle().Colors;
+		colors[ImGuiCol_Text] = ImVec4(0.96f, 0.96f, 0.99f, 1.00f);
+		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.10f, 1.00f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.09f, 0.09f, 0.10f, 1.00f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.06f, 0.06f, 0.07f, 1.00f);
+		colors[ImGuiCol_Border] = ImVec4(0.12f, 0.12f, 0.14f, 1.00f);
+		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.12f, 0.12f, 0.13f, 1.00f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.20f, 0.22f, 1.00f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(0.27f, 0.27f, 0.29f, 1.00f);
+		colors[ImGuiCol_TitleBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+		colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+		colors[ImGuiCol_MenuBarBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+		colors[ImGuiCol_ScrollbarBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.31f, 0.31f, 0.32f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.42f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.51f, 0.51f, 0.53f, 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(0.44f, 0.44f, 0.47f, 1.00f);
+		colors[ImGuiCol_SliderGrab] = ImVec4(0.44f, 0.44f, 0.47f, 1.00f);
+		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.59f, 0.59f, 0.61f, 1.00f);
+		colors[ImGuiCol_Button] = ImVec4(0.20f, 0.20f, 0.22f, 1.00f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.44f, 0.44f, 0.47f, 1.00f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(0.59f, 0.59f, 0.61f, 1.00f);
+		colors[ImGuiCol_Header] = ImVec4(0.20f, 0.20f, 0.22f, 1.00f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(0.44f, 0.44f, 0.47f, 1.00f);
+		colors[ImGuiCol_HeaderActive] = ImVec4(0.59f, 0.59f, 0.61f, 1.00f);
+		colors[ImGuiCol_Separator] = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.44f, 0.44f, 0.47f, 0.39f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.44f, 0.44f, 0.47f, 0.59f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.00f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.00f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.00f);
+		colors[ImGuiCol_Tab] = ImVec4(0.20f, 0.20f, 0.22f, 1.00f);
+		colors[ImGuiCol_TabHovered] = ImVec4(0.44f, 0.44f, 0.47f, 1.00f);
+		colors[ImGuiCol_TabActive] = ImVec4(0.44f, 0.44f, 0.47f, 1.00f);
+		colors[ImGuiCol_TabUnfocused] = ImVec4(0.20f, 0.20f, 0.22f, 0.39f);
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.44f, 0.44f, 0.47f, 0.39f);
+		colors[ImGuiCol_DockingPreview] = ImVec4(0.91f, 0.62f, 0.00f, 0.78f);
+		colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+		colors[ImGuiCol_PlotLines] = ImVec4(0.96f, 0.96f, 0.99f, 1.00f);
+		colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.12f, 1.00f, 0.12f, 1.00f);
+		colors[ImGuiCol_PlotHistogram] = ImVec4(0.96f, 0.96f, 0.99f, 1.00f);
+		colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.12f, 1.00f, 0.12f, 1.00f);
+		colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+		colors[ImGuiCol_DragDropTarget] = ImVec4(0.91f, 0.62f, 0.00f, 1.00f);
+		colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
+	}
 
 	void UI::SetupImGuiStyle()
 	{
@@ -1024,7 +324,7 @@ namespace TerranEditor
 		style.ChildBorderSize = 1.0f;
 		style.PopupRounding = 0.0f;
 		style.PopupBorderSize = 1.0f;
-		style.FramePadding = ImVec2(3.900000095367432f, 3.0f);
+		style.FramePadding = ImVec2(3.9f, 3.0f);
 		style.FrameRounding = 0.0f;
 		style.FrameBorderSize = 0.0f;
 		style.ItemSpacing = ImVec2(8.0f, 4.0f);
@@ -1096,5 +396,764 @@ namespace TerranEditor
 		style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.0f, 1.0f, 1.0f, 0.7019608020782471f);
 		style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.2000000029802322f);
 		style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.2000000029802322f, 0.2000000029802322f, 0.2000000029802322f, 0.3499999940395355f);
+	}
+	void UI::BeginPropertyGroup(const char* propertyGroupName)
+	{
+		ImGui::BeginTable(propertyGroupName, 2, ImGuiTableFlags_SizingFixedFit);
+		// NOTE: consider exposing this to some sort of settings
+		const float labelColumnWidth = 100.0f;
+		ImGui::TableSetupColumn("label_column", 0, labelColumnWidth);
+		ImGui::TableSetupColumn("value_column",
+			ImGuiTableColumnFlags_IndentEnable | ImGuiTableColumnFlags_NoClip,
+			ImGui::GetContentRegionAvail().x - labelColumnWidth);
+	}
+
+	void UI::EndPropertyGroup()
+	{
+		ImGui::EndTable();
+	}
+
+	static constexpr float power = 0.1f;
+
+	bool UI::PropertyColor(const std::string& label, glm::vec4& value)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 buttonSize = { ImGui::GetContentRegionAvail().x, lineHeight };
+		
+		if (ImGui::ColorButton("##colbutton", ImVec4{ value.r, value.g, value.b, value.a }, 0, buttonSize))
+			ImGui::OpenPopup("picker");
+
+		if (ImGui::BeginPopup("picker"))
+		{
+			changed = ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
+			ImGui::EndPopup();
+		}
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool UI::PropertyVec3(const std::string& label, glm::vec3& value)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+		const ImGuiIO io = ImGui::GetIO();
+
+		constexpr float itemSpacingX = 1.0f;
+		ScopedStyleVar itemSpacingStyleVar({
+			{ ImGuiStyleVar_ItemSpacing, { itemSpacingX, 0.0f } }
+			});
+
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 buttonSize = { lineHeight + 2.0f, lineHeight };
+		const float inputItemWidth = (ImGui::GetContentRegionAvail().x - itemSpacingX) / 3.0f - buttonSize.x;
+		ScopedStyleColor buttonStyleColor({
+			{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
+			{ ImGuiCol_ButtonHovered, { 0.0f, 0.0f, 0.0f, 0.0f } },
+			{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
+			});
+
+		auto drawControl = [&](const std::string& label, float& oValue)
+		{
+			ImGui::Button(label.c_str(), buttonSize);
+			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+				oValue += io.MouseDelta.x * power;
+			}
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(inputItemWidth);
+			changed |= UI::DragScalar<float>(("##DR" + label).c_str(), &oValue, power, "%.2f");
+		};
+
+		drawControl("X", value.x);
+		ImGui::SameLine();
+
+		drawControl("Y", value.y);
+		ImGui::SameLine();
+
+		drawControl("Z", value.z);
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool UI::PropertyVec2(const std::string& label, glm::vec2& value)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		const ImGuiIO io = ImGui::GetIO();
+
+		constexpr float itemSpacingX = 1.0f;
+		ScopedStyleVar itemSpacingStyleVar({
+			{ ImGuiStyleVar_ItemSpacing, { itemSpacingX, 0.0f } }
+			});
+
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 buttonSize = { lineHeight + 2.0f, lineHeight };
+		const float inputItemWidth = (ImGui::GetContentRegionAvail().x - itemSpacingX) / 3.0f - buttonSize.x;
+
+		ScopedStyleColor buttonStyleColor({
+			{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
+			{ ImGuiCol_ButtonHovered, { 0.0f, 0.0f, 0.0f, 0.0f } },
+			{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
+			});
+
+		auto drawControl = [&](const std::string& label, float& oValue)
+		{
+			ImGui::Button(label.c_str(), buttonSize);
+			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+				oValue += io.MouseDelta.x * power;
+			}
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(inputItemWidth);
+			changed |= UI::DragScalar<float>(("##DR" + label).c_str(), &oValue, power, "%.2f");
+		};
+
+		drawControl("X", value.x);
+		ImGui::SameLine();
+
+		drawControl("Y", value.y);
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool UI::PropertyEntity(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
+	{
+		bool modified = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		Entity entity = scene->FindEntityWithUUID(value);
+
+		char buf[256];
+		memset(buf, 0, sizeof(buf));
+		strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
+
+		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
+		ImGui::InputText("##EntityField", buf, sizeof(buf), inputTextFlags);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID"))
+			{
+				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
+				UUID id = UUID::CreateFromRaw((uint8_t*)payload->Data);
+				Entity receivedEntity = scene->FindEntityWithUUID(id);
+
+				if (receivedEntity)
+				{
+					value = receivedEntity.GetID();
+					modified = true;
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		ImGui::PopID();
+
+		return modified;
+	}
+
+	bool UI::PropertyFloat(const std::string& label, float& value)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool UI::PropertyInt(const std::string& label, int& value)
+	{
+		bool changed = false;
+
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool UI::PropertyBool(const std::string& label, bool& value)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		changed = ImGui::Checkbox("##val", &value);
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	// TODO: support wide strings
+	bool UI::PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		char* buf = new char[maxBufSize];
+		memset(buf, 0, maxBufSize);
+		strcpy_s(buf, maxBufSize, value.c_str());
+
+		if (ImGui::InputText("##val", buf, maxBufSize, flags))
+		{
+			value = buf;
+			changed = true;
+		}
+
+		delete[] buf;
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	template<typename T>
+	static void DrawFieldValue(ScriptField* field, GCHandle handle,
+		const std::function<bool(const std::string& fieldName, T& value, const ScriptType& fieldType)>& drawFunc)
+	{
+		T value = field->GetData<T>(handle);
+		std::string fieldName = ProccessFieldName(field->GetName());
+		if (drawFunc(fieldName, value, field->GetType()))
+			field->SetData<Utils::Variant>(value, handle);
+	}
+
+	void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
+	{
+		TR_ASSERT(handle.IsValid(), "Invalid handle");
+
+		ScriptClass* typeClass = field->GetType().GetTypeClass();
+		std::vector<ScriptField> enumFields;
+		const char** enumFieldNames = nullptr;
+
+		if (field->GetType().IsEnum())
+		{
+			enumFields = typeClass->GetEnumFields();
+
+			enumFieldNames = new const char* [enumFields.size()];
+
+			for (size_t i = 0; i < enumFields.size(); i++)
+				enumFieldNames[i] = enumFields[i].GetName();
+		}
+
+		switch (field->GetType().TypeEnum)
+		{
+		case ScriptType::Bool:
+		{
+			DrawFieldValue<bool>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyBool(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Char:
+		{
+			DrawFieldValue<wchar_t>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					// TODO: support wide strings
+					std::string strVal; strVal += (char)value;
+			bool changed = PropertyString(fieldName, strVal, 0, 2);
+
+			if (strVal.empty()) return false;
+			value = strVal.at(0);
+
+			return changed;
+				});
+
+			break;
+		}
+		case ScriptType::Int8:
+		{
+			DrawFieldValue<int8_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::Int16:
+		{
+			DrawFieldValue<int16_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::Int32:
+		{
+			DrawFieldValue<int32_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::Int64:
+		{
+			DrawFieldValue<int64_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::UInt8:
+		{
+			DrawFieldValue<uint8_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::UInt16:
+		{
+			DrawFieldValue<uint16_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::UInt32:
+		{
+			DrawFieldValue<uint16_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::UInt64:
+		{
+			DrawFieldValue<uint16_t>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return !fieldType.IsEnum() ? UI::DragScalar(fieldName.c_str(), &value) :
+					UI::PropertyComboBox(fieldName, enumFieldNames, enumFields.size(), value);
+				});
+
+			break;
+		}
+		case ScriptType::Float:
+		{
+			DrawFieldValue<float>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return UI::DragScalar(fieldName.c_str(), &value);
+				});
+
+			break;
+		}
+		case ScriptType::Double:
+		{
+			DrawFieldValue<double>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return UI::DragScalar(fieldName.c_str(), &value);
+				});
+
+			break;
+		}
+		case ScriptType::String:
+		{
+			DrawFieldValue<std::string>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyString(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Vector2:
+		{
+			DrawFieldValue<glm::vec2>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyVec2(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Vector3:
+		{
+			DrawFieldValue<glm::vec3>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyVec3(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Color:
+		{
+			DrawFieldValue<glm::vec4>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyColor(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Entity:
+		{
+			DrawFieldValue<UUID>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyEntity(fieldName, value, scene);
+				});
+
+			break;
+		}
+		// TODO: make better
+		/*case ScriptType::LayerMask:
+		{
+			DrawFieldValue<uint16_t>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+			std::array<bool, PhysicsLayerManager::GetMaxLayerCount()> layerIndices = GetLayerIndicesFromMask(value);
+			if (UI::PropertyComboBoxMulti(fieldName, layerNames.data(), layerNames.size(), layerIndices.data()))
+			{
+				value = GetLayerMaskFromIndices(layerIndices);
+				return true;
+			}
+
+			return false;
+				});
+
+			break;
+		}*/
+		}
+
+		if (enumFieldNames != nullptr)
+			delete[] enumFieldNames;
+	}
+
+	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)
+	{
+		bool hasChanged = false;
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding |
+			ImGuiTreeNodeFlags_AllowItemOverlap;
+
+		ImGui::Unindent(20.0f);
+		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+
+		bool opened = ImGui::TreeNodeEx(fieldName.c_str(), flags);
+
+		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
+
+		ImGui::PushItemWidth(lineHeight * 1.5f);
+		size_t arrayLength = array.Length();
+		if (ImGui::DragScalar("##array_size", ImGuiDataType_U64, &arrayLength, 0.1f, nullptr, nullptr, nullptr))
+		{
+			array.Resize(arrayLength);
+			hasChanged = true;
+		}
+		ImGui::PopItemWidth();
+
+		ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow |
+			ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_FramePadding;
+
+		if (opened)
+		{
+			for (uint32_t i = 0; i < array.Length(); i++)
+			{
+				std::string elementName = std::to_string(i);
+				switch (array.GetType().TypeEnum)
+				{
+				case ScriptType::Bool:
+				{
+					bool value = array.Get<bool>(i);
+					if (PropertyBool(elementName, value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Char:
+				{
+					char value = (char)array.Get<wchar_t>(i);
+					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
+					std::string strVal; strVal += value;
+					if (PropertyString(elementName, strVal, 0, 2))
+					{
+						if (strVal.empty())
+							break;
+						const wchar_t wc = strVal.at(0);
+						array.Set<wchar_t>(i, wc);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Int8:
+				{
+					int8_t value = array.Get<int8_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Int16:
+				{
+					int16_t value = array.Get<int16_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Int32:
+				{
+					int32_t value = array.Get<int32_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Int64:
+				{
+					int64_t value = array.Get<int64_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::UInt8:
+				{
+					uint8_t value = array.Get<uint8_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::UInt16:
+				{
+					uint16_t value = array.Get<uint16_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::UInt32:
+				{
+					uint32_t value = array.Get<uint32_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::UInt64:
+				{
+					uint64_t value = array.Get<uint64_t>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Float:
+				{
+					float value = array.Get<float>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Double:
+				{
+					double value = array.Get<double>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::String:
+				{
+					std::string value = array.At(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set<Utils::Variant>(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Vector2:
+				{
+					glm::vec2 value = array.Get<glm::vec2>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set<glm::vec2>(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Vector3:
+				{
+					glm::vec3 value = array.Get<glm::vec3>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set<glm::vec3>(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Color:
+				{
+					glm::vec4 value = array.Get<glm::vec4>(i);
+
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set<glm::vec4>(i, value);
+						hasChanged = true;
+					}
+
+					break;
+				}
+				case ScriptType::Entity:
+				{
+					UUID value = array.Get<UUID>(i);
+					if (UI::DragScalar(elementName.c_str(), &value))
+					{
+						array.Set<UUID>(i, value);
+						hasChanged = true;
+					}
+					break;
+				}
+				}
+			}
+
+			ImGui::TreePop();
+		}
+		ImGui::Indent(20.0f);
+
+		return hasChanged;
 	}
 }

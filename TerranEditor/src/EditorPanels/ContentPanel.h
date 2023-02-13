@@ -25,14 +25,21 @@ namespace TerranEditor
 
 	enum class ContentBrowserPanelAction
 	{
-		None,
-		NavigateTo
+		None =  0,
+		NavigateTo,
+		Activate
+	};
+
+	enum class ContentBrowserPanelItemType 
+	{
+		Directory = 0,
+		File
 	};
 
 	class ContentBrowserPanelItem
 	{
 	public:
-		ContentBrowserPanelItem(const std::string& name, const UUID& id, TerranEngine::Shared<TerranEngine::Texture> icon);
+		ContentBrowserPanelItem(const std::string& name, const UUID& id, TerranEngine::Shared<TerranEngine::Texture> icon, ContentBrowserPanelItemType type);
 		virtual ~ContentBrowserPanelItem() = default;
 
 		void BeginRender();
@@ -40,10 +47,13 @@ namespace TerranEditor
 		ContentBrowserPanelAction OnRender();
 		virtual ContentBrowserPanelAction OnClick() = 0;
 
+		UUID GetID() { return m_ID; }
+
 	private:
 		std::string m_Name;
 		TerranEngine::Shared<TerranEngine::Texture> m_Icon;
 		UUID m_ID;
+		ContentBrowserPanelItemType m_Type;
 	};
 
 	class ContentBrowserPanelDirectory : public ContentBrowserPanelItem
@@ -82,6 +92,13 @@ namespace TerranEditor
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
 	private:
+		template<typename T>
+		Shared<T> CreateAssetInDirectory(const std::string& name, const std::filesystem::path& directory = "")
+		{
+			std::filesystem::path filepath = directory / name;
+			return AssetManager::CreateAsset<T>(filepath);
+		}
+
 		void Reload();
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent = nullptr);
 		const Shared<DirectoryInfo>& GetDirectory(const std::filesystem::path& directoryPath);
