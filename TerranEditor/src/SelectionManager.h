@@ -19,6 +19,7 @@ namespace TerranEditor
 
 		static TerranEngine::Entity GetSelected();
 		static TerranEngine::UUID GetSelectedID(SelectionContext context);
+		static bool IsSelected(SelectionContext context, const TerranEngine::UUID& id);
 
 	private:
 		static std::unordered_map<SelectionContext, TerranEngine::UUID> s_Selections;

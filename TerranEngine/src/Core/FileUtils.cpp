@@ -20,4 +20,14 @@ namespace TerranEngine
 	{
 		s_PathToWatch = directoryPath;
 	}
+
+	bool FileSystem::Rename(const std::filesystem::path& oldPath, const std::filesystem::path& newPath) 
+	{
+		std::error_code errorCode;
+		std::filesystem::rename(oldPath, newPath, errorCode);
+
+		if (errorCode) return false;
+
+		return true;
+	}
 }

@@ -1,4 +1,6 @@
-﻿namespace Terran
+﻿using System;
+
+namespace Terran
 {
 	public class TestScript : Scriptable
 	{

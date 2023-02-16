@@ -49,7 +49,7 @@ namespace TerranEditor
 						DrawEntityNode(entity);
 				}
 
-				if (ImGui::BeginPopupContextWindow(0, 1))
+				if (ImGui::BeginPopupContextWindow("entity_create_popup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverExistingPopup))
 				{
 					if (ImGui::MenuItem("Create an entity"))
 						SelectionManager::Select(m_Scene->CreateEntity("Entity"));

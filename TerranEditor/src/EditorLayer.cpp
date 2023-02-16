@@ -70,8 +70,6 @@ namespace TerranEditor
 		EditorResources::Init();
 		UI::SetupImGuiStyle();
 
-		FontAtlas fontAtlas;
-
 		ImGuiIO& io = ImGui::GetIO();
 
 		ImFontConfig config;
@@ -103,7 +101,6 @@ namespace TerranEditor
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
         Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
         settingsPanel->SetOpen(false);
-
 		m_PanelManager->AddPanel<AssetPropertiesPanel>(ASSET_PROPERTIES_PANEL_NAME);
 		// ***********************
 

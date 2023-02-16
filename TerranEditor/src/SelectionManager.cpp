@@ -31,4 +31,9 @@ namespace TerranEditor
 	{
 		return s_Selections[context]; 
 	}
+
+	bool SelectionManager::IsSelected(SelectionContext context, const TerranEngine::UUID& id)
+	{
+		return s_Selections[context] == id;
+	}
 }

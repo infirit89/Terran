@@ -30,6 +30,7 @@ namespace TerranEngine
 
 		static std::filesystem::path OpenFile(const char* filter);
 		static std::filesystem::path SaveFile(const char* filter);
+		static bool Rename(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
 
 		static std::filesystem::path GetEnvironmentVariable(const char* name);
 		static void RevealInExplorer(const std::filesystem::path& path);

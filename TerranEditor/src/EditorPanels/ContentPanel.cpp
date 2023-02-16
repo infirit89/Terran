@@ -4,6 +4,8 @@
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
+#include "Core/Input.h"
+#include "Core/FileUtils.h"
 
 #include "Assets/AssetManager.h"
 
@@ -64,16 +66,14 @@ namespace TerranEditor
 				ChangeDirectory(m_NextDirectoryStack.top());
 				m_NextDirectoryStack.pop();
 			}
-			//ImGui::Spring(-1.0f, 4.0f * 2.0f);
+			ImGui::Spring(-1.0f, 4.0f * 2.0f);
 			if (ImGui::Button("Reload"))
 				Reload();
-
-			//ImGui::Spring(-1.0f, 4.0f * 2.0f);
 		}
 		ImGui::EndHorizontal();
 		ImGui::EndChild();
 
-		if (ImGui::BeginPopupContextWindow("CONTENT_PANEL_ACTIONS", ImGuiMouseButton_Right)) 
+		if (ImGui::BeginPopupContextWindow("content_panel_actions_popup", ImGuiMouseButton_Right)) 
 		{
 			if (ImGui::MenuItem("Reveal in explorer"))
 				FileSystem::RevealInExplorer(m_CurrentDirectory->Path);
@@ -84,6 +84,7 @@ namespace TerranEditor
 			ImGui::EndPopup();
 		}
 
+		Shared<DirectoryInfo> nextDir;
 		// render items
 		{
 			std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
@@ -100,15 +101,23 @@ namespace TerranEditor
 			for (const auto& item : m_CurrentItems)
 			{
 				item->BeginRender();
-				ContentBrowserPanelAction action = item->OnRender();
+				ItemAction action = item->OnRender();
 
-				if (action == ContentBrowserPanelAction::NavigateTo) 
+				if (action == ItemAction::NavigateTo) 
 				{
-					m_PostRenderActions.push([&item, this]() { ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo()); });
+					nextDir = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
+					//m_PostRenderActions.push([&item, this]() 
+					//{ 
+						//ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo());
+					//});
 					while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
 				}
 
-				if (action == ContentBrowserPanelAction::Activate)
+				if (action == ItemAction::Activate)
+				{
+				}
+
+				if (action == ItemAction::Select)
 					SelectionManager::Select(SelectionContext::ContentPanel, item->GetID());
 
 				ImGui::NextColumn();
@@ -118,12 +127,15 @@ namespace TerranEditor
 			ImGui::Columns(1);
 		}
 
-		while (!m_PostRenderActions.empty())
+		if (nextDir)
+			ChangeDirectory(nextDir);
+
+		/*while (!m_PostRenderActions.empty())
 		{
 			auto postRenderAction = m_PostRenderActions.front();
 			postRenderAction();
 			m_PostRenderActions.pop();
-		}
+		}*/
 
 		ImGui::End();
 	}
@@ -196,12 +208,12 @@ namespace TerranEditor
 		m_CurrentItems.clear();
 
 		for (const auto& subdirectory : directory->Subdirectories)
-			m_CurrentItems.push_back(CreateShared<ContentBrowserPanelDirectory>(subdirectory));
+			m_CurrentItems.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
 
 		for (const auto& assetHandle : directory->AssetHandles)
 		{
 			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-			m_CurrentItems.push_back(CreateShared<ContentBrowserPanelAsset>(info, EditorResources::GetFileTexture()));
+			m_CurrentItems.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
 		}
 
 		m_CurrentDirectory = directory;
@@ -226,6 +238,10 @@ namespace TerranEditor
 			PrintDirectoryInfo(subdirectory, level + 1);
 	}
 
+#define MAX_RENAME_BUFFER_SIZE 256
+
+	static char s_RenameBuffer[MAX_RENAME_BUFFER_SIZE]{ 0 };
+
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
 	{
 		UUID dirID = ProcessDirectory(Project::GetAssetPath());
@@ -234,27 +250,29 @@ namespace TerranEditor
 		ChangeDirectory(m_CurrentDirectory);
 	}
 
-	ContentBrowserPanelItem::ContentBrowserPanelItem(const std::string& name, const UUID& id, Shared<Texture> icon, ContentBrowserPanelItemType type)
+	ContentBrowserItem::ContentBrowserItem(const std::string& name, const UUID& id, Shared<Texture> icon, ItemType type)
 		: m_Name(name), m_Icon(icon), m_ID(id), m_Type(type)
 	{ }
 
-	void ContentBrowserPanelItem::BeginRender()
+	void ContentBrowserItem::BeginRender()
 	{
 		ImGui::PushID(&m_ID);
+		ImGui::BeginGroup();
 	}
 
-	void ContentBrowserPanelItem::EndRender()
+	void ContentBrowserItem::EndRender()
 	{
 		ImGui::PopID();
 	}
 
-	ContentBrowserPanelAction ContentBrowserPanelItem::OnRender()
+	ItemAction ContentBrowserItem::OnRender()
 	{
-		ContentBrowserPanelAction action = ContentBrowserPanelAction::None;
+		ItemAction action = ItemAction::None;
 
-		ImGui::BeginGroup();
 		const float cellSize = 74.0f;
 		const float edgeOffset = 4.0f;
+
+		bool isSelected = SelectionManager::IsSelected(SelectionContext::ContentPanel, m_ID);
 
 		const float textLineHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0f + edgeOffset * 2.0f;
 		const float infoPanelHeight = std::min(false ? cellSize * 0.5f : textLineHeight, textLineHeight);
@@ -263,8 +281,9 @@ namespace TerranEditor
 		const ImVec2 thumbBottomRight = { topLeft.x + cellSize, topLeft.y + cellSize };
 		const ImVec2 infoTopLeft = { topLeft.x, topLeft.y + cellSize };
 		const ImVec2 bottomRight = { topLeft.x + cellSize, topLeft.y + cellSize + infoPanelHeight };
+		ImRect itemBox = ImRect(topLeft, bottomRight);
 
-		if (ImGui::ItemHoverable(ImRect(topLeft, bottomRight), ImGui::GetID(&m_ID)))
+		if (ImGui::IsMouseHoveringRect(itemBox.Min, itemBox.Max) || isSelected)
 		{
 			auto* drawList = ImGui::GetWindowDrawList();
 			ImGuiStyle& style = ImGui::GetStyle();
@@ -275,30 +294,59 @@ namespace TerranEditor
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 4.0f });
 
-		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize }, ImGuiButtonFlags_PressedOnClickRelease);
+		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize });
 		UI::ShiftCursor(edgeOffset, -cellSize);
 		UI::Image((ImTextureID)m_Icon->GetTextureID(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
 		
 		UI::ShiftCursor(edgeOffset, edgeOffset);
 
-		ImGui::BeginVertical((std::string("InfoPanel") + m_Name).c_str(), ImVec2(cellSize - edgeOffset * 2.0f, infoPanelHeight - edgeOffset));
-		ImGui::BeginHorizontal(m_Name.c_str(), { cellSize - 2.0f, 0.0f });
-		ImGui::Spring();
-		ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + (cellSize - edgeOffset * 3.0f));
-		const float textWidth = std::min(ImGui::CalcTextSize(m_Name.c_str()).x, cellSize);
-		ImGui::SetNextItemWidth(textWidth);
-		ImGui::Text(m_Name.c_str());
-		ImGui::PopTextWrapPos();
-		ImGui::Spring();
-		ImGui::EndHorizontal();
-		ImGui::Spring();
-		ImGui::EndVertical();
+		// file name
+		{
+			ImGui::BeginVertical((std::string("InfoPanel") + m_Name).c_str(), ImVec2(cellSize - edgeOffset * 2.0f, infoPanelHeight - edgeOffset));
+			{
+				ImGui::BeginHorizontal(m_Name.c_str(), { cellSize - 2.0f, 0.0f });
+				ImGui::Spring();
+				ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + (cellSize - edgeOffset * 3.0f));
+				if (m_IsRenaming) 
+				{
+					ImGui::SetNextItemWidth(cellSize - edgeOffset * 3.0f);
+					ImGui::SetKeyboardFocusHere();
+					if (ImGui::InputText("##rename", s_RenameBuffer, MAX_RENAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue)) 
+					{
+						OnRename(s_RenameBuffer);
+						StopRename();
+					}
+				}
+				else 
+				{
+					const float textWidth = std::min(ImGui::CalcTextSize(m_Name.c_str()).x, cellSize);
+					ImGui::SetNextItemWidth(textWidth);
+					ImGui::Text(m_Name.c_str());
+				}
+				ImGui::PopTextWrapPos();
+				ImGui::Spring();
+				ImGui::EndHorizontal();
+				ImGui::Spring();
+			}
+			ImGui::EndVertical();
+		}
 
 		ImGui::PopStyleVar();
 
 		UI::ShiftCursor(-edgeOffset, -edgeOffset);
 
+		if (Input::IsKeyPressed(Key::F2) && isSelected && !m_IsRenaming)
+			StartRename();
+
 		ImGui::EndGroup();
+
+		if (!ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) 
+		{
+			if (m_IsRenaming)
+				StopRename();
+			else
+				SelectionManager::Deselect(SelectionContext::ContentPanel);
+		}
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
@@ -307,13 +355,32 @@ namespace TerranEditor
 			ImGui::EndDragDropSource();
 		}
 
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			action = OnClick();
+		if (ImGui::IsItemHovered()) 
+		{
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+				m_IsClicked = true;
+
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isSelected && m_IsClicked) 
+			{
+				action = ItemAction::Select;
+				m_IsClicked = false;
+			}
+
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) 
+				action = OnActivate();
+		}
+
+		if (ImGui::BeginPopupContextItem("cbi_actions_context_menu"))
+		{
+			action = ItemAction::Select;
+			if (ImGui::MenuItem("Rename")) {}
+
+			ImGui::EndPopup();
+		}
 
 		//// some indent calculations, just did something that didn't look bad
 		//float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
-		//textIndent = textIndent <= 0.0f ? 1.0f : textIndent;
-
+		//textIndent = textIndent <= 0.0f ? 1.0f : textIndent
 		//ImGui::TextWrapped(m_Name.c_str());
 		//ImGui::SetCursorPosX(cursorPos.x);
 
@@ -321,19 +388,48 @@ namespace TerranEditor
 		return action;
 	}
 
-	ContentBrowserPanelDirectory::ContentBrowserPanelDirectory(const Shared<DirectoryInfo>& directoryInfo)
-		: ContentBrowserPanelItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture(), ContentBrowserPanelItemType::Directory), m_DirectoryInfo(directoryInfo)
+	void ContentBrowserItem::StartRename()
+	{
+		if (m_IsRenaming) return;
+
+		memcpy(s_RenameBuffer, m_Name.c_str(), m_Name.size());
+		m_IsRenaming = true;
+	}
+
+	void ContentBrowserItem::StopRename()
+	{
+		memset(s_RenameBuffer, 0, MAX_RENAME_BUFFER_SIZE);
+		m_IsRenaming = false;
+	}
+
+	ContentBrowserDirectory::ContentBrowserDirectory(const Shared<DirectoryInfo>& directoryInfo)
+		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture(), ItemType::Directory), m_DirectoryInfo(directoryInfo)
 	{ }
 
-	ContentBrowserPanelAction ContentBrowserPanelDirectory::OnClick() { return ContentBrowserPanelAction::NavigateTo; }
-	const Shared<DirectoryInfo>& ContentBrowserPanelDirectory::GetDirectoryInfo() { return m_DirectoryInfo; }
+	ItemAction ContentBrowserDirectory::OnActivate() { return ItemAction::NavigateTo; }
+	ItemAction ContentBrowserDirectory::OnRename(const std::string& newName)
+	{
+		auto sourcePath = Project::GetAssetPath() / m_DirectoryInfo->Path;
+		auto destinationPath = Project::GetAssetPath() / m_DirectoryInfo->Path.parent_path() / newName;
+		FileSystem::Rename(sourcePath, destinationPath);
 
+		return ItemAction::Renamed;
+	}
 
-	
-	ContentBrowserPanelAsset::ContentBrowserPanelAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon)
-		: ContentBrowserPanelItem(assetInfo.Path.stem().string(), assetInfo.Handle, icon, ContentBrowserPanelItemType::File), m_AssetInfo(assetInfo)
+	const Shared<DirectoryInfo>& ContentBrowserDirectory::GetDirectoryInfo() { return m_DirectoryInfo; }
+
+	ContentBrowserAsset::ContentBrowserAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon)
+		: ContentBrowserItem(assetInfo.Path.stem().string(), assetInfo.Handle, icon, ItemType::File), m_AssetInfo(assetInfo)
 	{ }
 
-	ContentBrowserPanelAction ContentBrowserPanelAsset::OnClick() { return ContentBrowserPanelAction::Activate; }
+	ItemAction ContentBrowserAsset::OnActivate() { return ItemAction::Activate; }
+	ItemAction ContentBrowserAsset::OnRename(const std::string& newName)
+	{
+		auto sourcePath = Project::GetAssetPath() / m_AssetInfo.Path;
+		auto destinationPath = Project::GetAssetPath() / m_AssetInfo.Path.parent_path() / (newName + m_AssetInfo.Path.extension().string());
+		FileSystem::Rename(sourcePath, destinationPath);
+		
+		return ItemAction::Renamed;
+	}
 }
 #pragma warning(pop)
