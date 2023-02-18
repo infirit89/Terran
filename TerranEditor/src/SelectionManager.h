@@ -18,7 +18,7 @@ namespace TerranEditor
 		static void Deselect(SelectionContext context);
 
 		static TerranEngine::Entity GetSelected();
-		static TerranEngine::UUID GetSelectedID(SelectionContext context);
+		static TerranEngine::UUID GetSelected(SelectionContext context);
 		static bool IsSelected(SelectionContext context, const TerranEngine::UUID& id);
 
 	private:

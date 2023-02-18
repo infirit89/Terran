@@ -27,7 +27,7 @@ namespace TerranEditor
 		return SceneManager::GetCurrentScene()->FindEntityWithUUID(s_Selections[SelectionContext::Scene]);
 	}
 
-	UUID SelectionManager::GetSelectedID(SelectionContext context)
+	UUID SelectionManager::GetSelected(SelectionContext context)
 	{
 		return s_Selections[context]; 
 	}

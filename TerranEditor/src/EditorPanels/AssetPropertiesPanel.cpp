@@ -19,7 +19,7 @@ namespace TerranEditor
 		if (!m_Open) return;
 		ImGui::Begin("Asset Properties", &m_Open);
 
-		UUID assetID = SelectionManager::GetSelectedID(SelectionContext::ContentPanel);
+		UUID assetID = SelectionManager::GetSelected(SelectionContext::ContentPanel);
 		AssetInfo info = AssetManager::GetAssetInfo(assetID);
 		
 		if (info.Type == AssetType::PhysicsMaterial2D)
@@ -36,7 +36,7 @@ namespace TerranEditor
 
 	bool AssetPropertiesPanel::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
-		UUID assetID = SelectionManager::GetSelectedID(SelectionContext::ContentPanel);
+		UUID assetID = SelectionManager::GetSelected(SelectionContext::ContentPanel);
 
 		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyDown(Key::RightControl);
 

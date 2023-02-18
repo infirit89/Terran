@@ -5,9 +5,6 @@ AssetInfos:
   - Asset: e315c1b9-7f25-442e-9a2d-59f78d90ba54
     Type: 2
     Path: Scenes\asdasdasd.txt
-  - Asset: 1af77b1b-b366-45af-8c38-825bedb38ff5
-    Type: 5
-    Path: test.trpm2d
   - Asset: dea61913-65cb-4a0f-b67b-00cd094f41e9
     Type: 3
     Path: Scripts\Pong\GameManager.cs
@@ -17,12 +14,12 @@ AssetInfos:
   - Asset: f08142f4-0ae6-4c33-9edc-309d2fce1fa1
     Type: 4
     Path: Scenes\Physics\BasicPhysicsTest.terran
-  - Asset: d60a5230-91ea-4c35-a5c6-ac6aced6a7a0
-    Type: 4
-    Path: Scenes\Physics\RayCastTest.terran
   - Asset: d302be4d-c389-44a6-88de-475c064e6c62
     Type: 4
     Path: Scenes\Transform\TransformHierarchyTest.terran
+  - Asset: d60a5230-91ea-4c35-a5c6-ac6aced6a7a0
+    Type: 4
+    Path: Scenes\Physics\RayCastTest.terran
   - Asset: 8773474b-5c0b-423d-9f39-4a117c761efe
     Type: 4
     Path: Scenes\Physics\HierarchyPhysicsTest.terran
@@ -38,30 +35,39 @@ AssetInfos:
   - Asset: 96ccaa8f-2571-4c9e-b9d2-0ba2d7234479
     Type: 3
     Path: Scripts\Pong\CollisionUtils.cs
-  - Asset: af4ede2f-1ed8-4a75-9ef9-dd9e44a8d992
-    Type: 3
-    Path: Scripts\Pong\Player.cs
+  - Asset: 780bd519-47b4-4ea1-8e7c-222eb19066e8
+    Type: 2
+    Path: Scripts\Test\Test.txt
   - Asset: 150f6484-d74e-4d8a-b7b5-3a64629ef36e
     Type: 4
     Path: Test.terran
+  - Asset: af4ede2f-1ed8-4a75-9ef9-dd9e44a8d992
+    Type: 3
+    Path: Scripts\Pong\Player.cs
+  - Asset: 224f5ce0-8db6-42d0-994d-8a40d98acc1c
+    Type: 1
+    Path: Scripts\floor.png
+  - Asset: 7677b6a2-92a9-4265-a208-936b8523d025
+    Type: 1
+    Path: floor.png
   - Asset: 9427faf2-bf7c-4e06-aa59-b663fc41d8d5
     Type: 3
     Path: Scripts\Test2.cs
   - Asset: fee9a86b-af69-47cc-bcb4-7ac420782faa
     Type: 3
     Path: Test.cs
-  - Asset: 4ab24564-899b-4418-97c8-c8093ae40b9d
-    Type: 1
-    Path: floor.png
+  - Asset: 35f1f043-49b2-42d4-a8e4-949b690b6b69
+    Type: 2
+    Path: Scripts\i cum7.txt
   - Asset: 620a554e-b50e-4e75-8379-02e540c13d13
     Type: 4
     Path: Test2.terran
-  - Asset: 4d1c29f4-2bbb-4a1a-8595-80c81f23ebb8
-    Type: 4
-    Path: Test3.terran
   - Asset: b9126a28-99f4-4095-bfb9-90af0db0d5d8
     Type: 4
     Path: Test5.terran
+  - Asset: 4d1c29f4-2bbb-4a1a-8595-80c81f23ebb8
+    Type: 4
+    Path: Test3.terran
   - Asset: 5bbc1464-aa62-4607-85be-60bb47e576be
     Type: 4
     Path: Test4.terran
@@ -71,21 +77,15 @@ AssetInfos:
   - Asset: e347e656-23f3-4791-8fdc-ad1e6e6c1253
     Type: 4
     Path: Test7.terran
-  - Asset: bbb8b478-f646-4807-92d1-04d17bb76a38
-    Type: 2
-    Path: i cum6
   - Asset: d0f2e4ea-3dbd-467a-8e42-2f6b09bdc38e
     Type: 4
     Path: Test8.terran
+  - Asset: bbb8b478-f646-4807-92d1-04d17bb76a38
+    Type: 2
+    Path: i cum6
   - Asset: 38720710-f229-499f-afa4-3bd0aaee2af8
     Type: 2
     Path: i cum2
-  - Asset: f674bd25-70f6-40e9-aa02-4e3ba6df0820
-    Type: 2
-    Path: i cum7.txt
-  - Asset: 67d0694d-96cb-45d5-9ad8-952040622e91
-    Type: 5
-    Path: TestAsset.trpm2d
   - Asset: 2effa35c-2d4f-4c0a-9ad6-99d2da2abb86
     Type: 5
     Path: Assets\test.trpm2d
@@ -98,15 +98,33 @@ AssetInfos:
   - Asset: 89996888-c358-43bf-978d-66a4a6a0d206
     Type: 2
     Path: cum4
+  - Asset: 42a2b552-f6b8-4ac7-8a91-534dc7009e8f
+    Type: 2
+    Path: Test\Test.txt
   - Asset: d632a778-b805-447c-aada-71ac47a9f85f
     Type: 2
     Path: ""
-  - Asset: b8be86f4-20be-461b-bd3e-c5028ab96919
-    Type: 2
-    Path: cum4.txt
+  - Asset: 00f435ea-b29d-4bf4-992b-8a1587fb280b
+    Type: 5
+    Path: Scripts\test.trpm2d
   - Asset: 7957da0b-56f3-47b9-969d-a371107e81ed
     Type: 2
     Path: i cum4
   - Asset: 957f21b1-ba2b-4d0f-b71a-8b43cd59883b
     Type: 2
     Path: i cum5
+  - Asset: 3381bdfc-f053-42e0-aecf-36cac5d72491
+    Type: 2
+    Path: Scripts\cum4.txt
+  - Asset: c9c7bbba-2dd4-41ca-96fe-83628cc70e23
+    Type: 5
+    Path: test.trpm2d
+  - Asset: 4b1a43fb-d5a5-41ac-8896-22190b183909
+    Type: 2
+    Path: i cum7.txt
+  - Asset: 829b7bc1-cb3b-46f2-a4dd-ad68fc601537
+    Type: 5
+    Path: Scripts\TestAsset.trpm2d
+  - Asset: 19b7a0a1-5e28-407b-abb4-84ac614acf35
+    Type: 2
+    Path: cum4.txt

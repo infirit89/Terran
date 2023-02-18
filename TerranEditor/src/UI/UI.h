@@ -228,7 +228,7 @@ namespace TerranEditor
 					TerranEngine::UUID assetHandle = TerranEngine::UUID::CreateFromRaw((uint8_t*)payload->Data);
 					TerranEngine::AssetInfo info = TerranEngine::AssetManager::GetAssetInfo(assetHandle);
 
-					if (info.Type == TerranEngine::AssetType::Texture)
+					if (info.Type == type)
 					{
 						outHandle = assetHandle;
 						result = true;

@@ -29,7 +29,8 @@ namespace TerranEditor
 		NavigateTo,
 		Activate,
 		Select,
-		Renamed
+		Renamed,
+		MoveTo
 	};
 
 	enum class ItemType
@@ -47,13 +48,16 @@ namespace TerranEditor
 		void BeginRender();
 		void EndRender();
 		ItemAction OnRender();
-		virtual ItemAction OnActivate() = 0;
-		virtual ItemAction OnRename(const std::string& newName) = 0;
+		virtual void Move(const std::filesystem::path& newPath) = 0;
 
 		UUID GetID() { return m_ID; }
 
 		void StartRename();
 		void StopRename();
+
+	private:
+		virtual ItemAction OnActivate() = 0;
+		virtual ItemAction OnRename(const std::string& newName) = 0;
 
 	private:
 		std::string m_Name;
@@ -70,9 +74,12 @@ namespace TerranEditor
 		ContentBrowserDirectory(const Shared<DirectoryInfo>& directoryInfo);
 		virtual ~ContentBrowserDirectory() override = default;
 
+		virtual void Move(const std::filesystem::path& newPath) override;
+		const Shared<DirectoryInfo>& GetDirectoryInfo() { return m_DirectoryInfo; }
+
+	private:
 		virtual ItemAction OnActivate() override;
 		virtual ItemAction OnRename(const std::string& newName) override;
-		const Shared<DirectoryInfo>& GetDirectoryInfo();
 
 	private:
 		Shared<DirectoryInfo> m_DirectoryInfo;
@@ -84,9 +91,12 @@ namespace TerranEditor
 		ContentBrowserAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon);
 		virtual ~ContentBrowserAsset() override = default;
 
+		virtual void Move(const std::filesystem::path& newPath) override;
+		const AssetInfo& GetAssetInfo() { return m_AssetInfo; }
+
+	private:
 		virtual ItemAction OnActivate() override;
 		virtual ItemAction OnRename(const std::string& newName) override;
-		const AssetInfo& GetAssetInfo() { return m_AssetInfo; }
 
 	private:
 		AssetInfo m_AssetInfo;

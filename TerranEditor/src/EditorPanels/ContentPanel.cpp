@@ -120,6 +120,20 @@ namespace TerranEditor
 				if (action == ItemAction::Select)
 					SelectionManager::Select(SelectionContext::ContentPanel, item->GetID());
 
+				if (action == ItemAction::MoveTo)
+				{
+					auto selectedItem = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [](Shared<ContentBrowserItem> browserItem)
+					{
+						return browserItem->GetID() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
+					});
+
+					if (selectedItem != m_CurrentItems.end()) 
+					{
+						std::filesystem::path directoryPath = m_DirectoryInfoMap[item->GetID()]->Path;
+						(*selectedItem)->Move(directoryPath);
+					}
+				}
+
 				ImGui::NextColumn();
 				item->EndRender();
 			}
@@ -348,10 +362,22 @@ namespace TerranEditor
 				SelectionManager::Deselect(SelectionContext::ContentPanel);
 		}
 
+		if (m_Type == ItemType::Directory)
+		{
+			if (ImGui::BeginDragDropTarget()) 
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")) 
+					action = ItemAction::MoveTo;
+
+				ImGui::EndDragDropTarget();
+			}
+		}
+
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			ImGui::SetDragDropPayload("ASSET", m_ID.GetRaw(), sizeof(UUID));
 			ImGui::Text("File %s", m_Name.c_str());
+			action = ItemAction::Select;
 			ImGui::EndDragDropSource();
 		}
 
@@ -362,7 +388,9 @@ namespace TerranEditor
 
 			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isSelected && m_IsClicked) 
 			{
-				action = ItemAction::Select;
+				if(action != ItemAction::MoveTo)
+					action = ItemAction::Select;
+
 				m_IsClicked = false;
 			}
 
@@ -406,6 +434,13 @@ namespace TerranEditor
 		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture(), ItemType::Directory), m_DirectoryInfo(directoryInfo)
 	{ }
 
+	void ContentBrowserDirectory::Move(const std::filesystem::path & newPath)
+	{
+		auto sourcePath = Project::GetAssetPath() / m_DirectoryInfo->Path;
+		auto destinationPath = Project::GetAssetPath() / newPath / m_DirectoryInfo->Path.filename();
+		FileSystem::Rename(sourcePath, destinationPath);
+	}
+
 	ItemAction ContentBrowserDirectory::OnActivate() { return ItemAction::NavigateTo; }
 	ItemAction ContentBrowserDirectory::OnRename(const std::string& newName)
 	{
@@ -416,11 +451,16 @@ namespace TerranEditor
 		return ItemAction::Renamed;
 	}
 
-	const Shared<DirectoryInfo>& ContentBrowserDirectory::GetDirectoryInfo() { return m_DirectoryInfo; }
-
 	ContentBrowserAsset::ContentBrowserAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon)
 		: ContentBrowserItem(assetInfo.Path.stem().string(), assetInfo.Handle, icon, ItemType::File), m_AssetInfo(assetInfo)
 	{ }
+
+	void ContentBrowserAsset::Move(const std::filesystem::path & newPath)
+	{
+		auto sourcePath = Project::GetAssetPath() / m_AssetInfo.Path;
+		auto destinationPath = Project::GetAssetPath() / newPath / m_AssetInfo.Path.filename();
+		FileSystem::Rename(sourcePath, destinationPath);
+	}
 
 	ItemAction ContentBrowserAsset::OnActivate() { return ItemAction::Activate; }
 	ItemAction ContentBrowserAsset::OnRename(const std::string& newName)
