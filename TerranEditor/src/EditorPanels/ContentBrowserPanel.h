@@ -18,7 +18,7 @@ namespace TerranEditor
 	{
 		UUID ID;
 		std::filesystem::path Path;
-		std::vector<Shared<DirectoryInfo>> Subdirectories;
+		std::unordered_map<UUID, Shared<DirectoryInfo>> Subdirectories;
 		Shared<DirectoryInfo> Parent;
 		std::vector<UUID> AssetHandles;
 	};
@@ -29,6 +29,7 @@ namespace TerranEditor
 		NavigateTo,
 		Activate,
 		Select,
+		StartRename,
 		Renamed,
 		MoveTo
 	};
@@ -65,7 +66,6 @@ namespace TerranEditor
 		UUID m_ID;
 		ItemType m_Type;
 		bool m_IsRenaming = false;
-		bool m_IsClicked = false;
 	};
 
 	class ContentBrowserDirectory : public ContentBrowserItem
@@ -111,21 +111,28 @@ namespace TerranEditor
 		virtual void ImGuiRender() override;
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
+
 	private:
+		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
+
 		template<typename T>
 		Shared<T> CreateAssetInDirectory(const std::string& name, const std::filesystem::path& directory = "")
 		{
 			std::filesystem::path filepath = directory / name;
-			return AssetManager::CreateAsset<T>(filepath);
+			return AssetManager::CreateNewAsset<T>(filepath);
 		}
 
-		void Reload();
+		void Refresh();
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent = nullptr);
 		const Shared<DirectoryInfo>& GetDirectory(const std::filesystem::path& directoryPath);
 		const Shared<DirectoryInfo>& GetDirectory(const UUID& id);
 		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
 		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
 
+		void RefreshDirectory(const Shared<DirectoryInfo>& directory);
+		void RemoveDirectoryInfo(const Shared<DirectoryInfo>& directory);
+
+	private:
 		Shared<DirectoryInfo> m_CurrentDirectory;
 		Shared<DirectoryInfo> m_PreviousDirectory;
 		std::stack<Shared<DirectoryInfo>> m_NextDirectoryStack;

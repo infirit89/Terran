@@ -63,12 +63,25 @@ namespace TerranEngine
 		}
 
 		template<typename T>
-		static Shared<T> CreateAsset(const std::filesystem::path& filePath) 
+		static Shared<T> CreateNewAsset(const std::filesystem::path& filePath) 
 		{
 			AssetInfo info;
 			info.Handle = UUID();
 			info.Path = filePath;
 			info.Type = T::GetStaticType();
+
+			int currentFileNumber = 2;
+			while (FileExists(info.Path)) 
+			{
+				info.Path = filePath.parent_path() / filePath.stem();
+					
+				info.Path = info.Path.string() +
+								" (" + std::to_string(currentFileNumber) + ")" +
+								filePath.extension().string();
+
+
+				currentFileNumber++;
+			}
 
 			s_AssetsInfos[info.Handle] = info;
 
@@ -93,6 +106,8 @@ namespace TerranEngine
 
 		static void LoadAssetInfos();
 		static void WriteAssetInfosToFile();
+
+		static bool FileExists(const std::filesystem::path& path);
 
 	private:
 		static void OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents);

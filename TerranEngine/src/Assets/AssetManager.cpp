@@ -226,6 +226,11 @@ namespace TerranEngine
 		return UUID::Invalid();
 	}
 
+	bool AssetManager::FileExists(const std::filesystem::path& path) 
+	{
+		return std::filesystem::exists(GetFileSystemPath(path));
+	}
+
 	std::filesystem::path AssetManager::GetFileSystemPath(const std::filesystem::path& path)
 	{
 		return Project::GetAssetPath() / path;
@@ -238,6 +243,8 @@ namespace TerranEngine
 
 		if (s_LoadedAssets.find(assetID) != s_LoadedAssets.end())
 			s_LoadedAssets.erase(assetID);
+
+		WriteAssetInfosToFile();
 	}
 
 	void AssetManager::OnAssetRenamed(UUID assetID, const std::filesystem::path& newFileName)
@@ -246,5 +253,7 @@ namespace TerranEngine
 
 		if (info != s_EmptyAssetInfo)
 			info.Path = newFileName;
+
+		WriteAssetInfosToFile();
 	}
 }

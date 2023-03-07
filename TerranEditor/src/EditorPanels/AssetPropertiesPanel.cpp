@@ -61,9 +61,14 @@ namespace TerranEditor
 	void AssetPropertiesPanel::RenderPhysicsMaterial2DProperties(const UUID& assetID)
 	{
 		Shared<PhysicsMaterial2DAsset> material = AssetManager::GetAsset<PhysicsMaterial2DAsset>(assetID);
+		UI::BeginPropertyGroup("pm2d_properties");
+		ImGui::TableNextRow();
 		UI::PropertyFloat("Density", material->Density);
+		ImGui::TableNextRow();
 		UI::PropertyFloat("Friction", material->Friction);
+		ImGui::TableNextRow();
 		UI::PropertyFloat("Restitution", material->Restitution);
+		UI::EndPropertyGroup();
 		m_CurrentAsset = material;
 	}
 }

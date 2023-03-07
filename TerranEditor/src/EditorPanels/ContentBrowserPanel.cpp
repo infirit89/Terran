@@ -1,4 +1,4 @@
-#include "ContentPanel.h"
+#include "ContentBrowserPanel.h"
 
 #include "EditorResources.h"
 
@@ -68,7 +68,7 @@ namespace TerranEditor
 			}
 			ImGui::Spring(-1.0f, 4.0f * 2.0f);
 			if (ImGui::Button("Reload"))
-				Reload();
+				Refresh();
 		}
 		ImGui::EndHorizontal();
 		ImGui::EndChild();
@@ -78,8 +78,11 @@ namespace TerranEditor
 			if (ImGui::MenuItem("Reveal in explorer"))
 				FileSystem::RevealInExplorer(m_CurrentDirectory->Path);
 
-			if (ImGui::MenuItem("Create physics material"))
-				CreateAssetInDirectory<PhysicsMaterial2DAsset>("test.trpm2d");
+			if (ImGui::MenuItem("Create physics material")) 
+			{
+				CreateAssetInDirectory<PhysicsMaterial2DAsset>("test.trpm2d", m_CurrentDirectory->Path);
+
+			}
 
 			ImGui::EndPopup();
 		}
@@ -127,12 +130,18 @@ namespace TerranEditor
 						return browserItem->GetID() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
 					});
 
+					SelectionManager::Deselect(SelectionContext::ContentPanel);
 					if (selectedItem != m_CurrentItems.end()) 
 					{
 						std::filesystem::path directoryPath = m_DirectoryInfoMap[item->GetID()]->Path;
 						(*selectedItem)->Move(directoryPath);
 					}
+
+
 				}
+
+				if (action == ItemAction::StartRename)
+					item->StartRename();
 
 				ImGui::NextColumn();
 				item->EndRender();
@@ -154,12 +163,133 @@ namespace TerranEditor
 		ImGui::End();
 	}
 
-	void ContentPanel::Reload()
+	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0)
 	{
-		m_DirectoryInfoMap.clear();
+		std::string childStr = std::string(level, '-');
+
+		if (level == 0)
+			TR_TRACE("Assets");
+		else
+			TR_TRACE("{0}{1}", childStr, parent->Path.filename().string());
+
+		for (const auto& [handle, subdirectory] : parent->Subdirectories)
+			PrintDirectoryInfo(subdirectory, level + 1);
+	}
+
+	void ContentPanel::RefreshDirectory(const Shared<DirectoryInfo>& directory)
+	{
+		if (!DirectoryExists(directory)) 
+		{
+			RemoveDirectoryInfo(directory);
+			return;
+		}
+
+		// TODO: handle asset refreshing
+
+		auto tempAssets = directory->AssetHandles;
+		auto tempSubdirectories = directory->Subdirectories;
+
+		for (const auto& assetHandle : tempAssets)
+		{
+			AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
+			if (!assetInfo) 
+			{
+				auto assetHandleIt = std::find(directory->AssetHandles.begin(), directory->AssetHandles.end(), assetHandle);
+				directory->AssetHandles.erase(assetHandleIt);
+			}
+		}
+
+		for (const auto& [handle, subdirectory] : tempSubdirectories)
+			RefreshDirectory(subdirectory);
+
+		std::filesystem::path directoryPath = Project::GetAssetPath() / directory->Path;
+
+		for (const auto& directoryEntry : std::filesystem::directory_iterator(directoryPath))
+		{
+			if (directoryEntry.is_directory()) 
+			{
+				UUID subdirectoryHandle = ProcessDirectory(directoryEntry, directory);
+				directory->Subdirectories.emplace(subdirectoryHandle, m_DirectoryInfoMap[subdirectoryHandle]);
+			}
+		}
+	}
+
+	void ContentPanel::RemoveDirectoryInfo(const Shared<DirectoryInfo>& directory)
+	{
+		auto parent = directory->Parent;
+		parent->Subdirectories.erase(directory->ID);
+
+		for (const auto& [handle, subdirectory] : directory->Subdirectories) 
+			m_DirectoryInfoMap.erase(subdirectory->ID);
+
+		m_DirectoryInfoMap.erase(directory->ID);
+	}
+
+	void ContentPanel::Refresh()
+	{
+		auto rootDirectory = GetDirectory("");
+
+		RefreshDirectory(rootDirectory);
+		//ProcessDirectory(Project::GetAssetPath());
+
+		// NOTE: try this solution if the current one is slow
+		//auto tempDirectories = m_DirectoryInfoMap;
+
+		//for (const auto& [handle, directory] : tempDirectories)
+		//{
+		//	if (!DirectoryExists(directory)) 
+		//	{
+		//		TR_TRACE(directory->Path);
+		//		auto parent = directory->Parent;
+		//		parent->Subdirectories.erase(directory->ID);
+		//		
+		//		for (const auto& [childHandle, subdirectory] : directory->Subdirectories)
+		//			m_DirectoryInfoMap.erase(subdirectory->ID);
+
+		//		m_DirectoryInfoMap.erase(directory->ID);
+
+		//		continue;
+		//		// TODO: handle deletion
+		//	}
+
+
+		//}
+
+		bool shouldChangeCurrent = false;
+		while (!DirectoryExists(m_CurrentDirectory)) 
+		{
+			m_CurrentDirectory = m_CurrentDirectory->Parent;
+			shouldChangeCurrent = true;
+		}
+
+		if (shouldChangeCurrent) ChangeDirectory(m_CurrentDirectory);
+		else 
+		{
+			auto tempItems = m_CurrentItems;
+			for (const auto& item : tempItems)
+			{
+				auto& subdirectories = m_CurrentDirectory->Subdirectories;
+				auto& assets = m_CurrentDirectory->AssetHandles;
+
+				bool directoryExists = subdirectories.find(item->GetID()) != subdirectories.end();
+				bool assetExists = std::find(assets.begin(), assets.end(), item->GetID()) != assets.end();
+
+				auto itemIt = std::find(m_CurrentItems.begin(), m_CurrentItems.end(), item);
+				if (!directoryExists && !assetExists) m_CurrentItems.erase(itemIt);
+			}
+		}
+
+		PrintDirectoryInfo(m_CurrentDirectory);
+
+		/*m_DirectoryInfoMap.clear();
 		UUID dirID = ProcessDirectory(Project::GetAssetPath());
 		m_CurrentDirectory = GetDirectory(dirID);
-		ChangeDirectory(m_CurrentDirectory);
+		ChangeDirectory(m_CurrentDirectory);*/
+	}
+
+	bool ContentPanel::DirectoryExists(const Shared<DirectoryInfo>& directory)
+	{
+		return std::filesystem::exists(Project::GetAssetPath() / directory->Path);
 	}
 
 	UUID ContentPanel::ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent)
@@ -181,7 +311,8 @@ namespace TerranEditor
 			if (directoryEntry.is_directory()) 
 			{
 				UUID subdirectoryID = ProcessDirectory(directoryEntry, directoryInfo);
-				directoryInfo->Subdirectories.push_back(m_DirectoryInfoMap[subdirectoryID]);
+				//directoryInfo->Subdirectories.push_back(m_DirectoryInfoMap[subdirectoryID]);
+				directoryInfo->Subdirectories.emplace(subdirectoryID, m_DirectoryInfoMap[subdirectoryID]);
 			}
 			else 
 			{
@@ -200,7 +331,7 @@ namespace TerranEditor
 	{
 		for (const auto&[id, directoryInfo] : m_DirectoryInfoMap)
 		{
-			if (directoryInfo->Path == directoryPath)
+			if (directoryInfo->Path == std::filesystem::relative(directoryPath, Project::GetAssetPath()))
 				return directoryInfo;
 		}
 
@@ -221,7 +352,7 @@ namespace TerranEditor
 
 		m_CurrentItems.clear();
 
-		for (const auto& subdirectory : directory->Subdirectories)
+		for (const auto& [handle, subdirectory] : directory->Subdirectories)
 			m_CurrentItems.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
 
 		for (const auto& assetHandle : directory->AssetHandles)
@@ -236,20 +367,7 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		Reload();
-	}
-
-	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0) 
-	{
-		std::string childStr = std::string(level, '-');
-
-		if (level == 0)
-			TR_TRACE("Assets");
-		else
-			TR_TRACE("{0}{1}", childStr, parent->Path.string());
-
-		for (const auto& subdirectory : parent->Subdirectories)
-			PrintDirectoryInfo(subdirectory, level + 1);
+		//Reload();
 	}
 
 #define MAX_RENAME_BUFFER_SIZE 256
@@ -285,6 +403,7 @@ namespace TerranEditor
 
 		const float cellSize = 74.0f;
 		const float edgeOffset = 4.0f;
+		const int maxFileNameLength = 8;
 
 		bool isSelected = SelectionManager::IsSelected(SelectionContext::ContentPanel, m_ID);
 
@@ -331,11 +450,14 @@ namespace TerranEditor
 						StopRename();
 					}
 				}
-				else 
+				else
 				{
-					const float textWidth = std::min(ImGui::CalcTextSize(m_Name.c_str()).x, cellSize);
+					std::string formattedName = m_Name;
+					if (formattedName.size() > maxFileNameLength)
+						formattedName = formattedName.replace(maxFileNameLength, formattedName.size() - 1, "...");
+					const float textWidth = std::min(ImGui::CalcTextSize(formattedName.c_str()).x, cellSize);
 					ImGui::SetNextItemWidth(textWidth);
-					ImGui::Text(m_Name.c_str());
+					ImGui::Text(formattedName.c_str());
 				}
 				ImGui::PopTextWrapPos();
 				ImGui::Spring();
@@ -376,22 +498,17 @@ namespace TerranEditor
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			ImGui::SetDragDropPayload("ASSET", m_ID.GetRaw(), sizeof(UUID));
-			ImGui::Text("File %s", m_Name.c_str());
+			ImGui::Text("% s", m_Name.c_str());
 			action = ItemAction::Select;
 			ImGui::EndDragDropSource();
 		}
 
 		if (ImGui::IsItemHovered()) 
 		{
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
-				m_IsClicked = true;
-
-			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isSelected && m_IsClicked) 
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 			{
-				if(action != ItemAction::MoveTo)
+				if(action != ItemAction::MoveTo && !isSelected)
 					action = ItemAction::Select;
-
-				m_IsClicked = false;
 			}
 
 			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) 
@@ -400,18 +517,11 @@ namespace TerranEditor
 
 		if (ImGui::BeginPopupContextItem("cbi_actions_context_menu"))
 		{
-			action = ItemAction::Select;
-			if (ImGui::MenuItem("Rename")) {}
+			if (ImGui::MenuItem("Rename"))
+				action = ItemAction::StartRename;
 
 			ImGui::EndPopup();
 		}
-
-		//// some indent calculations, just did something that didn't look bad
-		//float textIndent = ((cellSize + 10.0f) - textWidth) * 0.5f;
-		//textIndent = textIndent <= 0.0f ? 1.0f : textIndent
-		//ImGui::TextWrapped(m_Name.c_str());
-		//ImGui::SetCursorPosX(cursorPos.x);
-
 
 		return action;
 	}

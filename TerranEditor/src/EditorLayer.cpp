@@ -7,7 +7,7 @@
 #include "EditorPanels/PropertiesPanel.h"
 #include "EditorPanels/SceneViewPanel.h"
 #include "EditorPanels/GameViewPanel.h"
-#include "EditorPanels/ContentPanel.h"
+#include "EditorPanels/ContentBrowserPanel.h"
 #include "EditorPanels/ECSPanel.h"
 #include "EditorPanels/LogPanel.h"
 #include "EditorPanels/SettingsPanel.h"

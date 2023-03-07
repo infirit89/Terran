@@ -4,6 +4,7 @@
 
 #define TR_EVENT_BIND_FN(event) std::bind(&event, this, std::placeholders::_1)
 #define TR_STRINGIFY(a) #a
+#define TR_DEPRICATED(message) [[deprecated(message)]]
 
 namespace TerranEngine
 {
