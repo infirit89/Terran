@@ -2,6 +2,8 @@
 
 #include "Core/Base.h"
 #include "Core/FileUtils.h"
+#include "Events/KeyboardEvent.h"
+
 #include "Graphics/Texture.h"
 
 #include "EditorPanel.h"
@@ -20,7 +22,7 @@ namespace TerranEditor
 		std::filesystem::path Path;
 		std::unordered_map<UUID, Shared<DirectoryInfo>> Subdirectories;
 		Shared<DirectoryInfo> Parent;
-		std::vector<UUID> AssetHandles;
+		std::vector<UUID> Assets;
 	};
 
 	enum class ItemAction
@@ -52,6 +54,8 @@ namespace TerranEditor
 		virtual void Move(const std::filesystem::path& newPath) = 0;
 
 		UUID GetID() { return m_ID; }
+		const std::string& GetName() { return m_Name; }
+		ItemType GetType() { return m_Type; }
 
 		void StartRename();
 		void StopRename();
@@ -109,10 +113,12 @@ namespace TerranEditor
 		~ContentPanel() = default;
 
 		virtual void ImGuiRender() override;
+		virtual void OnEvent(TerranEngine::Event& event) override;
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
 
 	private:
+		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
 
 		template<typename T>
@@ -131,6 +137,11 @@ namespace TerranEditor
 
 		void RefreshDirectory(const Shared<DirectoryInfo>& directory);
 		void RemoveDirectoryInfo(const Shared<DirectoryInfo>& directory);
+		void UpdateCurrentItems();
+		void SortItems();
+
+		void ChangeForwardDirectory();
+		void ChangeBackwardDirectory();
 
 	private:
 		Shared<DirectoryInfo> m_CurrentDirectory;
