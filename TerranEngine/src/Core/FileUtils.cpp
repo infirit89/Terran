@@ -30,4 +30,9 @@ namespace TerranEngine
 
 		return true;
 	}
+
+	std::filesystem::file_time_type FileSystem::GetModifiedTime(const std::filesystem::path& path)
+	{
+		return std::filesystem::last_write_time(path);
+	}
 }

@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "Log.h"
+#include "Utils/Utils.h"
 
 int main(int argc, char** argv) 
 {

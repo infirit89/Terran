@@ -11,6 +11,8 @@
 
 #include "Project/Project.h"
 
+#include "Utils/Utils.h"
+
 #include "SelectionManager.h"
 
 #include "UI/UI.h"
@@ -191,34 +193,44 @@ namespace TerranEditor
 
 		auto tempAssets = directory->Assets;
 		auto tempSubdirectories = directory->Subdirectories;
+		std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
+		bool updated = currentTime != directory->ModifiedTime;
+		
+		for (const auto& [handle, subdirectory] : tempSubdirectories)
+			RefreshDirectory(subdirectory);
 
+		if (!updated) return;
+		
+		directory->ModifiedTime = currentTime;
 		for (const auto& assetHandle : tempAssets)
 		{
 			AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
-			if (!assetInfo) 
+			if (!assetInfo)
 			{
 				auto assetHandleIt = std::find(directory->Assets.begin(), directory->Assets.end(), assetHandle);
 				directory->Assets.erase(assetHandleIt);
 			}
 		}
 
-		for (const auto& [handle, subdirectory] : tempSubdirectories)
-			RefreshDirectory(subdirectory);
-
-		std::filesystem::path directoryPath = Project::GetAssetPath() / directory->Path;
-
-		for (const auto& directoryEntry : std::filesystem::directory_iterator(directoryPath))
+		// techinically the path isn't absolute
+		std::filesystem::path absoluteDirectoryPath = Project::GetAssetPath() / directory->Path;
+		for (const auto& directoryEntry : std::filesystem::directory_iterator(absoluteDirectoryPath))
 		{
 			if (directoryEntry.is_directory()) 
 			{
 				UUID subdirectoryHandle = ProcessDirectory(directoryEntry, directory);
-				directory->Subdirectories.emplace(subdirectoryHandle, m_DirectoryInfoMap[subdirectoryHandle]);
+				if(directory->Subdirectories.find(subdirectoryHandle) == directory->Subdirectories.end())
+					directory->Subdirectories.emplace(subdirectoryHandle, m_DirectoryInfoMap[subdirectoryHandle]);
 				continue;
 			}
 
 			UUID assetHandle = AssetManager::ImportAsset(directoryEntry);
-			if (assetHandle)
+			auto assetIt = std::find(directory->Assets.begin(), directory->Assets.end(), assetHandle);
+			if (assetHandle && assetIt == directory->Assets.end()) 
+			{
 				directory->Assets.emplace_back(assetHandle);
+				AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
+			}
 		}
 	}
 
@@ -235,6 +247,7 @@ namespace TerranEditor
 
 	void ContentPanel::UpdateCurrentItems()
 	{
+		//std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
 		auto tempItems = m_CurrentItems;
 		for (const auto& item : tempItems)
 		{
@@ -243,9 +256,7 @@ namespace TerranEditor
 
 			bool directoryExists = subdirectories.find(item->GetID()) != subdirectories.end();
 			bool assetExists = std::find(assets.begin(), assets.end(), item->GetID()) != assets.end();
-
-			auto itemIt = std::find(m_CurrentItems.begin(), m_CurrentItems.end(), item);
-			if (!directoryExists && !assetExists) m_CurrentItems.erase(itemIt);
+			if (!directoryExists && !assetExists) m_CurrentItems.Erase(item);
 		}
 
 		for (const auto& [id, subdirectory] : m_CurrentDirectory->Subdirectories)
@@ -255,7 +266,7 @@ namespace TerranEditor
 				return item->GetID() == subdirectory->ID;
 			});
 
-			if (it == m_CurrentItems.end()) m_CurrentItems.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
+			if (it == m_CurrentItems.end()) m_CurrentItems.Items.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
 		}
 
 		for (const auto& assetHandle : m_CurrentDirectory->Assets)
@@ -268,7 +279,8 @@ namespace TerranEditor
 			if (it == m_CurrentItems.end())
 			{
 				AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-				m_CurrentItems.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
+				TR_TRACE(info.Path);
+				m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
 			}
 		}
 
@@ -280,10 +292,10 @@ namespace TerranEditor
 		std::sort(m_CurrentItems.begin(), m_CurrentItems.end(),
 		[](const Shared<ContentBrowserItem>& left, const Shared<ContentBrowserItem>& right)
 		{
-			if (left->GetType() == ItemType::Directory && right->GetType() != ItemType::Directory) return true;
-			if (left->GetName().compare(right->GetName()) < 0) return true;
-
-			return false;
+			if(left->GetType() == right->GetType())
+				return Utils::ToLower(left->GetName()) < Utils::ToLower(right->GetName());
+			
+			return (uint8_t)left->GetType() < (uint8_t)right->GetType();
 		});
 	}
 
@@ -343,7 +355,16 @@ namespace TerranEditor
 
 	bool ContentPanel::OnKeyPressedEvent(KeyPressedEvent& kEvent)
 	{
-		//bool altPressed = Input::IsKeyDown(Key::LeftAlt) || Input::IsKeyDown(Key::RightAlt)
+		bool altPressed = Input::IsKeyDown(Key::LeftAlt) || Input::IsKeyDown(Key::RightAlt);
+
+		if (kEvent.GetRepeatCount() > 0) 
+			return false;
+
+		switch (kEvent.GetKeyCode())
+		{
+		case Key::Left: ChangeBackwardDirectory(); break;
+		case Key::Right: ChangeForwardDirectory(); break;
+		}
 
 		return false;
 	}
@@ -361,6 +382,7 @@ namespace TerranEditor
 		Shared<DirectoryInfo> directoryInfo = CreateShared<DirectoryInfo>();
 		directoryInfo->ID = UUID();
 		directoryInfo->Parent = parent;
+		directoryInfo->ModifiedTime = FileSystem::GetModifiedTime(directoryPath);
 
 		if (directoryPath == Project::GetAssetPath())
 			directoryInfo->Path = "";
@@ -372,7 +394,6 @@ namespace TerranEditor
 			if (directoryEntry.is_directory()) 
 			{
 				UUID subdirectoryID = ProcessDirectory(directoryEntry, directoryInfo);
-				//directoryInfo->Subdirectories.push_back(m_DirectoryInfoMap[subdirectoryID]);
 				directoryInfo->Subdirectories.emplace(subdirectoryID, m_DirectoryInfoMap[subdirectoryID]);
 			}
 			else 
@@ -411,15 +432,15 @@ namespace TerranEditor
 	{
 		if (!directory) return;
 
-		m_CurrentItems.clear();
+		m_CurrentItems.Items.clear();
 
 		for (const auto& [handle, subdirectory] : directory->Subdirectories)
-			m_CurrentItems.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
+			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
 
 		for (const auto& assetHandle : directory->Assets)
 		{
 			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-			m_CurrentItems.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
+			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
 		}
 
 		SortItems();
@@ -430,7 +451,7 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		//Reload();
+		Refresh();
 	}
 
 #define MAX_RENAME_BUFFER_SIZE 256

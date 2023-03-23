@@ -30,7 +30,7 @@ namespace TerranEngine
 			{ ".jpg",		AssetType::Texture	},
 			{ ".jpeg",		AssetType::Texture	},
 			{ ".txt",		AssetType::Text		},
-			{ ".cs",		AssetType::CSFile	},
+			{ ".cs",		AssetType::ScriptFile	},
 			{ ".terran",	AssetType::Scene	},
 			{ ".trpm2d",	AssetType::PhysicsMaterial2D }
 		};

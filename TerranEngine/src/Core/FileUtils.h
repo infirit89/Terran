@@ -34,6 +34,7 @@ namespace TerranEngine
 
 		static std::filesystem::path GetEnvironmentVariable(const char* name);
 		static void RevealInExplorer(const std::filesystem::path& path);
+		static std::filesystem::file_time_type GetModifiedTime(const std::filesystem::path& path);
 
 		static void StartWatch();
 		static void SetDirectoryToWatch(const std::filesystem::path& directoryPath);

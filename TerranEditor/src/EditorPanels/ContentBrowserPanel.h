@@ -23,6 +23,7 @@ namespace TerranEditor
 		std::unordered_map<UUID, Shared<DirectoryInfo>> Subdirectories;
 		Shared<DirectoryInfo> Parent;
 		std::vector<UUID> Assets;
+		std::filesystem::file_time_type ModifiedTime;
 	};
 
 	enum class ItemAction
@@ -70,6 +71,36 @@ namespace TerranEditor
 		UUID m_ID;
 		ItemType m_Type;
 		bool m_IsRenaming = false;
+	};
+
+	class ContentBrowserItemList 
+	{
+	using Iterator = std::vector<TerranEngine::Shared<ContentBrowserItem>>::iterator;
+	public:
+		Iterator Find(const UUID& id) 
+		{
+			return std::find_if(Items.begin(), Items.end(), [&id](Shared<ContentBrowserItem> item)
+			{
+				return item->GetID() == id;
+			});
+		}
+
+		Iterator Find(TerranEngine::Shared<ContentBrowserItem> item) 
+		{ 
+			return std::find(Items.begin(), Items.end(), item);
+		}
+
+		void Erase(TerranEngine::Shared<ContentBrowserItem> item)
+		{
+			auto itemIt = Find(item);
+			if (itemIt != Items.end())
+				Items.erase(itemIt);
+		}
+
+		Iterator begin() { return Items.begin(); }
+		Iterator end() { return Items.end(); }
+
+		std::vector<TerranEngine::Shared<ContentBrowserItem>> Items;
 	};
 
 	class ContentBrowserDirectory : public ContentBrowserItem
@@ -148,7 +179,7 @@ namespace TerranEditor
 		Shared<DirectoryInfo> m_PreviousDirectory;
 		std::stack<Shared<DirectoryInfo>> m_NextDirectoryStack;
 		std::unordered_map<UUID, Shared<DirectoryInfo>> m_DirectoryInfoMap;
-		std::vector <TerranEngine::Shared<ContentBrowserItem>> m_CurrentItems;
+		ContentBrowserItemList m_CurrentItems;
 		//std::queue<std::function<void()>> m_PostRenderActions;
 		
 	};

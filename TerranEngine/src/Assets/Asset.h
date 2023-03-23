@@ -10,7 +10,7 @@ namespace TerranEngine
 		None = 0,
 		Texture,
 		Text,
-		CSFile,
+		ScriptFile,
 		Scene,
 		PhysicsMaterial2D
 	};

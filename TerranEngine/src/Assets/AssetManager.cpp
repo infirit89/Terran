@@ -147,13 +147,14 @@ namespace TerranEngine
 
 					UUID id = UUID::FromString(assetInfo["Asset"].as<std::string>());
 
-					TR_TRACE(id);
-
 					info.Type = (AssetType)assetInfo["Type"].as<uint32_t>();
 					info.Path = assetInfo["Path"].as<std::string>();
 					info.Handle = id;
 
+					if (!FileExists(info.Path) || info.Path.empty()) continue;
+
 					s_AssetsInfos[id] = info;
+
 				}
 			}
 		}
