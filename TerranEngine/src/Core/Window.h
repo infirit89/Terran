@@ -4,6 +4,8 @@
 
 #include "Events/Event.h"
 
+#include <glm/glm.hpp>
+
 #include <string>
 #include <array>
 
@@ -36,7 +38,8 @@ namespace TerranEngine {
 		virtual void SwapBuffers() = 0;
 		virtual void PollEvents() = 0;
 		virtual void SetTitle(const char* title) = 0;
-
+		virtual glm::vec2 GetContentScale() = 0;
+		
 		// NOTE: Using this, because I plan to be able to support other windowing libraries
 		static Unique<Window> Create(const WindowData& data = WindowData());
 

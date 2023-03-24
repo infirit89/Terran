@@ -20,6 +20,7 @@ namespace TerranEngine
 
 		virtual void SwapBuffers() override;
 		virtual void PollEvents() override;
+		virtual glm::vec2 GetContentScale() override { return { m_WindowDataPtr.XScale, m_WindowDataPtr.YScale }; }
 		
 		virtual void* GetNativeWindow() { return m_Window; }
 		
@@ -28,12 +29,15 @@ namespace TerranEngine
 		void SetTitle(const char* title) override;
 	private:
 		void InitWindow(WindowData data);
+		void SetupCallbacks();
 		void Close();
 	private:
 
 		struct WindowDataPtr 
 		{
 			uint32_t Width; uint32_t Height;
+			// content scale
+			float XScale, YScale;
 			bool Vsync;
 			EventCallbackFn EventCallback;
 			const void* VideoMode;

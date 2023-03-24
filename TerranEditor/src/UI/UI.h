@@ -90,7 +90,7 @@ namespace TerranEditor
 		template<typename T>
 		bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0) 
 		{
-			ImGuiDataType dataType;
+			ImGuiDataType dataType = ImGuiDataType_S8;
 
 			if constexpr (std::is_same<T, int8_t>::value) 
 			{

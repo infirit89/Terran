@@ -1,0 +1,16 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 45dbdab7-e904-468a-abe7-775eec6e5e9f
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+  - Entity: 2f52de35-a856-4f65-8bed-c859ecb995d6
+    TagComponent:
+      Tag: Test
+    TransformComponent:
+      Position: [32456, 2345, 23]
+      Scale: [3456, 45, 87]
+      Rotation: [-567, 56, 89]

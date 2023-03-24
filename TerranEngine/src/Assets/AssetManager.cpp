@@ -6,13 +6,10 @@
 
 #include "Project/Project.h"
 
-#include <json.hpp>
 #include <yaml-cpp/yaml.h>
 
 namespace TerranEngine 
 {
-	using json = nlohmann::ordered_json;
-
 	std::unordered_map<UUID, Shared<Asset>> AssetManager::s_LoadedAssets;
 	std::unordered_map<UUID, AssetInfo> AssetManager::s_AssetsInfos;
 	AssetManager::AssetChangeCallbackFn AssetManager::s_ChangeCallback;

@@ -8,6 +8,9 @@ AssetInfos:
   - Asset: f08142f4-0ae6-4c33-9edc-309d2fce1fa1
     Type: 4
     Path: Scenes\Physics\BasicPhysicsTest.terran
+  - Asset: 514bf046-65e7-41b7-8588-051502c343ac
+    Type: 1
+    Path: floor - Copy.png
   - Asset: d302be4d-c389-44a6-88de-475c064e6c62
     Type: 4
     Path: Scenes\Transform\TransformHierarchyTest.terran
@@ -17,12 +20,12 @@ AssetInfos:
   - Asset: 8773474b-5c0b-423d-9f39-4a117c761efe
     Type: 4
     Path: Scenes\Physics\HierarchyPhysicsTest.terran
-  - Asset: b816fedc-be40-4cce-8db5-339d0ae5f4bd
-    Type: 4
-    Path: Scenes\Physics\TestPhysics.terran
   - Asset: d094674e-c0ea-41f2-8956-105cb4c0e963
     Type: 4
     Path: Scenes\Pong\Pong.terran
+  - Asset: b816fedc-be40-4cce-8db5-339d0ae5f4bd
+    Type: 4
+    Path: Scenes\Physics\TestPhysics.terran
   - Asset: df428e6e-1f1d-4ca4-a368-bf5cac1da716
     Type: 3
     Path: Scripts\Pong\Ball.cs
@@ -47,3 +50,15 @@ AssetInfos:
   - Asset: 829b7bc1-cb3b-46f2-a4dd-ad68fc601537
     Type: 5
     Path: Scripts\TestAsset.trpm2d
+  - Asset: cad9e290-8359-44de-a884-ed742f10c57d
+    Type: 2
+    Path: New folder\a.txt
+  - Asset: 2dd5c97b-ce75-4cc2-a838-df32fbffdd24
+    Type: 2
+    Path: New folder\ab.txt
+  - Asset: 80a20a0e-7e61-49de-b58f-5c8cd951727c
+    Type: 2
+    Path: New folder\b.txt
+  - Asset: 98fb4f5c-9485-4be1-99d8-67746b0a5242
+    Type: 2
+    Path: New folder\c.txt

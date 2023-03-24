@@ -183,6 +183,8 @@ namespace TerranEditor
 
 	void ContentPanel::RefreshDirectory(const Shared<DirectoryInfo>& directory)
 	{
+		if (!directory) return;
+
 		if (!DirectoryExists(directory)) 
 		{
 			RemoveDirectoryInfo(directory);
@@ -190,7 +192,6 @@ namespace TerranEditor
 		}
 
 		// TODO: handle asset refreshing
-
 		auto tempAssets = directory->Assets;
 		auto tempSubdirectories = directory->Subdirectories;
 		std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
@@ -279,7 +280,6 @@ namespace TerranEditor
 			if (it == m_CurrentItems.end())
 			{
 				AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-				TR_TRACE(info.Path);
 				m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
 			}
 		}
@@ -451,7 +451,7 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		Refresh();
+		//Refresh();
 	}
 
 #define MAX_RENAME_BUFFER_SIZE 256

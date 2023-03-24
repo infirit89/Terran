@@ -72,9 +72,9 @@ namespace TerranEngine
 		if(data.Maximized)
 			glfwWindowHint(GLFW_MAXIMIZED, 1);
 		
-		GLFWmonitor* montitor = glfwGetPrimaryMonitor();
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 		
-		const GLFWvidmode* vidMode = glfwGetVideoMode(montitor);
+		const GLFWvidmode* vidMode = glfwGetVideoMode(monitor);
 
 		m_WindowDataPtr.VideoMode = vidMode;
 
@@ -83,9 +83,19 @@ namespace TerranEngine
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
+		
+		glfwGetWindowContentScale(m_Window, &m_WindowDataPtr.XScale, &m_WindowDataPtr.YScale);
 
+		SetupCallbacks();
+
+		glfwMakeContextCurrent(m_Window);
+		SetVsync(data.VSync);
+	}
+
+	void GLFWWindow::SetupCallbacks()
+	{
 		// setup event callbacks
-		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int miximize) 
+		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int miximize)
 		{
 			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
@@ -98,106 +108,120 @@ namespace TerranEngine
 			}
 		});
 
-		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
+		{
+		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-			WindowCloseEvent e;
+		WindowCloseEvent e;
+		data.EventCallback(e);
+		});
+
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
+		{
+		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+
+		data.Width = width;
+		data.Height = height;
+
+		WindowResizeEvent e(width, height);
+		data.EventCallback(e);
+		});
+
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
+		{
+		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+
+		switch (action)
+		{
+		case GLFW_PRESS:
+		{
+			KeyPressedEvent e((Key)key, 0);
 			data.EventCallback(e);
-		});
-
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
-
-			data.Width = width;
-			data.Height = height;
-
-			WindowResizeEvent e(width, height);
+			break;
+		}
+		case GLFW_REPEAT:
+		{
+			KeyPressedEvent e((Key)key, 1);
 			data.EventCallback(e);
-		});
-
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods){
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
-
-			switch (action)
-			{
-				case GLFW_PRESS: 
-				{
-					KeyPressedEvent e((Key)key, 0);
-					data.EventCallback(e);
-					break;
-				}
-				case GLFW_REPEAT: 
-				{
-					KeyPressedEvent e((Key)key, 1);
-					data.EventCallback(e);
-					break;
-				}
-				case GLFW_RELEASE: 
-				{
-					KeyReleasedEvent e((Key)key);
-					data.EventCallback(e);
-					break;
-				}
-			}
-		});
-
-		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
-
-			MouseMoveEvent e(xpos, ypos);
-
+			break;
+		}
+		case GLFW_RELEASE:
+		{
+			KeyReleasedEvent e((Key)key);
 			data.EventCallback(e);
+			break;
+		}
+		}
 		});
 
-		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) 
+		{
+		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-			MouseScrollEvent e(xoffset, yoffset);
+		MouseMoveEvent e(xpos, ypos);
+
+		data.EventCallback(e);
+		});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) 
+		{
+		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+
+		MouseScrollEvent e(xoffset, yoffset);
+		data.EventCallback(e);
+		});
+
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) 
+		{
+		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+
+		switch (action)
+		{
+		case GLFW_PRESS:
+		{
+			MouseButtonPressedEvent e((MouseButton)button);
 			data.EventCallback(e);
+			break;
+		}
+		case GLFW_RELEASE:
+		{
+			MouseButtonReleasedEvent e((MouseButton)button);
+			data.EventCallback(e);
+			break;
+		}
+		}
 		});
 
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
-
-			switch (action)
-			{
-				case GLFW_PRESS: 
-				{
-					MouseButtonPressedEvent e((MouseButton)button);
-					data.EventCallback(e);
-					break;
-				}
-				case GLFW_RELEASE: 
-				{
-					MouseButtonReleasedEvent e((MouseButton)button);
-					data.EventCallback(e);
-					break;
-				}
-			}
-		});
-
-		glfwSetJoystickCallback([](int joystickID, int event) 
+		glfwSetJoystickCallback([](int joystickID, int event)
 		{
 			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer((GLFWwindow*)s_CurrentWindow->GetNativeWindow());
 			switch (event)
 			{
-				case GLFW_CONNECTED: 
-				{
-					GamepadConnectedEvent e(joystickID);
-					data.EventCallback(e);
-					break;
-				}
-				case GLFW_DISCONNECTED: 
-				{
-					GamepadDisconnectedEvent e(joystickID);
-					data.EventCallback(e);
-					break;
-				}
+			case GLFW_CONNECTED:
+			{
+				GamepadConnectedEvent e(joystickID);
+				data.EventCallback(e);
+				break;
+			}
+			case GLFW_DISCONNECTED:
+			{
+				GamepadDisconnectedEvent e(joystickID);
+				data.EventCallback(e);
+				break;
+			}
 			}
 		});
-		
-		glfwMakeContextCurrent(m_Window);
-		SetVsync(data.VSync);
+
+		glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale) 
+		{
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			TR_TRACE("{0} {1}", xscale, yscale);
+			WindowContentScaleChangeEvent e(xscale, yscale);
+			data.EventCallback(e);
+			data.XScale = xscale;
+			data.YScale = yscale;
+		});
+
 	}
 
 	void GLFWWindow::Close()

@@ -20,9 +20,6 @@ namespace TerranEngine
 {
 	struct TagComponent 
 	{
-		std::string Name;
-		UUID ID;
-
 		TagComponent() = default;
 
 		TagComponent(const std::string& name, const UUID& id)
@@ -30,10 +27,15 @@ namespace TerranEngine
 
 		TagComponent(const std::string& name)
 			: Name(name) {}
+
+		std::string Name;
+		UUID ID;
 	};
 
 	struct TransformComponent 
 	{
+		TransformComponent() = default;
+
 		glm::vec3 Position =	{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation =	{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 Scale =		{ 1.0f, 1.0f, 1.0f };
@@ -48,68 +50,67 @@ namespace TerranEngine
 		// cached transform matrices
 		glm::mat4 WorldSpaceTransformMatrix = glm::mat4(1.0f);
 		glm::mat4 LocalSpaceTransformMatrix = glm::mat4(1.0f);
-
-		TransformComponent() = default;
 	};
 
 	struct CameraComponent 
 	{
+		CameraComponent() = default;
+
 		OrthographicCamera Camera;
 		bool Primary = true;
 
 		glm::vec4 BackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-
-		CameraComponent() = default;
-
 	};
 
 	struct SpriteRendererComponent 
 	{
+		SpriteRendererComponent() = default;
+
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		UUID TextureHandle;
 
 		int ZIndex = 0;
-
-		SpriteRendererComponent() = default;
 	};
 
 	struct CircleRendererComponent 
 	{
+		CircleRendererComponent() = default;
+
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float Thickness = 1.0f;
-
-		CircleRendererComponent() = default;
 	};
 
 	// bullshit; fix
 	struct LineRendererComponent 
 	{
+		LineRendererComponent() = default;
+
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float Thickness = 1.0f;
 
 		glm::vec3 StartPoint = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 EndPoint = { 0.0f, 0.0f, 1.0f };
 
-		LineRendererComponent() = default;
 	};
 
 	struct TextRendererComponent 
 	{
+		TextRendererComponent() = default;
+		~TextRendererComponent() = default;
+
 		Shared<FontAtlas> FontAtlas;
 		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		std::string Text = "";
 		float LineSpacing = 1.0f;
 		float LineWidth = 10.0f;
-
-		TextRendererComponent() = default;
-		~TextRendererComponent() = default;
 	};
 
 	struct RelationshipComponent 
 	{
-		UUID ParentID;
+		RelationshipComponent()
+			: ParentID({ 0 }) { }
 		
-		// list containing all the child ids
+		UUID ParentID;
 		std::vector<UUID> Children;
 	};
 
@@ -118,10 +119,7 @@ namespace TerranEngine
 		ScriptComponent() = default;
 
 		ScriptComponent(const std::string& moduleName) 
-			: ModuleName(moduleName)
-		{
-			
-		}
+			: ModuleName(moduleName) { }
 		
 		// NOTE: think about having an array of scripts so that one entity
 		// "can" have more than one script (because of the 1 component of a type per entity)

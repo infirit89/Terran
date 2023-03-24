@@ -27,4 +27,20 @@ namespace TerranEngine {
 	private:
 		uint32_t m_Width; uint32_t m_Height;
 	};
+
+	class WindowContentScaleChangeEvent : public Event 
+	{
+	public:
+		WindowContentScaleChangeEvent(float xscale, float yscale) 
+			: _XScale(xscale), _YScale(yscale) {}
+
+		EVENT_CLASS_TYPE(WindowContentScaleChanged)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+		float GetXScale() { return _XScale; }
+		float GetYScale() { return _YScale; }
+
+	private:
+		float _XScale, _YScale;
+	};
 }

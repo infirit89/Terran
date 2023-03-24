@@ -2,6 +2,8 @@
 
 #include "Core/Layer.h"
 
+#include "Events/ApplicationEvent.h"
+
 namespace TerranEngine 
 {
 	class ImGuiLayer : public Layer
@@ -20,6 +22,8 @@ namespace TerranEngine
 		
 		void SetBlockInput(bool block) { m_BlockInput = block; }
 	private:
+		bool OnWindowContentScaleChangedEvent(WindowContentScaleChangeEvent& cscEvent);
+
 		bool m_BlockInput = true;
 	};
 }

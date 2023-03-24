@@ -462,8 +462,6 @@ namespace TerranEditor
 
 		RenderDockspace();
 
-		ImGui::ShowDemoWindow();
-
 		m_PanelManager->ImGuiRender();
 
 		// Renderer stats

@@ -231,6 +231,13 @@ namespace TerranEditor
 	}
 
 	
+	static void ScaleUI() 
+	{
+		glm::vec2 contentScale = Application::Get()->GetWindow().GetContentScale();
+		ImGuiStyle* style = &ImGui::GetStyle();
+		style->ScaleAllSizes(contentScale.x);
+	}
+
 	void Test() 
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
@@ -305,6 +312,7 @@ namespace TerranEditor
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
+		ScaleUI();
 	}
 
 	void UI::SetupImGuiStyle()
@@ -313,7 +321,6 @@ namespace TerranEditor
 		ImGuiStyle& style = ImGui::GetStyle();
 
 		style.Alpha = 1.0;
-		//style.DisabledAlpha = 0.6000000238418579;
 		style.WindowPadding = ImVec2(8.0f, 8.0f);
 		style.WindowRounding = 0.0f;
 		style.WindowBorderSize = 1.0f;
@@ -396,6 +403,8 @@ namespace TerranEditor
 		style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.0f, 1.0f, 1.0f, 0.7019608020782471f);
 		style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.2000000029802322f);
 		style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.2000000029802322f, 0.2000000029802322f, 0.2000000029802322f, 0.3499999940395355f);
+
+		ScaleUI();
 	}
 	void UI::BeginPropertyGroup(const char* propertyGroupName)
 	{

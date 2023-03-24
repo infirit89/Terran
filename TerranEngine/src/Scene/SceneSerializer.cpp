@@ -9,6 +9,8 @@
 
 #include "Utils/SerializerUtils.h"
 
+#include <yaml-cpp/yaml.h>
+
 #include <json.hpp>
 
 #include <glm/glm.hpp>
@@ -23,6 +25,7 @@ using json = nlohmann::ordered_json;
 namespace TerranEngine 
 {
 	const char* SceneSerializer::SceneFilter = "Terran Scene\0*.terran\0";
+	static const char* SerializerVersion = "yml1.0";
 
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
 		: m_Scene(scene)
@@ -162,8 +165,113 @@ namespace TerranEngine
 		}
 	}
 
-	static void SerializeEntity(json& j, Entity entity) 
+#define BEGIN_COMPONENT_MAP(componentKey)\
+	out << YAML::Key << componentKey;\
+	out << YAML::BeginMap
+
+#define END_COMPONENT_MAP()\
+	out << YAML::EndMap
+
+#define WRITE_COMPONENT_PROPERY(propertyName, property)\
+	out << YAML::Key << propertyName << YAML::Value << property
+
+	static void SerializeEntity(YAML::Emitter& out, Entity entity) 
 	{
+		// TODO: convert to a verify assert
+		TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
+		out << YAML::BeginMap;
+		WRITE_COMPONENT_PROPERY("Entity", entity.GetID());
+
+		BEGIN_COMPONENT_MAP("TagComponent");
+		auto& tagComponent = entity.GetComponent<TagComponent>();
+		WRITE_COMPONENT_PROPERY("Tag", tagComponent.Name);
+		END_COMPONENT_MAP();
+
+		if (entity.HasComponent<TransformComponent>()) 
+		{
+			auto& transformComponent = entity.GetTransform();
+
+			BEGIN_COMPONENT_MAP("TransformComponent");
+			WRITE_COMPONENT_PROPERY("Position", transformComponent.Position);
+			WRITE_COMPONENT_PROPERY("Scale", transformComponent.Scale);	
+			WRITE_COMPONENT_PROPERY("Rotation", transformComponent.Rotation);
+			END_COMPONENT_MAP();
+		}
+
+		if (entity.HasComponent<CameraComponent>())
+		{
+			auto& cameraComponent = entity.GetComponent<CameraComponent>();
+			BEGIN_COMPONENT_MAP("CameraComponent");
+
+			WRITE_COMPONENT_PROPERY("Camera", YAML::BeginMap);
+			WRITE_COMPONENT_PROPERY("Size", cameraComponent.Camera.GetOrthographicSize());
+			WRITE_COMPONENT_PROPERY("Near", cameraComponent.Camera.GetOrthographicNear());
+			WRITE_COMPONENT_PROPERY("Far", cameraComponent.Camera.GetOrthographicFar());
+			YAML::EndMap;
+
+			WRITE_COMPONENT_PROPERY("Primary", cameraComponent.Primary);
+			WRITE_COMPONENT_PROPERY("ClearColor", cameraComponent.BackgroundColor);
+
+			END_COMPONENT_MAP();
+		}
+
+		if (entity.HasComponent<SpriteRendererComponent>()) 
+		{
+			auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();
+			BEGIN_COMPONENT_MAP("SpriteRendererComponent");
+
+			WRITE_COMPONENT_PROPERY("Color", spriteRendererComponent.Color);
+			WRITE_COMPONENT_PROPERY("Texture", spriteRendererComponent.TextureHandle);
+
+			END_COMPONENT_MAP();
+		}
+
+		if (entity.HasComponent<CircleRendererComponent>()) 
+		{
+			auto& circleRendererComponent = entity.GetComponent<CircleRendererComponent>();
+			BEGIN_COMPONENT_MAP("CircleRendererComponent");
+
+			WRITE_COMPONENT_PROPERY("Color", circleRendererComponent.Color);
+			WRITE_COMPONENT_PROPERY("Thickness", circleRendererComponent.Thickness);
+
+			END_COMPONENT_MAP();
+		}
+
+		if (entity.HasComponent<TextRendererComponent>()) 
+		{
+			auto& textRendererComponent = entity.GetComponent<TextRendererComponent>();
+			BEGIN_COMPONENT_MAP("TextRendererCompoent");
+
+			WRITE_COMPONENT_PROPERY("Color", textRendererComponent.TextColor);
+			WRITE_COMPONENT_PROPERY("Text", textRendererComponent.Text);
+			// TODO: save font handle
+
+			END_COMPONENT_MAP();
+		}
+
+		if (entity.HasComponent<RelationshipComponent>()) 
+		{
+			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
+			BEGIN_COMPONENT_MAP("RelationshipComponent");
+
+			WRITE_COMPONENT_PROPERY("Children", YAML::BeginSeq);
+			for (auto child : relationshipComponent.Children)
+				out << child;
+			YAML::EndSeq;
+
+			WRITE_COMPONENT_PROPERY("Parent", relationshipComponent.Parent);
+
+			END_COMPONENT_MAP();
+		}
+
+		if (entity.HasComponent<ScriptComponent>()) 
+		{
+			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+		}
+
+		out << YAML::EndMap;
+
+#if 0
 		TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
 
 		json& jObject = j["Entity " + std::to_string(entity.GetID())] =
@@ -325,11 +433,34 @@ namespace TerranEngine
 				} }
 			);
 		}
+#endif
 	}
 
 	void SceneSerializer::SerializeJson(const std::filesystem::path& scenePath)
 	{
-		json j;
+		YAML::Emitter out;
+		
+		out << YAML::BeginMap;
+
+		out << YAML::Key << "SerializerVersion" << YAML::Value << SerializerVersion;
+
+		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+
+		const auto tagComponentView = m_Scene->GetEntitiesWith<TagComponent>();
+		for (auto e : tagComponentView)
+		{
+			Entity entity(e, m_Scene.get());
+			SerializeEntity(out, entity);
+		}
+
+		out << YAML::EndSeq;
+
+		out << YAML::EndMap;
+
+		std::ofstream ofs(scenePath);
+		ofs << out.c_str();
+
+		/*json j;
 
 		j["Scene"] =  "Name";
 
@@ -341,18 +472,8 @@ namespace TerranEngine
 		{
 			Entity entity(e, m_Scene->GetRaw());
 			SerializeEntity(j["Entities"], entity);
-		}
+		}*/
 
-		std::ofstream ofs(scenePath);
-
-		try
-		{
-			ofs << std::setw(4) << j << std::endl;
-		}
-		catch (const std::exception& e)
-		{
-			TR_ERROR(e.what());
-		}
 	}
 
 	std::string SceneSerializer::ReadJson(const std::filesystem::path& scenePath)

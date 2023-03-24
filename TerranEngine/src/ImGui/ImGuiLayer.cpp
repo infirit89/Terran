@@ -29,22 +29,21 @@ namespace TerranEngine
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+		auto& app = *Application::Get();
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.DisplayResizeGrip = false;
 		style.AntiAliasedFill = true;
 		style.AntiAliasedLines = true;
 		style.AntiAliasedLinesUseTex = true;
-
+		
 		ImGui::StyleColorsDark();
 
-		auto& app = *Application::Get();
 		ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow()), true);
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
 	void ImGuiLayer::OnDettach()
 	{
-
 		ImGui_ImplGlfw_Shutdown();
 		ImGui_ImplOpenGL3_Shutdown();
 
@@ -59,6 +58,9 @@ namespace TerranEngine
 			event.IsHandled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
 			event.IsHandled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
 		}
+
+		EventDispatcher dispatcher(event);
+		dispatcher.Dispatch<WindowContentScaleChangeEvent>(TR_EVENT_BIND_FN(ImGuiLayer::OnWindowContentScaleChangedEvent));
 	}
 
 	void ImGuiLayer::BeginFrame()
@@ -86,5 +88,14 @@ namespace TerranEngine
 			glfwMakeContextCurrent(context);
 		}
 
+	}
+
+	bool ImGuiLayer::OnWindowContentScaleChangedEvent(WindowContentScaleChangeEvent& cscEvent)
+	{
+		auto& app = *Application::Get();
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.ScaleAllSizes(app.GetWindow().GetContentScale().x);
+
+		return false;
 	}
 }
