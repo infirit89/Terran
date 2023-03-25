@@ -49,7 +49,7 @@ namespace TerranEditor
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
 			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-			if (ImGui::ImageButton((ImTextureID)(EditorResources::GetSettingsTexture()->GetTextureID()), 
+			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)EditorResources::GetSettingsTexture()->GetTextureID()), 
 				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
 
@@ -368,10 +368,10 @@ namespace TerranEditor
 				ImGui::PopStyleColor();
 			}
 
-			if (UI::PropertyBool("Is Sensor", bcComponent.IsSensor))
+			if (UI::PropertyBool("Is Sensor", bcComponent.Sensor))
 			{
 				if (isRuntime && boxCollider)
-					boxCollider->SetSensor(bcComponent.IsSensor);
+					boxCollider->SetSensor(bcComponent.Sensor);
 			}
 				});
 
@@ -405,10 +405,10 @@ namespace TerranEditor
 				ImGui::PopStyleColor();
 			}
 
-			if (UI::PropertyBool("Is Sensor", ccComponent.IsSensor))
+			if (UI::PropertyBool("Is Sensor", ccComponent.Sensor))
 			{
 				if (isRuntime)
-					circleCollider->SetSensor(ccComponent.IsSensor);
+					circleCollider->SetSensor(ccComponent.Sensor);
 			}
 				});
 
@@ -442,10 +442,10 @@ namespace TerranEditor
 				ImGui::PopStyleColor();
 			}
 
-			if (UI::PropertyBool("Is Sensor", ccComponent.IsSensor))
+			if (UI::PropertyBool("Is Sensor", ccComponent.Sensor))
 			{
 				if (capsuleCollider)
-					capsuleCollider->SetSensor(ccComponent.IsSensor);
+					capsuleCollider->SetSensor(ccComponent.Sensor);
 			}
 				});
 

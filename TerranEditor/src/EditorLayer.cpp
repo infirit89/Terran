@@ -524,7 +524,7 @@ namespace TerranEditor
 		{
 			m_CurrentScenePath = scenePath;
 			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
-			sSerializer.SerializeJson(scenePath);
+			sSerializer.SerializeEditor(scenePath);
 
 			m_CurrentScenePath = scenePath;
 		}
@@ -576,26 +576,22 @@ namespace TerranEditor
 				return;
 			}
 
-			std::string jsonData = SceneSerializer::ReadJson(AssetManager::GetFileSystemPath(scenePath).string());
-			if (jsonData != "")
+			Shared<Scene> newScene = SceneManager::CreateEmpyScene();
+			SceneSerializer sSerializer(newScene);
+			if (sSerializer.DesirializeEditior(AssetManager::GetFileSystemPath(scenePath)))
 			{
-				Shared<Scene> newScene = SceneManager::CreateEmpyScene();
-				SceneSerializer sSerializer(newScene);
-				if (sSerializer.DesirializeJson(jsonData))
-				{
-					if (SceneManager::GetCurrentScene()->IsPlaying())
-						OnSceneStop();
+				if (SceneManager::GetCurrentScene()->IsPlaying())
+					OnSceneStop();
 
-					SelectionManager::Deselect(SelectionContext::Scene);
-					m_EditorScene = newScene;
-					m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
+				SelectionManager::Deselect(SelectionContext::Scene);
+				m_EditorScene = newScene;
+				m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
-					SceneManager::SetCurrentScene(newScene);
+				SceneManager::SetCurrentScene(newScene);
 
-					m_PanelManager->SetScene(SceneManager::GetCurrentScene());
+				m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 
-					m_CurrentScenePath = scenePath;
-				}
+				m_CurrentScenePath = scenePath;
 			}
 		}
 	}
@@ -607,7 +603,7 @@ namespace TerranEditor
 		else 
 		{
 			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
-			sSerializer.SerializeJson(m_CurrentScenePath);
+			sSerializer.SerializeEditor(m_CurrentScenePath);
 		}
 	}
 

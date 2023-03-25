@@ -14,12 +14,12 @@ namespace TerranEngine
 		SceneSerializer() = default;
 		SceneSerializer(const Shared<Scene>& scene);
 
-		void SerializeJson(const std::filesystem::path& scenePath);
+		void SerializeEditor(const std::filesystem::path& scenePath);
+		bool DesirializeEditior(const std::filesystem::path& scenePath);
 
-		static std::string ReadJson(const std::filesystem::path& scenePath);
-
-		bool DesirializeJson(const std::string& data);
+	public:
 		static const char* SceneFilter;
+
 	private:
 		Shared<Scene> m_Scene;
 	};

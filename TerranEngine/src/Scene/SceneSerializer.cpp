@@ -45,7 +45,12 @@ namespace TerranEngine
 		return result;
 	}
 
-	static void SerializeField(json& j, Entity entity) 
+#define WRITE_SCRIPT_FIELD(FieldType, Type)\
+	case ScriptType::FieldType:\
+	out << YAML::Key << field->GetName() << YAML::Value << field->GetData<Type>(handle);\
+	break
+
+	static void SerializeScriptFields(YAML::Emitter& out, Entity entity) 
 	{
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
 		GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
@@ -54,113 +59,27 @@ namespace TerranEngine
 		{
 			ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
+
 			switch (field->GetType().TypeEnum)
 			{
-			case ScriptType::Bool: 
-			{
-				bool value = field->GetData<bool>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Char: 
-			{
-				char value = (char)field->GetData<wchar_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Int8:
-			{
-				int8_t value = field->GetData<int8_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Int16:
-			{
-				int16_t value = field->GetData<int16_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Int32: 
-			{
-				int32_t value = field->GetData<int32_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Int64:
-			{
-				int64_t value = field->GetData<int64_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::UInt8:
-			{
-				uint8_t value = field->GetData<uint8_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::UInt16:
-			{
-				uint16_t value = field->GetData<uint16_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::UInt32:
-			{
-				uint32_t value = field->GetData<uint32_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::UInt64:
-			{
-				uint64_t value = field->GetData<uint64_t>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Float: 
-			{
-				float value = field->GetData<float>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Double: 
-			{
-				double value = field->GetData<double>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::String:
-			{
-				std::string value = field->GetData<std::string>(handle);
-				j[field->GetName()] = value;
-				break;
-			}
-			case ScriptType::Vector2: 
-			{
-				// NOTE: might need to box
-				glm::vec2 value = field->GetData<glm::vec2>(handle);
-				j[field->GetName()] = SerializerUtils::SerializeVec2(value);
-				break;
-			}
-			case ScriptType::Vector3: 
-			{
-				glm::vec3 value = field->GetData<glm::vec3>(handle);
-				j[field->GetName()] = SerializerUtils::SerializeVec3(value);
-				break;
-			}
-			case ScriptType::Color:
-			{
-				glm::vec4 value = field->GetData<glm::vec4>(handle);
-				j[field->GetName()] = SerializerUtils::SerializeVec4(value);
-				break;
-			}
-			case ScriptType::Entity:
-			{
-				UUID value = field->GetData<UUID>(handle);
-				j[field->GetName()] = std::to_string(value);
-				break;
-			}
-			
-			default:	TR_ERROR("Unsupported field type"); break;
+				WRITE_SCRIPT_FIELD(Bool, bool);
+				WRITE_SCRIPT_FIELD(Char, wchar_t);
+				WRITE_SCRIPT_FIELD(Int8, int8_t);
+				WRITE_SCRIPT_FIELD(Int16, int16_t);
+				WRITE_SCRIPT_FIELD(Int32, int32_t);
+				WRITE_SCRIPT_FIELD(Int64, int64_t);
+				WRITE_SCRIPT_FIELD(UInt8, uint8_t);
+				WRITE_SCRIPT_FIELD(UInt16, uint16_t);
+				WRITE_SCRIPT_FIELD(UInt32, uint32_t);
+				WRITE_SCRIPT_FIELD(UInt64, uint64_t);
+				WRITE_SCRIPT_FIELD(Float, float);
+				WRITE_SCRIPT_FIELD(Double, double);
+				WRITE_SCRIPT_FIELD(String, std::string);
+				WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+				WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+				WRITE_SCRIPT_FIELD(Color, glm::vec4);
+				WRITE_SCRIPT_FIELD(Entity, UUID);
+				default:	TR_ERROR("Unsupported field type"); break;
 			}
 		}
 	}
@@ -267,176 +186,60 @@ namespace TerranEngine
 		if (entity.HasComponent<ScriptComponent>()) 
 		{
 			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
-		}
+			BEGIN_COMPONENT_MAP("ScriptComponent");
 
-		out << YAML::EndMap;
-
-#if 0
-		TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
-
-		json& jObject = j["Entity " + std::to_string(entity.GetID())] =
-		{
-			{"TagComponent", 
+			WRITE_COMPONENT_PROPERY("ModuleName", scriptComponent.ModuleName);
+			if (!scriptComponent.PublicFieldIDs.empty()) 
 			{
-				{ "Tag",	entity.GetComponent<TagComponent>().Name },
-				{ "ID",		std::to_string(entity.GetID()) }
-			}}
-		};
-
-		if (entity.HasComponent<TransformComponent>()) 
-		{
-			jObject.push_back(
-				{"TransformComponent", 
-				{
-					{ "Position", SerializerUtils::SerializeVec3(entity.GetTransform().Position) },
-					{ "Rotation", SerializerUtils::SerializeVec3(entity.GetTransform().Rotation) },
-					{ "Scale",	SerializerUtils::SerializeVec3(entity.GetTransform().Scale) },
-				}}
-			);
-		}
-
-		if (entity.HasComponent<CameraComponent>()) 
-		{
-			auto& camComp = entity.GetComponent<CameraComponent>();
-
-			jObject.push_back(
-				{ "CameraComponent",
-				{
-					{ "Camera", 
-					{	{ "Size",	camComp.Camera.GetOrthographicSize() },
-						{ "Near",	camComp.Camera.GetOrthographicNear() },
-						{ "Far",	camComp.Camera.GetOrthographicFar() },
-					}},
-					{ "Primary", camComp.Primary }
-				} }
-			);
-		}
-
-		if (entity.HasComponent<SpriteRendererComponent>()) 
-		{
-			auto& sprComp = entity.GetComponent<SpriteRendererComponent>();
-
-			jObject.push_back(
-				{ "SpriteRendererComponent",
-				{
-					{ "Color", SerializerUtils::SerializeVec4(sprComp.Color) },
-					{ "Texture", sprComp.TextureHandle ? std::to_string(sprComp.TextureHandle) : "" },
-					{ "ZIndex", sprComp.ZIndex }
-				} }
-			);
-		}
-
-		if (entity.HasComponent<CircleRendererComponent>()) 
-		{
-			auto& crComp = entity.GetComponent<CircleRendererComponent>();
-
-			jObject.push_back(
-				{ "CircleRendererComponent",
-				{
-					{ "Color", SerializerUtils::SerializeVec4(crComp.Color) },
-					{ "Thickness", crComp.Thickness }
-				}}
-			);
-		}
-
-		if (entity.HasComponent<TextRendererComponent>()) 
-		{
-			auto& textRendererComponent = entity.GetComponent<TextRendererComponent>();
-			
-			try 
-			{
-				
-				jObject.push_back(
-					{ "TextRendererComponent",
-					{
-						{ "Color", SerializerUtils::SerializeVec4(textRendererComponent.TextColor) },
-						{ "Text", textRendererComponent.Text },
-						{ "FontPath", textRendererComponent.FontAtlas ? textRendererComponent.FontAtlas->GetPath() : "" }
-					} }
-				);
+				WRITE_COMPONENT_PROPERY("Fields", YAML::BeginSeq);
+				SerializeScriptFields(out, entity);
+				out << YAML::EndSeq;
 			}
-			catch (const std::exception& ex) 
-			{
-				TR_TRACE(ex.what());
-			}
-		}
 
-		if (entity.HasComponent<RelationshipComponent>()) 
-		{
-			auto& rlComp = entity.GetComponent<RelationshipComponent>();
-			
-			jObject.push_back(
-				{ "RelationshipComponent",
-				{
-					{ "ChildrenCount",   entity.GetChildCount() },
-					{ "Children",		 SerializeUUIDVector(rlComp.Children) },
-					{ "Parent",			 (entity.HasParent() ? std::to_string(rlComp.ParentID) : "null") },
-				} }
-			);
-		}
-
-		if (entity.HasComponent<ScriptComponent>()) 
-		{
-			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
-
-			jObject.push_back(
-				{ "ScriptComponent",
-				{
-					{ "ModuleName", scriptComponent.ModuleName },
-
-					{ "Fields", {} }
-				} }
-			);
-
-			SerializeField(jObject["ScriptComponent"]["Fields"], entity);
+			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<Rigidbody2DComponent>()) 
 		{
-			auto& rbComponent = entity.GetComponent<Rigidbody2DComponent>();
+			auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
+			BEGIN_COMPONENT_MAP("Rigidbody2DComponent");
 
-			jObject.push_back(
-				{ "Rigibody2D",
-				{
-					{ "BodyType", (int)rbComponent.BodyType },
-					{ "FixedRotation", rbComponent.FixedRotation },
-					{ "SleepState", (int)rbComponent.SleepState },
-					{ "GravityScale", rbComponent.GravityScale}
-				} }
-			);
+			WRITE_COMPONENT_PROPERY("BodyType", PhysicsBodyTypeToString(rigidbodyComponent.BodyType));
+			WRITE_COMPONENT_PROPERY("FixedRotation", rigidbodyComponent.FixedRotation);
+			WRITE_COMPONENT_PROPERY("SleepState", PhysicsBodySleepStateToString(rigidbodyComponent.SleepState));
+			WRITE_COMPONENT_PROPERY("GravityScale", rigidbodyComponent.GravityScale);
+
+			END_COMPONENT_MAP();
 		}
+
+		out << YAML::EndMap;
 
 		if (entity.HasComponent<BoxCollider2DComponent>()) 
 		{
-			auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+			auto& boxCollider2DComponent = entity.GetComponent<BoxCollider2DComponent>();
+			BEGIN_COMPONENT_MAP("BoxCollider2DComponent");
 
-			jObject.push_back(
-				{ "BoxCollider2D",
-				{
-					{ "Offset", SerializerUtils::SerializeVec2(bcComponent.Offset) },
-					{ "Size", SerializerUtils::SerializeVec2(bcComponent.Size) },
-					{ "IsSensor", bcComponent.IsSensor }
-				} }
-			);
+			WRITE_COMPONENT_PROPERY("Offset", boxCollider2DComponent.Offset);
+			WRITE_COMPONENT_PROPERY("Size", boxCollider2DComponent.Size);
+			WRITE_COMPONENT_PROPERY("Sensor", boxCollider2DComponent.Sensor);
+
+			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<CircleCollider2DComponent>())
 		{
-			auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+			auto& circleCollider2DComponent = entity.GetComponent<CircleCollider2DComponent>();
+			BEGIN_COMPONENT_MAP("CircleCollider2DComponent");
 
-			jObject.push_back(
-				{ "CircleCollider2D",
-				{
-					{ "Offset", SerializerUtils::SerializeVec2(ccComponent.Offset) },
-					{ "Radius", ccComponent.Radius },
-					{ "IsSensor", ccComponent.IsSensor }
-				} }
-			);
+			WRITE_COMPONENT_PROPERY("Offset", circleCollider2DComponent.Offset);
+			WRITE_COMPONENT_PROPERY("Radius", circleCollider2DComponent.Radius);
+			WRITE_COMPONENT_PROPERY("Sensor", circleCollider2DComponent.Sensor);
+
+			END_COMPONENT_MAP();
 		}
-#endif
 	}
 
-	void SceneSerializer::SerializeJson(const std::filesystem::path& scenePath)
+	void SceneSerializer::SerializeEditor(const std::filesystem::path& scenePath)
 	{
 		YAML::Emitter out;
 		
@@ -459,40 +262,6 @@ namespace TerranEngine
 
 		std::ofstream ofs(scenePath);
 		ofs << out.c_str();
-
-		/*json j;
-
-		j["Scene"] =  "Name";
-
-		j["Entities"] = {};
-
-		const auto tcView = m_Scene->GetEntitiesWith<TagComponent>();
-		
-		for (auto e : tcView)
-		{
-			Entity entity(e, m_Scene->GetRaw());
-			SerializeEntity(j["Entities"], entity);
-		}*/
-
-	}
-
-	std::string SceneSerializer::ReadJson(const std::filesystem::path& scenePath)
-	{
-		json j;
-
-		try
-		{
-			std::ifstream ifs(scenePath);
-
-			ifs >> j;
-		}
-		catch (const std::exception& ex)
-		{
-			TR_ERROR(ex.what());
-			return "";
-		}
-
-		return j.dump();
 	}
 
 #define CATCH_JSON_EXCEPTION()\
@@ -819,7 +588,7 @@ catch(const std::exception& ex)\
 
 				bcComponent.Offset = offset;
 				bcComponent.Size = size;
-				bcComponent.IsSensor = isSensor;
+				bcComponent.Sensor = isSensor;
 			}
 			CATCH_JSON_EXCEPTION();
 		}
@@ -838,7 +607,7 @@ catch(const std::exception& ex)\
 
 				ccComponent.Offset = offset;
 				ccComponent.Radius = radius;
-				ccComponent.IsSensor = isSensor;
+				ccComponent.Sensor = isSensor;
 			}
 			CATCH_JSON_EXCEPTION();
 		}
@@ -846,18 +615,17 @@ catch(const std::exception& ex)\
 		return true;
 	}
 
-	bool SceneSerializer::DesirializeJson(const std::string& data)
+	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
 	{
 		try 
 		{
-			json j = json::parse(data);
+			YAML::Node node = YAML::LoadFile(scenePath.string());
 
-
-			for (auto jEntity : j["Entities"]) 
+			/*for (auto jEntity : j["Entities"]) 
 			{
 				if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
 					return false;
-			}
+			}*/
 		}
 		catch (const std::exception& ex) 
 		{

@@ -83,8 +83,8 @@ namespace TerranEngine
 		// relationship component stuffs
 		inline std::vector<UUID>& GetChildren()	const				{ return GetComponent<RelationshipComponent>().Children; }
 		inline size_t GetChildCount() const							{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
-		inline UUID GetParentID() const								{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().ParentID : UUID::Invalid(); }
-		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().ParentID) : false; }
+		inline UUID GetParentID() const								{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : UUID::Invalid(); }
+		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
 
 		inline const UUID& GetSceneID() const						{ return m_Scene->GetID(); }
 
@@ -102,7 +102,7 @@ namespace TerranEngine
 				return;
 
 			auto& relComp = GetComponent<RelationshipComponent>();
-			relComp.ParentID = id;
+			relComp.Parent = id;
 		}
 
 		inline Entity GetParent() const 
@@ -139,7 +139,7 @@ namespace TerranEngine
 				Unparent();
 
 			auto& relComp = GetComponent<RelationshipComponent>();
-			relComp.ParentID = parent.GetID();
+			relComp.Parent = parent.GetID();
 			parent.GetChildren().emplace_back(GetID());
 
 			m_Scene->ConvertToLocalSpace(*this);
@@ -150,7 +150,7 @@ namespace TerranEngine
 			if (!HasComponent<RelationshipComponent>())
 				return;
 
-			UUID parentID = GetComponent<RelationshipComponent>().ParentID;
+			UUID parentID = GetComponent<RelationshipComponent>().Parent;
 			Entity parent = m_Scene->FindEntityWithUUID(parentID);
 
 			if (!parent)

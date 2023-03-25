@@ -13,7 +13,10 @@ namespace TerranEngine {
 
 	struct WindowData
 	{
-		const char* Name;
+		WindowData() = default;
+		~WindowData() = default;
+
+		const char* Name = "";
 		uint32_t Width = 1280;
 		uint32_t Height = 960;
 		bool Fullscren = false;

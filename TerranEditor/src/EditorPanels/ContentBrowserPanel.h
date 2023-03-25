@@ -161,8 +161,8 @@ namespace TerranEditor
 
 		void Refresh();
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent = nullptr);
-		const Shared<DirectoryInfo>& GetDirectory(const std::filesystem::path& directoryPath);
-		const Shared<DirectoryInfo>& GetDirectory(const UUID& id);
+		Shared<DirectoryInfo> GetDirectory(const std::filesystem::path& directoryPath);
+		Shared<DirectoryInfo> GetDirectory(const UUID& id);
 		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
 		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
 

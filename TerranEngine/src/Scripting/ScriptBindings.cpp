@@ -911,23 +911,23 @@ namespace TerranEngine
 		static bool Collider2D_IsSensor(MonoArray* entityUUIDArr, uint8_t colliderType) 
 		{
 			TR_PROFILE_FUNCTION();
-			bool IsSensor = false;
+			bool Sensor = false;
 
 			switch ((ColliderType2D)colliderType)
 			{
 			case ColliderType2D::Box:
 			{
-				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, BoxCollider2DComponent);
+				GET_COMPONENT_VAR(Sensor, entityUUIDArr, BoxCollider2DComponent);
 				break;
 			}
 			case ColliderType2D::Circle:
 			{
-				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CircleCollider2DComponent);
+				GET_COMPONENT_VAR(Sensor, entityUUIDArr, CircleCollider2DComponent);
 				break;
 			}
 			case ColliderType2D::Capsule: 
 			{
-				GET_COMPONENT_VAR(IsSensor, entityUUIDArr, CapsuleCollider2DComponent);
+				GET_COMPONENT_VAR(Sensor, entityUUIDArr, CapsuleCollider2DComponent);
 				break;
 			}
 			case ColliderType2D::None:
@@ -941,12 +941,12 @@ namespace TerranEngine
 					Shared<Collider2D> collider = physicsBody->GetColliders()[0];
 
 					if (collider)
-						IsSensor = collider->IsSensor();
+						Sensor = collider->IsSensor();
 				}
 				break;
 			}
 			}
-			return IsSensor;
+			return Sensor;
 		}
 		
 		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
@@ -962,7 +962,7 @@ namespace TerranEngine
 				{
 					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
 					Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
-					bcComponent.IsSensor = isSensor;
+					bcComponent.Sensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
 				}
@@ -970,7 +970,7 @@ namespace TerranEngine
 				{
 					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
 					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
-					ccComponent.IsSensor = isSensor;
+					ccComponent.Sensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
 				}
@@ -978,7 +978,7 @@ namespace TerranEngine
 				{
 					CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
 					Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
-					ccComponent.IsSensor = isSensor;
+					ccComponent.Sensor = isSensor;
 					collider->SetSensor(isSensor);
 					break;
 				}
@@ -994,19 +994,19 @@ namespace TerranEngine
 					case ColliderType2D::Box: 
 					{
 						BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-						bcComponent.IsSensor = isSensor;
+						bcComponent.Sensor = isSensor;
 						break;
 					}
 					case ColliderType2D::Circle: 
 					{
 						CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-						ccComponent.IsSensor = isSensor;
+						ccComponent.Sensor = isSensor;
 						break;
 					}
 					case ColliderType2D::Capsule:
 					{
 						CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
-						ccComponent.IsSensor = isSensor;
+						ccComponent.Sensor = isSensor;
 						break;
 					}
 					}

@@ -8,10 +8,8 @@ namespace TerranEngine {
 
 	class Layer {
 	public:
-		Layer(const char* name) 
-			: m_Name(name)
-		{
-		}
+		Layer(const char* name)
+			: m_Name(name) {}
 
 		virtual ~Layer() = default;
 

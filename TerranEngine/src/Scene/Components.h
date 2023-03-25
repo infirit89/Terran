@@ -108,9 +108,9 @@ namespace TerranEngine
 	struct RelationshipComponent 
 	{
 		RelationshipComponent()
-			: ParentID({ 0 }) { }
+			: Parent({ 0 }) { }
 		
-		UUID ParentID;
+		UUID Parent;
 		std::vector<UUID> Children;
 	};
 
@@ -150,7 +150,7 @@ namespace TerranEngine
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		glm::vec2 Size = { 1.0f, 1.0f };
-		bool IsSensor = false;
+		bool Sensor = false;
 
 		uint32_t ColliderIndex = 0;
 	};
@@ -161,7 +161,7 @@ namespace TerranEngine
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Radius = 0.5f;
-		bool IsSensor = false;
+		bool Sensor = false;
 
 		uint32_t ColliderIndex = 0;
 	};
@@ -172,7 +172,7 @@ namespace TerranEngine
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
         glm::vec2 Size = { 0.5f,  1.0f };
-		bool IsSensor = false;
+		bool Sensor = false;
 
 		uint32_t ColliderIndex = 0;
 	};

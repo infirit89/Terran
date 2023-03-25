@@ -285,7 +285,7 @@ namespace TerranEngine
 		const UUID& id = entity.GetID();
 
 		p_FixtureDefs[0].userData.pointer = (uintptr_t)id.GetRaw();
-		p_FixtureDefs[0].isSensor = colliderComponent.IsSensor;
+		p_FixtureDefs[0].isSensor = colliderComponent.Sensor;
 
 		p_FixtureDefs[0].filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
 		PhysicsLayer physicsLayer = PhysicsLayerManager::GetLayer(rigidbodyComponent.LayerIndex);
@@ -430,7 +430,7 @@ namespace TerranEngine
 		p_FixtureDefs[0].restitutionThreshold = 0.5f;
 
 		p_FixtureDefs[0].userData.pointer = (uintptr_t)id.GetRaw();
-		p_FixtureDefs[0].isSensor = colliderComponent.IsSensor;
+		p_FixtureDefs[0].isSensor = colliderComponent.Sensor;
 
 		p_FixtureDefs[0].filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
 		PhysicsLayer physicsLayer = PhysicsLayerManager::GetLayer(rigidbodyComponent.LayerIndex);
@@ -513,7 +513,7 @@ namespace TerranEngine
 		p_FixtureDefs[0].restitutionThreshold = 0.5f;
 
 		p_FixtureDefs[0].userData.pointer = (uintptr_t)id.GetRaw();
-		p_FixtureDefs[0].isSensor = colliderComponent.IsSensor;
+		p_FixtureDefs[0].isSensor = colliderComponent.Sensor;
 
 		p_FixtureDefs[0].filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
 		PhysicsLayer physicsLayer = PhysicsLayerManager::GetLayer(rigidbodyComponent.LayerIndex);

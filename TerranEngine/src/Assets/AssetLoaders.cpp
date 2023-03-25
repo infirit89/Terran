@@ -58,7 +58,7 @@ namespace TerranEngine
     bool SceneAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
     {
         SceneSerializer serializer(DynamicCast<Scene>(asset));
-        serializer.SerializeJson(AssetManager::GetFileSystemPath(assetInfo.Path));
+        serializer.SerializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path));
         return true;
     }
 

@@ -409,7 +409,7 @@ namespace TerranEditor
 		return directoryInfo->ID;
 	}
 
-	const Shared<DirectoryInfo>& ContentPanel::GetDirectory(const std::filesystem::path& directoryPath)
+	Shared<DirectoryInfo> ContentPanel::GetDirectory(const std::filesystem::path& directoryPath)
 	{
 		for (const auto&[id, directoryInfo] : m_DirectoryInfoMap)
 		{
@@ -420,7 +420,7 @@ namespace TerranEditor
 		return nullptr;
 	}
 
-	const Shared<DirectoryInfo>& ContentPanel::GetDirectory(const UUID& id) 
+	Shared<DirectoryInfo> ContentPanel::GetDirectory(const UUID& id) 
 	{
 		if (m_DirectoryInfoMap.find(id) != m_DirectoryInfoMap.end())
 			return m_DirectoryInfoMap.at(id);

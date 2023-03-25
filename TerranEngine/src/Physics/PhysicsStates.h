@@ -12,15 +12,8 @@ namespace TerranEngine
 		Kinematic
 	};
 
-	static std::string PhysicsBodyTypeToString(PhysicsBodyType bodyType) 
-	{
-		switch (bodyType)
-		{
-		case PhysicsBodyType::Static:		return "Static";
-		case PhysicsBodyType::Dynamic:		return "Dynamic";
-		case PhysicsBodyType::Kinematic:	return "Kinematic";
-		}
-	}
+	std::string PhysicsBodyTypeToString(PhysicsBodyType bodyType);
+	PhysicsBodyType PhysicsBodyTypeFromString(const std::string& bodyTypeString);
 
 	enum class PhysicsBodySleepState : uint8_t
 	{
@@ -28,6 +21,9 @@ namespace TerranEngine
 		Awake,
 		NeverSleep
 	};
+
+	std::string PhysicsBodySleepStateToString(PhysicsBodySleepState sleepState);
+	PhysicsBodySleepState PhysicsBodySleepStateFromString(const std::string& sleepStateString);
 
 	enum class ForceMode2D : uint8_t
 	{
