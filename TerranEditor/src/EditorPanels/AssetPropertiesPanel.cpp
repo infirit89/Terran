@@ -36,24 +36,24 @@ namespace TerranEditor
 
 	bool AssetPropertiesPanel::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
-		UUID assetID = SelectionManager::GetSelected(SelectionContext::ContentPanel);
+		//UUID assetID = SelectionManager::GetSelected(SelectionContext::ContentPanel);
 
-		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyDown(Key::RightControl);
+		//bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyDown(Key::RightControl);
 
-		if (e.GetRepeatCount() > 0) return false;
+		//if (e.GetRepeatCount() > 0) return false;
 
-		switch (e.GetKeyCode())
-		{
-		case Key::S:
-			if (ctrlPressed) 
-			{
-				AssetInfo info = AssetManager::GetAssetInfo(assetID);
-				AssetImporter::Save(info, m_CurrentAsset);
-				return true;
-			}
+		//switch (e.GetKeyCode())
+		//{
+		//case Key::S:
+		//	if (ctrlPressed) 
+		//	{
+		//		AssetInfo info = AssetManager::GetAssetInfo(assetID);
+		//		AssetImporter::Save(info, m_CurrentAsset);
+		//		return true;
+		//	}
 
-			break;
-		}
+		//	break;
+		//}
 
 		return false;
 	}

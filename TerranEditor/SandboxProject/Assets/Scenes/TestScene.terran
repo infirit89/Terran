@@ -1,16 +1,91 @@
 SerializerVersion: yml1.0
 Entities:
-  - Entity: 45dbdab7-e904-468a-abe7-775eec6e5e9f
+  - Entity: 0c6fc3a1-7928-4be9-942a-c909e0225ba3
     TagComponent:
       Tag: Camera
     TransformComponent:
       Position: [0, 0, 0]
       Scale: [1, 1, 1]
       Rotation: [0, 0, 0]
-  - Entity: 2f52de35-a856-4f65-8bed-c859ecb995d6
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: 2021b93f-5130-4dce-b0b7-7cea257cf9e1
     TagComponent:
-      Tag: Test
+      Tag: Parent
     TransformComponent:
-      Position: [32456, 2345, 23]
-      Scale: [3456, 45, 87]
-      Rotation: [-567, 56, 89]
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 1055a4e4-0104-44c1-8685-5daa4e75723d
+    RelationshipComponent:
+      Children:
+        - b69915cb-b910-42e6-8adb-0983641771d6
+      Parent: 00000000-0000-0000-0000-000000000000
+  - Entity: b69915cb-b910-42e6-8adb-0983641771d6
+    TagComponent:
+      Tag: Child
+    TransformComponent:
+      Position: [1.10416651, 1.97023821, 3]
+      Scale: [6.9999938, 7.99998951, 8.99999523]
+      Rotation: [-2.28318477, -1.2831856, -0.283185303]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 1055a4e4-0104-44c1-8685-5daa4e75723d
+    RelationshipComponent:
+      Children:
+        []
+      Parent: 2021b93f-5130-4dce-b0b7-7cea257cf9e1
+  - Entity: 103007f8-fdd3-4d48-9111-830822937010
+    TagComponent:
+      Tag: BoxCollider
+    TransformComponent:
+      Position: [0, -2.85714269, 0]
+      Scale: [4.92424488, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 7677b6a2-92a9-4265-a208-936b8523d025
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false
+  - Entity: 726ee478-fb0b-43a2-b960-864eecd8d013
+    TagComponent:
+      Tag: Circle Collider
+    TransformComponent:
+      Position: [-3.48214316, 0.907738209, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CircleRendererComponent:
+      Color: [0.774647892, 0.189115912, 0.189115912, 1]
+      Thickness: 1
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Sensor: false
+  - Entity: 805b6386-51e7-4437-861e-86d18dbbbc92
+    TagComponent:
+      Tag: Physics Body
+    TransformComponent:
+      Position: [5.55059624, 2.08333373, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 015750f2-fdf8-4955-84f8-0aaee1fc7d04
+    Rigidbody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false

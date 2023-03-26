@@ -67,7 +67,7 @@ namespace TerranEngine
 		SpriteRendererComponent() = default;
 
 		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		UUID TextureHandle;
+		UUID TextureHandle = UUID::Invalid();
 
 		int ZIndex = 0;
 	};

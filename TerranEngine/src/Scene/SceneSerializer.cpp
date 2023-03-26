@@ -126,7 +126,7 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("Size", cameraComponent.Camera.GetOrthographicSize());
 			WRITE_COMPONENT_PROPERY("Near", cameraComponent.Camera.GetOrthographicNear());
 			WRITE_COMPONENT_PROPERY("Far", cameraComponent.Camera.GetOrthographicFar());
-			YAML::EndMap;
+			out << YAML::EndMap;
 
 			WRITE_COMPONENT_PROPERY("Primary", cameraComponent.Primary);
 			WRITE_COMPONENT_PROPERY("ClearColor", cameraComponent.BackgroundColor);
@@ -176,7 +176,7 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("Children", YAML::BeginSeq);
 			for (auto child : relationshipComponent.Children)
 				out << child;
-			YAML::EndSeq;
+			out << YAML::EndSeq;
 
 			WRITE_COMPONENT_PROPERY("Parent", relationshipComponent.Parent);
 
@@ -212,8 +212,6 @@ namespace TerranEngine
 			END_COMPONENT_MAP();
 		}
 
-		out << YAML::EndMap;
-
 		if (entity.HasComponent<BoxCollider2DComponent>()) 
 		{
 			auto& boxCollider2DComponent = entity.GetComponent<BoxCollider2DComponent>();
@@ -237,6 +235,8 @@ namespace TerranEngine
 
 			END_COMPONENT_MAP();
 		}
+
+		out << YAML::EndMap;
 	}
 
 	void SceneSerializer::SerializeEditor(const std::filesystem::path& scenePath)
@@ -246,7 +246,6 @@ namespace TerranEngine
 		out << YAML::BeginMap;
 
 		out << YAML::Key << "SerializerVersion" << YAML::Value << SerializerVersion;
-
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 
 		const auto tagComponentView = m_Scene->GetEntitiesWith<TagComponent>();
@@ -257,7 +256,6 @@ namespace TerranEngine
 		}
 
 		out << YAML::EndSeq;
-
 		out << YAML::EndMap;
 
 		std::ofstream ofs(scenePath);
@@ -405,10 +403,53 @@ catch(const std::exception& ex)\
 		}
 	}
 
-	static bool DesirializeEntity(json& jEntity, json& jScene, Shared<Scene> scene)
+	static bool DesirializeEntity(YAML::Node data, Shared<Scene> scene)
 	{
-		Entity entity;
+		UUID id = data["Entity"].as<UUID>();
+		if (!id) return false;
 
+		auto tagComponent = data["TagComponent"];
+		if (!tagComponent) return false;
+		std::string name = tagComponent["Tag"].as<std::string>();
+		Entity entity = scene->CreateEntityWithUUID(name, id);
+
+		auto transformComponent = data["TransformComponent"];
+		if (transformComponent) 
+		{
+			auto& tc = entity.GetTransform();
+			tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+			tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+			tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+
+		auto cameraComponent = data["CameraComponent"];
+		if (cameraComponent) 
+		{
+			auto& cc = entity.AddComponent<CameraComponent>();
+			auto camera = cameraComponent["Camera"];
+			cc.Camera.SetOrthographicSize(camera["Size"].as<float>(10.0f));
+			cc.Camera.SetOrthographicNear(camera["Near"].as<float>(-10.0f));
+			cc.Camera.SetOrthographicFar(camera["Far"].as<float>(10.0f));
+
+			cc.Primary = cameraComponent["Primary"].as<bool>(false);
+			cc.BackgroundColor = cameraComponent["ClearColor"].as<glm::vec4>(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+		}
+
+		auto spriteRendererComponent = data["SpriteRendererComponent"];
+		if (spriteRendererComponent) 
+		{
+			auto& src = entity.AddComponent<SpriteRendererComponent>();
+			src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+			src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
+		}
+
+		auto relationshipComponent = data["RelationshipComponent"];
+		if (relationshipComponent) 
+		{
+
+		}
+
+#if 0
 		try
 		{
 			if (!jEntity.contains("TagComponent"))
@@ -611,26 +652,31 @@ catch(const std::exception& ex)\
 			}
 			CATCH_JSON_EXCEPTION();
 		}
+#endif
 		
 		return true;
 	}
 
 	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
 	{
+		YAML::Node data;
 		try 
 		{
-			YAML::Node node = YAML::LoadFile(scenePath.string());
-
-			/*for (auto jEntity : j["Entities"]) 
-			{
-				if (!DesirializeEntity(jEntity, j["Entities"], m_Scene))
-					return false;
-			}*/
+			data = YAML::LoadFile(scenePath.string());
 		}
-		catch (const std::exception& ex) 
+		catch (const YAML::ParserException& ex) 
 		{
 			TR_ERROR(ex.what());
 			return false;
+		}
+
+		auto entities = data["Entities"];
+		if (entities) 
+		{
+			for (auto entity : entities)
+			{
+				DesirializeEntity(entity, m_Scene);
+			}
 		}
 
 		return true;
