@@ -403,13 +403,26 @@ catch(const std::exception& ex)\
 		}
 	}
 
-	static bool DesirializeEntity(YAML::Node data, Shared<Scene> scene)
+	static YAML::Node FindEntity(YAML::Node scene)
+	{
+	}
+
+	static Entity DesirializeEntity(YAML::Node data, Shared<Scene> scene)
 	{
 		UUID id = data["Entity"].as<UUID>();
-		if (!id) return false;
+		if (!id)
+		{
+			TR_ASSERT(false, "Invalid id");
+			return { };
+		}
 
 		auto tagComponent = data["TagComponent"];
-		if (!tagComponent) return false;
+		if (!tagComponent)
+		{
+			TR_ASSERT(false, "Invalid tag component");
+			return { };
+		}
+
 		std::string name = tagComponent["Tag"].as<std::string>();
 		Entity entity = scene->CreateEntityWithUUID(name, id);
 
@@ -443,118 +456,67 @@ catch(const std::exception& ex)\
 			src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
 		}
 
+		auto circleRendererComponent = data["CircleRendererComponent"];
+		if (circleRendererComponent) 
+		{
+			auto& crc = entity.AddComponent<CircleRendererComponent>();
+			crc.Color = circleRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+			crc.Thickness = circleRendererComponent["Thickness"].as<float>(1.0f);
+		}
+
 		auto relationshipComponent = data["RelationshipComponent"];
 		if (relationshipComponent) 
 		{
+			// TODO:
+			auto& rc = entity.AddComponent<RelationshipComponent>();
+			for (auto childID : relationshipComponent["Children"])
+			{
+				Entity child = scene->FindEntityWithUUID(childID.as<UUID>());
+				if (!child)
+				{
+					// todo deserialize;
+				}
 
+				if(child)
+					child.SetParent(entity, true);
+			}
+		}
+
+		auto scriptCompoennt = data["ScriptComponent"];
+		if (scriptCompoennt) 
+		{
+			// TODO:
+		}
+
+		auto boxColliderComponent = data["BoxCollider2DComponent"];
+		if (boxColliderComponent) 
+		{
+			auto& bcc = entity.AddComponent<BoxCollider2DComponent>();
+			bcc.Offset = boxColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+			bcc.Size = boxColliderComponent["Size"].as<glm::vec2>(glm::vec2(1.0f, 1.0f));
+			bcc.Sensor = boxColliderComponent["Sensor"].as<bool>(false);
+		}
+
+		auto circleColliderComponent = data["CircleCollider2DComponent"];
+		if (circleRendererComponent) 
+		{
+			auto& ccc = entity.AddComponent<CircleCollider2DComponent>();
+			ccc.Offset = circleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+			ccc.Radius = circleColliderComponent["Radius"].as<float>(0.5f);
+			ccc.Sensor = circleColliderComponent["Sensor"].as<bool>(false);
+		}
+
+		auto rigidbodyComponent = data["Rigidbody2DComponent"];
+		if (rigidbodyComponent) 
+		{
+			auto& rbc = entity.AddComponent<Rigidbody2DComponent>();
+			rbc.BodyType = PhysicsBodyTypeFromString(rigidbodyComponent["BodyType"].as<std::string>());
+			rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
+			rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
+			rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
 		}
 
 #if 0
-		try
-		{
-			if (!jEntity.contains("TagComponent"))
-				TR_ERROR("Can't desirialize an entity that doesn't have a tag component");
-
-			UUID uuid = UUID::FromString(jEntity["TagComponent"]["ID"]);
-		
-			if (scene->FindEntityWithUUID(uuid))
-				return true;
-
-			std::string tag = jEntity["TagComponent"]["Tag"];
-
-			entity = scene->CreateEntityWithUUID(tag, uuid);
-
-		}
-		catch (const std::exception& ex)
-		{
-			TR_ERROR(ex.what());
-			return false;
-		}
-
-		{
-			auto& transform = entity.GetTransform();
-
-			try
-			{
-				glm::vec3 position = SerializerUtils::DeserializeVec3(jEntity["TransformComponent"], "Position");
-				glm::vec3 scale = SerializerUtils::DeserializeVec3(jEntity["TransformComponent"], "Scale");
-				glm::vec3 rotation = SerializerUtils::DeserializeVec3(jEntity["TransformComponent"], "Rotation");
-					
-				transform.Position = position;
-				transform.Rotation = rotation;
-				transform.Scale = scale;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("CameraComponent"))
-		{
-			json jCamera = jEntity["CameraComponent"];
-
-			CameraComponent& cameraComponent = entity.AddComponent<CameraComponent>();
-				
-			try
-			{
-				CameraComponent tempCamComponent;
-
-				OrthographicCamera cam;
-				cam.SetOrthographicSize(jCamera["Camera"]["Size"]);
-				cam.SetOrthographicNear(jCamera["Camera"]["Near"]);
-				cam.SetOrthographicFar(jCamera["Camera"]["Far"]);
-
-				tempCamComponent.Primary = jCamera["Primary"];
-
-				cameraComponent = tempCamComponent;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("SpriteRendererComponent")) 
-		{
-			SpriteRendererComponent& spriteRenderer = entity.AddComponent<SpriteRendererComponent>();
-
-			try 
-			{
-				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["SpriteRendererComponent"], "Color");
-				spriteRenderer.TextureHandle = UUID::FromString(jEntity["SpriteRendererComponent"]["Texture"]);
-
-				spriteRenderer.Color = color;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("CircleRendererComponent"))
-		{
-			CircleRendererComponent& circleRenderer = entity.AddComponent<CircleRendererComponent>();
-
-			try
-			{
-				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["CircleRendererComponent"], "Color");
-				float thickness = jEntity["CircleRendererComponent"]["Thickness"];
-
-				circleRenderer.Color = color;
-				circleRenderer.Thickness = thickness;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("TextRendererComponent")) 
-		{
-			TextRendererComponent& textRenderer = entity.AddComponent<TextRendererComponent>();
-
-			try 
-			{
-				glm::vec4 color = SerializerUtils::DeserializeVec4(jEntity["TextRendererComponent"], "Color");
-				textRenderer.TextColor = color;
-
-				textRenderer.Text = jEntity["TextRendererComponent"]["Text"];
-
-				if (jEntity["TextRendererComponent"]["FontPath"] != "")
-					textRenderer.FontAtlas = CreateShared<FontAtlas>(jEntity["TextRendererComponent"]["FontPath"]);
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
 		if (jEntity.contains("RelationshipComponent"))
 		{
 			json jRelation = jEntity["RelationshipComponent"];
@@ -593,68 +555,9 @@ catch(const std::exception& ex)\
 
 			DesirializeScriptable(entity, jScriptComponent);
 		}
-
-		if (jEntity.contains("Rigibody2D")) 
-		{
-			json jRigidbody2DComponent = jEntity["Rigibody2D"];
-
-			Rigidbody2DComponent& rbComponent = entity.AddComponent<Rigidbody2DComponent>();
-
-			try 
-			{
-				PhysicsBodyType bodyType = (PhysicsBodyType)jRigidbody2DComponent["BodyType"];
-				bool fixedRotation = jRigidbody2DComponent["FixedRotation"];
-				PhysicsBodySleepState sleepState = (PhysicsBodySleepState)jRigidbody2DComponent["SleepState"];
-				float gravityScale = jRigidbody2DComponent["GravityScale"];
-
-				rbComponent.BodyType = bodyType;
-				rbComponent.FixedRotation = fixedRotation;
-				rbComponent.SleepState = sleepState;
-				rbComponent.GravityScale = gravityScale;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("BoxCollider2D")) 
-		{
-			json jBoxCollider2DComponent = jEntity["BoxCollider2D"];
-
-			BoxCollider2DComponent& bcComponent = entity.AddComponent<BoxCollider2DComponent>();
-
-			try 
-			{
-				glm::vec2 offset = SerializerUtils::DeserializeVec2(jBoxCollider2DComponent, "Offset");
-				glm::vec2 size = SerializerUtils::DeserializeVec2(jBoxCollider2DComponent, "Size");
-				bool isSensor = jBoxCollider2DComponent["IsSensor"];
-
-				bcComponent.Offset = offset;
-				bcComponent.Size = size;
-				bcComponent.Sensor = isSensor;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("CircleCollider2D")) 
-		{
-			json jCircleCollider2DComponent = jEntity["CircleCollider2D"];
-
-			CircleCollider2DComponent& ccComponent = entity.AddComponent<CircleCollider2DComponent>();
-
-			try 
-			{
-				glm::vec2 offset = SerializerUtils::DeserializeVec2(jCircleCollider2DComponent, "Offset");
-				float radius = jCircleCollider2DComponent["Radius"];
-				bool isSensor = jCircleCollider2DComponent["IsSensor"];
-
-				ccComponent.Offset = offset;
-				ccComponent.Radius = radius;
-				ccComponent.Sensor = isSensor;
-			}
-			CATCH_JSON_EXCEPTION();
-		}
 #endif
 		
-		return true;
+		return entity;
 	}
 
 	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
