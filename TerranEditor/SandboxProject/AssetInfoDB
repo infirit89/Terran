@@ -8,18 +8,18 @@ AssetInfos:
   - Asset: f08142f4-0ae6-4c33-9edc-309d2fce1fa1
     Type: 4
     Path: Scenes\Physics\BasicPhysicsTest.terran
+  - Asset: 8773474b-5c0b-423d-9f39-4a117c761efe
+    Type: 4
+    Path: Scenes\Physics\HierarchyPhysicsTest.terran
+  - Asset: d60a5230-91ea-4c35-a5c6-ac6aced6a7a0
+    Type: 4
+    Path: Scenes\Physics\RayCastTest.terran
   - Asset: 514bf046-65e7-41b7-8588-051502c343ac
     Type: 1
     Path: floor - Copy.png
   - Asset: d302be4d-c389-44a6-88de-475c064e6c62
     Type: 4
     Path: Scenes\Transform\TransformHierarchyTest.terran
-  - Asset: d60a5230-91ea-4c35-a5c6-ac6aced6a7a0
-    Type: 4
-    Path: Scenes\Physics\RayCastTest.terran
-  - Asset: 8773474b-5c0b-423d-9f39-4a117c761efe
-    Type: 4
-    Path: Scenes\Physics\HierarchyPhysicsTest.terran
   - Asset: d094674e-c0ea-41f2-8956-105cb4c0e963
     Type: 4
     Path: Scenes\Pong\Pong.terran
@@ -32,21 +32,18 @@ AssetInfos:
   - Asset: 96ccaa8f-2571-4c9e-b9d2-0ba2d7234479
     Type: 3
     Path: Scripts\Pong\CollisionUtils.cs
-  - Asset: 780bd519-47b4-4ea1-8e7c-222eb19066e8
-    Type: 2
-    Path: Scripts\Test\Test.txt
   - Asset: af4ede2f-1ed8-4a75-9ef9-dd9e44a8d992
     Type: 3
     Path: Scripts\Pong\Player.cs
-  - Asset: 7677b6a2-92a9-4265-a208-936b8523d025
-    Type: 1
-    Path: floor.png
+  - Asset: 780bd519-47b4-4ea1-8e7c-222eb19066e8
+    Type: 2
+    Path: Scripts\Test\Test.txt
   - Asset: 9427faf2-bf7c-4e06-aa59-b663fc41d8d5
     Type: 3
     Path: Scripts\Test2.cs
-  - Asset: fee9a86b-af69-47cc-bcb4-7ac420782faa
-    Type: 3
-    Path: Test.cs
+  - Asset: 7677b6a2-92a9-4265-a208-936b8523d025
+    Type: 1
+    Path: floor.png
   - Asset: 829b7bc1-cb3b-46f2-a4dd-ad68fc601537
     Type: 5
     Path: Scripts\TestAsset.trpm2d
@@ -65,3 +62,12 @@ AssetInfos:
   - Asset: 7c9d362d-0853-4c39-9cc6-4697f43eaaa1
     Type: 4
     Path: Scenes\TestScene.terran
+  - Asset: 9a89b23e-4f19-402c-9eeb-f2095d8af903
+    Type: 3
+    Path: Test.cs
+  - Asset: f9011f22-ab0e-4fdd-a77d-43d9d1641ebb
+    Type: 4
+    Path: Scenes\TestScene2.terran
+  - Asset: ea033a41-55b7-4382-b40f-c04505fd1566
+    Type: 4
+    Path: Scenes\TestScene3.terran

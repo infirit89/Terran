@@ -60,7 +60,7 @@ namespace TerranEngine
 		void CopyData(GCHandle from, GCHandle to);
 
 		inline MonoClassField* GetMonoField() const 		{ return m_MonoField; }
-		inline const char* GetName() const					{ return m_Name; }
+		inline std::string GetName() const					{ return m_Name; }
 		inline ScriptFieldVisibility GetVisibility() const	{ return m_FieldVisibility; }
 		bool IsStatic() const;
 

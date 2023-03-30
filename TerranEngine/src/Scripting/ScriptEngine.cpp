@@ -337,33 +337,34 @@ namespace TerranEngine
 	bool ScriptEngine::ClassExists(const std::string& moduleName) { return ScriptCache::GetCachedClassFromName(moduleName); }
 	Shared<ScriptAssembly>& ScriptEngine::GetAssembly(int assemblyIndex) { return s_Data->Assemblies.at(assemblyIndex); }
 
-	void ScriptEngine::InitializeScriptable(Entity entity)
+	GCHandle ScriptEngine::InitializeScriptable(Entity entity)
 	{
 		TR_PROFILE_FUNCTION();
 		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 
-		if (scriptComponent.ModuleName.empty()) return;
+		if (scriptComponent.ModuleName.empty()) return { };
 
 		if (!ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
 		{
 			scriptComponent.ClassExists = false;
 			TR_ERROR("Class {0} doesn't exist", scriptComponent.ModuleName);
-			return;
+			return { };
 		}
 
 		scriptComponent.ClassExists = true;
 
-		if (s_Data->ScriptInstanceMap.find(entity.GetID()) != s_Data->ScriptInstanceMap.end()) return;
+		if (s_Data->ScriptInstanceMap.find(entity.GetID()) != s_Data->ScriptInstanceMap.end()) 
+			return { };
 
 		ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
 			
-		if (!klass) return;
+		if (!klass) return { };
 
 		if (klass->IsInstanceOf(TR_API_CACHED_CLASS(Scriptable)))
 		{
 			std::string errorMessage = fmt::format("Class {0} doesn't extend Scriptable", scriptComponent.ModuleName);
 			Log(errorMessage, spdlog::level::warn);
-			return;
+			return { };
 		}
 
 		ScriptableInstance instance;
@@ -376,8 +377,11 @@ namespace TerranEngine
 		MonoException* exception = nullptr;
 		instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exception);
 
-		if(exception)
+		if (exception) 
+		{
 			Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
+			return { };
+		}
 			
 		s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = instance;
 
@@ -387,6 +391,8 @@ namespace TerranEngine
 			if(field.GetVisibility() == ScriptFieldVisibility::Public)
 				scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 		}
+
+		return instance.ObjectHandle;
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity)

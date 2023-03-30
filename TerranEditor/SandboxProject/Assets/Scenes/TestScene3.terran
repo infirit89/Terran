@@ -1,0 +1,29 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: b381549f-f9f5-461c-9514-bacc5341bea8
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: 6a20936d-bc80-40f1-8cdd-9b160e8375a1
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    ScriptComponent:
+      ModuleName: SandboxProject.Sandbox
+      Fields:
+        - A: 1
+        - B: 2
+        - C: true

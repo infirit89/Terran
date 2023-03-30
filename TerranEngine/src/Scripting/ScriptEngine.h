@@ -33,7 +33,7 @@ namespace TerranEngine
 
 		static Shared<ScriptAssembly>& GetAssembly(int assemblyIndex);
 		
-		static void InitializeScriptable(Entity entity);
+		static GCHandle InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 
 		static void OnStart(Entity entity);

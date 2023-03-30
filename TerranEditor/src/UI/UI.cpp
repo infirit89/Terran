@@ -688,12 +688,152 @@ namespace TerranEditor
 			field->SetData<Utils::Variant>(value, handle);
 	}
 
+#define DRAW_FIELD_PROPERTY_SCALAR(Type)\
+	DrawFieldValue<Type>(field, handle,\
+	[](const std::string& fieldName, auto& value, const ScriptType& fieldType)\
+	{\
+		return PropertyScalar(fieldName, value);\
+	})
+
 	void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
 	{
 		TR_ASSERT(handle.IsValid(), "Invalid handle");
 
 		ScriptClass* typeClass = field->GetType().GetTypeClass();
 		std::vector<ScriptField> enumFields;
+
+		switch (field->GetType().TypeEnum)
+		{
+		case ScriptType::Bool:
+		{
+			DrawFieldValue<bool>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyBool(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Char:
+		{
+			DrawFieldValue<wchar_t>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					// TODO: support wide strings
+					std::string strVal; strVal += (char)value;
+			bool changed = PropertyString(fieldName, strVal, 0, 2);
+
+			if (strVal.empty()) return false;
+			value = strVal.at(0);
+
+			return changed;
+				});
+
+			break;
+		}
+		case ScriptType::Int8:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(int8_t);
+			break;
+		}
+		case ScriptType::Int16:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(int16_t);
+			break;
+		}
+		case ScriptType::Int32:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(int32_t);
+			break;
+		}
+		case ScriptType::Int64:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(int64_t);
+			break;
+		}
+		case ScriptType::UInt8:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(uint8_t);
+			break;
+		}
+		case ScriptType::UInt16:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(uint16_t);
+			break;
+		}
+		case ScriptType::UInt32:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(uint32_t);
+			break;
+		}
+		case ScriptType::UInt64:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(uint64_t);
+			break;
+		}
+		case ScriptType::Float:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(float);
+			break;
+		}
+		case ScriptType::Double:
+		{
+			DRAW_FIELD_PROPERTY_SCALAR(double);
+			break;
+		}
+		case ScriptType::String:
+		{
+			DrawFieldValue<std::string>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyString(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Vector2:
+		{
+			DrawFieldValue<glm::vec2>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyVec2(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Vector3:
+		{
+			DrawFieldValue<glm::vec3>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyVec3(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Color:
+		{
+			DrawFieldValue<glm::vec4>(field, handle,
+				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyColor(fieldName, value);
+				});
+
+			break;
+		}
+		case ScriptType::Entity:
+		{
+			DrawFieldValue<UUID>(field, handle,
+				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				{
+					return PropertyEntity(fieldName, value, scene);
+				});
+
+			break;
+		}
+		}
+
+#if 0
 		const char** enumFieldNames = nullptr;
 
 		if (field->GetType().IsEnum())
@@ -916,6 +1056,8 @@ namespace TerranEditor
 
 		if (enumFieldNames != nullptr)
 			delete[] enumFieldNames;
+#endif
+
 	}
 
 	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)

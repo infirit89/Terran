@@ -28,22 +28,7 @@ namespace TerranEngine
 	static const char* SerializerVersion = "yml1.0";
 
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
-		: m_Scene(scene)
-	{
-	}
-		
-	static json SerializeUUIDVector(const std::vector<UUID>& vec) 
-	{
-		if (vec.size() <= 0)
-			return NULL;
-
-		json result;
-
-		for (const auto& id : vec)
-			result.push_back(std::to_string(id));
-
-		return result;
-	}
+		: m_Scene(scene) { }
 
 #define WRITE_SCRIPT_FIELD(FieldType, Type)\
 	case ScriptType::FieldType:\
@@ -57,8 +42,8 @@ namespace TerranEngine
 		
 		for (auto& fieldID : sc.PublicFieldIDs)
 		{
+			out << YAML::BeginMap;
 			ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-
 
 			switch (field->GetType().TypeEnum)
 			{
@@ -81,6 +66,7 @@ namespace TerranEngine
 				WRITE_SCRIPT_FIELD(Entity, UUID);
 				default:	TR_ERROR("Unsupported field type"); break;
 			}
+			out << YAML::EndMap;
 		}
 	}
 
@@ -99,6 +85,7 @@ namespace TerranEngine
 		// TODO: convert to a verify assert
 		TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
 		out << YAML::BeginMap;
+
 		WRITE_COMPONENT_PROPERY("Entity", entity.GetID());
 
 		BEGIN_COMPONENT_MAP("TagComponent");
@@ -120,119 +107,110 @@ namespace TerranEngine
 		if (entity.HasComponent<CameraComponent>())
 		{
 			auto& cameraComponent = entity.GetComponent<CameraComponent>();
-			BEGIN_COMPONENT_MAP("CameraComponent");
 
+			BEGIN_COMPONENT_MAP("CameraComponent");
 			WRITE_COMPONENT_PROPERY("Camera", YAML::BeginMap);
 			WRITE_COMPONENT_PROPERY("Size", cameraComponent.Camera.GetOrthographicSize());
 			WRITE_COMPONENT_PROPERY("Near", cameraComponent.Camera.GetOrthographicNear());
 			WRITE_COMPONENT_PROPERY("Far", cameraComponent.Camera.GetOrthographicFar());
 			out << YAML::EndMap;
-
 			WRITE_COMPONENT_PROPERY("Primary", cameraComponent.Primary);
 			WRITE_COMPONENT_PROPERY("ClearColor", cameraComponent.BackgroundColor);
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<SpriteRendererComponent>()) 
 		{
 			auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();
-			BEGIN_COMPONENT_MAP("SpriteRendererComponent");
 
+			BEGIN_COMPONENT_MAP("SpriteRendererComponent");
 			WRITE_COMPONENT_PROPERY("Color", spriteRendererComponent.Color);
 			WRITE_COMPONENT_PROPERY("Texture", spriteRendererComponent.TextureHandle);
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<CircleRendererComponent>()) 
 		{
 			auto& circleRendererComponent = entity.GetComponent<CircleRendererComponent>();
-			BEGIN_COMPONENT_MAP("CircleRendererComponent");
 
+			BEGIN_COMPONENT_MAP("CircleRendererComponent");
 			WRITE_COMPONENT_PROPERY("Color", circleRendererComponent.Color);
 			WRITE_COMPONENT_PROPERY("Thickness", circleRendererComponent.Thickness);
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<TextRendererComponent>()) 
 		{
 			auto& textRendererComponent = entity.GetComponent<TextRendererComponent>();
-			BEGIN_COMPONENT_MAP("TextRendererCompoent");
 
+			BEGIN_COMPONENT_MAP("TextRendererCompoent");
 			WRITE_COMPONENT_PROPERY("Color", textRendererComponent.TextColor);
 			WRITE_COMPONENT_PROPERY("Text", textRendererComponent.Text);
 			// TODO: save font handle
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
 			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
-			BEGIN_COMPONENT_MAP("RelationshipComponent");
 
+			BEGIN_COMPONENT_MAP("RelationshipComponent");
 			WRITE_COMPONENT_PROPERY("Children", YAML::BeginSeq);
 			for (auto child : relationshipComponent.Children)
 				out << child;
 			out << YAML::EndSeq;
-
 			WRITE_COMPONENT_PROPERY("Parent", relationshipComponent.Parent);
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<ScriptComponent>()) 
 		{
 			auto& scriptComponent = entity.GetComponent<ScriptComponent>();
-			BEGIN_COMPONENT_MAP("ScriptComponent");
 
+			BEGIN_COMPONENT_MAP("ScriptComponent");
 			WRITE_COMPONENT_PROPERY("ModuleName", scriptComponent.ModuleName);
 			if (!scriptComponent.PublicFieldIDs.empty()) 
 			{
-				WRITE_COMPONENT_PROPERY("Fields", YAML::BeginSeq);
+				//WRITE_COMPONENT_PROPERY("Fields", YAML::BeginSeq);
+				out << YAML::Key << "Fields" << YAML::Value;
+				out << YAML::BeginSeq;
 				SerializeScriptFields(out, entity);
 				out << YAML::EndSeq;
 			}
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<Rigidbody2DComponent>()) 
 		{
 			auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
-			BEGIN_COMPONENT_MAP("Rigidbody2DComponent");
 
+			BEGIN_COMPONENT_MAP("Rigidbody2DComponent");
 			WRITE_COMPONENT_PROPERY("BodyType", PhysicsBodyTypeToString(rigidbodyComponent.BodyType));
 			WRITE_COMPONENT_PROPERY("FixedRotation", rigidbodyComponent.FixedRotation);
 			WRITE_COMPONENT_PROPERY("SleepState", PhysicsBodySleepStateToString(rigidbodyComponent.SleepState));
 			WRITE_COMPONENT_PROPERY("GravityScale", rigidbodyComponent.GravityScale);
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<BoxCollider2DComponent>()) 
 		{
 			auto& boxCollider2DComponent = entity.GetComponent<BoxCollider2DComponent>();
-			BEGIN_COMPONENT_MAP("BoxCollider2DComponent");
 
+			BEGIN_COMPONENT_MAP("BoxCollider2DComponent");
 			WRITE_COMPONENT_PROPERY("Offset", boxCollider2DComponent.Offset);
 			WRITE_COMPONENT_PROPERY("Size", boxCollider2DComponent.Size);
 			WRITE_COMPONENT_PROPERY("Sensor", boxCollider2DComponent.Sensor);
-
 			END_COMPONENT_MAP();
 		}
 
 		if (entity.HasComponent<CircleCollider2DComponent>())
 		{
 			auto& circleCollider2DComponent = entity.GetComponent<CircleCollider2DComponent>();
-			BEGIN_COMPONENT_MAP("CircleCollider2DComponent");
 
+			BEGIN_COMPONENT_MAP("CircleCollider2DComponent");
 			WRITE_COMPONENT_PROPERY("Offset", circleCollider2DComponent.Offset);
 			WRITE_COMPONENT_PROPERY("Radius", circleCollider2DComponent.Radius);
 			WRITE_COMPONENT_PROPERY("Sensor", circleCollider2DComponent.Sensor);
-
 			END_COMPONENT_MAP();
 		}
 
@@ -262,152 +240,67 @@ namespace TerranEngine
 		ofs << out.c_str();
 	}
 
-#define CATCH_JSON_EXCEPTION()\
-catch(const std::exception& ex)\
-{\
-	TR_ERROR(ex.what());\
-}
+#define READ_SCRIPT_FIELD(FieldType, Type)\
+	case ScriptType::FieldType:\
+	{\
+	Type value = scriptField.as<Type>();\
+	cachedField->SetData(value, handle);\
+	}\
+	break
 
-	static void DesirializeScriptable(Entity entity, json& jScriptComponent) 
+	static void DeserializeScriptFields(GCHandle handle, ScriptComponent& scriptComponent, YAML::Node scriptFields) 
 	{
-		auto& scriptComponent = entity.AddComponent<ScriptComponent>();
-		scriptComponent.ModuleName = jScriptComponent["ModuleName"];
-
-		if (ScriptEngine::ClassExists(scriptComponent.ModuleName)) 
+		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 		{
-			ScriptEngine::InitializeScriptable(entity);
+			ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
+			YAML::Node scriptField;
 			
-			if (jScriptComponent["Fields"] != "null")
+			for (auto field : scriptFields)
 			{
-				for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+				if (field[cachedField->GetName()]) 
 				{
-					GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-
-					if (!jScriptComponent["Fields"].contains(field->GetName()))
-						return;
-					
-					json jScriptFieldValue = jScriptComponent["Fields"][field->GetName()];
-
-					try 
-					{
-						switch (field->GetType().TypeEnum)
-						{
-						case ScriptType::Bool:
-						{
-							const bool value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Char:
-						{
-							const uint8_t value = jScriptFieldValue;
-							field->SetData<char>((char)value, handle);
-							break;
-						}
-						case ScriptType::Int64:
-						{
-							const int64_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Int32:
-						{
-							const int32_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Int16:
-						{
-							const int16_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Int8:
-						{
-							const int8_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::UInt64:
-						{
-							const uint64_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::UInt32:
-						{
-							const uint32_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::UInt16:
-						{
-							const uint16_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::UInt8:
-						{
-							const uint8_t value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Float:
-						{
-							const float value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Double:
-						{
-							const double value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::String:
-						{
-							std::string value = jScriptFieldValue;
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Vector2: 
-						{
-							const glm::vec2 value = SerializerUtils::DeserializeVec2(jScriptComponent["Fields"], field->GetName());
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Vector3: 
-						{
-							const glm::vec3 value = SerializerUtils::DeserializeVec3(jScriptComponent["Fields"], field->GetName());
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Color: 
-						{
-							const glm::vec4 value = SerializerUtils::DeserializeVec4(jScriptComponent["Fields"], field->GetName());
-							field->SetData(value, handle);
-							break;
-						}
-						case ScriptType::Entity:
-						{
-							UUID value = UUID::FromString(jScriptFieldValue);
-							field->SetData(value, handle);
-							break;
-						}
-						}
-					}
-					CATCH_JSON_EXCEPTION();
+					scriptField = field[cachedField->GetName()];
+					break;
 				}
+			}
+
+			if (!scriptField) continue;
+
+			switch (cachedField->GetType().TypeEnum)
+			{
+				READ_SCRIPT_FIELD(Bool, bool);
+				READ_SCRIPT_FIELD(Char, char);
+				READ_SCRIPT_FIELD(Int64, int64_t);
+				READ_SCRIPT_FIELD(Int32, int32_t);
+				READ_SCRIPT_FIELD(Int16, int16_t);
+				READ_SCRIPT_FIELD(Int8, int8_t);
+				READ_SCRIPT_FIELD(UInt64, uint64_t);
+				READ_SCRIPT_FIELD(UInt32, uint32_t);
+				READ_SCRIPT_FIELD(UInt16, uint16_t);
+				READ_SCRIPT_FIELD(UInt8, uint8_t);
+				READ_SCRIPT_FIELD(Float, float);
+				READ_SCRIPT_FIELD(Double, double);
+				READ_SCRIPT_FIELD(String, std::string);
+				READ_SCRIPT_FIELD(Vector2, glm::vec2);
+				READ_SCRIPT_FIELD(Vector3, glm::vec3);
+				READ_SCRIPT_FIELD(Color, glm::vec4);
+				READ_SCRIPT_FIELD(Entity, UUID);
 			}
 		}
 	}
 
-	static YAML::Node FindEntity(YAML::Node scene)
+	static YAML::Node FindEntity(YAML::Node scene, const UUID& entityID)
 	{
+		for (auto entity : scene)
+		{
+			UUID id = entity["Entity"].as<UUID>();
+			if (id == entityID) return entity;
+		}
+
+		return { };
 	}
 
-	static Entity DesirializeEntity(YAML::Node data, Shared<Scene> scene)
+	static Entity DeserializeEntity(YAML::Node data, YAML::Node scene, Shared<Scene> deserializedScene)
 	{
 		UUID id = data["Entity"].as<UUID>();
 		if (!id)
@@ -415,6 +308,9 @@ catch(const std::exception& ex)\
 			TR_ASSERT(false, "Invalid id");
 			return { };
 		}
+
+		Entity entity = deserializedScene->FindEntityWithUUID(id);
+		if (entity) return entity;
 
 		auto tagComponent = data["TagComponent"];
 		if (!tagComponent)
@@ -424,12 +320,12 @@ catch(const std::exception& ex)\
 		}
 
 		std::string name = tagComponent["Tag"].as<std::string>();
-		Entity entity = scene->CreateEntityWithUUID(name, id);
+		Entity deserializedEntity = deserializedScene->CreateEntityWithUUID(name, id);
 
 		auto transformComponent = data["TransformComponent"];
 		if (transformComponent) 
 		{
-			auto& tc = entity.GetTransform();
+			auto& tc = deserializedEntity.GetTransform();
 			tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
 			tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
 			tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -438,7 +334,7 @@ catch(const std::exception& ex)\
 		auto cameraComponent = data["CameraComponent"];
 		if (cameraComponent) 
 		{
-			auto& cc = entity.AddComponent<CameraComponent>();
+			auto& cc = deserializedEntity.AddComponent<CameraComponent>();
 			auto camera = cameraComponent["Camera"];
 			cc.Camera.SetOrthographicSize(camera["Size"].as<float>(10.0f));
 			cc.Camera.SetOrthographicNear(camera["Near"].as<float>(-10.0f));
@@ -451,7 +347,7 @@ catch(const std::exception& ex)\
 		auto spriteRendererComponent = data["SpriteRendererComponent"];
 		if (spriteRendererComponent) 
 		{
-			auto& src = entity.AddComponent<SpriteRendererComponent>();
+			auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
 			src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
 		}
@@ -459,7 +355,7 @@ catch(const std::exception& ex)\
 		auto circleRendererComponent = data["CircleRendererComponent"];
 		if (circleRendererComponent) 
 		{
-			auto& crc = entity.AddComponent<CircleRendererComponent>();
+			auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
 			crc.Color = circleRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			crc.Thickness = circleRendererComponent["Thickness"].as<float>(1.0f);
 		}
@@ -468,30 +364,43 @@ catch(const std::exception& ex)\
 		if (relationshipComponent) 
 		{
 			// TODO:
-			auto& rc = entity.AddComponent<RelationshipComponent>();
+			auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
 			for (auto childID : relationshipComponent["Children"])
 			{
-				Entity child = scene->FindEntityWithUUID(childID.as<UUID>());
+				UUID deserializedChildID = childID.as<UUID>();
+				Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
 				if (!child)
 				{
 					// todo deserialize;
+					YAML::Node childNode = FindEntity(scene, deserializedChildID);
+					child = DeserializeEntity(childNode, scene, deserializedScene);
 				}
 
 				if(child)
-					child.SetParent(entity, true);
+					child.SetParent(deserializedEntity, true);
 			}
 		}
 
-		auto scriptCompoennt = data["ScriptComponent"];
-		if (scriptCompoennt) 
+		auto scriptComponent = data["ScriptComponent"];
+		if (scriptComponent)
 		{
 			// TODO:
+			auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
+			sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
+
+			if (ScriptEngine::ClassExists(sc.ModuleName)) 
+			{
+				GCHandle handle = ScriptEngine::InitializeScriptable(deserializedEntity);
+				auto scriptFields = scriptComponent["Fields"];
+				if (scriptFields)
+					DeserializeScriptFields(handle, sc, scriptFields);
+			}
 		}
 
 		auto boxColliderComponent = data["BoxCollider2DComponent"];
 		if (boxColliderComponent) 
 		{
-			auto& bcc = entity.AddComponent<BoxCollider2DComponent>();
+			auto& bcc = deserializedEntity.AddComponent<BoxCollider2DComponent>();
 			bcc.Offset = boxColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
 			bcc.Size = boxColliderComponent["Size"].as<glm::vec2>(glm::vec2(1.0f, 1.0f));
 			bcc.Sensor = boxColliderComponent["Sensor"].as<bool>(false);
@@ -500,7 +409,7 @@ catch(const std::exception& ex)\
 		auto circleColliderComponent = data["CircleCollider2DComponent"];
 		if (circleRendererComponent) 
 		{
-			auto& ccc = entity.AddComponent<CircleCollider2DComponent>();
+			auto& ccc = deserializedEntity.AddComponent<CircleCollider2DComponent>();
 			ccc.Offset = circleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
 			ccc.Radius = circleColliderComponent["Radius"].as<float>(0.5f);
 			ccc.Sensor = circleColliderComponent["Sensor"].as<bool>(false);
@@ -509,55 +418,14 @@ catch(const std::exception& ex)\
 		auto rigidbodyComponent = data["Rigidbody2DComponent"];
 		if (rigidbodyComponent) 
 		{
-			auto& rbc = entity.AddComponent<Rigidbody2DComponent>();
+			auto& rbc = deserializedEntity.AddComponent<Rigidbody2DComponent>();
 			rbc.BodyType = PhysicsBodyTypeFromString(rigidbodyComponent["BodyType"].as<std::string>());
 			rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
 			rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
 			rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
 		}
-
-#if 0
-		if (jEntity.contains("RelationshipComponent"))
-		{
-			json jRelation = jEntity["RelationshipComponent"];
-
-			RelationshipComponent& relationshipComponent = entity.AddComponent<RelationshipComponent>();
-			
-			try 
-			{
-				if (jRelation["ChildrenCount"] > 0)
-				{
-					for (auto& id : jRelation["Children"])
-					{
-						if (!scene->FindEntityWithUUID(UUID::FromString(id)))
-							DesirializeEntity(jScene["Entity " + std::string(id)], jScene, scene);
-
-						Entity child = scene->FindEntityWithUUID(UUID::FromString(id));
-						child.SetParent(entity, true);
-					}
-				}
-				if (jRelation["Parent"] != "null")
-				{
-					if (!scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"])))
-						DesirializeEntity(jScene["Entity " + std::string(jRelation["Parent"])], jScene, scene);
-
-					Entity parent = scene->FindEntityWithUUID(UUID::FromString(jRelation["Parent"]));
-					entity.SetParent(parent);
-				}
-
-			}
-			CATCH_JSON_EXCEPTION();
-		}
-
-		if (jEntity.contains("ScriptComponent")) 
-		{
-			json jScriptComponent = jEntity["ScriptComponent"];
-
-			DesirializeScriptable(entity, jScriptComponent);
-		}
-#endif
 		
-		return entity;
+		return deserializedEntity;
 	}
 
 	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
@@ -578,7 +446,7 @@ catch(const std::exception& ex)\
 		{
 			for (auto entity : entities)
 			{
-				DesirializeEntity(entity, m_Scene);
+				DeserializeEntity(entity, entities, m_Scene);
 			}
 		}
 
