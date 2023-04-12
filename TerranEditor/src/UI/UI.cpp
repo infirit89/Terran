@@ -521,7 +521,7 @@ namespace TerranEditor
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 2.0f, lineHeight };
-		const float inputItemWidth = (ImGui::GetContentRegionAvail().x - itemSpacingX) / 3.0f - buttonSize.x;
+		const float inputItemWidth = (ImGui::GetContentRegionAvail().x - itemSpacingX) / 2.0f - buttonSize.x;
 
 		ScopedStyleColor buttonStyleColor({
 			{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
@@ -665,6 +665,7 @@ namespace TerranEditor
 		memset(buf, 0, maxBufSize);
 		strcpy_s(buf, maxBufSize, value.c_str());
 
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		if (ImGui::InputText("##val", buf, maxBufSize, flags))
 		{
 			value = buf;

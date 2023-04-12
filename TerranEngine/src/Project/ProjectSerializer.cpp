@@ -8,6 +8,8 @@
 
 #include <json.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include <fstream>
 #include <iomanip>
 
@@ -21,29 +23,49 @@ namespace TerranEngine
 
     }
 
+    void ProjectSerializer::Serialize() 
+    {
+        SerializePhysicsSettings();
+    }
+
+    bool ProjectSerializer::Deserizlize()
+    {
+        bool result = DeserializePhysicsSettings();
+        return result;
+    }
+
     void ProjectSerializer::SerializePhysicsSettings()
     {
+        YAML::Emitter out;
+
         json j;
         
-        j["Gravity"] = SerializerUtils::SerializeVec2(m_Project->Settings.Gravity);
-        j["VelocityIterations"] = m_Project->Settings.VelocityIterations;
-        j["PositionIterations"] = m_Project->Settings.PositionIterations;
-        j["PhysicsTimestep"] = m_Project->Settings.PhysicsTimestep;
+        out << YAML::BeginMap;
+        
+        out << YAML::Key << "Gravity" << YAML::Value << m_Project->PhysicsSettings.Gravity;
+        out << YAML::Key << "VelocityIterations" << YAML::Value << m_Project->PhysicsSettings.VelocityIterations;
+        out << YAML::Key << "PositionIterations" << YAML::Value << m_Project->PhysicsSettings.PositionIterations;
+        out << YAML::Key << "PhysicsTimestep" << m_Project->PhysicsSettings.PhysicsTimestep;
+
+        out << YAML::Key << "Layers" << YAML::Value << YAML::BeginSeq;
 
         auto layers = PhysicsLayerManager::GetLayers();
-        j["Layers"] = { };
-        json& jLayers = j["Layers"];
 
         for(auto& layer : PhysicsLayerManager::GetLayers())
         {
-            json jLayer = { { layer.Name, layer.Mask } };
-            jLayers.push_back(jLayer);
+            out << YAML::BeginMap;
+            out << YAML::Key << layer.Name << YAML::Value << YAML::Hex << layer.Mask;
+            out << YAML::EndMap;
         }
 
-        auto physicsSettingsPath = m_Project->ProjectPath / m_ProjectSettingsPath / m_PhysicsSettingsFile;
+        out << YAML::EndSeq;
+
+        out << YAML::EndMap;
+
+        auto physicsSettingsPath = m_Project->m_ProjectPath / m_ProjectSettingsPath / m_PhysicsSettingsFile;
         std::ofstream ofs(physicsSettingsPath);
 
-        ofs << j.dump(4) << std::endl;
+        ofs << out.c_str();
     }
 
     bool ProjectSerializer::DeserializePhysicsSettings()

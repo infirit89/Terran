@@ -62,12 +62,12 @@ AssetInfos:
   - Asset: 7c9d362d-0853-4c39-9cc6-4697f43eaaa1
     Type: 4
     Path: Scenes\TestScene.terran
-  - Asset: 9a89b23e-4f19-402c-9eeb-f2095d8af903
-    Type: 3
-    Path: Test.cs
   - Asset: f9011f22-ab0e-4fdd-a77d-43d9d1641ebb
     Type: 4
     Path: Scenes\TestScene2.terran
   - Asset: ea033a41-55b7-4382-b40f-c04505fd1566
     Type: 4
     Path: Scenes\TestScene3.terran
+  - Asset: d66bd9f3-1ed2-44e9-b7f0-9c2cc25fa4f4
+    Type: 3
+    Path: Test.cs

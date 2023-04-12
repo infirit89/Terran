@@ -68,7 +68,7 @@ namespace TerranEditor
         if (serializeSettings) 
         {
             ProjectSerializer serializer(Project::GetActive());
-            serializer.SerializePhysicsSettings();
+            serializer.Serialize();
         }
     }
 }

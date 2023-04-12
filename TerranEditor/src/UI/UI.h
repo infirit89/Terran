@@ -10,6 +10,8 @@
 
 #include <string.h>
 #include <string>
+#include <unordered_map>
+#include <typeindex>
 
 namespace TerranEditor 
 {
@@ -76,6 +78,20 @@ namespace TerranEditor
 		void BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();
 
+		inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
+		{
+			{ typeid(int8_t), ImGuiDataType_S8 },
+			{ typeid(int16_t), ImGuiDataType_S16 },
+			{ typeid(int32_t), ImGuiDataType_S32 },
+			{ typeid(int64_t), ImGuiDataType_S64 },
+			{ typeid(uint8_t), ImGuiDataType_U8 },
+			{ typeid(uint16_t), ImGuiDataType_U16 },
+			{ typeid(uint32_t), ImGuiDataType_U32 },
+			{ typeid(uint64_t), ImGuiDataType_U64 },
+			{ typeid(float), ImGuiDataType_Float },
+			{ typeid(double), ImGuiDataType_Double }
+		};
+
 		bool PropertyColor(const std::string& label, glm::vec4& value);
 		bool PropertyVec3(const std::string& label, glm::vec3& value);
 		bool PropertyVec2(const std::string& label, glm::vec2& value);
@@ -90,52 +106,20 @@ namespace TerranEditor
 		template<typename T>
 		bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0) 
 		{
-			ImGuiDataType dataType = ImGuiDataType_S8;
+			TR_ASSERT(ImGuiDataTypeMap.find(typeid(T)) != ImGuiDataTypeMap.end(), "Invalid data type");
 
-			if constexpr (std::is_same<T, int8_t>::value) 
-			{
-				dataType = ImGuiDataType_S8;
+			ImGuiDataType dataType = ImGuiDataTypeMap[typeid(T)];
+
+			if constexpr (std::is_same<T, int8_t>::value ||
+						  std::is_same<T, int16_t>::value || 
+						  std::is_same<T, int32_t>::value || 
+						  std::is_same<T, int64_t>::value)
 				format = "%d";
-			}
-			else if constexpr (std::is_same<T, int16_t>::value) 
-			{
-				dataType = ImGuiDataType_S16;
-				format = "%d";
-			}
-			else if constexpr (std::is_same<T, int32_t>::value) 
-			{
-				dataType = ImGuiDataType_S32;
-				format = "%d";
-			}
-			else if constexpr (std::is_same<T, int64_t>::value) 
-			{
-				dataType = ImGuiDataType_S64;
-				format = "%d";
-			}
-			else if constexpr (std::is_same<T, uint8_t>::value) 
-			{
-				dataType = ImGuiDataType_U8;
+			else if constexpr (std::is_same<T, uint8_t>::value || 
+							   std::is_same<T, uint16_t>::value || 
+							   std::is_same<T, uint32_t>::value || 
+							   std::is_same<T, uint64_t>::value)
 				format = "%u";
-			}
-			else if constexpr (std::is_same<T, uint16_t>::value) 
-			{
-				dataType = ImGuiDataType_U16;
-				format = "%u";
-			}
-			else if constexpr (std::is_same<T, uint32_t>::value) 
-			{
-				dataType = ImGuiDataType_U32;
-				format = "%u";
-			}
-			else if constexpr (std::is_same<T, uint64_t>::value) 
-			{
-				dataType = ImGuiDataType_U64;
-				format = "%u";
-			}
-			else if constexpr (std::is_same<T, float>::value)		
-				dataType = ImGuiDataType_Float;
-			else if constexpr (std::is_same<T, double>::value)		
-				dataType = ImGuiDataType_Double;
 
 			bool modified = false;
 				
@@ -172,11 +156,15 @@ namespace TerranEditor
 			bool changed = false;
 			const char* currentState = stateNames[(int32_t)selected];
 
-			UI::ScopedVarTable::TableInfo tableInfo;
-			UI::ScopedVarTable comboBoxTable(label, tableInfo);
+			ImGui::PushID(label.c_str());
+			
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text(label.c_str());
 
-            std::string comboHash = "##" + label;
-			if (ImGui::BeginCombo(comboHash.c_str(), currentState))
+			ImGui::TableSetColumnIndex(1);
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			if (ImGui::BeginCombo("##ComboBox", currentState))
 			{
 				for (size_t i = 0; i < stateCount; i++)
 				{
@@ -195,6 +183,8 @@ namespace TerranEditor
 
 				ImGui::EndCombo();
 			}
+
+			ImGui::PopID();
 
 			return changed;
 		}

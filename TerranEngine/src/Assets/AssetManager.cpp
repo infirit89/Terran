@@ -114,7 +114,7 @@ namespace TerranEngine
 
 		out << YAML::EndMap;
 
-		std::ofstream ofs(Project::GetActive()->ProjectPath / "AssetInfoDB");
+		std::ofstream ofs(Project::GetAssetInfoDBPath());
 		ofs << out.c_str();
 	}
 
@@ -124,7 +124,7 @@ namespace TerranEngine
 
 		try 
 		{
-			std::filesystem::path assetInfoPath = Project::GetActive()->ProjectPath / "AssetInfoDB";
+			std::filesystem::path assetInfoPath = Project::GetAssetInfoDBPath();
 			node = YAML::LoadFile(assetInfoPath.string());
 		}
 		catch (const YAML::Exception& e) 

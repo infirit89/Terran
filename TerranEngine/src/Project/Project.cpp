@@ -4,6 +4,18 @@
 namespace TerranEngine
 {
     Shared<Project> Project::s_ActiveProject;
+
+    Project::Project(const std::filesystem::path& projectPath)
+    {
+        m_ProjectPath = projectPath;
+    }
+
+    Shared<Project> Project::New(const std::filesystem::path& projectPath)
+    {
+        s_ActiveProject = CreateShared<Project>(projectPath);
+        return s_ActiveProject;
+    }
+
     void Project::SetActive(Shared<Project>& project)
     {
         s_ActiveProject = project;
@@ -11,12 +23,11 @@ namespace TerranEngine
 
     std::filesystem::path Project::GetAppAssemblyPath()
     {
-        return s_ActiveProject->ProjectPath / 
-            s_ActiveProject->m_ScriptAssembliesPath / s_ActiveProject->m_AppAssemblyName;
+        
     }
 
     std::filesystem::path Project::GetAssetPath()
     {
-        return s_ActiveProject->ProjectPath / s_ActiveProject->m_AssetPath;
+        
     }
 }

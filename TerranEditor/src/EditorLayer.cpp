@@ -610,12 +610,11 @@ namespace TerranEditor
     void EditorLayer::OpenProject(const std::filesystem::path& projectPath)
     {
         // TODO: close project if theres an already active one
-        Shared<Project> project = CreateShared<Project>();
+        Shared<Project> project = CreateShared<Project>(projectPath);
         Project::SetActive(project);
-        project->ProjectPath = projectPath;
 
 		ProjectSerializer projectSerializer(project);
-		projectSerializer.DeserializePhysicsSettings();
+		projectSerializer.Deserizlize();
 
 		AssetManager::LoadAssetInfos();
 

@@ -11,13 +11,9 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <json.hpp>
-
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
-
-using json = nlohmann::ordered_json;
 
 // NOTE: this is not the final version of the scene serializer, this is a poc
 // NOTE: think about using yaml instead of json, because json has some limitation that i dont really like
@@ -214,6 +210,17 @@ namespace TerranEngine
 			END_COMPONENT_MAP();
 		}
 
+		if (entity.HasComponent<CapsuleCollider2DComponent>()) 
+		{
+			auto& capsuleColliderComponenet = entity.GetComponent<CapsuleCollider2DComponent>();
+
+			BEGIN_COMPONENT_MAP("CapsuleCollider2DComponent");
+			WRITE_COMPONENT_PROPERY("Offset", capsuleColliderComponenet.Offset);
+			WRITE_COMPONENT_PROPERY("Size", capsuleColliderComponenet.Size);
+			WRITE_COMPONENT_PROPERY("Sensor", capsuleColliderComponenet.Sensor);
+			END_COMPONENT_MAP();
+		}
+
 		out << YAML::EndMap;
 	}
 
@@ -254,18 +261,20 @@ namespace TerranEngine
 		{
 			ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
 			YAML::Node scriptField;
+			bool valid = false;
 			
 			for (auto field : scriptFields)
 			{
 				if (field[cachedField->GetName()]) 
 				{
 					scriptField = field[cachedField->GetName()];
+					valid = true;
 					break;
 				}
 			}
 
-			if (!scriptField) continue;
-
+			if (!valid) continue;
+			
 			switch (cachedField->GetType().TypeEnum)
 			{
 				READ_SCRIPT_FIELD(Bool, bool);
@@ -425,6 +434,15 @@ namespace TerranEngine
 			rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
 		}
 		
+		auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
+		if (capsuleColliderComponent)
+		{
+			auto& ccc = deserializedEntity.AddComponent<CapsuleCollider2DComponent>();
+			ccc.Offset = capsuleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+			ccc.Size = capsuleColliderComponent["Size"].as<glm::vec2>(glm::vec2(0.5f, 1.0f));
+			ccc.Sensor = capsuleColliderComponent["Sensor"].as<bool>(false);
+		}
+
 		return deserializedEntity;
 	}
 
