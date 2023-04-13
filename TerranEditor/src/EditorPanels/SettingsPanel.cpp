@@ -33,26 +33,42 @@ namespace TerranEditor
     {
         bool serializeSettings = false;
         Shared<Project> activeProject = Project::GetActive();
-        serializeSettings |= UI::PropertyVec2("Gravity", activeProject->Settings.Gravity);
-        serializeSettings |= UI::PropertyFloat("Fixed Timestep", activeProject->Settings.PhysicsTimestep);
-        activeProject->Settings.PhysicsTimestep = std::max(activeProject->Settings.PhysicsTimestep, 0.001f);
+        PhysicsSettings& settings = activeProject->GetPhysicsSettings();
 
-        serializeSettings |= UI::PropertyInt("Position Iterations", activeProject->Settings.PositionIterations);
-        activeProject->Settings.PositionIterations = std::max(activeProject->Settings.PositionIterations, 1);
-        serializeSettings |= UI::PropertyInt("Velocity Iterations", activeProject->Settings.VelocityIterations);
-        activeProject->Settings.VelocityIterations = std::max(activeProject->Settings.VelocityIterations, 1);
+        UI::BeginPropertyGroup("physics_settings");
+
+        ImGui::TableNextRow();
+        serializeSettings |= UI::PropertyVec2("Gravity", settings.Gravity);
+
+        ImGui::TableNextRow();
+        serializeSettings |= UI::PropertyFloat("Fixed Timestep", settings.PhysicsTimestep);
+
+        settings.PhysicsTimestep = std::max(settings.PhysicsTimestep, 0.001f);
+
+        ImGui::TableNextRow();
+        serializeSettings |= UI::PropertyInt("Position Iterations", settings.PositionIterations);
+        settings.PositionIterations = std::max(settings.PositionIterations, 1);
+
+        ImGui::TableNextRow();
+        serializeSettings |= UI::PropertyInt("Velocity Iterations", settings.VelocityIterations);
+        settings.VelocityIterations = std::max(settings.VelocityIterations, 1);
+
+        ImGui::TableNextColumn();
+        std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+        serializeSettings |= UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
+        UI::EndPropertyGroup();
 
         {
-            std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-            serializeSettings |= UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
-
             ImGui::BeginTable("##LayerCollisionSelection", 1);
             for (int row = 0; row < layerNames.size(); row++)
             {
                 if (strlen(layerNames[row]) == 0) continue;
                 ImGui::TableNextRow();
-
                 ImGui::TableSetColumnIndex(0);
+
+                UI::BeginPropertyGroup("layer_mask");
+                ImGui::TableNextRow();
+
                 bool canLayersCollide = PhysicsLayerManager::CanLayersCollide(m_LayerIndex, row);
 
                 if (UI::PropertyBool(layerNames[row], canLayersCollide)) 
@@ -60,9 +76,11 @@ namespace TerranEditor
                     PhysicsLayerManager::SetLayerMask(m_LayerIndex, row, canLayersCollide);
                     serializeSettings |= true;
                 }
+                UI::EndPropertyGroup();
             }
 
             ImGui::EndTable();
+
         }
 
         if (serializeSettings) 

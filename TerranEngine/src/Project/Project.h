@@ -40,7 +40,7 @@ namespace TerranEngine
             return GetProjectPath() / s_ActiveProject->m_AssetInfoDBPath;
         }
 
-        static PhysicsSettings GetPhysicsSettings() { return s_ActiveProject->PhysicsSettings; }
+        static PhysicsSettings& GetPhysicsSettings() { return s_ActiveProject->m_PhysicsSettings; }
 
     private:
         static Shared<Project> s_ActiveProject;
@@ -49,7 +49,7 @@ namespace TerranEngine
         const std::filesystem::path m_AppAssemblyName = "ScriptAssembly.dll";
         const std::filesystem::path m_AssetInfoDBPath = "AssetInfoDB";
         std::filesystem::path m_ProjectPath;
-        PhysicsSettings PhysicsSettings;
+        PhysicsSettings m_PhysicsSettings;
 
         friend class ProjectSerializer;
     };

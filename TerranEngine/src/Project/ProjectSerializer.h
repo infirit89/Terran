@@ -14,12 +14,7 @@ namespace TerranEngine
         bool Deserizlize();
 
     private:
-        void SerializePhysicsSettings();
-        bool DeserializePhysicsSettings();
-
-    private:
         Shared<Project> m_Project;
-        const std::filesystem::path m_ProjectSettingsPath = "ProjectSettings";
-        const std::filesystem::path m_PhysicsSettingsFile = "PhysicsSettings.tstg";
+        const std::filesystem::path m_ProjectSettingsPath = "ProjectSettings.tstg";
     };
 }

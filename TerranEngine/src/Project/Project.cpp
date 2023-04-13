@@ -20,14 +20,4 @@ namespace TerranEngine
     {
         s_ActiveProject = project;
     }
-
-    std::filesystem::path Project::GetAppAssemblyPath()
-    {
-        
-    }
-
-    std::filesystem::path Project::GetAssetPath()
-    {
-        
-    }
 }
