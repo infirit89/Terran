@@ -104,6 +104,15 @@ namespace TerranEditor
 			ImGui::End();
 		}
 	}
+
+	template<typename ComponentType>
+	static void DrawAddComponentButton(Entity entity, const char* label) 
+	{
+		if (!entity.HasComponent<ComponentType>())
+			if (ImGui::MenuItem("Sprite Renderer"))
+				entity.AddComponent<ComponentType>();
+	}
+
 	void PropertiesPanel::DrawComponents()
 	{
 		Entity entity = SelectionManager::GetSelected();
@@ -506,45 +515,16 @@ namespace TerranEditor
 
 			if (ImGui::BeginPopup("AddComponent"))
 			{
-				if (!entity.HasComponent<SpriteRendererComponent>())
-					if (ImGui::MenuItem("Sprite Renderer"))
-						entity.AddComponent<SpriteRendererComponent>();
-
-				if (!entity.HasComponent<CircleRendererComponent>())
-					if (ImGui::MenuItem("Circle Renderer"))
-						entity.AddComponent<CircleRendererComponent>();
-
-				if (!entity.HasComponent<LineRendererComponent>())
-					if (ImGui::MenuItem("Line Renderer"))
-						entity.AddComponent<LineRendererComponent>();
-
-				if (!entity.HasComponent<CameraComponent>())
-					if (ImGui::MenuItem("Camera"))
-						entity.AddComponent<CameraComponent>();
-
-				if (!entity.HasComponent<ScriptComponent>())
-					if (ImGui::MenuItem("Script"))
-						entity.AddComponent<ScriptComponent>();
-
-				if (!entity.HasComponent<Rigidbody2DComponent>())
-					if (ImGui::MenuItem("Rigidbody 2D"))
-						entity.AddComponent<Rigidbody2DComponent>();
-
-				if (!entity.HasComponent<BoxCollider2DComponent>())
-					if (ImGui::MenuItem("Box Collider 2D"))
-						entity.AddComponent<BoxCollider2DComponent>();
-
-				if (!entity.HasComponent<CircleCollider2DComponent>())
-					if (ImGui::MenuItem("Circle Collider 2D"))
-						entity.AddComponent<CircleCollider2DComponent>();
-
-				if (!entity.HasComponent<CapsuleCollider2DComponent>())
-					if (ImGui::MenuItem("Capsule Collider 2D"))
-						entity.AddComponent<CapsuleCollider2DComponent>();
-
-				if (!entity.HasComponent<TextRendererComponent>())
-					if (ImGui::MenuItem("Text Renderer"))
-						entity.AddComponent<TextRendererComponent>();
+				DrawAddComponentButton<SpriteRendererComponent>(entity, "Sprite Renderer");
+				DrawAddComponentButton<CircleRendererComponent>(entity, "Circle Renderer");
+				DrawAddComponentButton<LineRendererComponent>(entity, "Line Renderer");
+				DrawAddComponentButton<TextRendererComponent>(entity, "Text Renderer");
+				DrawAddComponentButton<CameraComponent>(entity, "Camera");
+				DrawAddComponentButton<ScriptComponent>(entity, "Script");
+				DrawAddComponentButton<Rigidbody2DComponent>(entity, "Rigidbody 2D");
+				DrawAddComponentButton<BoxCollider2DComponent>(entity, "Box Collider 2D");
+				DrawAddComponentButton<CircleCollider2DComponent>(entity, "Circle Collider 2D");
+				DrawAddComponentButton<CapsuleCollider2DComponent>(entity, "Capsule Collider 2D");
 
 				ImGui::EndPopup();
 			}

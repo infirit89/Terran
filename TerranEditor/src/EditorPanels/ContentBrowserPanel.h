@@ -151,9 +151,15 @@ namespace TerranEditor
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
+		
+		template<typename T>
+		Shared<T> CreateAsset(const std::string& name) 
+		{
+			return CreateAssetInDirectory(name, m_CurrentDirectory->Path);
+		}
 
 		template<typename T>
-		Shared<T> CreateAssetInDirectory(const std::string& name, const std::filesystem::path& directory = "")
+		Shared<T> CreateAssetInDirectory(const std::string& name, const std::filesystem::path& directory)
 		{
 			std::filesystem::path filepath = directory / name;
 			return AssetManager::CreateNewAsset<T>(filepath);
@@ -178,9 +184,12 @@ namespace TerranEditor
 		Shared<DirectoryInfo> m_CurrentDirectory;
 		Shared<DirectoryInfo> m_PreviousDirectory;
 		std::stack<Shared<DirectoryInfo>> m_NextDirectoryStack;
-		std::unordered_map<UUID, Shared<DirectoryInfo>> m_DirectoryInfoMap;
+		std::unordered_map<UUID, Shared<DirectoryInfo>> m_Directories;
 		ContentBrowserItemList m_CurrentItems;
-		//std::queue<std::function<void()>> m_PostRenderActions;
-		
+		std::function<void(const std::string&)> m_CreateAsset;
+		std::filesystem::path m_NewAssetName;
+
+		template<typename AssetType>
+		friend void DrawNewAssetMenu(ContentPanel* panel, const char* name, const char* fileName, bool& openRenamePopup);
 	};
 }

@@ -1,0 +1,16 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 10341aba-1501-4f18-926f-2a1575bd3b72
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]

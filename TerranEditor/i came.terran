@@ -1,0 +1,9 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: e0056e39-20fe-4c34-aabb-638c8bf68085
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]

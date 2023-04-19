@@ -20,8 +20,6 @@
 
 namespace TerranEngine 
 {
-	
-
 	namespace AssetUtility 
 	{
 		inline std::unordered_map<std::filesystem::path, AssetType> s_FileExtensionMap = 

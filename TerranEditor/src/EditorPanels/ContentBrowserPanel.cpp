@@ -21,15 +21,34 @@
 #include <imgui_internal.h>
 
 #include <algorithm>
+#include <optional>
 
 #pragma warning(push)
 #pragma warning(disable : 4312)
 
-namespace TerranEditor 
+namespace TerranEditor
 {
-	ContentPanel::ContentPanel() 
+#define MAX_RENAME_BUFFER_SIZE 256
+
+	static char s_RenameBuffer[MAX_RENAME_BUFFER_SIZE]{ 0 };
+
+	ContentPanel::ContentPanel()
 	{
 		AssetManager::SetAssetChangedCallback(TR_EVENT_BIND_FN(ContentPanel::OnFileSystemChanged));
+	}
+
+	template<typename AssetType>
+	void DrawNewAssetMenu(ContentPanel* panel, const char* name, const char* fileName, bool& openRenamePopup)
+	{
+		if (ImGui::MenuItem(name))
+		{
+			openRenamePopup = true;
+			panel->m_NewAssetName = fileName;
+			panel->m_CreateAsset = [panel](const std::string& name) 
+			{ 
+				panel->CreateAssetInDirectory<AssetType>(name, panel->m_CurrentDirectory->Path); 
+			};
+		}
 	}
 
 	static std::mutex s_ContentBrowserMutex;
@@ -42,7 +61,7 @@ namespace TerranEditor
 		ImGui::BeginChild("##topbar", { 0.0f, 40.0f });
 		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
-			auto buttonFunc = [this](const std::string& buttonText, bool condition)
+			auto button = [this](const std::string& buttonText, bool condition)
 			{
 				bool result = false;
 				if (!condition)
@@ -57,12 +76,12 @@ namespace TerranEditor
 			};
 
 			// back button
-			if (buttonFunc("<-", m_PreviousDirectory != nullptr))
+			if (button("<-", m_PreviousDirectory != nullptr))
 				ChangeBackwardDirectory();
 
 			ImGui::Spring(-1.0f, 4.0f);
 			
-			if (buttonFunc("->", m_NextDirectoryStack.size() > 0))
+			if (button("->", m_NextDirectoryStack.size() > 0))
 				ChangeForwardDirectory();
 			
 			ImGui::Spring(-1.0f, 4.0f * 2.0f);
@@ -72,15 +91,42 @@ namespace TerranEditor
 		ImGui::EndHorizontal();
 		ImGui::EndChild();
 
+		bool openRenamePopup = false;
 		if (ImGui::BeginPopupContextWindow("content_panel_actions_popup", ImGuiMouseButton_Right)) 
 		{
 			if (ImGui::MenuItem("Reveal in explorer"))
-				FileSystem::RevealInExplorer(m_CurrentDirectory->Path);
+				FileSystem::RevealInExplorer(AssetManager::GetFileSystemPath(m_CurrentDirectory->Path));
 
-			if (ImGui::MenuItem("Create physics material")) 
+			if (ImGui::BeginMenu("New")) 
 			{
-				CreateAssetInDirectory<PhysicsMaterial2DAsset>("test.trpm2d", m_CurrentDirectory->Path);
+				DrawNewAssetMenu<PhysicsMaterial2DAsset>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
+				DrawNewAssetMenu<Scene>(this, "Scene", "New Scene.terran", openRenamePopup);
+				ImGui::EndMenu();
+			}
 
+			ImGui::EndPopup();
+		}
+
+		// TODO: this is pretty scuffed; should do it the proper way
+		if (openRenamePopup) 
+		{
+			ImGui::OpenPopup("name_new_asset");
+			memcpy(s_RenameBuffer, m_NewAssetName.stem().string().c_str(), m_NewAssetName.stem().string().size());
+		}
+
+		if (ImGui::BeginPopup("name_new_asset"))
+		{
+			if(!ImGui::IsAnyItemActive())
+				ImGui::SetKeyboardFocusHere();
+
+			bool result = ImGui::InputText("##name_new_asset_input", s_RenameBuffer, MAX_RENAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
+
+			if (ImGui::Button("Create") || result) 
+			{
+				std::string fileName = s_RenameBuffer + m_NewAssetName.extension().string();
+				m_CreateAsset(fileName);
+				memset(s_RenameBuffer, 0, MAX_RENAME_BUFFER_SIZE);
+				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
@@ -97,6 +143,7 @@ namespace TerranEditor
 			float availRegionWidth = ImGui::GetContentRegionAvail().x;
 			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
 
+			// TODO: change with the imgui tables api
 			ImGui::Columns(columnCount, (const char*)0, false);
 
 			// for every entry in the current 
@@ -108,10 +155,6 @@ namespace TerranEditor
 				if (action == ItemAction::NavigateTo) 
 				{
 					nextDir = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
-					//m_PostRenderActions.push([&item, this]() 
-					//{ 
-						//ChangeDirectory(DynamicCast<ContentBrowserPanelDirectory>(item)->GetDirectoryInfo());
-					//});
 					while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
 				}
 
@@ -132,11 +175,9 @@ namespace TerranEditor
 					SelectionManager::Deselect(SelectionContext::ContentPanel);
 					if (selectedItem != m_CurrentItems.end()) 
 					{
-						std::filesystem::path directoryPath = m_DirectoryInfoMap[item->GetID()]->Path;
+						std::filesystem::path directoryPath = m_Directories[item->GetID()]->Path;
 						(*selectedItem)->Move(directoryPath);
 					}
-
-
 				}
 
 				if (action == ItemAction::StartRename)
@@ -151,13 +192,6 @@ namespace TerranEditor
 
 		if (nextDir)
 			ChangeDirectory(nextDir);
-
-		/*while (!m_PostRenderActions.empty())
-		{
-			auto postRenderAction = m_PostRenderActions.front();
-			postRenderAction();
-			m_PostRenderActions.pop();
-		}*/
 
 		ImGui::End();
 	}
@@ -221,7 +255,7 @@ namespace TerranEditor
 			{
 				UUID subdirectoryHandle = ProcessDirectory(directoryEntry, directory);
 				if(directory->Subdirectories.find(subdirectoryHandle) == directory->Subdirectories.end())
-					directory->Subdirectories.emplace(subdirectoryHandle, m_DirectoryInfoMap[subdirectoryHandle]);
+					directory->Subdirectories.emplace(subdirectoryHandle, m_Directories[subdirectoryHandle]);
 				continue;
 			}
 
@@ -241,9 +275,9 @@ namespace TerranEditor
 		parent->Subdirectories.erase(directory->ID);
 
 		for (const auto& [handle, subdirectory] : directory->Subdirectories) 
-			m_DirectoryInfoMap.erase(subdirectory->ID);
+			m_Directories.erase(subdirectory->ID);
 
-		m_DirectoryInfoMap.erase(directory->ID);
+		m_Directories.erase(directory->ID);
 	}
 
 	void ContentPanel::UpdateCurrentItems()
@@ -311,6 +345,7 @@ namespace TerranEditor
 		ChangeDirectory(m_PreviousDirectory);
 	}
 
+#if NOT_WORKING
 	void ContentPanel::Refresh()
 	{
 		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
@@ -352,6 +387,18 @@ namespace TerranEditor
 		if (shouldChangeCurrent) ChangeDirectory(m_CurrentDirectory);
 		else UpdateCurrentItems();
 	}
+#endif
+
+	void ContentPanel::Refresh() 
+	{
+		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
+		m_Directories.clear();
+		UUID dirID = ProcessDirectory(Project::GetAssetPath());
+		// NOTE: this chages the directory to the base asset path;
+		// pretty fucking dumb as the user may have been in another directory before the refresh
+		// should fix
+		ChangeDirectory(GetDirectory(dirID));
+	}
 
 	bool ContentPanel::OnKeyPressedEvent(KeyPressedEvent& kEvent)
 	{
@@ -371,7 +418,12 @@ namespace TerranEditor
 
 	bool ContentPanel::DirectoryExists(const Shared<DirectoryInfo>& directory)
 	{
-		return std::filesystem::exists(Project::GetAssetPath() / directory->Path);
+		std::filesystem::path p = Project::GetAssetPath() / directory->Path;
+		std::error_code e;
+		
+		bool result = std::filesystem::exists(p, e);
+		TR_TRACE(e.message());
+		return result;
 	}
 
 	UUID ContentPanel::ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent)
@@ -394,7 +446,7 @@ namespace TerranEditor
 			if (directoryEntry.is_directory()) 
 			{
 				UUID subdirectoryID = ProcessDirectory(directoryEntry, directoryInfo);
-				directoryInfo->Subdirectories.emplace(subdirectoryID, m_DirectoryInfoMap[subdirectoryID]);
+				directoryInfo->Subdirectories.emplace(subdirectoryID, m_Directories[subdirectoryID]);
 			}
 			else 
 			{
@@ -405,15 +457,19 @@ namespace TerranEditor
 			}
 		}
 
-		m_DirectoryInfoMap[directoryInfo->ID] = directoryInfo;
+		m_Directories[directoryInfo->ID] = directoryInfo;
 		return directoryInfo->ID;
 	}
 
 	Shared<DirectoryInfo> ContentPanel::GetDirectory(const std::filesystem::path& directoryPath)
 	{
-		for (const auto&[id, directoryInfo] : m_DirectoryInfoMap)
+		for (const auto&[id, directoryInfo] : m_Directories)
 		{
-			if (directoryInfo->Path == std::filesystem::relative(directoryPath, Project::GetAssetPath()))
+			//TR_TRACE(Project::GetAssetPath());
+			std::filesystem::path relative = directoryPath;
+			if(!relative.is_relative())
+				relative = std::filesystem::relative(directoryPath, Project::GetAssetPath());
+			if (directoryInfo->Path == relative)
 				return directoryInfo;
 		}
 
@@ -422,8 +478,8 @@ namespace TerranEditor
 
 	Shared<DirectoryInfo> ContentPanel::GetDirectory(const UUID& id) 
 	{
-		if (m_DirectoryInfoMap.find(id) != m_DirectoryInfoMap.end())
-			return m_DirectoryInfoMap.at(id);
+		if (m_Directories.find(id) != m_Directories.end())
+			return m_Directories.at(id);
 
 		return nullptr;
 	}
@@ -451,12 +507,8 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		//Refresh();
+		Refresh();
 	}
-
-#define MAX_RENAME_BUFFER_SIZE 256
-
-	static char s_RenameBuffer[MAX_RENAME_BUFFER_SIZE]{ 0 };
 
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
 	{

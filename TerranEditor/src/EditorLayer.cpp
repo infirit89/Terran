@@ -11,7 +11,7 @@
 #include "EditorPanels/ECSPanel.h"
 #include "EditorPanels/LogPanel.h"
 #include "EditorPanels/SettingsPanel.h"
-#include "EditorPanels/AssetPropertiesPanel.h"
+#include "EditorPanels/AssetEditorManager.h"
 #include "SelectionManager.h"
 
 #include "EditorResources.h"
@@ -101,8 +101,9 @@ namespace TerranEditor
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
         Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
         settingsPanel->SetOpen(false);
-		m_PanelManager->AddPanel<AssetPropertiesPanel>(ASSET_PROPERTIES_PANEL_NAME);
 		// ***********************
+
+		AssetEditorManager::Init();
 
 		if (m_ProjectPath.empty())
 			OpenProject("SandboxProject/");
@@ -462,6 +463,8 @@ namespace TerranEditor
 
 		RenderDockspace();
 
+		AssetEditorManager::RenderEditors();
+
 		m_PanelManager->ImGuiRender();
 
 		// Renderer stats
@@ -603,7 +606,7 @@ namespace TerranEditor
 		else 
 		{
 			SceneSerializer sSerializer(SceneManager::GetCurrentScene());
-			sSerializer.SerializeEditor(m_CurrentScenePath);
+			sSerializer.SerializeEditor(AssetManager::GetFileSystemPath(m_CurrentScenePath));
 		}
 	}
 
