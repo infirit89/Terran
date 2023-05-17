@@ -10,7 +10,13 @@ def InstallPackages():
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
         sys.stdout.write('\n')
 
+def UpdateSubmodules():
+    sys.stdout.write("\rUpdating submodules")
+    subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
+    sys.stdout.write('\n')
+
 if __name__ == "__main__":
+    UpdateSubmodules()
     InstallPackages()
     from SetupPremake import PremakeSetup
     from SetupMono import MonoSetup
