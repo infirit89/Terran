@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Assert.h"
+#include "Core/Base.h"
 
 #include <memory>
 #include <vector>
@@ -8,14 +9,21 @@
 
 namespace TerranEngine 
 {
+	enum class ShaderDataType 
+	{
+		Float,
+		Int,
+		Bool
+	};
+
 	struct VertexBufferElement 
 	{
-		uint32_t Type;
+		ShaderDataType Type;
 		bool Normalised;
 		uint8_t Count;
 		uint32_t Offset;
 
-		VertexBufferElement(uint32_t type, uint8_t count, bool normalised = false) 
+		VertexBufferElement(ShaderDataType type, uint8_t count, bool normalised = false) 
 			: Type(type), Normalised(normalised), Count(count), Offset(0) {}
 
 		uint8_t GetSize();
@@ -34,7 +42,7 @@ namespace TerranEngine
 		}
 
 		inline uint32_t GetStride() const { return m_Stride; }
-		inline std::vector<VertexBufferElement> GetElements() const { return m_Elements; }
+		inline const std::vector<VertexBufferElement>& GetElements() const { return m_Elements; }
 	private:
 		void CalculateStrideAndOffset() 
 		{
@@ -54,36 +62,29 @@ namespace TerranEngine
 	class VertexBuffer 
 	{
 	public:
-		VertexBuffer() 
-			: m_Buffer(0) {}
+		virtual ~VertexBuffer() = default;
 
-		VertexBuffer(uint32_t size);
-		VertexBuffer(const float* vertices, uint32_t size);
+		virtual void SetData(const void* vertices, uint32_t size) = 0;
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
 
-		~VertexBuffer();
-
-		void SetData(const void* vertices, uint32_t size);
-		const void Bind() const;
-		const void Unbind() const;
-	private:
-		uint32_t m_Buffer;
+		static Shared<VertexBuffer> Create(uint32_t size);
+		static Shared<VertexBuffer> Create(const float* vertices, uint32_t size);
 	};
 
 	class IndexBuffer 
 	{
 	public:
-		IndexBuffer() 
-			: m_Buffer(0), m_Size(0) {}
+		virtual ~IndexBuffer() = default;
 
-		IndexBuffer(const int* indices, uint32_t size);
-		~IndexBuffer();
-
-		const void Bind() const;
-		const void Unbind() const;
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
 
 		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
-	private:
-		uint32_t m_Buffer;
-		int m_Size;
+
+		static Shared<IndexBuffer> Create(const int* indices, uint32_t size);
+
+	protected:
+		uint32_t m_Size;
 	};
 }
