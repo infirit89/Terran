@@ -67,6 +67,7 @@ namespace TerranEngine
 		virtual void SetData(const void* vertices, uint32_t size) = 0;
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+		virtual uint32_t GetBufferID() const = 0;
 
 		static Shared<VertexBuffer> Create(uint32_t size);
 		static Shared<VertexBuffer> Create(const float* vertices, uint32_t size);
@@ -79,6 +80,7 @@ namespace TerranEngine
 
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+		virtual uint32_t GetBufferID() const = 0;
 
 		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 

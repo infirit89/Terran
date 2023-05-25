@@ -1,4 +1,4 @@
-#version 420 core
+#version 450 core
 
 //const float glyph_center = 0.50;
 //const float outline_center = 0.55;

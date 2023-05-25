@@ -100,7 +100,6 @@ namespace TerranEngine
     void OpenGLRendererAPI::Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int indexCount)
     {
         uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
-        vertexArray->GetIndexBuffer()->Bind();
         glDrawElements(nativeMode, indexCount, GL_UNSIGNED_INT, nullptr);
     }
 

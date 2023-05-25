@@ -13,7 +13,8 @@ namespace TerranEngine
 		virtual void Bind() override;
 		virtual void Unbind() override;
 
-		virtual void AddVertexBufferLayout(const VertexBufferLayout& layout) override;
+		virtual void AddVertexBuffer(const Shared<VertexBuffer>& vertexBuffer, const VertexBufferLayout& layout) override;
+		virtual void AddIndexBuffer(const Shared<IndexBuffer>& buffer) override;
 
 	private:
 		uint32_t m_ArrayID;
