@@ -1,7 +1,5 @@
 #pragma once
 
-#include "RenderCommand.h"
-
 #include <glm/mat4x4.hpp>
 
 #include <string>
@@ -56,7 +54,6 @@ namespace TerranEngine
 		const char* m_VertexPath,* m_FragmentPath;
 		const char* m_ShaderPath;
 #endif
-
 
 		std::unordered_map<const char*, uint32_t> m_Uniforms;
 	};

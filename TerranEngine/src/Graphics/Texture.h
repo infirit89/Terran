@@ -59,7 +59,7 @@ namespace TerranEngine
 		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
 		inline const int GetWidth() const { return m_Width; }
 		inline const int GetHeight() const { return m_Height; }
-		inline const uint32_t GetTextureID() const { return m_TextureID; }
+		inline const uint32_t GetTextureID() const { return m_Handle; }
 
 		inline const std::filesystem::path GetPath() const { return m_Path; }
 		inline const std::string GetName() const { return m_Path.stem().string(); }
@@ -71,7 +71,7 @@ namespace TerranEngine
 	private:
 		void LoadTexture(const std::filesystem::path& filePath);
 
-		uint32_t m_TextureID;
+		uint32_t m_Handle;
 		int m_Width, m_Height, m_Channels;
 		uint32_t m_InternalFormat, m_DataFormat;
 		std::filesystem::path m_Path;

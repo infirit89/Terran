@@ -1,5 +1,5 @@
 #include "trpch.h"
-#include "RenderCommand.h"
+#include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLErrorHandler.h"
 
@@ -8,7 +8,7 @@
 
 namespace TerranEngine 
 {
-	void RenderCommand::Init()
+	void Renderer::Init()
 	{
 		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
@@ -16,34 +16,40 @@ namespace TerranEngine
 		TR_TRACE("Graphics card: {0}", glGetString(GL_RENDERER));
 		TR_TRACE("OpenGL version: {0}", glGetString(GL_VERSION));
 
-		TR_ASSERT(GLVersion.major > 3 || (GLVersion.major >= 3 && GLVersion.minor >= 2), "Terran doesn't support opengl versions older than 3.2.0");
+		TR_ASSERT(GLVersion.major >= 4 && GLVersion.minor > 5, "Terran doesn't support opengl versions older than 4.5.0");
 
 #ifdef TR_DEBUG
-		if (GLVersion.major >= 4 && GLVersion.minor >= 3)
+		int flags;
+		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
 		{
-
-			int flags;
-			glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-
-			if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-			{
-				glEnable(GL_DEBUG_OUTPUT);
-				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-				glDebugMessageCallback(glDebugOutput, nullptr);
-				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
-			}
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(glDebugOutput, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
 		}
 #endif
 		EnableBlending(true);
 		EnableDepthTesting(true);
 	}
 
-	void RenderCommand::SetClearColor(float r, float g, float b, float a) { glClearColor(r, g, b, a); }
-	void RenderCommand::Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+	void Renderer::SetClearColor(float r, float g, float b, float a) 
+	{
+		glClearColor(r, g, b, a);
+	}
 
-	void RenderCommand::Resize(int width, int height) { glViewport(0, 0, width, height); }
+	void Renderer::Clear() 
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
-	void RenderCommand::WireframeMode(bool enable)
+	void Renderer::SetViewport(int width, int height) 
+	{
+		glViewport(0, 0, width, height);
+	}
+
+	void Renderer::WireframeMode(bool enable)
 	{
 		if (enable) 
 		{
@@ -57,7 +63,7 @@ namespace TerranEngine
 		}
 	}
 
-	void RenderCommand::EnableBlending(bool state) 
+	void Renderer::EnableBlending(bool state)
 	{
 		if (state) 
 		{
@@ -67,7 +73,7 @@ namespace TerranEngine
 			glDisable(GL_BLEND);
 	}
 
-	void RenderCommand::EnableDepthTesting(bool state)
+	void Renderer::EnableDepthTesting(bool state)
 	{
 		if (state) 
 		{
@@ -98,30 +104,35 @@ namespace TerranEngine
 		return GL_TRIANGLES;
 	}
 
-	void RenderCommand::Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices)
+	void Renderer::DrawIndexed(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices)
 	{
 		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
-
-		vertexArray->GetIndexBuffer()->Bind();
-
+		vertexArray->Bind();
 		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void RenderCommand::DrawArrays(RenderMode mode, int numVertices)
+	void Renderer::DrawArrays(RenderMode mode, const Shared<VertexArray>& vertexArray, int numVertices)
 	{
 		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+		vertexArray->Bind();
 		glDrawArrays(nativeMode, 0, numVertices);
 	}
 
-	void RenderCommand::DrawInstanced(RenderMode mode, const Shared<VertexArray>& vertexArray, int instanceCount)
+	void Renderer::DrawInstanced(RenderMode mode, const Shared<VertexArray>& vertexArray, int instanceCount)
 	{
 		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
-		vertexArray->GetIndexBuffer()->Bind();
+		//vertexArray->GetIndexBuffer()->Bind();
 		glDrawElementsInstanced(nativeMode, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
 	} 
 
-	void RenderCommand::SetLineWidth(float lineWidth) { glLineWidth(lineWidth); }
+	void Renderer::SetLineWidth(float lineWidth) 
+	{
+		glLineWidth(lineWidth);
+	}
 
-	uint32_t RenderCommand::GetAPIVersion() { return (GLVersion.major * 100) + (GLVersion.minor * 10); }
+	uint32_t Renderer::GetAPIVersion()
+	{
+		return (GLVersion.major * 100) + (GLVersion.minor * 10);
+	}
 }
 

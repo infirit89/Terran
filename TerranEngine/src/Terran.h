@@ -25,7 +25,7 @@
 #include "Graphics/OrthographicCamera.h"
 #include "Graphics/VertexArray.h"
 #include "Graphics/Shader.h"
-#include "Graphics/RenderCommand.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/Texture.h"
 #include "Graphics/BatchRenderer2D.h"
 #include "Graphics/TextureSheet.h"

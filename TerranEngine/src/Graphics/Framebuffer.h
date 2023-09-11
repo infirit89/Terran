@@ -48,9 +48,9 @@ namespace TerranEngine
 	private:
 		void Create();
 
-		int* m_ClearTextureData;
 		uint32_t m_Width, m_Height;
-		uint32_t m_Buffer, m_DepthAttachment;
+		uint32_t m_Handle;
+		uint32_t m_DepthAttachment;
 		std::vector<uint32_t> m_ColorAttachments;
 		
 		std::vector<FramebufferColorAttachmentType> m_ColorAttachmentsParameters;

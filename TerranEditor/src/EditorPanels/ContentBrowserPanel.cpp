@@ -199,7 +199,7 @@ namespace TerranEditor
 	void ContentPanel::OnEvent(TerranEngine::Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(ContentPanel::OnKeyPressedEvent));
+		//dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(ContentPanel::OnKeyPressedEvent));
 	}
 
 	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0)
@@ -402,7 +402,7 @@ namespace TerranEditor
 
 	bool ContentPanel::OnKeyPressedEvent(KeyPressedEvent& kEvent)
 	{
-		bool altPressed = Input::IsKeyDown(Key::LeftAlt) || Input::IsKeyDown(Key::RightAlt);
+		/*bool altPressed = Input::IsKeyDown(Key::LeftAlt) || Input::IsKeyDown(Key::RightAlt);
 
 		if (kEvent.GetRepeatCount() > 0) 
 			return false;
@@ -411,7 +411,7 @@ namespace TerranEditor
 		{
 		case Key::Left: ChangeBackwardDirectory(); break;
 		case Key::Right: ChangeForwardDirectory(); break;
-		}
+		}*/
 
 		return false;
 	}

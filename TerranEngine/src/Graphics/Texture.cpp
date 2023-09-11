@@ -84,41 +84,42 @@ namespace TerranEngine
 	}
 
 	Texture::Texture() 
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path("") {}
+		: m_Handle(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path("") {}
 	
 	Texture::Texture(uint32_t width, uint32_t height, TextureParameters parameters) 
-		: m_TextureID(0), m_Width(width), m_Height(height), m_Channels(0), 
+		: m_Handle(0), m_Width(width), m_Height(height), m_Channels(0), 
 		m_InternalFormat(0), m_DataFormat(0), m_TexParameters(parameters)
 	{
-		glGenTextures(1, &m_TextureID);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
 		
 		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
 
 		uint32_t wrapMode = ConvertTextureWrapModeToOpenGLWrapMode(m_TexParameters.WrapMode);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
+		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
+
+		NativeTexutreType nativeType = ConvertTextureTypeToNativeType(m_TexParameters.TextureType);
+		glTextureStorage2D(m_Handle, 1, nativeType.InternalFormat, m_Width, m_Height);
 	}
 
 	Texture::Texture(const std::filesystem::path& filePath, TextureParameters parameters)
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path(filePath)
+		: m_Handle(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path(filePath)
 	{
 		LoadTexture(filePath);
 	}
 
 	Texture::~Texture()
 	{
-		glDeleteTextures(1, &m_TextureID);
+		glDeleteTextures(1, &m_Handle);
 	}
 
 	void Texture::Bind(uint8_t textureSlot) const
 	{	 
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		glBindTextureUnit(textureSlot, m_Handle);
 	}	 
 		 
 	void Texture::Unbind() const
@@ -129,19 +130,19 @@ namespace TerranEngine
 	void Texture::SetData(const void* data) 
 	{
 		NativeTexutreType nativeType = ConvertTextureTypeToNativeType(m_TexParameters.TextureType);
-		glTexImage2D(GL_TEXTURE_2D, 0, nativeType.InternalFormat, m_Width, m_Height, 0, nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
+		glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	bool Texture::operator==(Texture& other) 
 	{
 		return m_Width == other.m_Width && m_Height == other.m_Height
-			&& m_Channels == other.m_Channels && m_TextureID == other.m_TextureID;
+			&& m_Channels == other.m_Channels && m_Handle == other.m_Handle;
 	}
 
 	bool Texture::operator==(const Texture& other) 
 	{
 		return m_Width == other.m_Width && m_Height == other.m_Height
-			&& m_Channels == other.m_Channels && m_TextureID == other.m_TextureID;
+			&& m_Channels == other.m_Channels && m_Handle == other.m_Handle;
 	}
 
 	void Texture::LoadTexture(const std::filesystem::path& filePath)
@@ -155,9 +156,8 @@ namespace TerranEngine
 			return;
 		}
 
-		glGenTextures(1, &m_TextureID);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
-
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+		
 		switch (m_Channels)
 		{
 			case 4: 
@@ -189,15 +189,16 @@ namespace TerranEngine
 
 		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
 
 		uint32_t wrapMode = ConvertTextureWrapModeToOpenGLWrapMode(m_TexParameters.WrapMode);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
+		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
+		glTextureStorage2D(m_Handle, 1, m_InternalFormat, m_Width, m_Height);
+		glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
 
 		stbi_image_free(pixels);
 	}

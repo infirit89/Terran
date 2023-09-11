@@ -55,7 +55,7 @@ namespace TerranEngine
 	{
 	public:
 		VertexBuffer() 
-			: m_Buffer(0) {}
+			: m_Handle(0) {}
 
 		VertexBuffer(uint32_t size);
 		VertexBuffer(const float* vertices, uint32_t size);
@@ -63,27 +63,27 @@ namespace TerranEngine
 		~VertexBuffer();
 
 		void SetData(const void* vertices, uint32_t size);
-		const void Bind() const;
-		const void Unbind() const;
+
 	private:
-		uint32_t m_Buffer;
+		uint32_t m_Handle;
+
+		friend class VertexArray;
 	};
 
 	class IndexBuffer 
 	{
 	public:
 		IndexBuffer() 
-			: m_Buffer(0), m_Size(0) {}
+			: m_Handle(0), m_Size(0) {}
 
 		IndexBuffer(const int* indices, uint32_t size);
 		~IndexBuffer();
 
-		const void Bind() const;
-		const void Unbind() const;
-
 		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 	private:
-		uint32_t m_Buffer;
+		uint32_t m_Handle;
 		int m_Size;
+
+		friend class VertexArray;
 	};
 }

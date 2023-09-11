@@ -12,15 +12,14 @@
 namespace TerranEngine 
 {
 	VertexArray::VertexArray()
-		: m_ElementIndex(0)
+		: m_AttributeIndex(0)
 	{
-		glGenVertexArrays(1, &m_Vao);
-		glBindVertexArray(m_Vao);
+		glCreateVertexArrays(1, &m_Handle);
 	}
 
-	VertexArray::~VertexArray() { glDeleteVertexArrays(1, &m_Vao); }
+	VertexArray::~VertexArray() { glDeleteVertexArrays(1, &m_Handle); }
 
-	const void VertexArray::Bind() const { glBindVertexArray(m_Vao); }
+	const void VertexArray::Bind() const { glBindVertexArray(m_Handle); }
 	const void VertexArray::Unbind() const { glBindVertexArray(0); }
 
 	void VertexArray::AddVertexBufferLayout(const VertexBufferLayout& layout)
@@ -29,18 +28,40 @@ namespace TerranEngine
 
 		for (auto element : m_Layout.GetElements())
 		{
-			glEnableVertexAttribArray(m_ElementIndex);
+			glEnableVertexArrayAttrib(m_Handle, m_AttributeIndex);
 			switch (element.Type)
 			{
 			case GL_INT:
-				glVertexAttribIPointer(m_ElementIndex, element.Count, element.Type, m_Layout.GetStride(), (const void*)element.Offset);
+				glVertexArrayAttribIFormat(
+									m_Handle,
+									m_AttributeIndex,
+									element.Count,
+									element.Type,
+									element.Offset);
 				break;
 			case GL_FLOAT:
-				glVertexAttribPointer(m_ElementIndex, element.Count, element.Type, element.Normalised ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.Offset);
+				glVertexArrayAttribFormat(
+								m_Handle,
+								m_AttributeIndex,
+								element.Count,
+								element.Type,
+								element.Normalised ? GL_TRUE : GL_FALSE,
+								element.Offset);
 				break;
 			}
-			m_ElementIndex++;
+			glVertexArrayAttribBinding(m_Handle, m_AttributeIndex, 0);
+			m_AttributeIndex++;
 		}
+	}
+
+	void VertexArray::AddVertexBuffer(const Shared<VertexBuffer>& buffer)
+	{
+		glVertexArrayVertexBuffer(m_Handle, 0, buffer->m_Handle, 0, m_Layout.GetStride());
+	}
+
+	void VertexArray::AddIndexBuffer(const Shared<IndexBuffer>& buffer)
+	{
+		glVertexArrayElementBuffer(m_Handle, buffer->m_Handle);
 	}
 }
 

@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "UniformBuffer.h"
 #include "Framebuffer.h"
-#include "RenderCommand.h"
+#include "Renderer.h"
 
 #include "Math/Math.h"
 
@@ -206,6 +206,7 @@ namespace TerranEngine
 				{ GL_INT,	1 }
 			});
 
+			s_Data->QuadVAO->AddVertexBuffer(s_Data->QuadVBO);
 			s_Data->QuadVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
 			s_Data->QuadShader = CreateShared<Shader>("DefaultQuadShader", 
@@ -216,7 +217,7 @@ namespace TerranEngine
 			s_Data->QuadShader->UploadIntArray("u_Samplers", s_Data->MaxTextureSlots, samplers);
 			s_Data->QuadShader->Unbind();
 
-			s_Data->QuadTextures[0] =	CreateShared<Texture>(1, 1);
+			s_Data->QuadTextures[0] = CreateShared<Texture>(1, 1);
 			s_Data->QuadTextures[0]->SetData(&whiteTextureData);
 
 		}
@@ -659,34 +660,31 @@ namespace TerranEngine
 		s_Data->Stats.VertexCount += s_Data->QuadVertexPtrIndex + s_Data->CircleVertexPtrIndex + 
 									s_Data->LineVertexPtrIndex + s_Data->DebugLineVertexPtrIndex;
 
-		s_Data->Stats.IndexCount +=  s_Data->QuadIndexCount + s_Data->CircleIndexCount + s_Data->LineIndexCount;
+		s_Data->Stats.IndexCount += s_Data->QuadIndexCount + s_Data->CircleIndexCount + s_Data->LineIndexCount;
 
 		// Submit quads
 		if (s_Data->QuadIndexCount)
 		{
-
 			s_Data->QuadShader->Bind();
-			s_Data->QuadVAO->Bind();
 			s_Data->QuadVBO->SetData(s_Data->QuadVertexPtr, s_Data->QuadVertexPtrIndex * sizeof(QuadVertex));
 
 			for (size_t i = 0; i < s_Data->QuadTextureIndex; i++)
 				s_Data->QuadTextures[i]->Bind(i);
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->QuadVAO, s_Data->QuadIndexCount);
+			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->QuadVAO, s_Data->QuadIndexCount);
 
 			s_Data->Stats.DrawCalls++;
 
 			s_Data->QuadShader->Unbind();
 		}
-
+#if 0
 		// Submit circles
 		if (s_Data->CircleIndexCount) 
 		{
 			s_Data->CircleShader->Bind();
-			s_Data->CircleVAO->Bind();
 			s_Data->CircleVBO->SetData(s_Data->CircleVertexPtr, s_Data->CircleVertexPtrIndex * sizeof(CircleVertex));
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->CircleVAO, s_Data->CircleIndexCount);
+			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->CircleVAO, s_Data->CircleIndexCount);
 
 			s_Data->Stats.DrawCalls++;
 
@@ -697,10 +695,9 @@ namespace TerranEngine
 		if (s_Data->LineIndexCount) 
 		{
 			s_Data->LineShader->Bind();
-			s_Data->LineVAO->Bind();
 			s_Data->LineVBO->SetData(s_Data->LineVertexPtr, s_Data->LineVertexPtrIndex * sizeof(LineVertex));
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->LineVAO, s_Data->LineIndexCount);
+			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->LineVAO, s_Data->LineIndexCount);
 			
 			s_Data->Stats.DrawCalls++;
 
@@ -711,13 +708,12 @@ namespace TerranEngine
 		if (s_Data->TextIndexCount) 
 		{
 			s_Data->TextShader->Bind();
-			s_Data->TextVAO->Bind();
 			s_Data->TextVBO->SetData(s_Data->TextVertexPtr, s_Data->TextVertexPtrIndex * sizeof(TextVertex));
 
 			for (size_t i = 0; i < s_Data->TextTextureIndex; i++)
 				s_Data->TextTextures[i]->Bind(i);
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->TextVAO, s_Data->TextIndexCount);
+			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->TextVAO, s_Data->TextIndexCount);
 
 			s_Data->Stats.DrawCalls++;
 
@@ -728,17 +724,18 @@ namespace TerranEngine
 		if (s_Data->DebugLineVertexPtrIndex) 
 		{
 			s_Data->DebugLineShader->Bind();
-			s_Data->DebugLineVAO->Bind();
+			//s_Data->DebugLineVAO->Bind();
 			s_Data->DebugLineVBO->SetData(s_Data->DebugLineVertexPtr, s_Data->DebugLineVertexPtrIndex * sizeof(DebugLineVertex));
 
 			constexpr float debugLineWidth = 2.0f;
-			RenderCommand::SetLineWidth(debugLineWidth);
-			RenderCommand::DrawArrays(RenderMode::Lines, s_Data->DebugLineVertexPtrIndex);
+			Renderer::SetLineWidth(debugLineWidth);
+			Renderer::DrawArrays(RenderMode::Lines, s_Data->DebugLineVAO, s_Data->DebugLineVertexPtrIndex);
 
 			s_Data->Stats.DrawCalls++;
 
 			s_Data->DebugLineShader->Unbind();
 		}
+#endif
 	}
 
 	void BatchRenderer2D::Clear()
@@ -764,5 +761,4 @@ namespace TerranEngine
 	bool BatchRenderer2D::CircleBatchHasRoom() { return !(s_Data->CircleIndexCount >= s_Data->MaxIndices); }
 	bool BatchRenderer2D::LineBatchHasRoom() { return !(s_Data->LineIndexCount >= s_Data->MaxIndices); }
 	bool BatchRenderer2D::TextBatchHasRoom() { return !(s_Data->TextIndexCount >= s_Data->MaxIndices) && !(s_Data->TextTextureIndex >= s_Data->MaxTextureSlots); }
-
 }

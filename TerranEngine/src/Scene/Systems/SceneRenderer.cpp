@@ -6,7 +6,7 @@
 #include "Core/Input.h"
 
 #include "Graphics/BatchRenderer2D.h"
-#include "Graphics/RenderCommand.h"
+#include "Graphics/Renderer.h"
 
 #include "Assets/AssetManager.h"
 
@@ -32,8 +32,8 @@ namespace TerranEngine
 	{
 		m_Framebuffer->Bind();
 		
-		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
-		RenderCommand::Clear();
+		Renderer::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
+		Renderer::Clear();
 
 		BatchRenderer2D::BeginFrame(camera, cameraTransform, invereTransform);
 		m_BegunScene = true;

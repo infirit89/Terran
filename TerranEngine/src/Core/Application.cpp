@@ -8,7 +8,7 @@
 #include "Graphics/Buffer.h"
 #include "Graphics/VertexArray.h"		  
 #include "Graphics/Shader.h"
-#include "Graphics/RenderCommand.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/BatchRenderer2D.h"
 
 #include "Scripting/ScriptEngine.h"
@@ -38,7 +38,7 @@ namespace TerranEngine
 
 		m_Window = Window::Create(appData.Window);
 
-		RenderCommand::Init();
+		Renderer::Init();
 		BatchRenderer2D::Initialize(2000);
         
 		AssetManager::Init();
@@ -76,7 +76,7 @@ namespace TerranEngine
 	{
 		float frameTime = 0.0f; float lastFrameTime = 0.0f;
 
-		RenderCommand::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		Renderer::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		while (m_Running)
 		{
@@ -88,7 +88,7 @@ namespace TerranEngine
 			
 			if (!m_Minimized)
 			{
-				RenderCommand::Clear();
+				Renderer::Clear();
 				{
 					TR_PROFILE_SCOPE("Layer::OnUpdate");
 					for (Layer* layer : m_Stack.GetLayers())
@@ -148,7 +148,7 @@ namespace TerranEngine
 
 		m_Minimized = false;
 
-		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
+		Renderer::SetViewport(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}

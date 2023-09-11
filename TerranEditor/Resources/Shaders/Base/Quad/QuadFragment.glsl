@@ -1,5 +1,4 @@
-#version 420 core
-
+#version 450 core
 
 struct VS_OUT
 {
@@ -7,25 +6,23 @@ struct VS_OUT
 	vec2	TexCoords;
 };
 
-layout(location = 0) in VS_OUT fsIn;
+layout(location = 0) in VS_OUT i_InputData;
+layout(location = 2) in flat int i_TextureIndex;
+layout(location = 3) in flat int i_EntityID;
 
-layout(location = 2) in flat int f_TexIndex;
-layout(location = 3) in flat int f_EntityID;
-
-layout(location = 0) out vec4 color;
-layout(location = 1) out int entityID;
+layout(location = 0) out vec4 o_Color;
+layout(location = 1) out int o_EntityID;
 
 uniform sampler2D u_Samplers[16];
 
-
 void main() 
 {
-	int index = f_TexIndex;
+	int index = i_TextureIndex;
 
-	color = fsIn.Color;
+	o_Color = i_InputData.Color;
 
 	if(index > 0)
-		color = fsIn.Color * texture(u_Samplers[index], fsIn.TexCoords);
+		o_Color = i_InputData.Color * texture(u_Samplers[index], i_InputData.TexCoords);
 
-	entityID = f_EntityID;
+	o_EntityID = i_EntityID;
 }

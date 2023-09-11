@@ -1,4 +1,4 @@
-#version 420 core
+#version 450 core
 
 layout(location = 0) in vec3	a_Pos;
 layout(location = 1) in vec4	a_Col;
@@ -19,16 +19,16 @@ struct VS_OUT
 	vec2	TexCoords;
 };
 
-layout(location = 0) out VS_OUT vsOut;
-layout(location = 2) out flat int f_TexIndex;
-layout(location = 3) out flat int f_EntityID;
+layout(location = 0) out VS_OUT o_OuputData;
+layout(location = 2) out flat int o_TextureIndex;
+layout(location = 3) out flat int o_EntityID;
 
 void main() 
 {
 	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(a_Pos, 1.0); 
 
-	vsOut.Color = a_Col;
-	vsOut.TexCoords = a_TexCoords;
-	f_TexIndex = a_TexIndex;
-	f_EntityID = a_EntityID;
+	o_OuputData.Color = a_Col;
+	o_OuputData.TexCoords = a_TexCoords;
+	o_TextureIndex = a_TexIndex;
+	o_EntityID = a_EntityID;
 }
