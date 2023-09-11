@@ -15,27 +15,25 @@ def DownloadFile(url, filepath):
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
-        response = requests.get(url, stream = True)
-        totalFileSize = response.headers.get("Content-Length")
-        contentDisposition = response.headers.get("Content-Disposition")
+        headers = {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+        response = requests.get(url, headers=headers, stream = True)
 
+        totalFileSize = response.headers.get("Content-Length")
+        
         if totalFileSize is None:
             f.write(response.content)
             return
 
         totalFileSize = int(totalFileSize)
         
-        fileNameToken = "filename"
-        fileNameTokenPos = contentDisposition.find(fileNameToken) 
-        
         donwloaded = 0
-        for chunk in response.iter_content(chunk_size=1024):
+        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024))):
             donwloaded += len(chunk)
             f.write(chunk)
 
-            percentage = (donwloaded / totalFileSize) * 100
+            percentage = (donwloaded / totalFileSize) * 100 if donwloaded < totalFileSize else 100
 
-            sys.stdout.write("\rDownloading: {} {:.2f}%".format(contentDisposition[fileNameTokenPos + len(fileNameToken) + 1:len(contentDisposition)], percentage))
+            sys.stdout.write("\r{:.2f}%".format(percentage))
             sys.stdout.flush()
         sys.stdout.write('\n')
 

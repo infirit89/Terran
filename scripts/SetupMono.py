@@ -132,7 +132,7 @@ class MonoSetup:
 
                 percentage = (copiedFiles / totalFileCount) * 100
 
-                sys.stdout.write("\rCopying etc files {:.2f}".format(percentage))
+                sys.stdout.write("\rCopying etc files {:.2f}%".format(percentage))
                 sys.stdout.flush()
 
         sys.stdout.write('\n')
@@ -209,7 +209,7 @@ class MonoSetup:
 
                 percentage = (copiedFiles / totalFileCount) * 100
 
-                sys.stdout.write("\rCopying includes {:.2f}".format(percentage))
+                sys.stdout.write("\rCopying includes {:.2f}%".format(percentage))
                 sys.stdout.flush()
 
         sys.stdout.write('\n')

@@ -28,9 +28,12 @@ group "Dependencies"
     include "TerranEngine/vendor/Optick"
     include "TerranEngine/vendor/yaml-cpp"
 
-group ""
+group "Core"
+    include "TerranEngine"
+    include "TerranScriptCore"
 
-include "TerranEngine"
-include "Sandbox"
-include "TerranEditor"
-include "TerranScriptCore"
+group "Tools"
+    include "TerranEditor"
+
+group "Runtime"
+    include "Sandbox"

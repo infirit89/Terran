@@ -7,7 +7,6 @@ echo Select a target:
 echo   1. vs2019
 echo   2. vs2022
 set /p target=
-echo %target%
 IF /i "%target%"=="1" goto vs2019
 IF /i "%target%"=="2" goto vs2022
 echo %target% is not valid

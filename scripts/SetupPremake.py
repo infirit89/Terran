@@ -6,7 +6,7 @@ class PremakeSetup:
     premakeVersion = "5.0.0-beta2"
     premakeDir = "../premake"
     premakeURL = f"https://github.com/premake/premake-core/releases/download/v{premakeVersion}/premake-{premakeVersion}-windows.zip" 
-    premakeLicenseURL = "https://github.com/premake/premake-core/blob/master/LICENSE.txt"
+    premakeLicenseURL = "https://raw.githubusercontent.com/premake/premake-core/master/LICENSE.txt"
 
     @classmethod
     def Setup(self):
@@ -19,11 +19,15 @@ class PremakeSetup:
     def InstallPremake(self):
         
         os.makedirs(self.premakeDir)
-        Utils.DownloadFile(self.premakeURL, f"{self.premakeDir}/premake.zip")
+        premakePath = f"{self.premakeDir}/premake.zip";
+        print("Downloading {0:s} to {1:s}".format(self.premakeURL, premakePath))
+        Utils.DownloadFile(self.premakeURL, premakePath)
         Utils.UnzipFile(f"{self.premakeDir}/premake.zip")
         print(f"Premake {self.premakeVersion} has been downloaded!")
 
-        Utils.DownloadFile(self.premakeLicenseURL, f"{self.premakeDir}/LICENSE.txt")
+        premakeLicensePath = f"{self.premakeDir}/LICENSE.txt"
+        print("Downloading {0:s} to {1:s}".format(self.premakeLicenseURL, premakeLicensePath))
+        Utils.DownloadFile(self.premakeLicenseURL, premakeLicensePath)
         print("Premake License has been downloaded!")
 
 
