@@ -1,64 +1,127 @@
 #include "trpch.h"
 #include "RenderCommand.h"
 
+#include "Platform/OpenGL/OpenGLErrorHandler.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 namespace TerranEngine 
 {
-	Shared<RendererAPI> RenderCommand::s_RendererAPI;
+	void RenderCommand::Init()
+	{
+		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
 
-	void RenderCommand::Init(RendererAPI::API api)
-	{
-		s_RendererAPI = RendererAPI::Create(api);
-		ToggleBlending(true);
-		ToggleDepthTesting(true);
-	}
+		TR_TRACE("Graphics card: {0}", glGetString(GL_RENDERER));
+		TR_TRACE("OpenGL version: {0}", glGetString(GL_VERSION));
 
-	void RenderCommand::SetClearColor(float r, float g, float b, float a)
-	{
-		s_RendererAPI->SetClearColor(r, g, b, a);
-	}
-	void RenderCommand::Clear() 
-	{
-		s_RendererAPI->Clear();
-	}
+		TR_ASSERT(GLVersion.major > 3 || (GLVersion.major >= 3 && GLVersion.minor >= 2), "Terran doesn't support opengl versions older than 3.2.0");
 
-	void RenderCommand::Resize(int width, int height) 
-	{
-		s_RendererAPI->Resize(width, height);
-	}
+#ifdef TR_DEBUG
+		if (GLVersion.major >= 4 && GLVersion.minor >= 3)
+		{
 
-	void RenderCommand::ToggleWireframeMode(bool state)
-	{
-		s_RendererAPI->ToggleWireframeMode(state);
-	}
+			int flags;
+			glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
-	void RenderCommand::ToggleBlending(bool state) 
-	{
-		s_RendererAPI->ToggleBlending(state);
+			if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+			{
+				glEnable(GL_DEBUG_OUTPUT);
+				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+				glDebugMessageCallback(glDebugOutput, nullptr);
+				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
+			}
+		}
+#endif
+		EnableBlending(true);
+		EnableDepthTesting(true);
 	}
 
-	void RenderCommand::ToggleDepthTesting(bool state)
+	void RenderCommand::SetClearColor(float r, float g, float b, float a) { glClearColor(r, g, b, a); }
+	void RenderCommand::Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+
+	void RenderCommand::Resize(int width, int height) { glViewport(0, 0, width, height); }
+
+	void RenderCommand::WireframeMode(bool enable)
 	{
-		s_RendererAPI->ToggleDepthTesting(state);
+		if (enable) 
+		{
+			glPolygonMode(GL_FRONT, GL_LINE);
+			glPolygonMode(GL_BACK, GL_LINE);
+		}
+		else 
+		{
+			glPolygonMode(GL_FRONT, GL_FILL);
+			glPolygonMode(GL_BACK, GL_FILL);
+		}
 	}
 
-	void RenderCommand::Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int indexCount)
+	void RenderCommand::EnableBlending(bool state) 
 	{
-		s_RendererAPI->Draw(mode, vertexArray, indexCount);
+		if (state) 
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		} else
+			glDisable(GL_BLEND);
 	}
 
-	void RenderCommand::DrawArrays(RenderMode mode, int vertexCount)
+	void RenderCommand::EnableDepthTesting(bool state)
 	{
-		s_RendererAPI->DrawArrays(mode, vertexCount);
+		if (state) 
+		{
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
+		}
+		else
+			glDisable(GL_DEPTH_TEST);
 	}
 
-	void RenderCommand::SetLineWidth(float lineWidth)
+	static uint32_t ConvertRenderModeToNativeMode(RenderMode mode) 
 	{
-		s_RendererAPI->SetLineWidth(lineWidth);
+		switch (mode)
+		{
+		case TerranEngine::RenderMode::Points:
+		case TerranEngine::RenderMode::Lines:
+		case TerranEngine::RenderMode::LineLoop:
+		case TerranEngine::RenderMode::LineStrip:
+		case TerranEngine::RenderMode::Triangles:
+		case TerranEngine::RenderMode::TriangleStrip:
+		case TerranEngine::RenderMode::TriangleFan:
+			return GL_POINTS + (uint32_t)mode;
+		default:
+			TR_ERROR("Unsupported render mode");
+			break;
+		}
+
+		return GL_TRIANGLES;
 	}
 
-	uint32_t RenderCommand::GetAPIVersion() 
+	void RenderCommand::Draw(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices)
 	{
-		return s_RendererAPI->GetAPIVersion();
+		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+
+		vertexArray->GetIndexBuffer()->Bind();
+
+		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 	}
+
+	void RenderCommand::DrawArrays(RenderMode mode, int numVertices)
+	{
+		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+		glDrawArrays(nativeMode, 0, numVertices);
+	}
+
+	void RenderCommand::DrawInstanced(RenderMode mode, const Shared<VertexArray>& vertexArray, int instanceCount)
+	{
+		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+		vertexArray->GetIndexBuffer()->Bind();
+		glDrawElementsInstanced(nativeMode, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+	} 
+
+	void RenderCommand::SetLineWidth(float lineWidth) { glLineWidth(lineWidth); }
+
+	uint32_t RenderCommand::GetAPIVersion() { return (GLVersion.major * 100) + (GLVersion.minor * 10); }
 }
 

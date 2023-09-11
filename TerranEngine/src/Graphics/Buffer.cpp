@@ -1,9 +1,7 @@
 #include "trpch.h"
 #include "Buffer.h"
 
-#include "RenderCommand.h"
-
-#include "Platform/OpenGL/OpenGLBuffer.h"
+#include <glad/glad.h>
 
 namespace TerranEngine 
 {
@@ -12,52 +10,76 @@ namespace TerranEngine
 	{
 		switch (Type)
 		{
-		case ShaderDataType::Float:
-		case ShaderDataType::Int:		return 4;
-		case ShaderDataType::Bool:		return 1;
+		case GL_FLOAT:
+		case GL_INT:		return 4;
+		case GL_BOOL:		return 1;
+		default:			TR_ASSERT(false, "No other type supported!");
 		}
 
-		TR_ASSERT(false, "No other type supported!");
 		return 0;
 	}
 	/* ------------------------------*/
 
 	/* ---- Vertex Buffer ---- */
-
-	Shared<VertexBuffer> VertexBuffer::Create(uint32_t size)
+	VertexBuffer::VertexBuffer(uint32_t size)
 	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::OpenGL: return CreateShared<OpenGLVertexBuffer>(size);
-		}
-
-		TR_ASSERT(false, "Invalid renderer api");
-		return nullptr;
+		glGenBuffers(1, &m_Buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	Shared<VertexBuffer> VertexBuffer::Create(const float* vertices, uint32_t size)
+	VertexBuffer::VertexBuffer(const float* vertices, uint32_t size)
 	{
-		switch (RendererAPI::GetAPI()) 
-		{
-		case RendererAPI::API::OpenGL: return CreateShared<OpenGLVertexBuffer>(vertices, size);
-		}
+		glGenBuffers(1, &m_Buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	}
 
-		TR_ASSERT(false, "Invalid renderer api");
-		return nullptr;
+	VertexBuffer::~VertexBuffer()
+	{
+		glDeleteBuffers(1, &m_Buffer);
+	}
+
+	void VertexBuffer::SetData(const void* vertices, uint32_t size)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
+	}
+
+	const void VertexBuffer::Bind() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+	}
+
+	const void VertexBuffer::Unbind() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	/* ----------------------- */
 
 
 	/* ---- Index Buffer ---- */
-	Shared<IndexBuffer> IndexBuffer::Create(const int* indices, uint32_t size)
+	IndexBuffer::IndexBuffer(const int* indices, uint32_t size)
+		: m_Size(size)
 	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::OpenGL: return CreateShared<OpenGLIndexBuffer>(indices, size);
-		}
+		glGenBuffers(1, &m_Buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
+	}
 
-		TR_ASSERT(false, "Invalid renderer api");
-		return nullptr;
+	IndexBuffer::~IndexBuffer()
+	{
+		glDeleteBuffers(1, &m_Buffer);
+	}
+
+	const void IndexBuffer::Bind() const
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+	}
+
+	const void IndexBuffer::Unbind() const
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 	/* ----------------------*/
 }

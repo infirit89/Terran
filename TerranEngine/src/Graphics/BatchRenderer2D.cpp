@@ -82,8 +82,8 @@ namespace TerranEngine
 
 		// ******** Quad ********
 		uint32_t QuadIndexCount = 0;
-		Shared<VertexArray>  QuadVertexArray;
-		Shared<VertexBuffer> QuadVertexBuffer;
+		Shared<VertexArray>  QuadVAO;
+		Shared<VertexBuffer> QuadVBO;
 
 		Shared<Shader> QuadShader;
 
@@ -96,8 +96,8 @@ namespace TerranEngine
 
 		// ******** Circle ********
 		uint32_t CircleIndexCount = 0;
-		Shared<VertexArray>  CircleVertexArray;
-		Shared<VertexBuffer> CircleVertexBuffer;
+		Shared<VertexArray>  CircleVAO;
+		Shared<VertexBuffer> CircleVBO;
 
 		Shared<Shader> CircleShader;
 
@@ -110,8 +110,8 @@ namespace TerranEngine
 		uint32_t LineIndexCount = 0;
 		Shared<Shader> LineShader;
 
-		Shared<VertexArray> LineVertexArray;
-		Shared<VertexBuffer> LineVertexBuffer;
+		Shared<VertexArray> LineVAO;
+		Shared<VertexBuffer> LineVBO;
 
 		LineVertex* LineVertexPtr = nullptr;
 		uint32_t LineVertexPtrIndex = 0;
@@ -120,8 +120,8 @@ namespace TerranEngine
 		// ******** Debug Line ********
 		Shared<Shader> DebugLineShader;
 
-		Shared<VertexArray> DebugLineVertexArray;
-		Shared<VertexBuffer> DebugLineVertexBuffer;
+		Shared<VertexArray> DebugLineVAO;
+		Shared<VertexBuffer> DebugLineVBO;
 
 		DebugLineVertex* DebugLineVertexPtr = nullptr;
 		uint32_t DebugLineVertexPtrIndex = 0;
@@ -129,8 +129,8 @@ namespace TerranEngine
 
 		// ******** Text ********
 		uint32_t TextIndexCount = 0;
-		Shared<VertexBuffer> TextVertexBuffer;
-		Shared<VertexArray> TextVertexArray;
+		Shared<VertexBuffer> TextVBO;
+		Shared<VertexArray> TextVAO;
 
 		Shared<Shader> TextShader;
 
@@ -179,7 +179,7 @@ namespace TerranEngine
 			offset += 4;
 		}
 
-		s_Data->IndexBuffer = IndexBuffer::Create(indices, s_Data->MaxIndices * sizeof(int));
+		s_Data->IndexBuffer = CreateShared<IndexBuffer>(indices, s_Data->MaxIndices * sizeof(int));
 
 		delete[] indices;
 		// ************************************
@@ -194,19 +194,19 @@ namespace TerranEngine
 		{
 			s_Data->QuadVertexPtr = new QuadVertex[s_Data->MaxVertices];
 
-			s_Data->QuadVertexArray = VertexArray::Create();
+			s_Data->QuadVAO = CreateShared<VertexArray>();
 
-			s_Data->QuadVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(QuadVertex));
+			s_Data->QuadVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(QuadVertex));
 
-			s_Data->QuadVertexArray->AddVertexBufferLayout({
-				{ ShaderDataType::Float,	3 },
-				{ ShaderDataType::Float,	4 },
-				{ ShaderDataType::Float,	2 },
-				{ ShaderDataType::Int,		1 },
-				{ ShaderDataType::Int,		1 }
+			s_Data->QuadVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 },
+				{ GL_INT,	1 }
 			});
 
-			s_Data->QuadVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->QuadVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
 			s_Data->QuadShader = CreateShared<Shader>("DefaultQuadShader", 
 												"Resources/Shaders/Base/Quad/QuadVertex.glsl", 
@@ -216,7 +216,7 @@ namespace TerranEngine
 			s_Data->QuadShader->UploadIntArray("u_Samplers", s_Data->MaxTextureSlots, samplers);
 			s_Data->QuadShader->Unbind();
 
-			s_Data->QuadTextures[0] = CreateShared<Texture>(1, 1);
+			s_Data->QuadTextures[0] =	CreateShared<Texture>(1, 1);
 			s_Data->QuadTextures[0]->SetData(&whiteTextureData);
 
 		}
@@ -226,22 +226,21 @@ namespace TerranEngine
 		{
 			s_Data->CircleVertexPtr = new CircleVertex[s_Data->MaxVertices];
 
-			s_Data->CircleVertexArray = VertexArray::Create();
+			s_Data->CircleVAO = CreateShared<VertexArray>();
 
-			s_Data->CircleVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(CircleVertex));
+			s_Data->CircleVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(CircleVertex));
 
-			s_Data->CircleVertexArray->AddVertexBufferLayout({
-				{ ShaderDataType::Float,	3 },
-				{ ShaderDataType::Float,	1 },
-				{ ShaderDataType::Float,	4 },
-				{ ShaderDataType::Float,	2 },
-				{ ShaderDataType::Int,		1 }
+			s_Data->CircleVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 1 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 }
 			});
 
-			s_Data->CircleVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->CircleVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->CircleShader = CreateShared<Shader>(	
-													"DefaultCircleShader", 
+			s_Data->CircleShader = CreateShared<Shader>(	"DefaultCircleShader", 
 													"Resources/Shaders/Base/Circle/CircleVertex.glsl",
 													"Resources/Shaders/Base/Circle/CircleFragment.glsl");
 		}
@@ -250,19 +249,19 @@ namespace TerranEngine
 		// ******** Line ******** 
 		{
 			s_Data->LineVertexPtr = new LineVertex[s_Data->MaxVertices];
-			s_Data->LineVertexArray = VertexArray::Create();
-			s_Data->LineVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(LineVertex));
+			s_Data->LineVAO = CreateShared<VertexArray>();
+			s_Data->LineVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(LineVertex));
 
-			s_Data->LineVertexArray->AddVertexBufferLayout({
-				{ ShaderDataType::Float,	3 },
-				{ ShaderDataType::Float,	3 },
-				{ ShaderDataType::Float,	3 },
-				{ ShaderDataType::Float,	4 },
-				{ ShaderDataType::Float,	1 },
-				{ ShaderDataType::Int,		1 }
+			s_Data->LineVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 1 },
+				{ GL_INT,	1 }
 			});
 
-			s_Data->LineVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->LineVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
 			s_Data->LineShader = CreateShared<Shader>("DefaultLineShader", "Resources/Shaders/Base/Line/LineVertex.glsl", "Resources/Shaders/Base/Line/LineFragment.glsl");
 		}
@@ -271,18 +270,18 @@ namespace TerranEngine
 		// ******** Text ******** 
 		{
 			s_Data->TextVertexPtr = new TextVertex[s_Data->MaxVertices];
-			s_Data->TextVertexArray = VertexArray::Create();
-			s_Data->TextVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(TextVertex));
+			s_Data->TextVAO = CreateShared<VertexArray>();
+			s_Data->TextVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(TextVertex));
 
-			s_Data->TextVertexArray->AddVertexBufferLayout({
-				{ ShaderDataType::Float, 3 },
-				{ ShaderDataType::Int,	1 },
-				{ ShaderDataType::Float, 4 },
-				{ ShaderDataType::Float, 2 },
-				{ ShaderDataType::Int,	1 },
+			s_Data->TextVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_INT,	1 },
+				{ GL_FLOAT, 4 },
+				{ GL_FLOAT, 2 },
+				{ GL_INT,	1 },
 			});
 
-			s_Data->TextVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->TextVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
 			s_Data->TextShader = CreateShared<Shader>("DefaultTextShader", "Resources/Shaders/Base/Text/TextVertex.glsl", "Resources/Shaders/Base/Text/TextFragment.glsl");
 			s_Data->TextShader->Bind();
@@ -294,12 +293,12 @@ namespace TerranEngine
 		// ******** Debug Line ******** 
 		{
 			s_Data->DebugLineVertexPtr = new DebugLineVertex[s_Data->MaxVertices];
-			s_Data->DebugLineVertexArray = VertexArray::Create();
-			s_Data->DebugLineVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(DebugLineVertex));
+			s_Data->DebugLineVAO = CreateShared<VertexArray>();
+			s_Data->DebugLineVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(DebugLineVertex));
 
-			s_Data->DebugLineVertexArray->AddVertexBufferLayout({
-				{ ShaderDataType::Float, 3 },
-				{ ShaderDataType::Float, 4 }
+			s_Data->DebugLineVAO->AddVertexBufferLayout({
+				{ GL_FLOAT, 3 },
+				{ GL_FLOAT, 4 }
 			});
 
 			s_Data->DebugLineShader = CreateShared<Shader>("DefaultTextShader", "Resources/Shaders/Debug/Line/LineVertex.glsl", "Resources/Shaders/Debug/Line/LineFragment.glsl");
@@ -665,14 +664,15 @@ namespace TerranEngine
 		// Submit quads
 		if (s_Data->QuadIndexCount)
 		{
+
 			s_Data->QuadShader->Bind();
-			s_Data->QuadVertexArray->Bind();
-			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertexPtr, s_Data->QuadVertexPtrIndex * sizeof(QuadVertex));
+			s_Data->QuadVAO->Bind();
+			s_Data->QuadVBO->SetData(s_Data->QuadVertexPtr, s_Data->QuadVertexPtrIndex * sizeof(QuadVertex));
 
 			for (size_t i = 0; i < s_Data->QuadTextureIndex; i++)
 				s_Data->QuadTextures[i]->Bind(i);
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->QuadVertexArray, s_Data->QuadIndexCount);
+			RenderCommand::Draw(RenderMode::Triangles, s_Data->QuadVAO, s_Data->QuadIndexCount);
 
 			s_Data->Stats.DrawCalls++;
 
@@ -683,10 +683,10 @@ namespace TerranEngine
 		if (s_Data->CircleIndexCount) 
 		{
 			s_Data->CircleShader->Bind();
-			s_Data->CircleVertexArray->Bind();
-			s_Data->CircleVertexBuffer->SetData(s_Data->CircleVertexPtr, s_Data->CircleVertexPtrIndex * sizeof(CircleVertex));
+			s_Data->CircleVAO->Bind();
+			s_Data->CircleVBO->SetData(s_Data->CircleVertexPtr, s_Data->CircleVertexPtrIndex * sizeof(CircleVertex));
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->CircleVertexArray, s_Data->CircleIndexCount);
+			RenderCommand::Draw(RenderMode::Triangles, s_Data->CircleVAO, s_Data->CircleIndexCount);
 
 			s_Data->Stats.DrawCalls++;
 
@@ -697,10 +697,10 @@ namespace TerranEngine
 		if (s_Data->LineIndexCount) 
 		{
 			s_Data->LineShader->Bind();
-			s_Data->LineVertexArray->Bind();
-			s_Data->LineVertexBuffer->SetData(s_Data->LineVertexPtr, s_Data->LineVertexPtrIndex * sizeof(LineVertex));
+			s_Data->LineVAO->Bind();
+			s_Data->LineVBO->SetData(s_Data->LineVertexPtr, s_Data->LineVertexPtrIndex * sizeof(LineVertex));
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->LineVertexArray, s_Data->LineIndexCount);
+			RenderCommand::Draw(RenderMode::Triangles, s_Data->LineVAO, s_Data->LineIndexCount);
 			
 			s_Data->Stats.DrawCalls++;
 
@@ -711,13 +711,13 @@ namespace TerranEngine
 		if (s_Data->TextIndexCount) 
 		{
 			s_Data->TextShader->Bind();
-			s_Data->TextVertexArray->Bind();
-			s_Data->TextVertexBuffer->SetData(s_Data->TextVertexPtr, s_Data->TextVertexPtrIndex * sizeof(TextVertex));
+			s_Data->TextVAO->Bind();
+			s_Data->TextVBO->SetData(s_Data->TextVertexPtr, s_Data->TextVertexPtrIndex * sizeof(TextVertex));
 
 			for (size_t i = 0; i < s_Data->TextTextureIndex; i++)
 				s_Data->TextTextures[i]->Bind(i);
 
-			RenderCommand::Draw(RenderMode::Triangles, s_Data->TextVertexArray, s_Data->TextIndexCount);
+			RenderCommand::Draw(RenderMode::Triangles, s_Data->TextVAO, s_Data->TextIndexCount);
 
 			s_Data->Stats.DrawCalls++;
 
@@ -728,8 +728,8 @@ namespace TerranEngine
 		if (s_Data->DebugLineVertexPtrIndex) 
 		{
 			s_Data->DebugLineShader->Bind();
-			s_Data->DebugLineVertexArray->Bind();
-			s_Data->DebugLineVertexBuffer->SetData(s_Data->DebugLineVertexPtr, s_Data->DebugLineVertexPtrIndex * sizeof(DebugLineVertex));
+			s_Data->DebugLineVAO->Bind();
+			s_Data->DebugLineVBO->SetData(s_Data->DebugLineVertexPtr, s_Data->DebugLineVertexPtrIndex * sizeof(DebugLineVertex));
 
 			constexpr float debugLineWidth = 2.0f;
 			RenderCommand::SetLineWidth(debugLineWidth);

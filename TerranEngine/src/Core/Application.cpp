@@ -38,7 +38,7 @@ namespace TerranEngine
 
 		m_Window = Window::Create(appData.Window);
 
-		RenderCommand::Init(RendererAPI::API::OpenGL);
+		RenderCommand::Init();
 		BatchRenderer2D::Initialize(2000);
         
 		AssetManager::Init();

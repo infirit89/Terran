@@ -109,7 +109,7 @@ namespace TerranEditor
 	static void DrawAddComponentButton(Entity entity, const char* label) 
 	{
 		if (!entity.HasComponent<ComponentType>())
-			if (ImGui::MenuItem(label))
+			if (ImGui::MenuItem("Sprite Renderer"))
 				entity.AddComponent<ComponentType>();
 	}
 
