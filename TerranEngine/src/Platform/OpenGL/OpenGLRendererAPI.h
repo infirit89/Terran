@@ -4,8 +4,7 @@
 
 namespace TerranEngine 
 {
-#define TR_MINIMUM_OGL_VERSION 450
-
+#define TR_MINIMUM_OGL_VERSION 420
 	class OpenGLRendererAPI : public RendererAPI 
 	{
 	public:

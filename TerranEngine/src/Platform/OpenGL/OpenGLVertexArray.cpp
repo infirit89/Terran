@@ -24,7 +24,8 @@ namespace TerranEngine
 	OpenGLVertexArray::OpenGLVertexArray()
 		: m_ElementIndex(0)
 	{
-		glCreateVertexArrays(1, &m_ArrayID);
+		glGenVertexArrays(1, &m_ArrayID);
+		glBindVertexArray(m_ArrayID);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
@@ -42,31 +43,22 @@ namespace TerranEngine
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::AddVertexBuffer(const Shared<VertexBuffer>& vertexBuffer, const VertexBufferLayout& layout)
+	void OpenGLVertexArray::AddVertexBufferLayout(const VertexBufferLayout& layout)
 	{
 		for (const auto& element : layout.GetElements())
 		{
-			glEnableVertexArrayAttrib(m_ArrayID, m_ElementIndex);
-			glVertexArrayAttribBinding(m_ArrayID, m_ElementIndex, 0);
+			glEnableVertexAttribArray(m_ElementIndex);
 			GLenum dataType = Utility::ShaderDataTypeToNativeType(element.Type);
 			switch (element.Type)
 			{
 			case ShaderDataType::Int:
-				glVertexArrayAttribIFormat(m_ArrayID, m_ElementIndex, element.Count, dataType, element.Offset);
+				glVertexAttribIPointer(m_ElementIndex, element.Count, dataType, layout.GetStride(), (const void*)element.Offset);
 				break;
 			case ShaderDataType::Float:
-				glVertexArrayAttribFormat(m_ArrayID, m_ElementIndex, element.Count, dataType, element.Normalised ? GL_TRUE : GL_FALSE, element.Offset);
+				glVertexAttribPointer(m_ElementIndex, element.Count, dataType, element.Normalised ? GL_TRUE : GL_FALSE, layout.GetStride(), (const void*)element.Offset);
 				break;
 			}
 			m_ElementIndex++;
 		}
-
-		// TODO: maybe make it possible to add more buffer bindings?
-		glVertexArrayVertexBuffer(m_ArrayID, 0, vertexBuffer->GetBufferID(), 0, layout.GetStride());
-	}
-
-	void OpenGLVertexArray::AddIndexBuffer(const Shared<IndexBuffer>& buffer)
-	{
-		glVertexArrayElementBuffer(m_ArrayID, buffer->GetBufferID());
 	}
 }

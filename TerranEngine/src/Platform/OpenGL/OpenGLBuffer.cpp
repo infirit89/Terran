@@ -5,29 +5,41 @@
 
 namespace TerranEngine 
 {
+	namespace Utils 
+	{
+		void CreateBuffer(uint32_t* outID, uint32_t bufferType, uint32_t size, uint32_t usage, const void* data = nullptr)
+		{
+			glGenBuffers(1, outID);
+			glBindBuffer(bufferType, *outID);
+			glBufferData(bufferType, size, data, usage);
+		}
+
+		void ReleaseBuffer(uint32_t* inID) 
+		{
+			glDeleteBuffers(1, inID);
+		}
+	}
 
 	/* ---- VertexBuffer ---- */
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
-		: m_Size(size)
 	{
-		glCreateBuffers(1, &m_BufferID);
-		glNamedBufferStorage(m_BufferID, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		Utils::CreateBuffer(&m_BufferID, GL_ARRAY_BUFFER, size, GL_DYNAMIC_DRAW);
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, uint32_t size)
 	{
-		glCreateBuffers(1, &m_BufferID);
-		glNamedBufferData(m_BufferID, size, vertices, GL_STATIC_DRAW);
+		Utils::CreateBuffer(&m_BufferID, GL_ARRAY_BUFFER, size, GL_STATIC_DRAW, vertices);
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
-		glDeleteBuffers(1, &m_BufferID);
+		Utils::ReleaseBuffer(&m_BufferID);
 	}
 
 	void OpenGLVertexBuffer::SetData(const void* vertices, uint32_t size)
 	{
-		glNamedBufferSubData(m_BufferID, 0, size, vertices);
+		Bind();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices);
 	}
 
 	void OpenGLVertexBuffer::Bind()
@@ -45,13 +57,12 @@ namespace TerranEngine
 	OpenGLIndexBuffer::OpenGLIndexBuffer(const int* indices, uint32_t size)
 	{
 		m_Size = size;
-		glCreateBuffers(1, &m_BufferID);
-		glNamedBufferData(m_BufferID, size, indices, GL_STATIC_DRAW);
+		Utils::CreateBuffer(&m_BufferID, GL_ELEMENT_ARRAY_BUFFER, size, GL_STATIC_DRAW, indices);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
-		glDeleteBuffers(1, &m_BufferID);
+		Utils::ReleaseBuffer(&m_BufferID);
 	}
 
 	void OpenGLIndexBuffer::Bind()

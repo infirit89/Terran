@@ -11,7 +11,7 @@ def InstallPackages():
         sys.stdout.write('\n')
 
 def UpdateSubmodules():
-    sys.stdout.write("\rUpdating submodules: \n")
+    sys.stdout.write("\rUpdating submodules")
     subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
     sys.stdout.write('\n')
 

@@ -15,11 +15,9 @@ namespace TerranEngine
 		virtual void SetData(const void* vertices, uint32_t size) override;
 		virtual void Bind() override;
 		virtual void Unbind() override;
-		virtual uint32_t GetBufferID() const override { return m_BufferID; }
 
 	private:
 		uint32_t m_BufferID;
-		uint32_t m_Size;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer 
@@ -30,7 +28,6 @@ namespace TerranEngine
 
 		virtual void Bind() override;
 		virtual void Unbind() override;
-		virtual uint32_t GetBufferID() const override { return m_BufferID; }
 
 	private:
 		uint32_t m_BufferID;
