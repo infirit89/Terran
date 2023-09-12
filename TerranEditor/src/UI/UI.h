@@ -73,7 +73,8 @@ namespace TerranEditor
 		void Image(ImTextureID textureID, glm::vec2 size);
 		void ImageButton(ImTextureID textureID, glm::vec2 size);
 
-		void SetupImGuiStyle();
+		void SetupUIStyle();
+		void SetupUIStyle2();
 
 		void BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();

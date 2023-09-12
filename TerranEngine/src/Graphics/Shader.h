@@ -10,7 +10,6 @@ namespace TerranEngine
 	class Shader 
 	{
 	public:
-		Shader();
 		Shader(const char* shaderPath);
 		Shader(const char* name, const char* vertexPath, const char* fragmentPath);
 		~Shader();
@@ -45,9 +44,8 @@ namespace TerranEngine
 	private:
 		uint32_t GetShaderType(std::string& typeStr);
 
-		uint32_t m_SProgram;
-		bool mutable m_IsProgramBound;
-
+		uint32_t m_Handle;
+		
 		std::string m_Name;
 
 #ifdef TR_DEBUG

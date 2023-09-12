@@ -7,17 +7,8 @@
 
 namespace TerranEngine 
 {
-	Shader::Shader()
-		: m_SProgram(0), m_IsProgramBound(false)
-#ifdef TR_DEBUG
-		, m_VertexPath(nullptr), m_FragmentPath(nullptr), m_ShaderPath(nullptr)
-#endif
-	{
-
-	}
-
 	Shader::Shader(const char* shaderPath)
-		: m_SProgram(0), m_IsProgramBound(false)
+		: m_Handle(0)
 
 #ifdef TR_DEBUG
 		, m_ShaderPath(shaderPath), m_VertexPath(nullptr), m_FragmentPath(nullptr)
@@ -36,7 +27,7 @@ namespace TerranEngine
 	}
 
 	Shader::Shader(const char* name, const char* vertexPath, const char* fragmentPath)
-		: m_SProgram(0), m_IsProgramBound(false), m_Name(name)
+		: m_Handle(0)
 
 #ifdef TR_DEBUG
 		, m_VertexPath(vertexPath), m_FragmentPath(fragmentPath), m_ShaderPath(nullptr)
@@ -54,22 +45,16 @@ namespace TerranEngine
 
 	Shader::~Shader()
 	{
-		m_IsProgramBound = false;
-		glDeleteProgram(m_SProgram);
+		glDeleteProgram(m_Handle);
 	}
 
 	void Shader::Bind() const
 	{
-		if (!m_IsProgramBound)
-		{
-			m_IsProgramBound = true;
-			glUseProgram(m_SProgram);
-		}
+		glUseProgram(m_Handle);
 	}
 
 	void Shader::Unbind() const
 	{
-		m_IsProgramBound = false;
 		glUseProgram(0);
 	}
 
@@ -138,7 +123,7 @@ namespace TerranEngine
 		if (m_Uniforms.find(name) != m_Uniforms.end()) 
 			return m_Uniforms[name];
 
-		int loc = glGetUniformLocation(m_SProgram, name);
+		int loc = glGetUniformLocation(m_Handle, name);
 
 		if (loc == -1)
 		{
@@ -212,19 +197,19 @@ namespace TerranEngine
 
 	void Shader::CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources)
 	{
-		m_SProgram = glCreateProgram();
+		m_Handle = glCreateProgram();
 
 		uint32_t vertShader = CreateShader(shaderSources[GL_VERTEX_SHADER].c_str(), GL_VERTEX_SHADER);
 		uint32_t fragShader = CreateShader(shaderSources[GL_FRAGMENT_SHADER].c_str(), GL_FRAGMENT_SHADER);
 
-		glAttachShader(m_SProgram, vertShader);
-		glAttachShader(m_SProgram, fragShader);
+		glAttachShader(m_Handle, vertShader);
+		glAttachShader(m_Handle, fragShader);
 
-		glLinkProgram(m_SProgram);
-		glValidateProgram(m_SProgram);
+		glLinkProgram(m_Handle);
+		glValidateProgram(m_Handle);
 
-		glDetachShader(m_SProgram, vertShader);
-		glDetachShader(m_SProgram, fragShader);
+		glDetachShader(m_Handle, vertShader);
+		glDetachShader(m_Handle, fragShader);
 
 		glDeleteShader(vertShader);
 		glDeleteShader(fragShader);
@@ -232,19 +217,19 @@ namespace TerranEngine
 
 	void Shader::CreateProgram(const char* vertexSource, const char* fragmentSource)
 	{
-		m_SProgram = glCreateProgram();
+		m_Handle = glCreateProgram();
 
 		uint32_t vertShader = CreateShader(vertexSource, GL_VERTEX_SHADER);
 		uint32_t fragShader = CreateShader(fragmentSource, GL_FRAGMENT_SHADER);
 
-		glAttachShader(m_SProgram, vertShader);
-		glAttachShader(m_SProgram, fragShader);
+		glAttachShader(m_Handle, vertShader);
+		glAttachShader(m_Handle, fragShader);
 
-		glLinkProgram(m_SProgram);
-		glValidateProgram(m_SProgram);
+		glLinkProgram(m_Handle);
+		glValidateProgram(m_Handle);
 
-		glDetachShader(m_SProgram, vertShader);
-		glDetachShader(m_SProgram, fragShader);
+		glDetachShader(m_Handle, vertShader);
+		glDetachShader(m_Handle, fragShader);
 
 		glDeleteShader(vertShader);
 		glDeleteShader(fragShader);

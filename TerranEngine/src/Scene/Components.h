@@ -5,7 +5,7 @@
 
 #include "Graphics/Texture.h"
 #include "Graphics/OrthographicCamera.h"
-#include "Graphics/FontAtlas.h"
+#include "Graphics/Font.h"
 
 #include "Physics/PhysicsStates.h"
 
@@ -98,7 +98,7 @@ namespace TerranEngine
 		TextRendererComponent() = default;
 		~TextRendererComponent() = default;
 
-		Shared<FontAtlas> FontAtlas;
+		Shared<Font> FontAtlas;
 		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		std::string Text = "";
 		float LineSpacing = 1.0f;

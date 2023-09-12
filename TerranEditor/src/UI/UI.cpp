@@ -238,7 +238,7 @@ namespace TerranEditor
 		style->ScaleAllSizes(contentScale.x);
 	}
 
-	void Test() 
+	void UI::SetupUIStyle2()
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
 		style->WindowPadding = ImVec2(15.0f, 15.0f);
@@ -315,7 +315,7 @@ namespace TerranEditor
 		ScaleUI();
 	}
 
-	void UI::SetupImGuiStyle()
+	void UI::SetupUIStyle()
 	{
 		// Gruvbox style from ImThemes
 		ImGuiStyle& style = ImGui::GetStyle();

@@ -15,6 +15,11 @@ namespace msdf_atlas
 	class FontGeometry;
 }
 
+namespace msdfgen
+{
+	struct FontMetrics;
+}
+
 namespace TerranEngine 
 {
 	struct GlyphData 
@@ -24,20 +29,22 @@ namespace TerranEngine
 		float Advance;
 	};
 
-	class FontAtlas 
+	class Font 
 	{
 	public:
+		Font(const std::string& fontPath);
+		~Font();
 
-		FontAtlas();
-		FontAtlas(const std::string& fontPath);
-		~FontAtlas();
-
-		inline Shared<Texture> GetTexture() const { return m_Texture; }
+		Shared<Texture> GetTexture() const { return m_Texture; }
 
 		GlyphData GetGlyphData(char c);
+		const msdfgen::FontMetrics& GetMetrics() const;
 
 		double GetKerning(char c1, char c2);
 		std::string GetPath() { return m_Path; }
+
+		// gets the advance between two characters with kerning
+		double GetAdvance(char c1, char c2);
 
 	private:
 		Shared<Texture> LoadFont(const std::string& fontPath);

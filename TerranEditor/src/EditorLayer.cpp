@@ -68,7 +68,7 @@ namespace TerranEditor
 	void EditorLayer::OnAttach()
 	{
 		EditorResources::Init();
-		UI::SetupImGuiStyle();
+		UI::SetupUIStyle();
 
 		ImGuiIO& io = ImGui::GetIO();
 

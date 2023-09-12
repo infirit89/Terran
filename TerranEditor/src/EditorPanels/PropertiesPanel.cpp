@@ -498,7 +498,7 @@ namespace TerranEditor
 
 				// TODO: make it changeable
 				if (!textRenderer.FontAtlas)
-					textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+					textRenderer.FontAtlas = CreateShared<Font>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
 				UI::PropertyColor("Text Color", textRenderer.TextColor);
 

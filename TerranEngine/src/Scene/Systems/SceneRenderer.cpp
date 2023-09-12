@@ -66,7 +66,7 @@ namespace TerranEngine
 
 	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
 	{
-		BatchRenderer2D::AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
+		BatchRenderer2D::AddString(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
 										textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
 	}
 

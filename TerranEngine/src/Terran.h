@@ -30,7 +30,7 @@
 #include "Graphics/BatchRenderer2D.h"
 #include "Graphics/TextureSheet.h"
 #include "Graphics/Camera.h"
-#include "Graphics/FontAtlas.h"
+#include "Graphics/Font.h"
 
 /* ---- Debugging ---- */
 #include "Utils/Debug/Profiler.h"

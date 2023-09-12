@@ -3,7 +3,7 @@
 #include "Core/Base.h"
 
 #include "Camera.h"
-#include "FontAtlas.h"
+#include "Font.h"
 
 #include <glm/glm.hpp>
 
@@ -41,7 +41,7 @@ namespace TerranEngine
 		static void AddDebugRect(const glm::mat4& transform, const glm::vec4& color);
 		
 		// TODO: use wide string
-		static void AddText(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<FontAtlas> fontAtlas, 
+		static void AddString(glm::mat4& transform, const std::string& text, const glm::vec4& color, Shared<Font> fontAtlas, 
 			float lineSpacing = 1.0f, float lineWidth = 10.0f, int entityID = -1);
 
 		static void ResetStats();
