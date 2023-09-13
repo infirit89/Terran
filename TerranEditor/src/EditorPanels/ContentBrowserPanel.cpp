@@ -314,7 +314,7 @@ namespace TerranEditor
 			if (it == m_CurrentItems.end())
 			{
 				AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-				m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
+				m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::FileTexture));
 			}
 		}
 
@@ -496,7 +496,7 @@ namespace TerranEditor
 		for (const auto& assetHandle : directory->Assets)
 		{
 			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
+			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::FileTexture));
 		}
 
 		SortItems();
@@ -565,7 +565,7 @@ namespace TerranEditor
 
 		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize });
 		UI::ShiftCursor(edgeOffset, -cellSize);
-		UI::Image((ImTextureID)m_Icon->GetTextureID(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
+		UI::Image((ImTextureID)m_Icon->GetHandle(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
 		
 		UI::ShiftCursor(edgeOffset, edgeOffset);
 
@@ -677,7 +677,7 @@ namespace TerranEditor
 	}
 
 	ContentBrowserDirectory::ContentBrowserDirectory(const Shared<DirectoryInfo>& directoryInfo)
-		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture(), ItemType::Directory), m_DirectoryInfo(directoryInfo)
+		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::DirectoryTexture, ItemType::Directory), m_DirectoryInfo(directoryInfo)
 	{ }
 
 	void ContentBrowserDirectory::Move(const std::filesystem::path & newPath)

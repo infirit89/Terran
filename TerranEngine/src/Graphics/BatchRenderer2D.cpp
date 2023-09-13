@@ -1,7 +1,6 @@
 #include "trpch.h"
 #include "BatchRenderer2D.h"
 
-#include "Buffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -91,7 +90,7 @@ namespace TerranEngine
 		QuadVertex* QuadVertexPtr = nullptr;
 		uint32_t QuadVertexPtrIndex = 0;
 
-		Shared<Texture> QuadTextures[MaxTextureSlots];
+		Shared<Texture2D> QuadTextures[MaxTextureSlots];
 		uint32_t QuadTextureIndex = 1;
 		// **********************
 
@@ -138,7 +137,7 @@ namespace TerranEngine
 		TextVertex* TextVertexPtr = nullptr;
 		uint32_t TextVertexPtrIndex = 0;
 
-		Shared<Texture> TextTextures[MaxTextureSlots];
+		Shared<Texture2D> TextTextures[MaxTextureSlots];
 		uint32_t TextTextureIndex = 0;
 
 		// **********************
@@ -177,7 +176,8 @@ namespace TerranEngine
 			offset += 4;
 		}
 
-		s_Data->IndexBuffer = CreateShared<IndexBuffer>(indices, s_Data->MaxIndices * sizeof(int));
+		s_Data->IndexBuffer = CreateShared<IndexBuffer>(indices,
+														s_Data->MaxIndices * sizeof(int));
 
 		delete[] indices;
 		// ************************************
@@ -194,20 +194,21 @@ namespace TerranEngine
 
 			s_Data->QuadVertexArray = CreateShared<VertexArray>();
 
-			s_Data->QuadVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(QuadVertex));
+			s_Data->QuadVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices *
+																sizeof(QuadVertex));
 
-			s_Data->QuadVertexArray->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 },
-				{ GL_INT,	1 }
+			s_Data->QuadVertexBuffer->SetLayout({
+				{ VertexBufferElementType::Float,	3 },
+				{ VertexBufferElementType::Float,	4 },
+				{ VertexBufferElementType::Float,	2 },
+				{ VertexBufferElementType::Int,		1 },
+				{ VertexBufferElementType::Int,		1 }
 			});
 
 			s_Data->QuadVertexArray->AddVertexBuffer(s_Data->QuadVertexBuffer);
 			s_Data->QuadVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
 			
-			s_Data->QuadTextures[0] = CreateShared<Texture>(1, 1);
+			s_Data->QuadTextures[0] = CreateShared<Texture2D>(1, 1);
 			s_Data->QuadTextures[0]->SetData(&whiteTextureData);
 
 			s_Data->QuadShader = CreateShared<Shader>(
@@ -224,14 +225,15 @@ namespace TerranEngine
 
 			s_Data->CircleVertexArray = CreateShared<VertexArray>();
 
-			s_Data->CircleVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(CircleVertex));
+			s_Data->CircleVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices *
+																	sizeof(CircleVertex));
 
-			s_Data->CircleVertexArray->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 1 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 }
+			s_Data->CircleVertexBuffer->SetLayout({
+				{ VertexBufferElementType::Float,	3 },
+				{ VertexBufferElementType::Float,	1 },
+				{ VertexBufferElementType::Float,	4 },
+				{ VertexBufferElementType::Float,	2 },
+				{ VertexBufferElementType::Int,		1 }
 			});
 
 			s_Data->CircleVertexArray->AddVertexBuffer(s_Data->CircleVertexBuffer);
@@ -248,15 +250,16 @@ namespace TerranEngine
 		{
 			s_Data->LineVertexPtr = new LineVertex[s_Data->MaxVertices];
 			s_Data->LineVertexArray = CreateShared<VertexArray>();
-			s_Data->LineVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(LineVertex));
+			s_Data->LineVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices *
+																	sizeof(LineVertex));
 
-			s_Data->LineVertexArray->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 1 },
-				{ GL_INT,	1 }
+			s_Data->LineVertexBuffer->SetLayout({
+				{ VertexBufferElementType::Float,	3 },
+				{ VertexBufferElementType::Float,	3 },
+				{ VertexBufferElementType::Float,	3 },
+				{ VertexBufferElementType::Float,	4 },
+				{ VertexBufferElementType::Float,	1 },
+				{ VertexBufferElementType::Int,		1 }
 			});
 
 			s_Data->LineVertexArray->AddVertexBuffer(s_Data->LineVertexBuffer);
@@ -275,12 +278,12 @@ namespace TerranEngine
 			s_Data->TextVAO = CreateShared<VertexArray>();
 			s_Data->TextVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(TextVertex));
 
-			s_Data->TextVAO->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_INT,	1 },
-				{ GL_FLOAT, 4 },
-				{ GL_FLOAT, 2 },
-				{ GL_INT,	1 },
+			s_Data->TextVBO->SetLayout({
+				{ VertexBufferElementType::Float,	3 },
+				{ VertexBufferElementType::Int,		1 },
+				{ VertexBufferElementType::Float,	4 },
+				{ VertexBufferElementType::Float,	2 },
+				{ VertexBufferElementType::Int,		1 },
 			});
 
 			s_Data->TextVAO->AddVertexBuffer(s_Data->TextVBO);
@@ -299,9 +302,9 @@ namespace TerranEngine
 			s_Data->DebugLineVAO = CreateShared<VertexArray>();
 			s_Data->DebugLineVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(DebugLineVertex));
 
-			s_Data->DebugLineVAO->AddVertexBufferLayout({
-				{ GL_FLOAT, 3 },
-				{ GL_FLOAT, 4 }
+			s_Data->DebugLineVBO->SetLayout({
+				{ VertexBufferElementType::Float, 3 },
+				{ VertexBufferElementType::Float, 4 }
 			});
 
 			s_Data->DebugLineVAO->AddVertexBuffer(s_Data->DebugLineVBO);
@@ -346,7 +349,7 @@ namespace TerranEngine
 		s_Data->CameraBuffer->SetData(&s_Data->CameraData, 0, sizeof(CameraData));
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID)
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture2D> texture, int entityID)
 	{
 		TR_PROFILE_FUNCTION();
 		glm::vec2 textureCoords[4] = 
@@ -366,7 +369,7 @@ namespace TerranEngine
 		AddQuad(transform, color, nullptr, entityID);
 	}
 
-	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID)
+	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture2D> texture, glm::vec2 textureCoordinates[4], int entityID)
 	{
 		TR_PROFILE_FUNCTION();
 		if (!QuadBatchHasRoom()) 

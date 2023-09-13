@@ -7,7 +7,7 @@ namespace TerranEngine
 
     void AssetImporter::RegisterLoaders()
     {
-        s_Loaders[AssetType::Texture] = CreateShared<TextureAssetLoader>();
+        s_Loaders[AssetType::Texture2D] = CreateShared<TextureAssetLoader>();
         s_Loaders[AssetType::Text] = CreateShared<TextAssetLoader>();
         s_Loaders[AssetType::Scene] = CreateShared<SceneAssetLoader>();
         s_Loaders[AssetType::PhysicsMaterial2D] = CreateShared<PhysicsMaterial2DAssetLoader>();

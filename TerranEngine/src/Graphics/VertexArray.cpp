@@ -2,8 +2,6 @@
 
 #include "VertexArray.h"
 
-#include "Scripting/ScriptCache.h"
-
 #include <glad/glad.h>
 
 #pragma warning (push)
@@ -11,6 +9,17 @@
 
 namespace TerranEngine 
 {
+	uint32_t GetNativeType(VertexBufferElementType type) 
+	{
+		switch (type)
+		{
+		case TerranEngine::VertexBufferElementType::Float: return GL_FLOAT;
+		case TerranEngine::VertexBufferElementType::Int: return GL_INT;
+		}
+
+		TR_ASSERT(false, "Unrecognized vertex buffer element type");
+	}
+
 	VertexArray::VertexArray()
 		: m_AttributeIndex(0)
 	{
@@ -22,41 +31,39 @@ namespace TerranEngine
 	const void VertexArray::Bind() const { glBindVertexArray(m_Handle); }
 	const void VertexArray::Unbind() const { glBindVertexArray(0); }
 
-	void VertexArray::AddVertexBufferLayout(const VertexBufferLayout& layout)
+	void VertexArray::AddVertexBuffer(const Shared<VertexBuffer>& buffer)
 	{
-		m_Layout = layout;
+		const auto& layout = buffer->GetLayout();
 
-		for (auto element : m_Layout.GetElements())
+		for (auto element : layout.GetElements())
 		{
+			uint32_t nativeType = GetNativeType(element.Type);
 			glEnableVertexArrayAttrib(m_Handle, m_AttributeIndex);
-			switch (element.Type)
+			switch (nativeType)
 			{
 			case GL_INT:
 				glVertexArrayAttribIFormat(
-									m_Handle,
-									m_AttributeIndex,
-									element.Count,
-									element.Type,
-									element.Offset);
+					m_Handle,
+					m_AttributeIndex,
+					element.Count,
+					nativeType,
+					element.Offset);
 				break;
 			case GL_FLOAT:
 				glVertexArrayAttribFormat(
-								m_Handle,
-								m_AttributeIndex,
-								element.Count,
-								element.Type,
-								element.Normalised ? GL_TRUE : GL_FALSE,
-								element.Offset);
+					m_Handle,
+					m_AttributeIndex,
+					element.Count,
+					nativeType,
+					element.Normalised ? GL_TRUE : GL_FALSE,
+					element.Offset);
 				break;
 			}
 			glVertexArrayAttribBinding(m_Handle, m_AttributeIndex, 0);
 			m_AttributeIndex++;
 		}
-	}
 
-	void VertexArray::AddVertexBuffer(const Shared<VertexBuffer>& buffer)
-	{
-		glVertexArrayVertexBuffer(m_Handle, 0, buffer->m_Handle, 0, m_Layout.GetStride());
+		glVertexArrayVertexBuffer(m_Handle, 0, buffer->m_Handle, 0, layout.GetStride());
 	}
 
 	void VertexArray::AddIndexBuffer(const Shared<IndexBuffer>& buffer)

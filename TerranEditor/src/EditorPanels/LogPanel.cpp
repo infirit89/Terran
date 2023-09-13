@@ -90,22 +90,22 @@ namespace TerranEditor
 				case LogMessageLevel::Trace:
 				case LogMessageLevel::Info:
 				{
-					logMessageTexture = EditorResources::GetInfoTexture();
+					logMessageTexture = EditorResources::InfoTexture;
 					break;
 				}
 				case LogMessageLevel::Warn:
 				{
-					logMessageTexture = EditorResources::GetWarningTexture();
+					logMessageTexture = EditorResources::WarningTexture;
 					break;
 				}
 				case LogMessageLevel::Error:
 				{
-					logMessageTexture = EditorResources::GetErrorTexture();
+					logMessageTexture = EditorResources::ErrorTexture;
 					break;
 				}
 				}
 
-                ImGui::Image((ImTextureID)logMessageTexture->GetTextureID(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
+                ImGui::Image((ImTextureID)logMessageTexture->GetHandle(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
 
 				ImGui::SameLine();
 

@@ -29,9 +29,9 @@ namespace TerranEngine
 		static void BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView);
 		static void EndFrame();
 		
-		static void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, int entityID = -1);
+		static void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture2D> texture, int entityID = -1);
 		static void AddQuad(glm::mat4& transform, const glm::vec4& color, int entityID = -1);
-		static void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture> texture, glm::vec2 textureCoordinates[4], int entityID = -1);
+		static void AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture2D> texture, glm::vec2 textureCoordinates[4], int entityID = -1);
 		
 		static void AddCircle(glm::mat4& transform, const glm::vec4& color, float thickness, int entityID = -1);
 		

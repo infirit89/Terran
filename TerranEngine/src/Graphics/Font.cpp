@@ -92,12 +92,12 @@ namespace TerranEngine
 		return advance;
 	}
 
-	Shared<Texture> Font::LoadFont(const std::string& fontPath)
+	Shared<Texture2D> Font::LoadFont(const std::string& fontPath)
 	{
 		msdfgen::FreetypeHandle* freetypeHandle = msdfgen::initializeFreetype();
 		TR_ASSERT(freetypeHandle, "Coudln't initialize freetype");
 
-		Shared<Texture> texture = nullptr;
+		Shared<Texture2D> texture = nullptr;
 
 		msdfgen::FontHandle* fontHandle = msdfgen::loadFont(freetypeHandle, fontPath.c_str());
 		TR_ASSERT(fontHandle, "Couldn't load the font at path: {}", fontPath);
@@ -169,7 +169,7 @@ namespace TerranEngine
 		params.TextureType = TextureType::RGB;
 
 		// TODO: cache texture to disk?
-		texture = CreateShared<Texture>(bitmap.width, bitmap.height, params);
+		texture = CreateShared<Texture2D>(bitmap.width, bitmap.height, params);
 		texture->SetData(bitmap.pixels);
 
 		m_FontGeometry->getKerning();

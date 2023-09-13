@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Buffer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 namespace TerranEngine 
 {
@@ -13,9 +14,6 @@ namespace TerranEngine
 		const void Bind() const;
 		const void Unbind() const;
 
-		void AddVertexBufferLayout(const VertexBufferLayout& layout);
-		inline const VertexBufferLayout& GetVertexBufferLayout() const { return m_Layout; }
-
 		void AddVertexBuffer(const Shared<VertexBuffer>& buffer);
 		inline const Shared<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
 
@@ -26,7 +24,6 @@ namespace TerranEngine
 
 		Shared<VertexBuffer> m_VertexBuffer;
 		Shared<IndexBuffer> m_IndexBuffer;
-		VertexBufferLayout m_Layout;
 
 		uint32_t m_AttributeIndex;
 	};

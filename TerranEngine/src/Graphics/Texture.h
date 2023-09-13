@@ -11,7 +11,7 @@ namespace TerranEngine
 	enum class TextureType
 	{
 		Red = 0,
-		Red32Integer,
+		Red32I,
 		RGB,
 		RGBA
 	};
@@ -44,40 +44,55 @@ namespace TerranEngine
 	class Texture : public Asset
 	{
 	public:
-		Texture();
+		
+		virtual ~Texture() {};
 
-		Texture(uint32_t width, uint32_t height, TextureParameters parameters = {});
-		Texture(const std::filesystem::path& filePath, TextureParameters parameters = {});
+		virtual void Bind(uint8_t textureSlot) = 0;
+		//void Unbind() const;
 
-		~Texture();
+		virtual void SetData(const void* data) = 0;
 
-		void Bind(uint8_t textureSlot) const;
-		void Unbind() const;
+		virtual const TextureParameters& GetTextureParameters() const = 0;
+		virtual int GetWidth() const = 0;
+		virtual const int GetHeight() const = 0;
+		virtual const uint32_t GetHandle() const = 0;
 
-		void SetData(const void* data);
+		virtual bool operator==(Texture& other) = 0;
+		virtual bool operator==(const Texture& other) = 0;
+	};
 
-		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
-		inline const int GetWidth() const { return m_Width; }
-		inline const int GetHeight() const { return m_Height; }
-		inline const uint32_t GetTextureID() const { return m_Handle; }
+	class Texture2D : public Texture 
+	{
+	public:
+		Texture2D(uint32_t width, uint32_t height, TextureParameters parameters = {});
+		Texture2D(const std::filesystem::path& filePath, TextureParameters parameters = {});
 
-		inline const std::filesystem::path GetPath() const { return m_Path; }
-		inline const std::string GetName() const { return m_Path.stem().string(); }
+		virtual ~Texture2D() override;
 
-		bool operator==(Texture& other);
-		bool operator==(const Texture& other);
+		virtual void Bind(uint8_t textureSlot) override;
+		
+		virtual void SetData(const void* data) override;
 
-		ASSET_CLASS_TYPE(Texture)
+		virtual const TextureParameters& GetTextureParameters() const override 
+		{
+			return m_TextureParameters;
+		}
+
+		virtual int GetWidth() const override { return m_Width; }
+		virtual const int GetHeight() const override { return m_Height; }
+		virtual const uint32_t GetHandle() const override { return m_Handle; }
+
+		virtual bool operator==(Texture& other) override;
+		virtual bool operator==(const Texture& other) override;
+
+		ASSET_CLASS_TYPE(Texture2D)
 	private:
 		void LoadTexture(const std::filesystem::path& filePath);
 
 		uint32_t m_Handle;
-		int m_Width, m_Height, m_Channels;
-		uint32_t m_InternalFormat, m_DataFormat;
-		std::filesystem::path m_Path;
+		int m_Width, m_Height;
 
-		TextureParameters m_TexParameters;
-
+		TextureParameters m_TextureParameters;
 		friend class TextureAssetLoader;
 	};
 }

@@ -35,7 +35,7 @@ namespace TerranEngine
 		Font(const std::string& fontPath);
 		~Font();
 
-		Shared<Texture> GetTexture() const { return m_Texture; }
+		Shared<Texture2D> GetTexture() const { return m_Texture; }
 
 		GlyphData GetGlyphData(char c);
 		const msdfgen::FontMetrics& GetMetrics() const;
@@ -47,10 +47,10 @@ namespace TerranEngine
 		double GetAdvance(char c1, char c2);
 
 	private:
-		Shared<Texture> LoadFont(const std::string& fontPath);
+		Shared<Texture2D> LoadFont(const std::string& fontPath);
 
 	private:
-		Shared<Texture> m_Texture;
+		Shared<Texture2D> m_Texture;
 		std::vector<msdf_atlas::GlyphGeometry>* m_Glyphs;
 		msdf_atlas::FontGeometry* m_FontGeometry;
 		int m_AtlasWidth, m_AtlasHeight;

@@ -13,7 +13,7 @@ namespace TerranEngine
 {
     void TextureAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
     {
-        asset = CreateShared<Texture>(AssetManager::GetFileSystemPath(assetInfo.Path));
+        asset = CreateShared<Texture2D>(AssetManager::GetFileSystemPath(assetInfo.Path));
     }
 
     bool TextureAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)

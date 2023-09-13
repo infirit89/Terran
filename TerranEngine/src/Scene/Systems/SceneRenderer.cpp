@@ -49,7 +49,7 @@ namespace TerranEngine
 	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		Shared<Texture> texture = AssetManager::GetAsset<Texture>(spriteRenderer.TextureHandle);
+		Shared<Texture2D> texture = AssetManager::GetAsset<Texture2D>(spriteRenderer.TextureHandle);
 		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, texture, entityID);
 	}
 

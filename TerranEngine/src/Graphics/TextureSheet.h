@@ -1,5 +1,6 @@
 #pragma once
 
+#if todo
 #include "Texture.h"
 
 #include <glm/glm.hpp>
@@ -36,3 +37,4 @@ namespace TerranEngine
 		std::vector<std::array<glm::vec2, 4>> m_UVS;
 	};
 }
+#endif

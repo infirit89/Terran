@@ -21,7 +21,10 @@
 #include "ImGui/ImGuiLayer.h"
 
 /* ---- Graphics ---- */
-#include "Graphics/Buffer.h"
+#include "Graphics/VertexBuffer.h"
+#include "Graphics/IndexBuffer.h"
+#include "Graphics/UniformBuffer.h"
+#include "Graphics/Framebuffer.h"
 #include "Graphics/OrthographicCamera.h"
 #include "Graphics/VertexArray.h"
 #include "Graphics/Shader.h"

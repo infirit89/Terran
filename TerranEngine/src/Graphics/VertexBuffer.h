@@ -8,27 +8,33 @@
 
 namespace TerranEngine 
 {
-	struct VertexBufferElement 
+	enum class VertexBufferElementType 
 	{
-		uint32_t Type;
+		Float,
+		Int
+	};
+
+	struct VertexBufferElement
+	{
+		VertexBufferElementType Type;
 		bool Normalised;
 		uint8_t Count;
 		uint32_t Offset;
 
-		VertexBufferElement(uint32_t type, uint8_t count, bool normalised = false) 
+		VertexBufferElement(VertexBufferElementType type, uint8_t count, bool normalised = false)
 			: Type(type), Normalised(normalised), Count(count), Offset(0) {}
 
 		uint8_t GetSize();
 	};
 
-	class VertexBufferLayout 
+	class VertexBufferLayout
 	{
 	public:
 		VertexBufferLayout()
 			: m_Stride(0) {}
 
 		VertexBufferLayout(std::initializer_list<VertexBufferElement> initList)
-			: m_Elements(initList), m_Stride(0) 
+			: m_Elements(initList), m_Stride(0)
 		{
 			CalculateStrideAndOffset();
 		}
@@ -36,7 +42,7 @@ namespace TerranEngine
 		inline uint32_t GetStride() const { return m_Stride; }
 		inline std::vector<VertexBufferElement> GetElements() const { return m_Elements; }
 	private:
-		void CalculateStrideAndOffset() 
+		void CalculateStrideAndOffset()
 		{
 			uint32_t offset = 0;
 			for (auto& element : m_Elements)
@@ -51,10 +57,10 @@ namespace TerranEngine
 		uint32_t m_Stride;
 	};
 
-	class VertexBuffer 
+	class VertexBuffer
 	{
 	public:
-		VertexBuffer() 
+		VertexBuffer()
 			: m_Handle(0) {}
 
 		VertexBuffer(uint32_t size);
@@ -63,26 +69,12 @@ namespace TerranEngine
 		~VertexBuffer();
 
 		void SetData(const void* vertices, uint32_t size);
+		void SetLayout(const VertexBufferLayout& layout) { m_Layout = layout; }
+		const VertexBufferLayout& GetLayout() const { return m_Layout; }
 
 	private:
 		uint32_t m_Handle;
-
-		friend class VertexArray;
-	};
-
-	class IndexBuffer 
-	{
-	public:
-		IndexBuffer() 
-			: m_Handle(0), m_Size(0) {}
-
-		IndexBuffer(const int* indices, uint32_t size);
-		~IndexBuffer();
-
-		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
-	private:
-		uint32_t m_Handle;
-		int m_Size;
+		VertexBufferLayout m_Layout;
 
 		friend class VertexArray;
 	};

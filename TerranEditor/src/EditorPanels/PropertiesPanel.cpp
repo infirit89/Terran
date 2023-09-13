@@ -49,7 +49,7 @@ namespace TerranEditor
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
 			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)EditorResources::GetSettingsTexture()->GetTextureID()), 
+			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)EditorResources::SettingsTexture->GetHandle()), 
 				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
 
@@ -173,7 +173,7 @@ namespace TerranEditor
 				ImGui::TableNextRow();
 				UI::PropertyColor("Color", component.Color);
 				ImGui::TableNextRow();
-				UI::PropertyAssetField<Texture>("Sprite", AssetType::Texture, component.TextureHandle);
+				UI::PropertyAssetField<Texture>("Sprite", AssetType::Texture2D, component.TextureHandle);
 				ImGui::TableNextRow();
 				UI::PropertyInt("Z index", component.ZIndex);
 				UI::EndPropertyGroup();
