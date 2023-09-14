@@ -38,6 +38,7 @@ namespace TerranEngine
 		TR_ASSERT(false, "Unkown sleep state");
 		return "";
 	}
+
 	PhysicsBodySleepState PhysicsBodySleepStateFromString(const std::string& sleepStateString)
 	{
 		if (sleepStateString == "Sleep") return PhysicsBodySleepState::Sleep;

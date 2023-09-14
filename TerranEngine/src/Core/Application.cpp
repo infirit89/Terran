@@ -5,8 +5,7 @@
 #include "Time.h"
 #include "Input.h"
 
-#include "Graphics/Buffer.h"
-#include "Graphics/VertexArray.h"		  
+#include "Graphics/VertexArray.h"	  
 #include "Graphics/Shader.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/BatchRenderer2D.h"

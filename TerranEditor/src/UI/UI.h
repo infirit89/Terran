@@ -152,7 +152,7 @@ namespace TerranEditor
 		}
 
 		template<typename TEnum>
-		bool PropertyComboBox(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected) 
+		bool PropertyDropdown(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected)
 		{
 			bool changed = false;
 			const char* currentState = stateNames[(int32_t)selected];
@@ -233,7 +233,7 @@ namespace TerranEditor
 			return result;
 		}
 
-		bool PropertyComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
+		bool PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
 	}
 }
 

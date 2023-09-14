@@ -22,6 +22,9 @@ namespace TerranEngine
 		Nearest
 	};
 
+	const char* TextureFilterToString(TextureFilter filter);
+	TextureFilter TextureFilterFromString(const std::string& filterString);
+
 	enum class TextureWrapMode
 	{
 		Repeat = 0,
@@ -32,12 +35,11 @@ namespace TerranEngine
 
 	struct TextureParameters 
 	{
-		// TODO: put pixel data, width and height into the texture parameters
+		// TODO: put width and height into the texture parameters
 		TextureType TextureType = TextureType::RGBA;
-
-		TextureFilter MinFilter = TextureFilter::Linear;
-		TextureFilter MagFilter = TextureFilter::Linear;
-		
+		/*TextureFilter MinFilter = TextureFilter::Linear;
+		TextureFilter MagFilter = TextureFilter::Linear;*/
+		TextureFilter Filter = TextureFilter::Linear;
 		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
 	};
 
@@ -51,6 +53,7 @@ namespace TerranEngine
 		//void Unbind() const;
 
 		virtual void SetData(const void* data) = 0;
+		virtual void SetTextureFilter(TextureFilter filter) = 0;
 
 		virtual const TextureParameters& GetTextureParameters() const = 0;
 		virtual int GetWidth() const = 0;
@@ -61,7 +64,7 @@ namespace TerranEngine
 		virtual bool operator==(const Texture& other) = 0;
 	};
 
-	class Texture2D : public Texture 
+	class Texture2D : public Texture
 	{
 	public:
 		Texture2D(uint32_t width, uint32_t height, TextureParameters parameters = {});
@@ -72,6 +75,8 @@ namespace TerranEngine
 		virtual void Bind(uint8_t textureSlot) override;
 		
 		virtual void SetData(const void* data) override;
+
+		virtual void SetTextureFilter(TextureFilter filter) override;
 
 		virtual const TextureParameters& GetTextureParameters() const override 
 		{

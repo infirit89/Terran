@@ -97,7 +97,7 @@ namespace TerranEditor
 		return layerMask;
 	}
 
-	bool UI::PropertyComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
+	bool UI::PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
 		bool changed = false;
 

@@ -55,7 +55,7 @@ namespace TerranEditor
 
         ImGui::TableNextColumn();
         std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-        serializeSettings |= UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
+        serializeSettings |= UI::PropertyDropdown("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
         UI::EndPropertyGroup();
 
         {

@@ -7,6 +7,8 @@
 #include "Scripting/ScriptCache.h"
 #include "Scripting/ScriptEngine.h"
 
+#include "Assets/AssetManager.h"
+
 #include "Utils/SerializerUtils.h"
 
 #include <yaml-cpp/yaml.h>
@@ -21,7 +23,7 @@
 namespace TerranEngine 
 {
 	const char* SceneSerializer::SceneFilter = "Terran Scene\0*.terran\0";
-	static const char* SerializerVersion = "yml1.0";
+	static const char* SerializerVersion = "yml1.1";
 
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
 		: m_Scene(scene) { }
@@ -122,6 +124,12 @@ namespace TerranEngine
 			BEGIN_COMPONENT_MAP("SpriteRendererComponent");
 			WRITE_COMPONENT_PROPERY("Color", spriteRendererComponent.Color);
 			WRITE_COMPONENT_PROPERY("Texture", spriteRendererComponent.TextureHandle);
+
+			Shared<Texture2D> texture = 
+					AssetManager::GetAsset<Texture2D>(spriteRendererComponent.TextureHandle);
+
+			WRITE_COMPONENT_PROPERY("TextureFilter",
+				(texture ? texture->GetTextureParameters().Filter : TextureFilter::Linear));
 			END_COMPONENT_MAP();
 		}
 

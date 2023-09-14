@@ -228,15 +228,15 @@ namespace TerranEditor
 		// TODO: handle asset refreshing
 		auto tempAssets = directory->Assets;
 		auto tempSubdirectories = directory->Subdirectories;
-		std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
-		bool updated = currentTime != directory->ModifiedTime;
+		//std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
+		bool updated = true;
 		
 		for (const auto& [handle, subdirectory] : tempSubdirectories)
 			RefreshDirectory(subdirectory);
 
 		if (!updated) return;
 		
-		directory->ModifiedTime = currentTime;
+		//directory->ModifiedTime = currentTime;
 		for (const auto& assetHandle : tempAssets)
 		{
 			AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
@@ -434,7 +434,7 @@ namespace TerranEditor
 		Shared<DirectoryInfo> directoryInfo = CreateShared<DirectoryInfo>();
 		directoryInfo->ID = UUID();
 		directoryInfo->Parent = parent;
-		directoryInfo->ModifiedTime = FileSystem::GetModifiedTime(directoryPath);
+		//directoryInfo->ModifiedTime = FileSystem::GetModifiedTime(directoryPath);
 
 		if (directoryPath == Project::GetAssetPath())
 			directoryInfo->Path = "";
@@ -507,7 +507,7 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		Refresh();
+		//Refresh();
 	}
 
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)

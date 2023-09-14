@@ -97,4 +97,10 @@ namespace TerranEngine
         out << std::to_string(v);
         return out;
     }
+
+    YAML::Emitter& operator<<(YAML::Emitter& out, const TextureFilter& v)
+    {
+        out << TextureFilterToString(v);
+        return out;
+    }
 }

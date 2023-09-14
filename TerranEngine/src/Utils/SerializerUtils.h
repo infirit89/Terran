@@ -2,6 +2,8 @@
 
 #include "Core/UUID.h"
 
+#include "Graphics/Texture.h"
+
 #include <glm/glm.hpp>
 #include <json.hpp>
 
@@ -23,6 +25,7 @@ namespace TerranEngine
     YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& v);
     YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v);
     YAML::Emitter& operator<<(YAML::Emitter& out, const UUID& v);
+    YAML::Emitter& operator<<(YAML::Emitter& out, const TextureFilter& v);
 }
 
 namespace YAML {
@@ -107,6 +110,21 @@ namespace YAML {
         static bool decode(const Node& node, TerranEngine::UUID& rhs) {
             
             rhs = TerranEngine::UUID::FromString(node.as<std::string>());
+            return true;
+        }
+    };
+
+    template<>
+        struct convert<TerranEngine::TextureFilter> {
+        static Node encode(const TerranEngine::TextureFilter& rhs) {
+            Node node;
+            node.push_back(TerranEngine::TextureFilterToString(rhs));
+            return node;
+        }
+
+        static bool decode(const Node& node, TerranEngine::TextureFilter& rhs) {
+
+            rhs = TerranEngine::TextureFilterFromString(node.as<std::string>());
             return true;
         }
     };

@@ -32,39 +32,28 @@ namespace TerranEngine
 		return { GL_RGBA8, GL_RGBA };
 	}
 
-	struct NativeTexutreFilter
+	/*struct NativeTexutreFilter
 	{
 		uint32_t MinFilter;
 		uint32_t MagFilter;
-	};
+	};*/
 
-	static NativeTexutreFilter GetNativeTextureFilter(TextureFilter minFilter, TextureFilter magFilter) 
+	static uint32_t GetNativeTextureFilter(TextureFilter filter) 
 	{
-		NativeTexutreFilter filter = { GL_LINEAR, GL_LINEAR };
+		uint32_t nativeFilter = GL_LINEAR;
 
-		switch (minFilter)
+		switch (filter)
 		{
 		case TerranEngine::TextureFilter::Linear:
 		case TerranEngine::TextureFilter::Nearest:
-			filter.MinFilter = GL_LINEAR - (uint32_t)minFilter;
+			nativeFilter = GL_LINEAR - (uint32_t)filter;
 			break;
 		default:
 			TR_WARN("The texture filter isn't supported");
 			break;
 		}
 
-		switch (magFilter)
-		{
-		case TerranEngine::TextureFilter::Linear:
-		case TerranEngine::TextureFilter::Nearest:
-			filter.MagFilter = GL_LINEAR - (uint32_t)magFilter;
-			break;
-		default:
-			TR_WARN("The texture filter isn't supported");
-			break;
-		}
-
-		return filter;
+		return nativeFilter;
 	}
 
 	static uint32_t GetNativeWrapMode(TextureWrapMode wrapMode) 
@@ -88,12 +77,10 @@ namespace TerranEngine
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
 		
-		NativeTexutreFilter filter = GetNativeTextureFilter(
-														m_TextureParameters.MinFilter,
-														m_TextureParameters.MagFilter);
+		uint32_t filter = GetNativeTextureFilter(m_TextureParameters.Filter);
 
-		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
-		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter);
 
 		uint32_t wrapMode = GetNativeWrapMode(m_TextureParameters.WrapMode);
 
@@ -130,6 +117,14 @@ namespace TerranEngine
 		NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.TextureType);
 		glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height,
 							nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
+	}
+
+	void Texture2D::SetTextureFilter(TextureFilter filter)
+	{
+		uint32_t nativeFilter = GetNativeTextureFilter(filter);
+		m_TextureParameters.Filter = filter;
+		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, nativeFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, nativeFilter);
 	}
 
 	bool Texture2D::operator==(Texture& other) 
@@ -188,12 +183,10 @@ namespace TerranEngine
 			default: TR_ASSERT(false, "{} channels is not a supported data format", channels);
 		}
 
-		NativeTexutreFilter filter = GetNativeTextureFilter(
-														m_TextureParameters.MinFilter,
-														m_TextureParameters.MagFilter);
+		uint32_t nativeFilter = GetNativeTextureFilter(m_TextureParameters.Filter);
 
-		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, nativeFilter);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, nativeFilter);
 
 		uint32_t wrapMode = GetNativeWrapMode(m_TextureParameters.WrapMode);
 
@@ -205,5 +198,25 @@ namespace TerranEngine
 							dataFormat, GL_UNSIGNED_BYTE, pixels);
 
 		stbi_image_free(pixels);
+	}
+
+	const char* TextureFilterToString(TextureFilter filter)
+	{
+		switch (filter)
+		{
+		case TextureFilter::Linear:		return "Linear";
+		case TextureFilter::Nearest:	return "Nearest";
+		}
+
+		TR_ASSERT(false, "Unknown texture filter");
+		return "";
+	}
+	TextureFilter TextureFilterFromString(const std::string& filterString)
+	{
+		if (filterString == "Linear")	return TextureFilter::Linear;
+		if (filterString == "Nearest")	return TextureFilter::Nearest;
+
+		TR_ASSERT(false, "Unknown texture filter");
+		return TextureFilter::Linear;
 	}
 }
