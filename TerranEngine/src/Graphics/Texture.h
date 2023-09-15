@@ -8,12 +8,13 @@
 
 namespace TerranEngine 
 {
-	enum class TextureType
+	enum class TextureFormat
 	{
 		Red = 0,
 		Red32I,
 		RGB,
-		RGBA
+		RGBA,
+		Depth24Stencil8
 	};
 
 	enum class TextureFilter
@@ -36,11 +37,11 @@ namespace TerranEngine
 	struct TextureParameters 
 	{
 		// TODO: put width and height into the texture parameters
-		TextureType TextureType = TextureType::RGBA;
-		/*TextureFilter MinFilter = TextureFilter::Linear;
-		TextureFilter MagFilter = TextureFilter::Linear;*/
+		TextureFormat Format = TextureFormat::RGBA;
 		TextureFilter Filter = TextureFilter::Linear;
 		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
+		uint32_t Width;
+		uint32_t Height;
 	};
 
 	class Texture : public Asset
@@ -67,8 +68,7 @@ namespace TerranEngine
 	class Texture2D : public Texture
 	{
 	public:
-		Texture2D(uint32_t width, uint32_t height, TextureParameters parameters = {});
-		Texture2D(const std::filesystem::path& filePath, TextureParameters parameters = {});
+		Texture2D(TextureParameters parameters = {}, const void* data = nullptr);
 
 		virtual ~Texture2D() override;
 
@@ -83,8 +83,15 @@ namespace TerranEngine
 			return m_TextureParameters;
 		}
 
-		virtual int GetWidth() const override { return m_Width; }
-		virtual const int GetHeight() const override { return m_Height; }
+		virtual int GetWidth() const override 
+		{
+			return m_TextureParameters.Width;
+		}
+		virtual const int GetHeight() const override 
+		{
+			return m_TextureParameters.Height; 
+		}
+
 		virtual const uint32_t GetHandle() const override { return m_Handle; }
 
 		virtual bool operator==(Texture& other) override;
@@ -92,11 +99,8 @@ namespace TerranEngine
 
 		ASSET_CLASS_TYPE(Texture2D)
 	private:
-		void LoadTexture(const std::filesystem::path& filePath);
-
+		//void LoadTexture(const std::filesystem::path& filePath);
 		uint32_t m_Handle;
-		int m_Width, m_Height;
-
 		TextureParameters m_TextureParameters;
 		friend class TextureAssetLoader;
 	};

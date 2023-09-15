@@ -165,12 +165,13 @@ namespace TerranEngine
 
 		msdfgen::BitmapConstRef<uint8_t, 3> bitmap = generator.atlasStorage();
 
-		TextureParameters params;
-		params.TextureType = TextureType::RGB;
+		TextureParameters textureParameters;
+		textureParameters.Width = bitmap.width;
+		textureParameters.Height = bitmap.height;
+		textureParameters.Format = TextureFormat::RGB;
 
 		// TODO: cache texture to disk?
-		texture = CreateShared<Texture2D>(bitmap.width, bitmap.height, params);
-		texture->SetData(bitmap.pixels);
+		texture = CreateShared<Texture2D>(textureParameters, bitmap.pixels);
 
 		m_FontGeometry->getKerning();
 

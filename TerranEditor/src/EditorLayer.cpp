@@ -111,9 +111,13 @@ namespace TerranEditor
 			OpenProject(m_ProjectPath);
 
 		FramebufferParameters editorFramebufferParams;
-		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::Red32Integer };
-		editorFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
-
+		editorFramebufferParams.Attachments = 
+		{ 
+			TextureFormat::RGBA,
+			TextureFormat::Red32I,
+			TextureFormat::Depth24Stencil8
+		};
+		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
 		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });

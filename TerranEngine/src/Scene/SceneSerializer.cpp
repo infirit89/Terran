@@ -23,7 +23,7 @@
 namespace TerranEngine 
 {
 	const char* SceneSerializer::SceneFilter = "Terran Scene\0*.terran\0";
-	static const char* SerializerVersion = "yml1.1";
+	static const char* SerializerVersion = "yml1.0";
 
 	SceneSerializer::SceneSerializer(const Shared<Scene>& scene)
 		: m_Scene(scene) { }
@@ -112,6 +112,7 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("Near", cameraComponent.Camera.GetOrthographicNear());
 			WRITE_COMPONENT_PROPERY("Far", cameraComponent.Camera.GetOrthographicFar());
 			out << YAML::EndMap;
+
 			WRITE_COMPONENT_PROPERY("Primary", cameraComponent.Primary);
 			WRITE_COMPONENT_PROPERY("ClearColor", cameraComponent.BackgroundColor);
 			END_COMPONENT_MAP();
@@ -125,11 +126,11 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("Color", spriteRendererComponent.Color);
 			WRITE_COMPONENT_PROPERY("Texture", spriteRendererComponent.TextureHandle);
 
-			Shared<Texture2D> texture = 
+			/*Shared<Texture2D> texture = 
 					AssetManager::GetAsset<Texture2D>(spriteRendererComponent.TextureHandle);
 
 			WRITE_COMPONENT_PROPERY("TextureFilter",
-				(texture ? texture->GetTextureParameters().Filter : TextureFilter::Linear));
+				(texture ? texture->GetTextureParameters().Filter : TextureFilter::Linear));*/
 			END_COMPONENT_MAP();
 		}
 

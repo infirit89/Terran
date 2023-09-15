@@ -208,8 +208,11 @@ namespace TerranEngine
 			s_Data->QuadVertexArray->AddVertexBuffer(s_Data->QuadVertexBuffer);
 			s_Data->QuadVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
 			
-			s_Data->QuadTextures[0] = CreateShared<Texture2D>(1, 1);
-			s_Data->QuadTextures[0]->SetData(&whiteTextureData);
+			TextureParameters whiteTextureParameters;
+			whiteTextureParameters.Width = 1;
+			whiteTextureParameters.Height = 1;
+			s_Data->QuadTextures[0] = CreateShared<Texture2D>(whiteTextureParameters, 
+															&whiteTextureData);
 
 			s_Data->QuadShader = CreateShared<Shader>(
 												"DefaultQuadShader",

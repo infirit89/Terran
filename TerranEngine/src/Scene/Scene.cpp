@@ -269,7 +269,7 @@ namespace TerranEngine
 		sceneRenderer->SetScene(this);
 		sceneRenderer->BeginScene(camera, cameraView, false);
 
-		sceneRenderer->GetFramebuffer()->SetColorAttachment(1, -1);
+		sceneRenderer->GetFramebuffer()->SetColorAttachmentValue(1, -1);
 
 		// submit sprites
 		{

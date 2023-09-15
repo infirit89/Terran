@@ -81,7 +81,11 @@ namespace TerranEditor
 
 		Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-		ImGui::Image((ImTextureID)(framebuffer ? framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
+		ImGui::Image(
+			(ImTextureID)(framebuffer ?
+							framebuffer->GetColorAttachment(0)->GetHandle() :
+							-1),
+			regionAvail, { 0, 1 }, { 1, 0 });
 
 #if 0
 		{

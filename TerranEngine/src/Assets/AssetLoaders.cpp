@@ -8,17 +8,49 @@
 #include "Scene/SceneSerializer.h"
 
 #include <yaml-cpp/yaml.h>
+#include <stb_image.h>
 
 namespace TerranEngine 
 {
     void TextureAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
     {
-        asset = CreateShared<Texture2D>(AssetManager::GetFileSystemPath(assetInfo.Path));
+        asset = CreateTextureFromFile(AssetManager::GetFileSystemPath(assetInfo.Path));
     }
 
     bool TextureAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
     {
         return false;
+    }
+
+    Shared<Texture2D> TextureAssetLoader::CreateTextureFromFile(const std::filesystem::path& textureSourcePath)
+    {
+        stbi_set_flip_vertically_on_load(1);
+
+        int width, height, channels;
+        constexpr int desiredChannels = 0;
+        uint8_t* data = stbi_load(textureSourcePath.string().c_str(),
+                                &width, &height, &channels, desiredChannels);
+
+        TextureParameters textureParameters;
+        switch (channels) 
+        {
+        case 4:
+        {
+            textureParameters.Format = TextureFormat::RGBA;
+            break;
+        }
+        case 3: 
+        {
+            textureParameters.Format = TextureFormat::RGB;
+            break;
+        }
+        }
+        textureParameters.Width = width;
+        textureParameters.Height = height;
+        Shared<Texture2D> texture = CreateShared<Texture2D>(textureParameters, data);
+        stbi_image_free(data);
+
+        return texture;
     }
 
     void TextAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)

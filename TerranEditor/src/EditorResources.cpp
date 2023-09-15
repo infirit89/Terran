@@ -1,5 +1,7 @@
 #include "EditorResources.h"
 
+#include "Assets/AssetLoaders.h"
+
 namespace TerranEditor 
 {
     using namespace TerranEngine;
@@ -18,14 +20,14 @@ namespace TerranEditor
 
     void EditorResources::Init()
     {
-        FileTexture = CreateShared<Texture2D>("Resources/Textures/file_icon.png");
-        DirectoryTexture = CreateShared<Texture2D>("Resources/Textures/folder_icon.png");
-        SettingsTexture = CreateShared<Texture2D>("Resources/Textures/more_icon.png");
-        PlayTexture = CreateShared<Texture2D>("Resources/Textures/play_icon.png");
-        StopTexture = CreateShared<Texture2D>("Resources/Textures/stop_icon.png");
-        ErrorTexture = CreateShared<Texture2D>("Resources/Textures/error-icon.png");
-        InfoTexture = CreateShared<Texture2D>("Resources/Textures/info-icon.png");
-        WarningTexture = CreateShared<Texture2D>("Resources/Textures/warning-icon.png");
+        FileTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/file_icon.png");
+        DirectoryTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/folder_icon.png");
+        SettingsTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/more_icon.png");
+        PlayTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/play_icon.png");
+        StopTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/stop_icon.png");
+        ErrorTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/error-icon.png");
+        InfoTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/info-icon.png");
+        WarningTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/warning-icon.png");
     }
 
     void EditorResources::Shutdown()
