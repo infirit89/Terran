@@ -71,5 +71,8 @@ compile_commands.json
 .vim/
 *.plist
 
+#Shaderc
+shaderc/
+
 
 

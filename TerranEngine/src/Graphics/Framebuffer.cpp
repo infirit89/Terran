@@ -5,6 +5,15 @@
 
 namespace TerranEngine 
 {
+	static constexpr size_t s_MaxSupportedColorAttachments = 4;
+	static GLenum s_Buffers[s_MaxSupportedColorAttachments] =
+	{
+		GL_COLOR_ATTACHMENT0,
+		GL_COLOR_ATTACHMENT1,
+		GL_COLOR_ATTACHMENT2,
+		GL_COLOR_ATTACHMENT3
+	};
+
 	Framebuffer::Framebuffer(FramebufferParameters parameters)
 		: m_Handle(0), m_Parameters(parameters)
 	{
@@ -62,6 +71,9 @@ namespace TerranEngine
 
 		glCreateFramebuffers(1, &m_Handle);
 
+		// NOTE: even though the attachments may include a depth attachment
+		// we reserse it to avoid extra allocation;
+		// also its just a vector of shared pointers it shouldn't be that big of a deal
 		m_ColorAttachments.reserve(m_Parameters.Attachments.size());
 		
 		int colorAttachmentIndex = 0;
@@ -92,18 +104,7 @@ namespace TerranEngine
 		}
 
 		if (m_ColorAttachments.size() > 1)
-		{
-			constexpr size_t maxSupportedColorAttachments = 4;
-			GLenum buffers[maxSupportedColorAttachments] = 
-			{ 
-				GL_COLOR_ATTACHMENT0, 
-				GL_COLOR_ATTACHMENT1, 
-				GL_COLOR_ATTACHMENT2, 
-				GL_COLOR_ATTACHMENT3
-			};
-
-			glNamedFramebufferDrawBuffers(m_Handle, m_ColorAttachments.size(), buffers);
-		}
+			glNamedFramebufferDrawBuffers(m_Handle, m_ColorAttachments.size(), s_Buffers);
 
 		if (glCheckNamedFramebufferStatus(m_Handle, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			TR_ASSERT(false, "Framebuffer isn't complete");

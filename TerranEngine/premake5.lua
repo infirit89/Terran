@@ -22,30 +22,29 @@ project "TerranEngine"
     includedirs
     {
         "src",
-        "%{wks.location}/TerranEngine/vendor/spdlog/include/",
-        "%{wks.location}/TerranEngine/vendor/GLFW/include/",
-        "%{wks.location}/TerranEngine/vendor/ImGui/",
-        "%{wks.location}/TerranEngine/vendor/GLAD/include/",
-        "%{wks.location}/TerranEngine/vendor/stb/",
-        "%{wks.location}/TerranEngine/vendor/glm/",
-        "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/msdfgen/",
-        "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/",
-        "%{wks.location}/TerranEngine/vendor/nlohman-json/include/",
-        "%{wks.location}/TerranEngine/vendor/mono/include/",
-        "%{wks.location}/TerranEngine/vendor/Box2D/include/",
-        "%{wks.location}/TerranEngine/vendor/Optick/src/",
-        "%{wks.location}/TerranEngine/vendor/yaml-cpp/include/",
-    } 
-
-    libdirs 
-    {
-        "%{wks.location}/TerranEngine/vendor/mono/lib/"
+        "%{IncludeDirectories.spdlog}",
+        "%{IncludeDirectories.glfw}",
+        "%{IncludeDirectories.imgui}",
+        "%{IncludeDirectories.glad}",
+        "%{IncludeDirectories.stb}",
+        "%{IncludeDirectories.glm}",
+        "%{IncludeDirectories.entt}",
+        "%{IncludeDirectories.msdfgen}",
+        "%{IncludeDirectories.msdf_atlas_gen}",
+        "%{IncludeDirectories.mono}",
+        "%{IncludeDirectories.box2d}",
+        "%{IncludeDirectories.optick}",
+        "%{IncludeDirectories.yaml}",
     }
+
+    -- libdirs 
+    -- {
+    --     "%{wks.location}/TerranEngine/vendor/mono/lib/"
+    -- }
 
     links 
     {
-        "%{wks.location}/TerranEngine/vendor/mono/bin/mono-2.0-sgen.lib",
+        "%{Libraries.mono_static}",
         "GLFW",
         "ImGui",
         "GLAD",
@@ -81,8 +80,8 @@ project "TerranEngine"
 
         links
         {
-            "Imm32.lib",
-            "Rpcrt4.lib"
+            "%{Libraries.imm32}",
+            "%{Libraries.rpcrt4}"
         }
 
     filter "configurations:Debug"

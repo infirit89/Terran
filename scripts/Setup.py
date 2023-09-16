@@ -1,5 +1,6 @@
 import sys
 import subprocess
+import os
 
 packages = [ "requests", "numpy" ]
 
@@ -16,8 +17,12 @@ def UpdateSubmodules():
 
 if __name__ == "__main__":
     UpdateSubmodules()
+    os.chdir("../")
+
     InstallPackages()
     from SetupPremake import PremakeSetup
     from SetupMono import MonoSetup
+    from SetupShaderc import ShadercSetup
     PremakeSetup.Setup()
     MonoSetup.Setup()
+    ShadercSetup.Setup()

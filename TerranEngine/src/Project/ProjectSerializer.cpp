@@ -6,7 +6,7 @@
 
 #include "Utils/SerializerUtils.h"
 
-#include <json.hpp>
+//#include <json.hpp>
 
 #include <yaml-cpp/yaml.h>
 
@@ -15,7 +15,7 @@
 
 namespace TerranEngine
 {
-    using json = nlohmann::ordered_json;
+    //using json = nlohmann::ordered_json;
 
     ProjectSerializer::ProjectSerializer(Shared<Project>& project)
        : m_Project(project)

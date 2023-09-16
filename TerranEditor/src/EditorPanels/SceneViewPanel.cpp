@@ -8,7 +8,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <ImGui/imgui.h>
+#include <imgui.h>
 
 #pragma warning(push, 0)
 #include <ImGuizmo.h>
