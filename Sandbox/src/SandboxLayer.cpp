@@ -14,7 +14,9 @@ namespace TerranEngine
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer")
 	{
-		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+		Shared<Shader> shader = CreateShared<Shader>("Resources/Shaders/TestShader.glsl");
+
+		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 		//m_Framebuffer = CreateShared<Framebuffer>();
 #if 0
 		// id test code
@@ -157,7 +159,6 @@ namespace TerranEngine
 		int frames = 1 / time;
 
 		m_Time = time;
-#endif
 		
 		RenderCommand::SetClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		RenderCommand::Clear();
@@ -167,6 +168,7 @@ namespace TerranEngine
 		BatchRenderer2D::Get()->AddQuad(m_Transform.GetTransformMatrix(), { 1.0f, 0.0f, 1.0f, 0.0f });
 
 		BatchRenderer2D::Get()->EndFrame();
+#endif
 	}
 
 	void SandboxLayer::OnEvent(Event& event)

@@ -214,11 +214,7 @@ namespace TerranEngine
 			s_Data->QuadTextures[0] = CreateShared<Texture2D>(whiteTextureParameters, 
 															&whiteTextureData);
 
-			s_Data->QuadShader = CreateShared<Shader>(
-												"DefaultQuadShader",
-												"Resources/Shaders/Base/Quad/QuadVertex.glsl",
-												"Resources/Shaders/Base/Quad/QuadFragment.glsl");
-
+			s_Data->QuadShader = CreateShared<Shader>("Resources/Shaders/Base/QuadShader.glsl");
 		}
 		// **********************
 
@@ -242,10 +238,7 @@ namespace TerranEngine
 			s_Data->CircleVertexArray->AddVertexBuffer(s_Data->CircleVertexBuffer);
 			s_Data->CircleVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->CircleShader = CreateShared<Shader>(
-												"DefaultCircleShader",
-												"Resources/Shaders/Base/Circle/CircleVertex.glsl",
-												"Resources/Shaders/Base/Circle/CircleFragment.glsl");
+			s_Data->CircleShader = CreateShared<Shader>("Resources/Shaders/Base/CircleShader.glsl");
 		}
 		// ************************
 
@@ -268,10 +261,7 @@ namespace TerranEngine
 			s_Data->LineVertexArray->AddVertexBuffer(s_Data->LineVertexBuffer);
 			s_Data->LineVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->LineShader = CreateShared<Shader>(
-												"DefaultLineShader",
-												"Resources/Shaders/Base/Line/LineVertex.glsl",
-												"Resources/Shaders/Base/Line/LineFragment.glsl");
+			s_Data->LineShader = CreateShared<Shader>("Resources/Shaders/Base/LineShader.glsl");
 		}
 		// **********************
 
@@ -292,10 +282,7 @@ namespace TerranEngine
 			s_Data->TextVAO->AddVertexBuffer(s_Data->TextVBO);
 			s_Data->TextVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->TextShader = CreateShared<Shader>(
-												"DefaultTextShader",
-												"Resources/Shaders/Base/Text/TextVertex.glsl",
-												"Resources/Shaders/Base/Text/TextFragment.glsl");
+			s_Data->TextShader = CreateShared<Shader>("Resources/Shaders/Base/TextShader.glsl");
 		}
 		// **********************
 
@@ -312,10 +299,7 @@ namespace TerranEngine
 
 			s_Data->DebugLineVAO->AddVertexBuffer(s_Data->DebugLineVBO);
 
-			s_Data->DebugLineShader = CreateShared<Shader>(
-													"DefaultTextShader",
-													"Resources/Shaders/Debug/Line/LineVertex.glsl",
-													"Resources/Shaders/Debug/Line/LineFragment.glsl");
+			s_Data->DebugLineShader = CreateShared<Shader>("Resources/Shaders/Debug/DebugLineShader.glsl");
 		}
 		// ****************************
 		s_Data->VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };

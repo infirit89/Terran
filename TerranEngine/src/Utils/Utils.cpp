@@ -22,6 +22,13 @@ namespace TerranEngine
 
             return temp;
         }
+
+        void TrimEnd(std::string& str)
+        {
+            str.erase(std::find_if(str.rbegin(), str.rend(), [](unsigned char ch) {
+                return !std::isspace(ch);
+            }).base(), str.end());
+        }
     }
 }
 

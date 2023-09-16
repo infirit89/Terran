@@ -35,6 +35,7 @@ project "TerranEngine"
         "%{IncludeDirectories.box2d}",
         "%{IncludeDirectories.optick}",
         "%{IncludeDirectories.yaml}",
+        "%{IncludeDirectories.shaderc}"   
     }
 
     -- libdirs 
@@ -44,7 +45,6 @@ project "TerranEngine"
 
     links 
     {
-        "%{Libraries.mono_static}",
         "GLFW",
         "ImGui",
         "GLAD",
@@ -52,7 +52,9 @@ project "TerranEngine"
         "msdf-atlas-gen",
         "Box2D",
         "OptickCore",
-        "yaml-cpp"
+        "yaml-cpp",
+        "%{Libraries.mono_static}",
+        "%{Libraries.shaderc}"
     }
 
     pchheader "trpch.h"

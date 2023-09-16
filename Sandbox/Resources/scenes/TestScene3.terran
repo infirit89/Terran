@@ -1,0 +1,180 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity 0c2e3470-8c53-44ac-a855-64e1136f8759": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "0c2e3470-8c53-44ac-a855-64e1136f8759"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "20d085cd-a5b6-407d-b312-93d70ef97e02"
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false
+            }
+        },
+        "Entity cee34370-cb1b-4d0a-8ede-dc88a44bf06e": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "cee34370-cb1b-4d0a-8ede-dc88a44bf06e"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 2.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 0.7149533033370972,
+                    "Y": 0.12361343950033188,
+                    "Z": 0.12361343950033188,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "20d085cd-a5b6-407d-b312-93d70ef97e02"
+            }
+        },
+        "Entity 1d6fd913-8c9c-4646-bac4-6c21755beec1": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "1d6fd913-8c9c-4646-bac4-6c21755beec1"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 0,
+                "Children": 0,
+                "Parent": "20d085cd-a5b6-407d-b312-93d70ef97e02"
+            },
+            "BoxCollider2D": {
+                "Size": {
+                    "X": 1.7000000476837158,
+                    "Y": 1.0
+                }
+            }
+        },
+        "Entity 20d085cd-a5b6-407d-b312-93d70ef97e02": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "20d085cd-a5b6-407d-b312-93d70ef97e02"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 5.099999904632568,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CircleRendererComponent": {
+                "Color": {
+                    "X": 0.12418116629123688,
+                    "Y": 0.5286507606506348,
+                    "Z": 0.5654205679893494,
+                    "W": 1.0
+                },
+                "Thickness": 1.0
+            },
+            "RelationshipComponent": {
+                "ChildrenCount": 3,
+                "Children": [
+                    "1d6fd913-8c9c-4646-bac4-6c21755beec1",
+                    "cee34370-cb1b-4d0a-8ede-dc88a44bf06e",
+                    "0c2e3470-8c53-44ac-a855-64e1136f8759"
+                ],
+                "Parent": "null"
+            }
+        },
+        "Entity 32a4a7de-1dcb-4677-8cd1-c230f5d99ab3": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "32a4a7de-1dcb-4677-8cd1-c230f5d99ab3"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

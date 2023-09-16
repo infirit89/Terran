@@ -26,7 +26,7 @@
 
 #include <filesystem>
 
-#include <IconFontAwesome6.h>
+//#include <IconFontAwesome6.h>
 
 #pragma warning(push, 0)
 #include <spdlog/sinks/basic_file_sink.h>

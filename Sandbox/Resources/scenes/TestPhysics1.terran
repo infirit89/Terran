@@ -1,0 +1,125 @@
+{
+    "Version": 0,
+    "Scene": "Name",
+    "Entities": {
+        "Entity 1ef1f804-67f4-4bf0-888c-daeed11cb242": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "1ef1f804-67f4-4bf0-888c-daeed11cb242"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 2.107438564300537,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.TestScriptable",
+                "Fields": null
+            },
+            "Rigibody2D": {
+                "BodyType": 1,
+                "FixedRotation": false
+            },
+            "BoxCollider2D": {
+                "Size": {
+                    "X": 0.5,
+                    "Y": 0.5
+                }
+            }
+        },
+        "Entity 1f0ad56d-82c7-468c-9c32-b6564e1b3ccf": {
+            "TagComponent": {
+                "Tag": "Ground",
+                "ID": "1f0ad56d-82c7-468c-9c32-b6564e1b3ccf"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": -3.0991740226745605,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 12.04283332824707,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": -0.0,
+                    "Z": 0.0
+                }
+            },
+            "SpriteRendererComponent": {
+                "Color": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0,
+                    "W": 1.0
+                },
+                "ZIndex": 0
+            },
+            "Rigibody2D": {
+                "BodyType": 0,
+                "FixedRotation": true
+            },
+            "BoxCollider2D": {
+                "Size": {
+                    "X": 0.5,
+                    "Y": 0.5
+                }
+            }
+        },
+        "Entity 48508bcc-678d-4160-8f7a-5257aa7430f8": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "48508bcc-678d-4160-8f7a-5257aa7430f8"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

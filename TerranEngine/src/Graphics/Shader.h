@@ -4,14 +4,14 @@
 
 #include <string>
 #include <unordered_map>
+#include <filesystem>
 
 namespace TerranEngine 
 {
 	class Shader 
 	{
 	public:
-		Shader(const char* shaderPath);
-		Shader(const char* name, const char* vertexPath, const char* fragmentPath);
+		Shader(const std::filesystem::path& shaderPath);
 		~Shader();
 
 		void Bind() const;
@@ -36,22 +36,14 @@ namespace TerranEngine
 		int GetUniformLoc(const char* name);
 		uint32_t CreateShader(const char* source, unsigned int type);
 
-		std::unordered_map<uint32_t, std::string> ProcessShaderFile(const std::string& shaderSource);
-
-		void CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources);
+		void CreateProgram(std::unordered_map<uint32_t, std::vector<uint32_t>>& compiledShaders);
 		void CreateProgram(const char* vertexSource, const char* fragmentSource);
 
+		std::unordered_map<uint32_t, std::vector<uint32_t>> CompileShaders(const std::unordered_map<uint32_t, std::string>& shaders);
+
 	private:
-		uint32_t GetShaderType(std::string& typeStr);
-
 		uint32_t m_Handle;
-		
 		std::string m_Name;
-
-#ifdef TR_DEBUG
-		const char* m_VertexPath,* m_FragmentPath;
-		const char* m_ShaderPath;
-#endif
 
 		std::unordered_map<const char*, uint32_t> m_Uniforms;
 	};

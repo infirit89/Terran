@@ -42,6 +42,7 @@ project "TerranEditor"
     CopyCommands = {}
     CopyCommands["mono"] = "{COPY} %{Libraries.mono_shared} %{prj.location}/bin/%{outputdir}"
     CopyCommands["optick"] = "{COPY} %{Libraries.optick} %{prj.location}/bin/%{outputdir}"
+    CopyCommands["shaderc"] = "{COPY} %{Libraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
 
     filter "system:windows"
         systemversion "latest"
@@ -51,6 +52,7 @@ project "TerranEditor"
              -- todo: copy the pdb
              "%{CopyCommands.mono}",
              "%{CopyCommands.optick}",
+             "%{CopyCommands.shaderc}"
          }
 
     filter "configurations:Debug"

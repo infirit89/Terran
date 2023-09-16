@@ -1,32 +1,91 @@
 #include "trpch.h"
 #include "Shader.h"
 
-#include <glad/glad.h>
+#include "Utils/Utils.h"
 
+#include <glad/glad.h>
 #include <filesystem>
+#include <shaderc/shaderc.hpp>
 
 namespace TerranEngine 
 {
-	Shader::Shader(const char* shaderPath)
-		: m_Handle(0)
-
-#ifdef TR_DEBUG
-		, m_ShaderPath(shaderPath), m_VertexPath(nullptr), m_FragmentPath(nullptr)
-#endif
-
+	namespace ShaderUtilities 
 	{
-		std::filesystem::path path = shaderPath;
-		m_Name = path.stem().string();
+		static uint32_t GetShaderType(std::string& typeStr)
+		{
+			if (typeStr == "vertex")
+				return GL_VERTEX_SHADER;
+			else if (typeStr == "fragment")
+				return GL_FRAGMENT_SHADER;
+			return 0;
+		}
 
-		FileData* data = File::OpenFile(shaderPath);
+		static shaderc_shader_kind GetShadercShaderKind(uint32_t openglShaderType) 
+		{
+			switch (openglShaderType)
+			{
+			case GL_VERTEX_SHADER: return shaderc_shader_kind::shaderc_vertex_shader;
+			case GL_FRAGMENT_SHADER: return shaderc_shader_kind::shaderc_fragment_shader;
+			}
+
+			TR_ASSERT(false, "Unknown shader type");
+			return shaderc_shader_kind::shaderc_glsl_infer_from_source;
+		}
+
+		static std::unordered_map<uint32_t, std::string> PrerocessShaderSource(const std::string& shaderSource)
+		{
+			std::unordered_map<uint32_t, std::string> shaderSources;
+
+			const char* shaderStageToken = "#shader_stage";
+			const size_t typeTokenLength = strlen(shaderStageToken);
+
+			size_t pos = shaderSource.find(shaderStageToken);
+
+			while (pos != std::string::npos)
+			{
+				size_t eol = shaderSource.find_first_of("\r\n", pos);
+				TR_ASSERT(eol != std::string::npos, "Syntax error: No new line character after the shader stage definition");
+
+				// get the line on which describes what shader stage the following code will belong to
+				std::string line = shaderSource.substr(pos, eol - pos);
+
+				// trim the end of the line
+				Utils::TrimEnd(line);
+
+				// find the shader stage
+				size_t shaderStagePos = line.find_last_of(' ');
+				std::string shaderStage = line.substr(shaderStagePos + 1);
+				TR_ASSERT(GetShaderType(shaderStage), "Invalid shader stage specified.");
+
+				size_t nextLinePos = shaderSource.find_first_not_of("\r\n", eol);
+				TR_ASSERT(nextLinePos != std::string::npos, "Syntax error: Shader source for {} shader is not found", shaderStage);
+
+				// find next #shader_stage token 
+				pos = shaderSource.find(shaderStageToken, nextLinePos);
+
+				shaderSources[GetShaderType(shaderStage)] = shaderSource.substr(nextLinePos, pos - nextLinePos);
+			}
+
+			return shaderSources;
+		}
+	}
+
+	Shader::Shader(const std::filesystem::path& shaderPath)
+		: m_Handle(0)
+	{
+		m_Name = shaderPath.stem().string();
+
+		// use the c++ std dipshit
+		FileData* data = File::OpenFile(shaderPath.string().c_str());
 		
-		auto& shaderSources = ProcessShaderFile(data->Data);
-		CreateProgram(shaderSources);
+		auto shaderSources = ShaderUtilities::PrerocessShaderSource(data->Data);
+		auto compiledShaders = CompileShaders(shaderSources);
+		CreateProgram(compiledShaders);
 
 		File::CloseFile(data);
 	}
 
-	Shader::Shader(const char* name, const char* vertexPath, const char* fragmentPath)
+	/*Shader::Shader(const char* name, const char* vertexPath, const char* fragmentPath)
 		: m_Handle(0)
 
 #ifdef TR_DEBUG
@@ -41,7 +100,7 @@ namespace TerranEngine
 
 		File::CloseFile(vertexFile);
 		File::CloseFile(fragmentFile);
-	}
+	}*/
 
 	Shader::~Shader()
 	{
@@ -145,7 +204,7 @@ namespace TerranEngine
 		int result;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
 
-		if (result == GL_FALSE) 
+		if (result == GL_FALSE)
 		{
 			int length;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
@@ -164,55 +223,46 @@ namespace TerranEngine
 		return shader;
 	}
 
-	std::unordered_map<uint32_t, std::string> Shader::ProcessShaderFile(const std::string& shaderSource)
-	{
-		std::unordered_map<uint32_t, std::string> shaderSources;
-
-		const char* typeToken = "#type";
-		const size_t typeTokenLength = strlen(typeToken);
-
-		size_t pos = shaderSource.find(typeToken);
-		while (pos != std::string::npos)
-		{
-			//find end of line
-			size_t eol = shaderSource.find("\r\n", pos);
-			TR_ASSERT(eol != std::string::npos, "Syntax error");
-
-			// gett the shader type
-			size_t begin = pos + typeTokenLength + 1;
-			std::string type = shaderSource.substr(begin, eol - begin);
-			TR_ASSERT(GetShaderType(type), "Invalid shader type specified.");
-
-			size_t nextLinePos = shaderSource.find_first_not_of("\r\n", eol);
-			TR_ASSERT(nextLinePos != std::string::npos, "Syntax error");
-
-			// find next #type token 
-			pos = shaderSource.find(typeToken, nextLinePos);
-
-			shaderSources[GetShaderType(type)] = shaderSource.substr(nextLinePos, pos - nextLinePos);
-		}
-
-		return shaderSources;
-	}
-
-	void Shader::CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources)
+	void Shader::CreateProgram(std::unordered_map<uint32_t, std::vector<uint32_t>>& compiledShaders)
 	{
 		m_Handle = glCreateProgram();
 
-		uint32_t vertShader = CreateShader(shaderSources[GL_VERTEX_SHADER].c_str(), GL_VERTEX_SHADER);
-		uint32_t fragShader = CreateShader(shaderSources[GL_FRAGMENT_SHADER].c_str(), GL_FRAGMENT_SHADER);
-
-		glAttachShader(m_Handle, vertShader);
-		glAttachShader(m_Handle, fragShader);
+		std::vector<uint32_t> shaderIds;
+		shaderIds.reserve(compiledShaders.size());
+		for (const auto& [stage, shaderBinary] : compiledShaders) 
+		{
+			uint32_t shader = glCreateShader(stage);
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBinary.data(), shaderBinary.size() * sizeof(uint32_t));
+			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+			glAttachShader(m_Handle, shader);
+			shaderIds.emplace_back(shader);
+		}
 
 		glLinkProgram(m_Handle);
+		int linkResult;
+		glGetProgramiv(m_Handle, GL_LINK_STATUS, &linkResult);
+
+		if (linkResult == GL_FALSE) 
+		{
+			int length = 0;
+			glGetProgramiv(m_Handle, GL_INFO_LOG_LENGTH, &length);
+			std::string infoLog;
+			infoLog.resize(length);
+
+			glGetProgramInfoLog(m_Handle, length, &length, &infoLog[0]);
+
+			glDeleteProgram(m_Handle);
+
+			TR_ASSERT(false, infoLog);
+		}
+
 		glValidateProgram(m_Handle);
 
-		glDetachShader(m_Handle, vertShader);
-		glDetachShader(m_Handle, fragShader);
-
-		glDeleteShader(vertShader);
-		glDeleteShader(fragShader);
+		for (const auto& shaderId : shaderIds) 
+		{
+			glDetachShader(m_Handle, shaderId);
+			glDeleteShader(shaderId);
+		}
 	}
 
 	void Shader::CreateProgram(const char* vertexSource, const char* fragmentSource)
@@ -235,12 +285,26 @@ namespace TerranEngine
 		glDeleteShader(fragShader);
 	}
 
-	uint32_t Shader::GetShaderType(std::string& typeStr)
+	// NOTE: in the runtime the shader compiler shouldn't be included;
+	// shaders should be read from cached binary files
+	std::unordered_map<uint32_t, std::vector<uint32_t>> Shader::CompileShaders(const std::unordered_map<uint32_t, std::string>& shaderSources)
 	{
-		if (typeStr == "vertex")
-			return GL_VERTEX_SHADER;
-		else if (typeStr == "fragment")
-			return GL_FRAGMENT_SHADER;
-		return 0;
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+		options.SetTargetEnvironment(shaderc_target_env_opengl, 0);
+		options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
+
+		std::unordered_map<uint32_t, std::vector<uint32_t>> compiledShaders;
+
+		for (const auto& [stage, shaderSource] : shaderSources)
+		{
+			shaderc::SpvCompilationResult compilationResult = compiler.CompileGlslToSpv(shaderSource, ShaderUtilities::GetShadercShaderKind(stage), m_Name.c_str());
+			if (compilationResult.GetCompilationStatus() != shaderc_compilation_status::shaderc_compilation_status_success)
+				TR_ASSERT(false, compilationResult.GetErrorMessage());
+
+			compiledShaders[stage] = std::vector<uint32_t>(compilationResult.begin(), compilationResult.end());
+		}
+
+		return compiledShaders;
 	}
 }

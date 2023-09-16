@@ -40,6 +40,8 @@ namespace TerranEngine
 		Renderer::Init();
 		BatchRenderer2D::Initialize(2000);
         
+		// TODO: this should NOT be initialized here; 
+		// it should be initialized on project load
 		AssetManager::Init();
         ScriptEngine::Initialize(appData.ScriptCorePath);
         Physics2D::Initialize();

@@ -22,20 +22,18 @@ project "Sandbox"
         "%{wks.location}/TerranEngine/vendor/GLAD/include/",
         "%{wks.location}/TerranEngine/vendor/ImGui/",
         "%{wks.location}/TerranEngine/vendor/glm/",
-        "%{wks.location}/TerranEngine/vendor/entt/include/",
-        "%{wks.location}/TerranEngine/vendor/freetype-gl/src/",
-        "%{mono_path}/include/mono-2.0/"   
+        "%{wks.location}/TerranEngine/vendor/entt/include/"
     } 
 
-    libdirs 
-    {
-        "%{mono_path}/lib/"
-    }
+    -- libdirs 
+    -- {
+    --     "%{mono_path}/lib/"
+    -- }
 
     links 
     {
-        "TerranEngine",
-        "%{mono_path}/lib/mono-2.0-sgen.lib"
+        "TerranEngine"
+        -- "%{mono_path}/lib/mono-2.0-sgen.lib"
     }
 
     filter "system:windows"

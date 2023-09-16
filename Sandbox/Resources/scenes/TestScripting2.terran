@@ -1,0 +1,93 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity 067bf532-8f8e-4f0b-a05c-3b68b44fd34b": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "067bf532-8f8e-4f0b-a05c-3b68b44fd34b"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "ScriptComponent": {
+                "ModuleName": "SandboxProject.Sandbox",
+                "Fields": {
+                    "TestB": true,
+                    "TestC": 102,
+                    "TestI8": -101,
+                    "TestI16": -2358,
+                    "TestI32": 2342,
+                    "TestI64": -876475,
+                    "TestUI8": 156,
+                    "TestUI16": 0,
+                    "TestUI32": 64564,
+                    "TestUI64": 32423,
+                    "TestF": 12176.1103515625,
+                    "TestD": 3123060.6349,
+                    "TestS": "Hello",
+                    "TestVec2": {
+                        "X": 1094.02001953125,
+                        "Y": 149.11000061035156
+                    },
+                    "TestVec3": {
+                        "X": -5.199999809265137,
+                        "Y": -25.510000228881836,
+                        "Z": 41.599998474121094
+                    },
+                    "TestCol": {
+                        "X": 0.5588042736053467,
+                        "Y": 0.7336448431015015,
+                        "Z": 0.7336448431015015,
+                        "W": 1.0
+                    },
+                    "TestEntity": "067bf532-8f8e-4f0b-a05c-3b68b44fd34b"
+                }
+            }
+        },
+        "Entity c67b7abe-12d8-4704-a7e6-20c0f95ee986": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "c67b7abe-12d8-4704-a7e6-20c0f95ee986"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}
