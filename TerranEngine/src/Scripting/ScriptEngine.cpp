@@ -183,7 +183,7 @@ namespace TerranEngine
 						arrayScriptFieldsStates[sceneID][entityID][fieldID].reserve(array.Length());
 
 						for (size_t i = 0; i < array.Length(); i++)
-							arrayScriptFieldsStates[sceneID][entityID][fieldID].push_back(array[i]);
+							arrayScriptFieldsStates[sceneID][entityID][fieldID].push_back(array[static_cast<uint32_t>(i)]);
 
 						continue;
 					}
@@ -262,7 +262,7 @@ namespace TerranEngine
 						array.Resize(arrayFieldData.size());
 
 					for (size_t i = 0; i < arrayFieldData.size(); i++)
-						array.Set<Utils::Variant>(i, arrayFieldData[i]);
+						array.Set<Utils::Variant>(static_cast<uint32_t>(i), arrayFieldData[i]);
 
 					field->SetArray(array, handle);
 				}

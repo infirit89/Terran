@@ -7,15 +7,11 @@
 
 namespace TerranEngine 
 {
-	enum class FramebufferDepthAttachmentFormat
-	{
-		None = 0,
-	};
-
 	struct FramebufferParameters
 	{
 		uint32_t Width = 1080, Height = 790;
 		std::vector<TextureFormat> Attachments;
+		uint32_t Samples = 1;
 	};
 
 	class Framebuffer 

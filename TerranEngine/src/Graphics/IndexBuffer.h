@@ -17,6 +17,8 @@ namespace TerranEngine
 		IndexBuffer(const int* indices, uint32_t size);
 		~IndexBuffer();
 
+		static Shared<IndexBuffer> Create(const int* indices, uint32_t size);
+
 		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 	private:
 		uint32_t m_Handle;

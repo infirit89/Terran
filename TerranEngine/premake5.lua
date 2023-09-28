@@ -60,14 +60,18 @@ project "TerranEngine"
     pchheader "trpch.h"
     pchsource "src/trpch.cpp"
 
-    disablewarnings 
+    -- disablewarnings 
+    -- {
+    --     26451,
+    --     26498,
+    --     26495,
+    --     26812,
+    --     4267
+    -- }
+
+    linkoptions 
     {
-        "26451",
-        "26498",
-        "26495",
-        "26812",
-        "4267",
-        "4006"
+        "-IGNORE:4006"
     }
 
     defines 

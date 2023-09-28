@@ -78,7 +78,7 @@ namespace TerranEngine
                 collider = CreateShared<CapsuleCollider2D>(entity);
 
             m_Colliders.push_back(collider);
-            colliderComponent.ColliderIndex = m_Colliders.size() - 1;
+            colliderComponent.ColliderIndex = static_cast<uint32_t>(m_Colliders.size() - 1);
         }
 
         void RemoveCollider(int index);

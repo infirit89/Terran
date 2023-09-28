@@ -4,16 +4,16 @@
 
 namespace TerranEditor
 {
-	class TerranEditorApplication : public TerranEngine::Application 
+	class EditorApplication : public TerranEngine::Application 
 	{
 	public:
-		TerranEditorApplication(const TerranEngine::ApplicationData& appData, const std::string& projectPath)
+		EditorApplication(const TerranEngine::ApplicationData& appData, const std::string& projectPath)
 			: Application(appData)
 		{
 			PushLayer(new TerranEditor::EditorLayer(projectPath));
 		}
 
-		~TerranEditorApplication()
+		~EditorApplication()
 		{
 
 		}
@@ -35,8 +35,9 @@ TerranEngine::Application* TerranEngine::CreateApplication(int argc, char** argv
     applicationData.Window.VSync = true;
     applicationData.Window.Maximized = true;
     applicationData.Window.Fullscren = false;
+    applicationData.Window.Debug = true;
 
     applicationData.ScriptCorePath = "Resources/Scripts/TerranScriptCore.dll";
     
-    return new TerranEditor::TerranEditorApplication(applicationData, projectPath);
+    return new TerranEditor::EditorApplication(applicationData, projectPath);
 }

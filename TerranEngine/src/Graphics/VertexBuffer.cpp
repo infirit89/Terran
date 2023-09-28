@@ -33,6 +33,16 @@ namespace TerranEngine
 		glNamedBufferData(m_Handle, size, vertices, GL_STATIC_DRAW);
 	}
 
+	Shared<VertexBuffer> VertexBuffer::Create(uint32_t size)
+	{
+		return CreateShared<VertexBuffer>(size);
+	}
+
+	Shared<VertexBuffer> VertexBuffer::Create(const float* vertices, uint32_t size)
+	{
+		return CreateShared<VertexBuffer>(vertices, size);
+	}
+
 	VertexBuffer::~VertexBuffer()
 	{
 		glDeleteBuffers(1, &m_Handle);

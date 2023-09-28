@@ -117,6 +117,9 @@ namespace TerranEditor
 			TextureFormat::Red32I,
 			TextureFormat::Depth24Stencil8
 		};
+
+		// NOTE: imgui doesn't support multisampled textures
+		editorFramebufferParams.Samples = 1;
 		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		

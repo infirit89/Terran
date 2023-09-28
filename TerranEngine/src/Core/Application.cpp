@@ -5,8 +5,8 @@
 #include "Time.h"
 #include "Input.h"
 
-#include "Graphics/VertexArray.h"	  
-#include "Graphics/Shader.h"
+#include "Graphics/VertexArray.h"
+#include "Graphics/ShaderLibrary.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/BatchRenderer2D.h"
 
@@ -27,7 +27,7 @@
 #pragma warning (disable : 4244)
 
 
-namespace TerranEngine 
+namespace TerranEngine
 {
 	Application* Application::m_Instance = nullptr;
 
@@ -38,6 +38,8 @@ namespace TerranEngine
 		m_Window = Window::Create(appData.Window);
 
 		Renderer::Init();
+		ShaderLibrary::Initialize();
+
 		BatchRenderer2D::Initialize(2000);
         
 		// TODO: this should NOT be initialized here; 

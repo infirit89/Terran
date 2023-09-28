@@ -16,4 +16,9 @@ namespace TerranEngine
 	{
 		glDeleteBuffers(1, &m_Handle);
 	}
+
+	Shared<IndexBuffer> IndexBuffer::Create(const int* indices, uint32_t size)
+	{
+		return CreateShared<IndexBuffer>(indices, size);
+	}
 }

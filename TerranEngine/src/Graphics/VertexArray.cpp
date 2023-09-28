@@ -18,6 +18,8 @@ namespace TerranEngine
 		}
 
 		TR_ASSERT(false, "Unrecognized vertex buffer element type");
+
+		return GL_FLOAT;
 	}
 
 	VertexArray::VertexArray()

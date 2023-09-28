@@ -90,21 +90,39 @@ namespace TerranEngine
 	Texture2D::Texture2D(TextureParameters parameters, const void* data)
 		: m_TextureParameters(parameters)
 	{
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+		TR_ASSERT(m_TextureParameters.Samples > 0, "Samples cant be less than 1");
+
+		if (m_TextureParameters.Samples > 1) 
+		{
+			glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &m_Handle);
+		}
+		else 
+		{
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+
+			uint32_t filter = GetNativeTextureFilter(m_TextureParameters.Filter);
+
+			glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter);
+			glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter);
+
+			uint32_t wrapMode = GetNativeWrapMode(m_TextureParameters.WrapMode);
+
+			glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
+			glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
+		}
 		
-		uint32_t filter = GetNativeTextureFilter(m_TextureParameters.Filter);
-
-		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter);
-		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter);
-
-		uint32_t wrapMode = GetNativeWrapMode(m_TextureParameters.WrapMode);
-
-		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
-		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
-
 		NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
-		glTextureStorage2D(m_Handle, 1, nativeType.InternalFormat, 
-							m_TextureParameters.Width, m_TextureParameters.Height);
+
+		if (m_TextureParameters.Samples > 1)
+		{
+			glTextureStorage2DMultisample(m_Handle, m_TextureParameters.Samples, nativeType.InternalFormat, 
+											m_TextureParameters.Width, m_TextureParameters.Height, false);
+		}
+		else 
+		{
+			glTextureStorage2D(m_Handle, 1, nativeType.InternalFormat, 
+								m_TextureParameters.Width, m_TextureParameters.Height);
+		}
 
 		if (data)
 			SetData(data);
@@ -115,7 +133,7 @@ namespace TerranEngine
 		glDeleteTextures(1, &m_Handle);
 	}
 
-	void Texture2D::Bind(uint8_t textureSlot)
+	void Texture2D::Bind(uint32_t textureSlot)
 	{	 
 		glBindTextureUnit(textureSlot, m_Handle);
 	}	 

@@ -144,7 +144,7 @@ namespace TerranEngine
 		const double defaultMiterLimit = 1.0;
 		atlasPacker.setMiterLimit(defaultMiterLimit);
 
-		atlasPacker.pack(m_Glyphs->data(), m_Glyphs->size());
+		atlasPacker.pack(m_Glyphs->data(), static_cast<int>(m_Glyphs->size()));
 
 		atlasPacker.getDimensions(m_AtlasWidth, m_AtlasHeight);
 		TR_TRACE("Atlas width: {0}; Atlas height: {1}", m_AtlasWidth, m_AtlasHeight);
@@ -161,7 +161,7 @@ namespace TerranEngine
 
 		generator.setAttributes(generatorAttributes);
 		generator.setThreadCount(std::max((int)std::thread::hardware_concurrency() / 4, 1));
-		generator.generate(m_Glyphs->data(), m_Glyphs->size());
+		generator.generate(m_Glyphs->data(), static_cast<int>(m_Glyphs->size()));
 
 		msdfgen::BitmapConstRef<uint8_t, 3> bitmap = generator.atlasStorage();
 

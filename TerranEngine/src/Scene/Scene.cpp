@@ -528,7 +528,7 @@ namespace TerranEngine
 
 		for (size_t i = 0; i < entity.GetChildCount(); i++)
 		{
-			Entity currEntity = entity.GetChild(i);
+			Entity currEntity = entity.GetChild(static_cast<uint32_t>(i));
 
 			if(tc.IsDirty)
 				currEntity.GetTransform().IsDirty = true;

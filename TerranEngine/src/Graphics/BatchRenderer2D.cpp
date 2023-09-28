@@ -7,6 +7,7 @@
 #include "UniformBuffer.h"
 #include "Framebuffer.h"
 #include "Renderer.h"
+#include "ShaderLibrary.h"
 
 #include "Math/Math.h"
 
@@ -176,8 +177,7 @@ namespace TerranEngine
 			offset += 4;
 		}
 
-		s_Data->IndexBuffer = CreateShared<IndexBuffer>(indices,
-														s_Data->MaxIndices * sizeof(int));
+		s_Data->IndexBuffer = IndexBuffer::Create(indices, s_Data->MaxIndices * sizeof(int));
 
 		delete[] indices;
 		// ************************************
@@ -186,7 +186,7 @@ namespace TerranEngine
 
 		int samplers[16];
 		for (size_t i = 0; i < s_Data->MaxTextureSlots; i++)
-			samplers[i] = i;
+			samplers[i] = static_cast<int>(i);
 
 		// ******** Quad ******** 
 		{
@@ -194,8 +194,7 @@ namespace TerranEngine
 
 			s_Data->QuadVertexArray = CreateShared<VertexArray>();
 
-			s_Data->QuadVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices *
-																sizeof(QuadVertex));
+			s_Data->QuadVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(QuadVertex));
 
 			s_Data->QuadVertexBuffer->SetLayout({
 				{ VertexBufferElementType::Float,	3 },
@@ -214,7 +213,7 @@ namespace TerranEngine
 			s_Data->QuadTextures[0] = CreateShared<Texture2D>(whiteTextureParameters, 
 															&whiteTextureData);
 
-			s_Data->QuadShader = CreateShared<Shader>("Resources/Shaders/Base/QuadShader.glsl");
+			s_Data->QuadShader = ShaderLibrary::Load("Resources/Shaders/Base/QuadShader.glsl");
 		}
 		// **********************
 
@@ -224,8 +223,7 @@ namespace TerranEngine
 
 			s_Data->CircleVertexArray = CreateShared<VertexArray>();
 
-			s_Data->CircleVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices *
-																	sizeof(CircleVertex));
+			s_Data->CircleVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices * sizeof(CircleVertex));
 
 			s_Data->CircleVertexBuffer->SetLayout({
 				{ VertexBufferElementType::Float,	3 },
@@ -238,7 +236,7 @@ namespace TerranEngine
 			s_Data->CircleVertexArray->AddVertexBuffer(s_Data->CircleVertexBuffer);
 			s_Data->CircleVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->CircleShader = CreateShared<Shader>("Resources/Shaders/Base/CircleShader.glsl");
+			s_Data->CircleShader = ShaderLibrary::Load("Resources/Shaders/Base/CircleShader.glsl");
 		}
 		// ************************
 
@@ -246,7 +244,7 @@ namespace TerranEngine
 		{
 			s_Data->LineVertexPtr = new LineVertex[s_Data->MaxVertices];
 			s_Data->LineVertexArray = CreateShared<VertexArray>();
-			s_Data->LineVertexBuffer = CreateShared<VertexBuffer>(s_Data->MaxVertices *
+			s_Data->LineVertexBuffer = VertexBuffer::Create(s_Data->MaxVertices *
 																	sizeof(LineVertex));
 
 			s_Data->LineVertexBuffer->SetLayout({
@@ -261,7 +259,7 @@ namespace TerranEngine
 			s_Data->LineVertexArray->AddVertexBuffer(s_Data->LineVertexBuffer);
 			s_Data->LineVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->LineShader = CreateShared<Shader>("Resources/Shaders/Base/LineShader.glsl");
+			s_Data->LineShader = ShaderLibrary::Load("Resources/Shaders/Base/LineShader.glsl");
 		}
 		// **********************
 
@@ -269,7 +267,7 @@ namespace TerranEngine
 		{
 			s_Data->TextVertexPtr = new TextVertex[s_Data->MaxVertices];
 			s_Data->TextVAO = CreateShared<VertexArray>();
-			s_Data->TextVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(TextVertex));
+			s_Data->TextVBO = VertexBuffer::Create(s_Data->MaxVertices * sizeof(TextVertex));
 
 			s_Data->TextVBO->SetLayout({
 				{ VertexBufferElementType::Float,	3 },
@@ -282,7 +280,7 @@ namespace TerranEngine
 			s_Data->TextVAO->AddVertexBuffer(s_Data->TextVBO);
 			s_Data->TextVAO->AddIndexBuffer(s_Data->IndexBuffer);
 
-			s_Data->TextShader = CreateShared<Shader>("Resources/Shaders/Base/TextShader.glsl");
+			s_Data->TextShader = ShaderLibrary::Load("Resources/Shaders/Base/TextShader.glsl");
 		}
 		// **********************
 
@@ -290,7 +288,7 @@ namespace TerranEngine
 		{
 			s_Data->DebugLineVertexPtr = new DebugLineVertex[s_Data->MaxVertices];
 			s_Data->DebugLineVAO = CreateShared<VertexArray>();
-			s_Data->DebugLineVBO = CreateShared<VertexBuffer>(s_Data->MaxVertices * sizeof(DebugLineVertex));
+			s_Data->DebugLineVBO = VertexBuffer::Create(s_Data->MaxVertices * sizeof(DebugLineVertex));
 
 			s_Data->DebugLineVBO->SetLayout({
 				{ VertexBufferElementType::Float, 3 },
@@ -299,7 +297,7 @@ namespace TerranEngine
 
 			s_Data->DebugLineVAO->AddVertexBuffer(s_Data->DebugLineVBO);
 
-			s_Data->DebugLineShader = CreateShared<Shader>("Resources/Shaders/Debug/DebugLineShader.glsl");
+			s_Data->DebugLineShader = ShaderLibrary::Load("Resources/Shaders/Debug/DebugLineShader.glsl");
 		}
 		// ****************************
 		s_Data->VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
@@ -312,7 +310,7 @@ namespace TerranEngine
 		s_Data->LineVertexPositions[2] = {  1.0f,  0.5f, 0.0f, 1.0f };
 		s_Data->LineVertexPositions[3] = {  0.0f,  0.5f, 0.0f, 1.0f };
 
-		s_Data->CameraBuffer = CreateShared<UniformBuffer>(sizeof(CameraData), 0);
+		s_Data->CameraBuffer = UniformBuffer::Create(sizeof(CameraData), 0);
 	}
 
 	void BatchRenderer2D::Shutdown()
@@ -375,7 +373,7 @@ namespace TerranEngine
 		{
 			if (s_Data->QuadTextures[i] == texture)
 			{
-				texIndex = i;
+				texIndex = static_cast<int>(i);
 				break;
 			}
 		}
@@ -528,7 +526,7 @@ namespace TerranEngine
 		{
 			if (s_Data->TextTextures[i] == font->GetTexture())
 			{
-				texIndex = i;
+				texIndex = static_cast<int>(i);
 				break;
 			}
 		}
@@ -572,7 +570,7 @@ namespace TerranEngine
 					continue;
 				}*/
 				if (charIt + 1 < text.end())
-					cursorPos.x += font->GetAdvance(*charIt, *(charIt + 1));
+					cursorPos.x += static_cast<float>(font->GetAdvance(*charIt, *(charIt + 1)));
 
 				continue;
 			}
@@ -580,7 +578,7 @@ namespace TerranEngine
 			if (*charIt == '\n')
 			{
 				cursorPos.x = cursorOrigin.x;
-				cursorPos.y -= fontMetrics.lineHeight + lineSpacing;
+				cursorPos.y -= static_cast<float>(fontMetrics.lineHeight + lineSpacing);
 				continue;
 			}
 			else if (*charIt == '\t')
@@ -607,7 +605,7 @@ namespace TerranEngine
 			s_Data->TextIndexCount += 6;
 
 			if(charIt + 1 < text.end())
-				cursorPos.x += font->GetAdvance(*charIt, *(charIt + 1));
+				cursorPos.x += static_cast<float>(font->GetAdvance(*charIt, *(charIt + 1)));
 		}
 	}
 
@@ -652,7 +650,7 @@ namespace TerranEngine
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertexPtr, s_Data->QuadVertexPtrIndex * sizeof(QuadVertex));
 
 			for (size_t i = 0; i < s_Data->QuadTextureIndex; i++)
-				s_Data->QuadTextures[i]->Bind(i);
+				s_Data->QuadTextures[i]->Bind(static_cast<uint32_t>(i));
 
 			s_Data->QuadShader->Bind();
 			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->QuadVertexArray, s_Data->QuadIndexCount);
@@ -674,14 +672,12 @@ namespace TerranEngine
 		// Submit lines
 		if (s_Data->LineIndexCount) 
 		{
-			s_Data->LineShader->Bind();
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertexPtr, s_Data->LineVertexPtrIndex * sizeof(LineVertex));
 
+			s_Data->LineShader->Bind();
 			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->LineVertexArray, s_Data->LineIndexCount);
 			
 			s_Data->Stats.DrawCalls++;
-
-			s_Data->LineShader->Unbind();
 		}
 
 		// Submit text
@@ -690,7 +686,7 @@ namespace TerranEngine
 			s_Data->TextVBO->SetData(s_Data->TextVertexPtr, s_Data->TextVertexPtrIndex * sizeof(TextVertex));
 
 			for (size_t i = 0; i < s_Data->TextTextureIndex; i++)
-				s_Data->TextTextures[i]->Bind(i);
+				s_Data->TextTextures[i]->Bind(static_cast<uint32_t>(i));
 
 			s_Data->TextShader->Bind();
 			Renderer::DrawIndexed(RenderMode::Triangles, s_Data->TextVAO, s_Data->TextIndexCount);

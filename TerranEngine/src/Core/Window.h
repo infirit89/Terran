@@ -22,6 +22,7 @@ namespace TerranEngine {
 		bool Fullscren = false;
 		bool Maximized = true;
 		bool VSync = true;
+		bool Debug = false;
 	};
 	
 	class Window 

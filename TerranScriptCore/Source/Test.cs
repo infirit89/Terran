@@ -79,32 +79,31 @@ namespace Terran
 
 		protected override void Update(float deltaTime)
 		{
-			// RayCastHitInfo2D hitInfo;
-			// float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;
-			// bool hasHit = Physics2D.RayCast(out hitInfo, entity.transform.Position, -Vector2.Up, rayLength);
-			//
-			// m_CanJump = hasHit;
-			//
-			// if (hasHit && !m_HasCollided)
-			// {
-			// 	Log.Trace(hitInfo.Rigidbody.entity.Name);
-			// 	Log.Trace("ray hit");
-			// }
-			//
-			// // Code to move the entity up and down
-			// if (Input.IsKeyPressed(KeyCode.D))
-			// 	// if w is pressed move the entity up one unit
-			// 	entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
-			// else if (Input.IsKeyPressed(KeyCode.A))
-			// 	// if s is pressed move the entity down one unit
-			// 	entity.transform.Position -= new Vector3(0.1f, 0.0f, 0.0f);
-			//
-			// if (Input.IsKeyPressed(KeyCode.Space) && m_CanJump) 
-			// {
-			// 	m_CanJump = false;
-			// 	rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
-			// }
+			//RayCastHitInfo2D hitInfo;
+			//float rayLength = (entity.transform.Scale.Y * 0.5f) + 0.2f;
+			//bool hasHit = Physics2D.RayCast(out hitInfo, entity.transform.Position, -Vector2.Up, rayLength);
 
+			//m_CanJump = hasHit;
+
+			//if (hasHit && !m_HasCollided)
+			//{
+			//	Log.Trace(hitInfo.Rigidbody.entity.Name);
+			//	Log.Trace("ray hit");
+			//}
+
+			//Code to move the entity up and down
+			//if (Input.IsKeyPressed(KeyCode.D))
+			//	if w is pressed move the entity up one unit
+			//	entity.transform.Position += new Vector3(0.1f, 0.0f, 0.0f);
+			//else if (Input.IsKeyPressed(KeyCode.A))
+			//	if s is pressed move the entity down one unit
+			//	entity.transform.Position -= new Vector3(0.1f, 0.0f, 0.0f);
+
+			//if (Input.IsKeyPressed(KeyCode.Space) && m_CanJump)
+			//{
+			//	m_CanJump = false;
+			//	rb.ApplyForceAtCenter(new Vector2(0.0f, JumpForce), ForceMode2D.Force);
+			//}
 		}
 		protected override void PhysicsUpdate() 
 		{
@@ -122,5 +121,4 @@ namespace Terran
 			m_HasCollided = false;
 		}
 	}
-
 }

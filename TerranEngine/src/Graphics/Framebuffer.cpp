@@ -83,6 +83,7 @@ namespace TerranEngine
 			attachmentParameters.Format = attachmentFormat;
 			attachmentParameters.Width = m_Parameters.Width;
 			attachmentParameters.Height = m_Parameters.Height;
+			attachmentParameters.Samples = m_Parameters.Samples;
 
 			Shared<Texture2D> attachment = CreateShared<Texture2D>(attachmentParameters);
 
@@ -104,7 +105,7 @@ namespace TerranEngine
 		}
 
 		if (m_ColorAttachments.size() > 1)
-			glNamedFramebufferDrawBuffers(m_Handle, m_ColorAttachments.size(), s_Buffers);
+			glNamedFramebufferDrawBuffers(m_Handle, static_cast<int>(m_ColorAttachments.size()), s_Buffers);
 
 		if (glCheckNamedFramebufferStatus(m_Handle, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			TR_ASSERT(false, "Framebuffer isn't complete");

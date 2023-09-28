@@ -65,6 +65,9 @@ namespace TerranEngine
 
 		VertexBuffer(uint32_t size);
 		VertexBuffer(const float* vertices, uint32_t size);
+		
+		static Shared<VertexBuffer> Create(uint32_t size);
+		static Shared<VertexBuffer> Create(const float* vertices, uint32_t size);
 
 		~VertexBuffer();
 

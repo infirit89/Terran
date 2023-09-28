@@ -17,10 +17,13 @@
 
 namespace TerranEngine 
 {
+	static int s_GlfwSuccess = glfwInit();
 	static GLFWWindow* s_CurrentWindow = nullptr;
 
 	GLFWWindow::GLFWWindow(WindowData data)
 	{
+		TR_ASSERT(s_GlfwSuccess, "GFLW couldn't initialze!");
+
 		s_CurrentWindow = this;
 		InitWindow(data);
 	}
@@ -62,12 +65,10 @@ namespace TerranEngine
 		m_WindowDataPtr.Width = data.Width;
 		m_WindowDataPtr.Height = data.Height;
 
-		int glfwSuccess = glfwInit();
-		TR_ASSERT(glfwSuccess, "GFLW couldn't initialze!");
-		
-#ifdef TR_DEBUG
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif
+		SetVsync(data.VSync);
+
+		if(data.Debug)
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 		if(data.Maximized)
 			glfwWindowHint(GLFW_MAXIMIZED, 1);
@@ -89,7 +90,6 @@ namespace TerranEngine
 		SetupCallbacks();
 
 		glfwMakeContextCurrent(m_Window);
-		SetVsync(data.VSync);
 	}
 
 	void GLFWWindow::SetupCallbacks()

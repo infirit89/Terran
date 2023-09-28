@@ -1,6 +1,6 @@
 #include "trpch.h"
-#include "ImGuiLayer.h"
 
+#include "ImGuiLayer.h"
 #include "ImGuiBackEnds.h"
 
 #include "Core/Application.h"
@@ -9,16 +9,12 @@
 
 #include <imgui.h>
 
-namespace TerranEngine 
+namespace TerranEngine
 {
 	ImGuiLayer::ImGuiLayer()
-		: Layer("Imgui Layer")
-	{
-	}
+		: Layer("Imgui Layer") { }
 
-	ImGuiLayer::~ImGuiLayer()
-	{
-	}
+	ImGuiLayer::~ImGuiLayer() { }
 
 	void ImGuiLayer::OnAttach()
 	{

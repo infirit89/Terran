@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <stdint.h>
 
-namespace TerranEngine 
+namespace TerranEngine
 {
 	enum class TextureFormat
 	{
@@ -42,6 +42,7 @@ namespace TerranEngine
 		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
 		uint32_t Width;
 		uint32_t Height;
+		uint32_t Samples = 1;
 	};
 
 	class Texture : public Asset
@@ -50,7 +51,7 @@ namespace TerranEngine
 		
 		virtual ~Texture() {};
 
-		virtual void Bind(uint8_t textureSlot) = 0;
+		virtual void Bind(uint32_t textureSlot) = 0;
 		//void Unbind() const;
 
 		virtual void SetData(const void* data) = 0;
@@ -60,6 +61,7 @@ namespace TerranEngine
 		virtual int GetWidth() const = 0;
 		virtual const int GetHeight() const = 0;
 		virtual const uint32_t GetHandle() const = 0;
+		virtual const uint32_t GetSamples() const = 0;
 
 		virtual bool operator==(Texture& other) = 0;
 		virtual bool operator==(const Texture& other) = 0;
@@ -72,7 +74,7 @@ namespace TerranEngine
 
 		virtual ~Texture2D() override;
 
-		virtual void Bind(uint8_t textureSlot) override;
+		virtual void Bind(uint32_t textureSlot) override;
 		
 		virtual void SetData(const void* data) override;
 
@@ -93,6 +95,11 @@ namespace TerranEngine
 		}
 
 		virtual const uint32_t GetHandle() const override { return m_Handle; }
+
+		virtual const uint32_t GetSamples() const override 
+		{
+			return m_TextureParameters.Samples;
+		}
 
 		virtual bool operator==(Texture& other) override;
 		virtual bool operator==(const Texture& other) override;

@@ -5,7 +5,7 @@
 
 namespace TerranEngine 
 {
-	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint16_t bindingPoint)
+	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint32_t bindingPoint)
 		: m_Handle(0)
 	{
 		glCreateBuffers(1, &m_Handle);
@@ -14,6 +14,11 @@ namespace TerranEngine
 	}
 
 	UniformBuffer::~UniformBuffer() { glDeleteBuffers(1, &m_Handle); }
+
+	Shared<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t bindingPoint)
+	{
+		return CreateShared<UniformBuffer>(size, bindingPoint);
+	}
 
 	void UniformBuffer::SetData(const void* data, uint32_t offset, uint32_t size)
 	{
