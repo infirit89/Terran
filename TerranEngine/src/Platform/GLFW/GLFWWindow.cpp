@@ -12,9 +12,6 @@
 
 #include <stb_image.h>
 
-#pragma warning (push)
-#pragma warning (disable : 4244)
-
 namespace TerranEngine 
 {
 	static int s_GlfwSuccess = glfwInit();
@@ -95,14 +92,14 @@ namespace TerranEngine
 	void GLFWWindow::SetupCallbacks()
 	{
 		// setup event callbacks
-		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int miximize)
+		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int maximize)
 		{
 			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-			if (miximize == 0)
+			if (maximize == 0)
 			{
-				float xpos = ((GLFWvidmode*)data.VideoMode)->width / 2 - data.Width / 2;
-				float ypos = ((GLFWvidmode*)data.VideoMode)->height / 2 - data.Height / 2;
+				int xpos = ((GLFWvidmode*)data.VideoMode)->width / 2 - data.Width / 2;
+				int ypos = ((GLFWvidmode*)data.VideoMode)->height / 2 - data.Height / 2;
 
 				glfwSetWindowPos(window, xpos, ypos);
 			}
@@ -110,86 +107,86 @@ namespace TerranEngine
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
 		{
-		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-		WindowCloseEvent e;
-		data.EventCallback(e);
+			WindowCloseEvent e;
+			data.EventCallback(e);
 		});
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
 		{
-		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-		data.Width = width;
-		data.Height = height;
+			data.Width = width;
+			data.Height = height;
 
-		WindowResizeEvent e(width, height);
-		data.EventCallback(e);
+			WindowResizeEvent e(width, height);
+			data.EventCallback(e);
 		});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
 		{
-		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-		switch (action)
-		{
-		case GLFW_PRESS:
-		{
-			KeyPressedEvent e((Key)key, 0);
+			switch (action)
+			{
+			case GLFW_PRESS:
+			{
+				KeyPressedEvent e((Key)key, 0);
+				data.EventCallback(e);
+				break;
+			}
+			case GLFW_REPEAT:
+			{
+				KeyPressedEvent e((Key)key, 1);
+				data.EventCallback(e);
+				break;
+			}
+			case GLFW_RELEASE:
+			{
+				KeyReleasedEvent e((Key)key);
+				data.EventCallback(e);
+				break;
+			}
+			}
+			});
+
+			glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) 
+			{
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+
+			MouseMoveEvent e(static_cast<float>(xpos), static_cast<float>(ypos));
+
 			data.EventCallback(e);
-			break;
-		}
-		case GLFW_REPEAT:
-		{
-			KeyPressedEvent e((Key)key, 1);
-			data.EventCallback(e);
-			break;
-		}
-		case GLFW_RELEASE:
-		{
-			KeyReleasedEvent e((Key)key);
-			data.EventCallback(e);
-			break;
-		}
-		}
-		});
-
-		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) 
-		{
-		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
-
-		MouseMoveEvent e(xpos, ypos);
-
-		data.EventCallback(e);
 		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) 
 		{
-		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-		MouseScrollEvent e(xoffset, yoffset);
-		data.EventCallback(e);
+			MouseScrollEvent e(static_cast<float>(xoffset), static_cast<float>(yoffset));
+			data.EventCallback(e);
 		});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) 
 		{
-		WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
-		switch (action)
-		{
-		case GLFW_PRESS:
-		{
-			MouseButtonPressedEvent e((MouseButton)button);
-			data.EventCallback(e);
-			break;
-		}
-		case GLFW_RELEASE:
-		{
-			MouseButtonReleasedEvent e((MouseButton)button);
-			data.EventCallback(e);
-			break;
-		}
-		}
+			switch (action)
+			{
+			case GLFW_PRESS:
+			{
+				MouseButtonPressedEvent e((MouseButton)button);
+				data.EventCallback(e);
+				break;
+			}
+			case GLFW_RELEASE:
+			{
+				MouseButtonReleasedEvent e((MouseButton)button);
+				data.EventCallback(e);
+				break;
+			}
+			}
 		});
 
 		glfwSetJoystickCallback([](int joystickID, int event)
@@ -230,4 +227,3 @@ namespace TerranEngine
 		glfwTerminate();
 	}
 }
-#pragma warning (pop)
