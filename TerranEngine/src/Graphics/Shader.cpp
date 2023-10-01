@@ -8,19 +8,25 @@
 
 namespace TerranEngine 
 {
+	namespace ShaderUtilities 
+	{
+		static uint32_t GetOpenGLShaderType(ShaderStage stage) 
+		{
+			switch (stage) 
+			{
+			case ShaderStage::Vertex:	return GL_VERTEX_SHADER;
+			case ShaderStage::Fragment:	return GL_FRAGMENT_SHADER;
+			}
+
+			TR_ASSERT(false, "Invalid shader stage");
+			return 0;
+		}
+	}
+
 	Shader::Shader(const std::vector<ShaderUnitInfo>& shaderUnits)
 		: m_Handle(0)
 	{
-		//m_Name = shaderPath.stem().string();
-
-		// use the c++ std dipshit
-		//FileData* data = File::OpenFile(shaderPath.string().c_str());
-		
-		/*auto shaderSources = ShaderUtilities::PrerocessShaderSource(data->Data);
-		auto compiledShaders = CompileShaders(shaderSources);*/
 		CreateProgram(shaderUnits);
-
-		//File::CloseFile(data);
 	}
 
 	Shader::~Shader()
@@ -87,7 +93,7 @@ namespace TerranEngine
 		shaderIds.reserve(shaderUnits.size());
 		for (const auto& shaderUnit : shaderUnits)
 		{
-			uint32_t shader = glCreateShader(shaderUnit.Stage);
+			uint32_t shader = glCreateShader(ShaderUtilities::GetOpenGLShaderType(shaderUnit.Stage));
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderUnit.Data.data(),
 						static_cast<int>(shaderUnit.Data.size() * sizeof(uint32_t)));
 			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
@@ -122,4 +128,3 @@ namespace TerranEngine
 		}
 	}
 }
-

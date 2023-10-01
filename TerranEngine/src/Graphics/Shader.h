@@ -8,9 +8,16 @@
 
 namespace TerranEngine 
 {
-	struct ShaderUnitInfo 
+	enum class ShaderStage : uint8_t
 	{
-		uint32_t Stage;
+		None = 0,
+		Vertex,
+		Fragment
+	};
+
+	struct ShaderUnitInfo
+	{
+		ShaderStage Stage;
 		std::vector<uint32_t> Data;
 	};
 

@@ -70,12 +70,19 @@ namespace TerranEngine
 	void ImGuiLayer::EndFrame()
 	{
 		TR_PROFILE_FUNCTION();
-		ImGui::Render();
+		{
+			TR_PROFILE_SCOPE("ImGui::Render");
+			ImGui::Render();
+		}
 
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		{
+			TR_PROFILE_SCOPE("ImGui_ImplOpenGL3_RenderDrawData")
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		}
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
+			TR_PROFILE_SCOPE("UpdateImGUIViewports");
 			GLFWwindow* context = glfwGetCurrentContext();
 
 			ImGui::UpdatePlatformWindows();

@@ -74,5 +74,5 @@ compile_commands.json
 #Shaderc
 shaderc/
 
-
-
+# Cached Shaders
+*.cached
