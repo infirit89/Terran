@@ -28,6 +28,18 @@ namespace TerranEngine
             TR_ASSERT(false, "Invalid shader stage");
             return shaderc_vertex_shader;
         }
+
+        static std::string GetCachedShaderExtension(ShaderStage stage) 
+        {
+            switch (stage)
+            {
+            case TerranEngine::ShaderStage::Vertex:     return ".vert.cached";
+            case TerranEngine::ShaderStage::Fragment:   return ".frag.cached";
+            }
+
+            TR_ASSERT(false, "Invalid shader stage");
+            return "";
+        }
     }
 
     std::unordered_map<std::string, Shared<Shader>> ShaderLibrary::s_Shaders;
@@ -128,18 +140,41 @@ namespace TerranEngine
 
         for (const auto& [stage, shaderSource] : shaderSources)
         {
-            shaderc::SpvCompilationResult compilationResult = 
-                                            compiler.CompileGlslToSpv(
-                                                shaderSource,
-                                                ShaderUtilities::GetShadercShaderKind(stage),
-                                                shaderName.c_str());
-            if (compilationResult.GetCompilationStatus() != shaderc_compilation_status::shaderc_compilation_status_success)
-                TR_ASSERT(false, compilationResult.GetErrorMessage());
+            std::filesystem::path cachedShaderPath = GetCachedShaderPath() / (shaderName + ShaderUtilities::GetCachedShaderExtension(stage));
+            if(std::filesystem::exists(cachedShaderPath)) 
+            {
+                std::ifstream inputFileStream(cachedShaderPath, std::ios::in | std::ios::binary);
 
-            ShaderUnitInfo unitInfo;
-            unitInfo.Stage = stage;
-            unitInfo.Data = std::vector<uint32_t>(compilationResult.begin(), compilationResult.end());
-            compiledShaders.emplace_back(unitInfo);
+
+                inputFileStream.seekg(0, std::ios::end);
+                size_t shaderFileSize = inputFileStream.tellg();
+                inputFileStream.seekg(0, std::ios::beg);
+
+                ShaderUnitInfo unitInfo;
+                unitInfo.Stage = stage;
+                unitInfo.Data.resize(shaderFileSize / sizeof(uint32_t));
+
+                inputFileStream.read((char*)unitInfo.Data.data(), shaderFileSize);
+                compiledShaders.emplace_back(unitInfo);
+            }
+            else 
+            {
+                shaderc::SpvCompilationResult compilationResult = 
+                                                compiler.CompileGlslToSpv(
+                                                    shaderSource,
+                                                    ShaderUtilities::GetShadercShaderKind(stage),
+                                                    shaderName.c_str());
+                if (compilationResult.GetCompilationStatus() != shaderc_compilation_status::shaderc_compilation_status_success)
+                    TR_ASSERT(false, compilationResult.GetErrorMessage());
+
+                ShaderUnitInfo unitInfo;
+                unitInfo.Stage = stage;
+                unitInfo.Data = std::vector<uint32_t>(compilationResult.begin(), compilationResult.end());
+                compiledShaders.emplace_back(unitInfo);
+
+                std::ofstream ouputFileStream(cachedShaderPath, std::ios::out | std::ios::binary);
+                ouputFileStream.write((char*)unitInfo.Data.data(), unitInfo.Data.size() * sizeof(uint32_t));
+            }
         }
 
         return compiledShaders;

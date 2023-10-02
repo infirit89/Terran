@@ -62,7 +62,6 @@ namespace TerranEngine
 		m_WindowDataPtr.Width = data.Width;
 		m_WindowDataPtr.Height = data.Height;
 
-		SetVsync(data.VSync);
 
 		if(data.Debug)
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -77,7 +76,6 @@ namespace TerranEngine
 		m_WindowDataPtr.VideoMode = vidMode;
 
 		m_Window = glfwCreateWindow(data.Width, data.Height, data.Name, NULL, NULL);
-
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
@@ -87,6 +85,7 @@ namespace TerranEngine
 		SetupCallbacks();
 
 		glfwMakeContextCurrent(m_Window);
+		SetVsync(data.VSync);
 	}
 
 	void GLFWWindow::SetupCallbacks()
