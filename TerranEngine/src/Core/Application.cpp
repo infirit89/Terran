@@ -26,7 +26,6 @@
 #pragma warning (push)
 #pragma warning (disable : 4244)
 
-
 namespace TerranEngine
 {
 	Application* Application::m_Instance = nullptr;
@@ -38,8 +37,6 @@ namespace TerranEngine
 		m_Window = Window::Create(appData.Window);
 
 		Renderer::Init();
-		ShaderLibrary::Initialize();
-
 		BatchRenderer2D::Initialize(2000);
         
 		// TODO: this should NOT be initialized here; 
@@ -111,7 +108,6 @@ namespace TerranEngine
 			}
 
 			m_Window->PollEvents();
-
 			Input::Update();
 
 			Profiler::Get().ClearResults();

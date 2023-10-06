@@ -1,27 +1,15 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
+#include "ShaderDefs.h"
 
+#include <glm/mat4x4.hpp>
 #include <string>
 #include <unordered_map>
 #include <filesystem>
 
 namespace TerranEngine 
 {
-	enum class ShaderStage : uint8_t
-	{
-		None = 0,
-		Vertex,
-		Fragment
-	};
-
-	struct ShaderUnitInfo
-	{
-		ShaderStage Stage;
-		std::vector<uint32_t> Data;
-	};
-
-	class Shader 
+	class Shader
 	{
 	public:
 		Shader(const std::vector<ShaderUnitInfo>& shaderUnits);
@@ -43,11 +31,13 @@ namespace TerranEngine
 		int GetUniformLocation(const char* name);
 		
 		void CreateProgram(const std::vector<ShaderUnitInfo>& shaderUnits);
-		
 	private:
 		uint32_t m_Handle;
 		std::string m_Name;
+		std::filesystem::path m_Path;
 
 		std::unordered_map<const char*, uint32_t> m_Uniforms;
+
+		friend class ShaderCompiler;
 	};
 }

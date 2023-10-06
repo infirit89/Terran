@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "ShaderLibrary.h"
+
 namespace TerranEngine 
 {
 	void Renderer::Init()
@@ -32,6 +34,8 @@ namespace TerranEngine
 #endif
 		EnableBlending(true);
 		EnableDepthTesting(true);
+
+		ShaderLibrary::Initialize();
 	}
 
 	void Renderer::SetClearColor(float r, float g, float b, float a) 
