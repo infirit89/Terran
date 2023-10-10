@@ -162,9 +162,9 @@ namespace TerranEngine
 
 	void Shader::Release()
 	{
-		Renderer::SubmitFree([this]()
+		Renderer::SubmitFree([handle = m_Handle]()
 		{
-			glDeleteProgram(m_Handle);
+			glDeleteProgram(handle);
 		});
 	}
 }
