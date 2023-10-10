@@ -19,9 +19,7 @@
 #include "Utils/Debug/Profiler.h"
 #include "Utils/Debug/OptickProfiler.h"
 
-
 #include <GLFW/glfw3.h>
-#include <imgui.h>
 
 #pragma warning (push)
 #pragma warning (disable : 4244)
@@ -55,10 +53,12 @@ namespace TerranEngine
 
 	Application::~Application()
 	{
+		m_Stack.RemoveAllLayers();
         ScriptEngine::Shutdown();
         Physics2D::Shutdown();
 		BatchRenderer2D::Shutdown();
 		AssetManager::Shutdown();
+		Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -93,7 +93,6 @@ namespace TerranEngine
 					TR_PROFILE_SCOPE("Layer::OnUpdate");
 					for (Layer* layer : m_Stack.GetLayers())
 						layer->Update(time);
-
 				}
 
 				m_ImGuiLayer->BeginFrame(); 
@@ -104,6 +103,7 @@ namespace TerranEngine
 				}
 				m_ImGuiLayer->EndFrame();
 
+				Renderer::ExecuteCommands();
 				m_Window->SwapBuffers();
 			}
 

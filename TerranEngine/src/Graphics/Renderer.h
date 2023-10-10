@@ -3,6 +3,7 @@
 #include "VertexArray.h"
 
 #include "Core/Base.h"
+#include "CommandQueue.h"
 
 namespace TerranEngine 
 {
@@ -17,10 +18,38 @@ namespace TerranEngine
 		TriangleFan,
 	};
 
+	struct RendererData
+	{
+		Shared<CommandQueue> CreateResourceQueue;
+		Shared<CommandQueue> RenderQueue;
+		Shared<CommandQueue> FreeResourceQueue;
+	};
+
 	class Renderer
 	{
 	public:
 		static void Init();
+		static void Shutdown();
+
+		static void ExecuteCommands();
+
+		template<typename FuncT>
+		static void SubmitCreate(FuncT&& func) 
+		{
+			s_RendererData->CreateResourceQueue->Submit(std::forward<FuncT>(func));
+		}
+
+		template<typename FuncT>
+		static void Submit(FuncT&& func) 
+		{
+			s_RendererData->RenderQueue->Submit(std::forward<FuncT>(func));
+		}
+
+		template<typename FuncT>
+		static void SubmitFree(FuncT&& func)
+		{
+			s_RendererData->FreeResourceQueue->Submit(std::forward<FuncT>(func));
+		}
 
 		static void SetClearColor(float r, float g, float b, float a);
 		static void Clear();
@@ -38,5 +67,8 @@ namespace TerranEngine
 		static void SetLineWidth(float lineWidth);
 
 		static uint32_t GetAPIVersion();
+
+	private:
+		static RendererData* s_RendererData;
 	};
 }

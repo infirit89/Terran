@@ -9,12 +9,71 @@
 
 #include <math.h>
 
+#include "Graphics/CommandQueue.h"
+
 namespace TerranEngine 
 {
+	static void TestFunc() 
+	{
+		for (size_t i = 0; i < 100; i++)
+			TR_TRACE(i * (i + i));
+
+		TR_ERROR("Error: something");
+
+		TR_WARN("Some warning");
+	}
+
 	SandboxLayer::SandboxLayer()
 		: Layer("Sandbox Layer")
 	{
-		Shared<Shader> shader = CreateShared<Shader>("Resources/Shaders/TestShader.glsl");
+		Shared<CommandQueue> commandQueue = CreateShared<CommandQueue>();
+
+		int test = 0;
+		commandQueue->Submit([test]() 
+		{
+			TR_TRACE("test {0}", test);
+		});
+
+		test++;
+		commandQueue->Submit([test]()
+		{
+			TR_TRACE("test {0}", test);
+		});
+
+		test += 10;
+		commandQueue->Submit([test]()
+		{
+			TR_TRACE("test {0}", test);
+		});
+
+		test--;
+		auto fn = [](int test)
+		{
+			while (test <= 100)
+				TR_TRACE(test++);
+
+			while (test >= 0)
+				TR_INFO(test--);
+		};
+
+		commandQueue->Submit([test]()
+		{
+			TR_TRACE("test {0}", test);
+
+			for (size_t i = 0; i < 1000; i++)
+				TestFunc();
+		});
+
+		test += 40;
+		commandQueue->Submit([test, fn]()
+		{
+			TR_TRACE("test {0}", test);
+			fn(test);
+		});
+
+		commandQueue->Execute();
+
+		//Shared<Shader> shader = CreateShared<Shader>("Resources/Shaders/TestShader.glsl");
 
 		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 		//m_Framebuffer = CreateShared<Framebuffer>();

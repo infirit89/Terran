@@ -95,7 +95,7 @@ namespace TerranEditor
 		}
 	}
 
-	void PropertiesPanel::ImGuiRender()
+	void PropertiesPanel::OnRender()
 	{
 		if(m_Open)
 		{

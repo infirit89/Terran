@@ -75,7 +75,10 @@ namespace TerranEngine
 		void SetLayout(const VertexBufferLayout& layout) { m_Layout = layout; }
 		const VertexBufferLayout& GetLayout() const { return m_Layout; }
 
+
 	private:
+		void Release();
+
 		uint32_t m_Handle;
 		VertexBufferLayout m_Layout;
 

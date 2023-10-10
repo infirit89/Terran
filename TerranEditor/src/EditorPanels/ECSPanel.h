@@ -15,7 +15,7 @@ namespace TerranEditor
 		ECSPanel() = default;
 		~ECSPanel() = default;
 
-		virtual void ImGuiRender() override;
+		virtual void OnRender() override;
 
 		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
 	};

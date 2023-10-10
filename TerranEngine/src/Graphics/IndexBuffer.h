@@ -21,8 +21,12 @@ namespace TerranEngine
 
 		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 	private:
+		void Release();
+
+	private:
 		uint32_t m_Handle;
 		int m_Size;
+		int* m_LocalData;
 
 		friend class VertexArray;
 	};

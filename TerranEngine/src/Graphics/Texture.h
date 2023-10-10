@@ -104,9 +104,13 @@ namespace TerranEngine
 		virtual bool operator==(Texture& other) override;
 		virtual bool operator==(const Texture& other) override;
 
+		void Release();
 		ASSET_CLASS_TYPE(Texture2D)
 	private:
+		void Create();
+
 		//void LoadTexture(const std::filesystem::path& filePath);
+		void* m_LocalData;
 		uint32_t m_Handle;
 		TextureParameters m_TextureParameters;
 		friend class TextureAssetLoader;

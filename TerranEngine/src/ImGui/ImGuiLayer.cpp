@@ -6,6 +6,7 @@
 #include "Core/Application.h"
 
 #include "Utils/Debug/OptickProfiler.h"
+#include "Graphics/Renderer.h"
 
 #include <imgui.h>
 
@@ -62,7 +63,12 @@ namespace TerranEngine
 	void ImGuiLayer::BeginFrame()
 	{
 		TR_PROFILE_FUNCTION();
-		ImGui_ImplOpenGL3_NewFrame();
+
+		Renderer::SubmitCreate([]() 
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+		});
+
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -77,7 +83,10 @@ namespace TerranEngine
 
 		{
 			TR_PROFILE_SCOPE("ImGui_ImplOpenGL3_RenderDrawData")
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			Renderer::Submit([]()
+			{
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			});
 		}
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

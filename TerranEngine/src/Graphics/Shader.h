@@ -17,8 +17,8 @@ namespace TerranEngine
 
 		static Shared<Shader> Create(const std::vector<ShaderUnitInfo>& shaderUnits);
 
-		void Bind() const;
-		void Unbind() const;
+		void Bind();
+		void Unbind();
 
 		void UploadInt(const char* name, int val);
 		
@@ -31,12 +31,18 @@ namespace TerranEngine
 		int GetUniformLocation(const char* name);
 		
 		void CreateProgram(const std::vector<ShaderUnitInfo>& shaderUnits);
+		void Release();
+
+		void Bind_RT();
+		void Unbind_RT();
+
 	private:
 		uint32_t m_Handle;
 		std::string m_Name;
 		std::filesystem::path m_Path;
 
 		std::unordered_map<const char*, uint32_t> m_Uniforms;
+		std::vector<ShaderUnitInfo> m_CompiledShaders;
 
 		friend class ShaderCompiler;
 	};

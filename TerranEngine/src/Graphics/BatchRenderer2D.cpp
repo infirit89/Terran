@@ -331,6 +331,8 @@ namespace TerranEngine
 		s_Data->CameraData.Projection = camera.GetProjection();
 		s_Data->CameraData.View = inverseView ? glm::inverse(transform) : transform;
 
+		size_t size = sizeof(CameraData);
+
 		s_Data->CameraBuffer->SetData(&s_Data->CameraData, 0, sizeof(CameraData));
 	}
 
@@ -647,7 +649,8 @@ namespace TerranEngine
 		// Submit quads
 		if (s_Data->QuadIndexCount)
 		{
-			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertexPtr, s_Data->QuadVertexPtrIndex * sizeof(QuadVertex));
+			size_t size = s_Data->QuadVertexPtrIndex * sizeof(QuadVertex);
+			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertexPtr, size);
 
 			for (size_t i = 0; i < s_Data->QuadTextureIndex; i++)
 				s_Data->QuadTextures[i]->Bind(static_cast<uint32_t>(i));

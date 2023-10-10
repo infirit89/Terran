@@ -20,6 +20,7 @@ namespace TerranEngine
         s_Shaders[shader->GetName()] = shader;
         return shader;
     }
+
     Shared<Shader> ShaderLibrary::Get(const std::string& name)
     {
         if (s_Shaders.find(name) != s_Shaders.end())

@@ -9,7 +9,7 @@ namespace TerranEditor
 {
 	static Entity s_Selected;
 
-	void ECSPanel::ImGuiRender()
+	void ECSPanel::OnRender()
 	{
 		if (!m_Open) return;
 		

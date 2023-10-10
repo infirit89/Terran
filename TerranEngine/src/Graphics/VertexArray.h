@@ -11,8 +11,8 @@ namespace TerranEngine
 		VertexArray();
 		~VertexArray();
 
-		const void Bind() const;
-		const void Unbind() const;
+		void Bind();
+		void Unbind();
 
 		void AddVertexBuffer(const Shared<VertexBuffer>& buffer);
 		inline const Shared<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
@@ -20,6 +20,8 @@ namespace TerranEngine
 		void AddIndexBuffer(const Shared<IndexBuffer>& buffer);
 		inline const Shared<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 	private:
+		void Release();
+
 		uint32_t m_Handle;
 
 		Shared<VertexBuffer> m_VertexBuffer;

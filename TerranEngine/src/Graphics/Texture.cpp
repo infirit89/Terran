@@ -3,6 +3,8 @@
 
 #include "Utils/Debug/Profiler.h"
 
+#include "Renderer.h"
+
 #include <glad/glad.h>
 #include <stb_image.h>
 
@@ -88,41 +90,12 @@ namespace TerranEngine
 	}
 
 	Texture2D::Texture2D(TextureParameters parameters, const void* data)
-		: m_TextureParameters(parameters)
+		: m_TextureParameters(parameters), m_Handle(0), m_LocalData(nullptr)
 	{
+		TR_ASSERT(m_TextureParameters.Width >= 1 || m_TextureParameters.Height >= 1, "Width and Height can't be less than 1");
 		TR_ASSERT(m_TextureParameters.Samples > 0, "Samples cant be less than 1");
 
-		if (m_TextureParameters.Samples > 1) 
-		{
-			glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &m_Handle);
-		}
-		else 
-		{
-			glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
-
-			uint32_t filter = GetNativeTextureFilter(m_TextureParameters.Filter);
-
-			glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter);
-			glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter);
-
-			uint32_t wrapMode = GetNativeWrapMode(m_TextureParameters.WrapMode);
-
-			glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
-			glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
-		}
-		
-		NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
-
-		if (m_TextureParameters.Samples > 1)
-		{
-			glTextureStorage2DMultisample(m_Handle, m_TextureParameters.Samples, nativeType.InternalFormat, 
-											m_TextureParameters.Width, m_TextureParameters.Height, false);
-		}
-		else 
-		{
-			glTextureStorage2D(m_Handle, 1, nativeType.InternalFormat, 
-								m_TextureParameters.Width, m_TextureParameters.Height);
-		}
+		Create();
 
 		if (data)
 			SetData(data);
@@ -130,12 +103,17 @@ namespace TerranEngine
 
 	Texture2D::~Texture2D()
 	{
-		glDeleteTextures(1, &m_Handle);
+		Release();
 	}
 
 	void Texture2D::Bind(uint32_t textureSlot)
 	{	 
-		glBindTextureUnit(textureSlot, m_Handle);
+		Renderer::Submit([this, textureSlot]()
+		{
+			if (m_Handle == 0)
+				TR_ASSERT(false, "Handle is 0");
+			glBindTextureUnit(textureSlot, m_Handle);
+		});
 	}	 
 		 
 	//void Texture::Unbind() const
@@ -145,18 +123,40 @@ namespace TerranEngine
 
 	void Texture2D::SetData(const void* data) 
 	{
-		NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
-		glTextureSubImage2D(m_Handle, 0, 0, 0, 
-							m_TextureParameters.Width, m_TextureParameters.Height,
-							nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
+		// TODO: create a buffer class
+		size_t formatSize = 1;
+		switch (m_TextureParameters.Format)
+		{
+		case TextureFormat::RGB:	formatSize = 3; break;
+		case TextureFormat::RGBA:	formatSize = 4; break;
+		}
+
+		size_t dataSize = m_TextureParameters.Width * m_TextureParameters.Height * formatSize;
+		if (m_LocalData != nullptr)
+			free(m_LocalData);
+
+		m_LocalData = malloc(dataSize);
+		memcpy(m_LocalData, data, dataSize);
+
+		Renderer::Submit([this]()
+		{
+			NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
+			glTextureSubImage2D(m_Handle, 0, 0, 0,
+								m_TextureParameters.Width, m_TextureParameters.Height,
+								nativeType.DataFormat, GL_UNSIGNED_BYTE, m_LocalData);
+			free(m_LocalData);
+		});
 	}
 
 	void Texture2D::SetTextureFilter(TextureFilter filter)
 	{
-		uint32_t nativeFilter = GetNativeTextureFilter(filter);
-		m_TextureParameters.Filter = filter;
-		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, nativeFilter);
-		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, nativeFilter);
+		Renderer::Submit([this, filter]()
+		{
+			uint32_t nativeFilter = GetNativeTextureFilter(filter);
+			m_TextureParameters.Filter = filter;
+			glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, nativeFilter);
+			glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, nativeFilter);
+		});
 	}
 
 	bool Texture2D::operator==(Texture& other) 
@@ -167,5 +167,52 @@ namespace TerranEngine
 	bool Texture2D::operator==(const Texture& other) 
 	{
 		return m_Handle == other.GetHandle();
+	}
+
+	void Texture2D::Create()
+	{
+		Renderer::SubmitCreate([textureParameters = m_TextureParameters, this]()
+		{
+			if (textureParameters.Samples > 1)
+			{
+				glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &m_Handle);
+			}
+			else
+			{
+				glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+
+				uint32_t filter = GetNativeTextureFilter(textureParameters.Filter);
+
+				glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter);
+				glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter);
+
+				uint32_t wrapMode = GetNativeWrapMode(textureParameters.WrapMode);
+
+				glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
+				glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
+			}
+
+			NativeTexutreType nativeType = GetNativeTextureType(textureParameters.Format);
+
+
+			if (textureParameters.Samples > 1)
+			{
+				glTextureStorage2DMultisample(m_Handle, textureParameters.Samples, nativeType.InternalFormat,
+					textureParameters.Width, textureParameters.Height, false);
+			}
+			else
+			{
+				glTextureStorage2D(m_Handle, 1, nativeType.InternalFormat,
+					textureParameters.Width, textureParameters.Height);
+			}
+		});
+	}
+
+	void Texture2D::Release()
+	{
+		Renderer::SubmitFree([this]()
+		{
+			glDeleteTextures(1, &m_Handle);
+		});
 	}
 }

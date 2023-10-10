@@ -29,7 +29,7 @@ namespace TerranEditor
 		m_TextBuffer.push_back(logMessage);
 	}
 
-	void LogPanel::ImGuiRender() 
+	void LogPanel::OnRender() 
 	{
 		if (!m_Open) return;
 		

@@ -2,14 +2,15 @@
 #include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLErrorHandler.h"
+#include "ShaderLibrary.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "ShaderLibrary.h"
-
 namespace TerranEngine 
 {
+	RendererData* Renderer::s_RendererData;
+
 	void Renderer::Init()
 	{
 		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -32,60 +33,98 @@ namespace TerranEngine
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
 		}
 #endif
+		s_RendererData = new RendererData;
+		s_RendererData->CreateResourceQueue = CreateShared<CommandQueue>();
+		s_RendererData->RenderQueue = CreateShared<CommandQueue>();
+		s_RendererData->FreeResourceQueue = CreateShared<CommandQueue>();
+
 		EnableBlending(true);
 		EnableDepthTesting(true);
 
 		ShaderLibrary::Initialize();
 	}
 
+	void Renderer::Shutdown()
+	{
+		s_RendererData->CreateResourceQueue = nullptr;
+		s_RendererData->RenderQueue = nullptr;
+		s_RendererData->FreeResourceQueue = nullptr;
+		delete s_RendererData;
+	}
+
+	void Renderer::ExecuteCommands()
+	{
+		s_RendererData->CreateResourceQueue->Execute();
+		s_RendererData->RenderQueue->Execute();
+		s_RendererData->FreeResourceQueue->Execute();
+	}
+
 	void Renderer::SetClearColor(float r, float g, float b, float a) 
 	{
-		glClearColor(r, g, b, a);
+		Renderer::Submit([r, g, b, a]()
+		{
+			glClearColor(r, g, b, a);
+		});
 	}
 
 	void Renderer::Clear() 
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Renderer::Submit([]()
+		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		});
 	}
 
 	void Renderer::SetViewport(int width, int height) 
 	{
-		glViewport(0, 0, width, height);
+		Renderer::Submit([width, height]()
+		{
+			glViewport(0, 0, width, height);
+		});
 	}
 
 	void Renderer::WireframeMode(bool enable)
 	{
-		if (enable) 
+		Renderer::Submit([enable]() 
 		{
-			glPolygonMode(GL_FRONT, GL_LINE);
-			glPolygonMode(GL_BACK, GL_LINE);
-		}
-		else 
-		{
-			glPolygonMode(GL_FRONT, GL_FILL);
-			glPolygonMode(GL_BACK, GL_FILL);
-		}
+			if (enable) 
+			{
+				glPolygonMode(GL_FRONT, GL_LINE);
+				glPolygonMode(GL_BACK, GL_LINE);
+			}
+			else 
+			{
+				glPolygonMode(GL_FRONT, GL_FILL);
+				glPolygonMode(GL_BACK, GL_FILL);
+			}
+		});
 	}
 
 	void Renderer::EnableBlending(bool state)
 	{
-		if (state) 
+		Renderer::Submit([state]()
 		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		} else
-			glDisable(GL_BLEND);
+			if (state) 
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			} else
+				glDisable(GL_BLEND);
+		});
 	}
 
 	void Renderer::EnableDepthTesting(bool state)
 	{
-		if (state) 
+		Renderer::Submit([state]()
 		{
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LEQUAL);
-		}
-		else
-			glDisable(GL_DEPTH_TEST);
+			if (state) 
+			{
+				glEnable(GL_DEPTH_TEST);
+				glDepthFunc(GL_LEQUAL);
+			}
+			else
+				glDisable(GL_DEPTH_TEST);
+		});
 	}
 
 	static uint32_t ConvertRenderModeToNativeMode(RenderMode mode) 
@@ -110,28 +149,43 @@ namespace TerranEngine
 
 	void Renderer::DrawIndexed(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices)
 	{
-		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
 		vertexArray->Bind();
-		glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
+
+		Renderer::Submit([mode, numIndices]()
+		{
+			TR_TRACE("draw elements");
+			uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+			glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
+		});
 	}
 
 	void Renderer::DrawArrays(RenderMode mode, const Shared<VertexArray>& vertexArray, int numVertices)
 	{
-		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
 		vertexArray->Bind();
-		glDrawArrays(nativeMode, 0, numVertices);
+
+		Renderer::Submit([mode, numVertices]() 
+		{
+			uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+			glDrawArrays(nativeMode, 0, numVertices);
+		});
 	}
 
 	void Renderer::DrawInstanced(RenderMode mode, const Shared<VertexArray>& vertexArray, int instanceCount)
 	{
-		uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
-		//vertexArray->GetIndexBuffer()->Bind();
-		glDrawElementsInstanced(nativeMode, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+		vertexArray->Bind();
+		Renderer::Submit([mode, instanceCount]() 
+		{
+			uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
+			glDrawElementsInstanced(nativeMode, 6, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+		});
 	} 
 
 	void Renderer::SetLineWidth(float lineWidth) 
 	{
-		glLineWidth(lineWidth);
+		Renderer::Submit([lineWidth]() 
+		{
+			glLineWidth(lineWidth);
+		});
 	}
 
 	uint32_t Renderer::GetAPIVersion()

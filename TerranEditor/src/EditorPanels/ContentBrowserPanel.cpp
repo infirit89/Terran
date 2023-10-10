@@ -52,7 +52,7 @@ namespace TerranEditor
 	}
 
 	static std::mutex s_ContentBrowserMutex;
-	void ContentPanel::ImGuiRender()
+	void ContentPanel::OnRender()
 	{
 		if (!m_Open) return;
 

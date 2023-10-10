@@ -10,7 +10,8 @@ namespace TerranEngine
 	struct FramebufferParameters
 	{
 		uint32_t Width = 1080, Height = 790;
-		std::vector<TextureFormat> Attachments;
+		std::vector<TextureFormat> ColorAttachments;
+		TextureFormat DepthAttachment;
 		uint32_t Samples = 1;
 	};
 
@@ -24,9 +25,15 @@ namespace TerranEngine
 		void Unbind() const;
 
 		void Resize(uint32_t width, uint32_t height);
-		int ReadPixel(uint32_t colorAttachmentIndex, int x, int y);
+		int ReadPixel_RT(uint32_t colorAttachmentIndex, int x, int y);
 
-		inline Shared<Texture2D> GetColorAttachment(uint32_t colorAttachmentIndex) { return m_ColorAttachments[colorAttachmentIndex]; }
+		inline Shared<Texture2D> GetColorAttachment(uint32_t colorAttachmentIndex) 
+		{ 
+			if (m_ColorAttachments.empty())
+				return nullptr;
+
+			return m_ColorAttachments[colorAttachmentIndex]; 
+		}
 		inline Shared<Texture2D> GetDepthAttachment() { return m_DepthAttachment; }
 		
 		uint32_t GetWidth() const { return m_Parameters.Width; }
@@ -36,7 +43,10 @@ namespace TerranEngine
 
 	private:
 		void Create();
+		void Release();
+		void Release_RT();
 
+	private:
 		uint32_t m_Handle;
 		Shared<Texture2D> m_DepthAttachment;
 		std::vector<Shared<Texture2D>> m_ColorAttachments;

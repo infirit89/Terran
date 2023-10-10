@@ -29,7 +29,7 @@ namespace TerranEditor
 		SceneViewPanel() = default;
 		~SceneViewPanel() = default;
 
-		virtual void ImGuiRender() override;
+		virtual void OnRender() override;
 
 		void SetSceneRenderer(const Shared<SceneRenderer>& sceneRenderer) { m_SceneRenderer = sceneRenderer; }
 

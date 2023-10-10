@@ -40,16 +40,7 @@ namespace TerranEngine
     Shared<Shader> ShaderCompiler::Compile()
     {
         std::string shaderName = m_ShaderPath.stem().string();
-        std::ifstream ifs(m_ShaderPath, std::ios::in | std::ios::binary);
-        TR_ASSERT(ifs, "Couldn't open shader file");
-
-        ifs.seekg(0, std::ios::end);
-        size_t fileSize = ifs.tellg();
-        ifs.seekg(0, std::ios::beg);
-
-        std::string shaderSource;
-        shaderSource.resize(fileSize);
-        ifs.read(shaderSource.data(), fileSize);
+        std::string shaderSource = ReadShader();
 
         TR_INFO("Compiling or loading cached shader: {0}", shaderName);
         ShaderSourcesMap sources = Preprocess(shaderSource);
@@ -61,6 +52,26 @@ namespace TerranEngine
         TR_INFO("Compiling or loading done!");
 
         return shader;
+    }
+
+    void ShaderCompiler::Recompile(Shared<Shader> shader)
+    {
+        Shared<ShaderCompiler> compiler = CreateShared<ShaderCompiler>(shader->m_Path);
+        std::string shaderSource = compiler->ReadShader();
+
+        TR_INFO("Recompiling shader: {0}", shader->GetName());
+        ShaderSourcesMap sources = compiler->Preprocess(shaderSource);
+        for (const auto& [stage, shaderSources] : sources)
+        {
+            std::filesystem::path cachedShaderPath = GetCachedShaderPath() / (shader->GetName() + Utilities::GetCachedShaderExtension(stage));
+            if (std::filesystem::exists(cachedShaderPath))
+                std::filesystem::remove(cachedShaderPath);
+        }
+
+        std::vector<ShaderUnitInfo> compiledShaders = compiler->Compile_Internal(sources, shader->GetName());
+        shader->Release();
+        shader->CreateProgram(compiledShaders);
+        TR_INFO("Compiling or loading done!");
     }
 
     std::vector<ShaderUnitInfo> ShaderCompiler::Compile_Internal(const ShaderSourcesMap& shaderSources, const std::string& shaderName)
@@ -153,5 +164,20 @@ namespace TerranEngine
         }
 
         return shaderSources;
+    }
+
+    std::string ShaderCompiler::ReadShader()
+    {
+        std::ifstream ifs(m_ShaderPath, std::ios::in | std::ios::binary);
+        TR_ASSERT(ifs, "Couldn't open shader file");
+
+        ifs.seekg(0, std::ios::end);
+        size_t fileSize = ifs.tellg();
+        ifs.seekg(0, std::ios::beg);
+
+        std::string shaderSource;
+        shaderSource.resize(fileSize);
+        ifs.read(shaderSource.data(), fileSize);
+        return shaderSource;
     }
 }

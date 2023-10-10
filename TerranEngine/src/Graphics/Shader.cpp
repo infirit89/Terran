@@ -1,5 +1,6 @@
 #include "trpch.h"
 #include "Shader.h"
+#include "Renderer.h"
 
 #include "Utils/Utils.h"
 
@@ -31,7 +32,7 @@ namespace TerranEngine
 
 	Shader::~Shader()
 	{
-		glDeleteProgram(m_Handle);
+		Release();
 	}
 
 	Shared<Shader> Shader::Create(const std::vector<ShaderUnitInfo>& shaderUnits)
@@ -39,32 +40,59 @@ namespace TerranEngine
 		return CreateShared<Shader>(shaderUnits);
 	}
 
-	void Shader::Bind() const
+	void Shader::Bind()
 	{
+		Renderer::Submit([this]()
+		{
+			Bind_RT();
+		});
+	}
+
+	void Shader::Unbind()
+	{
+		Renderer::Submit([this]()
+		{
+			Unbind_RT();
+		});
+	}
+
+	void Shader::Bind_RT()
+	{
+		if (m_Handle == 0)
+			TR_ASSERT(false, "");
 		glUseProgram(m_Handle);
 	}
 
-	void Shader::Unbind() const
+	void Shader::Unbind_RT()
 	{
 		glUseProgram(0);
 	}
 
 	void Shader::UploadInt(const char* name, int val)
 	{
-		Bind();
-		glUniform1i(GetUniformLocation(name), val);
+		Renderer::Submit([this, name, val]
+		{
+			Bind_RT();
+			glUniform1i(GetUniformLocation(name), val);
+		});
 	}
 
 	void Shader::UploadMat4(const char* name, const glm::mat4& val)
 	{
-		Bind();
-		glUniformMatrix4fv(GetUniformLocation(name), 1, false, &val[0][0]);
+		Renderer::Submit([this, name, val]()
+		{
+			Bind_RT();
+			glUniformMatrix4fv(GetUniformLocation(name), 1, false, &val[0][0]);
+		});
 	}
 
 	void Shader::UploadIntArray(const char* name, uint32_t count, int val[])
 	{
-		Bind();
-		glUniform1iv(GetUniformLocation(name), count, val);
+		Renderer::Submit([this, name, count, val]()
+		{
+			Bind_RT();
+			glUniform1iv(GetUniformLocation(name), count, val);
+		});
 	}
 
 	int Shader::GetUniformLocation(const char* name)
@@ -87,44 +115,56 @@ namespace TerranEngine
 
 	void Shader::CreateProgram(const std::vector<ShaderUnitInfo>& shaderUnits)
 	{
-		m_Handle = glCreateProgram();
-
-		std::vector<uint32_t> shaderIds;
-		shaderIds.reserve(shaderUnits.size());
-		for (const auto& shaderUnit : shaderUnits)
+		m_CompiledShaders = shaderUnits;
+		Renderer::SubmitCreate([this, compiledShaders = m_CompiledShaders]() 
 		{
-			uint32_t shader = glCreateShader(ShaderUtilities::GetOpenGLShaderType(shaderUnit.Stage));
-			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderUnit.Data.data(),
-						static_cast<int>(shaderUnit.Data.size() * sizeof(uint32_t)));
-			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
-			glAttachShader(m_Handle, shader);
-			shaderIds.emplace_back(shader);
-		}
+			m_Handle = glCreateProgram();
 
-		glLinkProgram(m_Handle);
-		int linkResult;
-		glGetProgramiv(m_Handle, GL_LINK_STATUS, &linkResult);
+			std::vector<uint32_t> shaderIds;
+			shaderIds.reserve(compiledShaders.size());
+			for (const auto& shaderUnit : compiledShaders)
+			{
+				uint32_t shader = glCreateShader(ShaderUtilities::GetOpenGLShaderType(shaderUnit.Stage));
+				glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderUnit.Data.data(),
+							static_cast<int>(shaderUnit.Data.size() * sizeof(uint32_t)));
+				glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+				glAttachShader(m_Handle, shader);
+				shaderIds.emplace_back(shader);
+			}
 
-		if (linkResult == GL_FALSE) 
+			glLinkProgram(m_Handle);
+			int linkResult;
+			glGetProgramiv(m_Handle, GL_LINK_STATUS, &linkResult);
+
+			if (linkResult == GL_FALSE) 
+			{
+				int length = 0;
+				glGetProgramiv(m_Handle, GL_INFO_LOG_LENGTH, &length);
+				std::string infoLog;
+				infoLog.resize(length);
+
+				glGetProgramInfoLog(m_Handle, length, &length, &infoLog[0]);
+
+				glDeleteProgram(m_Handle);
+
+				TR_ASSERT(false, infoLog);
+			}
+
+			glValidateProgram(m_Handle);
+
+			for (const auto& shaderId : shaderIds) 
+			{
+				glDetachShader(m_Handle, shaderId);
+				glDeleteShader(shaderId);
+			}
+		});
+	}
+
+	void Shader::Release()
+	{
+		Renderer::SubmitFree([this]()
 		{
-			int length = 0;
-			glGetProgramiv(m_Handle, GL_INFO_LOG_LENGTH, &length);
-			std::string infoLog;
-			infoLog.resize(length);
-
-			glGetProgramInfoLog(m_Handle, length, &length, &infoLog[0]);
-
 			glDeleteProgram(m_Handle);
-
-			TR_ASSERT(false, infoLog);
-		}
-
-		glValidateProgram(m_Handle);
-
-		for (const auto& shaderId : shaderIds) 
-		{
-			glDetachShader(m_Handle, shaderId);
-			glDeleteShader(shaderId);
-		}
+		});
 	}
 }

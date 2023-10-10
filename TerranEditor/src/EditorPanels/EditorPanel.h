@@ -16,7 +16,7 @@ namespace TerranEditor
         virtual ~EditorPanel() = default;
 
         virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) { m_Scene = scene; }
-        virtual void ImGuiRender() = 0;
+        virtual void OnRender() = 0;
 		virtual void OnEvent(TerranEngine::Event& event) {  }
         virtual void OnProjectChanged(const std::filesystem::path& projectPath) { }
 

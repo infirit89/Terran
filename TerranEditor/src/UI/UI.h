@@ -76,7 +76,7 @@ namespace TerranEditor
 		void SetupUIStyle();
 		void SetupUIStyle2();
 
-		void BeginPropertyGroup(const char* propertyGroupName);
+		bool BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();
 
 		inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
@@ -103,6 +103,7 @@ namespace TerranEditor
 		bool PropertyInt(const std::string& label, int& value);
 		bool PropertyBool(const std::string& label, bool& value);
 		bool PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+		bool Button(const std::string& label, const char* buttonLabel);
 
 		template<typename T>
 		bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0) 

@@ -12,6 +12,7 @@
 #include "EditorPanels/LogPanel.h"
 #include "EditorPanels/SettingsPanel.h"
 #include "EditorPanels/AssetEditorManager.h"
+#include "EditorPanels/ShaderPanel.h"
 #include "SelectionManager.h"
 
 #include "EditorResources.h"
@@ -42,6 +43,7 @@ namespace TerranEditor
 #define SCENE_VIEW_PANEL_NAME "SceneViewPanel"
 #define SETTINGS_PANEL_NAME "SettingPanel"
 #define ASSET_PROPERTIES_PANEL_NAME "AssetProperties"
+#define SHADER_PANEL_NAME "ShaderPanel"
 
 	EditorLayer* EditorLayer::s_Instance;
 
@@ -101,6 +103,8 @@ namespace TerranEditor
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
         Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
         settingsPanel->SetOpen(false);
+
+		m_PanelManager->AddPanel<ShaderPanel>(SHADER_PANEL_NAME);
 		// ***********************
 
 		AssetEditorManager::Init();
@@ -111,12 +115,12 @@ namespace TerranEditor
 			OpenProject(m_ProjectPath);
 
 		FramebufferParameters editorFramebufferParams;
-		editorFramebufferParams.Attachments = 
+		editorFramebufferParams.ColorAttachments = 
 		{ 
 			TextureFormat::RGBA,
-			TextureFormat::Red32I,
-			TextureFormat::Depth24Stencil8
+			TextureFormat::Red32I
 		};
+		editorFramebufferParams.DepthAttachment = TextureFormat::Depth24Stencil8;
 
 		// NOTE: imgui doesn't support multisampled textures
 		editorFramebufferParams.Samples = 1;

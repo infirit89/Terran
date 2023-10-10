@@ -2,6 +2,7 @@
 
 namespace Terran
 {
+#if false
 	public class TestScript : Scriptable
 	{
 		enum Test 
@@ -121,4 +122,5 @@ namespace Terran
 			m_HasCollided = false;
 		}
 	}
+#endif
 }

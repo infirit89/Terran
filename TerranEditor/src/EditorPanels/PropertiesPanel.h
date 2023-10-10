@@ -22,7 +22,7 @@ namespace TerranEditor
 		PropertiesPanel() = default;
 		~PropertiesPanel() = default;
 
-		virtual void ImGuiRender() override;
+		virtual void OnRender() override;
 
 	private:
 		void DrawComponents();

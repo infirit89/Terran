@@ -16,6 +16,8 @@ namespace TerranEngine
 		//void SetData(const void* newData, uint32_t size);
 
 	private:
+		void Release();
+
 		uint32_t m_Handle;
 	};
 }

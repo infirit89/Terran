@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "VertexBuffer.h"
 
+#include "Renderer.h"
+
 #include <glad/glad.h>
 
 namespace TerranEngine 
@@ -22,15 +24,23 @@ namespace TerranEngine
 
 	/* ---- Vertex Buffer ---- */
 	VertexBuffer::VertexBuffer(uint32_t size)
+		: m_Handle(0)
 	{
-		glCreateBuffers(1, &m_Handle);
-		glNamedBufferStorage(m_Handle, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		Renderer::SubmitCreate([this, size]()
+		{
+			glCreateBuffers(1, &m_Handle);
+			glNamedBufferStorage(m_Handle, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		});
 	}
 
 	VertexBuffer::VertexBuffer(const float* vertices, uint32_t size)
+		: m_Handle(0)
 	{
-		glCreateBuffers(1, &m_Handle);
-		glNamedBufferData(m_Handle, size, vertices, GL_STATIC_DRAW);
+		Renderer::SubmitCreate([this, size, vertices]()
+		{
+			glCreateBuffers(1, &m_Handle);
+			glNamedBufferData(m_Handle, size, vertices, GL_STATIC_DRAW);
+		});
 	}
 
 	Shared<VertexBuffer> VertexBuffer::Create(uint32_t size)
@@ -45,12 +55,23 @@ namespace TerranEngine
 
 	VertexBuffer::~VertexBuffer()
 	{
-		glDeleteBuffers(1, &m_Handle);
+		Release();
 	}
 
 	void VertexBuffer::SetData(const void* vertices, uint32_t size)
 	{
-		glNamedBufferSubData(m_Handle, 0, size, vertices);
+		Renderer::Submit([this, vertices, size]() 
+		{
+			glNamedBufferSubData(m_Handle, 0, size, vertices);
+		});
+	}
+
+	void VertexBuffer::Release()
+	{
+		Renderer::SubmitFree([this]() 
+		{
+			glDeleteBuffers(1, &m_Handle);
+		});
 	}
 
 	/* ----------------------- */
