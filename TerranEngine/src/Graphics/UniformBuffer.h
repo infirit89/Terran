@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Buffer.h"
+
 #include <stdint.h>
 
 namespace TerranEngine 
@@ -18,6 +20,7 @@ namespace TerranEngine
 	private:
 		void Release();
 
+		Buffer m_LocalData;
 		uint32_t m_Handle;
 	};
 }

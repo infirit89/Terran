@@ -24,7 +24,7 @@ namespace TerranEngine
 
 	/* ---- Vertex Buffer ---- */
 	VertexBuffer::VertexBuffer(uint32_t size)
-		: m_Handle(0)
+		: m_Handle(0), m_LocalData(size)
 	{
 		Renderer::SubmitCreate([this, size]()
 		{
@@ -36,10 +36,11 @@ namespace TerranEngine
 	VertexBuffer::VertexBuffer(const float* vertices, uint32_t size)
 		: m_Handle(0)
 	{
-		Renderer::SubmitCreate([this, size, vertices]()
+		m_LocalData = Buffer::Copy(vertices, size);
+		Renderer::SubmitCreate([this]()
 		{
 			glCreateBuffers(1, &m_Handle);
-			glNamedBufferData(m_Handle, size, vertices, GL_STATIC_DRAW);
+			glNamedBufferData(m_Handle, m_LocalData.GetSize(), m_LocalData.GetData(), GL_STATIC_DRAW);
 		});
 	}
 
@@ -55,14 +56,18 @@ namespace TerranEngine
 
 	VertexBuffer::~VertexBuffer()
 	{
+		if (m_LocalData)
+			m_LocalData.Free();
+
 		Release();
 	}
 
 	void VertexBuffer::SetData(const void* vertices, uint32_t size)
 	{
-		Renderer::Submit([this, vertices, size]() 
+		m_LocalData.Write(vertices, 0, size);
+		Renderer::Submit([this]() 
 		{
-			glNamedBufferSubData(m_Handle, 0, size, vertices);
+			glNamedBufferSubData(m_Handle, 0, m_LocalData.GetSize(), m_LocalData.GetData());
 		});
 	}
 

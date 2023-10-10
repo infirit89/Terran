@@ -8,7 +8,7 @@
 namespace TerranEngine 
 {
 	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint32_t bindingPoint)
-		: m_Handle(0)
+		: m_Handle(0), m_LocalData(bufferSize)
 	{
 		Renderer::SubmitCreate([this, bufferSize, bindingPoint]()
 		{
@@ -20,6 +20,9 @@ namespace TerranEngine
 
 	UniformBuffer::~UniformBuffer() 
 	{
+		if (m_LocalData)
+			m_LocalData.Free();
+
 		Release();
 	}
 
@@ -30,9 +33,10 @@ namespace TerranEngine
 
 	void UniformBuffer::SetData(const void* data, uint32_t offset, uint32_t size)
 	{
-		Renderer::Submit([this, data, offset, size]()
+		m_LocalData.Write(data, offset, size);
+		Renderer::Submit([this, offset, size]()
 		{
-			glNamedBufferSubData(m_Handle, offset, size, data);
+			glNamedBufferSubData(m_Handle, offset, size, m_LocalData.Read(offset));
 		});
 	}
 

@@ -182,7 +182,6 @@ namespace TerranEngine
 		delete[] indices;
 		// ************************************
 
-		constexpr uint32_t whiteTextureData = 0xffffffff;
 
 		int samplers[16];
 		for (size_t i = 0; i < s_Data->MaxTextureSlots; i++)
@@ -210,8 +209,11 @@ namespace TerranEngine
 			TextureParameters whiteTextureParameters;
 			whiteTextureParameters.Width = 1;
 			whiteTextureParameters.Height = 1;
-			s_Data->QuadTextures[0] = CreateShared<Texture2D>(whiteTextureParameters, 
-															&whiteTextureData);
+			constexpr uint32_t whiteTextureData = 0xffffffff;
+			Buffer whiteTextureBuffer = Buffer(&whiteTextureData, sizeof(uint32_t));
+
+			s_Data->QuadTextures[0] = Texture2D::Create(whiteTextureParameters, 
+														whiteTextureBuffer);
 
 			s_Data->QuadShader = ShaderLibrary::Load("Resources/Shaders/Base/QuadShader.glsl");
 		}

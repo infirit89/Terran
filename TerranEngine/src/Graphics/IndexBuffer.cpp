@@ -10,18 +10,19 @@ namespace TerranEngine
 	IndexBuffer::IndexBuffer(const int* indices, uint32_t size)
 		: m_Size(size), m_Handle(0)
 	{
-		m_LocalData = new int[size];
-		memcpy(m_LocalData, indices, size);
-
+		m_LocalData = Buffer::Copy(indices, size);
 		Renderer::SubmitCreate([this, size]() 
 		{
 			glCreateBuffers(1, &m_Handle);
-			glNamedBufferData(m_Handle, size, m_LocalData, GL_STATIC_DRAW);
+			glNamedBufferData(m_Handle, size, m_LocalData.GetData(), GL_STATIC_DRAW);
 		});
 	}
 
 	IndexBuffer::~IndexBuffer()
 	{
+		if (m_LocalData)
+			m_LocalData.Free();
+
 		Release();
 	}
 

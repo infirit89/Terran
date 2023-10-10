@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Assert.h"
+#include "Core/Buffer.h"
 
 #include <memory>
 #include <vector>
@@ -81,6 +82,7 @@ namespace TerranEngine
 
 		uint32_t m_Handle;
 		VertexBufferLayout m_Layout;
+		Buffer m_LocalData;
 
 		friend class VertexArray;
 	};

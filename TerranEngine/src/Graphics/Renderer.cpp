@@ -153,7 +153,6 @@ namespace TerranEngine
 
 		Renderer::Submit([mode, numIndices]()
 		{
-			TR_TRACE("draw elements");
 			uint32_t nativeMode = ConvertRenderModeToNativeMode(mode);
 			glDrawElements(nativeMode, numIndices, GL_UNSIGNED_INT, nullptr);
 		});

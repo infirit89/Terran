@@ -89,16 +89,21 @@ namespace TerranEngine
 		return { GL_CLAMP_TO_EDGE };
 	}
 
-	Texture2D::Texture2D(TextureParameters parameters, const void* data)
-		: m_TextureParameters(parameters), m_Handle(0), m_LocalData(nullptr)
+	Texture2D::Texture2D(TextureParameters parameters, Buffer buffer)
+		: m_TextureParameters(parameters), m_Handle(0)
 	{
 		TR_ASSERT(m_TextureParameters.Width >= 1 || m_TextureParameters.Height >= 1, "Width and Height can't be less than 1");
 		TR_ASSERT(m_TextureParameters.Samples > 0, "Samples cant be less than 1");
 
-		Create();
+		CreateTexture();
 
-		if (data)
-			SetData(data);
+		if (buffer)
+			SetData(buffer);
+	}
+
+	Shared<Texture2D> Texture2D::Create(TextureParameters parameters, Buffer buffer)
+	{
+		return CreateShared<Texture2D>(parameters, buffer);
 	}
 
 	Texture2D::~Texture2D()
@@ -121,30 +126,15 @@ namespace TerranEngine
 	//	glBindTexture(GL_TEXTURE_2D, 0);
 	//}	 
 
-	void Texture2D::SetData(const void* data) 
+	void Texture2D::SetData(const Buffer& data) 
 	{
-		// TODO: create a buffer class
-		size_t formatSize = 1;
-		switch (m_TextureParameters.Format)
-		{
-		case TextureFormat::RGB:	formatSize = 3; break;
-		case TextureFormat::RGBA:	formatSize = 4; break;
-		}
-
-		size_t dataSize = m_TextureParameters.Width * m_TextureParameters.Height * formatSize;
-		if (m_LocalData != nullptr)
-			free(m_LocalData);
-
-		m_LocalData = malloc(dataSize);
-		memcpy(m_LocalData, data, dataSize);
-
+		m_LocalData = Buffer::Copy(data);
 		Renderer::Submit([this]()
 		{
 			NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
 			glTextureSubImage2D(m_Handle, 0, 0, 0,
 								m_TextureParameters.Width, m_TextureParameters.Height,
-								nativeType.DataFormat, GL_UNSIGNED_BYTE, m_LocalData);
-			free(m_LocalData);
+								nativeType.DataFormat, GL_UNSIGNED_BYTE, m_LocalData.GetData());
 		});
 	}
 
@@ -169,7 +159,7 @@ namespace TerranEngine
 		return m_Handle == other.GetHandle();
 	}
 
-	void Texture2D::Create()
+	void Texture2D::CreateTexture()
 	{
 		Renderer::SubmitCreate([textureParameters = m_TextureParameters, this]()
 		{
@@ -210,6 +200,9 @@ namespace TerranEngine
 
 	void Texture2D::Release()
 	{
+		if (m_LocalData)
+			m_LocalData.Free();
+
 		Renderer::SubmitFree([this]()
 		{
 			glDeleteTextures(1, &m_Handle);

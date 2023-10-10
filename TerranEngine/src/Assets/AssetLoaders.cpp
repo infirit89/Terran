@@ -28,7 +28,7 @@ namespace TerranEngine
 
         int width, height, channels;
         constexpr int desiredChannels = 0;
-        uint8_t* data = stbi_load(textureSourcePath.string().c_str(),
+        uint8_t* pixels = stbi_load(textureSourcePath.string().c_str(),
                                 &width, &height, &channels, desiredChannels);
 
         TextureParameters textureParameters;
@@ -44,11 +44,15 @@ namespace TerranEngine
             textureParameters.Format = TextureFormat::RGB;
             break;
         }
+        default:
+            TR_ASSERT(false, "Texture format is not supported");
+            break;
         }
         textureParameters.Width = width;
         textureParameters.Height = height;
-        Shared<Texture2D> texture = CreateShared<Texture2D>(textureParameters, data);
-        stbi_image_free(data);
+        Buffer data = Buffer(pixels, width * height * channels);
+        Shared<Texture2D> texture = Texture2D::Create(textureParameters, data);
+        stbi_image_free(pixels);
 
         return texture;
     }

@@ -170,8 +170,9 @@ namespace TerranEngine
 		textureParameters.Height = bitmap.height;
 		textureParameters.Format = TextureFormat::RGB;
 
+		Buffer data = Buffer(bitmap.pixels, bitmap.width * bitmap.height * 3);
 		// TODO: cache texture to disk?
-		texture = CreateShared<Texture2D>(textureParameters, bitmap.pixels);
+		texture = Texture2D::Create(textureParameters, data);
 
 		m_FontGeometry->getKerning();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Assert.h"
+#include "Core/Buffer.h"
 
 #include <memory>
 #include <vector>
@@ -26,7 +27,7 @@ namespace TerranEngine
 	private:
 		uint32_t m_Handle;
 		int m_Size;
-		int* m_LocalData;
+		Buffer m_LocalData;
 
 		friend class VertexArray;
 	};

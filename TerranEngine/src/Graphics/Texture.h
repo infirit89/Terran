@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Assets/Asset.h"
+#include "Core/Buffer.h"
 
 #include <string>
 #include <filesystem>
@@ -54,7 +55,7 @@ namespace TerranEngine
 		virtual void Bind(uint32_t textureSlot) = 0;
 		//void Unbind() const;
 
-		virtual void SetData(const void* data) = 0;
+		virtual void SetData(const Buffer& data) = 0;
 		virtual void SetTextureFilter(TextureFilter filter) = 0;
 
 		virtual const TextureParameters& GetTextureParameters() const = 0;
@@ -70,13 +71,14 @@ namespace TerranEngine
 	class Texture2D : public Texture
 	{
 	public:
-		Texture2D(TextureParameters parameters = {}, const void* data = nullptr);
+		Texture2D(TextureParameters parameters = {}, Buffer buffer = Buffer());
+		static Shared<Texture2D> Create(TextureParameters parameters = {}, Buffer buffer = Buffer());
 
 		virtual ~Texture2D() override;
 
 		virtual void Bind(uint32_t textureSlot) override;
 		
-		virtual void SetData(const void* data) override;
+		virtual void SetData(const Buffer& data) override;
 
 		virtual void SetTextureFilter(TextureFilter filter) override;
 
@@ -107,10 +109,10 @@ namespace TerranEngine
 		void Release();
 		ASSET_CLASS_TYPE(Texture2D)
 	private:
-		void Create();
+		void CreateTexture();
 
 		//void LoadTexture(const std::filesystem::path& filePath);
-		void* m_LocalData;
+		Buffer m_LocalData;
 		uint32_t m_Handle;
 		TextureParameters m_TextureParameters;
 		friend class TextureAssetLoader;
