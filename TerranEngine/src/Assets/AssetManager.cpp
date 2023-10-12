@@ -178,34 +178,34 @@ namespace TerranEngine
 
 	void AssetManager::OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents)
 	{
-		std::filesystem::path oldFileName = "";
+		if (s_ChangeCallback)
+			s_ChangeCallback(fileSystemEvents);
+
 		for (auto e : fileSystemEvents)
 		{
 			if (std::filesystem::is_directory(e.FileName)) continue;
 
 			switch (e.Action)
 			{
-			case FileAction::Removed:
+			case FileAction::Removed: 
+			{
 				OnAssetRemoved(GetAssetID(e.FileName));
 				break;
-
-			case FileAction::RenamedOldName:
-				oldFileName = e.FileName;
-				break;
-
-			case FileAction::RenamedNewName: 
+			}
+			case FileAction::Renamed: 
 			{
-				AssetType oldType = AssetUtility::GetAssetTypeFromFileExtenstion(oldFileName.extension());
+				AssetType oldType = AssetUtility::GetAssetTypeFromFileExtenstion(e.OldFileName.extension());
 				AssetType newType = AssetUtility::GetAssetTypeFromFileExtenstion(e.FileName.extension());
 
 				if ((oldType == AssetType::None && newType != AssetType::None) ||
 					(oldType != AssetType::None && newType != AssetType::None && newType != oldType))
 					ImportAsset(e.FileName);
 				else
-					OnAssetRenamed(GetAssetID(oldFileName), e.FileName);
+					OnAssetRenamed(GetAssetID(e.OldFileName), e.FileName);
 				break;
 			}
-			case FileAction::Modified:
+			case FileAction::Modified: 
+			{
 				AssetInfo info = GetAssetInfo(e.FileName);
 
 				if(info)
@@ -213,10 +213,8 @@ namespace TerranEngine
 
 				break;
 			}
+			}
 		}
-
-		if(s_ChangeCallback)
-			s_ChangeCallback(fileSystemEvents);
 	}
 
 	UUID AssetManager::GetAssetID(const std::filesystem::path& assetPath)

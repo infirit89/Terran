@@ -5,7 +5,6 @@
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
 #include "Core/Input.h"
-#include "Core/FileUtils.h"
 
 #include "Assets/AssetManager.h"
 
@@ -28,10 +27,6 @@
 
 namespace TerranEditor
 {
-#define MAX_RENAME_BUFFER_SIZE 256
-
-	static char s_RenameBuffer[MAX_RENAME_BUFFER_SIZE]{ 0 };
-
 	ContentPanel::ContentPanel()
 	{
 		AssetManager::SetAssetChangedCallback(TR_EVENT_BIND_FN(ContentPanel::OnFileSystemChanged));
@@ -108,6 +103,7 @@ namespace TerranEditor
 		}
 
 		// TODO: this is pretty scuffed; should do it the proper way
+#if REWORK
 		if (openRenamePopup) 
 		{
 			ImGui::OpenPopup("name_new_asset");
@@ -131,6 +127,7 @@ namespace TerranEditor
 
 			ImGui::EndPopup();
 		}
+#endif
 
 		Shared<DirectoryInfo> nextDir;
 		// render items
@@ -163,19 +160,19 @@ namespace TerranEditor
 				}
 
 				if (action == ItemAction::Select)
-					SelectionManager::Select(SelectionContext::ContentPanel, item->GetID());
+					SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
 
 				if (action == ItemAction::MoveTo)
 				{
 					auto selectedItem = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [](Shared<ContentBrowserItem> browserItem)
 					{
-						return browserItem->GetID() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
+						return browserItem->GetHandle() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
 					});
 
 					SelectionManager::Deselect(SelectionContext::ContentPanel);
 					if (selectedItem != m_CurrentItems.end()) 
 					{
-						std::filesystem::path directoryPath = m_Directories[item->GetID()]->Path;
+						std::filesystem::path directoryPath = m_Directories[item->GetHandle()]->Path;
 						(*selectedItem)->Move(directoryPath);
 					}
 				}
@@ -215,69 +212,19 @@ namespace TerranEditor
 			PrintDirectoryInfo(subdirectory, level + 1);
 	}
 
-	void ContentPanel::RefreshDirectory(const Shared<DirectoryInfo>& directory)
+	// NOTE: there's a macro from windows with the name RemoveDirectory
+	UUID ContentPanel::RemoveDirectoryInfo(Shared<DirectoryInfo> directory)
 	{
-		if (!directory) return;
+		if (!directory) return UUID::Invalid();
 
-		if (!DirectoryExists(directory)) 
-		{
-			RemoveDirectoryInfo(directory);
-			return;
-		}
-
-		// TODO: handle asset refreshing
-		auto tempAssets = directory->Assets;
-		auto tempSubdirectories = directory->Subdirectories;
-		//std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
-		bool updated = true;
-		
-		for (const auto& [handle, subdirectory] : tempSubdirectories)
-			RefreshDirectory(subdirectory);
-
-		if (!updated) return;
-		
-		//directory->ModifiedTime = currentTime;
-		for (const auto& assetHandle : tempAssets)
-		{
-			AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
-			if (!assetInfo)
-			{
-				auto assetHandleIt = std::find(directory->Assets.begin(), directory->Assets.end(), assetHandle);
-				directory->Assets.erase(assetHandleIt);
-			}
-		}
-
-		// techinically the path isn't absolute
-		std::filesystem::path absoluteDirectoryPath = Project::GetAssetPath() / directory->Path;
-		for (const auto& directoryEntry : std::filesystem::directory_iterator(absoluteDirectoryPath))
-		{
-			if (directoryEntry.is_directory()) 
-			{
-				UUID subdirectoryHandle = ProcessDirectory(directoryEntry, directory);
-				if(directory->Subdirectories.find(subdirectoryHandle) == directory->Subdirectories.end())
-					directory->Subdirectories.emplace(subdirectoryHandle, m_Directories[subdirectoryHandle]);
-				continue;
-			}
-
-			UUID assetHandle = AssetManager::ImportAsset(directoryEntry);
-			auto assetIt = std::find(directory->Assets.begin(), directory->Assets.end(), assetHandle);
-			if (assetHandle && assetIt == directory->Assets.end()) 
-			{
-				directory->Assets.emplace_back(assetHandle);
-				AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-			}
-		}
-	}
-
-	void ContentPanel::RemoveDirectoryInfo(const Shared<DirectoryInfo>& directory)
-	{
 		auto parent = directory->Parent;
-		parent->Subdirectories.erase(directory->ID);
+		parent->Subdirectories.erase(directory->Handle);
 
 		for (const auto& [handle, subdirectory] : directory->Subdirectories) 
-			m_Directories.erase(subdirectory->ID);
+			m_Directories.erase(subdirectory->Handle);
 
-		m_Directories.erase(directory->ID);
+		m_Directories.erase(directory->Handle);
+		return directory->Handle;
 	}
 
 	void ContentPanel::UpdateCurrentItems()
@@ -289,8 +236,8 @@ namespace TerranEditor
 			auto& subdirectories = m_CurrentDirectory->Subdirectories;
 			auto& assets = m_CurrentDirectory->Assets;
 
-			bool directoryExists = subdirectories.find(item->GetID()) != subdirectories.end();
-			bool assetExists = std::find(assets.begin(), assets.end(), item->GetID()) != assets.end();
+			bool directoryExists = subdirectories.find(item->GetHandle()) != subdirectories.end();
+			bool assetExists = std::find(assets.begin(), assets.end(), item->GetHandle()) != assets.end();
 			if (!directoryExists && !assetExists) m_CurrentItems.Erase(item);
 		}
 
@@ -298,7 +245,7 @@ namespace TerranEditor
 		{
 			auto it = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [&subdirectory = subdirectory](Shared<ContentBrowserItem> item)
 			{
-				return item->GetID() == subdirectory->ID;
+				return item->GetHandle() == subdirectory->Handle;
 			});
 
 			if (it == m_CurrentItems.end()) m_CurrentItems.Items.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
@@ -308,7 +255,7 @@ namespace TerranEditor
 		{
 			auto it = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [&assetHandle](Shared<ContentBrowserItem> item)
 			{
-				return item->GetID() == assetHandle;
+				return item->GetHandle() == assetHandle;
 			});
 
 			if (it == m_CurrentItems.end())
@@ -345,59 +292,14 @@ namespace TerranEditor
 		ChangeDirectory(m_PreviousDirectory);
 	}
 
-#if NOT_WORKING
-	void ContentPanel::Refresh()
-	{
-		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
-		auto rootDirectory = GetDirectory("");
-
-		RefreshDirectory(rootDirectory);
-		//ProcessDirectory(Project::GetAssetPath());
-
-		// NOTE: try this solution if the current one is slow
-		//auto tempDirectories = m_DirectoryInfoMap;
-
-		//for (const auto& [handle, directory] : tempDirectories)
-		//{
-		//	if (!DirectoryExists(directory)) 
-		//	{
-		//		TR_TRACE(directory->Path);
-		//		auto parent = directory->Parent;
-		//		parent->Subdirectories.erase(directory->ID);
-		//		
-		//		for (const auto& [childHandle, subdirectory] : directory->Subdirectories)
-		//			m_DirectoryInfoMap.erase(subdirectory->ID);
-
-		//		m_DirectoryInfoMap.erase(directory->ID);
-
-		//		continue;
-		//		// TODO: handle deletion
-		//	}
-
-
-		//}
-
-		bool shouldChangeCurrent = false;
-		while (!DirectoryExists(m_CurrentDirectory)) 
-		{
-			m_CurrentDirectory = m_CurrentDirectory->Parent;
-			shouldChangeCurrent = true;
-		}
-
-		if (shouldChangeCurrent) ChangeDirectory(m_CurrentDirectory);
-		else UpdateCurrentItems();
-	}
-#endif
-
 	void ContentPanel::Refresh() 
 	{
+		std::filesystem::path currentDirectoryPath = m_CurrentDirectory->Path;
+
 		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
 		m_Directories.clear();
-		UUID dirID = ProcessDirectory(Project::GetAssetPath());
-		// NOTE: this chages the directory to the base asset path;
-		// pretty fucking dumb as the user may have been in another directory before the refresh
-		// should fix
-		ChangeDirectory(GetDirectory(dirID));
+		ProcessDirectory(Project::GetAssetPath());
+		ChangeDirectory(GetDirectory(currentDirectoryPath));
 	}
 
 	bool ContentPanel::OnKeyPressedEvent(KeyPressedEvent& kEvent)
@@ -426,49 +328,48 @@ namespace TerranEditor
 		return result;
 	}
 
-	UUID ContentPanel::ProcessDirectory(const std::filesystem::path& directoryPath, const Shared<DirectoryInfo>& parent)
+	UUID ContentPanel::ProcessDirectory(const std::filesystem::path& directoryPath, Shared<DirectoryInfo> parent)
 	{
-		const auto& directory = GetDirectory(directoryPath);
-		if (directory) return directory->ID;
+		Shared<DirectoryInfo> directory = GetDirectory(directoryPath);
+		if (directory) return directory->Handle;
 
-		Shared<DirectoryInfo> directoryInfo = CreateShared<DirectoryInfo>();
-		directoryInfo->ID = UUID();
-		directoryInfo->Parent = parent;
-		//directoryInfo->ModifiedTime = FileSystem::GetModifiedTime(directoryPath);
+		directory = CreateShared<DirectoryInfo>();
+		directory->Handle = UUID();
+		directory->Parent = parent;
 
+		if (parent)
+			parent->Subdirectories.emplace(directory->Handle, directory);
+		
 		if (directoryPath == Project::GetAssetPath())
-			directoryInfo->Path = "";
+			directory->Path = ".";
 		else
-			directoryInfo->Path = std::filesystem::relative(directoryPath, Project::GetAssetPath());
+			directory->Path = std::filesystem::relative(directoryPath, Project::GetAssetPath());
 
 		for (auto& directoryEntry : std::filesystem::directory_iterator(directoryPath))
 		{
 			if (directoryEntry.is_directory()) 
 			{
-				UUID subdirectoryID = ProcessDirectory(directoryEntry, directoryInfo);
-				directoryInfo->Subdirectories.emplace(subdirectoryID, m_Directories[subdirectoryID]);
+				UUID subdirectoryHandle = ProcessDirectory(directoryEntry, directory);
+				directory->Subdirectories.emplace(subdirectoryHandle, m_Directories[subdirectoryHandle]);
 			}
 			else 
 			{
 				UUID assetID = AssetManager::ImportAsset(directoryEntry);
 
 				if(assetID)
-					directoryInfo->Assets.push_back(assetID);
+					directory->Assets.push_back(assetID);
 			}
 		}
 
-		m_Directories[directoryInfo->ID] = directoryInfo;
-		return directoryInfo->ID;
+		m_Directories[directory->Handle] = directory;
+		return directory->Handle;
 	}
 
 	Shared<DirectoryInfo> ContentPanel::GetDirectory(const std::filesystem::path& directoryPath)
 	{
-		for (const auto&[id, directoryInfo] : m_Directories)
+		for (const auto&[handle, directoryInfo] : m_Directories)
 		{
-			//TR_TRACE(Project::GetAssetPath());
-			std::filesystem::path relative = directoryPath;
-			if(!relative.is_relative())
-				relative = std::filesystem::relative(directoryPath, Project::GetAssetPath());
+			std::filesystem::path relative = std::filesystem::relative(directoryPath, Project::GetAssetPath());
 			if (directoryInfo->Path == relative)
 				return directoryInfo;
 		}
@@ -476,10 +377,10 @@ namespace TerranEditor
 		return nullptr;
 	}
 
-	Shared<DirectoryInfo> ContentPanel::GetDirectory(const UUID& id) 
+	Shared<DirectoryInfo> ContentPanel::GetDirectory(const UUID& handle) 
 	{
-		if (m_Directories.find(id) != m_Directories.end())
-			return m_Directories.at(id);
+		if (m_Directories.find(handle) != m_Directories.end())
+			return m_Directories.at(handle);
 
 		return nullptr;
 	}
@@ -491,12 +392,12 @@ namespace TerranEditor
 		m_CurrentItems.Items.clear();
 
 		for (const auto& [handle, subdirectory] : directory->Subdirectories)
-			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserDirectory>(subdirectory));
+			m_CurrentItems.AddDirectory(subdirectory);
 
 		for (const auto& assetHandle : directory->Assets)
 		{
 			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::FileTexture));
+			m_CurrentItems.AddAsset(info, EditorResources::FileTexture);
 		}
 
 		SortItems();
@@ -507,215 +408,88 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		//Refresh();
+		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
+
+		for (const auto& event : events)
+		{
+			switch (event.Action)
+			{
+			case FileAction::Added: 
+			{
+				std::filesystem::path path = AssetManager::GetFileSystemPath(event.FileName);
+				Shared<DirectoryInfo> parentDirectory = GetDirectory(path.parent_path());
+
+				if (std::filesystem::is_directory(path)) 
+				{
+					UUID directoryHandle = ProcessDirectory(path, parentDirectory);
+					if (m_CurrentDirectory == parentDirectory)
+						m_CurrentItems.AddDirectory(GetDirectory(directoryHandle));
+				}
+				else 
+				{
+					UUID assetHandle = AssetManager::ImportAsset(path);
+
+					if (assetHandle) 
+					{
+						parentDirectory->Assets.push_back(assetHandle);
+						if (m_CurrentDirectory == parentDirectory)
+							m_CurrentItems.AddAsset(AssetManager::GetAssetInfo(assetHandle), EditorResources::FileTexture);
+					}
+				}
+				break;
+			}
+			case FileAction::Removed: 
+			{
+				std::filesystem::path path = AssetManager::GetFileSystemPath(event.FileName);
+				Shared<DirectoryInfo> parentDirectory = GetDirectory(path.parent_path());
+
+				UUID assetHandle = AssetManager::GetAssetInfo(event.FileName).Handle;
+
+				if (assetHandle)
+				{
+					auto it = std::find(parentDirectory->Assets.begin(), parentDirectory->Assets.end(), assetHandle);
+					parentDirectory->Assets.erase(it);
+
+					m_CurrentItems.Erase(assetHandle);
+				}
+				else 
+				{
+					UUID removedDirectoryHandle = RemoveDirectoryInfo(GetDirectory(path));
+					m_CurrentItems.Erase(removedDirectoryHandle);
+				}
+
+				break;
+			}
+			case FileAction::Renamed: 
+			{
+				if(std::filesystem::is_directory(AssetManager::GetFileSystemPath(event.FileName)))
+				{
+					Shared<DirectoryInfo> directory = GetDirectory(AssetManager::GetFileSystemPath(event.OldFileName));
+					directory->Path = event.FileName;
+					auto it = m_CurrentItems.Find(directory->Handle);
+					if (it != m_CurrentItems.end())
+						(*(it))->m_Name = event.FileName.filename().string();
+				}
+				else 
+				{
+					UUID assetHandle = AssetManager::GetAssetID(event.OldFileName);
+					auto it = m_CurrentItems.Find(assetHandle);
+					if (it != m_CurrentItems.end())
+						(*(it))->m_Name = event.FileName.stem().string();
+				}
+				break;
+			}
+			}
+		}
+
+		SortItems();
 	}
 
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
 	{
-		UUID dirID = ProcessDirectory(Project::GetAssetPath());
-
-		m_CurrentDirectory = GetDirectory(dirID);
+		UUID projectRootDirectoryHandle = ProcessDirectory(Project::GetAssetPath());
+		m_CurrentDirectory = GetDirectory(projectRootDirectoryHandle);
 		ChangeDirectory(m_CurrentDirectory);
-	}
-
-	ContentBrowserItem::ContentBrowserItem(const std::string& name, const UUID& id, Shared<Texture> icon, ItemType type)
-		: m_Name(name), m_Icon(icon), m_ID(id), m_Type(type)
-	{ }
-
-	void ContentBrowserItem::BeginRender()
-	{
-		ImGui::PushID(&m_ID);
-		ImGui::BeginGroup();
-	}
-
-	void ContentBrowserItem::EndRender()
-	{
-		ImGui::PopID();
-	}
-
-	ItemAction ContentBrowserItem::OnRender()
-	{
-		ItemAction action = ItemAction::None;
-
-		const float cellSize = 74.0f;
-		const float edgeOffset = 4.0f;
-		const int maxFileNameLength = 8;
-
-		bool isSelected = SelectionManager::IsSelected(SelectionContext::ContentPanel, m_ID);
-
-		const float textLineHeight = ImGui::GetTextLineHeightWithSpacing() * 2.0f + edgeOffset * 2.0f;
-		const float infoPanelHeight = std::min(false ? cellSize * 0.5f : textLineHeight, textLineHeight);
-
-		const ImVec2 topLeft = ImGui::GetCursorScreenPos();
-		const ImVec2 thumbBottomRight = { topLeft.x + cellSize, topLeft.y + cellSize };
-		const ImVec2 infoTopLeft = { topLeft.x, topLeft.y + cellSize };
-		const ImVec2 bottomRight = { topLeft.x + cellSize, topLeft.y + cellSize + infoPanelHeight };
-		ImRect itemBox = ImRect(topLeft, bottomRight);
-
-		if (ImGui::IsMouseHoveringRect(itemBox.Min, itemBox.Max) || isSelected)
-		{
-			auto* drawList = ImGui::GetWindowDrawList();
-			ImGuiStyle& style = ImGui::GetStyle();
-
-			drawList->AddRectFilled(topLeft, bottomRight,
-				ImGui::ColorConvertFloat4ToU32(style.Colors[ImGuiCol_Header]), 6.0f);
-		}
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 4.0f });
-
-		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize });
-		UI::ShiftCursor(edgeOffset, -cellSize);
-		UI::Image((ImTextureID)m_Icon->GetHandle(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
-		
-		UI::ShiftCursor(edgeOffset, edgeOffset);
-
-		// file name
-		{
-			ImGui::BeginVertical((std::string("InfoPanel") + m_Name).c_str(), ImVec2(cellSize - edgeOffset * 2.0f, infoPanelHeight - edgeOffset));
-			{
-				ImGui::BeginHorizontal(m_Name.c_str(), { cellSize - 2.0f, 0.0f });
-				ImGui::Spring();
-				ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + (cellSize - edgeOffset * 3.0f));
-				if (m_IsRenaming) 
-				{
-					ImGui::SetNextItemWidth(cellSize - edgeOffset * 3.0f);
-					ImGui::SetKeyboardFocusHere();
-					if (ImGui::InputText("##rename", s_RenameBuffer, MAX_RENAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue)) 
-					{
-						OnRename(s_RenameBuffer);
-						StopRename();
-					}
-				}
-				else
-				{
-					std::string formattedName = m_Name;
-					if (formattedName.size() > maxFileNameLength)
-						formattedName = formattedName.replace(maxFileNameLength, formattedName.size() - 1, "...");
-					const float textWidth = std::min(ImGui::CalcTextSize(formattedName.c_str()).x, cellSize);
-					ImGui::SetNextItemWidth(textWidth);
-					ImGui::Text(formattedName.c_str());
-				}
-				ImGui::PopTextWrapPos();
-				ImGui::Spring();
-				ImGui::EndHorizontal();
-				ImGui::Spring();
-			}
-			ImGui::EndVertical();
-		}
-
-		ImGui::PopStyleVar();
-
-		UI::ShiftCursor(-edgeOffset, -edgeOffset);
-
-		if (Input::IsKeyPressed(Key::F2) && isSelected && !m_IsRenaming)
-			StartRename();
-
-		ImGui::EndGroup();
-
-		if (!ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) 
-		{
-			if (m_IsRenaming)
-				StopRename();
-			else
-				SelectionManager::Deselect(SelectionContext::ContentPanel);
-		}
-
-		if (m_Type == ItemType::Directory)
-		{
-			if (ImGui::BeginDragDropTarget()) 
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")) 
-					action = ItemAction::MoveTo;
-
-				ImGui::EndDragDropTarget();
-			}
-		}
-
-		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-		{
-			ImGui::SetDragDropPayload("ASSET", m_ID.GetRaw(), sizeof(UUID));
-			ImGui::Text("% s", m_Name.c_str());
-			action = ItemAction::Select;
-			ImGui::EndDragDropSource();
-		}
-
-		if (ImGui::IsItemHovered()) 
-		{
-			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-			{
-				if(action != ItemAction::MoveTo && !isSelected)
-					action = ItemAction::Select;
-			}
-
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) 
-				action = OnActivate();
-		}
-
-		if (ImGui::BeginPopupContextItem("cbi_actions_context_menu"))
-		{
-			if (ImGui::MenuItem("Rename"))
-				action = ItemAction::StartRename;
-
-			ImGui::EndPopup();
-		}
-
-		return action;
-	}
-
-	void ContentBrowserItem::StartRename()
-	{
-		if (m_IsRenaming) return;
-
-		memcpy(s_RenameBuffer, m_Name.c_str(), m_Name.size());
-		m_IsRenaming = true;
-	}
-
-	void ContentBrowserItem::StopRename()
-	{
-		memset(s_RenameBuffer, 0, MAX_RENAME_BUFFER_SIZE);
-		m_IsRenaming = false;
-	}
-
-	ContentBrowserDirectory::ContentBrowserDirectory(const Shared<DirectoryInfo>& directoryInfo)
-		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::DirectoryTexture, ItemType::Directory), m_DirectoryInfo(directoryInfo)
-	{ }
-
-	void ContentBrowserDirectory::Move(const std::filesystem::path & newPath)
-	{
-		auto sourcePath = Project::GetAssetPath() / m_DirectoryInfo->Path;
-		auto destinationPath = Project::GetAssetPath() / newPath / m_DirectoryInfo->Path.filename();
-		FileSystem::Rename(sourcePath, destinationPath);
-	}
-
-	ItemAction ContentBrowserDirectory::OnActivate() { return ItemAction::NavigateTo; }
-	ItemAction ContentBrowserDirectory::OnRename(const std::string& newName)
-	{
-		auto sourcePath = Project::GetAssetPath() / m_DirectoryInfo->Path;
-		auto destinationPath = Project::GetAssetPath() / m_DirectoryInfo->Path.parent_path() / newName;
-		FileSystem::Rename(sourcePath, destinationPath);
-
-		return ItemAction::Renamed;
-	}
-
-	ContentBrowserAsset::ContentBrowserAsset(const AssetInfo& assetInfo, const Shared<Texture>& icon)
-		: ContentBrowserItem(assetInfo.Path.stem().string(), assetInfo.Handle, icon, ItemType::File), m_AssetInfo(assetInfo)
-	{ }
-
-	void ContentBrowserAsset::Move(const std::filesystem::path & newPath)
-	{
-		auto sourcePath = Project::GetAssetPath() / m_AssetInfo.Path;
-		auto destinationPath = Project::GetAssetPath() / newPath / m_AssetInfo.Path.filename();
-		FileSystem::Rename(sourcePath, destinationPath);
-	}
-
-	ItemAction ContentBrowserAsset::OnActivate() { return ItemAction::Activate; }
-	ItemAction ContentBrowserAsset::OnRename(const std::string& newName)
-	{
-		auto sourcePath = Project::GetAssetPath() / m_AssetInfo.Path;
-		auto destinationPath = Project::GetAssetPath() / m_AssetInfo.Path.parent_path() / (newName + m_AssetInfo.Path.extension().string());
-		FileSystem::Rename(sourcePath, destinationPath);
-		
-		return ItemAction::Renamed;
 	}
 }
 #pragma warning(pop)

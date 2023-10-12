@@ -11,14 +11,14 @@ namespace TerranEngine
 		Added = 0,
 		Removed,
 		Modified,
-		RenamedOldName,
-		RenamedNewName
+		Renamed
 	};
 
 	struct FileSystemChangeEvent
 	{
 		FileAction Action;
 		std::filesystem::path FileName;
+		std::filesystem::path OldFileName;
 	};
 
 	class FileSystem 

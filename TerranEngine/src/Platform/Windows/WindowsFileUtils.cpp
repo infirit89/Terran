@@ -163,6 +163,7 @@ namespace TerranEngine
 			int offset = 0;
 			FILE_NOTIFY_INFORMATION* pNotify;
 
+			std::filesystem::path oldFileName = "";
 			do 
 			{
 				FileSystemChangeEvent e;
@@ -185,16 +186,18 @@ namespace TerranEngine
 					e.Action = FileAction::Removed;
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
-					e.Action = FileAction::RenamedOldName;
+					oldFileName = fileName;
 					break;
 				case FILE_ACTION_RENAMED_NEW_NAME:
-					e.Action = FileAction::RenamedNewName;
+					e.Action = FileAction::Renamed;
+					e.OldFileName = oldFileName;
 					break;
 				}
 
 				offset += pNotify->NextEntryOffset;
 
-				fileChanges.emplace_back(e);
+				if(pNotify->Action != FILE_ACTION_RENAMED_OLD_NAME)
+					fileChanges.emplace_back(e);
 			} while (pNotify->NextEntryOffset != 0);
 
 			s_ChangeCallback(fileChanges);
