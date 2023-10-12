@@ -20,13 +20,12 @@ project "TerranEditor"
     {
         "src",
         "%{wks.location}/TerranEngine/src/",
-        "%{wks.location}/TerranEngine/vendor/",
-        "%{wks.location}/TerranEngine/vendor/spdlog/include/",
-        "%{wks.location}/TerranEngine/vendor/ImGui/",
-        "%{wks.location}/TerranEngine/vendor/glm/",
-        "%{wks.location}/TerranEngine/vendor/entt/include/",
+        "%{IncludeDirectories.spdlog}",
+        "%{IncludeDirectories.imgui}",
+        "%{IncludeDirectories.glm}",
+        "%{IncludeDirectories.entt}",
         
-        "%{wks.location}/TerranEditor/vendor/ImGuizmo/",
+        "%{IncludeDirectories.imguizmo}",
         "%{wks.location}/TerranEditor/vendor/FontAwesome/",
     } 
     
@@ -40,14 +39,20 @@ project "TerranEditor"
         "_CRT_SECURE_NO_WARNINGS"
     }
 
+    CopyCommands = {}
+    CopyCommands["mono"] = "{COPY} %{Libraries.mono_shared} %{prj.location}/bin/%{outputdir}"
+    CopyCommands["optick"] = "{COPY} %{Libraries.optick} %{prj.location}/bin/%{outputdir}"
+    CopyCommands["shaderc"] = "{COPY} %{Libraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
+
     filter "system:windows"
         systemversion "latest"
         
          postbuildcommands  
          {
              -- todo: copy the pdb
-             "{COPY} %{wks.location}/TerranEngine/vendor/mono/bin/mono-2.0-sgen.dll %{prj.location}/bin/" .. outputdir,
-             "{COPY} %{wks.location}/TerranEngine/vendor/Optick/bin/" .. outputdir .."/OptickCore.dll %{prj.location}/bin/" .. outputdir
+             "%{CopyCommands.mono}",
+             "%{CopyCommands.optick}",
+             "%{CopyCommands.shaderc}"
          }
 
     filter "configurations:Debug"

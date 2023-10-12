@@ -3,6 +3,8 @@
 
 #include "Utils/Debug/Profiler.h"
 
+#include "Renderer.h"
+
 #include <glad/glad.h>
 #include <stb_image.h>
 
@@ -16,14 +18,15 @@ namespace TerranEngine
 		uint32_t DataFormat;
 	};
 
-	static NativeTexutreType ConvertTextureTypeToNativeType(TextureType type)
+	static NativeTexutreType GetNativeTextureType(TextureFormat type)
 	{
 		switch (type)
 		{
-		case TerranEngine::TextureType::Red:			return { GL_R8, GL_RED };
-		case TerranEngine::TextureType::Red32Integer:	return { GL_R32I, GL_RED_INTEGER };
-		case TerranEngine::TextureType::RGB:			return { GL_RGB8, GL_RGB };
-		case TerranEngine::TextureType::RGBA:			return { GL_RGBA8, GL_RGBA };
+		case TextureFormat::Red:				return { GL_R8, GL_RED };
+		case TextureFormat::Red32I:				return { GL_R32I, GL_RED_INTEGER };
+		case TextureFormat::RGB:				return { GL_RGB8, GL_RGB };
+		case TextureFormat::RGBA:				return { GL_RGBA8, GL_RGBA };
+		case TextureFormat::Depth24Stencil8:	return { GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8 };
 		default:
 			TR_WARN("The texture type isn't supported");
 			break;
@@ -32,49 +35,52 @@ namespace TerranEngine
 		return { GL_RGBA8, GL_RGBA };
 	}
 
-	struct NativeTexutreFilter
+	static uint32_t GetNativeTextureFilter(TextureFilter filter) 
 	{
-		uint32_t MinFilter;
-		uint32_t MagFilter;
-	};
+		uint32_t nativeFilter = GL_LINEAR;
 
-	static NativeTexutreFilter ConvertTextureFilterToNativeFilter(TextureFilter minFilter, TextureFilter magFilter) 
-	{
-		NativeTexutreFilter filter = { GL_LINEAR, GL_LINEAR };
-
-		switch (minFilter)
+		switch (filter)
 		{
-		case TerranEngine::TextureFilter::Linear:
-		case TerranEngine::TextureFilter::Nearest:
-			filter.MinFilter = GL_LINEAR - (uint32_t)minFilter;
+		case TextureFilter::Linear:
+		case TextureFilter::Nearest:
+			nativeFilter = GL_LINEAR - (uint32_t)filter;
 			break;
 		default:
 			TR_WARN("The texture filter isn't supported");
 			break;
 		}
 
-		switch (magFilter)
-		{
-		case TerranEngine::TextureFilter::Linear:
-		case TerranEngine::TextureFilter::Nearest:
-			filter.MagFilter = GL_LINEAR - (uint32_t)magFilter;
-			break;
-		default:
-			TR_WARN("The texture filter isn't supported");
-			break;
-		}
-
-		return filter;
+		return nativeFilter;
 	}
 
-	static uint32_t ConvertTextureWrapModeToOpenGLWrapMode(TextureWrapMode wrapMode) 
+	const char* TextureFilterToString(TextureFilter filter)
+	{
+		switch (filter)
+		{
+		case TextureFilter::Linear:		return "Linear";
+		case TextureFilter::Nearest:	return "Nearest";
+		}
+
+		TR_ASSERT(false, "Unknown texture filter");
+		return "";
+	}
+	TextureFilter TextureFilterFromString(const std::string& filterString)
+	{
+		if (filterString == "Linear")	return TextureFilter::Linear;
+		if (filterString == "Nearest")	return TextureFilter::Nearest;
+
+		TR_ASSERT(false, "Unknown texture filter");
+		return TextureFilter::Linear;
+	}
+
+	static uint32_t GetNativeWrapMode(TextureWrapMode wrapMode) 
 	{
 		switch (wrapMode)
 		{
-		case TerranEngine::TextureWrapMode::Repeat:			return GL_REPEAT;
-		case TerranEngine::TextureWrapMode::Mirror:			return GL_MIRRORED_REPEAT;
-		case TerranEngine::TextureWrapMode::MirrorOnce:		return GL_MIRROR_CLAMP_TO_EDGE;
-		case TerranEngine::TextureWrapMode::ClampToEdge:	return GL_CLAMP_TO_EDGE;
+		case TextureWrapMode::Repeat:			return GL_REPEAT;
+		case TextureWrapMode::Mirror:			return GL_MIRRORED_REPEAT;
+		case TextureWrapMode::MirrorOnce:		return GL_MIRROR_CLAMP_TO_EDGE;
+		case TextureWrapMode::ClampToEdge:		return GL_CLAMP_TO_EDGE;
 		default:
 			TR_WARN("The texture wrap mode isn't supported");
 			break;
@@ -83,122 +89,123 @@ namespace TerranEngine
 		return { GL_CLAMP_TO_EDGE };
 	}
 
-	Texture::Texture() 
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path("") {}
-	
-	Texture::Texture(uint32_t width, uint32_t height, TextureParameters parameters) 
-		: m_TextureID(0), m_Width(width), m_Height(height), m_Channels(0), 
-		m_InternalFormat(0), m_DataFormat(0), m_TexParameters(parameters)
+	Texture2D::Texture2D(TextureParameters parameters, Buffer buffer)
+		: m_TextureParameters(parameters), m_Handle(0)
 	{
-		glGenTextures(1, &m_TextureID);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
-		
-		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
+		TR_ASSERT(m_TextureParameters.Width >= 1 || m_TextureParameters.Height >= 1, "Width and Height can't be less than 1");
+		TR_ASSERT(m_TextureParameters.Samples > 0, "Samples cant be less than 1");
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
+		CreateTexture();
 
-		uint32_t wrapMode = ConvertTextureWrapModeToOpenGLWrapMode(m_TexParameters.WrapMode);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+		if (buffer)
+			SetData(buffer);
 	}
 
-	Texture::Texture(const std::filesystem::path& filePath, TextureParameters parameters)
-		: m_TextureID(0), m_Width(0), m_Height(0), m_Channels(0), m_InternalFormat(0), m_DataFormat(0), m_Path(filePath)
+	Shared<Texture2D> Texture2D::Create(TextureParameters parameters, Buffer buffer)
 	{
-		LoadTexture(filePath);
+		return CreateShared<Texture2D>(parameters, buffer);
 	}
 
-	Texture::~Texture()
+	Texture2D::~Texture2D()
 	{
-		glDeleteTextures(1, &m_TextureID);
+		Release();
 	}
 
-	void Texture::Bind(uint8_t textureSlot) const
+	void Texture2D::Bind(uint32_t textureSlot)
 	{	 
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		Renderer::Submit([this, textureSlot]()
+		{
+			if (m_Handle == 0)
+				TR_ASSERT(false, "Handle is 0");
+			glBindTextureUnit(textureSlot, m_Handle);
+		});
 	}	 
 		 
-	void Texture::Unbind() const
-	{	 
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}	 
+	//void Texture::Unbind() const
+	//{	 
+	//	glBindTexture(GL_TEXTURE_2D, 0);
+	//}	 
 
-	void Texture::SetData(const void* data) 
+	void Texture2D::SetData(const Buffer& data) 
 	{
-		NativeTexutreType nativeType = ConvertTextureTypeToNativeType(m_TexParameters.TextureType);
-		glTexImage2D(GL_TEXTURE_2D, 0, nativeType.InternalFormat, m_Width, m_Height, 0, nativeType.DataFormat, GL_UNSIGNED_BYTE, data);
-	}
-
-	bool Texture::operator==(Texture& other) 
-	{
-		return m_Width == other.m_Width && m_Height == other.m_Height
-			&& m_Channels == other.m_Channels && m_TextureID == other.m_TextureID;
-	}
-
-	bool Texture::operator==(const Texture& other) 
-	{
-		return m_Width == other.m_Width && m_Height == other.m_Height
-			&& m_Channels == other.m_Channels && m_TextureID == other.m_TextureID;
-	}
-
-	void Texture::LoadTexture(const std::filesystem::path& filePath)
-	{
-		stbi_set_flip_vertically_on_load(1);
-		stbi_uc* pixels = stbi_load(filePath.string().c_str(), &m_Width, &m_Height, &m_Channels, 0);
-
-		if (pixels == nullptr)
+		m_LocalData = Buffer::Copy(data);
+		Renderer::Submit([this]()
 		{
-			TR_ERROR("Couldn't load the texture with path: {0}", filePath);
-			return;
-		}
+			NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
+			glTextureSubImage2D(m_Handle, 0, 0, 0,
+								m_TextureParameters.Width, m_TextureParameters.Height,
+								nativeType.DataFormat, GL_UNSIGNED_BYTE, m_LocalData.GetData());
+		});
+	}
 
-		glGenTextures(1, &m_TextureID);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
-
-		switch (m_Channels)
+	void Texture2D::SetTextureFilter(TextureFilter filter)
+	{
+		Renderer::Submit([this, filter]()
 		{
-			case 4: 
+			uint32_t nativeFilter = GetNativeTextureFilter(filter);
+			m_TextureParameters.Filter = filter;
+			glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, nativeFilter);
+			glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, nativeFilter);
+		});
+	}
+
+	bool Texture2D::operator==(Texture& other) 
+	{
+		return m_Handle == other.GetHandle();
+	}
+
+	bool Texture2D::operator==(const Texture& other) 
+	{
+		return m_Handle == other.GetHandle();
+	}
+
+	void Texture2D::CreateTexture()
+	{
+		Renderer::SubmitCreate([textureParameters = m_TextureParameters, this]()
+		{
+			if (textureParameters.Samples > 1)
 			{
-				m_InternalFormat = GL_RGBA8;
-				m_DataFormat = GL_RGBA;
-				break;
+				glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, &m_Handle);
 			}
-			case 3: 
+			else
 			{
-				m_InternalFormat = GL_RGB8;
-				m_DataFormat = GL_RGB;
-				break;
+				glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+
+				uint32_t filter = GetNativeTextureFilter(textureParameters.Filter);
+
+				glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, filter);
+				glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, filter);
+
+				uint32_t wrapMode = GetNativeWrapMode(textureParameters.WrapMode);
+
+				glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, wrapMode);
+				glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
 			}
-			case 2: 
+
+			NativeTexutreType nativeType = GetNativeTextureType(textureParameters.Format);
+
+
+			if (textureParameters.Samples > 1)
 			{
-				m_InternalFormat = GL_RG8;
-				m_DataFormat = GL_RG;
-
-				// NOTE: for grayscale images
-				/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_GREEN);*/
-				break;
+				glTextureStorage2DMultisample(m_Handle, textureParameters.Samples, nativeType.InternalFormat,
+					textureParameters.Width, textureParameters.Height, false);
 			}
-			default: TR_TRACE(m_Channels); TR_ASSERT(false, "No other data format supported!");
-		}
+			else
+			{
+				glTextureStorage2D(m_Handle, 1, nativeType.InternalFormat,
+					textureParameters.Width, textureParameters.Height);
+			}
+		});
+	}
 
-		NativeTexutreFilter filter = ConvertTextureFilterToNativeFilter(m_TexParameters.MinFilter, m_TexParameters.MagFilter);
+	void Texture2D::Release()
+	{
+		if (m_LocalData)
+			m_LocalData.Free();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.MinFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.MagFilter);
-
-		uint32_t wrapMode = ConvertTextureWrapModeToOpenGLWrapMode(m_TexParameters.WrapMode);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, pixels);
-
-		stbi_image_free(pixels);
+		Renderer::SubmitFree([this]()
+		{
+			glDeleteTextures(1, &m_Handle);
+		});
 	}
 }

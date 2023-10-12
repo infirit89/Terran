@@ -8,7 +8,7 @@ namespace TerranEngine
 	enum class AssetType 
 	{
 		None = 0,
-		Texture,
+		Texture2D,
 		Text,
 		ScriptFile,
 		Scene,

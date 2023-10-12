@@ -1,8 +1,7 @@
 #include "trpch.h"
 
 #include "VertexArray.h"
-
-#include "Scripting/ScriptCache.h"
+#include "Renderer.h"
 
 #include <glad/glad.h>
 
@@ -11,36 +10,99 @@
 
 namespace TerranEngine 
 {
-	VertexArray::VertexArray()
-		: m_ElementIndex(0)
+	uint32_t GetNativeType(VertexBufferElementType type) 
 	{
-		glGenVertexArrays(1, &m_Vao);
-		glBindVertexArray(m_Vao);
+		switch (type)
+		{
+		case TerranEngine::VertexBufferElementType::Float: return GL_FLOAT;
+		case TerranEngine::VertexBufferElementType::Int: return GL_INT;
+		}
+
+		TR_ASSERT(false, "Unrecognized vertex buffer element type");
+
+		return GL_FLOAT;
 	}
 
-	VertexArray::~VertexArray() { glDeleteVertexArrays(1, &m_Vao); }
-
-	const void VertexArray::Bind() const { glBindVertexArray(m_Vao); }
-	const void VertexArray::Unbind() const { glBindVertexArray(0); }
-
-	void VertexArray::AddVertexBufferLayout(const VertexBufferLayout& layout)
+	VertexArray::VertexArray()
+		: m_AttributeIndex(0), m_Handle(0)
 	{
-		m_Layout = layout;
-
-		for (auto element : m_Layout.GetElements())
+		Renderer::SubmitCreate([this]()
 		{
-			glEnableVertexAttribArray(m_ElementIndex);
-			switch (element.Type)
+			glCreateVertexArrays(1, &m_Handle);
+		});
+	}
+
+	VertexArray::~VertexArray() 
+	{
+		Release();
+	}
+
+	void VertexArray::Bind() 
+	{
+		Renderer::Submit([this]() 
+		{
+			glBindVertexArray(m_Handle);
+		});
+	}
+	void VertexArray::Unbind() 
+	{ 
+		Renderer::Submit([]()
+		{
+			glBindVertexArray(0);
+		});
+	}
+
+	void VertexArray::AddVertexBuffer(const Shared<VertexBuffer>& buffer)
+	{
+		const auto& layout = buffer->GetLayout();
+
+		Renderer::SubmitCreate([this, layout, buffer]()
+		{
+			for (auto element : layout.GetElements())
 			{
-			case GL_INT:
-				glVertexAttribIPointer(m_ElementIndex, element.Count, element.Type, m_Layout.GetStride(), (const void*)element.Offset);
-				break;
-			case GL_FLOAT:
-				glVertexAttribPointer(m_ElementIndex, element.Count, element.Type, element.Normalised ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.Offset);
-				break;
+				uint32_t nativeType = GetNativeType(element.Type);
+				glEnableVertexArrayAttrib(m_Handle, m_AttributeIndex);
+				switch (nativeType)
+				{
+				case GL_INT:
+					glVertexArrayAttribIFormat(
+						m_Handle,
+						m_AttributeIndex,
+						element.Count,
+						nativeType,
+						element.Offset);
+					break;
+				case GL_FLOAT:
+					glVertexArrayAttribFormat(
+						m_Handle,
+						m_AttributeIndex,
+						element.Count,
+						nativeType,
+						element.Normalised ? GL_TRUE : GL_FALSE,
+						element.Offset);
+					break;
+				}
+				glVertexArrayAttribBinding(m_Handle, m_AttributeIndex, 0);
+				m_AttributeIndex++;
 			}
-			m_ElementIndex++;
-		}
+
+			glVertexArrayVertexBuffer(m_Handle, 0, buffer->m_Handle, 0, layout.GetStride());
+		});
+	}
+
+	void VertexArray::AddIndexBuffer(const Shared<IndexBuffer>& buffer)
+	{
+		Renderer::SubmitCreate([this, buffer]()
+		{
+			glVertexArrayElementBuffer(m_Handle, buffer->m_Handle);
+		});
+	}
+	void VertexArray::Release()
+	{
+		Renderer::SubmitFree([this]()
+		{
+			glDeleteVertexArrays(1, &m_Handle);
+		});
 	}
 }
 

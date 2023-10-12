@@ -1,9 +1,10 @@
-#version 420 core
+#version 450 core
 
-layout(location = 0) in vec3	a_WorldPos;
-layout(location = 1) in vec4	a_Col;
-layout(location = 2) in vec2	a_TexCoords;
-layout(location = 3) in int		a_TexIndex;
+layout(location = 0) in vec3	a_Position;
+layout(location = 1) in int		a_TextureIndex;
+layout(location = 2) in vec4	a_TextColor;
+layout(location = 3) in vec2	a_TextureCoords;
+layout(location = 4) in int		a_EntityID;
 
 layout(std140, binding = 0) uniform Camera 
 {
@@ -14,18 +15,21 @@ layout(std140, binding = 0) uniform Camera
 
 struct VS_OUT
 {
-	vec4	Color;
+	vec4	TextColor;
 	vec2	TexCoords;
 };
 
-layout(location = 0) out VS_OUT vsOut;
-layout(location = 2) out flat int f_TexIndex;
+layout(location = 0) out VS_OUT		o_OutputData;
+layout(location = 2) out flat int	o_TextureIndex;
+layout(location = 3) out flat int	o_EntityID;
 
 void main() 
 {
-	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(a_WorldPos, 1.0); 
+	gl_Position = camera.ProjectionMatrix * camera.ViewMatrix * vec4(a_Position, 1.0); 
 
-	vsOut.Color = a_Col;
-	vsOut.TexCoords = a_TexCoords;
-	f_TexIndex = a_TexIndex;
+	o_OutputData.TextColor = a_TextColor;
+	o_OutputData.TexCoords = a_TextureCoords;
+
+	o_TextureIndex = a_TextureIndex;
+	o_EntityID = a_EntityID;
 }

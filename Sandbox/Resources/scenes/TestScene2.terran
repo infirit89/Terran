@@ -1,0 +1,68 @@
+{
+    "Version": 0,
+    "Scene": "Name",
+    "Entities": {
+        "Entity 6a324ff3-d687-4108-b11e-b658dd9d7308": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "6a324ff3-d687-4108-b11e-b658dd9d7308"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        },
+        "Entity ed393492-e2ac-4f24-8372-855c376d56c2": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "ed393492-e2ac-4f24-8372-855c376d56c2"
+            },
+            "TransformComponent": {
+                "LocalPosition": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "LocalScale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                },
+                "LocalRotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                }
+            },
+            "ScriptComponent": {
+                "ModuleName": "TerranScriptCore.TestScriptable",
+                "Fields": {
+                    "Test": 8,
+                    "Test1": true,
+                    "Bruh2": true
+                }
+            }
+        }
+    }
+}

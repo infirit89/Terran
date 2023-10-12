@@ -5,11 +5,7 @@ namespace TerranEngine {
 
 	LayerStack::~LayerStack()
 	{
-		for (Layer* layer : m_Layers) 
-		{
-			layer->OnDettach();
-			delete layer;
-		}
+		RemoveAllLayers();
 	}
 
 	void LayerStack::PushLayer(Layer* layer)
@@ -24,5 +20,16 @@ namespace TerranEngine {
 		layer->OnDettach();
 		m_Layers.erase(iterator);
 		m_LastInsertIndex--;
+	}
+
+	void LayerStack::RemoveAllLayers()
+	{
+		while (!m_Layers.empty()) 
+		{
+			Layer* layer = *(m_Layers.end() - 1);
+			layer->OnDettach();
+			delete layer;
+			m_Layers.erase(m_Layers.end() - 1);
+		}
 	}
 }

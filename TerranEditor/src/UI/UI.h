@@ -73,9 +73,10 @@ namespace TerranEditor
 		void Image(ImTextureID textureID, glm::vec2 size);
 		void ImageButton(ImTextureID textureID, glm::vec2 size);
 
-		void SetupImGuiStyle();
+		void SetupUIStyle();
+		void SetupUIStyle2();
 
-		void BeginPropertyGroup(const char* propertyGroupName);
+		bool BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();
 
 		inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
@@ -102,6 +103,7 @@ namespace TerranEditor
 		bool PropertyInt(const std::string& label, int& value);
 		bool PropertyBool(const std::string& label, bool& value);
 		bool PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+		bool Button(const std::string& label, const char* buttonLabel);
 
 		template<typename T>
 		bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0) 
@@ -151,7 +153,7 @@ namespace TerranEditor
 		}
 
 		template<typename TEnum>
-		bool PropertyComboBox(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected) 
+		bool PropertyDropdown(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected)
 		{
 			bool changed = false;
 			const char* currentState = stateNames[(int32_t)selected];
@@ -232,7 +234,7 @@ namespace TerranEditor
 			return result;
 		}
 
-		bool PropertyComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
+		bool PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
 	}
 }
 

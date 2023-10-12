@@ -1,19 +1,21 @@
 #pragma once
 
 #include "Assets/Asset.h"
+#include "Core/Buffer.h"
 
 #include <string>
 #include <filesystem>
 #include <stdint.h>
 
-namespace TerranEngine 
+namespace TerranEngine
 {
-	enum class TextureType
+	enum class TextureFormat
 	{
 		Red = 0,
-		Red32Integer,
+		Red32I,
 		RGB,
-		RGBA
+		RGBA,
+		Depth24Stencil8
 	};
 
 	enum class TextureFilter
@@ -21,6 +23,9 @@ namespace TerranEngine
 		Linear = 0,
 		Nearest
 	};
+
+	const char* TextureFilterToString(TextureFilter filter);
+	TextureFilter TextureFilterFromString(const std::string& filterString);
 
 	enum class TextureWrapMode
 	{
@@ -32,52 +37,84 @@ namespace TerranEngine
 
 	struct TextureParameters 
 	{
-		// TODO: put pixel data, width and height into the texture parameters
-		TextureType TextureType = TextureType::RGBA;
-
-		TextureFilter MinFilter = TextureFilter::Linear;
-		TextureFilter MagFilter = TextureFilter::Linear;
-		
+		// TODO: put width and height into the texture parameters
+		TextureFormat Format = TextureFormat::RGBA;
+		TextureFilter Filter = TextureFilter::Linear;
 		TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
+		uint32_t Width;
+		uint32_t Height;
+		uint32_t Samples = 1;
 	};
 
 	class Texture : public Asset
 	{
 	public:
-		Texture();
+		
+		virtual ~Texture() {};
 
-		Texture(uint32_t width, uint32_t height, TextureParameters parameters = {});
-		Texture(const std::filesystem::path& filePath, TextureParameters parameters = {});
+		virtual void Bind(uint32_t textureSlot) = 0;
+		//void Unbind() const;
 
-		~Texture();
+		virtual void SetData(const Buffer& data) = 0;
+		virtual void SetTextureFilter(TextureFilter filter) = 0;
 
-		void Bind(uint8_t textureSlot) const;
-		void Unbind() const;
+		virtual const TextureParameters& GetTextureParameters() const = 0;
+		virtual int GetWidth() const = 0;
+		virtual const int GetHeight() const = 0;
+		virtual const uint32_t GetHandle() const = 0;
+		virtual const uint32_t GetSamples() const = 0;
 
-		void SetData(const void* data);
+		virtual bool operator==(Texture& other) = 0;
+		virtual bool operator==(const Texture& other) = 0;
+	};
 
-		inline const TextureParameters GetTextureParameters() const { return m_TexParameters; }
-		inline const int GetWidth() const { return m_Width; }
-		inline const int GetHeight() const { return m_Height; }
-		inline const uint32_t GetTextureID() const { return m_TextureID; }
+	class Texture2D : public Texture
+	{
+	public:
+		Texture2D(TextureParameters parameters = {}, Buffer buffer = Buffer());
+		static Shared<Texture2D> Create(TextureParameters parameters = {}, Buffer buffer = Buffer());
 
-		inline const std::filesystem::path GetPath() const { return m_Path; }
-		inline const std::string GetName() const { return m_Path.stem().string(); }
+		virtual ~Texture2D() override;
 
-		bool operator==(Texture& other);
-		bool operator==(const Texture& other);
+		virtual void Bind(uint32_t textureSlot) override;
+		
+		virtual void SetData(const Buffer& data) override;
 
-		ASSET_CLASS_TYPE(Texture)
+		virtual void SetTextureFilter(TextureFilter filter) override;
+
+		virtual const TextureParameters& GetTextureParameters() const override 
+		{
+			return m_TextureParameters;
+		}
+
+		virtual int GetWidth() const override 
+		{
+			return m_TextureParameters.Width;
+		}
+		virtual const int GetHeight() const override 
+		{
+			return m_TextureParameters.Height; 
+		}
+
+		virtual const uint32_t GetHandle() const override { return m_Handle; }
+
+		virtual const uint32_t GetSamples() const override 
+		{
+			return m_TextureParameters.Samples;
+		}
+
+		virtual bool operator==(Texture& other) override;
+		virtual bool operator==(const Texture& other) override;
+
+		void Release();
+		ASSET_CLASS_TYPE(Texture2D)
 	private:
-		void LoadTexture(const std::filesystem::path& filePath);
+		void CreateTexture();
 
-		uint32_t m_TextureID;
-		int m_Width, m_Height, m_Channels;
-		uint32_t m_InternalFormat, m_DataFormat;
-		std::filesystem::path m_Path;
-
-		TextureParameters m_TexParameters;
-
+		//void LoadTexture(const std::filesystem::path& filePath);
+		Buffer m_LocalData;
+		uint32_t m_Handle;
+		TextureParameters m_TextureParameters;
 		friend class TextureAssetLoader;
 	};
 }

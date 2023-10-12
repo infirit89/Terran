@@ -1,46 +1,58 @@
 #include "trpch.h"
 #include "UniformBuffer.h"
 
+#include "Renderer.h"
+
 #include <glad/glad.h>
 
 namespace TerranEngine 
 {
-	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint16_t bindingPoint)
-		: m_Buffer(0)
+	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint32_t bindingPoint)
+		: m_Handle(0), m_LocalData(bufferSize)
 	{
-		glGenBuffers(1, &m_Buffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-		glBufferData(GL_UNIFORM_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_Buffer);
+		Renderer::SubmitCreate([this, bufferSize, bindingPoint]()
+		{
+			glCreateBuffers(1, &m_Handle);
+			glNamedBufferStorage(m_Handle, bufferSize, nullptr, GL_DYNAMIC_STORAGE_BIT);
+			glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_Handle);
+		});
 	}
 
-	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint16_t bindingPoint, uint32_t offset, uint32_t size)
-		: m_Buffer(0)
+	UniformBuffer::~UniformBuffer() 
 	{
-		glGenBuffers(1, &m_Buffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-		glBufferData(GL_UNIFORM_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_Buffer, offset, size);
+		if (m_LocalData)
+			m_LocalData.Free();
+
+		Release();
 	}
 
-	UniformBuffer::~UniformBuffer() { glDeleteBuffers(1, &m_Buffer); }
+	Shared<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t bindingPoint)
+	{
+		return CreateShared<UniformBuffer>(size, bindingPoint);
+	}
 
 	void UniformBuffer::SetData(const void* data, uint32_t offset, uint32_t size)
-	{	 
-		Bind();
-		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+	{
+		m_LocalData.Write(data, offset, size);
+		Renderer::Submit([this, offset, size]()
+		{
+			glNamedBufferSubData(m_Handle, offset, size, m_LocalData.Read(offset));
+		});
 	}
 
-	void UniformBuffer::SetData(const void* newData, uint32_t size)
+	void UniformBuffer::Release()
 	{
-		Bind();
+		Renderer::SubmitFree([this]()
+		{
+			glDeleteBuffers(1, &m_Handle);
+		});
+	}
 
+	/*void UniformBuffer::SetData(const void* newData, uint32_t size)
+	{
 		void* data = glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_WRITE);
 
 		memcpy(data, newData, size);
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
-	}
-		 
-	void UniformBuffer::Bind() const { glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer); }	 
-	void UniformBuffer::Unbind() const { glBindBuffer(GL_UNIFORM_BUFFER, 0); }
+	}*/
 }

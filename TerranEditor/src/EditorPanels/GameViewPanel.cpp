@@ -2,7 +2,7 @@
 
 #include "Core/Application.h"
 
-#include <ImGui/imgui.h>
+#include <imgui.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4312)

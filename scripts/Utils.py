@@ -6,12 +6,14 @@ import zipfile
 # Note: winreg should only be imported if the os is windows
 import winreg
 
-TerranRoot = "../"
+TerranRoot = "."
 TerranEnginePath = f"{TerranRoot}/TerranEngine"
 TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
 TerranEditorPath = f"{TerranRoot}/TerranEditor"
 
 def DownloadFile(url, filepath):
+    print("Downloading {0:s} to {1:s}".format(url, filepath))
+
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
@@ -62,7 +64,6 @@ def UnzipFile(zipPath, deleteZip : bool = True):
 
     if(deleteZip):
         os.remove(zipPath)
-
 
 def OpenKey(key: int, subkey: str):
     try:

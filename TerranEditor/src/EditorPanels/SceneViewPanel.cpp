@@ -3,12 +3,13 @@
 #include "EditorLayer.h"
 #include "SelectionManager.h"
 #include "EditorResources.h"
+#include "Graphics/Renderer.h"
 
 #include "UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <ImGui/imgui.h>
+#include <imgui.h>
 
 #pragma warning(push, 0)
 #include <ImGuizmo.h>
@@ -34,7 +35,7 @@ namespace TerranEditor
 		return (ImGuizmo::OPERATION)0;
 	}
 
-	void SceneViewPanel::ImGuiRender()
+	void SceneViewPanel::OnRender()
 	{ 
 		if (!m_Open) return;
 
@@ -81,7 +82,11 @@ namespace TerranEditor
 
 		Application::Get()->GetImGuiLayer().SetBlockInput(!isFocused || !isHovered);
 
-		ImGui::Image((ImTextureID)(framebuffer ? framebuffer->GetColorAttachmentID(0) : -1), regionAvail, { 0, 1 }, { 1, 0 });
+		Shared<Texture2D> colorAttachment = framebuffer->GetColorAttachment(0);
+
+		ImGui::Image(
+			(ImTextureID)(colorAttachment ? colorAttachment->GetHandle() : -1),
+			regionAvail, { 0, 1 }, { 1, 0 });
 
 #if 0
 		{
@@ -170,7 +175,13 @@ namespace TerranEditor
 				if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)m_ViewportSize.x && mouseY < (int)m_ViewportSize.y)
 				{
 					framebuffer->Bind();
-					int pixelData = framebuffer->ReadPixel(1, mouseX, mouseY);
+					int pixelData = -1; 
+
+					Renderer::Submit([&pixelData, framebuffer, mouseX, mouseY]() 
+					{
+						pixelData = framebuffer->ReadPixel_RT(1, mouseX, mouseY);
+						TR_TRACE(pixelData);
+					});
 
 					Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_Scene->GetRaw());
 						

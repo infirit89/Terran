@@ -1,144 +1,106 @@
 #include "trpch.h"
 #include "Shader.h"
+#include "Renderer.h"
+
+#include "Utils/Utils.h"
 
 #include <glad/glad.h>
-
 #include <filesystem>
 
 namespace TerranEngine 
 {
-	Shader::Shader()
-		: m_SProgram(0), m_IsProgramBound(false)
-#ifdef TR_DEBUG
-		, m_VertexPath(nullptr), m_FragmentPath(nullptr), m_ShaderPath(nullptr)
-#endif
+	namespace ShaderUtilities 
 	{
+		static uint32_t GetOpenGLShaderType(ShaderStage stage) 
+		{
+			switch (stage) 
+			{
+			case ShaderStage::Vertex:	return GL_VERTEX_SHADER;
+			case ShaderStage::Fragment:	return GL_FRAGMENT_SHADER;
+			}
 
+			TR_ASSERT(false, "Invalid shader stage");
+			return 0;
+		}
 	}
 
-	Shader::Shader(const char* shaderPath)
-		: m_SProgram(0), m_IsProgramBound(false)
-
-#ifdef TR_DEBUG
-		, m_ShaderPath(shaderPath), m_VertexPath(nullptr), m_FragmentPath(nullptr)
-#endif
-
+	Shader::Shader(const std::vector<ShaderUnitInfo>& shaderUnits)
+		: m_Handle(0)
 	{
-		std::filesystem::path path = shaderPath;
-		m_Name = path.stem().string();
-
-		FileData* data = File::OpenFile(shaderPath);
-		
-		auto& shaderSources = ProcessShaderFile(data->Data);
-		CreateProgram(shaderSources);
-
-		File::CloseFile(data);
-	}
-
-	Shader::Shader(const char* name, const char* vertexPath, const char* fragmentPath)
-		: m_SProgram(0), m_IsProgramBound(false), m_Name(name)
-
-#ifdef TR_DEBUG
-		, m_VertexPath(vertexPath), m_FragmentPath(fragmentPath), m_ShaderPath(nullptr)
-#endif
-
-	{
-		FileData* vertexFile = File::OpenFile(vertexPath);
-		FileData* fragmentFile = File::OpenFile(fragmentPath);
-
-		CreateProgram(vertexFile->Data, fragmentFile->Data);
-
-		File::CloseFile(vertexFile);
-		File::CloseFile(fragmentFile);
+		CreateProgram(shaderUnits);
 	}
 
 	Shader::~Shader()
 	{
-		m_IsProgramBound = false;
-		glDeleteProgram(m_SProgram);
+		Release();
 	}
 
-	void Shader::Bind() const
+	Shared<Shader> Shader::Create(const std::vector<ShaderUnitInfo>& shaderUnits)
 	{
-		if (!m_IsProgramBound)
+		return CreateShared<Shader>(shaderUnits);
+	}
+
+	void Shader::Bind()
+	{
+		Renderer::Submit([this]()
 		{
-			m_IsProgramBound = true;
-			glUseProgram(m_SProgram);
-		}
+			Bind_RT();
+		});
 	}
 
-	void Shader::Unbind() const
+	void Shader::Unbind()
 	{
-		m_IsProgramBound = false;
+		Renderer::Submit([this]()
+		{
+			Unbind_RT();
+		});
+	}
+
+	void Shader::Bind_RT()
+	{
+		if (m_Handle == 0)
+			TR_ASSERT(false, "");
+		glUseProgram(m_Handle);
+	}
+
+	void Shader::Unbind_RT()
+	{
 		glUseProgram(0);
 	}
 
 	void Shader::UploadInt(const char* name, int val)
 	{
-		Bind();
-		glUniform1i(GetUniformLoc(name), val);
+		Renderer::Submit([this, name, val]
+		{
+			Bind_RT();
+			glUniform1i(GetUniformLocation(name), val);
+		});
 	}
 
-	void Shader::UploadInt2(const char* name, int val1, int val2)
+	void Shader::UploadMat4(const char* name, const glm::mat4& val)
 	{
-		Bind();
-		glUniform2i(GetUniformLoc(name), val1, val2);
-	}
-
-	void Shader::UploadInt3(const char* name, int val1, int val2, int val3)
-	{
-		Bind();
-		glUniform3i(GetUniformLoc(name), val1, val2, val3);
-	}
-
-	void Shader::UploadInt4(const char* name, int val1, int val2, int val3, int val4)
-	{
-		Bind();
-		glUniform4i(GetUniformLoc(name), val1, val2, val3, val4);
-	}
-
-	void Shader::UploadFloat(const char* name, float val)
-	{
-		Bind();
-		glUniform1f(GetUniformLoc(name), val);
-	}
-
-	void Shader::UploadFloat2(const char* name, float val1, float val2)
-	{
-		Bind();
-		glUniform2f(GetUniformLoc(name), val1, val2);
-	}
-
-	void Shader::UploadFloat3(const char* name, float val1, float val2, float val3)
-	{
-		Bind();
-		glUniform3f(GetUniformLoc(name), val1, val2, val3);
-	}
-
-	void Shader::UploadFloat4(const char* name, float val1, float val2, float val3, float val4)
-	{
-		Bind();
-		glUniform4f(GetUniformLoc(name), val1, val2, val3, val4);
-	}
-
-	void Shader::UploadMat4(const char* name, glm::mat4x4 val)
-	{
-		Bind();
-		glUniformMatrix4fv(GetUniformLoc(name), 1, false, &val[0][0]);
+		Renderer::Submit([this, name, val]()
+		{
+			Bind_RT();
+			glUniformMatrix4fv(GetUniformLocation(name), 1, false, &val[0][0]);
+		});
 	}
 
 	void Shader::UploadIntArray(const char* name, uint32_t count, int val[])
 	{
-		Bind();
-		glUniform1iv(GetUniformLoc(name), count, val);
+		Renderer::Submit([this, name, count, val]()
+		{
+			Bind_RT();
+			glUniform1iv(GetUniformLocation(name), count, val);
+		});
 	}
 
-	int Shader::GetUniformLoc(const char* name)
+	int Shader::GetUniformLocation(const char* name)
 	{
 		if (m_Uniforms.find(name) != m_Uniforms.end()) 
 			return m_Uniforms[name];
 
-		int loc = glGetUniformLocation(m_SProgram, name);
+		int loc = glGetUniformLocation(m_Handle, name);
 
 		if (loc == -1)
 		{
@@ -151,111 +113,58 @@ namespace TerranEngine
 		return loc;
 	}
 
-	uint32_t Shader::CreateShader(const char* source, unsigned int type)
+	void Shader::CreateProgram(const std::vector<ShaderUnitInfo>& shaderUnits)
 	{
-		uint32_t shader = glCreateShader(type);
-		glShaderSource(shader, 1, &source, NULL);
-		glCompileShader(shader);
-
-		int result;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-
-		if (result == GL_FALSE) 
+		m_CompiledShaders = shaderUnits;
+		Renderer::SubmitCreate([this, compiledShaders = m_CompiledShaders]() 
 		{
-			int length;
-			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+			m_Handle = glCreateProgram();
 
-			char* message = (char*)malloc(length * sizeof(char));
+			std::vector<uint32_t> shaderIds;
+			shaderIds.reserve(compiledShaders.size());
+			for (const auto& shaderUnit : compiledShaders)
+			{
+				uint32_t shader = glCreateShader(ShaderUtilities::GetOpenGLShaderType(shaderUnit.Stage));
+				glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderUnit.Data.data(),
+							static_cast<int>(shaderUnit.Data.size() * sizeof(uint32_t)));
+				glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+				glAttachShader(m_Handle, shader);
+				shaderIds.emplace_back(shader);
+			}
 
-			glGetShaderInfoLog(shader, length, &length, message);
+			glLinkProgram(m_Handle);
+			int linkResult;
+			glGetProgramiv(m_Handle, GL_LINK_STATUS, &linkResult);
 
-			TR_ASSERT(false, message);
+			if (linkResult == GL_FALSE) 
+			{
+				int length = 0;
+				glGetProgramiv(m_Handle, GL_INFO_LOG_LENGTH, &length);
+				std::string infoLog;
+				infoLog.resize(length);
 
-			free(message);
+				glGetProgramInfoLog(m_Handle, length, &length, &infoLog[0]);
 
-			return 0;
-		}
+				glDeleteProgram(m_Handle);
 
-		return shader;
+				TR_ASSERT(false, infoLog);
+			}
+
+			glValidateProgram(m_Handle);
+
+			for (const auto& shaderId : shaderIds) 
+			{
+				glDetachShader(m_Handle, shaderId);
+				glDeleteShader(shaderId);
+			}
+		});
 	}
 
-	std::unordered_map<uint32_t, std::string> Shader::ProcessShaderFile(const std::string& shaderSource)
+	void Shader::Release()
 	{
-		std::unordered_map<uint32_t, std::string> shaderSources;
-
-		const char* typeToken = "#type";
-		const size_t typeTokenLength = strlen(typeToken);
-
-		size_t pos = shaderSource.find(typeToken);
-		while (pos != std::string::npos)
+		Renderer::SubmitFree([handle = m_Handle]()
 		{
-			//find end of line
-			size_t eol = shaderSource.find("\r\n", pos);
-			TR_ASSERT(eol != std::string::npos, "Syntax error");
-
-			// gett the shader type
-			size_t begin = pos + typeTokenLength + 1;
-			std::string type = shaderSource.substr(begin, eol - begin);
-			TR_ASSERT(GetShaderType(type), "Invalid shader type specified.");
-
-			size_t nextLinePos = shaderSource.find_first_not_of("\r\n", eol);
-			TR_ASSERT(nextLinePos != std::string::npos, "Syntax error");
-
-			// find next #type token 
-			pos = shaderSource.find(typeToken, nextLinePos);
-
-			shaderSources[GetShaderType(type)] = shaderSource.substr(nextLinePos, pos - nextLinePos);
-		}
-
-		return shaderSources;
-	}
-
-	void Shader::CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources)
-	{
-		m_SProgram = glCreateProgram();
-
-		uint32_t vertShader = CreateShader(shaderSources[GL_VERTEX_SHADER].c_str(), GL_VERTEX_SHADER);
-		uint32_t fragShader = CreateShader(shaderSources[GL_FRAGMENT_SHADER].c_str(), GL_FRAGMENT_SHADER);
-
-		glAttachShader(m_SProgram, vertShader);
-		glAttachShader(m_SProgram, fragShader);
-
-		glLinkProgram(m_SProgram);
-		glValidateProgram(m_SProgram);
-
-		glDetachShader(m_SProgram, vertShader);
-		glDetachShader(m_SProgram, fragShader);
-
-		glDeleteShader(vertShader);
-		glDeleteShader(fragShader);
-	}
-
-	void Shader::CreateProgram(const char* vertexSource, const char* fragmentSource)
-	{
-		m_SProgram = glCreateProgram();
-
-		uint32_t vertShader = CreateShader(vertexSource, GL_VERTEX_SHADER);
-		uint32_t fragShader = CreateShader(fragmentSource, GL_FRAGMENT_SHADER);
-
-		glAttachShader(m_SProgram, vertShader);
-		glAttachShader(m_SProgram, fragShader);
-
-		glLinkProgram(m_SProgram);
-		glValidateProgram(m_SProgram);
-
-		glDetachShader(m_SProgram, vertShader);
-		glDetachShader(m_SProgram, fragShader);
-
-		glDeleteShader(vertShader);
-		glDeleteShader(fragShader);
-	}
-
-	uint32_t Shader::GetShaderType(std::string& typeStr)
-	{
-		if (typeStr == "vertex")
-			return GL_VERTEX_SHADER;
-		else if (typeStr == "fragment")
-			return GL_FRAGMENT_SHADER;
-		return 0;
+			glDeleteProgram(handle);
+		});
 	}
 }

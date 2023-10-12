@@ -3,7 +3,7 @@
 
 namespace TerranEngine
 {
-    namespace SerializerUtils
+    /*namespace SerializerUtils
     {
         nlohmann::ordered_json SerializeVec2(const glm::vec2& value) 
         {
@@ -69,7 +69,7 @@ namespace TerranEngine
             return vec;
         }
 
-    }
+    }*/
 
     YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v)
     {
@@ -95,6 +95,12 @@ namespace TerranEngine
     YAML::Emitter& operator<<(YAML::Emitter& out, const UUID& v) 
     {
         out << std::to_string(v);
+        return out;
+    }
+
+    YAML::Emitter& operator<<(YAML::Emitter& out, const TextureFilter& v)
+    {
+        out << TextureFilterToString(v);
         return out;
     }
 }

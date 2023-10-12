@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Buffer.h"
+
 #include <stdint.h>
 
 namespace TerranEngine 
@@ -7,17 +9,18 @@ namespace TerranEngine
 	class UniformBuffer 
 	{
 	public:
-		UniformBuffer(uint32_t bufferSize, uint16_t bindingPoint);
-		UniformBuffer(uint32_t bufferSize, uint16_t bindingPoint, uint32_t offset, uint32_t size);
+		UniformBuffer(uint32_t bufferSize, uint32_t bindingPoint);
 		~UniformBuffer();
 
-		void SetData(const void* data, uint32_t offset, uint32_t size);
-		void SetData(const void* newData, uint32_t size);
+		static Shared<UniformBuffer> Create(uint32_t size, uint32_t bindingPoint);
 
-		void Bind() const;
-		void Unbind() const;
+		void SetData(const void* data, uint32_t offset, uint32_t size);
+		//void SetData(const void* newData, uint32_t size);
 
 	private:
-		uint32_t m_Buffer;
+		void Release();
+
+		Buffer m_LocalData;
+		uint32_t m_Handle;
 	};
 }

@@ -24,7 +24,7 @@ namespace TerranEditor
     void PanelManager::ImGuiRender()
     {
         for (const auto& [panelName, panel] : m_Panels)
-            panel->ImGuiRender();
+            panel->OnRender();
     }
 
     void PanelManager::SetPanelOpen(const std::string& panelName, bool open)

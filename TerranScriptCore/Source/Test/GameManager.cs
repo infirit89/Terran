@@ -2,6 +2,7 @@
 
 namespace Terran
 {
+#if false
 	class GameManager : Scriptable
 	{
 		private Entity m_LeftWall, m_RightWall;
@@ -41,4 +42,5 @@ namespace Terran
 			}
 		}
 	}
+#endif
 }

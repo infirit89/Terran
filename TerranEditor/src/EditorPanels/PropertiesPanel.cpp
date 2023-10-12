@@ -49,7 +49,7 @@ namespace TerranEditor
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
 			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
-			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)EditorResources::GetSettingsTexture()->GetTextureID()), 
+			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)EditorResources::SettingsTexture->GetHandle()), 
 				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
 
@@ -95,7 +95,7 @@ namespace TerranEditor
 		}
 	}
 
-	void PropertiesPanel::ImGuiRender()
+	void PropertiesPanel::OnRender()
 	{
 		if(m_Open)
 		{
@@ -109,7 +109,7 @@ namespace TerranEditor
 	static void DrawAddComponentButton(Entity entity, const char* label) 
 	{
 		if (!entity.HasComponent<ComponentType>())
-			if (ImGui::MenuItem("Sprite Renderer"))
+			if (ImGui::MenuItem(label))
 				entity.AddComponent<ComponentType>();
 	}
 
@@ -173,9 +173,28 @@ namespace TerranEditor
 				ImGui::TableNextRow();
 				UI::PropertyColor("Color", component.Color);
 				ImGui::TableNextRow();
-				UI::PropertyAssetField<Texture>("Sprite", AssetType::Texture, component.TextureHandle);
-				ImGui::TableNextRow();
-				UI::PropertyInt("Z index", component.ZIndex);
+				UI::PropertyAssetField<Texture2D>("Sprite", AssetType::Texture2D, component.TextureHandle);
+
+				Shared<Texture2D> texture = 
+								AssetManager::GetAsset<Texture2D>(component.TextureHandle);
+				if (texture) 
+				{
+					ImGui::TableNextRow();
+					constexpr size_t textureFilterNamesSize = 2;
+					const char* textureFilterNames[textureFilterNamesSize] = 
+					{ 
+						"Linear",
+						"Nearest" 
+					};
+
+					TextureFilter filter = texture->GetTextureParameters().Filter;
+					if (UI::PropertyDropdown("Filter", textureFilterNames, 
+											textureFilterNamesSize, filter)) 
+					{
+						texture->SetTextureFilter(filter);
+					}
+				}
+
 				UI::EndPropertyGroup();
 			});
 
@@ -287,7 +306,7 @@ namespace TerranEditor
 				UI::BeginPropertyGroup("rigidbody_properties");
 				// rigidbody body type selection
 				ImGui::TableNextRow();
-				if (UI::PropertyComboBox("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
+				if (UI::PropertyDropdown("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
 					isScenePlaying)
 					physicsBody->SetBodyType(rbComponent.BodyType);
 
@@ -305,12 +324,12 @@ namespace TerranEditor
 
 				ImGui::TableNextRow();
 				// rigidbody awake state selection 
-				UI::PropertyComboBox("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
+				UI::PropertyDropdown("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
 
 				// rigidbody layer selection
 				std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
 				ImGui::TableNextRow();
-				UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
+				UI::PropertyDropdown("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
 
 				if (rbComponent.BodyType != PhysicsBodyType::Static)
 				{
@@ -498,7 +517,7 @@ namespace TerranEditor
 
 				// TODO: make it changeable
 				if (!textRenderer.FontAtlas)
-					textRenderer.FontAtlas = CreateShared<FontAtlas>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+					textRenderer.FontAtlas = CreateShared<Font>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
 				UI::PropertyColor("Text Color", textRenderer.TextColor);
 

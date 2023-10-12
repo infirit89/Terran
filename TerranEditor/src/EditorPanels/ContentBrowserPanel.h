@@ -143,7 +143,7 @@ namespace TerranEditor
 		ContentPanel();
 		~ContentPanel() = default;
 
-		virtual void ImGuiRender() override;
+		virtual void OnRender() override;
 		virtual void OnEvent(TerranEngine::Event& event) override;
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;

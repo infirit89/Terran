@@ -1,6 +1,7 @@
 #include "trpch.h"
 #include "TextureSheet.h"
 
+#if todo
 #pragma warning (push)
 #pragma warning (disable : 4244)
 
@@ -55,3 +56,4 @@ namespace TerranEngine
 	}
 }
 #pragma warning (pop)
+#endif

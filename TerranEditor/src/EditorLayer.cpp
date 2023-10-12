@@ -12,6 +12,7 @@
 #include "EditorPanels/LogPanel.h"
 #include "EditorPanels/SettingsPanel.h"
 #include "EditorPanels/AssetEditorManager.h"
+#include "EditorPanels/ShaderPanel.h"
 #include "SelectionManager.h"
 
 #include "EditorResources.h"
@@ -26,7 +27,7 @@
 
 #include <filesystem>
 
-#include <IconFontAwesome6.h>
+//#include <IconFontAwesome6.h>
 
 #pragma warning(push, 0)
 #include <spdlog/sinks/basic_file_sink.h>
@@ -42,6 +43,7 @@ namespace TerranEditor
 #define SCENE_VIEW_PANEL_NAME "SceneViewPanel"
 #define SETTINGS_PANEL_NAME "SettingPanel"
 #define ASSET_PROPERTIES_PANEL_NAME "AssetProperties"
+#define SHADER_PANEL_NAME "ShaderPanel"
 
 	EditorLayer* EditorLayer::s_Instance;
 
@@ -68,7 +70,7 @@ namespace TerranEditor
 	void EditorLayer::OnAttach()
 	{
 		EditorResources::Init();
-		UI::SetupImGuiStyle();
+		UI::SetupUIStyle();
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -101,6 +103,8 @@ namespace TerranEditor
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
         Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
         settingsPanel->SetOpen(false);
+
+		m_PanelManager->AddPanel<ShaderPanel>(SHADER_PANEL_NAME);
 		// ***********************
 
 		AssetEditorManager::Init();
@@ -111,9 +115,16 @@ namespace TerranEditor
 			OpenProject(m_ProjectPath);
 
 		FramebufferParameters editorFramebufferParams;
-		editorFramebufferParams.ColorAttachemnts = { FramebufferColorAttachmentType::RGBA, FramebufferColorAttachmentType::Red32Integer };
-		editorFramebufferParams.DepthAttachment = { FramebufferDepthAttachmentType::Depth24Stencil8 };
+		editorFramebufferParams.ColorAttachments = 
+		{ 
+			TextureFormat::RGBA,
+			TextureFormat::Red32I
+		};
+		editorFramebufferParams.DepthAttachment = TextureFormat::Depth24Stencil8;
 
+		// NOTE: imgui doesn't support multisampled textures
+		editorFramebufferParams.Samples = 1;
+		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
 		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });

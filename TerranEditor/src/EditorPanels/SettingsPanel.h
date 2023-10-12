@@ -10,13 +10,13 @@ namespace TerranEditor
         SettingsPanel() = default;
         ~SettingsPanel() = default;
 
-        virtual void ImGuiRender() override;
+        virtual void OnRender() override;
 		virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& context) override { m_Scene = context; }
 
     private:
         void DrawPhysicsSettings();
 
     private:
-        int m_LayerIndex;
+        int m_LayerIndex = 0;
     };
 }

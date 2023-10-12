@@ -1,63 +1,49 @@
 #pragma once
 
-#include "RenderCommand.h"
+#include "ShaderDefs.h"
 
 #include <glm/mat4x4.hpp>
-
 #include <string>
 #include <unordered_map>
+#include <filesystem>
 
 namespace TerranEngine 
 {
-	class Shader 
+	class Shader
 	{
 	public:
-		Shader();
-		Shader(const char* shaderPath);
-		Shader(const char* name, const char* vertexPath, const char* fragmentPath);
+		Shader(const std::vector<ShaderUnitInfo>& shaderUnits);
 		~Shader();
 
-		void Bind() const;
-		void Unbind() const;
+		static Shared<Shader> Create(const std::vector<ShaderUnitInfo>& shaderUnits);
+
+		void Bind();
+		void Unbind();
 
 		void UploadInt(const char* name, int val);
-		void UploadInt2(const char* name, int val1, int val2);
-		void UploadInt3(const char* name, int val1, int val2, int val3);
-		void UploadInt4(const char* name, int val1, int val2, int val3, int val4);
-
-		void UploadFloat(const char* name, float val);
-		void UploadFloat2(const char* name, float val1, float val2);
-		void UploadFloat3(const char* name, float val1, float val2, float val3);
-		void UploadFloat4(const char* name, float val1, float val2, float val3, float val4);
-
-		void UploadMat4(const char* name, glm::mat4x4 val);
+		
+		void UploadMat4(const char* name, const glm::mat4& val);
 		void UploadIntArray(const char* name, uint32_t count, int val[]);
 
 		inline const std::string GetName() const { return m_Name; }
 
 	private:
-		int GetUniformLoc(const char* name);
-		uint32_t CreateShader(const char* source, unsigned int type);
+		int GetUniformLocation(const char* name);
+		
+		void CreateProgram(const std::vector<ShaderUnitInfo>& shaderUnits);
+		void Release();
 
-		std::unordered_map<uint32_t, std::string> ProcessShaderFile(const std::string& shaderSource);
-
-		void CreateProgram(std::unordered_map<uint32_t, std::string>& shaderSources);
-		void CreateProgram(const char* vertexSource, const char* fragmentSource);
+		void Bind_RT();
+		void Unbind_RT();
 
 	private:
-		uint32_t GetShaderType(std::string& typeStr);
-
-		uint32_t m_SProgram;
-		bool mutable m_IsProgramBound;
-
+		uint32_t m_Handle;
 		std::string m_Name;
-
-#ifdef TR_DEBUG
-		const char* m_VertexPath,* m_FragmentPath;
-		const char* m_ShaderPath;
-#endif
-
+		std::filesystem::path m_Path;
 
 		std::unordered_map<const char*, uint32_t> m_Uniforms;
+		std::vector<ShaderUnitInfo> m_CompiledShaders;
+
+		friend class ShaderCompiler;
 	};
 }

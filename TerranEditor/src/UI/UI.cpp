@@ -97,7 +97,7 @@ namespace TerranEditor
 		return layerMask;
 	}
 
-	bool UI::PropertyComboBoxMulti(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
+	bool UI::PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
 		bool changed = false;
 
@@ -238,7 +238,7 @@ namespace TerranEditor
 		style->ScaleAllSizes(contentScale.x);
 	}
 
-	void Test() 
+	void UI::SetupUIStyle2()
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
 		style->WindowPadding = ImVec2(15.0f, 15.0f);
@@ -315,7 +315,7 @@ namespace TerranEditor
 		ScaleUI();
 	}
 
-	void UI::SetupImGuiStyle()
+	void UI::SetupUIStyle()
 	{
 		// Gruvbox style from ImThemes
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -406,15 +406,18 @@ namespace TerranEditor
 
 		ScaleUI();
 	}
-	void UI::BeginPropertyGroup(const char* propertyGroupName)
+	bool UI::BeginPropertyGroup(const char* propertyGroupName)
 	{
-		ImGui::BeginTable(propertyGroupName, 2, ImGuiTableFlags_SizingFixedFit);
+		if (!ImGui::BeginTable(propertyGroupName, 2, ImGuiTableFlags_SizingFixedFit))
+			return false;
 		// NOTE: consider exposing this to some sort of settings
 		const float labelColumnWidth = 100.0f;
 		ImGui::TableSetupColumn("label_column", 0, labelColumnWidth);
 		ImGui::TableSetupColumn("value_column",
 			ImGuiTableColumnFlags_IndentEnable | ImGuiTableColumnFlags_NoClip,
 			ImGui::GetContentRegionAvail().x - labelColumnWidth);
+
+		return true;
 	}
 
 	void UI::EndPropertyGroup()
@@ -673,6 +676,24 @@ namespace TerranEditor
 		}
 
 		delete[] buf;
+
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool UI::Button(const std::string& label, const char* buttonLabel)
+	{
+		bool changed = false;
+		ImGui::PushID(label.c_str());
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text(label.c_str());
+
+		ImGui::TableSetColumnIndex(1);
+
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		changed = ImGui::Button(buttonLabel);
 
 		ImGui::PopID();
 

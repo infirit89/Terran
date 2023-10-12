@@ -33,7 +33,7 @@ namespace TerranEditor
 		~LogPanel();
 
 		void AddLog(LogMessage logMessage);
-		virtual void ImGuiRender() override;
+		virtual void OnRender() override;
 		void ClearMessageBuffer();
 
 		bool IsClearOnPlay() { return m_ClearOnPlay; }

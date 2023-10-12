@@ -1,0 +1,66 @@
+{
+    "Scene": "Name",
+    "Entities": {
+        "Entity fee1b948-9f3e-4335-bba4-63b52cf8658a": {
+            "TagComponent": {
+                "Tag": "Entity",
+                "ID": "fee1b948-9f3e-4335-bba4-63b52cf8658a"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "ScriptComponent": {
+                "ModuleName": "SandboxProject.Sandbox",
+                "Fields": {
+                    "TestEntity": "fee1b948-9f3e-4335-bba4-63b52cf8658a",
+                    "Test": -42
+                }
+            }
+        },
+        "Entity 76d0a3c6-7a72-4e0e-9391-0e1856645f99": {
+            "TagComponent": {
+                "Tag": "Camera",
+                "ID": "76d0a3c6-7a72-4e0e-9391-0e1856645f99"
+            },
+            "TransformComponent": {
+                "Position": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Rotation": {
+                    "X": 0.0,
+                    "Y": 0.0,
+                    "Z": 0.0
+                },
+                "Scale": {
+                    "X": 1.0,
+                    "Y": 1.0,
+                    "Z": 1.0
+                }
+            },
+            "CameraComponent": {
+                "Camera": {
+                    "Size": 10.0,
+                    "Near": -10.0,
+                    "Far": 10.0
+                },
+                "Primary": true
+            }
+        }
+    }
+}

@@ -31,7 +31,7 @@ namespace TerranEditor
 		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SceneHierarchyPanel::OnKeyPressed));
 	}
 
-	void SceneHierarchyPanel::ImGuiRender()
+	void SceneHierarchyPanel::OnRender()
 	{
 		if(m_Open)
 		{

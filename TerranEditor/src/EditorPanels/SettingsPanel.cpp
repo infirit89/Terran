@@ -18,7 +18,7 @@
 namespace TerranEditor
 {
     using namespace TerranEngine;
-    void SettingsPanel::ImGuiRender()
+    void SettingsPanel::OnRender()
     {
         if(!m_Open) return;
 
@@ -55,7 +55,7 @@ namespace TerranEditor
 
         ImGui::TableNextColumn();
         std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
-        serializeSettings |= UI::PropertyComboBox("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
+        serializeSettings |= UI::PropertyDropdown("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
         UI::EndPropertyGroup();
 
         {
@@ -76,11 +76,10 @@ namespace TerranEditor
                     PhysicsLayerManager::SetLayerMask(m_LayerIndex, row, canLayersCollide);
                     serializeSettings |= true;
                 }
+
                 UI::EndPropertyGroup();
             }
-
             ImGui::EndTable();
-
         }
 
         if (serializeSettings) 

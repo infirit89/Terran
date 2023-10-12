@@ -4,6 +4,8 @@
 
 #include "Asset.h"
 
+#include "Graphics/Texture.h"
+
 namespace TerranEngine 
 {
 	class AssetLoader
@@ -18,6 +20,7 @@ namespace TerranEngine
 	public:
 		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;
 		virtual bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) override;
+		static Shared<Texture2D> CreateTextureFromFile(const std::filesystem::path& textureSourcePath);
 	};
 
 	class TextAssetLoader : public AssetLoader 

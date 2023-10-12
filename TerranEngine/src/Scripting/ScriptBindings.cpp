@@ -396,7 +396,7 @@ namespace TerranEngine
 			if(entity.GetChildCount() <= 0)
 				return nullptr;
 			
-			ScriptArray childrenIDs = ScriptArray::Create<UUID>(entity.GetChildCount());
+			ScriptArray childrenIDs = ScriptArray::Create<UUID>(static_cast<uint32_t>(entity.GetChildCount()));
 			ScriptClass* idClass = TR_API_CACHED_CLASS(UUID);
 			
 			int i = 0;
@@ -686,7 +686,7 @@ namespace TerranEngine
 			TR_PROFILE_FUNCTION();
 			std::vector<RayCastHitInfo2D> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
 
-			ScriptArray hitInfos_Internal(TR_API_CACHED_CLASS(RayCastHitInfo2D)->GetMonoClass(), hitInfos.size());
+			ScriptArray hitInfos_Internal(TR_API_CACHED_CLASS(RayCastHitInfo2D)->GetMonoClass(), static_cast<uint32_t>(hitInfos.size()));
 
 			for (size_t i = 0; i < hitInfos.size(); i++)
 			{
@@ -717,7 +717,7 @@ namespace TerranEngine
 				rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
 				hitInfo.UUID = rigidbodyObj.GetMonoObject();
 
-				hitInfos_Internal.Set<RayCastHitInfo2D_Internal>(i, hitInfo);
+				hitInfos_Internal.Set<RayCastHitInfo2D_Internal>(static_cast<uint32_t>(i), hitInfo);
 			}
 
 			return hitInfos_Internal.GetMonoArray();
@@ -1303,10 +1303,10 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FUNCTION();
 			std::vector<uint8_t> connectedControllers = Input::GetConnectedControllers();
-			ScriptArray connectedControllersArr = ScriptArray::Create<uint8_t>(connectedControllers.size());
+			ScriptArray connectedControllersArr = ScriptArray::Create<uint8_t>(static_cast<uint32_t>(connectedControllers.size()));
 
 			for (size_t i = 0; i < connectedControllers.size(); i++)
-				connectedControllersArr.Set<uint8_t>(i, i);
+				connectedControllersArr.Set<uint8_t>(static_cast<uint32_t>(i), static_cast<uint8_t>(i));
 
 			return connectedControllersArr.GetMonoArray();
 		}

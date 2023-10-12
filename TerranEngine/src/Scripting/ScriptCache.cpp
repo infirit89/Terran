@@ -229,7 +229,7 @@ namespace TerranEngine
 			   < std::min(nextCol[MONO_TYPEDEF_FIELD_LIST], (uint32_t)fieldTableRows) - 1; j++)
 		{
 			uint32_t fieldCols[MONO_FIELD_SIZE];
-			mono_metadata_decode_row(fieldTableInfo, j, fieldCols, MONO_FIELD_SIZE);
+			mono_metadata_decode_row(fieldTableInfo, static_cast<int>(j), fieldCols, MONO_FIELD_SIZE);
 			std::string fieldName = mono_metadata_string_heap(assembly->GetMonoImage(), fieldCols[MONO_FIELD_NAME]);
 			ScriptField field = klass.GetFieldFromName(fieldName);
 
@@ -268,7 +268,7 @@ namespace TerranEngine
 			   < std::min(nextCol[MONO_TYPEDEF_METHOD_LIST], (uint32_t)methodTableRows) - 1; j++)
 		{
 			uint32_t methodCols[MONO_METHOD_SIZE];
-			mono_metadata_decode_row(methodTableInfo, j, methodCols, MONO_METHOD_SIZE);
+			mono_metadata_decode_row(methodTableInfo, static_cast<int>(j), methodCols, MONO_METHOD_SIZE);
 			
 			std::string methodName = mono_metadata_string_heap(assembly->GetMonoImage(), methodCols[MONO_METHOD_NAME]);
 			const char* blob = mono_metadata_blob_heap(assembly->GetMonoImage(), methodCols[MONO_METHOD_SIGNATURE]);

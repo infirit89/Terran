@@ -25,7 +25,7 @@ namespace TerranEditor
 
 		virtual void OnEvent(Event& event) override;
         virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) override;
-		virtual void ImGuiRender() override;
+		virtual void OnRender() override;
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);

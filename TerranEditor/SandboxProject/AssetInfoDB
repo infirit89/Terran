@@ -89,3 +89,9 @@ AssetInfos:
   - Asset: 01d3b6fe-6fba-4160-82d1-d609c61d3f27
     Type: 4
     Path: Scenes\TestScene6.terran
+  - Asset: 1b9f31ab-3187-4ff3-b45b-a791d1a1f5e3
+    Type: 4
+    Path: Scenes\TestScene7.terran
+  - Asset: 39e9e8ca-e6c9-48ee-9b31-1b278bbfae06
+    Type: 4
+    Path: Scenes\TestScene8.terran

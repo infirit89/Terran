@@ -2,6 +2,7 @@
 
 namespace Terran
 {
+#if false
 	class Player1 : Scriptable
 	{
 		private Entity m_TopWall, m_BottomWall;
@@ -61,4 +62,5 @@ namespace Terran
 				Entity.Transform.Position -= new Vector3(0.0f, 0.1f, 0.0f);
 		}
 	}
+#endif
 }

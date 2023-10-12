@@ -6,7 +6,7 @@
 #include "Core/Input.h"
 
 #include "Graphics/BatchRenderer2D.h"
-#include "Graphics/RenderCommand.h"
+#include "Graphics/Renderer.h"
 
 #include "Assets/AssetManager.h"
 
@@ -32,8 +32,8 @@ namespace TerranEngine
 	{
 		m_Framebuffer->Bind();
 		
-		RenderCommand::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
-		RenderCommand::Clear();
+		Renderer::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
+		Renderer::Clear();
 
 		BatchRenderer2D::BeginFrame(camera, cameraTransform, invereTransform);
 		m_BegunScene = true;
@@ -49,7 +49,7 @@ namespace TerranEngine
 	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
-		Shared<Texture> texture = AssetManager::GetAsset<Texture>(spriteRenderer.TextureHandle);
+		Shared<Texture2D> texture = AssetManager::GetAsset<Texture2D>(spriteRenderer.TextureHandle);
 		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, texture, entityID);
 	}
 
@@ -66,7 +66,7 @@ namespace TerranEngine
 
 	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
 	{
-		BatchRenderer2D::AddText(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
+		BatchRenderer2D::AddString(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
 										textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
 	}
 

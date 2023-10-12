@@ -2,6 +2,7 @@
 
 namespace Terran
 {
+#if false
 	class Ball : Scriptable
 	{
 		private Entity m_Player1, m_Player2;
@@ -39,4 +40,5 @@ namespace Terran
 			Entity.Transform.Position += ballDirection;
 		}
 	}
+#endif
 }

@@ -1,24 +1,21 @@
 #include "trpch.h"
-#include "ImGuiLayer.h"
 
+#include "ImGuiLayer.h"
 #include "ImGuiBackEnds.h"
 
 #include "Core/Application.h"
 
 #include "Utils/Debug/OptickProfiler.h"
+#include "Graphics/Renderer.h"
 
 #include <imgui.h>
 
-namespace TerranEngine 
+namespace TerranEngine
 {
 	ImGuiLayer::ImGuiLayer()
-		: Layer("Imgui Layer")
-	{
-	}
+		: Layer("Imgui Layer") { }
 
-	ImGuiLayer::~ImGuiLayer()
-	{
-	}
+	ImGuiLayer::~ImGuiLayer() { }
 
 	void ImGuiLayer::OnAttach()
 	{
@@ -66,7 +63,12 @@ namespace TerranEngine
 	void ImGuiLayer::BeginFrame()
 	{
 		TR_PROFILE_FUNCTION();
-		ImGui_ImplOpenGL3_NewFrame();
+
+		Renderer::SubmitCreate([]() 
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+		});
+
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -74,12 +76,22 @@ namespace TerranEngine
 	void ImGuiLayer::EndFrame()
 	{
 		TR_PROFILE_FUNCTION();
-		ImGui::Render();
+		{
+			TR_PROFILE_SCOPE("ImGui::Render");
+			ImGui::Render();
+		}
 
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		{
+			TR_PROFILE_SCOPE("ImGui_ImplOpenGL3_RenderDrawData")
+			Renderer::Submit([]()
+			{
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			});
+		}
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
+			TR_PROFILE_SCOPE("UpdateImGUIViewports");
 			GLFWwindow* context = glfwGetCurrentContext();
 
 			ImGui::UpdatePlatformWindows();

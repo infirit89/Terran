@@ -52,7 +52,7 @@ namespace TerranEditor
 	}
 
 	static std::mutex s_ContentBrowserMutex;
-	void ContentPanel::ImGuiRender()
+	void ContentPanel::OnRender()
 	{
 		if (!m_Open) return;
 
@@ -199,7 +199,7 @@ namespace TerranEditor
 	void ContentPanel::OnEvent(TerranEngine::Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(ContentPanel::OnKeyPressedEvent));
+		//dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(ContentPanel::OnKeyPressedEvent));
 	}
 
 	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0)
@@ -228,15 +228,15 @@ namespace TerranEditor
 		// TODO: handle asset refreshing
 		auto tempAssets = directory->Assets;
 		auto tempSubdirectories = directory->Subdirectories;
-		std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
-		bool updated = currentTime != directory->ModifiedTime;
+		//std::filesystem::file_time_type currentTime = FileSystem::GetModifiedTime(AssetManager::GetFileSystemPath(directory->Path));
+		bool updated = true;
 		
 		for (const auto& [handle, subdirectory] : tempSubdirectories)
 			RefreshDirectory(subdirectory);
 
 		if (!updated) return;
 		
-		directory->ModifiedTime = currentTime;
+		//directory->ModifiedTime = currentTime;
 		for (const auto& assetHandle : tempAssets)
 		{
 			AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
@@ -314,7 +314,7 @@ namespace TerranEditor
 			if (it == m_CurrentItems.end())
 			{
 				AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-				m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
+				m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::FileTexture));
 			}
 		}
 
@@ -402,7 +402,7 @@ namespace TerranEditor
 
 	bool ContentPanel::OnKeyPressedEvent(KeyPressedEvent& kEvent)
 	{
-		bool altPressed = Input::IsKeyDown(Key::LeftAlt) || Input::IsKeyDown(Key::RightAlt);
+		/*bool altPressed = Input::IsKeyDown(Key::LeftAlt) || Input::IsKeyDown(Key::RightAlt);
 
 		if (kEvent.GetRepeatCount() > 0) 
 			return false;
@@ -411,7 +411,7 @@ namespace TerranEditor
 		{
 		case Key::Left: ChangeBackwardDirectory(); break;
 		case Key::Right: ChangeForwardDirectory(); break;
-		}
+		}*/
 
 		return false;
 	}
@@ -434,7 +434,7 @@ namespace TerranEditor
 		Shared<DirectoryInfo> directoryInfo = CreateShared<DirectoryInfo>();
 		directoryInfo->ID = UUID();
 		directoryInfo->Parent = parent;
-		directoryInfo->ModifiedTime = FileSystem::GetModifiedTime(directoryPath);
+		//directoryInfo->ModifiedTime = FileSystem::GetModifiedTime(directoryPath);
 
 		if (directoryPath == Project::GetAssetPath())
 			directoryInfo->Path = "";
@@ -496,7 +496,7 @@ namespace TerranEditor
 		for (const auto& assetHandle : directory->Assets)
 		{
 			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
-			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::GetFileTexture()));
+			m_CurrentItems.Items.push_back(CreateShared<ContentBrowserAsset>(info, EditorResources::FileTexture));
 		}
 
 		SortItems();
@@ -507,7 +507,7 @@ namespace TerranEditor
 
 	void ContentPanel::OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events)
 	{
-		Refresh();
+		//Refresh();
 	}
 
 	void ContentPanel::OnProjectChanged(const std::filesystem::path& projectPath)
@@ -565,7 +565,7 @@ namespace TerranEditor
 
 		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize });
 		UI::ShiftCursor(edgeOffset, -cellSize);
-		UI::Image((ImTextureID)m_Icon->GetTextureID(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
+		UI::Image((ImTextureID)m_Icon->GetHandle(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
 		
 		UI::ShiftCursor(edgeOffset, edgeOffset);
 
@@ -677,7 +677,7 @@ namespace TerranEditor
 	}
 
 	ContentBrowserDirectory::ContentBrowserDirectory(const Shared<DirectoryInfo>& directoryInfo)
-		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::GetDirectoryTexture(), ItemType::Directory), m_DirectoryInfo(directoryInfo)
+		: ContentBrowserItem(directoryInfo->Path.filename().string(), directoryInfo->ID, EditorResources::DirectoryTexture, ItemType::Directory), m_DirectoryInfo(directoryInfo)
 	{ }
 
 	void ContentBrowserDirectory::Move(const std::filesystem::path & newPath)

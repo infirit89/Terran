@@ -6,7 +6,7 @@
 
 #include "Utils/SerializerUtils.h"
 
-#include <json.hpp>
+//#include <json.hpp>
 
 #include <yaml-cpp/yaml.h>
 
@@ -15,7 +15,7 @@
 
 namespace TerranEngine
 {
-    using json = nlohmann::ordered_json;
+    //using json = nlohmann::ordered_json;
 
     ProjectSerializer::ProjectSerializer(Shared<Project>& project)
        : m_Project(project)
@@ -78,8 +78,8 @@ namespace TerranEngine
         {
             auto physicsSettings = node["Physics"];
             m_Project->m_PhysicsSettings.Gravity = physicsSettings["Gravity"].as<glm::vec2>();
-            m_Project->m_PhysicsSettings.VelocityIterations = physicsSettings["VelocityIterations"].as<float>();
-            m_Project->m_PhysicsSettings.PositionIterations = physicsSettings["PositionIterations"].as<float>();
+            m_Project->m_PhysicsSettings.VelocityIterations = physicsSettings["VelocityIterations"].as<uint32_t>();
+            m_Project->m_PhysicsSettings.PositionIterations = physicsSettings["PositionIterations"].as<uint32_t>();
             m_Project->m_PhysicsSettings.PhysicsTimestep = physicsSettings["PhysicsTimestep"].as<float>();
 
             int i = 0;

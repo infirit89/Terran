@@ -13,8 +13,9 @@ namespace TerranEngine {
 
 		void PushLayer(Layer* layer);
 		void RemoveLayer(Layer* layer);
+		void RemoveAllLayers();
 
-		inline std::vector<Layer*> GetLayers() const { return m_Layers; }
+		inline std::vector<Layer*>& GetLayers() { return m_Layers; }
 	private:
 		std::vector<Layer*> m_Layers;
 		int m_LastInsertIndex = 0;
