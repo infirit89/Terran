@@ -620,6 +620,25 @@ namespace TerranEditor
 		ImGui::EndTable();
 	}
 
+	bool UI::BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		if (!name)
+			name = "window_context";
+		ImGuiID id = window->GetID(name);
+		int mouse_button = (popupFlags & ImGuiPopupFlags_MouseButtonMask_);
+		if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+			if (!(popupFlags& ImGuiPopupFlags_NoOpenOverItems) || !ImGui::IsAnyItemHovered())
+				ImGui::OpenPopupEx(id, popupFlags);
+
+		ImGuiWindowFlags popupWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+										ImGuiWindowFlags_NoTitleBar |
+										ImGuiWindowFlags_NoSavedSettings |
+										ImGuiWindowFlags_NoMove;
+		return ImGui::BeginPopupEx(id, popupWindowFlags);
+	}
+
 	static constexpr float power = 0.1f;
 
 	bool UI::PropertyColor(const std::string& label, glm::vec4& value)

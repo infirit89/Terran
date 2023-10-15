@@ -83,6 +83,8 @@ namespace TerranEditor
 		bool BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();
 
+		bool BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags);
+
 		inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
 		{
 			{ typeid(int8_t), ImGuiDataType_S8 },

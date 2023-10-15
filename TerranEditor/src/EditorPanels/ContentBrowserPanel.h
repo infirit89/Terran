@@ -94,6 +94,7 @@ namespace TerranEditor
 		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
 		
 		void RenderTopBar();
+		void RenderSideBar();
 
 		template<typename T>
 		Shared<T> CreateAsset(const std::string& name) 

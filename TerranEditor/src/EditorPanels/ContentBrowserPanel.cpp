@@ -54,68 +54,86 @@ namespace TerranEditor
 	{
 		if (!m_Open) return;
 
-		ImGui::Begin("Content", &m_Open);
+		ImGuiWindowFlags contentBrowserFlags = ImGuiWindowFlags_NoScrollbar;
 
-		RenderTopBar();
+		ImGui::Begin("Content", &m_Open, contentBrowserFlags);
 
-		// render items
+		if (ImGui::BeginTable("content_browser_table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable)) 
 		{
-			std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
-			const float padding = 18.0f;
-			const float cellSize = 74.0f;
+			//const float folderViewColumnWidth = 100.0f;
+			//ImGui::TableSetupColumn("folder_view", 0, folderViewColumnWidth);
+			//ImGui::TableSetupColumn("detailed_view", 0, ImGui::GetContentRegionAvail().x - folderViewColumnWidth);
+			ImGui::TableNextRow();
+			ImGui::TableNextColumn();
+			RenderSideBar();
 
-			float totalSize = padding + cellSize;
-			float availRegionWidth = ImGui::GetContentRegionAvail().x;
-			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
+			ImGui::TableNextColumn();
+			RenderTopBar();
 
-			// TODO: change with the imgui tables api
-			ImGui::Columns(columnCount, (const char*)0, false);
-
-			// for every entry in the current 
-			Shared<DirectoryInfo> directoryToOpen;
-			for (const auto& item : m_CurrentItems)
+			// render items
+			if(ImGui::BeginChild("content_browser_item_view"))
 			{
-				item->BeginRender();
-				ItemAction action = item->OnRender();
+				std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
+				const float padding = 18.0f;
+				const float cellSize = 74.0f;
 
-				if (action == ItemAction::NavigateTo) 
-				{
-					directoryToOpen = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
-					while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
-				}
-				else if (action == ItemAction::Activate)
-				{
-				}
-				else if (action == ItemAction::Select)
-					SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
-				else if (action == ItemAction::MoveTo)
-					MoveSelectedItemTo(m_Directories[item->GetHandle()]);
-				else if (action == ItemAction::StartRename)
-					item->StartRename();
+				float totalSize = padding + cellSize;
+				float availRegionWidth = ImGui::GetContentRegionAvail().x;
+				int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
 
-				ImGui::NextColumn();
-				item->EndRender();
+				if (!ImGui::BeginTable("##content_browser_items", columnCount))
+					return;
+
+				ImGui::TableNextRow();
+
+				Shared<DirectoryInfo> directoryToOpen;
+
+				// for every entry in the current directory 
+				for (const auto& item : m_CurrentItems)
+				{
+					ImGui::TableNextColumn();
+					item->BeginRender();
+					ItemAction action = item->OnRender();
+
+					if (action == ItemAction::NavigateTo) 
+					{
+						directoryToOpen = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
+						while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
+					}
+					else if (action == ItemAction::Activate)
+					{
+					}
+					else if (action == ItemAction::Select)
+						SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
+					else if (action == ItemAction::MoveTo)
+						MoveSelectedItemTo(m_Directories[item->GetHandle()]);
+					else if (action == ItemAction::StartRename)
+						item->StartRename();
+
+					item->EndRender();
+				}
+
+				ImGui::EndTable();
+
+				if (directoryToOpen)
+					ChangeDirectory(directoryToOpen);
+
+				ImGui::EndChild();
 			}
-
-			ImGui::Columns(1);
-
-			if (directoryToOpen)
-				ChangeDirectory(directoryToOpen);
+			ImGui::EndTable();
 		}
-
 
 		ImGui::End();
 	}
 
 	void ContentPanel::RenderTopBar()
 	{
-		/*UI::ScopedStyleColor topbarColor({
-
-		});*/
-
-		ImGui::BeginChild("##topbar", { 0.0f, 20.0f });
+		if (!ImGui::BeginChild("##topbar", { 0.0f, 20.0f }))
+			return;
 		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
+			constexpr float baseSpacing = 4.0f;
+
 			auto button = [this](const std::string& buttonText, bool condition)
 				{
 					bool result = false;
@@ -134,19 +152,25 @@ namespace TerranEditor
 			if (button("<-", m_PreviousDirectory != nullptr))
 				ChangeBackwardDirectory();
 
-			ImGui::Spring(-1.0f, 4.0f);
+			ImGui::Spring(-1.0f, baseSpacing);
 
 			if (button("->", m_NextDirectoryStack.size() > 0))
 				ChangeForwardDirectory();
 
-			ImGui::Spring(-1.0f, 4.0f * 2.0f);
+			ImGui::Spring(-1.0f, baseSpacing * 2.0f);
 			if (ImGui::Button("Reload"))
 				Refresh();
 
+			ImGui::Spring(-1.0f, baseSpacing * 2.0f);
 			Shared<DirectoryInfo> nextDirectory = nullptr;
 			for (int i = 0; i < m_BreadCrumbs.size(); i++)
 			{
-				ImGui::Spring(-1.0f, 4.0f * (i + 3.0f));
+				if (i > 0)
+				{
+					ImGui::Text(">");
+					ImGui::Spring(-1.0f, baseSpacing);
+				}
+
 				std::string name = m_BreadCrumbs[i] == m_RootDirectory ? 
 													"Assets" : 
 													m_BreadCrumbs[i]->Path.stem().string();
@@ -158,13 +182,12 @@ namespace TerranEditor
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
-					{
 						MoveSelectedItemTo(m_BreadCrumbs[i]);
-					}
 
 					ImGui::EndDragDropTarget();
 				}
 				ImGui::PopID();
+				ImGui::Spring(-1.0f, baseSpacing);
 			}
 
 			if (nextDirectory)
@@ -190,7 +213,7 @@ namespace TerranEditor
 			}
 		};
 
-		if (ImGui::BeginPopupContextWindow("content_panel_actions_popup", ImGuiMouseButton_Right))
+		if (UI::BeginPopupContextWindow("content_panel_actions_popup", ImGuiMouseButton_Right))
 		{
 			if (ImGui::MenuItem("Reveal in explorer"))
 				FileSystem::RevealInExplorer(AssetManager::GetFileSystemPath(m_CurrentDirectory->Path));
@@ -230,6 +253,26 @@ namespace TerranEditor
 
 			ImGui::EndPopup();
 		}
+	}
+
+	void ContentPanel::RenderSideBar()
+	{
+		if (!ImGui::BeginChild("##sidebar", { 0.0f, 0.0f }))
+			return;
+
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+		ImGui::Button("Test");
+
+		ImGui::EndChild();
 	}
 
 	void ContentPanel::OnEvent(TerranEngine::Event& event)
