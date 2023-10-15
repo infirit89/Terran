@@ -93,6 +93,8 @@ namespace TerranEditor
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
 		
+		void RenderTopBar();
+
 		template<typename T>
 		Shared<T> CreateAsset(const std::string& name) 
 		{
@@ -106,16 +108,31 @@ namespace TerranEditor
 			return AssetManager::CreateNewAsset<T>(filepath);
 		}
 
+		void CreateNewDirectory(const std::string& name, const std::filesystem::path parent)
+		{
+			std::filesystem::path directoryPath = parent / name;
+			
+			int currentFileNumber = 2;
+			while (AssetManager::FileExists(directoryPath)) 
+			{
+				directoryPath = (parent / name).string() +
+										" (" + std::to_string(currentFileNumber) + ")";
+				currentFileNumber++;
+			}
+
+			std::filesystem::create_directory(AssetManager::GetFileSystemPath(directoryPath));
+		}
+
 		void Refresh();
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, Shared<DirectoryInfo> parent = nullptr);
 		Shared<DirectoryInfo> GetDirectory(const std::filesystem::path& directoryPath);
 		Shared<DirectoryInfo> GetDirectory(const UUID& handle);
 		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
 		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
+		void FillBreadCrumbs();
 
 		// returns the id of the directory it removed
 		UUID RemoveDirectoryInfo(Shared<DirectoryInfo> directory);
-		void UpdateCurrentItems();
 		void SortItems();
 
 		void ChangeForwardDirectory();
@@ -124,7 +141,9 @@ namespace TerranEditor
 	private:
 		Shared<DirectoryInfo> m_CurrentDirectory;
 		Shared<DirectoryInfo> m_PreviousDirectory;
+		Shared<DirectoryInfo> m_RootDirectory;
 		std::stack<Shared<DirectoryInfo>> m_NextDirectoryStack;
+		std::vector<Shared<DirectoryInfo>> m_BreadCrumbs;
 		std::unordered_map<UUID, Shared<DirectoryInfo>> m_Directories;
 		ContentBrowserItemList m_CurrentItems;
 		std::function<void(const std::string&)> m_CreateAsset;

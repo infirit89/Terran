@@ -13,6 +13,8 @@
 #include "EditorPanels/SettingsPanel.h"
 #include "EditorPanels/AssetEditorManager.h"
 #include "EditorPanels/ShaderPanel.h"
+#include "EditorPanels/PreferencesPanel.h"
+
 #include "SelectionManager.h"
 
 #include "EditorResources.h"
@@ -42,8 +44,9 @@ namespace TerranEditor
 #define CONTENT_PANEL_NAME "ContentPanel"
 #define SCENE_VIEW_PANEL_NAME "SceneViewPanel"
 #define SETTINGS_PANEL_NAME "SettingPanel"
-#define ASSET_PROPERTIES_PANEL_NAME "AssetProperties"
+//#define ASSET_PROPERTIES_PANEL_NAME "AssetProperties"
 #define SHADER_PANEL_NAME "ShaderPanel"
+#define PREFERENCES_PANEL_NAME "PreferencesPanel"
 
 	EditorLayer* EditorLayer::s_Instance;
 
@@ -70,7 +73,7 @@ namespace TerranEditor
 	void EditorLayer::OnAttach()
 	{
 		EditorResources::Init();
-		UI::SetupUIStyle();
+		UI::SetupUIStyle4();
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -105,6 +108,9 @@ namespace TerranEditor
         settingsPanel->SetOpen(false);
 
 		m_PanelManager->AddPanel<ShaderPanel>(SHADER_PANEL_NAME);
+		auto preferencesPanel = m_PanelManager->AddPanel<PreferencesPanel>(PREFERENCES_PANEL_NAME);
+		preferencesPanel->SetOpen(false);
+
 		// ***********************
 
 		AssetEditorManager::Init();
@@ -153,7 +159,7 @@ namespace TerranEditor
 		{
 			switch (m_SceneState) 
 			{
-			case SceneState::Edit: 
+			case SceneState::Edit:
 			{
 				SceneManager::GetCurrentScene()->UpdateEditor();
 				SceneManager::GetCurrentScene()->OnRenderEditor(m_EditorSceneRenderer, m_EditorCamera, m_EditorCamera.GetView());
@@ -163,7 +169,7 @@ namespace TerranEditor
 
 				break;
 			}
-			case SceneState::Play: 
+			case SceneState::Play:
 			{
 				SceneManager::GetCurrentScene()->Update(time);
 				SceneManager::GetCurrentScene()->OnRender(m_EditorSceneRenderer);
@@ -295,12 +301,31 @@ namespace TerranEditor
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		
-		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+						ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+						ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		
-		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Terran Editor", (bool*)true, window_flags);
+
+		// render toolbar
+		{
+			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoScrollbar;
+			ImGui::BeginChild("##toolbar", { 0.0f, 30.0f }, toolbarFlags);
+
+			ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2 - 5.0f));
+
+			if (ImGui::Button(m_SceneState == SceneState::Edit ? "Play" : "Stop"))
+			{
+				if (m_SceneState == SceneState::Edit)
+					OnScenePlay();
+				else if (m_SceneState == SceneState::Play)
+					OnSceneStop();
+			}
+
+			ImGui::EndChild();
+		}
+
 		ImGui::PopStyleVar();
 
 		ImGui::PopStyleVar(2);
@@ -312,7 +337,7 @@ namespace TerranEditor
 			ImGuiID dockspace_id = ImGui::GetID("TerranEditorDockspace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
-		
+
 		if (ImGui::BeginMenuBar())
 		{
 			auto menu = [](const char* name, std::function<void()> callback)
@@ -367,8 +392,11 @@ namespace TerranEditor
 				if (ImGui::MenuItem("Settings"))
 					m_PanelManager->SetPanelOpen(SETTINGS_PANEL_NAME, true);
 
-				if (ImGui::MenuItem("Asset Properties"))
-					m_PanelManager->SetPanelOpen(ASSET_PROPERTIES_PANEL_NAME, true);
+				/*if (ImGui::MenuItem("Asset Properties"))
+					m_PanelManager->SetPanelOpen(ASSET_PROPERTIES_PANEL_NAME, true);*/
+
+				if (ImGui::MenuItem("Preferences"))
+					m_PanelManager->SetPanelOpen(PREFERENCES_PANEL_NAME, true);
 			});
 
 			// tools menu
@@ -474,6 +502,8 @@ namespace TerranEditor
 
 		RenderDockspace();
 
+		ImGui::ShowDemoWindow();
+
 		AssetEditorManager::RenderEditors();
 
 		m_PanelManager->ImGuiRender();
@@ -515,7 +545,7 @@ namespace TerranEditor
 			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
 											ImGuiWindowFlags_NoTitleBar;
             
-			ImGui::Begin("##toolbar", nullptr, toolbarFlags);
+			/*ImGui::Begin("##toolbar");
 
 			ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2));
 
@@ -527,7 +557,7 @@ namespace TerranEditor
 					OnSceneStop();
 			}
 
-			ImGui::End();
+			ImGui::End();*/
 		}
 	}
 

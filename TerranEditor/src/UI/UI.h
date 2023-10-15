@@ -75,6 +75,10 @@ namespace TerranEditor
 
 		void SetupUIStyle();
 		void SetupUIStyle2();
+		void SetupUIStyle3();
+		void SetupUIStyle4();
+
+		void Tooltip(const char* text);
 
 		bool BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();
