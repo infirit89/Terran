@@ -83,30 +83,14 @@ namespace TerranEditor
 					directoryToOpen = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
 					while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
 				}
-
-				if (action == ItemAction::Activate)
+				else if (action == ItemAction::Activate)
 				{
 				}
-
-				if (action == ItemAction::Select)
+				else if (action == ItemAction::Select)
 					SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
-
-				if (action == ItemAction::MoveTo)
-				{
-					auto selectedItem = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [](Shared<ContentBrowserItem> browserItem)
-					{
-						return browserItem->GetHandle() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
-					});
-
-					SelectionManager::Deselect(SelectionContext::ContentPanel);
-					if (selectedItem != m_CurrentItems.end()) 
-					{
-						std::filesystem::path directoryPath = m_Directories[item->GetHandle()]->Path;
-						(*selectedItem)->Move(directoryPath);
-					}
-				}
-
-				if (action == ItemAction::StartRename)
+				else if (action == ItemAction::MoveTo)
+					MoveSelectedItemTo(m_Directories[item->GetHandle()]);
+				else if (action == ItemAction::StartRename)
 					item->StartRename();
 
 				ImGui::NextColumn();
@@ -167,8 +151,20 @@ namespace TerranEditor
 													"Assets" : 
 													m_BreadCrumbs[i]->Path.stem().string();
 
+				ImGui::PushID(&(m_BreadCrumbs[i]->Handle));
 				if (ImGui::Button(name.c_str()))
 					nextDirectory = m_BreadCrumbs[i];
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
+					{
+						MoveSelectedItemTo(m_BreadCrumbs[i]);
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::PopID();
 			}
 
 			if (nextDirectory)
@@ -385,6 +381,21 @@ namespace TerranEditor
 			return m_Directories.at(handle);
 
 		return nullptr;
+	}
+
+	void ContentPanel::MoveSelectedItemTo(const Shared<DirectoryInfo>& directory)
+	{
+		auto selectedItem = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [](Shared<ContentBrowserItem> browserItem)
+			{
+				return browserItem->GetHandle() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
+			});
+
+		SelectionManager::Deselect(SelectionContext::ContentPanel);
+		if (selectedItem != m_CurrentItems.end())
+		{
+			std::filesystem::path directoryPath = directory->Path;
+			(*selectedItem)->Move(directoryPath);
+		}
 	}
 
 	void ContentPanel::ChangeDirectory(const Shared<DirectoryInfo>& directory)
