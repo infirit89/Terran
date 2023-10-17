@@ -69,10 +69,69 @@ namespace TerranEditor
 
 			ImGui::TableNextColumn();
 			RenderTopBar();
+			ImGui::Separator();
 
 			// render items
 			if(ImGui::BeginChild("content_browser_item_view"))
 			{
+				// content panel actions popup
+				{
+					bool openRenamePopup = false;
+					auto drawNewDirectoryMenu = [&openRenamePopup, this](const char* name, const char* fileName)
+						{
+							if (ImGui::MenuItem(name))
+							{
+								openRenamePopup = true;
+								m_NewAssetName = fileName;
+								m_CreateAsset = [this](const std::string& name)
+									{
+										CreateNewDirectory(name, m_CurrentDirectory->Path);
+									};
+							}
+						};
+
+					if (UI::BeginPopupContextWindow("content_panel_actions_popup"))
+					{
+						if (ImGui::MenuItem("Reveal in explorer"))
+							FileSystem::RevealInExplorer(AssetManager::GetFileSystemPath(m_CurrentDirectory->Path));
+
+						if (ImGui::BeginMenu("New"))
+						{
+							DrawNewAssetMenu<PhysicsMaterial2DAsset>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
+							DrawNewAssetMenu<Scene>(this, "Scene", "New Scene.terran", openRenamePopup);
+							drawNewDirectoryMenu("Folder", "New Folder");
+							ImGui::EndMenu();
+						}
+
+						ImGui::EndPopup();
+					}
+
+					// TODO: this is pretty scuffed; should do it the proper way
+					if (openRenamePopup)
+					{
+						ImGui::OpenPopup("name_new_asset");
+						memcpy(s_NameBuffer, m_NewAssetName.stem().string().c_str(), m_NewAssetName.stem().string().size());
+					}
+
+					if (ImGui::BeginPopup("name_new_asset"))
+					{
+						if (!ImGui::IsAnyItemActive())
+							ImGui::SetKeyboardFocusHere();
+
+						bool result = ImGui::InputText("##name_new_asset_input", s_NameBuffer, MAX_NAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
+
+						if (ImGui::Button("Create") || result)
+						{
+							std::string fileName = s_NameBuffer + m_NewAssetName.extension().string();
+							m_CreateAsset(fileName);
+							memset(s_NameBuffer, 0, MAX_NAME_BUFFER_SIZE);
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+					}
+				}
+
 				std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
 				const float padding = 18.0f;
 				const float cellSize = 74.0f;
@@ -130,6 +189,7 @@ namespace TerranEditor
 	{
 		if (!ImGui::BeginChild("##topbar", { 0.0f, 20.0f }))
 			return;
+
 		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
 			constexpr float baseSpacing = 4.0f;
@@ -195,64 +255,6 @@ namespace TerranEditor
 		}
 		ImGui::EndHorizontal();
 		ImGui::EndChild();
-
-		ImGui::Separator();
-
-		bool openRenamePopup = false;
-
-		auto drawNewDirectoryMenu = [&openRenamePopup, this](const char* name, const char* fileName)
-		{
-			if (ImGui::MenuItem(name))
-			{
-				openRenamePopup = true;
-				m_NewAssetName = fileName;
-				m_CreateAsset = [this](const std::string& name)
-				{
-					CreateNewDirectory(name, m_CurrentDirectory->Path);
-				};
-			}
-		};
-
-		if (UI::BeginPopupContextWindow("content_panel_actions_popup", ImGuiMouseButton_Right))
-		{
-			if (ImGui::MenuItem("Reveal in explorer"))
-				FileSystem::RevealInExplorer(AssetManager::GetFileSystemPath(m_CurrentDirectory->Path));
-
-			if (ImGui::BeginMenu("New"))
-			{
-				DrawNewAssetMenu<PhysicsMaterial2DAsset>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
-				DrawNewAssetMenu<Scene>(this, "Scene", "New Scene.terran", openRenamePopup);
-				drawNewDirectoryMenu("Folder", "New Folder");
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndPopup();
-		}
-
-		// TODO: this is pretty scuffed; should do it the proper way
-		if (openRenamePopup)
-		{
-			ImGui::OpenPopup("name_new_asset");
-			memcpy(s_NameBuffer, m_NewAssetName.stem().string().c_str(), m_NewAssetName.stem().string().size());
-		}
-
-		if (ImGui::BeginPopup("name_new_asset"))
-		{
-			if (!ImGui::IsAnyItemActive())
-				ImGui::SetKeyboardFocusHere();
-
-			bool result = ImGui::InputText("##name_new_asset_input", s_NameBuffer, MAX_NAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
-
-			if (ImGui::Button("Create") || result)
-			{
-				std::string fileName = s_NameBuffer + m_NewAssetName.extension().string();
-				m_CreateAsset(fileName);
-				memset(s_NameBuffer, 0, MAX_NAME_BUFFER_SIZE);
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
 	}
 
 	void ContentPanel::RenderSideBar()
@@ -260,19 +262,51 @@ namespace TerranEditor
 		if (!ImGui::BeginChild("##sidebar", { 0.0f, 0.0f }))
 			return;
 
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
-		ImGui::Button("Test");
+		RenderDirectoryTree(m_RootDirectory);
 
 		ImGui::EndChild();
+	}
+
+	void ContentPanel::RenderDirectoryTree(Shared<DirectoryInfo> parent)
+	{
+		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth |
+										ImGuiTreeNodeFlags_FramePadding |
+										ImGuiTreeNodeFlags_AllowItemOverlap | 
+										ImGuiTreeNodeFlags_OpenOnArrow |
+										ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+		bool opened = false;
+		if (parent == m_CurrentDirectory)
+			nodeFlags |= ImGuiTreeNodeFlags_Selected;
+
+		if (parent == m_RootDirectory)
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			ImGui::PushFont(io.Fonts->Fonts[TR_BOLD_FONT_INDEX]);
+			nodeFlags |= parent->Subdirectories.empty() ?
+				ImGuiTreeNodeFlags_Leaf :
+				ImGuiTreeNodeFlags_DefaultOpen;
+
+			opened = ImGui::TreeNodeEx("Assets", nodeFlags);
+
+			ImGui::PopFont();
+		}
+		else
+		{
+			nodeFlags |= parent->Subdirectories.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
+			opened = ImGui::TreeNodeEx(parent->Path.stem().string().c_str(), nodeFlags);
+		}
+
+		if (ImGui::IsItemClicked())
+			ChangeDirectory(parent);
+
+		if (opened)
+		{
+			for (const auto& [subdirectoryId, subdirectory] : parent->Subdirectories)
+				RenderDirectoryTree(subdirectory);
+
+			ImGui::TreePop();
+		}
 	}
 
 	void ContentPanel::OnEvent(TerranEngine::Event& event)
@@ -340,7 +374,8 @@ namespace TerranEditor
 
 		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
 		m_Directories.clear();
-		ProcessDirectory(Project::GetAssetPath());
+		UUID rootDirectoryHandle = ProcessDirectory(Project::GetAssetPath());
+		m_RootDirectory = GetDirectory(rootDirectoryHandle);
 		ChangeDirectory(GetDirectory(currentDirectoryPath));
 	}
 
@@ -552,7 +587,7 @@ namespace TerranEditor
 		while (true) 
 		{
 			directoryNodes.push_back(parent);
-			if (parent == m_RootDirectory)
+			if (parent->Handle == m_RootDirectory->Handle)
 				break;
 
 			parent = parent->Parent;

@@ -83,7 +83,8 @@ namespace TerranEditor
 		bool BeginPropertyGroup(const char* propertyGroupName);
 		void EndPropertyGroup();
 
-		bool BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags);
+		bool BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
+		bool BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
 
 		inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
 		{
@@ -132,9 +133,9 @@ namespace TerranEditor
 			bool modified = false;
 				
 			modified = ImGui::DragScalar(label, dataType, value, power, nullptr, nullptr, format, flags);
-			
-			if (ImGui::IsItemHovered() || ImGui::IsItemActive())
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+			/*if (ImGui::IsItemHovered())
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);*/
 
 			return modified;
 		}

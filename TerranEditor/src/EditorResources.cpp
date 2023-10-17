@@ -2,6 +2,8 @@
 
 #include "Assets/AssetLoaders.h"
 
+#include <imgui.h>
+
 namespace TerranEditor 
 {
     using namespace TerranEngine;
@@ -28,6 +30,16 @@ namespace TerranEditor
         ErrorTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/error-icon.png");
         InfoTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/info-icon.png");
         WarningTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/warning-icon.png");
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        ImFontConfig config;
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
+        io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Bold.ttf", 15.0f, &config);
+
+        config.MergeMode = true;
+        io.Fonts->Build();
+        io.IniFilename = "Resources/TerranEditorSettings.ini";
     }
 
     void EditorResources::Shutdown()

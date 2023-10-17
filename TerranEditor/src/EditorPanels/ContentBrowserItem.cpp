@@ -150,7 +150,7 @@ namespace TerranEditor
 				action = OnActivate();
 		}
 
-		if (ImGui::BeginPopupContextItem("cbi_actions_context_menu"))
+		if (UI::BeginPopupContextItem("cbi_actions_context_menu"))
 		{
 			if (ImGui::MenuItem("Rename"))
 				action = ItemAction::StartRename;

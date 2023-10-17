@@ -95,6 +95,7 @@ namespace TerranEditor
 		
 		void RenderTopBar();
 		void RenderSideBar();
+		void RenderDirectoryTree(Shared<DirectoryInfo> parent);
 
 		template<typename T>
 		Shared<T> CreateAsset(const std::string& name) 

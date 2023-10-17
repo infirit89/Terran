@@ -19,6 +19,9 @@ namespace TerranEditor
         static TerranEngine::Shared<TerranEngine::Texture2D> ErrorTexture;
         static TerranEngine::Shared<TerranEngine::Texture2D> InfoTexture;
         static TerranEngine::Shared<TerranEngine::Texture2D> WarningTexture;
+
+#define TR_DEFAULT_FONT_INDEX 0
+#define TR_BOLD_FONT_INDEX 1
 	};
 }
 

@@ -75,14 +75,6 @@ namespace TerranEditor
 		EditorResources::Init();
 		UI::SetupUIStyle4();
 
-		ImGuiIO& io = ImGui::GetIO();
-
-		ImFontConfig config;
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
-		config.MergeMode = true;
-		io.Fonts->Build();
-		io.IniFilename = "Resources/TerranEditorSettings.ini";
-
 		m_EditorScene = SceneManager::CreateEmpyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();

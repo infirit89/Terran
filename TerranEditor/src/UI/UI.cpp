@@ -424,7 +424,7 @@ namespace TerranEditor
 		style.ItemSpacing = ImVec2(6.0f, 6.0f);
 		style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
 		style.CellPadding = ImVec2(6.0f, 6.0f);
-		style.IndentSpacing = 25.0f;
+		style.IndentSpacing = 16.0f;
 		style.ColumnsMinSpacing = 6.0f;
 		style.ScrollbarSize = 15.0f;
 		style.ScrollbarRounding = 9.0f;
@@ -636,6 +636,25 @@ namespace TerranEditor
 										ImGuiWindowFlags_NoTitleBar |
 										ImGuiWindowFlags_NoSavedSettings |
 										ImGuiWindowFlags_NoMove;
+		return ImGui::BeginPopupEx(id, popupWindowFlags);
+	}
+
+	bool UI::BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		if (window->SkipItems)
+			return false;
+		ImGuiID id = name ? window->GetID(name) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+		IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+		int mouse_button = (popupFlags & ImGuiPopupFlags_MouseButtonMask_);
+		if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+			ImGui::OpenPopupEx(id, popupFlags);
+		ImGuiWindowFlags popupWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+											ImGuiWindowFlags_NoTitleBar |
+											ImGuiWindowFlags_NoSavedSettings |
+											ImGuiWindowFlags_NoMove;
+
 		return ImGui::BeginPopupEx(id, popupWindowFlags);
 	}
 
