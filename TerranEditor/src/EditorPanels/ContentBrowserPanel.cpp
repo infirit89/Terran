@@ -300,6 +300,14 @@ namespace TerranEditor
 		if (ImGui::IsItemClicked())
 			ChangeDirectory(parent);
 
+		if (ImGui::BeginDragDropTarget()) 
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET", ImGuiDragDropFlags_AcceptNoDrawDefaultRect))
+				MoveSelectedItemTo(parent);
+
+			ImGui::EndDragDropTarget();
+		}
+
 		if (opened)
 		{
 			for (const auto& [subdirectoryId, subdirectory] : parent->Subdirectories)
