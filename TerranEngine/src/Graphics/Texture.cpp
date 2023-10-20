@@ -27,6 +27,7 @@ namespace TerranEngine
 		case TextureFormat::RGB:				return { GL_RGB8, GL_RGB };
 		case TextureFormat::RGBA:				return { GL_RGBA8, GL_RGBA };
 		case TextureFormat::Depth24Stencil8:	return { GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8 };
+		case TextureFormat::RG:					return { GL_RG8, GL_RG };
 		default:
 			TR_WARN("The texture type isn't supported");
 			break;

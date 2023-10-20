@@ -279,30 +279,44 @@ namespace TerranEditor
 		if (parent == m_CurrentDirectory)
 			nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
+		ImGui::BeginHorizontal("##directoryView");
+		nodeFlags |= parent->Subdirectories.empty() ? 
+						ImGuiTreeNodeFlags_Leaf : 
+							parent == m_RootDirectory ?
+								ImGuiTreeNodeFlags_DefaultOpen :
+								0;
+
+		std::string id = fmt::format("##{0}", parent->Path.stem().string());
+		opened = UI::TreeNodeEx(id.c_str(), nodeFlags);
+		ImGui::BeginVertical("##directoryVertical", { 0.0f, ImGui::GetItemRectSize().y });
+		ImGui::Spring(0.1f, 0.0f);
+		ImGui::BeginHorizontal("##directoryInfo", { ImGui::GetItemRectSize().x, 0.0f }, 1.0f);
+		ImGui::Spring(0.0f, opened ? 11.0f : 6.0f);
+		UI::Image((ImTextureID)EditorResources::DirectoryTexture->GetHandle(), { 15.0f, 15.0f });
+
 		if (parent == m_RootDirectory)
 		{
 			ImGuiIO& io = ImGui::GetIO();
 			ImGui::PushFont(io.Fonts->Fonts[TR_BOLD_FONT_INDEX]);
-			nodeFlags |= parent->Subdirectories.empty() ?
-				ImGuiTreeNodeFlags_Leaf :
-				ImGuiTreeNodeFlags_DefaultOpen;
-
-			opened = ImGui::TreeNodeEx("Assets", nodeFlags);
-
+			ImGui::Text("Assets");
 			ImGui::PopFont();
 		}
 		else
-		{
-			nodeFlags |= parent->Subdirectories.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
-			opened = ImGui::TreeNodeEx(parent->Path.stem().string().c_str(), nodeFlags);
-		}
+			ImGui::Text(parent->Path.stem().string().c_str());
+
+		ImGui::EndHorizontal();
+		ImGui::Spring(0.1f, 0.0f);
+		ImGui::EndVertical();
+		ImGui::EndHorizontal();
+		
 
 		if (ImGui::IsItemClicked())
 			ChangeDirectory(parent);
 
 		if (ImGui::BeginDragDropTarget()) 
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET", ImGuiDragDropFlags_AcceptNoDrawDefaultRect))
+			ImGuiDragDropFlags dragDropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET", dragDropFlags))
 				MoveSelectedItemTo(parent);
 
 			ImGui::EndDragDropTarget();

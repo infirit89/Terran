@@ -159,6 +159,10 @@ namespace TerranEditor
 			return changed;
 		}
 
+		// the mostly same as imgui's but with some minor tweaks
+		bool TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end);
+		bool TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags);
+
 		template<typename TEnum>
 		bool PropertyDropdown(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected)
 		{

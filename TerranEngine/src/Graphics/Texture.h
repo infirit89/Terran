@@ -15,7 +15,8 @@ namespace TerranEngine
 		Red32I,
 		RGB,
 		RGBA,
-		Depth24Stencil8
+		Depth24Stencil8,
+		RG
 	};
 
 	enum class TextureFilter
