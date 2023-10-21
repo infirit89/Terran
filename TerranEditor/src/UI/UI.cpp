@@ -407,31 +407,41 @@ namespace TerranEditor
 		ImGuiStyle& style = ImGui::GetStyle();
 
 		style.Alpha = 1.0f;
-		style.DisabledAlpha = 0.6f;
-		style.WindowPadding = ImVec2(8.0f, 8.0f);
+		style.DisabledAlpha = 0.4f;
+
+		// Rounding
 		style.WindowRounding = 7.0f;
-		style.WindowBorderSize = 1.0f;
-		style.WindowMinSize = ImVec2(32.0f, 32.0f);
-		style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
-		style.WindowMenuButtonPosition = ImGuiDir_Left;
 		style.ChildRounding = 4.0f;
-		style.ChildBorderSize = 1.0f;
-		style.PopupRounding = 4.0f;
-		style.PopupBorderSize = 1.0f;
-		style.FramePadding = ImVec2(5.0f, 2.0f);
+		style.PopupRounding = 6.0f;
 		style.FrameRounding = 3.0f;
-		style.FrameBorderSize = 1.0f;
+		style.TabRounding = 4.0f;
+		style.GrabRounding = 3.0f;
+		style.ScrollbarRounding = 9.0f;
+
+		// Padding
+		style.WindowPadding = ImVec2(8.0f, 8.0f);
+		style.FramePadding = ImVec2(5.0f, 2.0f);
+		style.CellPadding = ImVec2(6.0f, 6.0f);
+
+		// Spacing
 		style.ItemSpacing = ImVec2(6.0f, 6.0f);
 		style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
-		style.CellPadding = ImVec2(6.0f, 6.0f);
 		style.IndentSpacing = 16.0f;
 		style.ColumnsMinSpacing = 6.0f;
+
+		// Size
+		style.ChildBorderSize = 1.0f;
+		style.PopupBorderSize = 1.0f;
+		style.FrameBorderSize = 1.0f;
 		style.ScrollbarSize = 15.0f;
-		style.ScrollbarRounding = 9.0f;
 		style.GrabMinSize = 10.0f;
-		style.GrabRounding = 3.0f;
-		style.TabRounding = 4.0f;
 		style.TabBorderSize = 1.0f;
+		style.WindowBorderSize = 1.0f;
+		style.WindowMinSize = ImVec2(32.0f, 32.0f);
+
+		// Alignment
+		style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
+		style.WindowMenuButtonPosition = ImGuiDir_Left;
 		style.TabMinWidthForCloseButton = 0.0f;
 		style.ColorButtonPosition = ImGuiDir_Right;
 		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
@@ -440,9 +450,9 @@ namespace TerranEditor
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
 		colors[ImGuiCol_ChildBg] = ImVec4(0.63f, 0.63f, 0.63f, 0.00f);
-		colors[ImGuiCol_PopupBg] = ImVec4(0.18f, 0.18f, 0.18f, 0.92f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.0f);
 		colors[ImGuiCol_Border] = ImVec4(0.18f, 0.18f, 0.18f, 0.28f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.23f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);

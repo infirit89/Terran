@@ -66,6 +66,20 @@ namespace TerranEditor
 		private:
 			size_t m_StyleVarListSize = 0;
 		};
+
+		class ScopedFont
+		{
+		public:
+			ScopedFont(ImFont* font)
+			{
+				ImGui::PushFont(font);
+			}
+
+			~ScopedFont()
+			{
+				ImGui::PopFont();
+			}
+		};
 		
 		void ShiftCursor(float x, float y);
 		void ShiftCursorX(float x);

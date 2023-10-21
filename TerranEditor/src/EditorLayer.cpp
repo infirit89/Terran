@@ -302,7 +302,8 @@ namespace TerranEditor
 
 		// render toolbar
 		{
-			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoScrollbar;
+			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoScrollbar |
+											ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::BeginChild("##toolbar", { 0.0f, 30.0f }, toolbarFlags);
 
 			ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2 - 5.0f));

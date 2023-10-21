@@ -27,7 +27,7 @@ namespace TerranEngine
 		case TextureFormat::RGB:				return { GL_RGB8, GL_RGB };
 		case TextureFormat::RGBA:				return { GL_RGBA8, GL_RGBA };
 		case TextureFormat::Depth24Stencil8:	return { GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8 };
-		case TextureFormat::RG:					return { GL_RG8, GL_RG };
+		case TextureFormat::Grayscale:			return { GL_RG8, GL_RG };
 		default:
 			TR_WARN("The texture type isn't supported");
 			break;
@@ -171,6 +171,14 @@ namespace TerranEngine
 			else
 			{
 				glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+
+				if (textureParameters.Format == TextureFormat::Grayscale) 
+				{
+					glTextureParameteri(m_Handle, GL_TEXTURE_SWIZZLE_R, GL_RED);
+					glTextureParameteri(m_Handle, GL_TEXTURE_SWIZZLE_G, GL_RED);
+					glTextureParameteri(m_Handle, GL_TEXTURE_SWIZZLE_B, GL_RED);
+					glTextureParameteri(m_Handle, GL_TEXTURE_SWIZZLE_A, GL_GREEN);
+				}
 
 				uint32_t filter = GetNativeTextureFilter(textureParameters.Filter);
 

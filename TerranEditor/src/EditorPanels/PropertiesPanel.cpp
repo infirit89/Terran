@@ -50,7 +50,7 @@ namespace TerranEditor
 
 			ImGui::PushStyleColor(ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f });
 			if (ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)EditorResources::SettingsTexture->GetHandle()), 
-				ImVec2{ lineHeight - 4.0f, lineHeight - 6.0f }, { 0, 1 }, { 1, 0 }))
+				ImVec2{ lineHeight - 4.0f, lineHeight - 4.0f }, { 0, 1 }, { 1, 0 }))
 				ImGui::OpenPopup("ComponentSettings");
 
 			ImGui::PopStyleColor();

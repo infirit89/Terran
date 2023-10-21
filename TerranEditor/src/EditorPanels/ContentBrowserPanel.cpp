@@ -15,9 +15,12 @@
 #include "SelectionManager.h"
 
 #include "UI/UI.h"
+#include "UI/FontManager.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
+
+#include <IconsFontAwesome6.h>
 
 #include <algorithm>
 #include <optional>
@@ -194,28 +197,38 @@ namespace TerranEditor
 		{
 			constexpr float baseSpacing = 4.0f;
 
-			auto button = [this](const std::string& buttonText, bool condition)
-				{
-					bool result = false;
-					if (!condition)
-						ImGui::BeginDisabled();
+			{
+				UI::ScopedStyleColor navigationColor({
+					{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
+				});
+				UI::ScopedStyleVar navigationStyleVar({
+					{ ImGuiStyleVar_FrameBorderSize, { 0.0f, 0.0f } }
+				});
 
-					result = ImGui::Button(buttonText.c_str());
+				auto nativationalButton = [this](const uint32_t textureHandle, bool condition)
+					{
+						bool result = false;
+						if (!condition)
+							ImGui::BeginDisabled();
 
-					if (!condition)
-						ImGui::EndDisabled();
+						result = ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)textureHandle),
+							{ 14.0f, 28.0f }, { 0.25f, 1 }, { 0.75f, 0 });
 
-					return result;
-			};
+						if (!condition)
+							ImGui::EndDisabled();
 
-			// back button
-			if (button("<-", m_PreviousDirectory != nullptr))
-				ChangeBackwardDirectory();
+						return result;
+				};
 
-			ImGui::Spring(-1.0f, baseSpacing);
+				// back button
+				if (nativationalButton(EditorResources::NavigateBefore->GetHandle(), m_PreviousDirectory != nullptr))
+					ChangeBackwardDirectory();
 
-			if (button("->", m_NextDirectoryStack.size() > 0))
-				ChangeForwardDirectory();
+				ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+
+				if (nativationalButton(EditorResources::NavigateNext->GetHandle(), m_NextDirectoryStack.size() > 0))
+					ChangeForwardDirectory();
+			}
 
 			ImGui::Spring(-1.0f, baseSpacing * 2.0f);
 			if (ImGui::Button("Reload"))
@@ -279,7 +292,6 @@ namespace TerranEditor
 		if (parent == m_CurrentDirectory)
 			nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-		ImGui::BeginHorizontal("##directoryView");
 		nodeFlags |= parent->Subdirectories.empty() ? 
 						ImGuiTreeNodeFlags_Leaf : 
 							parent == m_RootDirectory ?
@@ -288,26 +300,27 @@ namespace TerranEditor
 
 		std::string id = fmt::format("##{0}", parent->Path.stem().string());
 		opened = UI::TreeNodeEx(id.c_str(), nodeFlags);
-		ImGui::BeginVertical("##directoryVertical", { 0.0f, ImGui::GetItemRectSize().y });
-		ImGui::Spring(0.1f, 0.0f);
-		ImGui::BeginHorizontal("##directoryInfo", { ImGui::GetItemRectSize().x, 0.0f }, 1.0f);
-		ImGui::Spring(0.0f, opened ? 11.0f : 6.0f);
+
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		ImGui::BeginVertical("##directoryVertical");
+		ImGui::Spring(0.0f, 2.0f);
+		ImGui::BeginHorizontal("##directoryHorizontal", { ImGui::GetItemRectSize().x, 0.0f });
+		ImGui::Spring(0.0f, 4.0f);
 		UI::Image((ImTextureID)EditorResources::DirectoryTexture->GetHandle(), { 15.0f, 15.0f });
 
 		if (parent == m_RootDirectory)
 		{
 			ImGuiIO& io = ImGui::GetIO();
-			ImGui::PushFont(io.Fonts->Fonts[TR_BOLD_FONT_INDEX]);
+			UI::ScopedFont(UI::FontManager::GetFont("Roboto-Bold"));
 			ImGui::Text("Assets");
-			ImGui::PopFont();
 		}
 		else
 			ImGui::Text(parent->Path.stem().string().c_str());
 
 		ImGui::EndHorizontal();
-		ImGui::Spring(0.1f, 0.0f);
 		ImGui::EndVertical();
-		ImGui::EndHorizontal();
+		ImGui::EndGroup();
 		
 
 		if (ImGui::IsItemClicked())
