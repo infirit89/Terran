@@ -19,7 +19,7 @@ namespace TerranEditor
 			ImFont* font = io.Fonts->AddFontFromFileTTF(config.Path.string().c_str(),
 														config.Size, &imFontConfig,
 														config.GlyphRange);
-			s_FontMap.emplace(config.Path.stem().string(), font);
+			s_FontMap.emplace(config.Name, font);
 
 			if (isDefault)
 				io.FontDefault = font;
@@ -37,6 +37,16 @@ namespace TerranEditor
 		{
 			ImGuiIO& io = ImGui::GetIO();
 			io.Fonts->Build();
+		}
+
+		void FontManager::PushFont(const std::string& name)
+		{
+			ImGui::PushFont(GetFont(name));
+		}
+
+		void FontManager::PopFont()
+		{
+			ImGui::PopFont();
 		}
 	}
 }

@@ -49,8 +49,6 @@ namespace TerranEditor
 	};
 
 
-	
-
 	static std::string ProccessFieldName(std::string name)
 	{
 		std::string result;
@@ -193,14 +191,14 @@ namespace TerranEditor
 	{
 		for (auto& styleVarIt : styleVarList)
 		{
-			ImVec2 styleVal = { styleVarIt.Val.x, styleVarIt.Val.y };
+			//ImVec2 styleVal = { styleVarIt.Val.x, styleVarIt.Val.y };
 
 			ImGuiStyleVarInfo varInfo = StyleVarInfo[styleVarIt.StyleVarIdx];
 
-			if(varInfo.Count == 2)
-				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
+			if(varInfo.Count == 1)
+				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, (float)styleVarIt);
 			else
-				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal.x);
+				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, (ImVec2)styleVarIt);
 		}
 	}
 

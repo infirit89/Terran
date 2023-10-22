@@ -1,7 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Terran
 {
+	class Test 
+	{
+		void T1() 
+		{
+			List<string> l = new List<string>();
+			//l.RemoveRange()
+		}
+	}
+
 #if false
 	public class TestScript : Scriptable
 	{

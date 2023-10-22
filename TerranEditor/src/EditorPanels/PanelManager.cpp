@@ -33,4 +33,3 @@ namespace TerranEditor
         m_Panels.at(hashedPanelName)->SetOpen(open);
     }
 }
-

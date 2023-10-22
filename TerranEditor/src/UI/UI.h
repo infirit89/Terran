@@ -4,6 +4,8 @@
 
 #include "Assets/AssetManager.h"
 
+#include "FontManager.h"
+
 #include <imgui.h>
 
 #include <glm/glm.hpp>
@@ -56,8 +58,30 @@ namespace TerranEditor
 		public:
 			struct StyleVar 
 			{
+				StyleVar(int styleVarIndex, float fval) 
+				{
+					StyleVarIdx = styleVarIndex;
+					Val.FVal = fval;
+				}
+
+				StyleVar(int styleVarIndex, ImVec2 vecVal) 
+				{
+					StyleVarIdx = styleVarIndex;
+					Val.VecVal = vecVal;
+				}
+
+				~StyleVar() = default;
+
 				int StyleVarIdx;
-				glm::vec2 Val;
+
+				union
+				{
+					ImVec2 VecVal;
+					float FVal;
+				} Val{};
+
+				operator ImVec2() const { return Val.VecVal; }
+				operator float() const { return Val.FVal; }
 			};
 
 			ScopedStyleVar(std::initializer_list<StyleVar> styleVarList);
@@ -70,6 +94,11 @@ namespace TerranEditor
 		class ScopedFont
 		{
 		public:
+			ScopedFont(const std::string& fontName) 
+			{
+				FontManager::PushFont(fontName);
+			}
+
 			ScopedFont(ImFont* font)
 			{
 				ImGui::PushFont(font);
@@ -77,7 +106,7 @@ namespace TerranEditor
 
 			~ScopedFont()
 			{
-				ImGui::PopFont();
+				FontManager::PopFont();
 			}
 		};
 		

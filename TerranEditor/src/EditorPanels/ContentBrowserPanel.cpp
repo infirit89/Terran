@@ -33,6 +33,8 @@ namespace TerranEditor
 	#define MAX_NAME_BUFFER_SIZE 256
 	static char s_NameBuffer[MAX_NAME_BUFFER_SIZE]{ 0 };
 
+	static ImGuiTextFilter s_Filter;
+
 	ContentPanel::ContentPanel()
 	{
 		AssetManager::SetAssetChangedCallback(TR_EVENT_BIND_FN(ContentPanel::OnFileSystemChanged));
@@ -153,6 +155,9 @@ namespace TerranEditor
 				// for every entry in the current directory 
 				for (const auto& item : m_CurrentItems)
 				{
+					if (!s_Filter.PassFilter(item->GetName().c_str()))
+						continue;
+
 					ImGui::TableNextColumn();
 					item->BeginRender();
 					ItemAction action = item->OnRender();
@@ -190,52 +195,88 @@ namespace TerranEditor
 
 	void ContentPanel::RenderTopBar()
 	{
-		if (!ImGui::BeginChild("##topbar", { 0.0f, 20.0f }))
+		if (!ImGui::BeginChild("##topbar", { 0.0f, 30.0f }))
 			return;
 
 		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
 			constexpr float baseSpacing = 4.0f;
 
+			float originalFrameBorderSize = ImGui::GetStyle().FrameBorderSize;
+
+			UI::ScopedStyleColor navigationColor({
+				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
+			});
+			UI::ScopedStyleVar navigationStyleVar({
+				{ ImGuiStyleVar_FrameBorderSize, 0.0f }
+			});
+
+			auto nativationalButton = [this](const uint32_t textureHandle, bool condition)
+				{
+					bool result = false;
+					if (!condition)
+						ImGui::BeginDisabled();
+
+					result = ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)textureHandle),
+						{ 14.0f, 28.0f }, { 0.25f, 1 }, { 0.75f, 0 });
+
+					if (!condition)
+						ImGui::EndDisabled();
+
+					return result;
+			};
+
+			auto nativationalButtonText = [this](const char* text, bool condition)
 			{
-				UI::ScopedStyleColor navigationColor({
-					{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
-				});
-				UI::ScopedStyleVar navigationStyleVar({
-					{ ImGuiStyleVar_FrameBorderSize, { 0.0f, 0.0f } }
-				});
+				bool result = false;
+				if (!condition)
+					ImGui::BeginDisabled();
 
-				auto nativationalButton = [this](const uint32_t textureHandle, bool condition)
-					{
-						bool result = false;
-						if (!condition)
-							ImGui::BeginDisabled();
+				result = ImGui::Button(text);
 
-						result = ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)textureHandle),
-							{ 14.0f, 28.0f }, { 0.25f, 1 }, { 0.75f, 0 });
+				if (!condition)
+					ImGui::EndDisabled();
 
-						if (!condition)
-							ImGui::EndDisabled();
+				return result;
+			};
 
-						return result;
-				};
+			{
+				UI::ScopedFont scopedIconFont("IconFont");
 
 				// back button
-				if (nativationalButton(EditorResources::NavigateBefore->GetHandle(), m_PreviousDirectory != nullptr))
+				if (nativationalButtonText(ICON_FA_ARROW_LEFT, m_PreviousDirectory != nullptr))
 					ChangeBackwardDirectory();
 
 				ImGui::Spring(-1.0f, baseSpacing * 2.0f);
 
-				if (nativationalButton(EditorResources::NavigateNext->GetHandle(), m_NextDirectoryStack.size() > 0))
+				if (nativationalButtonText(ICON_FA_ARROW_RIGHT, m_NextDirectoryStack.size() > 0))
 					ChangeForwardDirectory();
+
+				ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+
+				if (ImGui::Button(ICON_FA_ARROWS_ROTATE))
+					Refresh();
+
 			}
+			// search field
 
-			ImGui::Spring(-1.0f, baseSpacing * 2.0f);
-			if (ImGui::Button("Reload"))
-				Refresh();
+			{
+				UI::ScopedStyleVar navigationStyleVar({
+					{ ImGuiStyleVar_FrameBorderSize, originalFrameBorderSize }
+				});
 
-			ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+				//char buf[256];
+				//memset(buf, 0, sizeof(buf));
+				constexpr float nextItemWidth = 100.0f * 2.0f;
+				ImGui::SetNextItemWidth(nextItemWidth);
+				//ImGui::InputTextWithHint("##Search", "Search...", buf, 256);
+
+				s_Filter.Draw("##Search");
+			}
+			
 			Shared<DirectoryInfo> nextDirectory = nullptr;
+
+			ImGui::Spring(-1.0f, baseSpacing * 3.0f);
 			for (int i = 0; i < m_BreadCrumbs.size(); i++)
 			{
 				if (i > 0)
@@ -244,13 +285,23 @@ namespace TerranEditor
 					ImGui::Spring(-1.0f, baseSpacing);
 				}
 
-				std::string name = m_BreadCrumbs[i] == m_RootDirectory ? 
-													"Assets" : 
+				std::string name = m_BreadCrumbs[i] == m_RootDirectory ?
+													"Assets" :
 													m_BreadCrumbs[i]->Path.stem().string();
 
+
 				ImGui::PushID(&(m_BreadCrumbs[i]->Handle));
-				if (ImGui::Button(name.c_str()))
-					nextDirectory = m_BreadCrumbs[i];
+				if (m_BreadCrumbs[i] == m_CurrentDirectory) 
+				{
+					UI::ScopedFont currentDirectory(UI::FontManager::GetFont("Roboto-Bold"));
+					if (ImGui::Button(name.c_str()))
+						nextDirectory = m_BreadCrumbs[i];
+				}
+				else 
+				{
+					if (ImGui::Button(name.c_str()))
+						nextDirectory = m_BreadCrumbs[i];
+				}
 
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -312,7 +363,7 @@ namespace TerranEditor
 		if (parent == m_RootDirectory)
 		{
 			ImGuiIO& io = ImGui::GetIO();
-			UI::ScopedFont(UI::FontManager::GetFont("Roboto-Bold"));
+			UI::ScopedFont rootDirectoryFont(UI::FontManager::GetFont("Roboto-Bold"));
 			ImGui::Text("Assets");
 		}
 		else

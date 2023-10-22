@@ -48,29 +48,33 @@ namespace TerranEditor
 
 
         constexpr float baseFontSize = 16.0f;
+        // default font
         UI::FontConfig defaultFontConfig;
+        defaultFontConfig.Name = "Roboto-Regular";
         defaultFontConfig.Path = "Resources/Fonts/Roboto/Roboto-Regular.ttf";
         UI::FontManager::AddFont(defaultFontConfig, true);
 
+        // bold font
         UI::FontConfig boldFontConfig;
+        boldFontConfig.Name = "Roboto-Bold";
         boldFontConfig.Path = "Resources/Fonts/Roboto/Roboto-Bold.ttf";
         UI::FontManager::AddFont(boldFontConfig);
 
+        // icon font
+        UI::FontConfig fontAwesomeConfigLarge;
+        constexpr float iconFontSize = baseFontSize;
+        fontAwesomeConfigLarge.Name = "IconFont";
+        fontAwesomeConfigLarge.Path = "Resources/Fonts/FontAwesome/fa-solid-900.ttf";
+        fontAwesomeConfigLarge.Size = 16.0f;
+        fontAwesomeConfigLarge.MergeMode = true;
+        fontAwesomeConfigLarge.PixelSnapH = true;
+        fontAwesomeConfigLarge.GlyphMixAdvanceX = iconFontSize;
+        const ImWchar faIconsRange[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+        fontAwesomeConfigLarge.GlyphRange = faIconsRange;
+        UI::FontManager::AddFont(fontAwesomeConfigLarge);
+
         UI::FontManager::BuildFontAtlas();
 
-        /*ImFontConfig config;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", baseFontSize, &config);
-        io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Bold.ttf", baseFontSize, &config);
-
-        const float iconFontSize = baseFontSize * 2.0f / 3.0f;
-        static const ImWchar faIconsRange[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
-        ImFontConfig iconsConfig;
-        iconsConfig.MergeMode = true;
-        iconsConfig.PixelSnapH = true;
-        iconsConfig.GlyphMinAdvanceX = iconFontSize;
-        io.Fonts->AddFontFromFileTTF("Resources/Fonts/FontAwesome/FontAwesome6Regular.otf", iconFontSize, &iconsConfig, faIconsRange);
-
-        io.Fonts->Build();*/
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = "Resources/TerranEditorSettings.ini";
     }
