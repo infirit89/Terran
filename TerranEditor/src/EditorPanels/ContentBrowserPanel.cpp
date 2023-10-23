@@ -21,12 +21,10 @@
 #include <imgui_internal.h>
 
 #include <IconsFontAwesome6.h>
+#include <IconsMaterialDesign.h>
 
 #include <algorithm>
 #include <optional>
-
-#pragma warning(push)
-#pragma warning(disable : 4312)
 
 namespace TerranEditor
 {
@@ -198,17 +196,18 @@ namespace TerranEditor
 		if (!ImGui::BeginChild("##topbar", { 0.0f, 30.0f }))
 			return;
 
-		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
 			constexpr float baseSpacing = 4.0f;
 
 			float originalFrameBorderSize = ImGui::GetStyle().FrameBorderSize;
+			ImVec2 framePadding = ImGui::GetStyle().FramePadding;
 
 			UI::ScopedStyleColor navigationColor({
 				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
 			});
 			UI::ScopedStyleVar navigationStyleVar({
-				{ ImGuiStyleVar_FrameBorderSize, 0.0f }
+				{ ImGuiStyleVar_FrameBorderSize, 0.0f },
+				{ ImGuiStyleVar_FramePadding, { framePadding.x, 5.0f } }
 			});
 
 			auto nativationalButton = [this](const uint32_t textureHandle, bool condition)
@@ -242,53 +241,56 @@ namespace TerranEditor
 
 			{
 				UI::ScopedFont scopedIconFont("IconFont");
+				{
+					// back button
+					if (nativationalButtonText(ICON_FA_ARROW_LEFT, m_PreviousDirectory != nullptr))
+						ChangeBackwardDirectory();
 
-				// back button
-				if (nativationalButtonText(ICON_FA_ARROW_LEFT, m_PreviousDirectory != nullptr))
-					ChangeBackwardDirectory();
+					ImGui::SameLine();
 
-				ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+					//ImGui::Spring(-1.0f, baseSpacing * 2.0f);
 
-				if (nativationalButtonText(ICON_FA_ARROW_RIGHT, m_NextDirectoryStack.size() > 0))
-					ChangeForwardDirectory();
+					if (nativationalButtonText(ICON_FA_ARROW_RIGHT, m_NextDirectoryStack.size() > 0))
+						ChangeForwardDirectory();
 
-				ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+					ImGui::SameLine();
 
-				if (ImGui::Button(ICON_FA_ARROWS_ROTATE))
-					Refresh();
+					//ImGui::Spring(-1.0f, baseSpacing * 2.0f);
 
+					if (ImGui::Button(ICON_FA_ARROWS_ROTATE))
+						Refresh();
+				}
+				// search field
+
+				{
+					ImGui::SameLine();
+
+					if (UI::SearchInput(s_Filter, "Search..."))
+						s_Filter.Build();
+				}
 			}
-			// search field
 
-			{
-				UI::ScopedStyleVar navigationStyleVar({
-					{ ImGuiStyleVar_FrameBorderSize, originalFrameBorderSize }
-				});
-
-				//char buf[256];
-				//memset(buf, 0, sizeof(buf));
-				constexpr float nextItemWidth = 100.0f * 2.0f;
-				ImGui::SetNextItemWidth(nextItemWidth);
-				//ImGui::InputTextWithHint("##Search", "Search...", buf, 256);
-
-				s_Filter.Draw("##Search");
-			}
-			
 			Shared<DirectoryInfo> nextDirectory = nullptr;
 
-			ImGui::Spring(-1.0f, baseSpacing * 3.0f);
+			ImGui::SameLine();
+			//ImGui::Spring(-1.0f, baseSpacing * 3.0f);
+
+			ImGui::BeginHorizontal("##breadcrumbs");
 			for (int i = 0; i < m_BreadCrumbs.size(); i++)
 			{
 				if (i > 0)
 				{
-					ImGui::Text(">");
+					UI::Image(EditorResources::ChevronRight,
+							{ 9.0f, 18.0f }, 
+							{ 0.25f, 1 }, 
+							{ 0.75f, 0 });
+
 					ImGui::Spring(-1.0f, baseSpacing);
 				}
 
 				std::string name = m_BreadCrumbs[i] == m_RootDirectory ?
 													"Assets" :
 													m_BreadCrumbs[i]->Path.stem().string();
-
 
 				ImGui::PushID(&(m_BreadCrumbs[i]->Handle));
 				if (m_BreadCrumbs[i] == m_CurrentDirectory) 
@@ -316,8 +318,9 @@ namespace TerranEditor
 
 			if (nextDirectory)
 				ChangeDirectory(nextDirectory);
+			ImGui::EndHorizontal();
 		}
-		ImGui::EndHorizontal();
+
 		ImGui::EndChild();
 	}
 
@@ -358,7 +361,7 @@ namespace TerranEditor
 		ImGui::Spring(0.0f, 2.0f);
 		ImGui::BeginHorizontal("##directoryHorizontal", { ImGui::GetItemRectSize().x, 0.0f });
 		ImGui::Spring(0.0f, 4.0f);
-		UI::Image((ImTextureID)EditorResources::DirectoryTexture->GetHandle(), { 15.0f, 15.0f });
+		UI::Image(EditorResources::DirectoryTexture, { 15.0f, 15.0f });
 
 		if (parent == m_RootDirectory)
 		{
@@ -373,7 +376,6 @@ namespace TerranEditor
 		ImGui::EndVertical();
 		ImGui::EndGroup();
 		
-
 		if (ImGui::IsItemClicked())
 			ChangeDirectory(parent);
 
@@ -695,4 +697,3 @@ namespace TerranEditor
 		ChangeDirectory(m_CurrentDirectory);
 	}
 }
-#pragma warning(pop)

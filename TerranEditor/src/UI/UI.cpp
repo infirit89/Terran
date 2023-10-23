@@ -6,6 +6,9 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include "EditorResources.h"
+
+#include <IconsFontAwesome6.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -179,8 +182,7 @@ namespace TerranEditor
 	{
 		for (auto& styleColor : styleColorList)
 		{
-			ImVec4 color = { styleColor.Color.x, styleColor.Color.y, styleColor.Color.z, styleColor.Color.w };
-			ImGui::PushStyleColor(styleColor.ColorVarIdx, color);
+			ImGui::PushStyleColor(styleColor.ColorVarIdx, styleColor.Color);
 		}
 	}
 
@@ -219,16 +221,6 @@ namespace TerranEditor
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + y);
 	}
 
-	void UI::Image(ImTextureID textureID, glm::vec2 size)
-	{
-		ImGui::Image(textureID, { size.x, size.y }, { 0, 1 }, { 1, 0 });
-	}
-
-	void UI::ImageButton(ImTextureID textureID, glm::vec2 size)
-	{
-	}
-
-	
 	static void ScaleUI() 
 	{
 		glm::vec2 contentScale = Application::Get()->GetWindow().GetContentScale();
@@ -503,6 +495,94 @@ namespace TerranEditor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.37f, 0.37f, 0.37f, 0.35f);
 
 		ScaleUI();
+	}
+
+	void UI::Image(const Shared<Texture>& texture, const glm::vec2& size, const glm::vec2& uv0, const glm::vec2& uv1, const glm::vec4& color)
+	{
+		ImGui::Image(reinterpret_cast<ImTextureID>((uint64_t)texture->GetHandle()),
+					{ size.x, size.y },
+					{ uv0.x, uv0.y },
+					{ uv1.x, uv1.y },
+					{ color.r, color.g, color.b, color.a });
+	}
+
+	bool UI::SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width)
+	{
+		const float frameBorderSize = ImGui::GetStyle().FrameBorderSize;
+		UI::ScopedStyleVar frameBorder({
+			{ ImGuiStyleVar_FrameBorderSize, frameBorderSize }
+		});
+
+		ImGui::SetNextItemWidth(width);
+
+		const float framePaddingY = ImGui::GetStyle().FramePadding.y;
+		const float cursorPos = ImGui::GetCursorPosX();
+		bool modified = false;
+
+		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
+			modified = true;
+		else if(ImGui::IsItemDeactivatedAfterEdit())
+			modified = true;
+
+		bool searching = filter.InputBuf[0] != 0;
+
+		ImGui::SetItemAllowOverlap();
+		ImGui::SameLine(cursorPos + 5.0f);
+		ImGui::BeginHorizontal("test", ImGui::GetItemRectSize());
+		const glm::vec2 iconSize = { ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() };
+
+		if (!searching) 
+		{
+			UI::ScopedStyleColor textColor({
+				{ ImGuiCol_Text, { ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled) } }
+			});
+
+			{
+				UI::ScopedFont scopedIconFont("IconFont");
+				const float originalFontSize = GImGui->FontSize;
+				constexpr float iconSize = 12.0f;
+				GImGui->FontSize = iconSize;
+				const float iconOffset = framePaddingY - 3.0f;
+				UI::ShiftCursorY(iconOffset);
+				ImGui::TextUnformatted(ICON_FA_MAGNIFYING_GLASS);
+				GImGui->FontSize = originalFontSize;
+				UI::ShiftCursorY(-iconOffset);
+			}
+
+			UI::ShiftCursorX(-1.0f);
+			ImGui::TextUnformatted(hint.c_str());
+			UI::ShiftCursorX(1.0f);
+		}
+		else 
+		{
+			UI::ScopedStyleColor clearButtonColor({
+				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
+			});
+
+			UI::ScopedStyleVar buttonFrameBorderSize({
+				{ ImGuiStyleVar_FrameBorderSize, 0.0f }
+			});
+
+			UI::ScopedFont scopedIconFont("IconFont");
+
+			const float lineHeight = ImGui::GetItemRectSize().y - framePaddingY / 2.0f;
+
+			ImGui::Spring();
+			
+			if (ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight }, ImGuiButtonFlags_NoTestKeyOwner))
+			{
+				memset(filter.InputBuf, 0, IM_ARRAYSIZE(filter.InputBuf));
+				modified = true;
+			}
+
+			if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax())) 
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+
+			ImGui::Spring(-1.0f, 4.0f * 2.0f);
+		}
+
+		ImGui::EndHorizontal();
+		return modified;
 	}
 
 	void UI::Tooltip(const char* text)

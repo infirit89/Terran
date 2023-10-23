@@ -3,6 +3,7 @@
 #include "Scripting/ScriptEngine.h"
 
 #include "Assets/AssetManager.h"
+#include "Graphics/Texture.h"
 
 #include "FontManager.h"
 
@@ -15,7 +16,7 @@
 #include <unordered_map>
 #include <typeindex>
 
-namespace TerranEditor 
+namespace TerranEditor
 {
 	// TODO: needs rework
 	namespace UI 
@@ -44,7 +45,7 @@ namespace TerranEditor
 			struct StyleColor
 			{
 				int ColorVarIdx;
-				glm::vec4 Color;
+				ImVec4 Color;
 			};
 
 			ScopedStyleColor(std::initializer_list<StyleColor> styleColorList);
@@ -113,13 +114,15 @@ namespace TerranEditor
 		void ShiftCursor(float x, float y);
 		void ShiftCursorX(float x);
 		void ShiftCursorY(float y);
-		void Image(ImTextureID textureID, glm::vec2 size);
-		void ImageButton(ImTextureID textureID, glm::vec2 size);
-
+		
 		void SetupUIStyle();
 		void SetupUIStyle2();
 		void SetupUIStyle3();
 		void SetupUIStyle4();
+
+		void Image(const TerranEngine::Shared<TerranEngine::Texture>& texture, const glm::vec2& size, const glm::vec2& uv0 = { 0, 1 }, const glm::vec2& uv1 = { 1, 0 }, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
+
+		bool SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width = 200.0f);
 
 		void Tooltip(const char* text);
 

@@ -26,6 +26,8 @@ namespace TerranEditor
         static TerranEngine::Shared<TerranEngine::Texture2D> FileTexture;
         static TerranEngine::Shared<TerranEngine::Texture2D> NavigateNext;
         static TerranEngine::Shared<TerranEngine::Texture2D> NavigateBefore;
+        static TerranEngine::Shared<TerranEngine::Texture2D> ChevronRight;
+        static TerranEngine::Shared<TerranEngine::Texture2D> Search;
 
 #define TR_DEFAULT_FONT_INDEX 0
 #define TR_BOLD_FONT_INDEX 1

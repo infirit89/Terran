@@ -529,18 +529,14 @@ namespace TerranEditor
 				for (auto result : Profiler::Get().GetResults())
 					ImGui::Text("%s: %f ms", result.Name.c_str(), result.ElapsedTime);
 
-				char buf[256];
-				memset(buf, 0, sizeof(buf));
-				ImGui::InputTextWithHint("Test", "Test", buf, 256);
-
 				ImGui::End();
 			}
 		}
 
 		{
 			// NOTE: temporary toolbar
-			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
-											ImGuiWindowFlags_NoTitleBar;
+			/*ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+											ImGuiWindowFlags_NoTitleBar;*/
             
 			/*ImGui::Begin("##toolbar");
 

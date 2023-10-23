@@ -64,7 +64,7 @@ namespace TerranEditor
 
 		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize });
 		UI::ShiftCursor(edgeOffset, -cellSize);
-		UI::Image((ImTextureID)m_Icon->GetHandle(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
+		UI::Image(m_Icon, { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
 
 		UI::ShiftCursor(edgeOffset, edgeOffset);
 

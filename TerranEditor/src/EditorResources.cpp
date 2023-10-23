@@ -17,6 +17,8 @@ namespace TerranEditor
     Shared<Texture2D> EditorResources::DirectoryTexture;
     Shared<Texture2D> EditorResources::NavigateNext;
     Shared<Texture2D> EditorResources::NavigateBefore;
+    Shared<Texture2D> EditorResources::ChevronRight;
+    Shared<Texture2D> EditorResources::Search;
 
     // general
     Shared<Texture2D> EditorResources::SettingsTexture;
@@ -45,7 +47,8 @@ namespace TerranEditor
         FileTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/file_icon.png");
         NavigateNext = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/navigate_next.png");
         NavigateBefore = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/navigate_before.png");
-
+        ChevronRight = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/chevron_right.png");
+        Search = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/search_icon.png");
 
         constexpr float baseFontSize = 16.0f;
         // default font
@@ -86,6 +89,8 @@ namespace TerranEditor
         DirectoryTexture = nullptr;
         NavigateNext = nullptr;
         NavigateBefore = nullptr;
+        ChevronRight = nullptr;
+        Search = nullptr;
 
         // general
         SettingsTexture = nullptr;
