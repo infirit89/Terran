@@ -35,7 +35,7 @@ namespace TerranEditor
 	{
 		if(m_Open)
 		{
-			ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
+			ImGui::Begin(GetName(), &m_Open, ImGuiWindowFlags_NoCollapse);
 			
 			if (m_Scene) 
 			{

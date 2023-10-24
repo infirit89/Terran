@@ -11,7 +11,7 @@ namespace TerranEditor
 
         if (!m_Open) return;
 
-        ImGui::Begin("Preferences", &m_Open);
+        ImGui::Begin(GetName(), &m_Open);
 
         ImGuiStyle& style = ImGui::GetStyle();
         static ImGuiStyle ref_saved_style;

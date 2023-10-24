@@ -22,7 +22,7 @@ namespace TerranEditor
     {
         if(!m_Open) return;
 
-        ImGui::Begin("Settings", &m_Open);        
+        ImGui::Begin(GetName(), &m_Open);
 
         DrawPhysicsSettings();
         
@@ -35,7 +35,8 @@ namespace TerranEditor
         Shared<Project> activeProject = Project::GetActive();
         PhysicsSettings& settings = activeProject->GetPhysicsSettings();
 
-        UI::BeginPropertyGroup("physics_settings");
+        if (!UI::BeginPropertyGroup("physics_settings"))
+            return;
 
         ImGui::TableNextRow();
         serializeSettings |= UI::PropertyVec2("Gravity", settings.Gravity);

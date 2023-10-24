@@ -10,6 +10,7 @@ namespace TerranEditor
 		ShaderPanel() = default;
 		~ShaderPanel() = default;
 
+		virtual const char* GetName() override { return "Shader Panel"; }
 		virtual void OnRender() override;
 	};
 }

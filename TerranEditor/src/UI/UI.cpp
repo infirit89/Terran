@@ -513,11 +513,11 @@ namespace TerranEditor
 			{ ImGuiStyleVar_FrameBorderSize, frameBorderSize }
 		});
 
-		ImGui::SetNextItemWidth(width);
-
 		const float framePaddingY = ImGui::GetStyle().FramePadding.y;
 		const float cursorPos = ImGui::GetCursorPosX();
 		bool modified = false;
+
+		ImGui::SetNextItemWidth(width);
 
 		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
 			modified = true;

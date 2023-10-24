@@ -23,6 +23,7 @@ namespace TerranEditor
 		~PropertiesPanel() = default;
 
 		virtual void OnRender() override;
+		virtual const char* GetName() override { return "Properties"; }
 
 	private:
 		void DrawComponents();

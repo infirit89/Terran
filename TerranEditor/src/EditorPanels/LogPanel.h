@@ -39,6 +39,7 @@ namespace TerranEditor
 		bool IsClearOnPlay() { return m_ClearOnPlay; }
 
 		static LogPanel* GetInstance() { return s_Instance; }
+		virtual const char* GetName() override { return "Log"; }
 
 	private:
 		std::vector<LogMessage> m_TextBuffer;

@@ -12,6 +12,7 @@ namespace TerranEditor
 
         virtual void OnRender() override;
 		virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& context) override { m_Scene = context; }
+        virtual const char* GetName() override { return "Settings"; }
 
     private:
         void DrawPhysicsSettings();

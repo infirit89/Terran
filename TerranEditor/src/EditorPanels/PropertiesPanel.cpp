@@ -99,7 +99,7 @@ namespace TerranEditor
 	{
 		if(m_Open)
 		{
-			ImGui::Begin("Properties", &m_Open);
+			ImGui::Begin(GetName(), &m_Open);
 			DrawComponents();
 			ImGui::End();
 		}

@@ -88,6 +88,7 @@ namespace TerranEditor
 		virtual void OnEvent(TerranEngine::Event& event) override;
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
+		virtual const char* GetName() override { return "Content"; }
 
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);

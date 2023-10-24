@@ -33,7 +33,7 @@ namespace TerranEditor
 	{
 		if (!m_Open) return;
 		
-		ImGui::Begin("Log", &m_Open);
+		ImGui::Begin(GetName(), &m_Open);
 
 		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedFit, { 0.0f, 25.0f }))
 		{

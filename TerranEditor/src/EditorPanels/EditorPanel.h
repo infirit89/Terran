@@ -19,6 +19,7 @@ namespace TerranEditor
         virtual void OnRender() = 0;
 		virtual void OnEvent(TerranEngine::Event& event) {  }
         virtual void OnProjectChanged(const std::filesystem::path& projectPath) { }
+        virtual const char* GetName() = 0;
 
         void SetOpen(bool open) { m_Open = open; }
 
