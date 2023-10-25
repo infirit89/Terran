@@ -519,14 +519,15 @@ namespace TerranEditor
 
 		ImGui::SetNextItemWidth(width);
 
-		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
+		ImGui::SetNextItemAllowOverlap();
+		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf), ImGuiInputTextFlags_Multiline))
 			modified = true;
 		else if(ImGui::IsItemDeactivatedAfterEdit())
 			modified = true;
 
 		bool searching = filter.InputBuf[0] != 0;
 
-		ImGui::SetItemAllowOverlap();
+		//ImGui::SetItemAllowOverlap();
 		ImGui::SameLine(cursorPos + 5.0f);
 		ImGui::BeginHorizontal("test", ImGui::GetItemRectSize());
 		const glm::vec2 iconSize = { ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() };
@@ -569,7 +570,7 @@ namespace TerranEditor
 
 			ImGui::Spring();
 			
-			if (ImGui::InvisibleButton("testbutton", { lineHeight, lineHeight }, ImGuiButtonFlags_NoTestKeyOwner)) 
+			if (ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight }, ImGuiButtonFlags_NoTestKeyOwner))
 			{
 				memset(filter.InputBuf, 0, IM_ARRAYSIZE(filter.InputBuf));
 				modified = true;
@@ -577,14 +578,6 @@ namespace TerranEditor
 
 			if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax())) 
 				ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
-
-			const ImVec2 p0 = ImGui::GetItemRectMin();
-			const ImVec2 p1 = ImGui::GetItemRectMax();
-			ImGui::PushClipRect(p0, p1, true);
-			ImDrawList* drawList = ImGui::GetWindowDrawList();
-			//drawList->AddRectFilled(p0, p1, ImGui::GetColorU32({ 0.25f, 0.25f, 0.75, 1.0f }));
-			//ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight });
-			ImGui::PopClipRect();
 
 			ImGui::Spring(-1.0f, 4.0f * 2.0f);
 		}
@@ -1092,7 +1085,7 @@ namespace TerranEditor
 
 		ImGuiButtonFlags button_flags = ImGuiTreeNodeFlags_None;
 		if (flags & ImGuiTreeNodeFlags_AllowItemOverlap)
-			button_flags |= ImGuiButtonFlags_AllowItemOverlap;
+			button_flags |= ImGuiButtonFlags_AllowOverlap;
 		
 		button_flags |= ImGuiButtonFlags_PressedOnDragDropHold;
 
