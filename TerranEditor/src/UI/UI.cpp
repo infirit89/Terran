@@ -569,7 +569,7 @@ namespace TerranEditor
 
 			ImGui::Spring();
 			
-			if (ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight }, ImGuiButtonFlags_NoTestKeyOwner))
+			if (ImGui::InvisibleButton("testbutton", { lineHeight, lineHeight }, ImGuiButtonFlags_NoTestKeyOwner)) 
 			{
 				memset(filter.InputBuf, 0, IM_ARRAYSIZE(filter.InputBuf));
 				modified = true;
@@ -577,6 +577,14 @@ namespace TerranEditor
 
 			if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax())) 
 				ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+
+			const ImVec2 p0 = ImGui::GetItemRectMin();
+			const ImVec2 p1 = ImGui::GetItemRectMax();
+			ImGui::PushClipRect(p0, p1, true);
+			ImDrawList* drawList = ImGui::GetWindowDrawList();
+			//drawList->AddRectFilled(p0, p1, ImGui::GetColorU32({ 0.25f, 0.25f, 0.75, 1.0f }));
+			//ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight });
+			ImGui::PopClipRect();
 
 			ImGui::Spring(-1.0f, 4.0f * 2.0f);
 		}
