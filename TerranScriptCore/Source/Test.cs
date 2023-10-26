@@ -7,8 +7,6 @@ namespace Terran
 	{
 		void T1() 
 		{
-			List<string> l = new List<string>();
-			//l.RemoveRange()
 		}
 	}
 

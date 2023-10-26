@@ -6,9 +6,6 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#pragma warning(push)
-#pragma warning(disable : 4312)
-
 namespace TerranEditor 
 {
 	LogPanel* LogPanel::s_Instance;
@@ -24,7 +21,7 @@ namespace TerranEditor
 		ClearMessageBuffer();
 	}
 
-	void LogPanel::AddLog(LogMessage logMessage) 
+	void LogPanel::AddLogMessage(LogMessage logMessage) 
 	{
 		m_TextBuffer.push_back(logMessage);
 	}
@@ -56,69 +53,73 @@ namespace TerranEditor
 		ImGui::BeginChild("MessageRegion", { 0, 0 }, false, ImGuiWindowFlags_HorizontalScrollbar);
 		if (ImGui::BeginTable("log_table", 1))
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
+			const float framePaddingY = ImGui::GetStyle().FramePadding.y;
+			
+			UI::ScopedFont mediumFont("Roboto-Regular_Medium");
+			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
+			
 			for (size_t i = 0; i < m_TextBuffer.size(); i++)
 			{
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-
+				
 				LogMessage logMessage = m_TextBuffer[i];
 
 				ImDrawList* backgroundDrawList = ImGui::GetWindowDrawList();
 
 				ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-				ImU32 color;
+				/*ImU32 color;
 
 				if(i % 2 == 0)
 					color = ImGui::ColorConvertFloat4ToU32({ 0.19f, 0.19f, 0.19f, 1.0f });
 				else
-					color = ImGui::ColorConvertFloat4ToU32({ 0.13f, 0.13f, 0.13f, 1.0f });
+					color = ImGui::ColorConvertFloat4ToU32({ 0.13f, 0.13f, 0.13f, 1.0f });*/
 
-				float x = cursorPos.x - 2.0f;
-				float y = cursorPos.y - 2.0f;
+				//float x = cursorPos.x - 2.0f;
+				//float y = cursorPos.y - 2.0f;
 
-				ImVec2 textSize = ImGui::CalcTextSize(logMessage.Message.c_str());
+				//ImVec2 textSize = ImGui::CalcTextSize(logMessage.Message.c_str());
 
-				backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvail().x + 2.0f,  y + textSize.y + 8.0f}, color);
+				//backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvail().x + 2.0f,  y + textSize.y + 8.0f}, color);
 
-				ImGui::Indent(4.0f);
+				ImGui::Selectable(logMessage.Message.c_str());
 
-                Shared<Texture> logMessageTexture;
+				const float lineHeight = ImGui::GetItemRectSize().x - framePaddingY / 2.0f;
+
+				/*ImGui::Indent(4.0f);
+
 				switch (logMessage.MessageLevel)
 				{
 				case LogMessageLevel::Trace:
 				case LogMessageLevel::Info:
 				{
-					logMessageTexture = EditorResources::InfoTexture;
+					UI::Image(EditorResources::InfoTexture, { lineHeight, lineHeight }, { 0, 1 }, { 1, 0 }, { 0.0f, 0.0f, 1.0f, 1.0f });
 					break;
 				}
 				case LogMessageLevel::Warn:
 				{
-					logMessageTexture = EditorResources::WarningTexture;
+					UI::Image(EditorResources::WarningTexture, { lineHeight, lineHeight }, { 0, 1 }, { 1, 0 }, { 1.0f, 1.0f, 0.0f, 1.0f });
 					break;
 				}
 				case LogMessageLevel::Error:
 				{
-					logMessageTexture = EditorResources::ErrorTexture;
+					UI::Image(EditorResources::ErrorTexture, { lineHeight, lineHeight }, { 0, 1 }, { 1, 0 }, { 1.0f, 0.0f, 0.0f, 1.0f });
 					break;
 				}
 				}
 
-                ImGui::Image((ImTextureID)logMessageTexture->GetHandle(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
-
 				ImGui::SameLine();
 
-				float cursorPosY = ImGui::GetCursorPosY();
-				ImGui::SetCursorPosY(cursorPosY + 2.0f);
+				UI::ShiftCursorY(2.0f);*/
 
-				ImGui::TextUnformatted(logMessage.Message.c_str());
-				ImGui::Unindent(4.0f);
+				//ImGui::TextUnformatted(logMessage.Message.c_str());
+				//ImGui::Unindent(4.0f);
 
-				ImGui::SetCursorPosY(cursorPosY);
+				//UI::ShiftCursorY(-2.0f);
 			}
 
-			ImGui::PopStyleVar();
+			//ImGui::PopStyleVar();
 
 			ImGui::EndTable();
 
@@ -136,4 +137,3 @@ namespace TerranEditor
 		m_TextBuffer.clear();
 	}
 }
-#pragma warning(pop)

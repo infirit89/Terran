@@ -32,7 +32,7 @@ namespace TerranEditor
 		LogPanel();
 		~LogPanel();
 
-		void AddLog(LogMessage logMessage);
+		void AddLogMessage(LogMessage logMessage);
 		virtual void OnRender() override;
 		void ClearMessageBuffer();
 

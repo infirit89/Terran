@@ -35,7 +35,7 @@ namespace TerranEditor
 		{
 			for (const auto& logMessage : m_MessageBuffer)
 			{
-				LogPanel::GetInstance()->AddLog(logMessage);
+				LogPanel::GetInstance()->AddLogMessage(logMessage);
 			}
 
 			m_MessageBuffer.clear();

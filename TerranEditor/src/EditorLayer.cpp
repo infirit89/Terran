@@ -132,6 +132,11 @@ namespace TerranEditor
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
+
+		TR_CLIENT_ERROR("Test");
+		TR_CLIENT_WARN("Test");
+		TR_CLIENT_TRACE("Test");
+		TR_CLIENT_INFO("Test");
 	}
 
 	void EditorLayer::OnDettach()

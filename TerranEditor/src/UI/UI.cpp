@@ -570,6 +570,7 @@ namespace TerranEditor
 				UI::ShiftCursorY(-iconOffset);
 			}
 
+			UI::ScopedFont defaultFont("Roboto-Regular");
 			UI::ShiftCursorX(-1.0f);
 			ImGui::TextUnformatted(hint.c_str());
 			UI::ShiftCursorX(1.0f);

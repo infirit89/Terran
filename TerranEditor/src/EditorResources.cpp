@@ -38,9 +38,9 @@ namespace TerranEditor
         StopTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/stop_icon.png");
 
         // log textures
-        ErrorTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/error-icon.png");
-        InfoTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/info-icon.png");
-        WarningTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/warning-icon.png");
+        ErrorTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/error_icon.png");
+        InfoTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/info_icon.png");
+        WarningTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/warning_icon.png");
 
         // content browser textures
         DirectoryTexture = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/folder_icon.png");
@@ -50,12 +50,12 @@ namespace TerranEditor
         ChevronRight = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/chevron_right.png");
         Search = TextureAssetLoader::CreateTextureFromFile("Resources/Textures/search_icon.png");
 
-        constexpr float baseFontSize = 16.0f;
-        // default font
-        UI::FontConfig defaultFontConfig;
-        defaultFontConfig.Name = "Roboto-Regular";
-        defaultFontConfig.Path = "Resources/Fonts/Roboto/Roboto-Regular.ttf";
-        UI::FontManager::AddFont(defaultFontConfig, true);
+        // medium font
+        UI::FontConfig mediumFontConfig;
+        mediumFontConfig.Name = "Roboto-Regular_Medium";
+        mediumFontConfig.Path = "Resources/Fonts/Roboto/Roboto-Regular.ttf";
+        mediumFontConfig.Size = 18.0f;
+        UI::FontManager::AddFont(mediumFontConfig);
 
         // bold font
         UI::FontConfig boldFontConfig;
@@ -63,12 +63,18 @@ namespace TerranEditor
         boldFontConfig.Path = "Resources/Fonts/Roboto/Roboto-Bold.ttf";
         UI::FontManager::AddFont(boldFontConfig);
 
+        // default font
+        UI::FontConfig defaultFontConfig;
+        defaultFontConfig.Name = "Roboto-Regular";
+        defaultFontConfig.Path = "Resources/Fonts/Roboto/Roboto-Regular.ttf";
+        UI::FontManager::AddFont(defaultFontConfig, true);
+
         // icon font
         UI::FontConfig fontAwesomeConfigLarge;
-        constexpr float iconFontSize = baseFontSize;
+        constexpr float iconFontSize = 16.0f;
         fontAwesomeConfigLarge.Name = "IconFont";
         fontAwesomeConfigLarge.Path = "Resources/Fonts/FontAwesome/fa-solid-900.ttf";
-        fontAwesomeConfigLarge.Size = 16.0f;
+        fontAwesomeConfigLarge.Size = iconFontSize;
         fontAwesomeConfigLarge.MergeMode = true;
         fontAwesomeConfigLarge.PixelSnapH = true;
         fontAwesomeConfigLarge.GlyphMixAdvanceX = iconFontSize;
