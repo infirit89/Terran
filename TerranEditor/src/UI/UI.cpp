@@ -16,6 +16,8 @@ namespace TerranEditor
 {
 	using namespace TerranEngine;
 
+	static int s_CurrentId = 0;
+
 	struct ImGuiStyleVarInfo 
 	{
 		ImGuiDataType Type;
@@ -205,6 +207,23 @@ namespace TerranEditor
 	}
 
 	UI::ScopedStyleVar::~ScopedStyleVar() { ImGui::PopStyleVar((int)m_StyleVarListSize); }
+
+	void UI::PushID()
+	{
+		std::string id = fmt::format("##UI_{0}", s_CurrentId);
+		ImGui::PushID(id.c_str());
+	}
+
+	void UI::PopID()
+	{
+		ImGui::PopID();
+		s_CurrentId--;
+	}
+
+	int UI::GenerateID()
+	{
+		return ++s_CurrentId;
+	}
 
 	void UI::ShiftCursor(float x, float y)
 	{
@@ -508,6 +527,7 @@ namespace TerranEditor
 
 	bool UI::SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width)
 	{
+		UI::PushID();
 		const float frameBorderSize = ImGui::GetStyle().FrameBorderSize;
 		UI::ScopedStyleVar frameBorder({
 			{ ImGuiStyleVar_FrameBorderSize, frameBorderSize }
@@ -518,18 +538,18 @@ namespace TerranEditor
 		bool modified = false;
 
 		ImGui::SetNextItemWidth(width);
+		ImGui::SetNextItemInnerWidth(width - (ImGui::GetFontSize() + 12.0f));
 
 		ImGui::SetNextItemAllowOverlap();
-		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf), ImGuiInputTextFlags_Multiline))
+		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
 			modified = true;
 		else if(ImGui::IsItemDeactivatedAfterEdit())
 			modified = true;
 
 		bool searching = filter.InputBuf[0] != 0;
 
-		//ImGui::SetItemAllowOverlap();
 		ImGui::SameLine(cursorPos + 5.0f);
-		ImGui::BeginHorizontal("test", ImGui::GetItemRectSize());
+		ImGui::BeginHorizontal(GenerateID(), ImGui::GetItemRectSize());
 		const glm::vec2 iconSize = { ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() };
 
 		if (!searching) 
@@ -560,7 +580,7 @@ namespace TerranEditor
 				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
 			});
 
-			UI::ScopedStyleVar buttonFrameBorderSize({
+			UI::ScopedStyleVar clearButtonStyle({
 				{ ImGuiStyleVar_FrameBorderSize, 0.0f }
 			});
 
@@ -583,6 +603,7 @@ namespace TerranEditor
 		}
 
 		ImGui::EndHorizontal();
+		UI::PopID();
 		return modified;
 	}
 
