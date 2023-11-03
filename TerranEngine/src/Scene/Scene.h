@@ -14,6 +14,8 @@
 #pragma warning(pop)
 
 #include <unordered_map>
+#include <vector>
+#include <type_traits>
 
 namespace TerranEngine 
 {
@@ -50,6 +52,22 @@ namespace TerranEngine
 		auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
 		
 		std::unordered_map<UUID, entt::entity>& GetEntityMap() { return m_EntityMap; }
+
+		template<typename... Components, typename Predicate>
+		std::vector<Entity> Filter(Predicate&& predicate) 
+		{
+			std::vector<Entity> entities;
+			auto view = m_Registry.template view<std::add_const_t<Components>...>();
+			entities.reserve(view.size());
+
+			for (const entt:handle e : view) 
+			{
+				if (predicate(view.template get<std::add_const_t<Components>>(e)...))
+					entities.push_back({ e, this });
+			}
+
+			return entities;
+		}
 
 		Entity GetPrimaryCamera();
 

@@ -11,6 +11,7 @@
 #include "EditorPanel.h"
 
 #include <functional>
+#include <imgui.h>
 
 namespace TerranEditor 
 {
@@ -31,5 +32,9 @@ namespace TerranEditor
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		void DrawEntityNode(Entity entity);
+		void DrawScene();
+
+	private:
+		ImGuiTextFilter m_Filter;
 	};
 }

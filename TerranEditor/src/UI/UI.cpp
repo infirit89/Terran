@@ -4,55 +4,23 @@
 #include "Core/Log.h"
 #include "Physics/PhysicsLayerManager.h"
 
+#include "EditorResources.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "EditorResources.h"
 
 #include <IconsFontAwesome6.h>
 
 #include <glm/gtc/type_ptr.hpp>
+
+#include <stack>
 
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
 
 	static int s_CurrentId = 0;
-
-	struct ImGuiStyleVarInfo 
-	{
-		ImGuiDataType Type;
-		uint32_t Count;
-	};
-
-	static const ImGuiStyleVarInfo StyleVarInfo[] =
-	{
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_Alpha
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_DisabledAlpha 
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowPadding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowBorderSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowMinSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowTitleAlign
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildBorderSize
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupBorderSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_FramePadding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameBorderSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemSpacing
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemInnerSpacing
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_IndentSpacing
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_CellPadding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarSize
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabMinSize
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_TabRounding
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ButtonTextAlign
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_SelectableTextAlign
-	};
-
+	static std::stack<float> s_FontSizeStack;
 
 	static std::string ProccessFieldName(std::string name)
 	{
@@ -102,6 +70,7 @@ namespace TerranEditor
 
 	bool UI::PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
+		UI::PushID();
 		bool changed = false;
 
 		uint32_t selectedCount = 0;
@@ -144,6 +113,7 @@ namespace TerranEditor
 			ImGui::EndCombo();
 		}
 
+		UI::PopID();
 		return changed;
 	}
 
@@ -175,54 +145,65 @@ namespace TerranEditor
 			ImGui::PopItemWidth();
 
 		ImGui::Columns(1);
-
-		//delete[] m_TableID;
 	}
 
 	UI::ScopedStyleColor::ScopedStyleColor(std::initializer_list<StyleColor> styleColorList)
 		: m_StyleColorListSize(styleColorList.size())
 	{
 		for (auto& styleColor : styleColorList)
-		{
 			ImGui::PushStyleColor(styleColor.ColorVarIdx, styleColor.Color);
-		}
 	}
 
-	UI::ScopedStyleColor::~ScopedStyleColor() { ImGui::PopStyleColor((int)m_StyleColorListSize); }
+	UI::ScopedStyleColor::~ScopedStyleColor()
+	{ 
+		ImGui::PopStyleColor((int)m_StyleColorListSize);
+	}
 
 	UI::ScopedStyleVar::ScopedStyleVar(std::initializer_list<StyleVar> styleVarList)
 		: m_StyleVarListSize(styleVarList.size())
 	{
 		for (auto& styleVarIt : styleVarList)
 		{
-			//ImVec2 styleVal = { styleVarIt.Val.x, styleVarIt.Val.y };
+			const ImGuiDataVarInfo* varInfo = ImGui::GetStyleVarInfo(styleVarIt.StyleVarIdx);
 
-			ImGuiStyleVarInfo varInfo = StyleVarInfo[styleVarIt.StyleVarIdx];
-
-			if(varInfo.Count == 1)
+			if(varInfo->Count == 1)
 				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, (float)styleVarIt);
 			else
 				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, (ImVec2)styleVarIt);
 		}
 	}
 
-	UI::ScopedStyleVar::~ScopedStyleVar() { ImGui::PopStyleVar((int)m_StyleVarListSize); }
+	UI::ScopedStyleVar::~ScopedStyleVar()
+	{
+		ImGui::PopStyleVar((int)m_StyleVarListSize);
+	}
 
 	void UI::PushID()
 	{
-		std::string id = fmt::format("##UI_{0}", s_CurrentId);
-		ImGui::PushID(id.c_str());
+		ImGui::PushID(s_CurrentId++);
 	}
 
 	void UI::PopID()
 	{
 		ImGui::PopID();
-		s_CurrentId--;
+		--s_CurrentId;
 	}
 
 	int UI::GenerateID()
 	{
 		return ++s_CurrentId;
+	}
+
+	void UI::PushFontSize(float fontSize)
+	{
+		s_FontSizeStack.push(ImGui::GetFontSize());
+		GImGui->FontSize = fontSize;
+	}
+
+	void UI::PopFontSize()
+	{
+		GImGui->FontSize = s_FontSizeStack.top();
+		s_FontSizeStack.pop();
 	}
 
 	void UI::ShiftCursor(float x, float y)
@@ -541,7 +522,7 @@ namespace TerranEditor
 		ImGui::SetNextItemInnerWidth(width - (ImGui::GetFontSize() + 12.0f));
 
 		ImGui::SetNextItemAllowOverlap();
-		if (ImGui::InputText("##Test", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
+		if (ImGui::InputText("", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
 			modified = true;
 		else if(ImGui::IsItemDeactivatedAfterEdit())
 			modified = true;
@@ -549,10 +530,10 @@ namespace TerranEditor
 		bool searching = filter.InputBuf[0] != 0;
 
 		ImGui::SameLine(cursorPos + 5.0f);
-		ImGui::BeginHorizontal(GenerateID(), ImGui::GetItemRectSize());
+		ImGui::BeginHorizontal("", ImGui::GetItemRectSize());
 		const glm::vec2 iconSize = { ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() };
 
-		if (!searching) 
+		if (!searching)
 		{
 			UI::ScopedStyleColor textColor({
 				{ ImGuiCol_Text, { ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled) } }
@@ -560,13 +541,13 @@ namespace TerranEditor
 
 			{
 				UI::ScopedFont scopedIconFont("IconFont");
-				const float originalFontSize = GImGui->FontSize;
+				//const float originalFontSize = ImGui::GetFontSize();
 				constexpr float iconSize = 12.0f;
-				GImGui->FontSize = iconSize;
+				UI::PushFontSize(iconSize);
 				const float iconOffset = framePaddingY - 3.0f;
 				UI::ShiftCursorY(iconOffset);
 				ImGui::TextUnformatted(ICON_FA_MAGNIFYING_GLASS);
-				GImGui->FontSize = originalFontSize;
+				UI::PopFontSize();
 				UI::ShiftCursorY(-iconOffset);
 			}
 
@@ -591,7 +572,7 @@ namespace TerranEditor
 
 			ImGui::Spring();
 			
-			if (ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight }, ImGuiButtonFlags_NoTestKeyOwner))
+			if (ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight }))
 			{
 				memset(filter.InputBuf, 0, IM_ARRAYSIZE(filter.InputBuf));
 				modified = true;
@@ -773,8 +754,8 @@ namespace TerranEditor
 
 	bool UI::PropertyColor(const std::string& label, glm::vec4& value)
 	{
+		UI::PushID();
 		bool changed = false;
-		ImGui::PushID(label.c_str());
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -792,15 +773,15 @@ namespace TerranEditor
 			ImGui::EndPopup();
 		}
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyVec3(const std::string& label, glm::vec3& value)
 	{
+		UI::PushID();
 		bool changed = false;
-		ImGui::PushID(label.c_str());
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -844,15 +825,15 @@ namespace TerranEditor
 
 		drawControl("Z", value.z);
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyVec2(const std::string& label, glm::vec2& value)
 	{
+		UI::PushID();
 		bool changed = false;
-		ImGui::PushID(label.c_str());
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -864,7 +845,7 @@ namespace TerranEditor
 		constexpr float itemSpacingX = 1.0f;
 		ScopedStyleVar itemSpacingStyleVar({
 			{ ImGuiStyleVar_ItemSpacing, { itemSpacingX, 0.0f } }
-			});
+		});
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 2.0f, lineHeight };
@@ -874,7 +855,7 @@ namespace TerranEditor
 			{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
 			{ ImGuiCol_ButtonHovered, { 0.0f, 0.0f, 0.0f, 0.0f } },
 			{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
-			});
+		});
 
 		auto drawControl = [&](const std::string& label, float& oValue)
 		{
@@ -895,15 +876,15 @@ namespace TerranEditor
 
 		drawControl("Y", value.y);
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyEntity(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
 	{
+		UI::PushID();
 		bool modified = false;
-		ImGui::PushID(label.c_str());
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -937,15 +918,14 @@ namespace TerranEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return modified;
 	}
 
 	bool UI::PropertyFloat(const std::string& label, float& value)
 	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
+		UI::PushID();
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -953,18 +933,16 @@ namespace TerranEditor
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
+		bool changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyInt(const std::string& label, int& value)
 	{
-		bool changed = false;
-
-		ImGui::PushID(label.c_str());
+		UI::PushID();
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -972,17 +950,16 @@ namespace TerranEditor
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
+		bool changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyBool(const std::string& label, bool& value)
 	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
+		UI::PushID();
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -990,9 +967,9 @@ namespace TerranEditor
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = ImGui::Checkbox("##val", &value);
+		bool changed = ImGui::Checkbox("##val", &value);
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
@@ -1000,8 +977,8 @@ namespace TerranEditor
 	// TODO: support wide strings
 	bool UI::PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
+		UI::PushID();
 		bool changed = false;
-		ImGui::PushID(label.c_str());
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -1021,15 +998,14 @@ namespace TerranEditor
 
 		delete[] buf;
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
 	bool UI::Button(const std::string& label, const char* buttonLabel)
 	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
+		UI::PushID();
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -1037,9 +1013,9 @@ namespace TerranEditor
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = ImGui::Button(buttonLabel);
+		bool changed = ImGui::Button(buttonLabel);
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}

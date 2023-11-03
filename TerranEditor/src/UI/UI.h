@@ -112,6 +112,8 @@ namespace TerranEditor::UI
 	void PushID();
 	void PopID();
 	int GenerateID();
+	void PushFontSize(float fontSize);
+	void PopFontSize();
 
 	void ShiftCursor(float x, float y);
 	void ShiftCursorX(float x);
@@ -167,15 +169,15 @@ namespace TerranEditor::UI
 
 		ImGuiDataType dataType = ImGuiDataTypeMap[typeid(T)];
 
-		if constexpr (std::is_same<T, int8_t>::value ||
-						std::is_same<T, int16_t>::value || 
-						std::is_same<T, int32_t>::value || 
-						std::is_same<T, int64_t>::value)
+		if constexpr (std::is_same_v<T, int8_t> ||
+						std::is_same_v<T, int16_t> || 
+						std::is_same_v<T, int32_t> || 
+						std::is_same_v<T, int64_t>)
 			format = "%d";
-		else if constexpr (std::is_same<T, uint8_t>::value || 
-							std::is_same<T, uint16_t>::value || 
-							std::is_same<T, uint32_t>::value || 
-							std::is_same<T, uint64_t>::value)
+		else if constexpr (std::is_same_v<T, uint8_t> || 
+							std::is_same_v<T, uint16_t> || 
+							std::is_same_v<T, uint32_t> || 
+							std::is_same_v<T, uint64_t>)
 			format = "%u";
 
 		bool modified = false;
@@ -191,34 +193,32 @@ namespace TerranEditor::UI
 	template<typename T>
 	bool PropertyScalar(const std::string& label, T& value) 
 	{
-		bool changed = false;
-		ImGui::PushID(label.c_str());
-
+		UI::PushID();
+		
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = UI::DragScalar<T>(("##DR" + label).c_str(), &value, power, "%.2f");
+		bool changed = UI::DragScalar<T>(("##DR" + label).c_str(), &value, power, "%.2f");
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
 
-	// the mostly same as imgui's but with some minor tweaks
+	// this mostly same as imgui's but with some minor tweaks
 	bool TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end);
 	bool TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags);
 
 	template<typename TEnum>
 	bool PropertyDropdown(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected)
 	{
+		UI::PushID();
 		bool changed = false;
 		const char* currentState = stateNames[(int32_t)selected];
-
-		ImGui::PushID(label.c_str());
-			
+	
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
@@ -245,7 +245,7 @@ namespace TerranEditor::UI
 			ImGui::EndCombo();
 		}
 
-		ImGui::PopID();
+		UI::PopID();
 
 		return changed;
 	}
@@ -253,8 +253,8 @@ namespace TerranEditor::UI
 	template<typename TAsset>
 	bool PropertyAssetField(const std::string& label, TerranEngine::AssetType type, TerranEngine::UUID& outHandle)
 	{
-		bool result = false;
-		ImGui::PushID(label.c_str());
+		UI::PushID();
+		bool changed = false;
 			
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -282,15 +282,15 @@ namespace TerranEditor::UI
 				if (info.Type == type)
 				{
 					outHandle = assetHandle;
-					result = true;
+					changed = true;
 				}
 			}
 
 			ImGui::EndDragDropTarget();
 		}
-		ImGui::PopID();
+		UI::PopID();
 
-		return result;
+		return changed;
 	}
 
 	bool PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
