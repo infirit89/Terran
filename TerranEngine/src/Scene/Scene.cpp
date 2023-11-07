@@ -94,6 +94,13 @@ namespace TerranEngine
 		return entity;
 	}
 
+	Entity Scene::CreateEmptyEntity()
+	{
+		entt::entity e = m_Registry.create();
+		Entity entity(e, this);
+		return entity;
+	}
+
 	void Scene::DestroyEntity(Entity entity, bool first)
 	{
 		ScriptEngine::UninitalizeScriptable(entity);

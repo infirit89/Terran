@@ -27,6 +27,8 @@ namespace TerranEditor
 	using UIFunc = std::function<void(Component&)>;
 
 	static TransformComponent s_TransformClipboard;
+	static Shared<Scene> s_CopyScene;
+	static Entity s_CopyEntity;
 
 	template<typename T>
 	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool removable = true)
@@ -64,18 +66,14 @@ namespace TerranEditor
 				if (ImGui::MenuItem("Reset"))
 					entity.GetComponent<T>() = T();
 
-				if (ImGui::MenuItem("Remove Component", (const char*)0, false, removable))
+				if (ImGui::MenuItem("Remove Component", nullptr, false, removable))
 					removedComponent = true;
 
-				if (std::is_same<T, TransformComponent>())
-				{
-					TransformComponent& transform = (TransformComponent&)component;
-					if (ImGui::MenuItem("Copy"))
-						s_TransformClipboard = transform;
+				if (ImGui::MenuItem("Copy"))
+					s_CopyEntity.AddOrReplaceComponent<T>(component);
 
-					if (ImGui::MenuItem("Paste"))
-						transform = s_TransformClipboard;
-				}
+				if (ImGui::MenuItem("Paste", nullptr, false, s_CopyEntity.HasComponent<T>()))
+					component = s_CopyEntity.GetComponent<T>();
 
 				ImGui::EndPopup();
 			}
@@ -93,6 +91,12 @@ namespace TerranEditor
 			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImGui::SetCursorPosY(cursorPos.y + 4.0f);
 		}
+	}
+
+	PropertiesPanel::PropertiesPanel()
+	{
+		s_CopyScene = CreateShared<Scene>();
+		s_CopyEntity = s_CopyScene->CreateEmptyEntity();
 	}
 
 	void PropertiesPanel::OnRender()

@@ -70,7 +70,7 @@ namespace TerranEditor
 
 	bool UI::PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 
 		uint32_t selectedCount = 0;
@@ -113,7 +113,7 @@ namespace TerranEditor
 			ImGui::EndCombo();
 		}
 
-		UI::PopID();
+		ImGui::PopID();
 		return changed;
 	}
 
@@ -754,7 +754,7 @@ namespace TerranEditor
 
 	bool UI::PropertyColor(const std::string& label, glm::vec4& value)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
@@ -772,15 +772,14 @@ namespace TerranEditor
 			changed = ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
 			ImGui::EndPopup();
 		}
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyVec3(const std::string& label, glm::vec3& value)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
@@ -824,15 +823,14 @@ namespace TerranEditor
 		ImGui::SameLine();
 
 		drawControl("Z", value.z);
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyVec2(const std::string& label, glm::vec2& value)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
@@ -875,15 +873,14 @@ namespace TerranEditor
 		ImGui::SameLine();
 
 		drawControl("Y", value.y);
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyEntity(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool modified = false;
 
 		ImGui::TableSetColumnIndex(0);
@@ -917,16 +914,14 @@ namespace TerranEditor
 
 			ImGui::EndDragDropTarget();
 		}
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return modified;
 	}
 
 	bool UI::PropertyFloat(const std::string& label, float& value)
 	{
-		UI::PushID();
-
+		ImGui::PushID(label.c_str());
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
@@ -934,16 +929,14 @@ namespace TerranEditor
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		bool changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyInt(const std::string& label, int& value)
 	{
-		UI::PushID();
-
+		ImGui::PushID(label.c_str());
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
@@ -951,16 +944,14 @@ namespace TerranEditor
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		bool changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
 
 	bool UI::PropertyBool(const std::string& label, bool& value)
 	{
-		UI::PushID();
-
+		ImGui::PushID(label.c_str());
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
@@ -968,8 +959,7 @@ namespace TerranEditor
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		bool changed = ImGui::Checkbox("##val", &value);
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
@@ -977,7 +967,7 @@ namespace TerranEditor
 	// TODO: support wide strings
 	bool UI::PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
@@ -997,16 +987,14 @@ namespace TerranEditor
 		}
 
 		delete[] buf;
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
 
 	bool UI::Button(const std::string& label, const char* buttonLabel)
 	{
-		UI::PushID();
-
+		ImGui::PushID(label.c_str());
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
@@ -1014,8 +1002,7 @@ namespace TerranEditor
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		bool changed = ImGui::Button(buttonLabel);
-
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}

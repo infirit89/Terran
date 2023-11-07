@@ -193,7 +193,7 @@ namespace TerranEditor::UI
 	template<typename T>
 	bool PropertyScalar(const std::string& label, T& value) 
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -203,7 +203,7 @@ namespace TerranEditor::UI
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		bool changed = UI::DragScalar<T>(("##DR" + label).c_str(), &value, power, "%.2f");
 
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
@@ -215,7 +215,7 @@ namespace TerranEditor::UI
 	template<typename TEnum>
 	bool PropertyDropdown(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 		const char* currentState = stateNames[(int32_t)selected];
 	
@@ -245,7 +245,7 @@ namespace TerranEditor::UI
 			ImGui::EndCombo();
 		}
 
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}
@@ -253,7 +253,7 @@ namespace TerranEditor::UI
 	template<typename TAsset>
 	bool PropertyAssetField(const std::string& label, TerranEngine::AssetType type, TerranEngine::UUID& outHandle)
 	{
-		UI::PushID();
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 			
 		ImGui::TableSetColumnIndex(0);
@@ -288,7 +288,7 @@ namespace TerranEditor::UI
 
 			ImGui::EndDragDropTarget();
 		}
-		UI::PopID();
+		ImGui::PopID();
 
 		return changed;
 	}

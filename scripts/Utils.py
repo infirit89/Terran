@@ -12,7 +12,7 @@ TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
 TerranEditorPath = f"{TerranRoot}/TerranEditor"
 
 def DownloadFile(url, filepath):
-    print("Downloading {0:s} to {1:s}".format(url, filepath))
+    print("Downloading", url)
 
     filepath = os.path.abspath(filepath)
 
