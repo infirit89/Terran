@@ -171,7 +171,7 @@ namespace TerranEditor
 					else if (action == ItemAction::Select)
 						SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
 					else if (action == ItemAction::MoveTo)
-						MoveSelectedItemTo(m_Directories[item->GetHandle()]);
+						MoveSelectedItemsToDirectory(m_Directories[item->GetHandle()]);
 					else if (action == ItemAction::StartRename)
 						item->StartRename();
 
@@ -308,7 +308,7 @@ namespace TerranEditor
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
-						MoveSelectedItemTo(m_BreadCrumbs[i]);
+						MoveSelectedItemsToDirectory(m_BreadCrumbs[i]);
 
 					ImGui::EndDragDropTarget();
 				}
@@ -383,7 +383,7 @@ namespace TerranEditor
 		{
 			ImGuiDragDropFlags dragDropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET", dragDropFlags))
-				MoveSelectedItemTo(parent);
+				MoveSelectedItemsToDirectory(parent);
 
 			ImGui::EndDragDropTarget();
 		}
@@ -549,19 +549,23 @@ namespace TerranEditor
 		return nullptr;
 	}
 
-	void ContentPanel::MoveSelectedItemTo(const Shared<DirectoryInfo>& directory)
+	void ContentPanel::MoveSelectedItemsToDirectory(const Shared<DirectoryInfo>& directory)
 	{
-		auto selectedItem = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [](Shared<ContentBrowserItem> browserItem)
-			{
-				return browserItem->GetHandle() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
-			});
+		std::vector<Shared<ContentBrowserItem>> selectedItems;
+		std::copy_if(m_CurrentItems.begin(), m_CurrentItems.end(), 
+					std::back_inserter(selectedItems), 
+					[](Shared<ContentBrowserItem> item)
+					{
+						return SelectionManager::IsSelected(SelectionContext::ContentPanel, item->GetHandle());
+					});
 
-		SelectionManager::Deselect(SelectionContext::ContentPanel);
-		if (selectedItem != m_CurrentItems.end())
+		for (const auto& item : selectedItems) 
 		{
 			std::filesystem::path directoryPath = directory->Path;
-			(*selectedItem)->Move(directoryPath);
+			item->Move(directoryPath);
 		}
+
+		//SelectionManager::Deselect(SelectionContext::ContentPanel);
 	}
 
 	void ContentPanel::ChangeDirectory(const Shared<DirectoryInfo>& directory)

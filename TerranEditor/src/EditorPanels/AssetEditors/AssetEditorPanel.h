@@ -10,10 +10,15 @@ namespace TerranEditor
 		AssetEditorPanel() = default;
 		virtual ~AssetEditorPanel() = default;
 
-		virtual void OnRender(const TerranEngine::UUID& assetID) = 0;
-		void SetOpen(bool open) { m_Open = open; }
+		virtual void OnRender() = 0;
+		void SetOpen(bool open, const TerranEngine::UUID& id) 
+		{
+			m_Open = open;
+			m_ID = id;
+		}
 
 	protected:
-		bool m_Open = true;
+		bool m_Open = false;
+		TerranEngine::UUID m_ID;
 	};
 }

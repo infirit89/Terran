@@ -130,7 +130,7 @@ namespace TerranEditor
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, Shared<DirectoryInfo> parent = nullptr);
 		Shared<DirectoryInfo> GetDirectory(const std::filesystem::path& directoryPath);
 		Shared<DirectoryInfo> GetDirectory(const UUID& handle);
-		void MoveSelectedItemTo(const Shared<DirectoryInfo>& directory);
+		void MoveSelectedItemsToDirectory(const Shared<DirectoryInfo>& directory);
 		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
 		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
 		void FillBreadCrumbs();

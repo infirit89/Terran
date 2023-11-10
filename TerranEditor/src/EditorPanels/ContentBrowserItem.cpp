@@ -115,8 +115,8 @@ namespace TerranEditor
 		{
 			if (m_IsRenaming)
 				StopRename();
-			else
-				SelectionManager::Deselect(SelectionContext::ContentPanel);
+			else if(SelectionManager::IsSelected(SelectionContext::ContentPanel, m_Handle))
+				SelectionManager::Deselect(SelectionContext::ContentPanel, m_Handle);
 		}
 
 		if (m_Type == ItemType::Directory)

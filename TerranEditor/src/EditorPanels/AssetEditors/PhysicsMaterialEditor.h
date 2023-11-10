@@ -9,7 +9,6 @@ namespace TerranEditor
 	public:
 		PhysicsMaterialEditor() = default;
 		virtual ~PhysicsMaterialEditor() override = default;
-
-		virtual void OnRender(const TerranEngine::UUID& assetID) override;
+		virtual void OnRender() override;
 	};
 }

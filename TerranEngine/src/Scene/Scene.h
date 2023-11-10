@@ -61,7 +61,7 @@ namespace TerranEngine
 			auto view = m_Registry.template view<std::add_const_t<Components>...>();
 			entities.reserve(view.size());
 
-			for (const entt:handle e : view) 
+			for (auto e : view) 
 			{
 				if (predicate(view.template get<std::add_const_t<Components>>(e)...))
 					entities.push_back({ e, this });

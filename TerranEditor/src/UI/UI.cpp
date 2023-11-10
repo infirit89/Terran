@@ -510,8 +510,10 @@ namespace TerranEditor
 	{
 		UI::PushID();
 		const float frameBorderSize = ImGui::GetStyle().FrameBorderSize;
+		const float framePaddingX = ImGui::GetStyle().FramePadding.x;
 		UI::ScopedStyleVar frameBorder({
-			{ ImGuiStyleVar_FrameBorderSize, frameBorderSize }
+			{ ImGuiStyleVar_FrameBorderSize, frameBorderSize },
+			{ ImGuiStyleVar_FramePadding, { framePaddingX, 5.0f } }
 		});
 
 		const float framePaddingY = ImGui::GetStyle().FramePadding.y;

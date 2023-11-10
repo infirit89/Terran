@@ -79,10 +79,7 @@ namespace TerranEngine
 		type = AssetUtility::GetAssetTypeFromFileExtenstion(assetPath.extension());
 		
 		if (type == AssetType::None)
-		{
-			TR_ERROR("File type of file {0} is unknown", path);
 			return UUID::Invalid();
-		}
 
 		AssetInfo assetInfo;
 		assetInfo.Path = path;

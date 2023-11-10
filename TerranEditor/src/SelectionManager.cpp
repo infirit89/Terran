@@ -6,34 +6,44 @@ namespace TerranEditor
 {
 	using namespace TerranEngine;
 	
-	std::unordered_map<SelectionContext, TerranEngine::UUID> SelectionManager::s_Selections;
+	std::unordered_map<SelectionContext, std::vector<UUID>> SelectionManager::s_Selections;
 
 	void SelectionManager::Select(Entity entity) 
 	{
-		s_Selections[SelectionContext::Scene] = entity.GetID();
+		auto& selected = s_Selections.at(SelectionContext::Scene);
+		selected.push_back(entity.GetID());
 	}
-	void SelectionManager::Select(SelectionContext context, UUID id) 
+	void SelectionManager::Select(SelectionContext context, const UUID& id) 
 	{	
-		s_Selections[context] = id;
+		s_Selections[context].push_back(id);
 	}
 	
-	void SelectionManager::Deselect(SelectionContext context) 
+	void SelectionManager::DeselectAll(SelectionContext context)
 	{ 
-		s_Selections[context] = UUID({0});
-	}
-	
-	Entity SelectionManager::GetSelected()
-	{ 
-		return SceneManager::GetCurrentScene()->FindEntityWithUUID(s_Selections[SelectionContext::Scene]);
+		s_Selections[context].clear();
 	}
 
-	UUID SelectionManager::GetSelected(SelectionContext context)
+	void SelectionManager::Deselect(SelectionContext context, const TerranEngine::UUID& id)
+	{
+		std::vector<UUID>& selected = s_Selections.at(context);
+		auto it = std::find(selected.begin(), selected.end(), id);
+		selected.erase(it);
+	}
+	
+	//std::vector<Entity> SelectionManager::GetSelected()
+	//{ 
+	//	//return SceneManager::GetCurrentScene()->FindEntityWithUUID(s_Selections[SelectionContext::Scene]);
+	//}
+
+	const std::vector<UUID>& SelectionManager::GetSelected(SelectionContext context)
 	{
 		return s_Selections[context]; 
 	}
 
 	bool SelectionManager::IsSelected(SelectionContext context, const TerranEngine::UUID& id)
 	{
-		return s_Selections[context] == id;
+		std::vector<UUID>& selected = s_Selections[context];
+		auto it = std::find(selected.begin(), selected.end(), id);
+		return it != selected.end();
 	}
 }

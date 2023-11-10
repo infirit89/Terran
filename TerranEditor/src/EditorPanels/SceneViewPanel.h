@@ -45,7 +45,9 @@ namespace TerranEditor
 		
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
+		void DrawGizmos(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
+	private:
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 		Shared<SceneRenderer> m_SceneRenderer;
 

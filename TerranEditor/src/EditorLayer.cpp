@@ -425,30 +425,30 @@ namespace TerranEditor
 
 		m_SceneState = SceneState::Play;
 
-		UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
-		SelectionManager::Deselect(SelectionContext::Scene);
+		//UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
+		//SelectionManager::Deselect(SelectionContext::Scene);
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		SceneManager::GetCurrentScene()->StartRuntime();
 
-		if(tempSelected)
-			SelectionManager::Select(SelectionContext::Scene, tempSelected);
+		/*if(tempSelected)
+			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
-		UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
-		SelectionManager::Deselect(SelectionContext::Scene);
+		/*UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
+		SelectionManager::Deselect(SelectionContext::Scene);*/
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
 		//SceneManager::RemoveScene(SceneManager::CurrentScene->GetID());
 		m_PanelManager->SetScene(m_EditorScene);
 		SceneManager::SetCurrentScene(m_EditorScene);
 
-		if(tempSelected)
-			SelectionManager::Select(SelectionContext::Scene, tempSelected);
+		/*if(tempSelected)
+			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
 	void EditorLayer::OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level)
@@ -625,7 +625,7 @@ namespace TerranEditor
 				if (SceneManager::GetCurrentScene()->IsPlaying())
 					OnSceneStop();
 
-				SelectionManager::Deselect(SelectionContext::Scene);
+				SelectionManager::DeselectAll(SelectionContext::Scene);
 				m_EditorScene = newScene;
 				m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
