@@ -1,9 +1,6 @@
-from re import sub
 from shutil import copy
 
-from numpy import equal
 import Utils
-from distutils.dir_util import copy_tree
 import os
 import glob
 import sys
@@ -28,6 +25,7 @@ class MonoSetup:
     @classmethod
     def CopyLibs(self):
         monoLibPath = f"{self.monoRoot}/lib/mono/{self.targetMonoLibVer}" 
+        print(os.path.exists(monoLibPath))
         
         libsExist = 0
 
@@ -143,18 +141,18 @@ class MonoSetup:
     def CopyLibraries(self):
         # TODO: copy the pdb files
         
-        monoLibraries = [
-            f"{self.monoRoot}/lib/mono-2.0-sgen.lib",
-            f"{self.monoRoot}/bin/mono-2.0-sgen.dll"
-        ]
+        monoLibraries = {
+            "win32": [f"{self.monoRoot}/lib/mono-2.0-sgen.lib", f"{self.monoRoot}/bin/mono-2.0-sgen.dll"],
+            "linux": [f"{self.monoRoot}/lib/libmonosgen-2.0.so"]
+        }
 
-        totalFileCount = len(monoLibraries)
+        totalFileCount = len(monoLibraries[sys.platform])
         copiedCount = 0
 
         if not os.path.exists(self.targetMonoBinDir):
             os.makedirs(self.targetMonoBinDir)
 
-        for lib in monoLibraries:
+        for lib in monoLibraries[sys.platform]:
             if not os.path.exists(f"{self.targetMonoBinDir}/{os.path.basename(lib)}"):
                 copy(lib, self.targetMonoBinDir)
             
@@ -171,7 +169,12 @@ class MonoSetup:
 
     @classmethod
     def CopyIncludes(self):
-        monoIncludePath = f"{self.monoRoot}/include/mono-2.0/mono"
+        monoIncludePath = ""
+        if sys.platform == "linux":
+            monoIncludePath = f"{self.monoRoot}/usr/include/mono-2.0/mono"
+        else:
+            monoIncludePath = f"{self.monoRoot}/include/mono-2.0/mono"
+            
         totalFileCount = 0
         copiedFiles = 0
 

@@ -24,5 +24,5 @@ if __name__ == "__main__":
     from SetupMono import MonoSetup
     from SetupShaderc import ShadercSetup
     PremakeSetup.Setup()
-    MonoSetup.Setup()
     ShadercSetup.Setup()
+    MonoSetup.Setup()

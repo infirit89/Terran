@@ -2,18 +2,21 @@ import requests
 import os
 import sys
 import zipfile
-
-# Note: winreg should only be imported if the os is windows
-import winreg
+import tarfile
+import Registry as reg
+import sys
 
 TerranRoot = "."
 TerranEnginePath = f"{TerranRoot}/TerranEngine"
 TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
 TerranEditorPath = f"{TerranRoot}/TerranEditor"
+Registry = reg.CreateRegistry()
+MonoPaths = {
+    "win32": Registry.QueryValue("SOFTWARE\\Mono", "SdkInstallRoot"),
+    "linux": ""
+}
 
 def DownloadFile(url, filepath):
-    print("Downloading {0:s} to {1:s}".format(url, filepath))
-
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
@@ -21,7 +24,7 @@ def DownloadFile(url, filepath):
         response = requests.get(url, headers=headers, stream = True)
 
         totalFileSize = response.headers.get("Content-Length")
-        
+
         if totalFileSize is None:
             f.write(response.content)
             return
@@ -29,16 +32,15 @@ def DownloadFile(url, filepath):
         totalFileSize = int(totalFileSize)
         
         donwloaded = 0
-        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024))):
+        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024 * 1024))):
             donwloaded += len(chunk)
             f.write(chunk)
 
             percentage = (donwloaded / totalFileSize) * 100 if donwloaded < totalFileSize else 100
 
-            sys.stdout.write("\r{:.2f}%".format(percentage))
+            sys.stdout.write("\rDownloading {:s} {:.2f}%".format(os.path.basename(url), percentage))
             sys.stdout.flush()
         sys.stdout.write('\n')
-
 
 def UnzipFile(zipPath, deleteZip : bool = True):
     zipPath = os.path.abspath(zipPath)
@@ -65,35 +67,37 @@ def UnzipFile(zipPath, deleteZip : bool = True):
     if(deleteZip):
         os.remove(zipPath)
 
-def OpenKey(key: int, subkey: str):
-    try:
-        return winreg.OpenKey(key, subkey)
-    except:
-        sys.stderr.write("Couldn't open the specified key!\n")
-        return None
 
-def QueryValue(subkey: str, valueName: str):
-    try:
-        with OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey) as hKey:
-            return winreg.QueryValueEx(hKey, valueName)[0]
-    except:
-        sys.stderr.write("\rCouldn't find the value with name: {}\n".format(valueName))
-        return None
+
+def UnzipTar(zipPath, deleteZip : bool = True):
+    zipPath = os.path.abspath(zipPath)
+    zipFileLocation = os.path.dirname(zipPath)
+    zipFileName = os.path.basename(zipPath)
+
+    with tarfile.open(zipPath) as t:
+        totalSize = 0
+        for compressedFile in t.getmembers():
+            totalSize += compressedFile.size
+        
+        extracted = 0
+        for compressedFile in t.getmembers():
+            t.extract(compressedFile.name, zipFileLocation)
+            extracted += compressedFile.size
+
+            percentage = (extracted / totalSize) * 100
+            
+            sys.stdout.write("\rExtracting: {} {:.2f}%".format(zipFileName, percentage))
+            sys.stdout.flush()
+
+        sys.stdout.write('\n')
+
+    if(deleteZip):
+        os.remove(zipPath)
 
 def GetMonoRootDir():
-    rootDir = QueryValue("SOFTWARE\\Mono", "SdkInstallRoot")
-    
+    rootDir = MonoPaths[sys.platform]
+
     if rootDir is not None:
         return str(rootDir)
 
     return None
-
-def GetMonoVersion():
-    version = QueryValue("SOFTWARE\\Mono", "Version")
-
-    if version is not None:
-        return str(version)
-
-    return None
-
-

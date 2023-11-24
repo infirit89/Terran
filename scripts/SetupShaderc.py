@@ -6,7 +6,16 @@ import sys
 class ShadercSetup:
 
     shadercInstallDir = f"{Utils.TerranEngineVendorPath}/shaderc"
-    shadercURL = f"https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_release_2017/438/20230810-123700/install.zip"
+
+    shadercURL = {
+        "win32": "https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_release_2017/438/20230810-123700/install.zip",
+        "linux": "https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/439/20231013-080237/install.tgz"
+    }
+    shadercFileName = {
+        "win32": "shaderc.zip",
+        "linux": "shaderc.tgz"
+    }
+    
     shadercLicenseURL = f"https://raw.githubusercontent.com/google/shaderc/main/LICENSE"
 
     @classmethod
@@ -20,9 +29,14 @@ class ShadercSetup:
     def InstallShaderc(self):
 
         os.makedirs(self.shadercInstallDir)
-        shadercZipPath = f"{self.shadercInstallDir}/shaderc.zip"
-        Utils.DownloadFile(self.shadercURL, shadercZipPath)
-        Utils.UnzipFile(shadercZipPath)
+        shadercZipPath = f"{self.shadercInstallDir}/{self.shadercFileName[sys.platform]}"
+        Utils.DownloadFile(self.shadercURL[sys.platform], shadercZipPath)
+
+        if sys.platform == 'win32':
+            Utils.UnzipFile(shadercZipPath)
+        elif sys.platform == 'linux':
+            Utils.UnzipTar(shadercZipPath)
+            
         self.MoveFromTempDirectory()
         
         print("Shaderc has been downloaded!")
