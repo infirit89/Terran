@@ -78,7 +78,8 @@ project "TerranEngine"
     {
         "_CRT_SECURE_NO_WARNINGS",
         "GLFW_INCLUDE_NONE",
-        "YAML_CPP_STATIC_DEFINE"
+        "YAML_CPP_STATIC_DEFINE",
+        "_GLFW_X11"
     }
 
     filter "system:windows"
@@ -89,6 +90,10 @@ project "TerranEngine"
             "%{Libraries.imm32}",
             "%{Libraries.rpcrt4}"
         }
+
+        
+    filter "system:linux"
+        systemversion "latest"
 
     filter "configurations:Debug"
         defines "TR_DEBUG"
