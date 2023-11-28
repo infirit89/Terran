@@ -12,7 +12,7 @@ namespace TerranEngine
 	using Unique = std::unique_ptr<T>;
 
 	template<typename T, typename... Args>
-	Unique<T> CreateUnique(Args&&... args) 
+	Unique<T> CreateUnique(Args&&... args)
 	{
 		return std::make_unique<T>(std::forward<Args>(args)...);
 	}

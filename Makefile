@@ -12,7 +12,7 @@ ifeq ($(config),debug)
   GLFW_config = debug
   ImGui_config = debug
   GLAD_config = debug
-  freetype_config = debug
+  Freetype_config = debug
   msdfgen_config = debug
   msdf_atlas_gen_config = debug
   Box2D_config = debug
@@ -27,7 +27,7 @@ else ifeq ($(config),release)
   GLFW_config = release
   ImGui_config = release
   GLAD_config = release
-  freetype_config = release
+  Freetype_config = release
   msdfgen_config = release
   msdf_atlas_gen_config = release
   Box2D_config = release
@@ -42,7 +42,7 @@ else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := GLFW ImGui GLAD freetype msdfgen msdf-atlas-gen Box2D OptickCore yaml-cpp TerranEngine TerranScriptCore TerranEditor Sandbox
+PROJECTS := GLFW ImGui GLAD Freetype msdfgen msdf-atlas-gen Box2D OptickCore yaml-cpp TerranEngine TerranScriptCore TerranEditor Sandbox
 
 .PHONY: all clean help $(PROJECTS) Core Dependencies Runtime Tools
 
@@ -50,7 +50,7 @@ all: $(PROJECTS)
 
 Core: TerranEngine TerranScriptCore
 
-Dependencies: Box2D GLAD GLFW ImGui OptickCore freetype msdf-atlas-gen msdfgen yaml-cpp
+Dependencies: Box2D Freetype GLAD GLFW ImGui OptickCore msdf-atlas-gen msdfgen yaml-cpp
 
 Runtime: Sandbox
 
@@ -74,13 +74,13 @@ ifneq (,$(GLAD_config))
 	@${MAKE} --no-print-directory -C TerranEngine/vendor/GLAD -f Makefile config=$(GLAD_config)
 endif
 
-freetype:
-ifneq (,$(freetype_config))
-	@echo "==== Building freetype ($(freetype_config)) ===="
-	@${MAKE} --no-print-directory -C TerranEngine/vendor/msdf-atlas-gen/msdfgen/freetype -f Makefile config=$(freetype_config)
+Freetype:
+ifneq (,$(Freetype_config))
+	@echo "==== Building Freetype ($(Freetype_config)) ===="
+	@${MAKE} --no-print-directory -C TerranEngine/vendor/msdf-atlas-gen/msdfgen/freetype -f Makefile config=$(Freetype_config)
 endif
 
-msdfgen: freetype
+msdfgen: Freetype
 ifneq (,$(msdfgen_config))
 	@echo "==== Building msdfgen ($(msdfgen_config)) ===="
 	@${MAKE} --no-print-directory -C TerranEngine/vendor/msdf-atlas-gen/msdfgen -f Makefile config=$(msdfgen_config)
@@ -162,7 +162,7 @@ help:
 	@echo "   GLFW"
 	@echo "   ImGui"
 	@echo "   GLAD"
-	@echo "   freetype"
+	@echo "   Freetype"
 	@echo "   msdfgen"
 	@echo "   msdf-atlas-gen"
 	@echo "   Box2D"
