@@ -16,6 +16,7 @@
 
 namespace TerranEngine 
 {
+
 	std::filesystem::path FileSystem::OpenFile(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
@@ -33,6 +34,7 @@ namespace TerranEngine
 		/*if (GetCurrentDirectoryA(256, currentDir))
 			ofn.lpstrInitialDir = currentDir;*/
 
+		// NOTE: im fucking dumb the initial directory should be a function parameter
 		std::string assetPathStr = Project::GetAssetPath().string();
 		ofn.lpstrInitialDir = assetPathStr.c_str();
 

@@ -70,7 +70,7 @@ namespace TerranEditor
 						TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
 
 						std::array<uint8_t, 16> idArr;
-						memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+						memcpy(idArr.data(), payload->Data, 16 * sizeof(uint8_t));
 						UUID id(idArr);
 						Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
 						receivedEntity.Unparent();
@@ -162,7 +162,7 @@ namespace TerranEditor
 				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
 
 				std::array<uint8_t, 16> idArr;
-				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+				memcpy(idArr.data(), payload->Data, 16 * sizeof(uint8_t));
 				UUID id(idArr);
 				Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
 

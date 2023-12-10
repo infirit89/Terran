@@ -29,7 +29,7 @@ namespace TerranEngine
 		b2World* PhysicsWorld = nullptr;
 		std::unordered_map<UUID, Shared<PhysicsBody2D>> PhysicsBodies;
 		float PhysicsDeltaTime = 0.0f;
-		ContactListener ContactListener;
+		ContactListener WorldContactListener;
 		Shared<PhysicsBody2D> EmptyPhysicsBody;
         PhysicsSettings Settings;
 		Shared<PhysicsMaterial2DAsset> DefaultMaterial;
@@ -65,7 +65,7 @@ namespace TerranEngine
 		b2Vec2 b2Gravity = { s_State->Settings.Gravity.x, s_State->Settings.Gravity.y };
 		s_State->PhysicsWorld = new b2World(b2Gravity);
 
-		s_State->PhysicsWorld->SetContactListener(&s_State->ContactListener);
+		s_State->PhysicsWorld->SetContactListener(&s_State->WorldContactListener);
 		s_State->PhysicsWorld->SetAutoClearForces(true);
 	}
 

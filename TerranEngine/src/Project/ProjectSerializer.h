@@ -8,7 +8,7 @@ namespace TerranEngine
     {
     public:
         ProjectSerializer() = default;
-        ProjectSerializer(Shared<Project>& project);
+        ProjectSerializer(Shared<Project> project);
 
         void Serialize();
         bool Deserizlize();

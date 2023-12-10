@@ -79,7 +79,7 @@ namespace TerranEngine
 		static const uint32_t MaxTextureSlots = 16;
 		// *****************************
 
-		Shared<IndexBuffer>  IndexBuffer;
+		Shared<IndexBuffer> SharedIndexBuffer;
 
 		// ******** Quad ********
 		uint32_t QuadIndexCount = 0;
@@ -144,7 +144,7 @@ namespace TerranEngine
 		// **********************
 
 		//  ******** Camera stuffs ********
-		CameraData CameraData;
+		CameraData SharedCameraData;
 		Shared<UniformBuffer> CameraBuffer;
 	};
 
@@ -177,7 +177,7 @@ namespace TerranEngine
 			offset += 4;
 		}
 
-		s_Data->IndexBuffer = IndexBuffer::Create(indices, s_Data->MaxIndices * sizeof(int));
+		s_Data->SharedIndexBuffer = IndexBuffer::Create(indices, s_Data->MaxIndices * sizeof(int));
 
 		delete[] indices;
 		// ************************************
@@ -204,7 +204,7 @@ namespace TerranEngine
 			});
 
 			s_Data->QuadVertexArray->AddVertexBuffer(s_Data->QuadVertexBuffer);
-			s_Data->QuadVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->QuadVertexArray->AddIndexBuffer(s_Data->SharedIndexBuffer);
 			
 			TextureParameters whiteTextureParameters;
 			whiteTextureParameters.Width = 1;
@@ -236,7 +236,7 @@ namespace TerranEngine
 			});
 
 			s_Data->CircleVertexArray->AddVertexBuffer(s_Data->CircleVertexBuffer);
-			s_Data->CircleVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->CircleVertexArray->AddIndexBuffer(s_Data->SharedIndexBuffer);
 
 			s_Data->CircleShader = ShaderLibrary::Load("Resources/Shaders/Base/CircleShader.glsl");
 		}
@@ -259,7 +259,7 @@ namespace TerranEngine
 			});
 
 			s_Data->LineVertexArray->AddVertexBuffer(s_Data->LineVertexBuffer);
-			s_Data->LineVertexArray->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->LineVertexArray->AddIndexBuffer(s_Data->SharedIndexBuffer);
 
 			s_Data->LineShader = ShaderLibrary::Load("Resources/Shaders/Base/LineShader.glsl");
 		}
@@ -280,7 +280,7 @@ namespace TerranEngine
 			});
 
 			s_Data->TextVAO->AddVertexBuffer(s_Data->TextVBO);
-			s_Data->TextVAO->AddIndexBuffer(s_Data->IndexBuffer);
+			s_Data->TextVAO->AddIndexBuffer(s_Data->SharedIndexBuffer);
 
 			s_Data->TextShader = ShaderLibrary::Load("Resources/Shaders/Base/TextShader.glsl");
 		}
@@ -330,12 +330,12 @@ namespace TerranEngine
 		TR_PROFILE_FUNCTION();
 		Clear();
 
-		s_Data->CameraData.Projection = camera.GetProjection();
-		s_Data->CameraData.View = inverseView ? glm::inverse(transform) : transform;
+		s_Data->SharedCameraData.Projection = camera.GetProjection();
+		s_Data->SharedCameraData.View = inverseView ? glm::inverse(transform) : transform;
 
 		size_t size = sizeof(CameraData);
 
-		s_Data->CameraBuffer->SetData(&s_Data->CameraData, 0, sizeof(CameraData));
+		s_Data->CameraBuffer->SetData(&s_Data->SharedCameraData, 0, sizeof(CameraData));
 	}
 
 	void BatchRenderer2D::AddQuad(glm::mat4& transform, const glm::vec4& color, Shared<Texture2D> texture, int entityID)

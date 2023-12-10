@@ -2,7 +2,8 @@
 
 #include <string>
 #include <array>
-#include <xhash>
+#include <functional>
+#include <cstdint>
 
 namespace TerranEngine 
 {

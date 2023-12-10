@@ -17,7 +17,7 @@ namespace TerranEngine
 {
     //using json = nlohmann::ordered_json;
 
-    ProjectSerializer::ProjectSerializer(Shared<Project>& project)
+    ProjectSerializer::ProjectSerializer(Shared<Project> project)
        : m_Project(project)
     {
 

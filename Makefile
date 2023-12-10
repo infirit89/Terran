@@ -122,7 +122,7 @@ ifneq (,$(TerranScriptCore_config))
 	@${MAKE} --no-print-directory -C TerranScriptCore -f Makefile config=$(TerranScriptCore_config)
 endif
 
-TerranEditor: TerranEngine
+TerranEditor: TerranEngine GLFW GLAD ImGui Box2D OptickCore yaml-cpp msdf-atlas-gen msdfgen Freetype
 ifneq (,$(TerranEditor_config))
 	@echo "==== Building TerranEditor ($(TerranEditor_config)) ===="
 	@${MAKE} --no-print-directory -C TerranEditor -f Makefile config=$(TerranEditor_config)

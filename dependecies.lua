@@ -42,9 +42,14 @@ if osName == "win32" then
     Libraries["imm32"] = "Imm32.lib"
     Libraries["rpcrt4"] = "Rpcrt4.lib"
 elseif osName == "linux" then
-    Libraries["mono_static"] = "%{wks.location}/TerranEngine/vendor/mono/bin/libmonosgen-2.0.so"
-    Libraries["mono_shared"] = "%{wks.location}/TerranEngine/vendor/mono/bin/libmonosgen-2.0.so"
+    Libraries["mono_static"] = "monosgen-2.0"
+    Libraries["mono_shared"] = "monosgen-2.0"
     Libraries["optick"] = "%{wks.location}/TerranEngine/vendor/Optick/bin/%{outputdir}/OptickCore.dll"
-    Libraries["shaderc"] = "%{wks.location}/TerranEngine/vendor/shaderc/lib/libshaderc.a"
+    Libraries["shaderc"] = "shaderc_combined"
     Libraries["shaderc_shared"] = "%{wks.location}/TerranEngine/vendor/shaderc/bin/libshaderc_shared.so"
 end
+
+LibraryDirectories = {}
+
+LibraryDirectories["mono"] = "%{wks.location}/TerranEngine/vendor/mono/bin/"
+LibraryDirectories["shaderc"] = "%{wks.location}/TerranEngine/vendor/shaderc/lib/"

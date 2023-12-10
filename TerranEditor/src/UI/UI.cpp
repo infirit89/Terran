@@ -48,9 +48,6 @@ namespace TerranEditor
 		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_SelectableTextAlign
 	};
 
-
-	
-
 	static std::string ProccessFieldName(std::string name)
 	{
 		std::string result;
@@ -151,7 +148,9 @@ namespace TerranEditor
 		char tableID[256];
 
 		tableID[0] = '#';
-		strcpy_s(tableID + 1, sizeof(tableID) - 1, name.c_str());
+		// strcpy_s(tableID + 1, sizeof(tableID) - 1, name.c_str());
+		strlcpy(tableID + 1, name.c_str(), sizeof(tableID));
+
 		tableID[strlen(name.c_str()) + 1] = '\0';
 
 		ImGui::Columns(tableInfo.ColumnCount, tableID, tableInfo.Border);
@@ -255,7 +254,6 @@ namespace TerranEditor
 		style->TabRounding = 4.0f;
 		style->ChildRounding = 0.0f;
 		style->PopupRounding = 0.0f;
-
 		style->WindowBorderSize = 1.0f;
 		style->FrameBorderSize = 0.0f;
 		style->PopupBorderSize = 1.0f;
@@ -765,7 +763,9 @@ namespace TerranEditor
 
 		char buf[256];
 		memset(buf, 0, sizeof(buf));
-		strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
+		// strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
+		strncpy(buf, !entity ? "None" : entity.GetName().c_str(), sizeof(buf));
+		
 
 		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
 		ImGui::InputText("##EntityField", buf, sizeof(buf), inputTextFlags);
@@ -861,7 +861,8 @@ namespace TerranEditor
 
 		char* buf = new char[maxBufSize];
 		memset(buf, 0, maxBufSize);
-		strcpy_s(buf, maxBufSize, value.c_str());
+		// strcpy_s(buf, maxBufSize, value.c_str());
+		strncpy(buf, value.c_str(), maxBufSize);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		if (ImGui::InputText("##val", buf, maxBufSize, flags))

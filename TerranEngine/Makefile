@@ -41,9 +41,9 @@ OBJDIR = bin-int/Debug-linux-x86_64
 DEFINES += -D_CRT_SECURE_NO_WARNINGS -DGLFW_INCLUDE_NONE -DYAML_CPP_STATIC_DEFINE -D_GLFW_X11 -DTR_DEBUG
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
-LIBS += vendor/GLFW/bin/Debug-linux-x86_64/libGLFW.a vendor/ImGui/bin/Debug-linux-x86_64/libImGui.a vendor/GLAD/bin/Debug-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Debug-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Debug-linux-x86_64/libBox2D.a vendor/Optick/bin/Debug-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Debug-linux-x86_64/libyaml-cpp.a -lopengl32.lib -llibmonosgen-2.0.so -llibshaderc.a
+LIBS += vendor/GLFW/bin/Debug-linux-x86_64/libGLFW.a vendor/ImGui/bin/Debug-linux-x86_64/libImGui.a vendor/GLAD/bin/Debug-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Debug-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Debug-linux-x86_64/libBox2D.a vendor/Optick/bin/Debug-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Debug-linux-x86_64/libyaml-cpp.a -lmonosgen-2.0 -lshaderc_combined
 LDDEPS += vendor/GLFW/bin/Debug-linux-x86_64/libGLFW.a vendor/ImGui/bin/Debug-linux-x86_64/libImGui.a vendor/GLAD/bin/Debug-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Debug-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Debug-linux-x86_64/libBox2D.a vendor/Optick/bin/Debug-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Debug-linux-x86_64/libyaml-cpp.a
-ALL_LDFLAGS += $(LDFLAGS) -Lvendor/mono/bin -Lvendor/shaderc/lib -L/usr/lib64 -Wl,-rpath,'$$ORIGIN/../../vendor/Optick/bin/Debug-linux-x86_64' -m64 -IGNORE:4006
+ALL_LDFLAGS += $(LDFLAGS) -Lvendor/shaderc/lib -Lvendor/mono/bin -L/usr/lib64 -Wl,-rpath,'$$ORIGIN/../../vendor/Optick/bin/Debug-linux-x86_64' -m64 -IGNORE:4006
 
 else ifeq ($(config),release)
 TARGETDIR = bin/Release-linux-x86_64
@@ -52,9 +52,9 @@ OBJDIR = bin-int/Release-linux-x86_64
 DEFINES += -D_CRT_SECURE_NO_WARNINGS -DGLFW_INCLUDE_NONE -DYAML_CPP_STATIC_DEFINE -D_GLFW_X11 -DTR_RELEASE
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
-LIBS += vendor/GLFW/bin/Release-linux-x86_64/libGLFW.a vendor/ImGui/bin/Release-linux-x86_64/libImGui.a vendor/GLAD/bin/Release-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Release-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Release-linux-x86_64/libBox2D.a vendor/Optick/bin/Release-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Release-linux-x86_64/libyaml-cpp.a -lopengl32.lib -llibmonosgen-2.0.so -llibshaderc.a
+LIBS += vendor/GLFW/bin/Release-linux-x86_64/libGLFW.a vendor/ImGui/bin/Release-linux-x86_64/libImGui.a vendor/GLAD/bin/Release-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Release-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Release-linux-x86_64/libBox2D.a vendor/Optick/bin/Release-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Release-linux-x86_64/libyaml-cpp.a -lmonosgen-2.0 -lshaderc_combined
 LDDEPS += vendor/GLFW/bin/Release-linux-x86_64/libGLFW.a vendor/ImGui/bin/Release-linux-x86_64/libImGui.a vendor/GLAD/bin/Release-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Release-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Release-linux-x86_64/libBox2D.a vendor/Optick/bin/Release-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Release-linux-x86_64/libyaml-cpp.a
-ALL_LDFLAGS += $(LDFLAGS) -Lvendor/mono/bin -Lvendor/shaderc/lib -L/usr/lib64 -Wl,-rpath,'$$ORIGIN/../../vendor/Optick/bin/Release-linux-x86_64' -m64 -s -IGNORE:4006
+ALL_LDFLAGS += $(LDFLAGS) -Lvendor/shaderc/lib -Lvendor/mono/bin -L/usr/lib64 -Wl,-rpath,'$$ORIGIN/../../vendor/Optick/bin/Release-linux-x86_64' -m64 -s -IGNORE:4006
 
 endif
 

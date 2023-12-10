@@ -27,8 +27,14 @@ project "TerranEditor"
         
         "%{IncludeDirectories.imguizmo}",
         "%{wks.location}/TerranEditor/vendor/FontAwesome/",
-    } 
+    }
     
+    libdirs
+    {
+        "%{LibraryDirectories.shaderc}",
+        "%{LibraryDirectories.mono}",
+    }
+
     links 
     {
         "TerranEngine"
@@ -54,6 +60,25 @@ project "TerranEditor"
              "%{CopyCommands.optick}",
              "%{CopyCommands.shaderc}"
          }
+
+    filter "system:linux"
+        systemversion "latest"
+
+        links 
+        {
+            "GLFW",
+            "GLAD",
+            "ImGui",
+            "Box2D",
+            "OptickCore",
+            "yaml-cpp",
+            "msdf-atlas-gen",
+            "msdfgen",
+            "freetype",
+            "shaderc_combined",
+            "monosgen-2.0"
+        }
+
 
     filter "configurations:Debug"
         defines "TR_DEBUG"

@@ -149,6 +149,7 @@ namespace TerranEditor
 			ImGui::TableSetColumnIndex(1);
 
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			constexpr float power = 0.1f;
 			changed = UI::DragScalar<T>(("##DR" + label).c_str(), &value, power, "%.2f");
 
 			ImGui::PopID();
@@ -210,7 +211,8 @@ namespace TerranEditor
 			memset(buf, 0, sizeof(buf));
 			TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfo(outHandle);
 			std::string assetName = assetInfo.Path.stem().string();
-			strcpy_s(buf, sizeof(buf), assetName == "" ? "None" : assetName.c_str());
+			// strcpy_s(buf, sizeof(buf), assetName == "" ? "None" : assetName.c_str());
+			strlcpy(buf, assetName == "" ? "None" : assetName.c_str(), sizeof(buf));
 
 			ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
 

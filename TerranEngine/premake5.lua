@@ -35,26 +35,25 @@ project "TerranEngine"
         "%{IncludeDirectories.box2d}",
         "%{IncludeDirectories.optick}",
         "%{IncludeDirectories.yaml}",
-        "%{IncludeDirectories.shaderc}"   
+        "%{IncludeDirectories.shaderc}"
     }
 
-    -- libdirs 
-    -- {
-    --     "%{wks.location}/TerranEngine/vendor/mono/lib/"
-    -- }
+    libdirs
+    {
+        "%{LibraryDirectories.shaderc}"
+    }
 
     links 
     {
         "GLFW",
         "ImGui",
         "GLAD",
-        "opengl32.lib",
         "msdf-atlas-gen",
         "Box2D",
         "OptickCore",
         "yaml-cpp",
         "%{Libraries.mono_static}",
-        "%{Libraries.shaderc}"
+        "%{Libraries.shaderc}",
     }
 
     pchheader "trpch.h"
@@ -88,12 +87,19 @@ project "TerranEngine"
         links
         {
             "%{Libraries.imm32}",
-            "%{Libraries.rpcrt4}"
+            "%{Libraries.rpcrt4}",
+            "opengl32.lib",
         }
 
         
     filter "system:linux"
         systemversion "latest"
+
+        libdirs
+        {
+            "%{LibraryDirectories.shaderc}",
+            "%{LibraryDirectories.mono}",
+        }
 
     filter "configurations:Debug"
         defines "TR_DEBUG"

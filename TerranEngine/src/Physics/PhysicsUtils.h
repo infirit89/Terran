@@ -20,7 +20,7 @@ namespace TerranEngine
             TR_ASSERT(userData.pointer, "User data is null");
 
 			std::array<uint8_t, 16> uuidArr;
-			memcpy(uuidArr._Elems, (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
+			memcpy(uuidArr.data(), (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
 			
 			return { uuidArr };
 		}

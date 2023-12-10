@@ -98,7 +98,7 @@ namespace TerranEditor
 		template<typename T>
 		Shared<T> CreateAsset(const std::string& name) 
 		{
-			return CreateAssetInDirectory(name, m_CurrentDirectory->Path);
+			return CreateAssetInDirectory<T>(name, m_CurrentDirectory->Path);
 		}
 
 		template<typename T>

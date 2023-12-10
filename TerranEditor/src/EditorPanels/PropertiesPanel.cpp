@@ -124,7 +124,8 @@ namespace TerranEditor
 				auto& tagComp = entity.GetComponent<TagComponent>();
 				char buf[256];
 				memset(buf, 0, sizeof(buf));
-				strcpy_s(buf, sizeof(buf), tagComp.Name.c_str());
+				// strcpy_s(buf, sizeof(buf), tagComp.Name.c_str());
+				strlcpy(buf, tagComp.Name.c_str(), sizeof(buf));
 
 				if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((ImGuiKey)Key::Enter))
 					tagComp.Name = buf;
@@ -509,7 +510,8 @@ namespace TerranEditor
 
 					char buf[256];
 					memset(buf, 0, sizeof(buf));
-					strcpy_s(buf, textRenderer.Text.c_str());
+					// strcpy_s(buf, textRenderer.Text.c_str());
+					strlcpy(buf, textRenderer.Text.c_str(), sizeof(buf));
 
 					if (ImGui::InputTextMultiline("##text", buf, sizeof(buf), { 0.0f, 0.0f }, ImGuiInputTextFlags_AllowTabInput))
 						textRenderer.Text = buf;

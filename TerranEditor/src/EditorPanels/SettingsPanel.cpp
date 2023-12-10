@@ -62,7 +62,9 @@ namespace TerranEditor
             ImGui::BeginTable("##LayerCollisionSelection", 1);
             for (int row = 0; row < layerNames.size(); row++)
             {
-                if (strlen(layerNames[row]) == 0) continue;
+                if (strlen(layerNames[row]) == 0)
+                    continue;
+                    
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
