@@ -35,54 +35,70 @@ namespace TerranEditor
 	{
 		if(m_Open)
 		{
-			ImGui::Begin("Hierarchy", &m_Open, ImGuiWindowFlags_NoCollapse);
+			ImGui::Begin(GetName(), &m_Open, ImGuiWindowFlags_NoCollapse);
 			
-			if (m_Scene) 
+			if (ImGui::BeginChild("##sc_topbar", {0.0f, 30.0f}))
 			{
-				auto view = m_Scene->GetEntitiesWith<TagComponent>();
+				if (UI::SearchInput(m_Filter, "Search..."))
+					m_Filter.Build();
 
-				for (auto e : view)
-				{
-					Entity entity(e, m_Scene.get());
-
-					if (!entity.HasParent())
-						DrawEntityNode(entity);
-				}
-
-				if (ImGui::BeginPopupContextWindow("entity_create_popup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverExistingPopup))
-				{
-					if (ImGui::MenuItem("Create an entity"))
-						SelectionManager::Select(m_Scene->CreateEntity("Entity"));
-
-					ImGui::EndPopup();
-				}
-	
-				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					SelectionManager::Deselect(SelectionContext::Scene);
-
-				ImGuiWindow* currentWindow = ImGui::GetCurrentWindow();
-				
-
-				if (ImGui::BeginDragDropTargetCustom(currentWindow->Rect(), currentWindow->ID)) 
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect))
-					{
-						TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
-
-						std::array<uint8_t, 16> idArr;
-						memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
-						UUID id(idArr);
-						Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
-						receivedEntity.Unparent();
-					}
-
-					ImGui::EndDragDropTarget();
-				}
+				ImGui::EndChild();
 			}
+
+			ImGui::Separator();
+
+			if (m_Scene)
+				DrawScene();
 
 			ImGui::End();
 		}
 
+	}
+
+	void SceneHierarchyPanel::DrawScene()
+	{
+		auto entities = m_Scene->Filter<TagComponent>([this](const TagComponent tag)
+		{
+			return m_Filter.PassFilter(tag.Name.c_str());
+		});
+
+		for (auto entity : entities)
+		{
+			if (!entity.HasParent())
+				DrawEntityNode(entity);
+		}
+
+		if (UI::BeginPopupContextWindow("entity_create_popup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverExistingPopup))
+		{
+			if (ImGui::MenuItem("Create an entity")) 
+			{
+				SelectionManager::DeselectAll(SelectionContext::Scene);
+				SelectionManager::Select(m_Scene->CreateEntity("Entity"));
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
+			SelectionManager::DeselectAll(SelectionContext::Scene);
+
+		ImGuiWindow* currentWindow = ImGui::GetCurrentWindow();
+
+		if (ImGui::BeginDragDropTargetCustom(currentWindow->Rect(), currentWindow->ID))
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect))
+			{
+				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
+
+				std::array<uint8_t, 16> idArr;
+				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+				UUID id(idArr);
+				Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
+				receivedEntity.Unparent();
+			}
+
+			ImGui::EndDragDropTarget();
+		}
 	}
 
 	bool SceneHierarchyPanel::OnKeyPressed(KeyPressedEvent& e)
@@ -90,7 +106,11 @@ namespace TerranEditor
 		bool ctrlPressed = Input::IsKeyDown(Key::LeftControl) || Input::IsKeyDown(Key::RightControl);
 		bool shiftPressed = Input::IsKeyDown(Key::LeftShift) || Input::IsKeyDown(Key::RightShift);
 
-		Entity selectedEntity = SelectionManager::GetSelected();
+		const auto& selected = SelectionManager::GetSelected(SelectionContext::Scene);
+
+		Entity selectedEntity;
+		if(!selected.empty())
+			selectedEntity = m_Scene->FindEntityWithUUID(selected[0]);
 
 		if (e.GetRepeatCount() > 0)
 			return false;
@@ -110,8 +130,8 @@ namespace TerranEditor
 			if (ctrlPressed && shiftPressed)
 			{
 				auto entity = m_Scene->CreateEntity();
+				SelectionManager::DeselectAll(SelectionContext::Scene);
 				SelectionManager::Select(entity);
-
 				return true;
 			}
 
@@ -124,91 +144,93 @@ namespace TerranEditor
 	{
 		TagComponent& tagComp = entity.GetComponent<TagComponent>();
 		std::string imguiID = fmt::format("{0} {1}", tagComp.Name, (uint32_t)entity);
-		
+
 		ImGui::PushID(imguiID.c_str());
 
-		Entity selectedEntity = SelectionManager::GetSelected();
-		ImGuiTreeNodeFlags flags = (selectedEntity == entity ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | 
-			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_AllowItemOverlap;
+		bool isSelected = SelectionManager::IsSelected(SelectionContext::Scene, entity.GetID());
+		ImGuiTreeNodeFlags flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0) |
+									ImGuiTreeNodeFlags_OpenOnArrow |
+									ImGuiTreeNodeFlags_SpanAvailWidth |
+									ImGuiTreeNodeFlags_FramePadding |
+									ImGuiTreeNodeFlags_AllowItemOverlap;
 
-		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0) 
-		{
+		if (!entity.HasComponent<RelationshipComponent>() || entity.GetComponent<RelationshipComponent>().Children.size() <= 0)
 			flags |= ImGuiTreeNodeFlags_Leaf;
-		}
 		else
 			flags |= ImGuiTreeNodeFlags_DefaultOpen;
 
-		ImGuiStyle& style = ImGui::GetStyle();
-		ImGuiStyle orgStyle = style;
-
-		style.FramePadding.y = 1.5f;
-
-		uint32_t entityID = entity;
-		bool opened = ImGui::TreeNodeEx((void*)entityID, flags, tagComp.Name.c_str());
-		
-		if (ImGui::BeginDragDropSource()) 
+		bool opened = false;
 		{
-			const UUID& id = entity.GetID();
-			ImGui::SetDragDropPayload("ENTITY_UUID", id.GetRaw(), 16 * sizeof(uint8_t));
-			const char* entityName = entity.GetName().c_str();
-			ImGui::Text(entityName);
-			ImGui::EndDragDropSource();
-		}
+			float framePaddingX = ImGui::GetStyle().FramePadding.x;
+			UI::ScopedStyleVar framePadding({
+				{ ImGuiStyleVar_FramePadding, { framePaddingX, 1.5f } }
+			});
+			uint32_t entityID = entity;
+			opened = ImGui::TreeNodeEx((void*)entityID, flags, tagComp.Name.c_str());
 
-		if (ImGui::BeginDragDropTarget()) 
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect)) 
+			if (ImGui::BeginDragDropSource())
 			{
-				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
-
-				std::array<uint8_t, 16> idArr;
-				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
-				UUID id(idArr);
-				Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
-
-				if (receivedEntity)
-					receivedEntity.SetParent(entity);
+				const UUID& id = entity.GetID();
+				ImGui::SetDragDropPayload("ENTITY_UUID", id.GetRaw(), 16 * sizeof(uint8_t));
+				const char* entityName = entity.GetName().c_str();
+				ImGui::Text(entityName);
+				ImGui::EndDragDropSource();
 			}
 
-			ImGui::EndDragDropTarget();
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_UUID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect))
+				{
+					TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
+
+					std::array<uint8_t, 16> idArr;
+					memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+					UUID id(idArr);
+					Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
+
+					if (receivedEntity)
+						receivedEntity.SetParent(entity);
+				}
+
+				ImGui::EndDragDropTarget();
+			}
 		}
 
-		style = orgStyle;
-
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && Input::IsKeyDown(Key::LeftControl)) 
+		{
 			SelectionManager::Select(entity);
+		}
+		else if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right)) 
+		{
+			SelectionManager::DeselectAll(SelectionContext::Scene);
+			SelectionManager::Select(entity);
+		}
 
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) 
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
 			auto& transformComponent = entity.GetTransform();
 			EditorLayer::GetInstace()->GetEditorCamera().SetFocalPoint(transformComponent.Position);
 		}
 
 		bool isDeleted = false;
-		
-		if (Input::IsKeyDown(Key::Delete))
-			if (selectedEntity == entity)
+
+		if (Input::IsKeyDown(Key::Delete) && ImGui::IsItemFocused())
 				isDeleted = true;
 
 		if (ImGui::BeginPopupContextItem())
 		{
-			if (ImGui::MenuItem("Create an Entity")) 
+			if (ImGui::MenuItem("Create an Entity"))
 			{
-				auto entity = m_Scene->CreateEntity("Entity");
-			
-				if (selectedEntity)
-					entity.SetParent(selectedEntity);
+				auto child = m_Scene->CreateEntity("Entity");
+				child.SetParent(entity);
 			}
 
-			if (ImGui::MenuItem("Delete entity")) 
+			if (ImGui::MenuItem("Delete entity"))
 				isDeleted = true;
 
-			if (ImGui::MenuItem("Duplicate")) 
-			{
-				if(selectedEntity)
-					m_Scene->DuplicateEntity(selectedEntity);
-			}
-			
+			if (ImGui::MenuItem("Duplicate"))
+				m_Scene->DuplicateEntity(entity);
+
 			ImGui::EndPopup();
 		}
 
@@ -229,15 +251,15 @@ namespace TerranEditor
 						TR_ERROR("Not a valid child");*/
 				}
 			}
-			
+
 			ImGui::TreePop();
 		}
 
 		if (isDeleted)
 		{
 			m_Scene->DestroyEntity(entity, true);
-			if (selectedEntity == entity)
-				SelectionManager::Deselect(SelectionContext::Scene);
+			if (isSelected)
+				SelectionManager::Deselect(SelectionContext::Scene, entity.GetID());
 		}
 
 		ImGui::PopID();

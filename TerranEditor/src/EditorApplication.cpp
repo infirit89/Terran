@@ -15,7 +15,6 @@ namespace TerranEditor
 
 		~EditorApplication()
 		{
-
 		}
 	};
 }
@@ -38,6 +37,6 @@ TerranEngine::Application* TerranEngine::CreateApplication(int argc, char** argv
     applicationData.Window.Debug = true;
 
     applicationData.ScriptCorePath = "Resources/Scripts/TerranScriptCore.dll";
-    
+	
     return new TerranEditor::EditorApplication(applicationData, projectPath);
 }

@@ -6,9 +6,6 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#pragma warning(push)
-#pragma warning(disable : 4312)
-
 namespace TerranEditor 
 {
 	LogPanel* LogPanel::s_Instance;
@@ -24,7 +21,7 @@ namespace TerranEditor
 		ClearMessageBuffer();
 	}
 
-	void LogPanel::AddLog(LogMessage logMessage) 
+	void LogPanel::AddLogMessage(LogMessage logMessage) 
 	{
 		m_TextBuffer.push_back(logMessage);
 	}
@@ -33,7 +30,7 @@ namespace TerranEditor
 	{
 		if (!m_Open) return;
 		
-		ImGui::Begin("Log", &m_Open);
+		ImGui::Begin(GetName(), &m_Open);
 
 		if (ImGui::BeginTable("log_setting_table", 3, ImGuiTableFlags_BordersV | ImGuiTableFlags_SizingFixedFit, { 0.0f, 25.0f }))
 		{
@@ -53,72 +50,31 @@ namespace TerranEditor
 
 		ImGui::Separator();
 		
+		float framePaddingY = ImGui::GetStyle().FramePadding.y;
 		ImGui::BeginChild("MessageRegion", { 0, 0 }, false, ImGuiWindowFlags_HorizontalScrollbar);
-		if (ImGui::BeginTable("log_table", 1))
+		if (ImGui::BeginTable("log_table", 1, ImGuiTableFlags_RowBg))
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
+			const float framePaddingY = ImGui::GetStyle().FramePadding.y;
+			
+			UI::ScopedFont mediumFont("Roboto-Regular_Medium");
+			
 			for (size_t i = 0; i < m_TextBuffer.size(); i++)
 			{
 				ImGui::TableNextRow();
-				ImGui::TableNextColumn();
-
-				LogMessage logMessage = m_TextBuffer[i];
-
-				ImDrawList* backgroundDrawList = ImGui::GetWindowDrawList();
-
-				ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
 				ImU32 color;
-
 				if(i % 2 == 0)
-					color = ImGui::ColorConvertFloat4ToU32({ 0.19f, 0.19f, 0.19f, 1.0f });
+					color = ImGui::GetColorU32({ 0.19f, 0.19f, 0.19f, 1.0f });
 				else
-					color = ImGui::ColorConvertFloat4ToU32({ 0.13f, 0.13f, 0.13f, 1.0f });
+					color = ImGui::GetColorU32({ 0.13f, 0.13f, 0.13f, 1.0f });
 
-				float x = cursorPos.x - 2.0f;
-				float y = cursorPos.y - 2.0f;
-
-				ImVec2 textSize = ImGui::CalcTextSize(logMessage.Message.c_str());
-
-				backgroundDrawList->AddRectFilled({ x, y }, { x + ImGui::GetContentRegionAvail().x + 2.0f,  y + textSize.y + 8.0f}, color);
-
-				ImGui::Indent(4.0f);
-
-                Shared<Texture> logMessageTexture;
-				switch (logMessage.MessageLevel)
-				{
-				case LogMessageLevel::Trace:
-				case LogMessageLevel::Info:
-				{
-					logMessageTexture = EditorResources::InfoTexture;
-					break;
-				}
-				case LogMessageLevel::Warn:
-				{
-					logMessageTexture = EditorResources::WarningTexture;
-					break;
-				}
-				case LogMessageLevel::Error:
-				{
-					logMessageTexture = EditorResources::ErrorTexture;
-					break;
-				}
-				}
-
-                ImGui::Image((ImTextureID)logMessageTexture->GetHandle(), { 20.0f, 20.0f }, { 0, 1 }, { 1, 0 });
-
-				ImGui::SameLine();
-
-				float cursorPosY = ImGui::GetCursorPosY();
-				ImGui::SetCursorPosY(cursorPosY + 2.0f);
-
+				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, color);
+				ImGui::TableNextColumn();
+				
+				LogMessage logMessage = m_TextBuffer[i];
+				ImDrawList* backgroundDrawList = ImGui::GetWindowDrawList();
 				ImGui::TextUnformatted(logMessage.Message.c_str());
-				ImGui::Unindent(4.0f);
-
-				ImGui::SetCursorPosY(cursorPosY);
 			}
-
-			ImGui::PopStyleVar();
 
 			ImGui::EndTable();
 
@@ -136,4 +92,3 @@ namespace TerranEditor
 		m_TextBuffer.clear();
 	}
 }
-#pragma warning(pop)

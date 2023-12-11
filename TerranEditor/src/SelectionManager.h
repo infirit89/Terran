@@ -2,6 +2,8 @@
 
 #include "Scene/Entity.h"
 
+#include <vector>
+
 namespace TerranEditor 
 {
 	enum class SelectionContext 
@@ -13,15 +15,16 @@ namespace TerranEditor
 	{
 	public:
 		static void Select(TerranEngine::Entity entity);
-		static void Select(SelectionContext context, TerranEngine::UUID id);
+		static void Select(SelectionContext context, const TerranEngine::UUID& id);
 
-		static void Deselect(SelectionContext context);
+		static void DeselectAll(SelectionContext context);
+		static void Deselect(SelectionContext context, const TerranEngine::UUID& id);
 
-		static TerranEngine::Entity GetSelected();
-		static TerranEngine::UUID GetSelected(SelectionContext context);
+		//static std::vector<TerranEngine::Entity> GetSelected();
+		static const std::vector<TerranEngine::UUID>& GetSelected(SelectionContext context);
 		static bool IsSelected(SelectionContext context, const TerranEngine::UUID& id);
 
 	private:
-		static std::unordered_map<SelectionContext, TerranEngine::UUID> s_Selections;
+		static std::unordered_map<SelectionContext, std::vector<TerranEngine::UUID>> s_Selections;
 	};
 }

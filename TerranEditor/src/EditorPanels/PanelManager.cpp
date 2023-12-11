@@ -1,4 +1,8 @@
+#include "Core/Assert.h"
+
 #include "PanelManager.h"
+
+#include <imgui.h>
 
 namespace TerranEditor
 {
@@ -30,7 +34,11 @@ namespace TerranEditor
     void PanelManager::SetPanelOpen(const std::string& panelName, bool open)
     {
         uint32_t hashedPanelName = Hash::FNVHash(panelName);
-        m_Panels.at(hashedPanelName)->SetOpen(open);
+        TR_ASSERT(m_Panels.find(hashedPanelName) != m_Panels.end(),
+                "Panel: {0} does not exist", panelName);
+
+        auto& panel = m_Panels.at(hashedPanelName);
+        panel->SetOpen(true);
+        ImGui::SetWindowFocus(panel->GetName());
     }
 }
-

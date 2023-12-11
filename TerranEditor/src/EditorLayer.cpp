@@ -75,14 +75,6 @@ namespace TerranEditor
 		EditorResources::Init();
 		UI::SetupUIStyle4();
 
-		ImGuiIO& io = ImGui::GetIO();
-
-		ImFontConfig config;
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 15.0f, &config);
-		config.MergeMode = true;
-		io.Fonts->Build();
-		io.IniFilename = "Resources/TerranEditorSettings.ini";
-
 		m_EditorScene = SceneManager::CreateEmpyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
@@ -104,8 +96,8 @@ namespace TerranEditor
 		m_PanelManager->AddPanel<SceneHierarchyPanel>(SCENE_HIERARCHY_PANEL_NAME);
 		m_PanelManager->AddPanel<ECSPanel>(ECS_PANEL_NAME);
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
-        Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
-        settingsPanel->SetOpen(false);
+		Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
+		settingsPanel->SetOpen(false);
 
 		m_PanelManager->AddPanel<ShaderPanel>(SHADER_PANEL_NAME);
 		auto preferencesPanel = m_PanelManager->AddPanel<PreferencesPanel>(PREFERENCES_PANEL_NAME);
@@ -136,10 +128,15 @@ namespace TerranEditor
 		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
-        ScriptEngine::LoadAppAssembly();
+		ScriptEngine::LoadAppAssembly();
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
+
+		TR_CLIENT_ERROR("Test");
+		TR_CLIENT_WARN("Test");
+		TR_CLIENT_TRACE("Test");
+		TR_CLIENT_INFO("Test");
 	}
 
 	void EditorLayer::OnDettach()
@@ -310,7 +307,8 @@ namespace TerranEditor
 
 		// render toolbar
 		{
-			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoScrollbar;
+			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoScrollbar |
+											ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::BeginChild("##toolbar", { 0.0f, 30.0f }, toolbarFlags);
 
 			ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2 - 5.0f));
@@ -427,30 +425,30 @@ namespace TerranEditor
 
 		m_SceneState = SceneState::Play;
 
-		UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
-		SelectionManager::Deselect(SelectionContext::Scene);
+		//UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
+		//SelectionManager::Deselect(SelectionContext::Scene);
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		SceneManager::GetCurrentScene()->StartRuntime();
 
-		if(tempSelected)
-			SelectionManager::Select(SelectionContext::Scene, tempSelected);
+		/*if(tempSelected)
+			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
-		UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
-		SelectionManager::Deselect(SelectionContext::Scene);
+		/*UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
+		SelectionManager::Deselect(SelectionContext::Scene);*/
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
 		//SceneManager::RemoveScene(SceneManager::CurrentScene->GetID());
 		m_PanelManager->SetScene(m_EditorScene);
 		SceneManager::SetCurrentScene(m_EditorScene);
 
-		if(tempSelected)
-			SelectionManager::Select(SelectionContext::Scene, tempSelected);
+		/*if(tempSelected)
+			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
 	void EditorLayer::OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level)
@@ -542,9 +540,9 @@ namespace TerranEditor
 
 		{
 			// NOTE: temporary toolbar
-			ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
-											ImGuiWindowFlags_NoTitleBar;
-            
+			/*ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+											ImGuiWindowFlags_NoTitleBar;*/
+			
 			/*ImGui::Begin("##toolbar");
 
 			ImGui::SetCursorPos(ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y / 2));
@@ -591,26 +589,26 @@ namespace TerranEditor
 		OpenScene(scenePath, m_ViewportSize);
 	}
 
-    static bool IsValidAssetPath(const std::filesystem::path& path)
-    {
-        std::filesystem::path tempPath = path;
-        while(tempPath.has_parent_path())
-        {
-            if(tempPath.stem() == "Assets")
-                return true;
+	static bool IsValidAssetPath(const std::filesystem::path& path)
+	{
+		std::filesystem::path tempPath = path;
+		while(tempPath.has_parent_path())
+		{
+			if(tempPath.stem() == "Assets")
+				return true;
 
-            tempPath = tempPath.parent_path();
-        }
+			tempPath = tempPath.parent_path();
+		}
 
-        return false;    
-    }
+		return false;    
+	}
 
 	void EditorLayer::OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize)
 	{
 		std::filesystem::path path = scenePath.empty() ? m_CurrentScenePath : scenePath;
 
-        //if(!IsValidAssetPath(path))
-            //return;
+		//if(!IsValidAssetPath(path))
+			//return;
 
 		if (!path.empty()) 
 		{
@@ -627,7 +625,7 @@ namespace TerranEditor
 				if (SceneManager::GetCurrentScene()->IsPlaying())
 					OnSceneStop();
 
-				SelectionManager::Deselect(SelectionContext::Scene);
+				SelectionManager::DeselectAll(SelectionContext::Scene);
 				m_EditorScene = newScene;
 				m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
@@ -651,11 +649,11 @@ namespace TerranEditor
 		}
 	}
 
-    void EditorLayer::OpenProject(const std::filesystem::path& projectPath)
-    {
-        // TODO: close project if theres an already active one
-        Shared<Project> project = CreateShared<Project>(projectPath);
-        Project::SetActive(project);
+	void EditorLayer::OpenProject(const std::filesystem::path& projectPath)
+	{
+		// TODO: close project if theres an already active one
+		Shared<Project> project = CreateShared<Project>(projectPath);
+		Project::SetActive(project);
 
 		ProjectSerializer projectSerializer(project);
 		projectSerializer.Deserizlize();
@@ -663,5 +661,5 @@ namespace TerranEditor
 		AssetManager::LoadAssetInfos();
 
 		m_PanelManager->OnProjectChanged(projectPath);
-    }
+	}
 }

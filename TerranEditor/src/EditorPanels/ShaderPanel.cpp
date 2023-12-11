@@ -14,7 +14,7 @@ namespace TerranEditor
 		if (!m_Open)
 			return;
 
-		ImGui::Begin("Shader Panel", &m_Open);
+		ImGui::Begin(GetName(), &m_Open);
 
 		if (UI::BeginPropertyGroup("shaders")) 
 		{

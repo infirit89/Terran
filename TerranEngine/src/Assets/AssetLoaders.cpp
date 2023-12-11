@@ -39,9 +39,14 @@ namespace TerranEngine
             textureParameters.Format = TextureFormat::RGBA;
             break;
         }
-        case 3: 
+        case 3:
         {
             textureParameters.Format = TextureFormat::RGB;
+            break;
+        }
+        case 2:
+        {
+            textureParameters.Format = TextureFormat::Grayscale;
             break;
         }
         default:

@@ -4,52 +4,23 @@
 #include "Core/Log.h"
 #include "Physics/PhysicsLayerManager.h"
 
+#include "EditorResources.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <IconsFontAwesome6.h>
+
 #include <glm/gtc/type_ptr.hpp>
+
+#include <stack>
 
 namespace TerranEditor 
 {
 	using namespace TerranEngine;
 
-	struct ImGuiStyleVarInfo 
-	{
-		ImGuiDataType Type;
-		uint32_t Count;
-	};
-
-	static const ImGuiStyleVarInfo StyleVarInfo[] =
-	{
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_Alpha
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_DisabledAlpha 
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowPadding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_WindowBorderSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowMinSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_WindowTitleAlign
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ChildBorderSize
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_PopupBorderSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_FramePadding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_FrameBorderSize
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemSpacing
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ItemInnerSpacing
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_IndentSpacing
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_CellPadding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarSize
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_ScrollbarRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabMinSize
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_GrabRounding
-		{ ImGuiDataType_Float, 1 },     // ImGuiStyleVar_TabRounding
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_ButtonTextAlign
-		{ ImGuiDataType_Float, 2 },     // ImGuiStyleVar_SelectableTextAlign
-	};
-
-
-	
+	static int s_CurrentId = 0;
+	static std::stack<float> s_FontSizeStack;
 
 	static std::string ProccessFieldName(std::string name)
 	{
@@ -99,6 +70,7 @@ namespace TerranEditor
 
 	bool UI::PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
 	{
+		ImGui::PushID(label.c_str());
 		bool changed = false;
 
 		uint32_t selectedCount = 0;
@@ -141,6 +113,7 @@ namespace TerranEditor
 			ImGui::EndCombo();
 		}
 
+		ImGui::PopID();
 		return changed;
 	}
 
@@ -172,39 +145,66 @@ namespace TerranEditor
 			ImGui::PopItemWidth();
 
 		ImGui::Columns(1);
-
-		//delete[] m_TableID;
 	}
 
 	UI::ScopedStyleColor::ScopedStyleColor(std::initializer_list<StyleColor> styleColorList)
 		: m_StyleColorListSize(styleColorList.size())
 	{
 		for (auto& styleColor : styleColorList)
-		{
-			ImVec4 color = { styleColor.Color.x, styleColor.Color.y, styleColor.Color.z, styleColor.Color.w };
-			ImGui::PushStyleColor(styleColor.ColorVarIdx, color);
-		}
+			ImGui::PushStyleColor(styleColor.ColorVarIdx, styleColor.Color);
 	}
 
-	UI::ScopedStyleColor::~ScopedStyleColor() { ImGui::PopStyleColor((int)m_StyleColorListSize); }
+	UI::ScopedStyleColor::~ScopedStyleColor()
+	{ 
+		ImGui::PopStyleColor((int)m_StyleColorListSize);
+	}
 
 	UI::ScopedStyleVar::ScopedStyleVar(std::initializer_list<StyleVar> styleVarList)
 		: m_StyleVarListSize(styleVarList.size())
 	{
 		for (auto& styleVarIt : styleVarList)
 		{
-			ImVec2 styleVal = { styleVarIt.Val.x, styleVarIt.Val.y };
+			const ImGuiDataVarInfo* varInfo = ImGui::GetStyleVarInfo(styleVarIt.StyleVarIdx);
 
-			ImGuiStyleVarInfo varInfo = StyleVarInfo[styleVarIt.StyleVarIdx];
-
-			if(varInfo.Count == 2)
-				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal);
+			if(varInfo->Count == 1)
+				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, (float)styleVarIt);
 			else
-				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, styleVal.x);
+				ImGui::PushStyleVar(styleVarIt.StyleVarIdx, (ImVec2)styleVarIt);
 		}
 	}
 
-	UI::ScopedStyleVar::~ScopedStyleVar() { ImGui::PopStyleVar((int)m_StyleVarListSize); }
+	UI::ScopedStyleVar::~ScopedStyleVar()
+	{
+		ImGui::PopStyleVar((int)m_StyleVarListSize);
+	}
+
+	void UI::PushID()
+	{
+		ImGui::PushID(s_CurrentId++);
+	}
+
+	void UI::PopID()
+	{
+		ImGui::PopID();
+		--s_CurrentId;
+	}
+
+	int UI::GenerateID()
+	{
+		return ++s_CurrentId;
+	}
+
+	void UI::PushFontSize(float fontSize)
+	{
+		s_FontSizeStack.push(ImGui::GetFontSize());
+		GImGui->FontSize = fontSize;
+	}
+
+	void UI::PopFontSize()
+	{
+		GImGui->FontSize = s_FontSizeStack.top();
+		s_FontSizeStack.pop();
+	}
 
 	void UI::ShiftCursor(float x, float y)
 	{
@@ -221,16 +221,6 @@ namespace TerranEditor
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + y);
 	}
 
-	void UI::Image(ImTextureID textureID, glm::vec2 size)
-	{
-		ImGui::Image(textureID, { size.x, size.y }, { 0, 1 }, { 1, 0 });
-	}
-
-	void UI::ImageButton(ImTextureID textureID, glm::vec2 size)
-	{
-	}
-
-	
 	static void ScaleUI() 
 	{
 		glm::vec2 contentScale = Application::Get()->GetWindow().GetContentScale();
@@ -407,31 +397,41 @@ namespace TerranEditor
 		ImGuiStyle& style = ImGui::GetStyle();
 
 		style.Alpha = 1.0f;
-		style.DisabledAlpha = 0.6f;
-		style.WindowPadding = ImVec2(8.0f, 8.0f);
+		style.DisabledAlpha = 0.4f;
+
+		// Rounding
 		style.WindowRounding = 7.0f;
-		style.WindowBorderSize = 1.0f;
-		style.WindowMinSize = ImVec2(32.0f, 32.0f);
-		style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
-		style.WindowMenuButtonPosition = ImGuiDir_Left;
 		style.ChildRounding = 4.0f;
-		style.ChildBorderSize = 1.0f;
-		style.PopupRounding = 4.0f;
-		style.PopupBorderSize = 1.0f;
-		style.FramePadding = ImVec2(5.0f, 2.0f);
+		style.PopupRounding = 6.0f;
 		style.FrameRounding = 3.0f;
-		style.FrameBorderSize = 1.0f;
+		style.TabRounding = 4.0f;
+		style.GrabRounding = 3.0f;
+		style.ScrollbarRounding = 9.0f;
+
+		// Padding
+		style.WindowPadding = ImVec2(8.0f, 8.0f);
+		style.FramePadding = ImVec2(5.0f, 2.0f);
+		style.CellPadding = ImVec2(6.0f, 6.0f);
+
+		// Spacing
 		style.ItemSpacing = ImVec2(6.0f, 6.0f);
 		style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
-		style.CellPadding = ImVec2(6.0f, 6.0f);
-		style.IndentSpacing = 25.0f;
+		style.IndentSpacing = 16.0f;
 		style.ColumnsMinSpacing = 6.0f;
+
+		// Size
+		style.ChildBorderSize = 1.0f;
+		style.PopupBorderSize = 1.0f;
+		style.FrameBorderSize = 1.0f;
 		style.ScrollbarSize = 15.0f;
-		style.ScrollbarRounding = 9.0f;
 		style.GrabMinSize = 10.0f;
-		style.GrabRounding = 3.0f;
-		style.TabRounding = 4.0f;
 		style.TabBorderSize = 1.0f;
+		style.WindowBorderSize = 1.0f;
+		style.WindowMinSize = ImVec2(32.0f, 32.0f);
+
+		// Alignment
+		style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
+		style.WindowMenuButtonPosition = ImGuiDir_Left;
 		style.TabMinWidthForCloseButton = 0.0f;
 		style.ColorButtonPosition = ImGuiDir_Right;
 		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
@@ -440,9 +440,9 @@ namespace TerranEditor
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
 		colors[ImGuiCol_ChildBg] = ImVec4(0.63f, 0.63f, 0.63f, 0.00f);
-		colors[ImGuiCol_PopupBg] = ImVec4(0.18f, 0.18f, 0.18f, 0.92f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.0f);
 		colors[ImGuiCol_Border] = ImVec4(0.18f, 0.18f, 0.18f, 0.28f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.23f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
@@ -495,6 +495,100 @@ namespace TerranEditor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.37f, 0.37f, 0.37f, 0.35f);
 
 		ScaleUI();
+	}
+
+	void UI::Image(const Shared<Texture>& texture, const glm::vec2& size, const glm::vec2& uv0, const glm::vec2& uv1, const glm::vec4& color)
+	{
+		ImGui::Image(reinterpret_cast<ImTextureID>((uint64_t)texture->GetHandle()),
+					{ size.x, size.y },
+					{ uv0.x, uv0.y },
+					{ uv1.x, uv1.y },
+					{ color.r, color.g, color.b, color.a });
+	}
+
+	bool UI::SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width)
+	{
+		UI::PushID();
+		const float frameBorderSize = ImGui::GetStyle().FrameBorderSize;
+		const float framePaddingX = ImGui::GetStyle().FramePadding.x;
+		UI::ScopedStyleVar frameBorder({
+			{ ImGuiStyleVar_FrameBorderSize, frameBorderSize },
+			{ ImGuiStyleVar_FramePadding, { framePaddingX, 5.0f } }
+		});
+
+		const float framePaddingY = ImGui::GetStyle().FramePadding.y;
+		const float cursorPos = ImGui::GetCursorPosX();
+		bool modified = false;
+
+		ImGui::SetNextItemWidth(width);
+		ImGui::SetNextItemInnerWidth(width - (ImGui::GetFontSize() + 12.0f));
+
+		ImGui::SetNextItemAllowOverlap();
+		if (ImGui::InputText("", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
+			modified = true;
+		else if(ImGui::IsItemDeactivatedAfterEdit())
+			modified = true;
+
+		bool searching = filter.InputBuf[0] != 0;
+
+		ImGui::SameLine(cursorPos + 5.0f);
+		ImGui::BeginHorizontal("", ImGui::GetItemRectSize());
+		const glm::vec2 iconSize = { ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() };
+
+		if (!searching)
+		{
+			UI::ScopedStyleColor textColor({
+				{ ImGuiCol_Text, { ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled) } }
+			});
+
+			{
+				UI::ScopedFont scopedIconFont("IconFont");
+				//const float originalFontSize = ImGui::GetFontSize();
+				constexpr float iconSize = 12.0f;
+				UI::PushFontSize(iconSize);
+				const float iconOffset = framePaddingY - 3.0f;
+				UI::ShiftCursorY(iconOffset);
+				ImGui::TextUnformatted(ICON_FA_MAGNIFYING_GLASS);
+				UI::PopFontSize();
+				UI::ShiftCursorY(-iconOffset);
+			}
+
+			UI::ScopedFont defaultFont("Roboto-Regular");
+			UI::ShiftCursorX(-1.0f);
+			ImGui::TextUnformatted(hint.c_str());
+			UI::ShiftCursorX(1.0f);
+		}
+		else 
+		{
+			UI::ScopedStyleColor clearButtonColor({
+				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
+			});
+
+			UI::ScopedStyleVar clearButtonStyle({
+				{ ImGuiStyleVar_FrameBorderSize, 0.0f }
+			});
+
+			UI::ScopedFont scopedIconFont("IconFont");
+
+			const float lineHeight = ImGui::GetItemRectSize().y - framePaddingY / 2.0f;
+
+			ImGui::Spring();
+			
+			if (ImGui::ButtonEx(ICON_FA_XMARK, { lineHeight, lineHeight }))
+			{
+				memset(filter.InputBuf, 0, IM_ARRAYSIZE(filter.InputBuf));
+				modified = true;
+			}
+
+			if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax())) 
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+
+			ImGui::Spring(-1.0f, 4.0f * 2.0f);
+		}
+
+		ImGui::EndHorizontal();
+		UI::PopID();
+		return modified;
 	}
 
 	void UI::Tooltip(const char* text)
@@ -620,12 +714,50 @@ namespace TerranEditor
 		ImGui::EndTable();
 	}
 
+	bool UI::BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		if (!name)
+			name = "window_context";
+		ImGuiID id = window->GetID(name);
+		int mouse_button = (popupFlags & ImGuiPopupFlags_MouseButtonMask_);
+		if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+			if (!(popupFlags& ImGuiPopupFlags_NoOpenOverItems) || !ImGui::IsAnyItemHovered())
+				ImGui::OpenPopupEx(id, popupFlags);
+
+		ImGuiWindowFlags popupWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+										ImGuiWindowFlags_NoTitleBar |
+										ImGuiWindowFlags_NoSavedSettings |
+										ImGuiWindowFlags_NoMove;
+		return ImGui::BeginPopupEx(id, popupWindowFlags);
+	}
+
+	bool UI::BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		if (window->SkipItems)
+			return false;
+		ImGuiID id = name ? window->GetID(name) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+		IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+		int mouse_button = (popupFlags & ImGuiPopupFlags_MouseButtonMask_);
+		if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+			ImGui::OpenPopupEx(id, popupFlags);
+		ImGuiWindowFlags popupWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+											ImGuiWindowFlags_NoTitleBar |
+											ImGuiWindowFlags_NoSavedSettings |
+											ImGuiWindowFlags_NoMove;
+
+		return ImGui::BeginPopupEx(id, popupWindowFlags);
+	}
+
 	static constexpr float power = 0.1f;
 
 	bool UI::PropertyColor(const std::string& label, glm::vec4& value)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
+		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -642,7 +774,6 @@ namespace TerranEditor
 			changed = ImGui::ColorPicker4("##colpicker", glm::value_ptr(value));
 			ImGui::EndPopup();
 		}
-
 		ImGui::PopID();
 
 		return changed;
@@ -650,8 +781,8 @@ namespace TerranEditor
 
 	bool UI::PropertyVec3(const std::string& label, glm::vec3& value)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
+		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -694,7 +825,6 @@ namespace TerranEditor
 		ImGui::SameLine();
 
 		drawControl("Z", value.z);
-
 		ImGui::PopID();
 
 		return changed;
@@ -702,8 +832,8 @@ namespace TerranEditor
 
 	bool UI::PropertyVec2(const std::string& label, glm::vec2& value)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
+		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -715,7 +845,7 @@ namespace TerranEditor
 		constexpr float itemSpacingX = 1.0f;
 		ScopedStyleVar itemSpacingStyleVar({
 			{ ImGuiStyleVar_ItemSpacing, { itemSpacingX, 0.0f } }
-			});
+		});
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 2.0f, lineHeight };
@@ -725,7 +855,7 @@ namespace TerranEditor
 			{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } },
 			{ ImGuiCol_ButtonHovered, { 0.0f, 0.0f, 0.0f, 0.0f } },
 			{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
-			});
+		});
 
 		auto drawControl = [&](const std::string& label, float& oValue)
 		{
@@ -745,7 +875,6 @@ namespace TerranEditor
 		ImGui::SameLine();
 
 		drawControl("Y", value.y);
-
 		ImGui::PopID();
 
 		return changed;
@@ -753,8 +882,8 @@ namespace TerranEditor
 
 	bool UI::PropertyEntity(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
 	{
-		bool modified = false;
 		ImGui::PushID(label.c_str());
+		bool modified = false;
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -787,7 +916,6 @@ namespace TerranEditor
 
 			ImGui::EndDragDropTarget();
 		}
-
 		ImGui::PopID();
 
 		return modified;
@@ -795,17 +923,14 @@ namespace TerranEditor
 
 	bool UI::PropertyFloat(const std::string& label, float& value)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
-
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
-
+		bool changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
 		ImGui::PopID();
 
 		return changed;
@@ -813,18 +938,14 @@ namespace TerranEditor
 
 	bool UI::PropertyInt(const std::string& label, int& value)
 	{
-		bool changed = false;
-
 		ImGui::PushID(label.c_str());
-
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
-
+		bool changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
 		ImGui::PopID();
 
 		return changed;
@@ -832,17 +953,14 @@ namespace TerranEditor
 
 	bool UI::PropertyBool(const std::string& label, bool& value)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
-
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = ImGui::Checkbox("##val", &value);
-
+		bool changed = ImGui::Checkbox("##val", &value);
 		ImGui::PopID();
 
 		return changed;
@@ -851,8 +969,8 @@ namespace TerranEditor
 	// TODO: support wide strings
 	bool UI::PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
+		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
@@ -871,7 +989,6 @@ namespace TerranEditor
 		}
 
 		delete[] buf;
-
 		ImGui::PopID();
 
 		return changed;
@@ -879,20 +996,213 @@ namespace TerranEditor
 
 	bool UI::Button(const std::string& label, const char* buttonLabel)
 	{
-		bool changed = false;
 		ImGui::PushID(label.c_str());
-
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		changed = ImGui::Button(buttonLabel);
-
+		bool changed = ImGui::Button(buttonLabel);
 		ImGui::PopID();
 
 		return changed;
+	}
+
+	bool UI::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		ImGuiContext& g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
+		const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding)) ? style.FramePadding : ImVec2(style.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, style.FramePadding.y));
+
+		if (!label_end)
+			label_end = ImGui::FindRenderedTextEnd(label);
+		const ImVec2 label_size = ImGui::CalcTextSize(label, label_end, false);
+
+		// We vertically grow up to current line height up the typical widget height.
+		const float frame_height = ImMax(ImMin(window->DC.CurrLineSize.y, g.FontSize + style.FramePadding.y * 2), label_size.y + padding.y * 2);
+		ImRect frame_bb;
+		frame_bb.Min.x = (flags & ImGuiTreeNodeFlags_SpanFullWidth) ? window->WorkRect.Min.x : window->DC.CursorPos.x;
+		frame_bb.Min.y = window->DC.CursorPos.y;
+		frame_bb.Max.x = window->WorkRect.Max.x;
+		frame_bb.Max.y = window->DC.CursorPos.y + frame_height;
+		if (display_frame)
+		{
+			// Framed header expand a little outside the default padding, to the edge of InnerClipRect
+			// (FIXME: May remove this at some point and make InnerClipRect align with WindowPadding.x instead of WindowPadding.x*0.5f)
+			frame_bb.Min.x -= IM_FLOOR(window->WindowPadding.x * 0.5f - 1.0f);
+			frame_bb.Max.x += IM_FLOOR(window->WindowPadding.x * 0.5f);
+		}
+
+		const float text_offset_x = g.FontSize + (display_frame ? padding.x * 3 : padding.x * 2);           // Collapser arrow width + Spacing
+		const float text_offset_y = ImMax(padding.y, window->DC.CurrLineTextBaseOffset);                    // Latch before ItemSize changes it
+		const float text_width = g.FontSize + (label_size.x > 0.0f ? label_size.x + padding.x * 2 : 0.0f);  // Include collapser
+		ImVec2 text_pos(window->DC.CursorPos.x + text_offset_x, window->DC.CursorPos.y + text_offset_y);
+		ImGui::ItemSize(ImVec2(text_width, frame_height), padding.y);
+
+		// For regular tree nodes, we arbitrary allow to click past 2 worth of ItemSpacing
+		ImRect interact_bb = frame_bb;
+		if (!display_frame && (flags & (ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth)) == 0)
+			interact_bb.Max.x = frame_bb.Min.x + text_width + style.ItemSpacing.x * 2.0f;
+
+		// Store a flag for the current depth to tell if we will allow closing this node when navigating one of its child.
+		// For this purpose we essentially compare if g.NavIdIsAlive went from 0 to 1 between TreeNode() and TreePop().
+		// This is currently only support 32 level deep and we are fine with (1 << Depth) overflowing into a zero.
+		const bool is_leaf = (flags & ImGuiTreeNodeFlags_Leaf) != 0;
+		bool is_open = ImGui::TreeNodeUpdateNextOpen(id, flags);
+		if (is_open && !g.NavIdIsAlive && (flags & ImGuiTreeNodeFlags_NavLeftJumpsBackHere) && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+			window->DC.TreeJumpToParentOnPopMask |= (1 << window->DC.TreeDepth);
+
+		bool item_add = ImGui::ItemAdd(interact_bb, id);
+		g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HasDisplayRect;
+		g.LastItemData.DisplayRect = frame_bb;
+
+		if (!item_add)
+		{
+			if (is_open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+				ImGui::TreePushOverrideID(id);
+			IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags | (is_leaf ? 0 : ImGuiItemStatusFlags_Openable) | (is_open ? ImGuiItemStatusFlags_Opened : 0));
+			return is_open;
+		}
+
+		ImGuiButtonFlags button_flags = ImGuiTreeNodeFlags_None;
+		if (flags & ImGuiTreeNodeFlags_AllowItemOverlap)
+			button_flags |= ImGuiButtonFlags_AllowOverlap;
+		
+		button_flags |= ImGuiButtonFlags_PressedOnDragDropHold;
+
+		// We allow clicking on the arrow section with keyboard modifiers held, in order to easily
+		// allow browsing a tree while preserving selection with code implementing multi-selection patterns.
+		// When clicking on the rest of the tree node we always disallow keyboard modifiers.
+		const float arrow_hit_x1 = (text_pos.x - text_offset_x) - style.TouchExtraPadding.x;
+		const float arrow_hit_x2 = (text_pos.x - text_offset_x) + (g.FontSize + padding.x * 2.0f) + style.TouchExtraPadding.x;
+		const bool is_mouse_x_over_arrow = (g.IO.MousePos.x >= arrow_hit_x1 && g.IO.MousePos.x < arrow_hit_x2);
+		if (window != g.HoveredWindow || !is_mouse_x_over_arrow)
+			button_flags |= ImGuiButtonFlags_NoKeyModifiers;
+
+		// Open behaviors can be altered with the _OpenOnArrow and _OnOnDoubleClick flags.
+		// Some alteration have subtle effects (e.g. toggle on MouseUp vs MouseDown events) due to requirements for multi-selection and drag and drop support.
+		// - Single-click on label = Toggle on MouseUp (default, when _OpenOnArrow=0)
+		// - Single-click on arrow = Toggle on MouseDown (when _OpenOnArrow=0)
+		// - Single-click on arrow = Toggle on MouseDown (when _OpenOnArrow=1)
+		// - Double-click on label = Toggle on MouseDoubleClick (when _OpenOnDoubleClick=1)
+		// - Double-click on arrow = Toggle on MouseDoubleClick (when _OpenOnDoubleClick=1 and _OpenOnArrow=0)
+		// It is rather standard that arrow click react on Down rather than Up.
+		// We set ImGuiButtonFlags_PressedOnClickRelease on OpenOnDoubleClick because we want the item to be active on the initial MouseDown in order for drag and drop to work.
+		if (is_mouse_x_over_arrow)
+			button_flags |= ImGuiButtonFlags_PressedOnClick;
+		else if (flags & ImGuiTreeNodeFlags_OpenOnDoubleClick)
+			button_flags |= ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnDoubleClick;
+		else
+			button_flags |= ImGuiButtonFlags_PressedOnClickRelease;
+
+		bool selected = (flags & ImGuiTreeNodeFlags_Selected) != 0;
+		const bool was_selected = selected;
+
+		bool hovered, held;
+		bool pressed = ImGui::ButtonBehavior(interact_bb, id, &hovered, &held, button_flags);
+		bool toggled = false;
+		if (!is_leaf)
+		{
+			if (pressed && g.DragDropHoldJustPressedId != id)
+			{
+				if ((flags & (ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick)) == 0 || (g.NavActivateId == id))
+					toggled = true;
+				if (flags & ImGuiTreeNodeFlags_OpenOnArrow)
+					toggled |= is_mouse_x_over_arrow && !g.NavDisableMouseHover; // Lightweight equivalent of IsMouseHoveringRect() since ButtonBehavior() already did the job
+				if ((flags & ImGuiTreeNodeFlags_OpenOnDoubleClick) && g.IO.MouseClickedCount[0] == 2)
+					toggled = true;
+			}
+			else if (pressed && g.DragDropHoldJustPressedId == id)
+			{
+				IM_ASSERT(button_flags & ImGuiButtonFlags_PressedOnDragDropHold);
+				if (!is_open) // When using Drag and Drop "hold to open" we keep the node highlighted after opening, but never close it again.
+					toggled = true;
+			}
+
+			if (g.NavId == id && g.NavMoveDir == ImGuiDir_Left && is_open)
+			{
+				toggled = true;
+				ImGui::NavMoveRequestCancel();
+			}
+			if (g.NavId == id && g.NavMoveDir == ImGuiDir_Right && !is_open) // If there's something upcoming on the line we may want to give it the priority?
+			{
+				toggled = true;
+				ImGui::NavMoveRequestCancel();
+			}
+
+			if (toggled)
+			{
+				is_open = !is_open;
+				window->DC.StateStorage->SetInt(id, is_open);
+				g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_ToggledOpen;
+			}
+		}
+		if (flags & ImGuiTreeNodeFlags_AllowItemOverlap)
+			ImGui::SetItemAllowOverlap();
+
+		// In this branch, TreeNodeBehavior() cannot toggle the selection so this will never trigger.
+		if (selected != was_selected) //-V547
+			g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_ToggledSelection;
+
+		// Render
+		const ImU32 text_col = ImGui::GetColorU32(ImGuiCol_Text);
+		ImGuiNavHighlightFlags nav_highlight_flags = ImGuiNavHighlightFlags_TypeThin;
+		if (display_frame)
+		{
+			// Framed type
+			const ImU32 bg_col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
+			ImGui::RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, true, style.FrameRounding);
+			ImGui::RenderNavHighlight(frame_bb, id, nav_highlight_flags);
+			if (flags & ImGuiTreeNodeFlags_Bullet)
+				ImGui::RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.60f, text_pos.y + g.FontSize * 0.5f), text_col);
+			else if (!is_leaf)
+				ImGui::RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
+			else // Leaf without bullet, left-adjusted text
+				text_pos.x -= text_offset_x;
+			if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton)
+				frame_bb.Max.x -= g.FontSize + style.FramePadding.x;
+
+			if (g.LogEnabled)
+				ImGui::LogSetNextTextDecoration("###", "###");
+			ImGui::RenderTextClipped(text_pos, frame_bb.Max, label, label_end, &label_size);
+		}
+		else
+		{
+			// Unframed typed for tree nodes
+			if (hovered || selected)
+			{
+				const ImU32 bg_col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
+				ImGui::RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, false);
+			}
+			ImGui::RenderNavHighlight(frame_bb, id, nav_highlight_flags);
+			if (flags & ImGuiTreeNodeFlags_Bullet)
+				ImGui::RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.5f, text_pos.y + g.FontSize * 0.5f), text_col);
+			else if (!is_leaf)
+				ImGui::RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y + g.FontSize * 0.15f), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 0.70f);
+			if (g.LogEnabled)
+				ImGui::LogSetNextTextDecoration(">", NULL);
+			ImGui::RenderText(text_pos, label, label_end, false);
+		}
+
+		if (is_open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+			ImGui::TreePushOverrideID(id);
+		IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | (is_leaf ? 0 : ImGuiItemStatusFlags_Openable) | (is_open ? ImGuiItemStatusFlags_Opened : 0));
+		return is_open;
+	}
+
+	bool UI::TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		return TreeNodeBehavior(window->GetID(label), flags, label, NULL);
 	}
 
 	template<typename T>

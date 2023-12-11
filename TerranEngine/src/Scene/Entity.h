@@ -32,6 +32,14 @@ namespace TerranEngine
 			return component;
 		}
 
+		template<typename Component, typename... Args>
+		inline Component& AddOrReplaceComponent(Args&&... parameters)
+		{
+			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+			Component& component = m_Scene->m_Registry.emplace_or_replace<Component>(m_Handle, std::forward<Args>(parameters)...);
+			return component;
+		}
+
 		template<typename Component>
 		inline Component& GetComponent() const
 		{

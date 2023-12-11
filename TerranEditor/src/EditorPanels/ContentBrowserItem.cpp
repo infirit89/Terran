@@ -64,7 +64,7 @@ namespace TerranEditor
 
 		ImGui::InvisibleButton("##thumbnailButton", { cellSize, cellSize });
 		UI::ShiftCursor(edgeOffset, -cellSize);
-		UI::Image((ImTextureID)m_Icon->GetHandle(), { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
+		UI::Image(m_Icon, { cellSize - edgeOffset * 2.0, cellSize - edgeOffset * 2.0 });
 
 		UI::ShiftCursor(edgeOffset, edgeOffset);
 
@@ -115,8 +115,8 @@ namespace TerranEditor
 		{
 			if (m_IsRenaming)
 				StopRename();
-			else
-				SelectionManager::Deselect(SelectionContext::ContentPanel);
+			else if(SelectionManager::IsSelected(SelectionContext::ContentPanel, m_Handle))
+				SelectionManager::Deselect(SelectionContext::ContentPanel, m_Handle);
 		}
 
 		if (m_Type == ItemType::Directory)
@@ -150,7 +150,7 @@ namespace TerranEditor
 				action = OnActivate();
 		}
 
-		if (ImGui::BeginPopupContextItem("cbi_actions_context_menu"))
+		if (UI::BeginPopupContextItem("cbi_actions_context_menu"))
 		{
 			if (ImGui::MenuItem("Rename"))
 				action = ItemAction::StartRename;

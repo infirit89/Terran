@@ -41,10 +41,13 @@ namespace TerranEditor
 		void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
 
 		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
+		virtual const char* GetName() override { return "Scene view"; }
 		
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
+		void DrawGizmos(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
+	private:
 		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 		Shared<SceneRenderer> m_SceneRenderer;
 

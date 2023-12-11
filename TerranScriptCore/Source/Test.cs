@@ -1,7 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Terran
 {
+	class Test 
+	{
+		void T1() 
+		{
+		}
+	}
+
 #if false
 	public class TestScript : Scriptable
 	{

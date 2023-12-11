@@ -17,9 +17,6 @@ namespace TerranEditor
 		AssetEditorManager() = default;
 		~AssetEditorManager() = default;
 
-		//void ImGuiRender() override;
-		//virtual void OnEvent(TerranEngine::Event& event) override;
-
 		static void Init();
 		static void RenderEditors();
 

@@ -88,12 +88,15 @@ namespace TerranEditor
 		virtual void OnEvent(TerranEngine::Event& event) override;
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
+		virtual const char* GetName() override { return "Content"; }
 
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
 		
 		void RenderTopBar();
+		void RenderSideBar();
+		void RenderDirectoryTree(Shared<DirectoryInfo> parent);
 
 		template<typename T>
 		Shared<T> CreateAsset(const std::string& name) 
@@ -127,6 +130,7 @@ namespace TerranEditor
 		UUID ProcessDirectory(const std::filesystem::path& directoryPath, Shared<DirectoryInfo> parent = nullptr);
 		Shared<DirectoryInfo> GetDirectory(const std::filesystem::path& directoryPath);
 		Shared<DirectoryInfo> GetDirectory(const UUID& handle);
+		void MoveSelectedItemsToDirectory(const Shared<DirectoryInfo>& directory);
 		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
 		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
 		void FillBreadCrumbs();

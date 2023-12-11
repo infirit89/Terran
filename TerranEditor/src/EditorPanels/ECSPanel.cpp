@@ -13,7 +13,7 @@ namespace TerranEditor
 	{
 		if (!m_Open) return;
 		
-		ImGui::Begin("ECS Debug", &m_Open);
+		ImGui::Begin(GetName(), &m_Open);
 
 		if (ImGui::IsWindowFocused()) 
 		{

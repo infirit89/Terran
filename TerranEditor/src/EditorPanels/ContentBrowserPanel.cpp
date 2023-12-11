@@ -15,20 +15,23 @@
 #include "SelectionManager.h"
 
 #include "UI/UI.h"
+#include "UI/FontManager.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <IconsFontAwesome6.h>
+#include <IconsMaterialDesign.h>
+
 #include <algorithm>
 #include <optional>
-
-#pragma warning(push)
-#pragma warning(disable : 4312)
 
 namespace TerranEditor
 {
 	#define MAX_NAME_BUFFER_SIZE 256
 	static char s_NameBuffer[MAX_NAME_BUFFER_SIZE]{ 0 };
+
+	static ImGuiTextFilter s_Filter;
 
 	ContentPanel::ContentPanel()
 	{
@@ -54,91 +57,167 @@ namespace TerranEditor
 	{
 		if (!m_Open) return;
 
-		ImGui::Begin("Content", &m_Open);
+		ImGuiWindowFlags contentBrowserFlags = ImGuiWindowFlags_NoScrollbar;
 
-		RenderTopBar();
+		ImGui::Begin(GetName(), &m_Open, contentBrowserFlags);
 
-		// render items
+		if (ImGui::BeginTable("content_browser_table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable)) 
 		{
-			std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
-			const float padding = 18.0f;
-			const float cellSize = 74.0f;
+			//const float folderViewColumnWidth = 100.0f;
+			//ImGui::TableSetupColumn("folder_view", 0, folderViewColumnWidth);
+			//ImGui::TableSetupColumn("detailed_view", 0, ImGui::GetContentRegionAvail().x - folderViewColumnWidth);
+			ImGui::TableNextRow();
+			ImGui::TableNextColumn();
+			RenderSideBar();
 
-			float totalSize = padding + cellSize;
-			float availRegionWidth = ImGui::GetContentRegionAvail().x;
-			int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
+			ImGui::TableNextColumn();
+			RenderTopBar();
+			ImGui::Separator();
 
-			// TODO: change with the imgui tables api
-			ImGui::Columns(columnCount, (const char*)0, false);
-
-			// for every entry in the current 
-			Shared<DirectoryInfo> directoryToOpen;
-			for (const auto& item : m_CurrentItems)
+			// render items
+			if(ImGui::BeginChild("content_browser_item_view"))
 			{
-				item->BeginRender();
-				ItemAction action = item->OnRender();
-
-				if (action == ItemAction::NavigateTo) 
+				// content panel actions popup
 				{
-					directoryToOpen = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
-					while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
-				}
+					bool openRenamePopup = false;
+					auto drawNewDirectoryMenu = [&openRenamePopup, this](const char* name, const char* fileName)
+						{
+							if (ImGui::MenuItem(name))
+							{
+								openRenamePopup = true;
+								m_NewAssetName = fileName;
+								m_CreateAsset = [this](const std::string& name)
+									{
+										CreateNewDirectory(name, m_CurrentDirectory->Path);
+									};
+							}
+						};
 
-				if (action == ItemAction::Activate)
-				{
-				}
-
-				if (action == ItemAction::Select)
-					SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
-
-				if (action == ItemAction::MoveTo)
-				{
-					auto selectedItem = std::find_if(m_CurrentItems.begin(), m_CurrentItems.end(), [](Shared<ContentBrowserItem> browserItem)
+					if (UI::BeginPopupContextWindow("content_panel_actions_popup"))
 					{
-						return browserItem->GetHandle() == SelectionManager::GetSelected(SelectionContext::ContentPanel);
-					});
+						if (ImGui::MenuItem("Reveal in explorer"))
+							FileSystem::RevealInExplorer(AssetManager::GetFileSystemPath(m_CurrentDirectory->Path));
 
-					SelectionManager::Deselect(SelectionContext::ContentPanel);
-					if (selectedItem != m_CurrentItems.end()) 
+						if (ImGui::BeginMenu("New"))
+						{
+							DrawNewAssetMenu<PhysicsMaterial2DAsset>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
+							DrawNewAssetMenu<Scene>(this, "Scene", "New Scene.terran", openRenamePopup);
+							drawNewDirectoryMenu("Folder", "New Folder");
+							ImGui::EndMenu();
+						}
+
+						ImGui::EndPopup();
+					}
+
+					// TODO: this is pretty scuffed; should do it the proper way
+					if (openRenamePopup)
 					{
-						std::filesystem::path directoryPath = m_Directories[item->GetHandle()]->Path;
-						(*selectedItem)->Move(directoryPath);
+						ImGui::OpenPopup("name_new_asset");
+						memcpy(s_NameBuffer, m_NewAssetName.stem().string().c_str(), m_NewAssetName.stem().string().size());
+					}
+
+					if (ImGui::BeginPopup("name_new_asset"))
+					{
+						if (!ImGui::IsAnyItemActive())
+							ImGui::SetKeyboardFocusHere();
+
+						bool result = ImGui::InputText("##name_new_asset_input", s_NameBuffer, MAX_NAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
+
+						if (ImGui::Button("Create") || result)
+						{
+							std::string fileName = s_NameBuffer + m_NewAssetName.extension().string();
+							m_CreateAsset(fileName);
+							memset(s_NameBuffer, 0, MAX_NAME_BUFFER_SIZE);
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
 					}
 				}
 
-				if (action == ItemAction::StartRename)
-					item->StartRename();
+				std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
+				const float padding = 18.0f;
+				const float cellSize = 74.0f;
 
-				ImGui::NextColumn();
-				item->EndRender();
+				float totalSize = padding + cellSize;
+				float availRegionWidth = ImGui::GetContentRegionAvail().x;
+				int columnCount = (int)(availRegionWidth / totalSize) < 1 ? 1 : (int)(availRegionWidth / totalSize);
+
+				if (!ImGui::BeginTable("##content_browser_items", columnCount))
+					return;
+
+				ImGui::TableNextRow();
+
+				Shared<DirectoryInfo> directoryToOpen;
+
+				// for every entry in the current directory 
+				for (const auto& item : m_CurrentItems)
+				{
+					if (!s_Filter.PassFilter(item->GetName().c_str()))
+						continue;
+
+					ImGui::TableNextColumn();
+					item->BeginRender();
+					ItemAction action = item->OnRender();
+
+					if (action == ItemAction::NavigateTo) 
+					{
+						directoryToOpen = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
+						while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
+					}
+					else if (action == ItemAction::Activate)
+					{
+					}
+					else if (action == ItemAction::Select)
+						SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
+					else if (action == ItemAction::MoveTo)
+						MoveSelectedItemsToDirectory(m_Directories[item->GetHandle()]);
+					else if (action == ItemAction::StartRename)
+						item->StartRename();
+
+					item->EndRender();
+				}
+
+				ImGui::EndTable();
+
+				if (directoryToOpen)
+					ChangeDirectory(directoryToOpen);
+
+				ImGui::EndChild();
 			}
-
-			ImGui::Columns(1);
-
-			if (directoryToOpen)
-				ChangeDirectory(directoryToOpen);
+			ImGui::EndTable();
 		}
-
 
 		ImGui::End();
 	}
 
 	void ContentPanel::RenderTopBar()
 	{
-		/*UI::ScopedStyleColor topbarColor({
+		if (!ImGui::BeginChild("##topbar", { 0.0f, 30.0f }))
+			return;
 
-		});*/
-
-		ImGui::BeginChild("##topbar", { 0.0f, 20.0f });
-		ImGui::BeginHorizontal("##topbar", ImGui::GetWindowSize());
 		{
-			auto button = [this](const std::string& buttonText, bool condition)
+			constexpr float baseSpacing = 4.0f;
+
+			float originalFrameBorderSize = ImGui::GetStyle().FrameBorderSize;
+			ImVec2 framePadding = ImGui::GetStyle().FramePadding;
+
+			UI::ScopedStyleColor navigationColor({
+				{ ImGuiCol_Button, { 0.0f, 0.0f, 0.0f, 0.0f } }
+			});
+			UI::ScopedStyleVar navigationStyleVar({
+				{ ImGuiStyleVar_FrameBorderSize, 0.0f },
+				{ ImGuiStyleVar_FramePadding, { framePadding.x, 5.0f } }
+			});
+
+			auto nativationalButton = [this](const uint32_t textureHandle, bool condition)
 				{
 					bool result = false;
 					if (!condition)
 						ImGui::BeginDisabled();
 
-					result = ImGui::Button(buttonText.c_str());
+					result = ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)textureHandle),
+						{ 14.0f, 28.0f }, { 0.25f, 1 }, { 0.75f, 0 });
 
 					if (!condition)
 						ImGui::EndDisabled();
@@ -146,93 +225,175 @@ namespace TerranEditor
 					return result;
 			};
 
-			// back button
-			if (button("<-", m_PreviousDirectory != nullptr))
-				ChangeBackwardDirectory();
+			auto nativationalButtonText = [this](const char* text, bool condition)
+			{
+				bool result = false;
+				if (!condition)
+					ImGui::BeginDisabled();
 
-			ImGui::Spring(-1.0f, 4.0f);
+				result = ImGui::Button(text);
 
-			if (button("->", m_NextDirectoryStack.size() > 0))
-				ChangeForwardDirectory();
+				if (!condition)
+					ImGui::EndDisabled();
 
-			ImGui::Spring(-1.0f, 4.0f * 2.0f);
-			if (ImGui::Button("Reload"))
-				Refresh();
+				return result;
+			};
+
+			{
+				UI::ScopedFont scopedIconFont("IconFont");
+				{
+					// back button
+					if (nativationalButtonText(ICON_FA_ARROW_LEFT, m_PreviousDirectory != nullptr))
+						ChangeBackwardDirectory();
+
+					ImGui::SameLine();
+
+					//ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+
+					if (nativationalButtonText(ICON_FA_ARROW_RIGHT, m_NextDirectoryStack.size() > 0))
+						ChangeForwardDirectory();
+
+					ImGui::SameLine();
+
+					//ImGui::Spring(-1.0f, baseSpacing * 2.0f);
+
+					if (ImGui::Button(ICON_FA_ARROWS_ROTATE))
+						Refresh();
+				}
+				// search field
+
+				{
+					ImGui::SameLine();
+
+					if (UI::SearchInput(s_Filter, "Search..."))
+						s_Filter.Build();
+				}
+			}
 
 			Shared<DirectoryInfo> nextDirectory = nullptr;
+
+			ImGui::SameLine();
+			//ImGui::Spring(-1.0f, baseSpacing * 3.0f);
+
+			ImGui::BeginHorizontal("##breadcrumbs");
 			for (int i = 0; i < m_BreadCrumbs.size(); i++)
 			{
-				ImGui::Spring(-1.0f, 4.0f * (i + 3.0f));
-				std::string name = m_BreadCrumbs[i] == m_RootDirectory ? 
-													"Assets" : 
+				if (i > 0)
+				{
+					UI::Image(EditorResources::ChevronRight,
+							{ 9.0f, 18.0f }, 
+							{ 0.25f, 1 }, 
+							{ 0.75f, 0 });
+
+					ImGui::Spring(-1.0f, baseSpacing);
+				}
+
+				std::string name = m_BreadCrumbs[i] == m_RootDirectory ?
+													"Assets" :
 													m_BreadCrumbs[i]->Path.stem().string();
 
-				if (ImGui::Button(name.c_str()))
-					nextDirectory = m_BreadCrumbs[i];
+				ImGui::PushID(&(m_BreadCrumbs[i]->Handle));
+				if (m_BreadCrumbs[i] == m_CurrentDirectory) 
+				{
+					UI::ScopedFont currentDirectory(UI::FontManager::GetFont("Roboto-Bold"));
+					if (ImGui::Button(name.c_str()))
+						nextDirectory = m_BreadCrumbs[i];
+				}
+				else 
+				{
+					if (ImGui::Button(name.c_str()))
+						nextDirectory = m_BreadCrumbs[i];
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
+						MoveSelectedItemsToDirectory(m_BreadCrumbs[i]);
+
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::PopID();
+				ImGui::Spring(-1.0f, baseSpacing);
 			}
 
 			if (nextDirectory)
 				ChangeDirectory(nextDirectory);
+			ImGui::EndHorizontal();
 		}
-		ImGui::EndHorizontal();
+
 		ImGui::EndChild();
+	}
 
-		ImGui::Separator();
+	void ContentPanel::RenderSideBar()
+	{
+		if (!ImGui::BeginChild("##sidebar", { 0.0f, 0.0f }))
+			return;
 
-		bool openRenamePopup = false;
+		RenderDirectoryTree(m_RootDirectory);
 
-		auto drawNewDirectoryMenu = [&openRenamePopup, this](const char* name, const char* fileName)
+		ImGui::EndChild();
+	}
+
+	void ContentPanel::RenderDirectoryTree(Shared<DirectoryInfo> parent)
+	{
+		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth |
+										ImGuiTreeNodeFlags_FramePadding |
+										ImGuiTreeNodeFlags_AllowItemOverlap | 
+										ImGuiTreeNodeFlags_OpenOnArrow |
+										ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+		bool opened = false;
+		if (parent == m_CurrentDirectory)
+			nodeFlags |= ImGuiTreeNodeFlags_Selected;
+
+		nodeFlags |= parent->Subdirectories.empty() ? 
+						ImGuiTreeNodeFlags_Leaf : 
+							parent == m_RootDirectory ?
+								ImGuiTreeNodeFlags_DefaultOpen :
+								0;
+
+		std::string id = fmt::format("##{0}", parent->Path.stem().string());
+		opened = UI::TreeNodeEx(id.c_str(), nodeFlags);
+
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		ImGui::BeginVertical("##directoryVertical");
+		ImGui::Spring(0.0f, 2.0f);
+		ImGui::BeginHorizontal("##directoryHorizontal", { ImGui::GetItemRectSize().x, 0.0f });
+		ImGui::Spring(0.0f, 4.0f);
+		UI::Image(EditorResources::DirectoryTexture, { 15.0f, 15.0f });
+
+		if (parent == m_RootDirectory)
 		{
-			if (ImGui::MenuItem(name))
-			{
-				openRenamePopup = true;
-				m_NewAssetName = fileName;
-				m_CreateAsset = [this](const std::string& name)
-				{
-					CreateNewDirectory(name, m_CurrentDirectory->Path);
-				};
-			}
-		};
+			ImGuiIO& io = ImGui::GetIO();
+			UI::ScopedFont rootDirectoryFont(UI::FontManager::GetFont("Roboto-Bold"));
+			ImGui::Text("Assets");
+		}
+		else
+			ImGui::Text(parent->Path.stem().string().c_str());
 
-		if (ImGui::BeginPopupContextWindow("content_panel_actions_popup", ImGuiMouseButton_Right))
+		ImGui::EndHorizontal();
+		ImGui::EndVertical();
+		ImGui::EndGroup();
+		
+		if (ImGui::IsItemClicked())
+			ChangeDirectory(parent);
+
+		if (ImGui::BeginDragDropTarget()) 
 		{
-			if (ImGui::MenuItem("Reveal in explorer"))
-				FileSystem::RevealInExplorer(AssetManager::GetFileSystemPath(m_CurrentDirectory->Path));
+			ImGuiDragDropFlags dragDropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET", dragDropFlags))
+				MoveSelectedItemsToDirectory(parent);
 
-			if (ImGui::BeginMenu("New"))
-			{
-				DrawNewAssetMenu<PhysicsMaterial2DAsset>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
-				DrawNewAssetMenu<Scene>(this, "Scene", "New Scene.terran", openRenamePopup);
-				drawNewDirectoryMenu("Folder", "New Folder");
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndPopup();
+			ImGui::EndDragDropTarget();
 		}
 
-		// TODO: this is pretty scuffed; should do it the proper way
-		if (openRenamePopup)
+		if (opened)
 		{
-			ImGui::OpenPopup("name_new_asset");
-			memcpy(s_NameBuffer, m_NewAssetName.stem().string().c_str(), m_NewAssetName.stem().string().size());
-		}
+			for (const auto& [subdirectoryId, subdirectory] : parent->Subdirectories)
+				RenderDirectoryTree(subdirectory);
 
-		if (ImGui::BeginPopup("name_new_asset"))
-		{
-			if (!ImGui::IsAnyItemActive())
-				ImGui::SetKeyboardFocusHere();
-
-			bool result = ImGui::InputText("##name_new_asset_input", s_NameBuffer, MAX_NAME_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
-
-			if (ImGui::Button("Create") || result)
-			{
-				std::string fileName = s_NameBuffer + m_NewAssetName.extension().string();
-				m_CreateAsset(fileName);
-				memset(s_NameBuffer, 0, MAX_NAME_BUFFER_SIZE);
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
+			ImGui::TreePop();
 		}
 	}
 
@@ -301,7 +462,8 @@ namespace TerranEditor
 
 		std::scoped_lock<std::mutex> lock(s_ContentBrowserMutex);
 		m_Directories.clear();
-		ProcessDirectory(Project::GetAssetPath());
+		UUID rootDirectoryHandle = ProcessDirectory(Project::GetAssetPath());
+		m_RootDirectory = GetDirectory(rootDirectoryHandle);
 		ChangeDirectory(GetDirectory(currentDirectoryPath));
 	}
 
@@ -385,6 +547,25 @@ namespace TerranEditor
 			return m_Directories.at(handle);
 
 		return nullptr;
+	}
+
+	void ContentPanel::MoveSelectedItemsToDirectory(const Shared<DirectoryInfo>& directory)
+	{
+		std::vector<Shared<ContentBrowserItem>> selectedItems;
+		std::copy_if(m_CurrentItems.begin(), m_CurrentItems.end(), 
+					std::back_inserter(selectedItems), 
+					[](Shared<ContentBrowserItem> item)
+					{
+						return SelectionManager::IsSelected(SelectionContext::ContentPanel, item->GetHandle());
+					});
+
+		for (const auto& item : selectedItems) 
+		{
+			std::filesystem::path directoryPath = directory->Path;
+			item->Move(directoryPath);
+		}
+
+		//SelectionManager::Deselect(SelectionContext::ContentPanel);
 	}
 
 	void ContentPanel::ChangeDirectory(const Shared<DirectoryInfo>& directory)
@@ -498,7 +679,7 @@ namespace TerranEditor
 		while (true) 
 		{
 			directoryNodes.push_back(parent);
-			if (parent == m_RootDirectory)
+			if (parent->Handle == m_RootDirectory->Handle)
 				break;
 
 			parent = parent->Parent;
@@ -520,4 +701,3 @@ namespace TerranEditor
 		ChangeDirectory(m_CurrentDirectory);
 	}
 }
-#pragma warning(pop)

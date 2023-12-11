@@ -32,13 +32,14 @@ namespace TerranEditor
 		LogPanel();
 		~LogPanel();
 
-		void AddLog(LogMessage logMessage);
+		void AddLogMessage(LogMessage logMessage);
 		virtual void OnRender() override;
 		void ClearMessageBuffer();
 
 		bool IsClearOnPlay() { return m_ClearOnPlay; }
 
 		static LogPanel* GetInstance() { return s_Instance; }
+		virtual const char* GetName() override { return "Log"; }
 
 	private:
 		std::vector<LogMessage> m_TextBuffer;

@@ -47,7 +47,7 @@ namespace TerranEditor
 			{ ImGuiStyleVar_WindowPadding, {0.0f, 0.0f} }
 		});
 
-		ImGui::Begin("Scene view", &m_Open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin(GetName(), &m_Open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
 
 		bool isFocused = ImGui::IsWindowFocused();
 		bool isHovered = ImGui::IsWindowHovered();
@@ -116,51 +116,8 @@ namespace TerranEditor
 		if (sceneState == SceneState::Edit) 
 		{
 			// Gizmos
-			Entity selectedEntity = SelectionManager::GetSelected();
-			bool usingGizmo = false;
-			if (selectedEntity)
-			{
-				bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
-				if (altPressed)
-					m_UseSnapping = true;
-				else
-					m_UseSnapping = false;
-
-				const glm::mat4& cameraProjection = editorCamera.GetProjection();
-				glm::mat4 cameraView = editorCamera.GetView();
-
-				auto& tc = selectedEntity.GetComponent<TransformComponent>();
-				
-				glm::mat4 transformMatrix = tc.WorldSpaceTransformMatrix;
-
-				m_GizmoMode = selectedEntity.HasParent() ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
-
-				ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
-
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
-
-				if (ImGuizmo::IsUsing())
-				{
-					glm::vec3 position, rotation, scale;
-
-					Entity parent = selectedEntity.GetParent();
-					if (parent) 
-					{
-						glm::mat4 parentMat = parent.GetTransform().WorldSpaceTransformMatrix;
-						transformMatrix = glm::inverse(parentMat) * transformMatrix;
-					}
-
-					Math::Decompose(transformMatrix, position, rotation, scale);
-
-					glm::vec3 deltaRotation = rotation - tc.Rotation;
-					tc.Rotation += deltaRotation; 
-					tc.Position = position;
-					tc.Scale = scale;
-					tc.IsDirty = true;
-				}
-			}
-
+			DrawGizmos(editorCamera.GetProjection(), editorCamera.GetView());
+			
 			ImVec2 mousePos = ImGui::GetMousePos();
 			mousePos.x -= viewportBounds[0].x;
 			mousePos.y -= viewportBounds[0].y;
@@ -234,6 +191,56 @@ namespace TerranEditor
 		}
 
 		return false;
+	}
+
+	void SceneViewPanel::DrawGizmos(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+	{
+		const auto& selected = SelectionManager::GetSelected(SelectionContext::Scene);
+		if (selected.empty())
+			return;
+
+		// TODO: add multiselect functionality
+		Entity selectedEntity = m_Scene->FindEntityWithUUID(selected[0]);
+		bool usingGizmo = false;
+		if (selectedEntity)
+		{
+			bool altPressed = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
+			if (altPressed)
+				m_UseSnapping = true;
+			else
+				m_UseSnapping = false;
+
+			auto& tc = selectedEntity.GetComponent<TransformComponent>();
+
+			glm::mat4 transformMatrix = tc.WorldSpaceTransformMatrix;
+
+			m_GizmoMode = selectedEntity.HasParent() ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
+
+			ImGuizmo::OPERATION gizmoOperation = ConvertToImGuizmoOperation(m_GizmoType);
+
+			ImGuizmo::Manipulate(glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix),
+				gizmoOperation, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transformMatrix), nullptr, m_UseSnapping ? glm::value_ptr(m_Snap) : nullptr);
+
+			if (ImGuizmo::IsUsing())
+			{
+				glm::vec3 position, rotation, scale;
+
+				Entity parent = selectedEntity.GetParent();
+				if (parent)
+				{
+					glm::mat4 parentMat = parent.GetTransform().WorldSpaceTransformMatrix;
+					transformMatrix = glm::inverse(parentMat) * transformMatrix;
+				}
+
+				Math::Decompose(transformMatrix, position, rotation, scale);
+
+				glm::vec3 deltaRotation = rotation - tc.Rotation;
+				tc.Rotation += deltaRotation;
+				tc.Position = position;
+				tc.Scale = scale;
+				tc.IsDirty = true;
+			}
+		}
 	}
 }
 #pragma warning(pop)

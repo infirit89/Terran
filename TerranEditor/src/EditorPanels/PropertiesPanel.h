@@ -19,10 +19,11 @@ namespace TerranEditor
 	class PropertiesPanel : public EditorPanel
 	{
 	public:
-		PropertiesPanel() = default;
+		PropertiesPanel();
 		~PropertiesPanel() = default;
 
 		virtual void OnRender() override;
+		virtual const char* GetName() override { return "Properties"; }
 
 	private:
 		void DrawComponents();
