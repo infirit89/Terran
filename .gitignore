@@ -76,3 +76,6 @@ shaderc/
 
 # Cached Shaders
 *.cached
+
+# VSCode
+.vscode/

@@ -76,7 +76,8 @@ project "TerranEditor"
             "msdfgen",
             "freetype",
             "shaderc_combined",
-            "monosgen-2.0"
+            "monosgen-2.0",
+            "uuid"
         }
 
 

@@ -7,13 +7,13 @@ namespace TerranEngine
 {
     std::filesystem::path FileSystem::OpenFile(const char* filter) 
     {
-        // TODO: 
+        FILE* file = popen("zenity --file-selection", "r");       
         return "";
     }
 
     std::filesystem::path FileSystem::SaveFile(const char* filter) 
     {
-        // TODO:
+        FILE* file = popen("zenity --file-selection --save", "r");
         return "";
     }
 

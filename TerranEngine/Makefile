@@ -41,7 +41,7 @@ OBJDIR = bin-int/Debug-linux-x86_64
 DEFINES += -D_CRT_SECURE_NO_WARNINGS -DGLFW_INCLUDE_NONE -DYAML_CPP_STATIC_DEFINE -D_GLFW_X11 -DTR_DEBUG
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
-LIBS += vendor/GLFW/bin/Debug-linux-x86_64/libGLFW.a vendor/ImGui/bin/Debug-linux-x86_64/libImGui.a vendor/GLAD/bin/Debug-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Debug-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Debug-linux-x86_64/libBox2D.a vendor/Optick/bin/Debug-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Debug-linux-x86_64/libyaml-cpp.a -lmonosgen-2.0 -lshaderc_combined
+LIBS += vendor/GLFW/bin/Debug-linux-x86_64/libGLFW.a vendor/ImGui/bin/Debug-linux-x86_64/libImGui.a vendor/GLAD/bin/Debug-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Debug-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Debug-linux-x86_64/libBox2D.a vendor/Optick/bin/Debug-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Debug-linux-x86_64/libyaml-cpp.a -lmonosgen-2.0 -lshaderc_combined -luuid
 LDDEPS += vendor/GLFW/bin/Debug-linux-x86_64/libGLFW.a vendor/ImGui/bin/Debug-linux-x86_64/libImGui.a vendor/GLAD/bin/Debug-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Debug-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Debug-linux-x86_64/libBox2D.a vendor/Optick/bin/Debug-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Debug-linux-x86_64/libyaml-cpp.a
 ALL_LDFLAGS += $(LDFLAGS) -Lvendor/shaderc/lib -Lvendor/mono/bin -L/usr/lib64 -Wl,-rpath,'$$ORIGIN/../../vendor/Optick/bin/Debug-linux-x86_64' -m64 -IGNORE:4006
 
@@ -52,7 +52,7 @@ OBJDIR = bin-int/Release-linux-x86_64
 DEFINES += -D_CRT_SECURE_NO_WARNINGS -DGLFW_INCLUDE_NONE -DYAML_CPP_STATIC_DEFINE -D_GLFW_X11 -DTR_RELEASE
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
-LIBS += vendor/GLFW/bin/Release-linux-x86_64/libGLFW.a vendor/ImGui/bin/Release-linux-x86_64/libImGui.a vendor/GLAD/bin/Release-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Release-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Release-linux-x86_64/libBox2D.a vendor/Optick/bin/Release-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Release-linux-x86_64/libyaml-cpp.a -lmonosgen-2.0 -lshaderc_combined
+LIBS += vendor/GLFW/bin/Release-linux-x86_64/libGLFW.a vendor/ImGui/bin/Release-linux-x86_64/libImGui.a vendor/GLAD/bin/Release-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Release-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Release-linux-x86_64/libBox2D.a vendor/Optick/bin/Release-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Release-linux-x86_64/libyaml-cpp.a -lmonosgen-2.0 -lshaderc_combined -luuid
 LDDEPS += vendor/GLFW/bin/Release-linux-x86_64/libGLFW.a vendor/ImGui/bin/Release-linux-x86_64/libImGui.a vendor/GLAD/bin/Release-linux-x86_64/libGLAD.a vendor/msdf-atlas-gen/bin/Release-linux-x86_64/libmsdf-atlas-gen.a vendor/Box2D/bin/Release-linux-x86_64/libBox2D.a vendor/Optick/bin/Release-linux-x86_64/libOptickCore.so vendor/yaml-cpp/bin/Release-linux-x86_64/libyaml-cpp.a
 ALL_LDFLAGS += $(LDFLAGS) -Lvendor/shaderc/lib -Lvendor/mono/bin -L/usr/lib64 -Wl,-rpath,'$$ORIGIN/../../vendor/Optick/bin/Release-linux-x86_64' -m64 -s -IGNORE:4006
 
@@ -91,6 +91,8 @@ GENERATED += $(OBJDIR)/ImGuiLayer.o
 GENERATED += $(OBJDIR)/IndexBuffer.o
 GENERATED += $(OBJDIR)/Input.o
 GENERATED += $(OBJDIR)/LayerStack.o
+GENERATED += $(OBJDIR)/LinuxFileUtils.o
+GENERATED += $(OBJDIR)/LinuxUUIDGenerator.o
 GENERATED += $(OBJDIR)/Log.o
 GENERATED += $(OBJDIR)/Math.o
 GENERATED += $(OBJDIR)/OpenGLErrorHandler.o
@@ -160,6 +162,8 @@ OBJECTS += $(OBJDIR)/ImGuiLayer.o
 OBJECTS += $(OBJDIR)/IndexBuffer.o
 OBJECTS += $(OBJDIR)/Input.o
 OBJECTS += $(OBJDIR)/LayerStack.o
+OBJECTS += $(OBJDIR)/LinuxFileUtils.o
+OBJECTS += $(OBJDIR)/LinuxUUIDGenerator.o
 OBJECTS += $(OBJDIR)/Log.o
 OBJECTS += $(OBJDIR)/Math.o
 OBJECTS += $(OBJDIR)/OpenGLErrorHandler.o
@@ -390,6 +394,12 @@ $(OBJDIR)/GLFWInput.o: src/Platform/GLFW/GLFWInput.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/GLFWWindow.o: src/Platform/GLFW/GLFWWindow.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/LinuxFileUtils.o: src/Platform/Linux/LinuxFileUtils.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/LinuxUUIDGenerator.o: src/Platform/Linux/LinuxUUIDGenerator.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/OpenGLErrorHandler.o: src/Platform/OpenGL/OpenGLErrorHandler.cpp

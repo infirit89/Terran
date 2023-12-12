@@ -101,6 +101,11 @@ project "TerranEngine"
             "%{LibraryDirectories.mono}",
         }
 
+        links 
+        {
+            "uuid"
+        }
+
     filter "configurations:Debug"
         defines "TR_DEBUG"
         runtime "Debug"
