@@ -22,21 +22,20 @@ project "ScriptAssembly"
     includedirs
     {
         "Assets"
-    } 
-    
-    links 
+    }
+
+    links
     {
-        "../Resources/Scripts/TerranScriptCore"
+        "../Resources/Scripts/TerranScriptCore.dll"
     }
 
     filter "system:windows"
         systemversion "latest"
-     
+
     filter "configurations:Debug"
         defines "TR_DEBUG"
         runtime "Debug"
         symbols "on"
-
 
     filter "configurations:Release"
         defines "TR_RELEASE"

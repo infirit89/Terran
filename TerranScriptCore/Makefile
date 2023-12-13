@@ -11,7 +11,7 @@ endif
 .PHONY: clean prebuild
 
 ifeq ($(config),debug)
-  CSC = csc
+  CSC = mcs
   RESGEN = resgen
 TARGETDIR = ../TerranEditor/Resources/Scripts
 TARGET = $(TARGETDIR)/TerranScriptCore.dll
@@ -28,7 +28,7 @@ endef
 endif
 
 ifeq ($(config),release)
-  CSC = csc
+  CSC = mcs
   RESGEN = resgen
 TARGETDIR = ../TerranEditor/Resources/Scripts
 TARGET = $(TARGETDIR)/TerranScriptCore.dll

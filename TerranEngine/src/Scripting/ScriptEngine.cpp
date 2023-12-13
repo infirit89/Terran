@@ -317,11 +317,11 @@ namespace TerranEngine
 		{
 			mono_domain_set(s_Data->CoreDomain, false);
 
-			if (!mono_domain_finalize(s_Data->AppDomain, 2000))
-			{
-				TR_ERROR("Finalizing the domain timed out");
-				return;
-			}
+			// if (!mono_domain_finalize(s_Data->AppDomain, 2000))
+			// {
+			// 	TR_ERROR("Finalizing the domain timed out");
+			// 	return;
+			// }
 			
 			GCManager::CollectAll();
 			
