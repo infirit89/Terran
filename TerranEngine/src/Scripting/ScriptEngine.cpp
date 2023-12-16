@@ -114,6 +114,7 @@ namespace TerranEngine
 		mono_set_dirs(s_Data->LibPath.string().c_str(), s_Data->EtcPath.string().c_str());
 
 #ifdef TR_DEBUG
+		// TODO: attach deugger
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 		mono_trace_set_level_string("debug");
 		mono_trace_set_log_handler(OnLogMono, nullptr);
@@ -168,7 +169,6 @@ namespace TerranEngine
 			auto scene = SceneManager::GetScene(sceneID);
 			for (const auto& [entityID, instance] : scriptInstances)
 			{
-				const GCHandle& handle = instance.ObjectHandle;
 				Entity entity = scene->FindEntityWithUUID(entityID);
 
 				auto& scriptComponent = entity.GetComponent<ScriptComponent>();
@@ -179,7 +179,7 @@ namespace TerranEngine
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 					if (field->GetType().IsArray())
 					{
-						ScriptArray array = field->GetArray(handle);
+						ScriptArray array = field->GetArray(instance.ObjectHandle);
 						arrayScriptFieldsStates[sceneID][entityID][fieldID].reserve(array.Length());
 
 						for (size_t i = 0; i < array.Length(); i++)
@@ -188,7 +188,7 @@ namespace TerranEngine
 						continue;
 					}
 
-					scriptFieldsStates[sceneID][entityID][fieldID] = field->GetData<Utils::Variant>(handle);
+					scriptFieldsStates[sceneID][entityID][fieldID] = field->GetData<Utils::Variant>(instance.ObjectHandle);
 				}
 			}
 		}
@@ -204,70 +204,61 @@ namespace TerranEngine
 		ScriptBindings::Bind();
 
 		bool appAssemblyLoaded = LoadAppAssembly();
-		
+		if (!appAssemblyLoaded)
+			return;
+
 		// TODO: if the app assembly couldn't be loaded then return from method
 		// this also means that the scriptFieldStates should be saved more globally than the function scope
 		// because we still want to set them back in case the assembly was loaded successfuly in the future
 
-		for (const auto& [sceneID, scriptFieldsValues] : scriptFieldsStates)
+		for (const auto& [sceneId, scene] : SceneManager::GetActiveScenes())
 		{
-			auto scene = SceneManager::GetScene(sceneID);
-			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
+			auto view = scene->GetEntitiesWith<ScriptComponent>();
+			for (const auto e : view)
 			{
-				Entity entity = scene->FindEntityWithUUID(entityID);
-				InitializeScriptable(entity);
-				
-				for (const auto& [fieldID, fieldData] : fieldsState)
+				Entity entity(e, scene.get());
+				ScriptComponent& scriptComponent = entity.GetComponent<ScriptComponent>();
+				const UUID& entityId = entity.GetID();
+				GCHandle handle = InitializeScriptable(entity);
+				if (!handle) continue;
+
+				ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
+
+				for (ScriptField& field : klass->GetFields())
 				{
-					GCHandle handle = GetScriptInstanceGCHandle(sceneID, entityID);
+					if (field.GetType().IsArray())
+					{
+						ScriptArray array = field.GetArray(handle);
 
-					if(!handle.IsValid())
-						break;
+						try
+						{
+							const std::vector<Utils::Variant>& cachedFieldArrayData = arrayScriptFieldsStates.at(sceneId).at(entityId).at(field.GetID());
+							if (array.Length() != cachedFieldArrayData.size())
+								array.Resize(cachedFieldArrayData.size());
 
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+							for (size_t i = 0; i < cachedFieldArrayData.size(); i++)
+								array.Set<Utils::Variant>(static_cast<uint32_t>(i), cachedFieldArrayData[i]);
 
-					if(!field)
+							field.SetArray(array, handle);
+							continue;
+						}
+						catch (std::out_of_range e)
+						{
+							// the scene, entity or field doesn't exist in the cached array fields' values
+							continue;
+						}
+					}
+
+					try
+					{
+						const Utils::Variant& fieldData = scriptFieldsStates.at(sceneId).at(entityId).at(field.GetID());
+						field.SetData<Utils::Variant>(fieldData, handle);
+					}
+					catch (std::out_of_range e)
+					{
+						// the scene, entity or field doesn't exist in the cached fields' values
 						continue;
-					
-					if (field->GetType().IsArray())
-						continue;
-
-					field->SetData<Utils::Variant>(fieldData, handle);
-				}
-			}
-		}
-		
-		for (const auto& [sceneID, scriptFieldsValues] : arrayScriptFieldsStates)
-		{
-			auto scene = SceneManager::GetScene(sceneID);
-			for (const auto& [entityID, fieldsState] : scriptFieldsValues)
-			{
-				Entity entity = scene->FindEntityWithUUID(entityID);
-				InitializeScriptable(entity);
-				
-				for (const auto& [fieldID, arrayFieldData] : fieldsState)
-				{
-					GCHandle handle = GetScriptInstanceGCHandle(sceneID, entityID);
-
-					if(!handle.IsValid())
-						break;
-
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-
-					if(!field)
-						continue;
-					
-					if (!field->GetType().IsArray())
-						continue;
-
-					ScriptArray array = field->GetArray(handle);
-					if (array.Length() != arrayFieldData.size())
-						array.Resize(arrayFieldData.size());
-
-					for (size_t i = 0; i < arrayFieldData.size(); i++)
-						array.Set<Utils::Variant>(static_cast<uint32_t>(i), arrayFieldData[i]);
-
-					field->SetArray(array, handle);
+					}
 				}
 			}
 		}
@@ -356,7 +347,7 @@ namespace TerranEngine
 
 		scriptComponent.ClassExists = true;
 
-		if (s_Data->ScriptInstanceMap.find(entity.GetID()) != s_Data->ScriptInstanceMap.end()) 
+		if (s_Data->ScriptInstanceMap.find(entity.GetID()) != s_Data->ScriptInstanceMap.end())
 			return { };
 
 		ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
@@ -372,7 +363,7 @@ namespace TerranEngine
 
 		ScriptableInstance instance;
 		const ScriptObject object = ScriptObject::CreateInstace(*klass);
-		instance.ObjectHandle = GCManager::CreateStrongHadle(object);
+		instance.ObjectHandle = GCManager::CreateStrongHandle(object);
 		instance.GetMethods();
 
 		ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
@@ -391,7 +382,7 @@ namespace TerranEngine
 		scriptComponent.PublicFieldIDs.clear();
 		for (ScriptField& field : klass->GetFields())
 		{
-			if(field.GetVisibility() == ScriptFieldVisibility::Public)
+			if (field.GetVisibility() == ScriptFieldVisibility::Public) 
 				scriptComponent.PublicFieldIDs.emplace_back(field.GetID());
 		}
 

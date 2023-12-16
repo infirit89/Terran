@@ -1224,7 +1224,7 @@ namespace TerranEditor
 
 	void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
 	{
-		TR_ASSERT(handle.IsValid(), "Invalid handle");
+		TR_ASSERT(handle, "Invalid handle");
 
 		ScriptClass* typeClass = field->GetType().GetTypeClass();
 		std::vector<ScriptField> enumFields;

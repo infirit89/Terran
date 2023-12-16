@@ -25,9 +25,9 @@ namespace TerranEngine
 		GCHandle(uint32_t handle, GCHandleType handleType);
 		~GCHandle() = default;
 
-		inline bool IsValid() const { return m_Handle != 0; }
 		inline uint32_t GetHandle() const { return m_Handle; }
 		inline GCHandleType GetType() const { return m_HandleType; }
+		inline operator bool() const { return m_Handle != 0; }
 
 	private:
 		uint32_t m_Handle = 0;
@@ -39,8 +39,14 @@ namespace TerranEngine
 	class GCManager 
 	{
 	public:
-		static GCHandle CreateWeakHandle(const ScriptObject& monoObject);
-		static GCHandle CreateStrongHadle(const ScriptObject& monoObject);
+		// with a weak ref the gc can still collect the object;
+		// if track resurrection then if the object is resurrected during the finalizer
+		// (stage of the gc) then the target object will still be active
+		static GCHandle CreateWeakHandle(const ScriptObject& monoObject, bool trackResurrection);
+
+		// prevents the gc from deleting the object until free handle is called;
+		// pinned prevents the object from being moved
+		static GCHandle CreateStrongHandle(const ScriptObject& monoObject, bool pinned = false);
 		static void FreeHandle(GCHandle& handle);
 		static MonoObject* GetManagedObject(const GCHandle& handle);
 		static void CollectAll();

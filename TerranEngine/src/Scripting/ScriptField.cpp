@@ -247,11 +247,7 @@ namespace TerranEngine
 		MonoObject* arrayObj = ScriptUtils::GetFieldValueObject(m_MonoField, handle);
 
 		if(!arrayObj)
-		{
-			ScriptArray defaultArray(m_Type.GetTypeClass()->GetMonoClass(), 1);
-			ScriptUtils::SetFieldDataRaw(defaultArray.GetMonoArray(), m_MonoField, handle);
-			return defaultArray;
-		}
+			return ScriptArray();
 		
 		return ScriptArray::Create((MonoArray*)arrayObj);
 	}

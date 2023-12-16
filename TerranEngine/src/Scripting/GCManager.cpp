@@ -14,15 +14,15 @@ namespace TerranEngine
         : m_Handle(handle), m_HandleType(handleType)
     { }
 
-    GCHandle GCManager::CreateWeakHandle(const ScriptObject& object)
+    GCHandle GCManager::CreateWeakHandle(const ScriptObject& object, bool trackResurrection)
     {
-        uint32_t handle = mono_gchandle_new_weakref(object.GetMonoObject(), false);
+        uint32_t handle = mono_gchandle_new_weakref(object.GetMonoObject(), trackResurrection);
         return { handle, GCHandleType::Weak };
     }
 
-    GCHandle GCManager::CreateStrongHadle(const ScriptObject& object)
+    GCHandle GCManager::CreateStrongHandle(const ScriptObject& object, bool pinned)
     {
-        uint32_t handle = mono_gchandle_new(object.GetMonoObject(), true);
+        uint32_t handle = mono_gchandle_new(object.GetMonoObject(), pinned);
         return { handle, GCHandleType::Strong };
     }
 
@@ -35,7 +35,7 @@ namespace TerranEngine
     MonoObject* GCManager::GetManagedObject(const GCHandle& handle)
     {
         TR_PROFILE_FUNCTION();
-        if (!handle.IsValid())
+        if (!handle)
             return nullptr;
 
         MonoObject* object = mono_gchandle_get_target(handle.GetHandle());

@@ -9,6 +9,8 @@ namespace ScriptAssembly
 {
 	internal class Test : Scriptable
 	{
+		public string[] Test1;
+
 		protected override void Init()
 		{
 			Log.Warn("initialize");
