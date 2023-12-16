@@ -43,6 +43,7 @@ namespace TerranEngine
 
 #define REGISTER_COMPONENT(type, component)\
 	MonoType* monoType_##type = mono_reflection_type_from_name("Terran."#type, ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX)->GetMonoImage());\
+	TR_TRACE((void*)monoType_##type);\
 	TR_ASSERT(monoType_##type, "Invaled type");\
 	s_HasComponentFuncs[monoType_##type] = [](Entity entity) { return entity.HasComponent<component>(); };\
 	s_AddComponentFuncs[monoType_##type] = [](Entity entity) { return entity.AddComponent<component>(); };\
@@ -212,44 +213,12 @@ namespace TerranEngine
 			s_IDClassCtor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.UUID", ":.ctor(byte[])"));
 		}
 
-		/*enum class ComponentType
+		void Unbind()
 		{
-			None = 0,
-			TransformComponent,
-			TagComponent,
-			ScriptableComponent,
-			Rigibody2DComponent,
-			Collider2DComponent,
-			BoxCollider2DComponent,
-			CircleCollider2DComponent,
-			CapsuleCollider2DComponent,
-			SpriteRendererComponent,
-			CameraComponent,
-			CircleRendererComponent,
-			TextRendererComponent
-		};*/
-
-		/*static ComponentType GetComponentType(MonoString* componentTypeStr)
-		{
-			TR_PROFILE_FUNCTION();
-			std::string moduleName = ScriptMarshal::MonoStringToUTF8(componentTypeStr);
-			ScriptClass* clazz = ScriptCache::GetCachedClassFromName(moduleName);
-
-			if (*clazz == *TR_API_CACHED_CLASS(Transform))								return ComponentType::TransformComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(Tag))									return ComponentType::TagComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(Rigidbody2D))							return ComponentType::Rigibody2DComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(Collider2D))								return ComponentType::Collider2DComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(BoxCollider2D))							return ComponentType::BoxCollider2DComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(CircleCollider2D))						return ComponentType::CircleCollider2DComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(CapsuleCollider2D))						return ComponentType::CapsuleCollider2DComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(SpriteRenderer))							return ComponentType::SpriteRendererComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(Camera))									return ComponentType::CameraComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(CircleRenderer))							return ComponentType::CircleRendererComponent;
-			if (*clazz == *TR_API_CACHED_CLASS(TextRenderer))							return ComponentType::TextRendererComponent;
-			if (clazz->IsSubclassOf(TR_API_CACHED_CLASS(Scriptable)))					return ComponentType::ScriptableComponent;
-		
-			return ComponentType::None;
-		}*/
+			s_HasComponentFuncs.clear();
+			s_AddComponentFuncs.clear();
+			s_RemoveComponentFuncs.clear();
+		}
 
         Entity GetEntityFromMonoArray(MonoArray* id)
         {
@@ -265,7 +234,6 @@ namespace TerranEngine
 		bool Entity_HasComponent(MonoArray* uuid, MonoReflectionType* monoRefType)
 		{
 			TR_PROFILE_FUNCTION();
-			//ComponentType type = GetComponentType(componentTypeStr);
 			
             Entity entity = GetEntityFromMonoArray(uuid);
             if(!entity)
@@ -285,8 +253,7 @@ namespace TerranEngine
 		void Entity_AddComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType)
 		{
 			TR_PROFILE_FUNCTION();
-			//ComponentType type = GetComponentType(componentTypeStr);
-
+			
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
             if(!entity)
                 return;
@@ -322,8 +289,7 @@ namespace TerranEngine
 		void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType)
 		{
 			TR_PROFILE_FUNCTION();
-			//ComponentType type = GetComponentType(componentTypeStr);
-
+			
             Entity entity = GetEntityFromMonoArray(entityUUIDArr);
             if(!entity)
                 return;

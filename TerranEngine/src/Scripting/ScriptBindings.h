@@ -20,6 +20,9 @@ namespace TerranEngine
 	{
 		void Bind();
 
+		// clear the entity functions
+		void Unbind();
+
 		// ---- Utils ----
 		static void Log_Log(uint8_t logLevel, MonoString* monoMessage);
 		// ---------------

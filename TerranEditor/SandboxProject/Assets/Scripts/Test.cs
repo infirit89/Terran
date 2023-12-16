@@ -17,6 +17,8 @@ namespace ScriptAssembly
 		protected override void Update(float deltaTime)
 		{
 			Log.Trace("update");
+
+			Log.Trace(Entity.Transform is null);
 		}
 	}
 }

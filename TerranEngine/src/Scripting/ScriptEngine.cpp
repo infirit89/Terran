@@ -194,11 +194,14 @@ namespace TerranEngine
 		}
 		
 		s_Data->ScriptInstanceMap.clear();
+		ScriptBindings::Unbind();
+
 		UnloadDomain();
 		CreateAppDomain();
 
 		bool coreAssemblyLoaded = LoadCoreAssembly();
 		TR_ASSERT(coreAssemblyLoaded, "Couldn't load the core assembly");
+		ScriptBindings::Bind();
 
 		bool appAssemblyLoaded = LoadAppAssembly();
 		
