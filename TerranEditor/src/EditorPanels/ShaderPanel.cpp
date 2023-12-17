@@ -3,6 +3,8 @@
 #include "Graphics/ShaderLibrary.h"
 #include "Graphics/ShaderCompiler.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include "UI/UI.h"
 
 namespace TerranEditor 
@@ -11,6 +13,7 @@ namespace TerranEditor
 
 	void ShaderPanel::OnRender()
 	{
+		TR_PROFILE_FUNCTION();
 		if (!m_Open)
 			return;
 

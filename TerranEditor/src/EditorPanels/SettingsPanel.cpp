@@ -7,6 +7,8 @@
 #include "Project/Project.h"
 #include "Project/ProjectSerializer.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <spdlog/fmt/bundled/core.h>
 
 #include <algorithm>
@@ -20,6 +22,7 @@ namespace TerranEditor
     using namespace TerranEngine;
     void SettingsPanel::OnRender()
     {
+        TR_PROFILE_FUNCTION();
         if(!m_Open) return;
 
         ImGui::Begin(GetName(), &m_Open);

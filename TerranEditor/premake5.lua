@@ -24,8 +24,8 @@ project "TerranEditor"
         "%{IncludeDirectories.imgui}",
         "%{IncludeDirectories.glm}",
         "%{IncludeDirectories.entt}",
-        
         "%{IncludeDirectories.imguizmo}",
+        "%{IncludeDirectories.optick}",
         "%{wks.location}/TerranEditor/vendor/FontAwesome/",
     } 
     

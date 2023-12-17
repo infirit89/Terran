@@ -156,6 +156,10 @@ namespace TerranEngine
 		GCManager::CollectAll();
 		
 		mono_jit_cleanup(s_Data->CoreDomain);
+
+		// TODO:
+		//delete s_Data;
+
 		TR_INFO("Deinitialized the scripting core");
 	}
 

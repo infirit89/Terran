@@ -1,4 +1,5 @@
 #include "Core/Assert.h"
+#include "Utils/Debug/OptickProfiler.h"
 
 #include "PanelManager.h"
 
@@ -15,6 +16,7 @@ namespace TerranEditor
     }
     void PanelManager::OnEvent(Event& event)
     {
+        TR_PROFILE_FUNCTION();
         for (const auto& [panelName, panel] : m_Panels)
             panel->OnEvent(event);
     }
@@ -27,6 +29,7 @@ namespace TerranEditor
 
     void PanelManager::ImGuiRender()
     {
+        TR_PROFILE_FUNCTION();
         for (const auto& [panelName, panel] : m_Panels)
             panel->OnRender();
     }

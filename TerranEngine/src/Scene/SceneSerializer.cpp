@@ -33,6 +33,14 @@ namespace TerranEngine
 	out << YAML::Key << field->GetName() << YAML::Value << field->GetData<Type>(handle);\
 	break
 
+#define WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
+	case ScriptType::FieldType:\
+	{\
+	Type value = array.At(i);\
+	out << value;\
+	}\
+	break
+
 	static void SerializeScriptFields(YAML::Emitter& out, Entity entity) 
 	{
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
@@ -43,27 +51,64 @@ namespace TerranEngine
 			out << YAML::BeginMap;
 			ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-			switch (field->GetType().TypeEnum)
+			if(field->GetType().IsArray()) 
 			{
-				WRITE_SCRIPT_FIELD(Bool, bool);
-				WRITE_SCRIPT_FIELD(Char, wchar_t);
-				WRITE_SCRIPT_FIELD(Int8, int8_t);
-				WRITE_SCRIPT_FIELD(Int16, int16_t);
-				WRITE_SCRIPT_FIELD(Int32, int32_t);
-				WRITE_SCRIPT_FIELD(Int64, int64_t);
-				WRITE_SCRIPT_FIELD(UInt8, uint8_t);
-				WRITE_SCRIPT_FIELD(UInt16, uint16_t);
-				WRITE_SCRIPT_FIELD(UInt32, uint32_t);
-				WRITE_SCRIPT_FIELD(UInt64, uint64_t);
-				WRITE_SCRIPT_FIELD(Float, float);
-				WRITE_SCRIPT_FIELD(Double, double);
-				WRITE_SCRIPT_FIELD(String, std::string);
-				WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
-				WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
-				WRITE_SCRIPT_FIELD(Color, glm::vec4);
-				WRITE_SCRIPT_FIELD(Entity, UUID);
-				default:	TR_ERROR("Unsupported field type"); break;
+				ScriptArray array = field->GetArray(handle);
+				out << YAML::Key << field->GetName() << YAML::Value << YAML::Flow << YAML::BeginSeq;
+				
+				for(size_t i = 0; i < array.Length(); i++) 
+				{
+					switch (field->GetType().TypeEnum)
+					{
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
+						// NOTE: maybe wchar_t?
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, uint8_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+						default: TR_ASSERT(false, "Unsupported field type"); break;
+					}
+				}
+
+				out << YAML::EndSeq;
 			}
+			else 
+			{
+				switch (field->GetType().TypeEnum)
+				{
+					WRITE_SCRIPT_FIELD(Bool, bool);
+					WRITE_SCRIPT_FIELD(Char, wchar_t);
+					WRITE_SCRIPT_FIELD(Int8, int8_t);
+					WRITE_SCRIPT_FIELD(Int16, int16_t);
+					WRITE_SCRIPT_FIELD(Int32, int32_t);
+					WRITE_SCRIPT_FIELD(Int64, int64_t);
+					WRITE_SCRIPT_FIELD(UInt8, uint8_t);
+					WRITE_SCRIPT_FIELD(UInt16, uint16_t);
+					WRITE_SCRIPT_FIELD(UInt32, uint32_t);
+					WRITE_SCRIPT_FIELD(UInt64, uint64_t);
+					WRITE_SCRIPT_FIELD(Float, float);
+					WRITE_SCRIPT_FIELD(Double, double);
+					WRITE_SCRIPT_FIELD(String, std::string);
+					WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+					WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+					WRITE_SCRIPT_FIELD(Color, glm::vec4);
+					WRITE_SCRIPT_FIELD(Entity, UUID);
+					default: TR_ASSERT(false, "Unsupported field type"); break;
+				}
+			}
+
 			out << YAML::EndMap;
 		}
 	}
@@ -264,6 +309,14 @@ namespace TerranEngine
 	}\
 	break
 
+#define READ_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
+	case ScriptType::FieldType:\
+	{\
+	Utils::Variant value = scriptField[i].as<Type>();\
+	array.Set(i, value);\
+	}\
+	break
+
 	static void DeserializeScriptFields(GCHandle handle, ScriptComponent& scriptComponent, YAML::Node scriptFields) 
 	{
 		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
@@ -284,26 +337,59 @@ namespace TerranEngine
 
 			if (!valid) continue;
 			
-			switch (cachedField->GetType().TypeEnum)
+			TR_TRACE(scriptField);
+
+			if (cachedField->GetType().IsArray()) 
 			{
-				READ_SCRIPT_FIELD(Bool, bool);
-				READ_SCRIPT_FIELD(Char, char);
-				READ_SCRIPT_FIELD(Int64, int64_t);
-				READ_SCRIPT_FIELD(Int32, int32_t);
-				READ_SCRIPT_FIELD(Int16, int16_t);
-				READ_SCRIPT_FIELD(Int8, int8_t);
-				READ_SCRIPT_FIELD(UInt64, uint64_t);
-				READ_SCRIPT_FIELD(UInt32, uint32_t);
-				READ_SCRIPT_FIELD(UInt16, uint16_t);
-				READ_SCRIPT_FIELD(UInt8, uint8_t);
-				READ_SCRIPT_FIELD(Float, float);
-				READ_SCRIPT_FIELD(Double, double);
-				READ_SCRIPT_FIELD(String, std::string);
-				READ_SCRIPT_FIELD(Vector2, glm::vec2);
-				READ_SCRIPT_FIELD(Vector3, glm::vec3);
-				READ_SCRIPT_FIELD(Color, glm::vec4);
-				READ_SCRIPT_FIELD(Entity, UUID);
+				ScriptArray array = cachedField->GetArray(handle);
+				for(size_t i = 0; i < array.Length() && i < scriptField.size(); i++) 
+				{
+					switch(cachedField->GetType().TypeEnum) 
+					{
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, uint8_t);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+					}
+				}
 			}
+			else
+			{
+				switch (cachedField->GetType().TypeEnum)
+				{
+					READ_SCRIPT_FIELD(Bool, bool);
+					READ_SCRIPT_FIELD(Char, char);
+					READ_SCRIPT_FIELD(Int64, int64_t);
+					READ_SCRIPT_FIELD(Int32, int32_t);
+					READ_SCRIPT_FIELD(Int16, int16_t);
+					READ_SCRIPT_FIELD(Int8, int8_t);
+					READ_SCRIPT_FIELD(UInt64, uint64_t);
+					READ_SCRIPT_FIELD(UInt32, uint32_t);
+					READ_SCRIPT_FIELD(UInt16, uint16_t);
+					READ_SCRIPT_FIELD(UInt8, uint8_t);
+					READ_SCRIPT_FIELD(Float, float);
+					READ_SCRIPT_FIELD(Double, double);
+					READ_SCRIPT_FIELD(String, std::string);
+					READ_SCRIPT_FIELD(Vector2, glm::vec2);
+					READ_SCRIPT_FIELD(Vector3, glm::vec3);
+					READ_SCRIPT_FIELD(Color, glm::vec4);
+					READ_SCRIPT_FIELD(Entity, UUID);
+				}
+			}
+
 		}
 	}
 

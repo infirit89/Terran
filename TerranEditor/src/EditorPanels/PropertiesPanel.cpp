@@ -9,6 +9,8 @@
 
 #include "Physics/PhysicsLayerManager.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include "UI/UI.h"
 #include "EditorResources.h"
 
@@ -119,6 +121,7 @@ namespace TerranEditor
 
 	void PropertiesPanel::DrawComponents()
 	{
+		TR_PROFILE_FUNCTION();
 		// TODO: add multiselect functionality
 		const std::vector<UUID>& selected = SelectionManager::GetSelected(SelectionContext::Scene);
 		if (selected.empty())
@@ -230,7 +233,6 @@ namespace TerranEditor
 			ImGui::TableNextRow();
 			UI::PropertyVec3("End Point", lineRenderer.EndPoint);
 			UI::EndPropertyGroup();
-
 		});
 
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)

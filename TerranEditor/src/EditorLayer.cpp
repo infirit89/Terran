@@ -21,6 +21,8 @@
 
 #include "Terran.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
@@ -283,6 +285,7 @@ namespace TerranEditor
 	
 	void EditorLayer::RenderDockspace() 
 	{
+		TR_PROFILE_FUNCTION();
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoWindowMenuButton;
 			
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into
@@ -495,8 +498,13 @@ namespace TerranEditor
 
 	void EditorLayer::ImGuiRender()
 	{
-		ImGuizmo::SetOrthographic(true);
-		ImGuizmo::BeginFrame();
+		TR_PROFILE_FUNCTION();
+
+		{
+			TR_PROFILE_SCOPE("ImGuizmo_Setup");
+			ImGuizmo::SetOrthographic(true);
+			ImGuizmo::BeginFrame();
+		}
 
 		RenderDockspace();
 
@@ -508,6 +516,7 @@ namespace TerranEditor
 
 		// Renderer stats
 		{
+			TR_PROFILE_SCOPE("Render_Stats_Panel");
 			if (m_RendererStatsPanelOpen) 
 			{
 				ImGui::Begin("Renderer Stats", &m_RendererStatsPanelOpen);
@@ -525,6 +534,7 @@ namespace TerranEditor
 
 		// Performance
 		{
+			TR_PROFILE_SCOPE("Performance_Panel");
 			if (m_PerformancePanelOpen) 
 			{
 				ImGui::Begin("Performance", &m_PerformancePanelOpen);

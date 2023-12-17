@@ -5,6 +5,8 @@
 #include "EditorResources.h"
 #include "Graphics/Renderer.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include "UI/UI.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -37,6 +39,7 @@ namespace TerranEditor
 
 	void SceneViewPanel::OnRender()
 	{ 
+		TR_PROFILE_FUNCTION();
 		if (!m_Open) return;
 
 		Shared<Framebuffer> framebuffer = m_SceneRenderer->GetFramebuffer();

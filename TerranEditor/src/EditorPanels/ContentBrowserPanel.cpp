@@ -17,6 +17,8 @@
 #include "UI/UI.h"
 #include "UI/FontManager.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -53,8 +55,10 @@ namespace TerranEditor
 	}
 
 	static std::mutex s_ContentBrowserMutex;
+	// TODO: if there's a lot of items, then this will be slow; so use ImGuiListClipper
 	void ContentPanel::OnRender()
 	{
+		TR_PROFILE_FUNCTION();
 		if (!m_Open) return;
 
 		ImGuiWindowFlags contentBrowserFlags = ImGuiWindowFlags_NoScrollbar;

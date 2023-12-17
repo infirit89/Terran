@@ -7,6 +7,7 @@
 
 #include "Core/Input.h"
 #include "Project/Project.h"
+#include "Utils/Debug/OptickProfiler.h"
 
 #include "UI/UI.h"
 
@@ -34,6 +35,7 @@ namespace TerranEditor
 
 	ItemAction ContentBrowserItem::OnRender()
 	{
+		TR_PROFILE_FUNCTION();
 		ItemAction action = ItemAction::None;
 
 		const float cellSize = 74.0f;

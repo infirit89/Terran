@@ -6,6 +6,7 @@
 #include "UI/UI.h"
 
 #include "Core/Input.h"
+#include "Utils/Debug/OptickProfiler.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -33,6 +34,7 @@ namespace TerranEditor
 
 	void SceneHierarchyPanel::OnRender()
 	{
+		TR_PROFILE_FUNCTION();
 		if(m_Open)
 		{
 			ImGui::Begin(GetName(), &m_Open, ImGuiWindowFlags_NoCollapse);
@@ -57,6 +59,7 @@ namespace TerranEditor
 
 	void SceneHierarchyPanel::DrawScene()
 	{
+		TR_PROFILE_FUNCTION();
 		auto entities = m_Scene->Filter<TagComponent>([this](const TagComponent tag)
 		{
 			return m_Filter.PassFilter(tag.Name.c_str());
@@ -142,6 +145,7 @@ namespace TerranEditor
 
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
 	{
+		TR_PROFILE_FUNCTION();
 		TagComponent& tagComp = entity.GetComponent<TagComponent>();
 		std::string imguiID = fmt::format("{0} {1}", tagComp.Name, (uint32_t)entity);
 

@@ -1,5 +1,7 @@
 #include "LogPanel.h"
 
+#include "Utils/Debug/OptickProfiler.h"
+
 #include "UI/UI.h"
 #include "EditorResources.h"
 
@@ -28,6 +30,7 @@ namespace TerranEditor
 
 	void LogPanel::OnRender() 
 	{
+		TR_PROFILE_FUNCTION();
 		if (!m_Open) return;
 		
 		ImGui::Begin(GetName(), &m_Open);
@@ -58,23 +61,31 @@ namespace TerranEditor
 			
 			UI::ScopedFont mediumFont("Roboto-Regular_Medium");
 			
-			for (size_t i = 0; i < m_TextBuffer.size(); i++)
+			ImGuiListClipper logTextClipper;
+			logTextClipper.Begin(m_TextBuffer.size());
+
+			while(logTextClipper.Step()) 
 			{
-				ImGui::TableNextRow();
+				for (size_t i = logTextClipper.DisplayStart; i < logTextClipper.DisplayEnd; i++)
+				{
+					ImGui::TableNextRow();
 
-				ImU32 color;
-				if(i % 2 == 0)
-					color = ImGui::GetColorU32({ 0.19f, 0.19f, 0.19f, 1.0f });
-				else
-					color = ImGui::GetColorU32({ 0.13f, 0.13f, 0.13f, 1.0f });
+					ImU32 color;
+					if (i % 2 == 0)
+						color = ImGui::GetColorU32({ 0.19f, 0.19f, 0.19f, 1.0f });
+					else
+						color = ImGui::GetColorU32({ 0.13f, 0.13f, 0.13f, 1.0f });
 
-				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, color);
-				ImGui::TableNextColumn();
-				
-				LogMessage logMessage = m_TextBuffer[i];
-				ImDrawList* backgroundDrawList = ImGui::GetWindowDrawList();
-				ImGui::TextUnformatted(logMessage.Message.c_str());
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, color);
+					ImGui::TableNextColumn();
+
+					LogMessage logMessage = m_TextBuffer[i];
+					ImDrawList* backgroundDrawList = ImGui::GetWindowDrawList();
+					ImGui::TextUnformatted(logMessage.Message.c_str());
+				}
 			}
+
+			logTextClipper.End();
 
 			ImGui::EndTable();
 

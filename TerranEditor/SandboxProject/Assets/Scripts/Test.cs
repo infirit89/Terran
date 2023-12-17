@@ -9,7 +9,8 @@ namespace ScriptAssembly
 {
 	internal class Test : Scriptable
 	{
-		public string[] Test1;
+		public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
+		public string Test2 = "cum";
 
 		protected override void Init()
 		{
@@ -21,6 +22,8 @@ namespace ScriptAssembly
 			Log.Trace("update");
 
 			Log.Trace(Entity.Transform is null);
+
+			Log.Trace(string.Join(", ", Test1));
 		}
 	}
 }
