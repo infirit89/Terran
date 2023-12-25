@@ -65,8 +65,10 @@ namespace TerranEngine
 		TR_PROFILE_FUNCTION();
 		MonoError error;
 		char* str = mono_string_to_utf8_checked(monoStr, &error);
-		TR_ASSERT(str != nullptr, "Invalid managed string");
 
+		if (!str)
+			return "";
+		
 		if (error.error_code != MONO_ERROR_NONE) 
 		{
 			TR_ERROR("Mono Error ID: {0}; Message {1}", mono_error_get_error_code(&error), mono_error_get_message(&error));

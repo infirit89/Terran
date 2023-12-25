@@ -100,6 +100,7 @@ namespace TerranEngine
         
         inline MonoArray* GetMonoArray() const { return m_MonoArray; } 
         inline const ScriptType& GetType() const { return m_Type; }
+        inline operator bool() const { return m_MonoArray != nullptr; }
 
     public:
         template<typename T>

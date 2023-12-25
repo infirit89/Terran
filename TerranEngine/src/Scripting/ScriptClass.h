@@ -27,6 +27,7 @@ namespace TerranEngine
 		inline const std::string&  GetName() const { return m_ClassName; }
 		inline const std::string& GetNamespace() const { return m_Namespace; }
 		inline std::string GetFullName() const { return fmt::format("{0}.{1}", m_Namespace, m_ClassName); }
+		inline operator MonoClass* () const { return m_MonoClass; }
 	
 		ScriptClass GetParent();
 		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }

@@ -155,7 +155,7 @@ namespace TerranEditor::UI
 	bool PropertyVec2(const std::string& label, glm::vec2& value);
 	bool PropertyEntity(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
 	void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle);
-	bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, const std::string& fieldName, TerranEngine::ScriptArray& array);
+	bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, TerranEngine::ScriptArray& array);
 	bool PropertyFloat(const std::string& label, float& value);
 	bool PropertyInt(const std::string& label, int& value);
 	bool PropertyBool(const std::string& label, bool& value);

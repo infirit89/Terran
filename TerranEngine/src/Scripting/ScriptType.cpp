@@ -95,9 +95,8 @@ namespace TerranEngine
             monoTypeClass = mono_class_from_mono_type(monoType);
 
         // NOTE: kinda shit; try to make better
-        ScriptClass tempClass(monoTypeClass);
-        m_TypeClass = ScriptCache::GetCachedClassFromName(tempClass.GetFullName());
-
+        m_TypeClass = ScriptClass(monoTypeClass);
+        
         GetUnmanagedType(m_MonoType);
         
         int alignment = 0;
@@ -113,9 +112,9 @@ namespace TerranEngine
 
     ScriptType::~ScriptType() { }
 
-    ScriptType ScriptType::FromClass(const ScriptClass& klass)
+    ScriptType ScriptType::FromClass(MonoClass* monoClass)
     {
-        MonoType* type = mono_class_get_type(klass.GetMonoClass());
+        MonoType* type = mono_class_get_type(monoClass);
         return { type };
     }
 
@@ -132,7 +131,7 @@ namespace TerranEngine
     bool ScriptType::IsPointer() const  { return mono_type_is_pointer(m_MonoType); }
     bool ScriptType::IsVoid() const     { return mono_type_is_void(m_MonoType); }
     bool ScriptType::IsObject() const   { return m_TypeEncoding == MONO_TYPE_OBJECT; }
-    bool ScriptType::IsEnum() const     { return mono_class_is_enum(m_TypeClass->GetMonoClass()); }
+    bool ScriptType::IsEnum() const     { return mono_class_is_enum(m_TypeClass); }
 
     ScriptType& ScriptType::operator=(const ScriptType& other)
     {

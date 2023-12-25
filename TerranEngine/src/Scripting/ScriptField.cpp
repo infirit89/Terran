@@ -212,26 +212,31 @@ namespace TerranEngine
 			m_Type = m_Type.GetElementType();
 	}
 
-	void ScriptField::CopyData(GCHandle from, GCHandle to)
+	void ScriptField::CopyData(GCHandle sourceHandle, GCHandle destinationHandle)
 	{
 		if(m_Type.IsArray())
 		{
-			ScriptArray fromArr = GetArray(from);
-			ScriptArray toArr = GetArray(to);
+			ScriptArray sourceArray = GetArray(sourceHandle);
+			ScriptArray destinationArray = GetArray(destinationHandle);
 
-			if(fromArr.Length() != toArr.Length())
-				toArr.Resize(fromArr.Length());
+			if(sourceArray.Length() != destinationArray.Length()) 
+			{
+				if (destinationArray)
+					destinationArray.Resize(sourceArray.Length());
+				else
+					destinationArray = ScriptArray(sourceArray.GetType().GetTypeClass(), sourceArray.Length());
+			}
 
-			for (uint32_t i = 0; i < fromArr.Length(); i++)
-				toArr.Set(i, fromArr[i]);
+			for (uint32_t i = 0; i < sourceArray.Length(); i++)
+				destinationArray.Set(i, sourceArray[i]);
 
-			SetArray(toArr, to);
+			SetArray(destinationArray, destinationHandle);
 
 			return;
 		}
 			
-		const auto& val = GetData<Utils::Variant>(from);
-		SetData<Utils::Variant>(val, to);
+		const auto& val = GetData<Utils::Variant>(sourceHandle);
+		SetData<Utils::Variant>(val, destinationHandle);
 	}
 
 	bool ScriptField::IsStatic() const { return mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_STATIC; }

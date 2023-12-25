@@ -9,7 +9,7 @@
 #pragma warning(push)
 #pragma warning(disable : 4834)
 
-namespace TerranEngine 
+namespace TerranEngine
 {
 	class Entity 
 	{

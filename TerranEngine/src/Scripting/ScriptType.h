@@ -3,6 +3,7 @@
 extern "C"
 {
     typedef struct _MonoType MonoType;
+    typedef struct _MonoClass MonoClass;
 }
 
 namespace TerranEngine
@@ -17,11 +18,11 @@ namespace TerranEngine
         ScriptType(const ScriptType& other);
         ~ScriptType();
 
-        static ScriptType FromClass(const ScriptClass& klass);
+        static ScriptType FromClass(MonoClass* monoClass);
         ScriptType GetElementType() const;
         
         inline MonoType* GetMonoType() const { return m_MonoType; }
-        inline ScriptClass* GetTypeClass() const { return m_TypeClass; }
+        inline MonoClass* GetTypeClass() const { return m_TypeClass; }
         inline int GetSize() const { return m_Size; }
         
         bool IsArray() const;
@@ -60,7 +61,7 @@ namespace TerranEngine
         void GetUnmanagedType(MonoType* monoType);
         
         MonoType* m_MonoType = nullptr;
-        ScriptClass* m_TypeClass = nullptr;
+        MonoClass* m_TypeClass = nullptr;
         int m_TypeEncoding = 0;
         int m_Size = 0;
     };

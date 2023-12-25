@@ -290,7 +290,7 @@ namespace TerranEditor
 					{
 						UI::EndPropertyGroup();
 						ScriptArray array = field->GetArray(handle);
-						if (UI::PropertyScriptArrayField(m_Scene, field->GetName(), array))
+						if (UI::PropertyScriptArrayField(m_Scene, field, array))
 							field->SetArray(array, handle);
 
 						UI::BeginPropertyGroup("script_properties");

@@ -117,7 +117,7 @@ namespace TerranEngine
         ScriptArray array;
         array.m_MonoArray = monoArray;
         array.m_Length = mono_array_length(monoArray);
-        array.m_Type = ScriptType::FromClass(*elementType.GetTypeClass());
+        array.m_Type = ScriptType::FromClass(elementType.GetTypeClass());
         return array;
     }
 
@@ -174,7 +174,7 @@ namespace TerranEngine
 
     void ScriptArray::Resize(size_t size)
     {
-        MonoArray* tempArr = mono_array_new(mono_domain_get(), (*m_Type.GetTypeClass()).GetMonoClass(), size);
+        MonoArray* tempArr = mono_array_new(mono_domain_get(), m_Type.GetTypeClass(), size);
 
         const size_t copyCount = m_Length > size ? size : m_Length;
         char* tempArrAddr = mono_array_addr_with_size(tempArr, m_Type.GetSize(), 0);
@@ -216,6 +216,4 @@ namespace TerranEngine
         
         //return nullptr;
     //}
-
-
 }

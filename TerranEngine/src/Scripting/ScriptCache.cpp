@@ -197,8 +197,8 @@ namespace TerranEngine
 					std::string fullFieldName = fmt::format("{0}.{1}", moduleName, field.GetName());
 					uint32_t fieldID = Hash::FNVHash(fullFieldName);
 					field.m_ID = fieldID;
-					s_CachedFields.emplace(fieldID, std::move(field));
 					klass->m_Fields.push_back(field);
+					s_CachedFields.emplace(fieldID, std::move(field));
 				}
 			}
 		}

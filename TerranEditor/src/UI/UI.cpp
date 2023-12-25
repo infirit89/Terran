@@ -1230,7 +1230,7 @@ namespace TerranEditor
 	{
 		TR_ASSERT(handle, "Invalid handle");
 
-		ScriptClass* typeClass = field->GetType().GetTypeClass();
+		const ScriptClass& typeClass = field->GetType().GetTypeClass();
 		std::vector<ScriptField> enumFields;
 
 		switch (field->GetType().TypeEnum)
@@ -1575,9 +1575,11 @@ namespace TerranEditor
 	}																\
 	break
 
-	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)
+	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, TerranEngine::ScriptField* field, ScriptArray& array)
 	{
 		bool hasChanged = false;
+
+		UI::PushID();
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth |
 									ImGuiTreeNodeFlags_FramePadding |
 									ImGuiTreeNodeFlags_AllowItemOverlap;
@@ -1586,15 +1588,21 @@ namespace TerranEditor
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 
-		bool opened = ImGui::TreeNodeEx(fieldName.c_str(), flags);
+		bool opened = ImGui::TreeNodeEx(field->GetName().c_str(), flags);
 
 		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
 
 		ImGui::PushItemWidth(lineHeight * 1.5f);
 		size_t arrayLength = array.Length();
-		if (UI::DragScalar<uint64_t>("##array_size", &arrayLength, 0.1f))
+
+		std::string name = fmt::format("##{0}{1}", field->GetName().c_str(), "array_size");
+		if (UI::DragScalar<uint64_t>(name.c_str(), &arrayLength, 0.1f))
 		{
-			array.Resize(arrayLength);
+			if (array)
+				array.Resize(arrayLength);
+			else
+				array = ScriptArray(field->GetType().GetTypeClass(), arrayLength);
+
 			hasChanged = true;
 		}
 		ImGui::PopItemWidth();
@@ -1671,6 +1679,8 @@ namespace TerranEditor
 			ImGui::TreePop();
 		}
 		ImGui::Indent(20.0f);
+
+		UI::PopID();
 
 		return hasChanged;
 	}
