@@ -160,7 +160,6 @@ namespace TerranEditor
 
 				if (physicsBody && isScenePlaying)
 					physicsBody->SetPosition({ component.Position.x, component.Position.y });
-
 			}
 
 			ImGui::TableNextRow();
@@ -197,7 +196,7 @@ namespace TerranEditor
 				const char* textureFilterNames[textureFilterNamesSize] = 
 				{ 
 					"Linear",
-					"Nearest" 
+					"Nearest"
 				};
 
 				TextureFilter filter = texture->GetTextureParameters().Filter;
@@ -285,23 +284,25 @@ namespace TerranEditor
 
 				for (const auto& fieldID : component.PublicFieldIDs)
 				{
-					ImGui::TableNextRow();
 					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
 					if (field->GetType().IsArray())
 					{
+						UI::EndPropertyGroup();
 						ScriptArray array = field->GetArray(handle);
 						if (UI::PropertyScriptArrayField(m_Scene, field->GetName(), array))
 							field->SetArray(array, handle);
+
+						UI::BeginPropertyGroup("script_properties");
 					}
-					else
+					else 
+					{
+						ImGui::TableNextRow();
 						UI::PropertyScriptField(m_Scene, field, handle);
-
-
+					}
 				}
 			}
 			UI::EndPropertyGroup();
-
 		});
 
 		DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [&](Rigidbody2DComponent& rbComponent)

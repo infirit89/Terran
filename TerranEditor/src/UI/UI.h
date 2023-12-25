@@ -163,7 +163,7 @@ namespace TerranEditor::UI
 	bool Button(const std::string& label, const char* buttonLabel);
 
 	template<typename T>
-	bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0) 
+	bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0)
 	{
 		TR_ASSERT(ImGuiDataTypeMap.find(typeid(T)) != ImGuiDataTypeMap.end(), "Invalid data type");
 

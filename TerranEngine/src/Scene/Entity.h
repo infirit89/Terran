@@ -74,7 +74,15 @@ namespace TerranEngine
 			
 			return m_Scene->m_Registry.all_of<Component>(m_Handle);
 		}
-		
+
+		// visit all the components of an entity
+		// the signiture of Func should be void(const entt::type_info)
+		template<typename Func>
+		inline void Visit(Entity entity, Func func)  const
+		{
+			m_Scene->m_Registry.visit(entity, std::forward<Func>(func));
+		}
+
 		// base stuffs
 		inline const UUID& GetID() const							{ return GetComponent<TagComponent>().ID; }
 		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); }

@@ -1215,12 +1215,16 @@ namespace TerranEditor
 			field->SetData<Utils::Variant>(value, handle);
 	}
 
-#define DRAW_FIELD_PROPERTY_SCALAR(Type)\
-	DrawFieldValue<Type>(field, handle,\
-	[](const std::string& fieldName, auto& value, const ScriptType& fieldType)\
+#define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)\
+	case ScriptType::FieldType:\
 	{\
-		return PropertyScalar(fieldName, value);\
-	})
+		DrawFieldValue<Type>(field, handle,\
+		[](const std::string& fieldName, auto& value, const ScriptType& fieldType)\
+		{\
+			return PropertyScalar(fieldName, value);\
+		});\
+	}\
+	break
 
 	void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
 	{
@@ -1248,66 +1252,26 @@ namespace TerranEditor
 				{
 					// TODO: support wide strings
 					std::string strVal; strVal += (char)value;
-			bool changed = PropertyString(fieldName, strVal, 0, 2);
+					bool changed = PropertyString(fieldName, strVal, 0, 2);
 
-			if (strVal.empty()) return false;
-			value = strVal.at(0);
+					if (strVal.empty()) return false;
+					value = strVal.at(0);
 
-			return changed;
+					return changed;
 				});
 
 			break;
 		}
-		case ScriptType::Int8:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(int8_t);
-			break;
-		}
-		case ScriptType::Int16:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(int16_t);
-			break;
-		}
-		case ScriptType::Int32:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(int32_t);
-			break;
-		}
-		case ScriptType::Int64:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(int64_t);
-			break;
-		}
-		case ScriptType::UInt8:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(uint8_t);
-			break;
-		}
-		case ScriptType::UInt16:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(uint16_t);
-			break;
-		}
-		case ScriptType::UInt32:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(uint32_t);
-			break;
-		}
-		case ScriptType::UInt64:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(uint64_t);
-			break;
-		}
-		case ScriptType::Float:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(float);
-			break;
-		}
-		case ScriptType::Double:
-		{
-			DRAW_FIELD_PROPERTY_SCALAR(double);
-			break;
-		}
+		DRAW_FIELD_PROPERTY_SCALAR(Int8, int8_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Int16, int16_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Int32, int32_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Int64, int64_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt8, uint8_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt16, uint16_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt32, uint32_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Float, float);
+		DRAW_FIELD_PROPERTY_SCALAR(Double, double);
 		case ScriptType::String:
 		{
 			DrawFieldValue<std::string>(field, handle,
@@ -1587,11 +1551,36 @@ namespace TerranEditor
 
 	}
 
+#define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)		\
+	case ScriptType::FieldType:								\
+	{														\
+		Type value = array.Get<Type>(i);					\
+		if(UI::PropertyScalar<Type>(elementName, value))	\
+		{													\
+			array.Set<Type>(i, value);						\
+			hasChanged = true;								\
+		}													\
+	}														\
+	break
+
+#define DRAW_FIELD_ARRAY_VALUE_OBJECT(FieldType, Type, DrawFunc)	\
+	case ScriptType::FieldType:										\
+	{																\
+		Type value = array.At(i);									\
+		if(DrawFunc(elementName, value))							\
+		{															\
+			array.Set<Utils::Variant>(i, value);					\
+			hasChanged = true;										\
+		}															\
+	}																\
+	break
+
 	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, const std::string& fieldName, ScriptArray& array)
 	{
 		bool hasChanged = false;
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding |
-			ImGuiTreeNodeFlags_AllowItemOverlap;
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth |
+									ImGuiTreeNodeFlags_FramePadding |
+									ImGuiTreeNodeFlags_AllowItemOverlap;
 
 		ImGui::Unindent(20.0f);
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
@@ -1603,20 +1592,24 @@ namespace TerranEditor
 
 		ImGui::PushItemWidth(lineHeight * 1.5f);
 		size_t arrayLength = array.Length();
-		if (ImGui::DragScalar("##array_size", ImGuiDataType_U64, &arrayLength, 0.1f, nullptr, nullptr, nullptr))
+		if (UI::DragScalar<uint64_t>("##array_size", &arrayLength, 0.1f))
 		{
 			array.Resize(arrayLength);
 			hasChanged = true;
 		}
 		ImGui::PopItemWidth();
 
-		ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow |
-			ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_FramePadding;
+		ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth |
+											ImGuiTreeNodeFlags_OpenOnArrow |
+											ImGuiTreeNodeFlags_Leaf |
+											ImGuiTreeNodeFlags_FramePadding;
 
 		if (opened)
 		{
+			UI::BeginPropertyGroup("script_array_values");
 			for (uint32_t i = 0; i < array.Length(); i++)
 			{
+				ImGui::TableNextRow();
 				std::string elementName = std::to_string(i);
 				switch (array.GetType().TypeEnum)
 				{
@@ -1647,186 +1640,33 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptType::Int8:
-				{
-					int8_t value = array.Get<int8_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int16:
-				{
-					int16_t value = array.Get<int16_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int32:
-				{
-					int32_t value = array.Get<int32_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Int64:
-				{
-					int64_t value = array.Get<int64_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt8:
-				{
-					uint8_t value = array.Get<uint8_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt16:
-				{
-					uint16_t value = array.Get<uint16_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt32:
-				{
-					uint32_t value = array.Get<uint32_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::UInt64:
-				{
-					uint64_t value = array.Get<uint64_t>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Float:
-				{
-					float value = array.Get<float>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Double:
-				{
-					double value = array.Get<double>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::String:
-				{
-					std::string value = array.At(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set<Utils::Variant>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Vector2:
-				{
-					glm::vec2 value = array.Get<glm::vec2>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set<glm::vec2>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Vector3:
-				{
-					glm::vec3 value = array.Get<glm::vec3>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set<glm::vec3>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case ScriptType::Color:
-				{
-					glm::vec4 value = array.Get<glm::vec4>(i);
-
-					if (UI::DragScalar(elementName.c_str(), &value))
-					{
-						array.Set<glm::vec4>(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int8, int8_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int16, int16_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int32, int32_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int64, int64_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt8, uint8_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt16, uint16_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt32, uint32_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt64, uint64_t);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(Float, float);
+				DRAW_FIELD_ARRAY_VALUE_SCALAR(Double, double);
+				DRAW_FIELD_ARRAY_VALUE_OBJECT(String, std::string, UI::PropertyString);
+				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector2, glm::vec2, UI::PropertyVec2);
+				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector3, glm::vec3, UI::PropertyVec3);
+				DRAW_FIELD_ARRAY_VALUE_OBJECT(Color, glm::vec4, UI::PropertyColor);
 				case ScriptType::Entity:
 				{
-					UUID value = array.Get<UUID>(i);
-					if (UI::DragScalar(elementName.c_str(), &value))
+					UUID value = array.At(i);
+					if (UI::PropertyEntity(elementName, value, scene))
 					{
-						array.Set<UUID>(i, value);
+						array.Set<Utils::Variant>(i, value);
 						hasChanged = true;
 					}
 					break;
 				}
 				}
 			}
+			UI::EndPropertyGroup();
 
 			ImGui::TreePop();
 		}
