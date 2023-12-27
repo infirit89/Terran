@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ScriptClass.h"
+#include "ManagedClass.h"
 #include "GCManager.h"
 
 #include "Core/Base.h"
@@ -25,10 +25,10 @@ namespace TerranEngine
 
 		static void ReloadAppAssembly();
 		
-		static ScriptClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
-		static ScriptClass GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex);
+		static ManagedClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
+		static ManagedClass GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex);
 		
-		static ScriptMethod GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex);
+		static ManagedMethod GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex);
 		static bool ClassExists(const std::string& moduleName);
 
 		static Shared<ScriptAssembly>& GetAssembly(int assemblyIndex);
@@ -44,7 +44,7 @@ namespace TerranEngine
 		
 		static void OnPhysicsUpdate(Entity entity);
 
-		static ScriptObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
+		static ManagedObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
 
         static bool LoadAppAssembly();

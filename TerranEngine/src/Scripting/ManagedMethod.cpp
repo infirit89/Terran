@@ -1,7 +1,7 @@
 #include "trpch.h"
-#include "ScriptMethod.h"
+#include "ManagedMethod.h"
 
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/debug-helpers.h>
@@ -11,7 +11,7 @@
 
 namespace TerranEngine 
 {
-	ScriptMethod::ScriptMethod(MonoMethod* monoMethod)
+	ManagedMethod::ManagedMethod(MonoMethod* monoMethod)
 		: m_MonoMethod(monoMethod)
 	{
 		if(monoMethod)
@@ -20,7 +20,7 @@ namespace TerranEngine
 		}
 	}
 
-	ScriptObject ScriptMethod::Invoke(ScriptObject& scriptObject, void** args)
+	ManagedObject ManagedMethod::Invoke(ManagedObject& scriptObject, void** args)
 	{
 		MonoException* exc;
 		size_t paramsSize = 0;
@@ -40,7 +40,7 @@ namespace TerranEngine
 		return rtVal;
 	}
 
-	ScriptObject ScriptMethod::InvokeStatic(void** args)
+	ManagedObject ManagedMethod::InvokeStatic(void** args)
 	{
 		MonoException* exc;
 		size_t paramsSize = 0;

@@ -8,7 +8,7 @@ extern "C"
 
 namespace TerranEngine
 {
-    class ScriptClass;
+    class ManagedClass;
     class ScriptType
     {
     public:

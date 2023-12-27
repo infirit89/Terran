@@ -28,5 +28,6 @@ namespace TerranEngine
 
         static void SetFieldDataUUID(UUID value, GCHandle handle, MonoClassField* monoField);
         static UUID GetFieldDataUUID(GCHandle handle, MonoClassField* monoField);
+        static MonoClass* GetMonoClassFromMonoObject(MonoObject* object);
     };
 }

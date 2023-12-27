@@ -2,7 +2,7 @@
 
 #include "Core/PlatformCheck.h"
 
-#include "ScriptMethod.h"
+#include "ManagedMethod.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 
@@ -27,7 +27,7 @@ namespace TerranEngine
 	public:
 		ScriptMethodThunks() = default;
 
-		void SetFromMethod(ScriptMethod* method) 
+		void SetFromMethod(ManagedMethod* method) 
 		{
 			TR_ASSERT(method, "Invalid method");
 
@@ -56,7 +56,7 @@ namespace TerranEngine
 	public:
 		ScriptMethodThunksR() = default;
 
-		void SetFromMethod(ScriptMethod* method)
+		void SetFromMethod(ManagedMethod* method)
 		{
 			if (method == nullptr)
 				return;

@@ -6,7 +6,7 @@
 #include "GCManager.h"
 #include "ScriptCache.h"
 #include "ScriptArray.h"
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 #include "ScriptMethodThunks.h"
 
 #include "Core/Input.h"
@@ -244,7 +244,7 @@ namespace TerranEngine
 			if (s_HasComponentFuncs.find(monoType) != s_HasComponentFuncs.end())
 				return s_HasComponentFuncs[monoType](entity);
 
-			ScriptClass klass(mono_class_from_mono_type(monoType));
+			ManagedClass klass(mono_class_from_mono_type(monoType));
 			if (klass.IsSubclassOf(TR_API_CACHED_CLASS(Scriptable))) return entity.HasComponent<ScriptComponent>() && 
 																	entity.GetComponent<ScriptComponent>().ModuleName == mono_type_get_name(monoType);
 			return false;
@@ -267,7 +267,7 @@ namespace TerranEngine
 				return;
 			}
 
-			ScriptClass klass (mono_class_from_mono_type(monoType));
+			ManagedClass klass (mono_class_from_mono_type(monoType));
 			if (klass.IsSubclassOf(TR_API_CACHED_CLASS(Scriptable))) entity.AddComponent<ScriptComponent>(mono_type_get_name(monoType));
 
 			/*switch (type)
@@ -363,12 +363,12 @@ namespace TerranEngine
 				return nullptr;
 			
 			ScriptArray childrenIDs = ScriptArray::Create<UUID>(static_cast<uint32_t>(entity.GetChildCount()));
-			ScriptClass* idClass = TR_API_CACHED_CLASS(UUID);
+			ManagedClass* idClass = TR_API_CACHED_CLASS(UUID);
 			
 			int i = 0;
 			for (const UUID& id : entity.GetChildren())
 			{
-				ScriptObject idObject = ScriptObject::CreateInstace(*idClass);
+				ManagedObject idObject = idClass->CreateInstance();
 				MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
 
 				MonoException* exc = nullptr;
@@ -634,13 +634,13 @@ namespace TerranEngine
 			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
 
 			void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
-			ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
-			ScriptMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+			ManagedObject entityObj = TR_API_CACHED_CLASS(Entity)->CreateInstance();
+			ManagedMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 			entityConstructor->Invoke(entityObj, entityCtorArgs);
 
 			void* rigidbodyCtorArgs[] = { entityObj.GetMonoObject() };
-			ScriptObject rigidbodyObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Rigidbody2D));
-			ScriptMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
+			ManagedObject rigidbodyObj = TR_API_CACHED_CLASS(Rigidbody2D)->CreateInstance();
+			ManagedMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
 			rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
 			outHitInfo.UUID = rigidbodyObj.GetMonoObject();
 
@@ -673,13 +673,13 @@ namespace TerranEngine
 				ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
 
 				void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
-				ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
-				ScriptMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+				ManagedObject entityObj = TR_API_CACHED_CLASS(Entity)->CreateInstance();
+				ManagedMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 				entityConstructor->Invoke(entityObj, entityCtorArgs);
 
 				void* rigidbodyCtorArgs[] = { entityObj.GetMonoObject() };
-				ScriptObject rigidbodyObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Rigidbody2D));
-				ScriptMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
+				ManagedObject rigidbodyObj = TR_API_CACHED_CLASS(Rigidbody2D)->CreateInstance();
+				ManagedMethod* rigidbodyConstructor = ScriptCache::GetCachedMethod("Terran.Rigidbody2D", ":.ctor(Entity)");
 				rigidbodyConstructor->Invoke(rigidbodyObj, rigidbodyCtorArgs);
 				hitInfo.UUID = rigidbodyObj.GetMonoObject();
 

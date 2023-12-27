@@ -1,7 +1,7 @@
 #include "trpch.h"
 #include "ScriptMarshal.h"
 #include "ScriptCache.h"
-#include "ScriptClass.h"
+#include "ManagedClass.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 

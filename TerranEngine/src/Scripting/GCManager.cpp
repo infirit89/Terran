@@ -1,7 +1,7 @@
 #include "trpch.h"
 #include "GCManager.h"
 
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 
@@ -14,13 +14,13 @@ namespace TerranEngine
         : m_Handle(handle), m_HandleType(handleType)
     { }
 
-    GCHandle GCManager::CreateWeakHandle(const ScriptObject& object, bool trackResurrection)
+    GCHandle GCManager::CreateWeakHandle(const ManagedObject& object, bool trackResurrection)
     {
         uint32_t handle = mono_gchandle_new_weakref(object.GetMonoObject(), trackResurrection);
         return { handle, GCHandleType::Weak };
     }
 
-    GCHandle GCManager::CreateStrongHandle(const ScriptObject& object, bool pinned)
+    GCHandle GCManager::CreateStrongHandle(const ManagedObject& object, bool pinned)
     {
         uint32_t handle = mono_gchandle_new(object.GetMonoObject(), pinned);
         return { handle, GCHandleType::Strong };

@@ -7,9 +7,10 @@
 #include "ScriptCache.h"
 #include "ScriptMethodThunks.h"
 #include "ScriptAssembly.h"
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 #include "ScriptArray.h"
 #include "ScriptUtils.h"
+#include "ManagedMetadata.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -226,7 +227,7 @@ namespace TerranEngine
 				GCHandle handle = InitializeScriptable(entity);
 				if (!handle) continue;
 
-				ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
+				ManagedClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
 
 				for (ScriptField& field : klass->GetFields())
 				{
@@ -293,8 +294,7 @@ namespace TerranEngine
 			return false;
 		}
 
-        Shared<AssemblyInfo> assemblyInfo = appAssembly->GenerateAssemblyInfo();
-        ScriptCache::GenerateCacheForAssembly(assemblyInfo);
+        ScriptCache::GenerateCacheForAssembly(appAssembly);
 
 		return true;
 	}
@@ -329,9 +329,9 @@ namespace TerranEngine
 		ScriptCache::ClearCache();
 	}
 
-	ScriptClass ScriptEngine::GetClassFromName(const std::string& moduleName, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetClassFromName(moduleName); }
-	ScriptClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetClassFromTypeToken(typeToken); }
-	ScriptMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetMethodFromDesc(methodDesc); }
+	ManagedClass ScriptEngine::GetClassFromName(const std::string& moduleName, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetClassFromName(moduleName); }
+	ManagedClass ScriptEngine::GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetClassFromTypeToken(typeToken); }
+	ManagedMethod ScriptEngine::GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex) { return s_Data->Assemblies[assemblyIndex]->GetMethodFromDesc(methodDesc); }
 	bool ScriptEngine::ClassExists(const std::string& moduleName) { return ScriptCache::GetCachedClassFromName(moduleName); }
 	Shared<ScriptAssembly>& ScriptEngine::GetAssembly(int assemblyIndex) { return s_Data->Assemblies.at(assemblyIndex); }
 
@@ -354,7 +354,7 @@ namespace TerranEngine
 		if (s_Data->ScriptInstanceMap.find(entity.GetID()) != s_Data->ScriptInstanceMap.end())
 			return { };
 
-		ScriptClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
+		ManagedClass* klass = ScriptCache::GetCachedClassFromName(scriptComponent.ModuleName);
 			
 		if (!klass) return { };
 
@@ -366,7 +366,7 @@ namespace TerranEngine
 		}
 
 		ScriptableInstance instance;
-		const ScriptObject object = ScriptObject::CreateInstace(*klass);
+		const ManagedObject object = klass->CreateInstance();
 		instance.ObjectHandle = GCManager::CreateStrongHandle(object);
 		instance.GetMethods();
 
@@ -494,7 +494,7 @@ namespace TerranEngine
 		}
 	}
 
-	ScriptObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
+	ManagedObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID)
 	{
 		const ScriptableInstance instance = GetInstance(sceneUUID, entityUUID);
 		return GCManager::GetManagedObject(instance.ObjectHandle);

@@ -2,9 +2,9 @@
 
 #include "ScriptArray.h"
 #include "ScriptCache.h"
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 #include "ScriptType.h"
-#include "ScriptClass.h"
+#include "ManagedClass.h"
 #include "ScriptMarshal.h"
 
 #include "Utils/Debug/OptickProfiler.h"
@@ -111,8 +111,8 @@ namespace TerranEngine
     ScriptArray ScriptArray::Create(MonoArray* monoArray)
     {
         TR_PROFILE_FUNCTION();
-        ScriptObject arrayObject((MonoObject*)monoArray);
-        const ScriptType arrayType = ScriptType::FromClass(arrayObject.GetClass());
+        ManagedObject arrayObject((MonoObject*)monoArray);
+        const ScriptType arrayType = ScriptType::FromClass(ScriptUtils::GetMonoClassFromMonoObject(arrayObject));
         ScriptType elementType = arrayType.GetElementType();
         ScriptArray array;
         array.m_MonoArray = monoArray;

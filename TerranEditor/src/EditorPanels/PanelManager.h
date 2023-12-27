@@ -19,7 +19,7 @@ namespace TerranEditor
         ~PanelManager() = default;
 
         template<typename T>
-        TerranEngine::Shared<T> AddPanel(const std::string& panelName)
+        TerranEngine::Shared<T> AddPanel(std::string_view panelName)
         {
             TerranEngine::Shared<T> panel = TerranEngine::CreateShared<T>();
             uint32_t hashedPanelName = TerranEngine::Hash::FNVHash(panelName);
@@ -41,10 +41,9 @@ namespace TerranEditor
 
         void ImGuiRender();
 
-        void SetPanelOpen(const std::string& panelName, bool open);
+        void SetPanelOpen(std::string_view panelName, bool open);
 
     private:
         std::unordered_map<uint32_t, TerranEngine::Shared<EditorPanel>> m_Panels;
     };
 }
-

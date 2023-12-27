@@ -11,107 +11,15 @@ namespace TerranEngine
 {
     ScriptAssembly::ScriptAssembly(MonoAssembly* monoAssembly)
         : m_MonoAssembly(monoAssembly), m_MonoImage(mono_assembly_get_image(monoAssembly))
-    {
-    }
+    { }
 
-    Shared<AssemblyInfo> ScriptAssembly::GenerateAssemblyInfo()
-    {
-        Shared<AssemblyInfo> info = CreateShared<AssemblyInfo>();
-
-        const MonoTableInfo* typedefTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_TYPEDEF);
-        const MonoTableInfo* methodTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_METHOD);
-        const MonoTableInfo* fieldTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_FIELD);
-        const MonoTableInfo* propertyMapTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_PROPERTYMAP);
-        const MonoTableInfo* propertyTableInfo = mono_image_get_table_info(m_MonoImage, MONO_TABLE_PROPERTY);
-        
-        const int typedefTableRows = mono_table_info_get_rows(typedefTableInfo);
-        const int methodTableRows = mono_table_info_get_rows(methodTableInfo);
-        const int fieldTableRows = mono_table_info_get_rows(fieldTableInfo);
-        const int propertyMapTableRows = mono_table_info_get_rows(propertyMapTableInfo);
-        const int propertyTableRows = mono_table_info_get_rows(propertyTableInfo);
-        
-        for (int i = 1; i < typedefTableRows; i++)
-        {
-            uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(typedefTableInfo, i, cols, MONO_TYPEDEF_SIZE);
-
-            //uint32_t typeToken = ((i + 1) | MONO_TOKEN_TYPE_DEF);
-            
-            std::string namespaceName = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAMESPACE]);
-            std::string className = mono_metadata_string_heap(m_MonoImage, cols[MONO_TYPEDEF_NAME]);
-            
-            uint32_t nextCol[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(typedefTableInfo, std::min(i + 1, typedefTableRows - 1), nextCol, MONO_TYPEDEF_SIZE);
-
-            const uint32_t methodMax = i == typedefTableRows - 1 ? methodTableRows : nextCol[MONO_TYPEDEF_METHOD_LIST] - 1;
-
-            std::string moduleName = fmt::format("{0}.{1}", namespaceName, className);
-            for (size_t typedefMethodIndex = cols[MONO_TYPEDEF_METHOD_LIST] - 1; typedefMethodIndex < methodMax; typedefMethodIndex++)
-            {
-                uint32_t methodCols[MONO_METHOD_SIZE];
-
-                mono_metadata_decode_row(methodTableInfo, static_cast<int>(typedefMethodIndex), methodCols, MONO_METHOD_SIZE);
-                std::string methodName = mono_metadata_string_heap(m_MonoImage, methodCols[MONO_METHOD_NAME]);
-                
-                const char* blob = mono_metadata_blob_heap(m_MonoImage, methodCols[MONO_METHOD_SIGNATURE]);
-                
-                const char* c;
-                uint32_t val = mono_metadata_decode_value(blob, &c);
-                const char* cc;
-                MonoMethodSignature* signature = mono_metadata_parse_method_signature(m_MonoImage, val, c, &cc);
-                
-                char* methodDesc = mono_signature_get_desc(signature, false);
-                std::string formattedMethodDesc = fmt::format(":{0}({1})", methodName, methodDesc);
-                
-                info->MethodInfoMap[moduleName].emplace_back(std::move(formattedMethodDesc));
-
-                mono_metadata_free_method_signature(signature);
-            }
-
-            const uint32_t fieldMax = i == typedefTableRows - 1 ? fieldTableRows : nextCol[MONO_TYPEDEF_FIELD_LIST] - 1;
-            for (size_t typedefFieldIndex = cols[MONO_TYPEDEF_FIELD_LIST] - 1; typedefFieldIndex < fieldMax; typedefFieldIndex++)
-            {
-                uint32_t fieldCols[MONO_FIELD_SIZE];
-                mono_metadata_decode_row(fieldTableInfo, static_cast<int>(typedefFieldIndex), fieldCols, MONO_FIELD_SIZE);
-                //uint32_t fieldTypeToken = (j + 1) | MONO_TOKEN_FIELD_DEF;
-                std::string fieldName = mono_metadata_string_heap(m_MonoImage, fieldCols[MONO_FIELD_NAME]);
-                info->FieldInfoMap[moduleName].emplace_back(fieldName);
-            }
-            
-            info->ClassInfoMap[namespaceName].emplace_back(className);
-        }
-
-        // for (int i = 0; i < propertyMapTableRows; i++)
-        // {
-        //     uint32_t propertyMapCols[MONO_PROPERTY_MAP_SIZE];
-        //     mono_metadata_decode_row(propertyMapTableInfo, i, propertyMapCols, MONO_PROPERTY_MAP_SIZE);
-        //
-        //     uint32_t typedefCols[MONO_TYPEDEF_SIZE];
-        //     mono_metadata_decode_row(typedefTableInfo, propertyMapCols[MONO_PROPERTY_MAP_PARENT],
-        //         typedefCols, MONO_TYPEDEF_SIZE);
-        //
-        //     std::string namespaceName = mono_metadata_string_heap(m_MonoImage, typedefCols[MONO_TYPEDEF_NAMESPACE]);
-        //     std::string className = mono_metadata_string_heap(m_MonoImage, typedefCols[MONO_TYPEDEF_NAME]);
-        //     std::string moduleName = fmt::format("{0}.{1}", namespaceName, className);
-        //     
-        //     uint32_t nextCol[MONO_PROPERTY_MAP_SIZE];
-        //     mono_metadata_decode_row(propertyMapTableInfo, std::min(i + 1, propertyMapTableRows - 1),
-        //                                 nextCol, MONO_PROPERTY_MAP_SIZE);
-        //
-        //     // TODO: get properties
-        // }
-        info->CurrentImage = m_MonoImage;
-
-        return info;
-    }
-
-    ScriptClass ScriptAssembly::GetClassFromName(const std::string& moduleName)
+    ManagedClass ScriptAssembly::GetClassFromName(const std::string& moduleName)
     {
         TR_ASSERT(m_MonoImage, "Mono Image not loaded");
 
         const size_t dotPosition = moduleName.find_last_of(".");
 
-        ScriptClass scriptClass = ScriptClass();
+        ManagedClass scriptClass = ManagedClass();
 
         const std::string& namespaceName = moduleName.substr(0, dotPosition);
         const std::string& className = moduleName.substr(dotPosition + 1);
@@ -119,7 +27,7 @@ namespace TerranEngine
         MonoClass* klass = mono_class_from_name(m_MonoImage, namespaceName.c_str(), className.c_str());
         if (klass)
         {
-            scriptClass = ScriptClass(klass);
+            scriptClass = ManagedClass(klass);
             scriptClass.m_Namespace = mono_class_get_namespace(klass);
             scriptClass.m_ClassName = mono_class_get_name(klass);
         }
@@ -127,15 +35,15 @@ namespace TerranEngine
         return scriptClass;
     }
 
-    ScriptClass ScriptAssembly::GetClassFromTypeToken(uint32_t typeToken)
+    ManagedClass ScriptAssembly::GetClassFromTypeToken(uint32_t typeToken)
     {
         TR_ASSERT(m_MonoImage, "Mono Image not loaded");
 
-        ScriptClass klass;
+        ManagedClass klass;
         MonoClass* monoClass = mono_class_get(m_MonoImage, typeToken);
         if(monoClass)
         {
-            klass = ScriptClass(klass);
+            klass = monoClass;
             klass.m_Namespace = mono_class_get_namespace(monoClass);
             klass.m_ClassName = mono_class_get_name(monoClass);
         }
@@ -169,9 +77,9 @@ namespace TerranEngine
         return scriptAssembly;
     }
 
-    ScriptMethod ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
+    ManagedMethod ScriptAssembly::GetMethodFromDesc(const std::string& methodDesc)
     {
-        ScriptMethod method;
+        ManagedMethod method;
         MonoMethodDesc* monoDesc = mono_method_desc_new(methodDesc.c_str(), false);
         if (!monoDesc)
         {
@@ -186,7 +94,7 @@ namespace TerranEngine
         }
         
         mono_method_desc_free(monoDesc);
-        method = ScriptMethod(monoMethod);
+        method = ManagedMethod(monoMethod);
         return method;
     }
 }

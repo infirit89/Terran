@@ -34,7 +34,7 @@ namespace TerranEditor
             panel->OnRender();
     }
 
-    void PanelManager::SetPanelOpen(const std::string& panelName, bool open)
+    void PanelManager::SetPanelOpen(std::string_view panelName, bool open)
     {
         uint32_t hashedPanelName = Hash::FNVHash(panelName);
         TR_ASSERT(m_Panels.find(hashedPanelName) != m_Panels.end(),

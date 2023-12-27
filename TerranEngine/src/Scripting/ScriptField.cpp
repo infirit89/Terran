@@ -4,7 +4,7 @@
 #include "ScriptCache.h"
 #include "ScriptArray.h"
 #include "ScriptMethodThunks.h"
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 #include "ScriptEngine.h"
 
 #include <mono/metadata/attrdefs.h>

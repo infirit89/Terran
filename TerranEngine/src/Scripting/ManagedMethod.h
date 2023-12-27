@@ -9,19 +9,19 @@ extern "C"
 
 namespace TerranEngine 
 {
-	class ScriptObject;
+	class ManagedObject;
 
-	class ScriptMethod 
+	class ManagedMethod 
 	{
 	public:
-		ScriptMethod() = default;
-		ScriptMethod(MonoMethod* monoMethod);
+		ManagedMethod() = default;
+		ManagedMethod(MonoMethod* monoMethod);
 
-		ScriptMethod(const ScriptMethod& other) = default;
-		~ScriptMethod() = default;
+		ManagedMethod(const ManagedMethod& other) = default;
+		~ManagedMethod() = default;
 
-		ScriptObject Invoke(ScriptObject& scriptObject, void** args);
-		ScriptObject InvokeStatic(void** args);
+		ManagedObject Invoke(ManagedObject& scriptObject, void** args);
+		ManagedObject InvokeStatic(void** args);
 
 		inline MonoMethod* GetMonoMethod() const { return m_MonoMethod; }
 

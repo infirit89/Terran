@@ -2,8 +2,9 @@
 
 #include "ScriptEngine.h"
 #include "ScriptCache.h"
-#include "ScriptClass.h"
+#include "ManagedClass.h"
 #include "ScriptAssembly.h"
+#include "ManagedMetadata.h"
 
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/debug-helpers.h>
@@ -13,13 +14,13 @@ namespace TerranEngine
 {
 	#define TR_CLASS(className) ScriptEngine::GetClassFromName("Terran."#className, TR_CORE_ASSEMBLY_INDEX)
 
-	static std::unordered_map<uint32_t, ScriptClass> s_CachedClasses;
-	static std::unordered_map<uint32_t, std::vector<ScriptMethod>> s_CachedMethods;
+	static std::unordered_map<uint32_t, ManagedClass> s_CachedClasses;
+	static std::unordered_map<uint32_t, std::vector<ManagedMethod>> s_CachedMethods;
 	static std::unordered_map<uint32_t, ScriptField> s_CachedFields;
 
 	void ScriptCache::CacheCoreClasses()
 	{
-#define CACHE_CORLIB_CLASS(klass) s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(klass), ScriptClass(mono_class_from_name(mono_get_corlib(), "System", #klass))) 
+#define CACHE_CORLIB_CLASS(klass) s_CachedClasses.emplace(TR_CORLIB_CLASS_ID(klass), ManagedClass(mono_class_from_name(mono_get_corlib(), "System", #klass)))
 		
 		// corlib classes
 		CACHE_CORLIB_CLASS(Byte);
@@ -41,12 +42,12 @@ namespace TerranEngine
 
 		CACHE_CORLIB_CLASS(String);
 
-#define CACHE_API_CLASS(klass)\
-	ScriptClass managedClass##klass = TR_CLASS(klass);\
-	uint32_t klass##ID = TR_API_CLASS_ID(klass);\
+#define CACHE_API_CLASS(klass)								\
+	ManagedClass managedClass##klass = TR_CLASS(klass);		\
+	uint32_t klass##ID = TR_API_CLASS_ID(klass);			\
 	s_CachedClasses.emplace(klass##ID, managedClass##klass);\
-	CacheFields(ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX), s_CachedClasses.at(klass##ID));\
-	CacheMethods(ScriptEngine::GetAssembly(TR_CORE_ASSEMBLY_INDEX), s_CachedClasses.at(klass##ID))
+	CacheFieldsForClass(s_CachedClasses.at(klass##ID));		\
+	CacheMethodsForClass(s_CachedClasses.at(klass##ID))
 		
 		// api core classes
 		CACHE_API_CLASS(Vector2);
@@ -79,20 +80,24 @@ namespace TerranEngine
 		s_CachedFields.clear();
 	}
 
-	void ScriptCache::GenerateCacheForAssembly(Shared<AssemblyInfo>& assemblyInfo)
+	void ScriptCache::GenerateCacheForAssembly(Shared<ScriptAssembly> assembly)
 	{
-		CacheClassesFromAssemblyInfo(assemblyInfo);
-		CacheMethodsFromAssemblyInfo(assemblyInfo);
-		CacheFieldsFromAssemblyInfo(assemblyInfo);
+		std::vector<ManagedClass> classList = ManagedMetadata::GetClassListFromMetadata(assembly);
+		for(ManagedClass klass : classList) 
+		{
+			CacheFieldsForClass(klass);
+			CacheMethodsForClass(klass);
+			s_CachedClasses.emplace(TR_CLASS_ID(klass.GetFullName()), std::move(klass));
+		}
 	}
 
-	ScriptClass* ScriptCache::GetCachedClassFromName(const std::string& className)
+	ManagedClass* ScriptCache::GetCachedClassFromName(std::string_view className)
 	{
 		const uint32_t classID = TR_CLASS_ID(className);
 		return GetCachedClassFromID(classID);
 	}
 
-	ScriptClass* ScriptCache::GetCachedClassFromID(uint32_t classID)
+	ManagedClass* ScriptCache::GetCachedClassFromID(uint32_t classID)
 	{
 		if(s_CachedClasses.find(classID) != s_CachedClasses.end())
 			return &s_CachedClasses.at(classID);
@@ -100,17 +105,17 @@ namespace TerranEngine
 		return nullptr;
 	}
 
-	ScriptMethod* ScriptCache::GetCachedMethod(const std::string& className, const std::string& methodName)
+	ManagedMethod* ScriptCache::GetCachedMethod(std::string_view className, std::string_view methodName)
 	{
 		const uint32_t classID = TR_CLASS_ID(className);
 
-		ScriptMethod* method = nullptr;
+		ManagedMethod* method = nullptr;
 
 		if (s_CachedMethods.find(classID) != s_CachedMethods.end()) 
 		{
-			std::vector<ScriptMethod>& methods = s_CachedMethods.at(classID);
+			std::vector<ManagedMethod>& methods = s_CachedMethods.at(classID);
 			const auto it = std::find_if(methods.begin(), methods.end(),
-			[&](ScriptMethod method)
+			[&](ManagedMethod method)
 			     {
 					 bool matchedMethodDesc = false;
 			         const std::string formattedMethodDesc = fmt::format("{0}{1}", className, methodName);
@@ -149,145 +154,31 @@ namespace TerranEngine
 		return nullptr;
 	}
 
-	void ScriptCache::CacheClassesFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
+	void ScriptCache::CacheFieldsForClass(ManagedClass& klass)
 	{
-		for (auto [namespaceName, classNames] : assemblyInfo->ClassInfoMap) 
+		void* iter = nullptr;
+
+		while(true) 
 		{
-			for (const std::string& className : classNames)
+			MonoClassField* monoField = mono_class_get_fields(klass, &iter);
+
+			if (monoField)
 			{
-				std::string formattedModuleName = fmt::format("{0}.{1}", namespaceName, className);
-				ScriptClass klass = ScriptEngine::GetClassFromName(formattedModuleName, TR_APP_ASSEMBLY_INDEX);
-				
-				if(klass)
-					s_CachedClasses.emplace(TR_CLASS_ID(formattedModuleName), klass);
-			}
-		}
-	}
-
-	void ScriptCache::CacheMethodsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
-	{
-		for (auto[moduleName, methodSignatures] : assemblyInfo->MethodInfoMap)
-		{
-			for (const std::string& methodSignature : methodSignatures)
-			{
-				std::string formattedMethodSignature = fmt::format("{0}{1}", moduleName, methodSignature);
-				ScriptMethod method = ScriptEngine::GetMethodFromDesc(formattedMethodSignature, TR_APP_ASSEMBLY_INDEX);
-
-				if (method)
-					s_CachedMethods[TR_CLASS_ID(moduleName)].emplace_back(std::move(method));
-			}
-		}
-	}
-
-	void ScriptCache::CacheFieldsFromAssemblyInfo(Shared<AssemblyInfo>& assemblyInfo)
-	{
-		for (auto [moduleName, fieldNames] : assemblyInfo->FieldInfoMap)
-		{
-			for (const std::string& fieldName : fieldNames)
-			{
-				ScriptClass* klass = GetCachedClassFromName(moduleName);
-				
-				if(!klass)
-					continue;
-				
-				ScriptField field = klass->GetFieldFromName(fieldName);
-
-				if(field)
-				{
-					std::string fullFieldName = fmt::format("{0}.{1}", moduleName, field.GetName());
-					uint32_t fieldID = Hash::FNVHash(fullFieldName);
-					field.m_ID = fieldID;
-					klass->m_Fields.push_back(field);
-					s_CachedFields.emplace(fieldID, std::move(field));
-				}
-			}
-		}
-	}
-
-	void ScriptCache::CacheFields(Shared<ScriptAssembly>& assembly, ScriptClass& klass)
-	{
-		const MonoTableInfo* typedefTableInfo = mono_image_get_table_info(assembly->GetMonoImage(), MONO_TABLE_TYPEDEF);
-		const MonoTableInfo* fieldTableInfo = mono_image_get_table_info(assembly->GetMonoImage(), MONO_TABLE_FIELD);
-
-		const int fieldTableRows = mono_table_info_get_rows(fieldTableInfo);
-		
-		if(fieldTableRows <= 0)
-			return;
-		
-		const int typedefTableRows = mono_table_info_get_rows(typedefTableInfo);
-
-		const int klassTypedefIndex = (klass.GetTypeToken() & ~MONO_TOKEN_TYPE_DEF) - 1;
-		
-		uint32_t cols[MONO_TYPEDEF_SIZE];
-		mono_metadata_decode_row(typedefTableInfo, klassTypedefIndex, cols, MONO_TYPEDEF_SIZE);
-
-		uint32_t nextCol[MONO_TYPEDEF_SIZE];
-		mono_metadata_decode_row(typedefTableInfo, std::min(klassTypedefIndex + 1, typedefTableRows - 1),
-								nextCol, MONO_TYPEDEF_SIZE);
-		
-		for (size_t j = cols[MONO_TYPEDEF_FIELD_LIST] - 1; j
-			   < std::min(nextCol[MONO_TYPEDEF_FIELD_LIST], (uint32_t)fieldTableRows) - 1; j++)
-		{
-			uint32_t fieldCols[MONO_FIELD_SIZE];
-			mono_metadata_decode_row(fieldTableInfo, static_cast<int>(j), fieldCols, MONO_FIELD_SIZE);
-			std::string fieldName = mono_metadata_string_heap(assembly->GetMonoImage(), fieldCols[MONO_FIELD_NAME]);
-			ScriptField field = klass.GetFieldFromName(fieldName);
-
-			if(field)
-			{
+				ScriptField field = monoField;
 				std::string fullFieldName = fmt::format("{0}.{1}", klass.GetFullName(), field.GetName());
 				uint32_t fieldID = Hash::FNVHash(fullFieldName);
 				field.m_ID = fieldID;
 				s_CachedFields.emplace(fieldID, field);
 				klass.m_Fields.push_back(field);
 			}
+			else
+				break;
 		}
 	}
 
-	void ScriptCache::CacheMethods(Shared<ScriptAssembly>& assembly,const ScriptClass& klass)
+	void ScriptCache::CacheMethodsForClass(const ManagedClass& klass)
 	{
-		const MonoTableInfo* typedefTableInfo = mono_image_get_table_info(assembly->GetMonoImage(), MONO_TABLE_TYPEDEF);
-		const MonoTableInfo* methodTableInfo = mono_image_get_table_info(assembly->GetMonoImage(), MONO_TABLE_METHOD);
-
-		const int methodTableRows = mono_table_info_get_rows(methodTableInfo);
-		
-		if(methodTableRows <= 0)
-			return;
-		
-		const int typedefTableRows = mono_table_info_get_rows(typedefTableInfo);
-		const int klassTypedefIndex = (klass.GetTypeToken() & ~MONO_TOKEN_TYPE_DEF) - 1;
-		
-		uint32_t cols[MONO_TYPEDEF_SIZE];
-		mono_metadata_decode_row(typedefTableInfo, klassTypedefIndex, cols, MONO_TYPEDEF_SIZE);
-
-		uint32_t nextCol[MONO_TYPEDEF_SIZE];
-		mono_metadata_decode_row(typedefTableInfo, std::min(klassTypedefIndex + 1, typedefTableRows - 1),
-								nextCol, MONO_TYPEDEF_SIZE);
-		
-		for (size_t j = cols[MONO_TYPEDEF_METHOD_LIST] - 1; j
-			   < std::min(nextCol[MONO_TYPEDEF_METHOD_LIST], (uint32_t)methodTableRows) - 1; j++)
-		{
-			uint32_t methodCols[MONO_METHOD_SIZE];
-			mono_metadata_decode_row(methodTableInfo, static_cast<int>(j), methodCols, MONO_METHOD_SIZE);
-			
-			std::string methodName = mono_metadata_string_heap(assembly->GetMonoImage(), methodCols[MONO_METHOD_NAME]);
-			const char* blob = mono_metadata_blob_heap(assembly->GetMonoImage(), methodCols[MONO_METHOD_SIGNATURE]);
-                
-			const char* c;
-			uint32_t val = mono_metadata_decode_value(blob, &c);
-			const char* cc;
-			MonoMethodSignature* signature = mono_metadata_parse_method_signature(assembly->GetMonoImage(), val, c, &cc);
-                
-			char* methodDesc = mono_signature_get_desc(signature, false);
-			std::string formattedMethodDesc = fmt::format(":{0}({1})", methodName, methodDesc);
-			std::string moduleName = fmt::format("{0}.{1}", klass.GetNamespace(), klass.GetName());
-			mono_metadata_free_method_signature(signature);
-
-			std::string formattedMethodSignature = fmt::format("{0}{1}", moduleName, formattedMethodDesc);
-			ScriptMethod method = assembly->GetMethodFromDesc(formattedMethodSignature);
-
-			if (method)
-				s_CachedMethods[TR_CLASS_ID(moduleName)].emplace_back(std::move(method));
-		}
+		for (const ManagedMethod& method : klass.GetMethods())
+			s_CachedMethods[TR_CLASS_ID(klass.GetFullName())].emplace_back(method);
 	}
 }

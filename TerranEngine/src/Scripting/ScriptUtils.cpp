@@ -1,9 +1,9 @@
 ﻿#include "trpch.h"
 #include "ScriptUtils.h"
 #include "ScriptMarshal.h"
-#include "ScriptObject.h"
+#include "ManagedObject.h"
 #include "ScriptCache.h"
-#include "ScriptClass.h"
+#include "ManagedClass.h"
 
 #include "Core/Log.h" 
 
@@ -89,8 +89,8 @@ namespace TerranEngine
 		const ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(value);
 		
 		void* args[] = { uuidArray.GetMonoArray() };
-		ScriptObject entityObj = ScriptObject::CreateInstace(*TR_API_CACHED_CLASS(Entity));
-		ScriptMethod* constructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
+		ManagedObject entityObj = TR_API_CACHED_CLASS(Entity)->CreateInstance();
+		ManagedMethod* constructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 		constructor->Invoke(entityObj, args);
 		
 		ScriptUtils::SetFieldDataRaw(entityObj.GetMonoObject(), monoField, handle);
@@ -104,21 +104,25 @@ namespace TerranEngine
 		// 	return {};
 		// }
 		
-		ScriptObject entityObj = ScriptUtils::GetFieldValueObject(monoField, handle);
-		ScriptMethod* getIdMethod = ScriptCache::GetCachedMethod("Terran.Entity", ":get_ID");
+		ManagedObject entityObj = ScriptUtils::GetFieldValueObject(monoField, handle);
+		ManagedMethod* getIdMethod = ScriptCache::GetCachedMethod("Terran.Entity", ":get_ID");
 
 		if(!entityObj)
 			return {};
 		
-		ScriptObject idObj = getIdMethod->Invoke(entityObj, nullptr);
+		ManagedObject idObj = getIdMethod->Invoke(entityObj, nullptr);
 
 		if(!idObj)
 			return {};
 		
-		ScriptMethod* getDataMethod = ScriptCache::GetCachedMethod("Terran.UUID", ":get_Data");
+		ManagedMethod* getDataMethod = ScriptCache::GetCachedMethod("Terran.UUID", ":get_Data");
 		MonoObject* result  = getDataMethod->Invoke(idObj, nullptr).GetMonoObject();
 		UUID id = ScriptMarshal::MonoArrayToUUID((MonoArray*)result);
 		
 		return id;
+    }
+    MonoClass* ScriptUtils::GetMonoClassFromMonoObject(MonoObject* object)
+    {
+        return mono_object_get_class(object);
     }
 }

@@ -1,7 +1,7 @@
 ﻿#include "trpch.h"
 #include "ScriptType.h"
 #include "ScriptCache.h"
-#include "ScriptClass.h"
+#include "ManagedClass.h"
 
 #include <mono/metadata/class.h>
 
@@ -35,7 +35,7 @@ namespace TerranEngine
         case MONO_TYPE_STRING:		TypeEnum = String; return;
         case MONO_TYPE_VALUETYPE: 
         {
-            const ScriptClass typeClass = mono_class_from_mono_type(monoType);
+            const ManagedClass typeClass = mono_class_from_mono_type(monoType);
             if (typeClass == *TR_API_CACHED_CLASS(Vector2))     { TypeEnum = Vector2; return; }
             if (typeClass == *TR_API_CACHED_CLASS(Vector3))     { TypeEnum = Vector3; return; }
             if (typeClass == *TR_API_CACHED_CLASS(Color))       { TypeEnum = Color; return; }
@@ -73,7 +73,7 @@ namespace TerranEngine
         }
         case MONO_TYPE_CLASS:
         {
-            const ScriptClass typeClass = mono_class_from_mono_type(monoType);
+            const ManagedClass typeClass = mono_class_from_mono_type(monoType);
             if(typeClass == *TR_API_CACHED_CLASS(UUID))   { TypeEnum = UUID; return; }
             if(typeClass == *TR_API_CACHED_CLASS(Entity))   { TypeEnum = Entity; return; }
         }
@@ -95,7 +95,7 @@ namespace TerranEngine
             monoTypeClass = mono_class_from_mono_type(monoType);
 
         // NOTE: kinda shit; try to make better
-        m_TypeClass = ScriptClass(monoTypeClass);
+        m_TypeClass = ManagedClass(monoTypeClass);
         
         GetUnmanagedType(m_MonoType);
         

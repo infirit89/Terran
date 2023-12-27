@@ -1230,7 +1230,7 @@ namespace TerranEditor
 	{
 		TR_ASSERT(handle, "Invalid handle");
 
-		const ScriptClass& typeClass = field->GetType().GetTypeClass();
+		const ManagedClass& typeClass = field->GetType().GetTypeClass();
 		std::vector<ScriptField> enumFields;
 
 		switch (field->GetType().TypeEnum)

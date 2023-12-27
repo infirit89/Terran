@@ -52,10 +52,10 @@
 
 /* ---- Scripting ---- */
 #include "Scripting/ScriptEngine.h"
-#include "Scripting/ScriptClass.h"
+#include "Scripting/ManagedClass.h"
 #include "Scripting/ScriptField.h"
-#include "Scripting/ScriptMethod.h"
-#include "Scripting/ScriptObject.h"
+#include "Scripting/ManagedMethod.h"
+#include "Scripting/ManagedObject.h"
 #include "Scripting/ScriptArray.h"
 #include "Scripting/ScriptCache.h"
 

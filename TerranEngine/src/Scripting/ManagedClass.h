@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ScriptMethod.h"
+#include "ManagedMethod.h"
 #include "ScriptField.h"
+#include "ManagedObject.h"
 
 extern "C"
 {
@@ -10,16 +11,16 @@ extern "C"
 
 namespace TerranEngine 
 {
-	class ScriptClass 
+	class ManagedClass 
 	{
 	public:
-		ScriptClass() = default;
-		ScriptClass(MonoClass* monoClass);
+		ManagedClass() = default;
+		ManagedClass(MonoClass* monoClass);
 
-		ScriptClass(const ScriptClass& other) = default;
-		~ScriptClass() = default;
+		ManagedClass(const ManagedClass& other) = default;
+		~ManagedClass() = default;
 
-		ScriptMethod GetMethod(const char* methodSignature) const;
+		ManagedMethod GetMethod(const char* methodSignature) const;
 		ScriptField GetFieldFromToken(uint32_t fieldToken) const;
 		ScriptField GetFieldFromName(const std::string& fieldName) const;
 		
@@ -29,19 +30,23 @@ namespace TerranEngine
 		inline std::string GetFullName() const { return fmt::format("{0}.{1}", m_Namespace, m_ClassName); }
 		inline operator MonoClass* () const { return m_MonoClass; }
 	
-		ScriptClass GetParent();
-		bool operator==(const ScriptClass& other) const { return m_MonoClass == other.m_MonoClass; }
+		ManagedClass GetParent();
+		bool operator==(const ManagedClass& other) const { return m_MonoClass == other.m_MonoClass; }
 		bool operator==(MonoClass* monoClass) const { return m_MonoClass == monoClass; }
 		operator bool() const { return m_MonoClass != nullptr; }
 		
-		bool IsInstanceOf(ScriptClass* parent);
-		bool IsSubclassOf(ScriptClass* parent, bool checkInterfaces = false);
+		bool IsInstanceOf(ManagedClass* parent);
+		bool IsSubclassOf(ManagedClass* parent, bool checkInterfaces = false);
 
 		inline std::vector<ScriptField>& GetFields() { return m_Fields; }
-		std::vector<ScriptField> GetEnumFields() const;
+		std::vector<ManagedMethod> GetMethods() const;
+
+		bool IsEnum() const;
 
 		int GetTypeToken() const;
 		
+		ManagedObject CreateInstance();
+
 	private:
 		MonoClass* m_MonoClass = nullptr;
 		std::string m_ClassName;

@@ -9,7 +9,7 @@ extern "C"
 
 namespace TerranEngine 
 {
-	class ScriptObject;
+	class ManagedObject;
 	enum class GCHandleType
 	{
 		None = 0,
@@ -42,11 +42,11 @@ namespace TerranEngine
 		// with a weak ref the gc can still collect the object;
 		// if track resurrection then if the object is resurrected during the finalizer
 		// (stage of the gc) then the target object will still be active
-		static GCHandle CreateWeakHandle(const ScriptObject& monoObject, bool trackResurrection);
+		static GCHandle CreateWeakHandle(const ManagedObject& monoObject, bool trackResurrection);
 
 		// prevents the gc from deleting the object until free handle is called;
 		// pinned prevents the object from being moved
-		static GCHandle CreateStrongHandle(const ScriptObject& monoObject, bool pinned = false);
+		static GCHandle CreateStrongHandle(const ManagedObject& monoObject, bool pinned = false);
 		static void FreeHandle(GCHandle& handle);
 		static MonoObject* GetManagedObject(const GCHandle& handle);
 		static void CollectAll();
