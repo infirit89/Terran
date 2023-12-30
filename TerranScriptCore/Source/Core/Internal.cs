@@ -73,7 +73,7 @@ namespace Terran
 		internal static extern byte[] Entity_FindEntityWithName(string name);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern byte[] Entity_FindEntityWithID(byte[] id);
+		internal static extern bool Entity_FindEntityWithID(byte[] id);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Entity_DestroyEntity(byte[] id);

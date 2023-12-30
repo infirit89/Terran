@@ -3,7 +3,7 @@
 #include "ScriptMarshal.h"
 #include "ScriptCache.h"
 #include "ScriptArray.h"
-#include "ScriptMethodThunks.h"
+#include "ManagedMethodThunks.h"
 #include "ManagedObject.h"
 #include "ScriptEngine.h"
 
@@ -31,111 +31,111 @@ namespace TerranEngine
         template<>
         void ScriptFieldSetData<Utils::Variant>(Utils::Variant value, GCHandle handle, ScriptField* field)
         {
-			switch (field->GetType().TypeEnum)
+			switch (field->GetType().GetNativeType())
 			{
-			case ScriptType::Bool:
+			case NativeType::Bool:
 			{
 				bool val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Char:
+			case NativeType::Char:
 			{
 				char val = value;
 				ScriptFieldSetData<wchar_t>((wchar_t)val, handle, field);
 				break;
 			}
-			case ScriptType::Int8:
+			case NativeType::Int8:
 			{
 				int8_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Int16:
+			case NativeType::Int16:
 			{
 				int16_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Int32:
+			case NativeType::Int32:
 			{
 				int32_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Int64:
+			case NativeType::Int64:
 			{
 				int64_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::UInt8:
+			case NativeType::UInt8:
 			{
 				uint8_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::UInt16:
+			case NativeType::UInt16:
 			{
 				uint16_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::UInt32:
+			case NativeType::UInt32:
 			{
 				uint32_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::UInt64:
+			case NativeType::UInt64:
 			{
 				uint64_t val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Float:
+			case NativeType::Float:
 			{
 				float val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Double:
+			case NativeType::Double:
 			{
 				double val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::String:
+			case NativeType::String:
 			{
 				const char*  val = value;
 				ScriptFieldSetData<std::string>(val, handle, field);
 				break;
 			}
-			case ScriptType::Vector2:
+			case NativeType::Vector2:
 			{
 				glm::vec2 val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Vector3:
+			case NativeType::Vector3:
 			{
 				glm::vec3 val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Color:
+			case NativeType::Color:
 			{
 				glm::vec4 val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::Entity:
+			case NativeType::Entity:
 			{
 				UUID val = value;
 				ScriptFieldSetData(val, handle, field);
 				break;
 			}
-			case ScriptType::LayerMask:
+			case NativeType::LayerMask:
 			{
 				uint16_t val = value;
 				ScriptFieldSetData(val, handle, field);
@@ -147,26 +147,26 @@ namespace TerranEngine
         template<>
         Utils::Variant ScriptFieldGetData<Utils::Variant>(GCHandle handle, ScriptField* field) 
         {
-			switch (field->GetType().TypeEnum)
+			switch (field->GetType().GetNativeType())
 			{
-			case ScriptType::Bool:		return ScriptFieldGetData<bool>(handle, field);
-			case ScriptType::Char: 		return (char)ScriptFieldGetData<wchar_t>(handle, field);
-			case ScriptType::Int8: 		return ScriptFieldGetData<int8_t>(handle, field);
-			case ScriptType::Int16: 	return ScriptFieldGetData<int16_t>(handle, field);
-			case ScriptType::Int32: 	return ScriptFieldGetData<int32_t>(handle, field);
-			case ScriptType::Int64: 	return ScriptFieldGetData<int64_t>(handle, field);
-			case ScriptType::UInt8: 	return ScriptFieldGetData<uint8_t>(handle, field);
-			case ScriptType::UInt16: 	return ScriptFieldGetData<uint16_t>(handle, field);
-			case ScriptType::UInt32: 	return ScriptFieldGetData<uint32_t>(handle, field);
-			case ScriptType::UInt64: 	return ScriptFieldGetData<uint64_t>(handle, field);
-			case ScriptType::Float:		return ScriptFieldGetData<float>(handle, field);
-			case ScriptType::Double:	return ScriptFieldGetData<double>(handle, field);
-			case ScriptType::String:	return ScriptFieldGetData<std::string>(handle, field);
-			case ScriptType::Vector2:	return ScriptFieldGetData<glm::vec2>(handle, field);
-			case ScriptType::Vector3:	return ScriptFieldGetData<glm::vec3>(handle, field);
-			case ScriptType::Color:		return ScriptFieldGetData<glm::vec4>(handle, field);
-			case ScriptType::Entity:	return ScriptFieldGetData<UUID>(handle, field);
-			case ScriptType::LayerMask: return ScriptFieldGetData<uint16_t>(handle, field);
+			case NativeType::Bool:		return ScriptFieldGetData<bool>(handle, field);
+			case NativeType::Char: 		return (char)ScriptFieldGetData<wchar_t>(handle, field);
+			case NativeType::Int8: 		return ScriptFieldGetData<int8_t>(handle, field);
+			case NativeType::Int16: 	return ScriptFieldGetData<int16_t>(handle, field);
+			case NativeType::Int32: 	return ScriptFieldGetData<int32_t>(handle, field);
+			case NativeType::Int64: 	return ScriptFieldGetData<int64_t>(handle, field);
+			case NativeType::UInt8: 	return ScriptFieldGetData<uint8_t>(handle, field);
+			case NativeType::UInt16: 	return ScriptFieldGetData<uint16_t>(handle, field);
+			case NativeType::UInt32: 	return ScriptFieldGetData<uint32_t>(handle, field);
+			case NativeType::UInt64: 	return ScriptFieldGetData<uint64_t>(handle, field);
+			case NativeType::Float:		return ScriptFieldGetData<float>(handle, field);
+			case NativeType::Double:	return ScriptFieldGetData<double>(handle, field);
+			case NativeType::String:	return ScriptFieldGetData<std::string>(handle, field);
+			case NativeType::Vector2:	return ScriptFieldGetData<glm::vec2>(handle, field);
+			case NativeType::Vector3:	return ScriptFieldGetData<glm::vec3>(handle, field);
+			case NativeType::Color:		return ScriptFieldGetData<glm::vec4>(handle, field);
+			case NativeType::Entity:	return ScriptFieldGetData<UUID>(handle, field);
+			case NativeType::LayerMask: return ScriptFieldGetData<uint16_t>(handle, field);
 			}
 
 			return {};
@@ -203,13 +203,10 @@ namespace TerranEngine
 		: m_MonoField(monoField)
 	{
 		m_Name = mono_field_get_name(m_MonoField);
-		m_Type = ScriptType(mono_field_get_type(m_MonoField));
+		m_Type = ManagedType(mono_field_get_type(m_MonoField));
 
 		uint32_t accessMask = mono_field_get_flags(m_MonoField) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 		m_FieldVisibility = ConvertFieldVisibility(accessMask);
-
-		if (m_Type.IsArray())
-			m_Type = m_Type.GetElementType();
 	}
 
 	void ScriptField::CopyData(GCHandle sourceHandle, GCHandle destinationHandle)
@@ -224,7 +221,7 @@ namespace TerranEngine
 				if (destinationArray)
 					destinationArray.Resize(sourceArray.Length());
 				else
-					destinationArray = ScriptArray(sourceArray.GetType().GetTypeClass(), sourceArray.Length());
+					destinationArray = ScriptArray(sourceArray.GetElementType().GetTypeClass(), sourceArray.Length());
 			}
 
 			for (uint32_t i = 0; i < sourceArray.Length(); i++)

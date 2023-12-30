@@ -8,21 +8,44 @@ extern "C"
 
 namespace TerranEngine
 {
+    enum class NativeType
+    {
+        None = 0,
+        Bool,
+        Char,
+        Int8,
+        Int16,
+        Int32,
+        Int64,
+        UInt8,
+        UInt16,
+        UInt32,
+        UInt64,
+        Float,
+        Double,
+        String,
+        Vector2,
+        Vector3,
+        Color,
+        UUID,
+        Entity,
+        LayerMask
+    };
+
     class ManagedClass;
-    class ScriptType
+    class ManagedType
     {
     public:
-        ScriptType() = default;
-        ScriptType(MonoType* monoType);
+        ManagedType() = default;
+        ManagedType(MonoType* monoType);
+        ManagedType(MonoClass* monoClass);
         
-        ScriptType(const ScriptType& other);
-        ~ScriptType();
+        ManagedType(const ManagedType& other);
+        ~ManagedType() = default;
 
-        static ScriptType FromClass(MonoClass* monoClass);
-        ScriptType GetElementType() const;
-        
         inline MonoType* GetMonoType() const { return m_MonoType; }
         inline MonoClass* GetTypeClass() const { return m_TypeClass; }
+        NativeType GetNativeType() const { return m_NativeType; }
         inline int GetSize() const { return m_Size; }
         
         bool IsArray() const;
@@ -31,37 +54,12 @@ namespace TerranEngine
         bool IsObject() const;
         bool IsEnum() const;
 
-        ScriptType& operator=(const ScriptType& other); 
-        
-        enum
-        {
-            None = 0,
-            Bool,
-            Char,
-            Int8,
-            Int16,
-            Int32,
-            Int64,
-            UInt8,
-            UInt16,
-            UInt32,
-            UInt64,
-            Float,
-            Double,
-            String,
-            Vector2,
-            Vector3,
-            Color,
-            UUID,
-            Entity,
-            LayerMask
-        } TypeEnum = None;
+        ManagedType& operator=(const ManagedType& other); 
         
     private:
-        void GetUnmanagedType(MonoType* monoType);
-        
         MonoType* m_MonoType = nullptr;
         MonoClass* m_TypeClass = nullptr;
+        NativeType m_NativeType = NativeType::None;
         int m_TypeEncoding = 0;
         int m_Size = 0;
     };

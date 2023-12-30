@@ -67,7 +67,7 @@ namespace TerranEngine
 		inline operator bool() const { return m_MonoField != nullptr; }
 
 		inline uint32_t GetID() const { return m_ID; }
-		inline const ScriptType& GetType() const { return m_Type; } 
+		inline const ManagedType& GetType() const { return m_Type; } 
 
 		ScriptArray GetArray(GCHandle handle);
 		void SetArray(ScriptArray array, GCHandle handle);
@@ -88,7 +88,7 @@ namespace TerranEngine
 
 	private:
 		MonoClassField* m_MonoField = nullptr;
-		ScriptType m_Type;
+		ManagedType m_Type;
 		const char* m_Name;
 		ScriptFieldVisibility m_FieldVisibility = ScriptFieldVisibility::Unknown;
 		uint32_t m_ID = 0;

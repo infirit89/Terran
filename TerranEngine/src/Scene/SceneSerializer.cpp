@@ -29,12 +29,12 @@ namespace TerranEngine
 		: m_Scene(scene) { }
 
 #define WRITE_SCRIPT_FIELD(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case NativeType::FieldType:\
 	out << YAML::Key << field->GetName() << YAML::Value << field->GetData<Type>(handle);\
 	break
 
 #define WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case NativeType::FieldType:\
 	{\
 	Type value = array.At(i);\
 	out << value;\
@@ -58,7 +58,7 @@ namespace TerranEngine
 				
 				for(size_t i = 0; i < array.Length(); i++) 
 				{
-					switch (field->GetType().TypeEnum)
+					switch (array.GetElementType().GetNativeType())
 					{
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
 						// NOTE: maybe wchar_t?
@@ -86,7 +86,7 @@ namespace TerranEngine
 			}
 			else 
 			{
-				switch (field->GetType().TypeEnum)
+				switch (field->GetType().GetNativeType())
 				{
 					WRITE_SCRIPT_FIELD(Bool, bool);
 					WRITE_SCRIPT_FIELD(Char, wchar_t);
@@ -302,7 +302,7 @@ namespace TerranEngine
 	}
 
 #define READ_SCRIPT_FIELD(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case NativeType::FieldType:\
 	{\
 	Type value = scriptField.as<Type>();\
 	cachedField->SetData(value, handle);\
@@ -310,7 +310,7 @@ namespace TerranEngine
 	break
 
 #define READ_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case NativeType::FieldType:\
 	{\
 	Utils::Variant value = scriptField[i].as<Type>();\
 	array.Set(i, value);\
@@ -344,7 +344,7 @@ namespace TerranEngine
 				ScriptArray array = cachedField->GetArray(handle);
 				for(size_t i = 0; i < array.Length() && i < scriptField.size(); i++) 
 				{
-					switch(cachedField->GetType().TypeEnum) 
+					switch(array.GetElementType().GetNativeType())
 					{
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
@@ -368,7 +368,7 @@ namespace TerranEngine
 			}
 			else
 			{
-				switch (cachedField->GetType().TypeEnum)
+				switch (cachedField->GetType().GetNativeType())
 				{
 					READ_SCRIPT_FIELD(Bool, bool);
 					READ_SCRIPT_FIELD(Char, char);

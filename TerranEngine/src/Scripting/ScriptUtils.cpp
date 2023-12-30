@@ -86,9 +86,9 @@ namespace TerranEngine
 		// 	return;
 		// }
 
-		const ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(value);
+		MonoArray* uuidData = ScriptMarshal::UUIDToMonoArray(value);
 		
-		void* args[] = { uuidArray.GetMonoArray() };
+		void* args[] = { uuidData };
 		ManagedObject entityObj = TR_API_CACHED_CLASS(Entity)->CreateInstance();
 		ManagedMethod* constructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 		constructor->Invoke(entityObj, args);
@@ -120,9 +120,5 @@ namespace TerranEngine
 		UUID id = ScriptMarshal::MonoArrayToUUID((MonoArray*)result);
 		
 		return id;
-    }
-    MonoClass* ScriptUtils::GetMonoClassFromMonoObject(MonoObject* object)
-    {
-        return mono_object_get_class(object);
     }
 }

@@ -98,8 +98,8 @@ namespace TerranEngine
             return *(T*)GetElementAddress(index, sizeof(T));
         }
         
-        inline MonoArray* GetMonoArray() const { return m_MonoArray; } 
-        inline const ScriptType& GetType() const { return m_Type; }
+        inline MonoArray* GetMonoArray() const { return m_MonoArray; }
+        inline const ManagedType& GetElementType() const { return m_ElementType; }
         inline operator bool() const { return m_MonoArray != nullptr; }
 
     public:
@@ -115,11 +115,8 @@ namespace TerranEngine
     private:
         void SetData(const Utils::Variant& value, uint32_t index);
         
-        // template<typename  T>
-        // static MonoClass* GetMonoClassFromType();
-        
         MonoArray* m_MonoArray = nullptr;
         size_t m_Length = 0;
-        ScriptType m_Type = {};        
+        ManagedType m_ElementType;
     };
 }

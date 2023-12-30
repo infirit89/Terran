@@ -1,14 +1,11 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Terran
 {
-	public class UUID
+	[StructLayout(LayoutKind.Sequential)]
+	internal struct UUID
 	{
-		public UUID() 
-		{
-			m_Data = new byte[16];
-		}
-
 		public UUID(byte[] data) 
 		{
 			m_Data = data;
@@ -43,6 +40,7 @@ namespace Terran
 			get => m_Data;
 		}
 
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
 		private byte[] m_Data;
 	}
 }

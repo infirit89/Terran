@@ -105,19 +105,20 @@ namespace TerranEngine
         TR_PROFILE_FUNCTION();
         m_MonoArray = mono_array_new(mono_domain_get(), arrayClass, size);
         m_Length = size;
-        m_Type = ScriptType::FromClass(arrayClass);
+        m_ElementType = ManagedType(arrayClass);
     }
     
     ScriptArray ScriptArray::Create(MonoArray* monoArray)
     {
         TR_PROFILE_FUNCTION();
-        ManagedObject arrayObject((MonoObject*)monoArray);
-        const ScriptType arrayType = ScriptType::FromClass(ScriptUtils::GetMonoClassFromMonoObject(arrayObject));
-        ScriptType elementType = arrayType.GetElementType();
+        MonoClass* arrayMonoClass = mono_object_get_class(reinterpret_cast<MonoObject*>(monoArray));
+        //const MonoArrayType* arrayElementType = mono_type_get_array_type(arrayType);
         ScriptArray array;
         array.m_MonoArray = monoArray;
         array.m_Length = mono_array_length(monoArray);
-        array.m_Type = ScriptType::FromClass(elementType.GetTypeClass());
+        array.m_ElementType = ManagedType(mono_class_get_element_class(arrayMonoClass));
+        //int size = mono_class_array_element_size(arrayElementType->eklass);
+
         return array;
     }
 
@@ -158,15 +159,15 @@ namespace TerranEngine
     Utils::Variant ScriptArray::At(uint32_t index) const
     {
         TR_PROFILE_FUNCTION();
-        if(m_Type.IsObject() || m_Type.TypeEnum == ScriptType::String)
+        if(m_ElementType.IsObject() || m_ElementType.GetNativeType() == NativeType::String)
         {
             MonoObject* obj = mono_array_get(m_MonoArray, MonoObject*, index);
-            return ScriptMarshal::MonoObjectToVariant(obj, m_Type);
+            return ScriptMarshal::MonoObjectToVariant(obj, m_ElementType);
         }
         else
         {
-            char* val = mono_array_addr_with_size(m_MonoArray, m_Type.GetSize(), index);
-            return Utils::Variant(val, ScriptMarshal::ScriptTypeToVariantType(m_Type));
+            char* val = mono_array_addr_with_size(m_MonoArray, m_ElementType.GetSize(), index);
+            return Utils::Variant(val, ScriptMarshal::ScriptTypeToVariantType(m_ElementType));
         }
 
         return { };
@@ -174,46 +175,14 @@ namespace TerranEngine
 
     void ScriptArray::Resize(size_t size)
     {
-        MonoArray* tempArr = mono_array_new(mono_domain_get(), m_Type.GetTypeClass(), size);
+        MonoArray* tempArr = mono_array_new(mono_domain_get(), m_ElementType.GetTypeClass(), size);
 
         const size_t copyCount = m_Length > size ? size : m_Length;
-        char* tempArrAddr = mono_array_addr_with_size(tempArr, m_Type.GetSize(), 0);
-        char* arrAddr = GetElementAddress(0, m_Type.GetSize());
-        memcpy(tempArrAddr, arrAddr, copyCount * m_Type.GetSize());
+        char* tempArrAddr = mono_array_addr_with_size(tempArr, m_ElementType.GetSize(), 0);
+        char* arrAddr = GetElementAddress(0, m_ElementType.GetSize());
+        memcpy(tempArrAddr, arrAddr, copyCount * m_ElementType.GetSize());
 
         m_Length = size;
         m_MonoArray = tempArr;
     }
-
-    //#define TR_REGISTER_ARRAY_TYPE(type, klass)\
-    //if constexpr (std::is_same<T, type>::value) return ScriptCache::GetCachedClassFromName(klass)->GetMonoClass()
-
-    //template<typename  T>
-    //MonoClass* ScriptArray::GetMonoClassFromType()
-    //{
-        //TR_REGISTER_ARRAY_TYPE(uint8_t, "System.Byte");
-        //TR_REGISTER_ARRAY_TYPE(uint16_t, "System.UInt16");
-        //TR_REGISTER_ARRAY_TYPE(uint32_t, "System.UInt32");
-        //TR_REGISTER_ARRAY_TYPE(uint64_t, "System.UInt64");
-        
-        //TR_REGISTER_ARRAY_TYPE(int8_t, "System.SByte");
-        //TR_REGISTER_ARRAY_TYPE(int16_t, "System.Int16");
-        //TR_REGISTER_ARRAY_TYPE(int32_t, "System.Int32");
-        //TR_REGISTER_ARRAY_TYPE(int64_t, "System.Int64");
-
-        //TR_REGISTER_ARRAY_TYPE(bool, "System.Boolean");
-
-        //TR_REGISTER_ARRAY_TYPE(float, "System.Single");
-        //TR_REGISTER_ARRAY_TYPE(double, "System.Double");
-
-        //TR_REGISTER_ARRAY_TYPE(std::string, "System.String");
-        
-        //TR_REGISTER_ARRAY_TYPE(MonoObject*, "System.Object");
-
-        //TR_REGISTER_ARRAY_TYPE(glm::vec2, "Terran.Vector2");
-        
-        //TR_REGISTER_ARRAY_TYPE(UUID, "Terran.UUID");
-        
-        //return nullptr;
-    //}
 }

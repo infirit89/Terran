@@ -7,65 +7,66 @@
 
 namespace TerranEngine
 {
-    void ScriptType::GetUnmanagedType(MonoType* monoType)
+#define TR_NATIVE_TYPE_DEF(typeName) if(monoTypeClass == *TR_API_CACHED_CLASS(typeName)) { return NativeType::typeName; }
+
+    static NativeType GetNativeTypeFromMonoType(MonoType* monoType, MonoClass* monoTypeClass)
     {
         MonoTypeEnum type = (MonoTypeEnum)mono_type_get_type(monoType);
 
         switch (type)
         {
-        case MONO_TYPE_BOOLEAN:		TypeEnum = Bool; return;
+        case MONO_TYPE_BOOLEAN:		return NativeType::Bool;
 
         // signed integer types
-        case MONO_TYPE_I1:			TypeEnum = Int8; return;
-        case MONO_TYPE_I2:			TypeEnum = Int16; return;
-        case MONO_TYPE_I4:			TypeEnum = Int32; return;
-        case MONO_TYPE_I8:			TypeEnum = Int64; return;
+        case MONO_TYPE_I1:			return NativeType::Int8;
+        case MONO_TYPE_I2:			return NativeType::Int16;
+        case MONO_TYPE_I4:			return NativeType::Int32;
+        case MONO_TYPE_I8:			return NativeType::Int64;
 
         // unsigned integer types
-        case MONO_TYPE_U1:			TypeEnum = UInt8; return;
-        case MONO_TYPE_U2:			TypeEnum = UInt16; return;
-        case MONO_TYPE_U4:			TypeEnum = UInt32; return;
-        case MONO_TYPE_U8:			TypeEnum = UInt64; return;
+        case MONO_TYPE_U1:			return NativeType::UInt8;
+        case MONO_TYPE_U2:			return NativeType::UInt16;
+        case MONO_TYPE_U4:			return NativeType::UInt32;
+        case MONO_TYPE_U8:			return NativeType::UInt64;
 
-        case MONO_TYPE_R4:			TypeEnum = Float; return;
-        case MONO_TYPE_R8:			TypeEnum = Double; return;
+        case MONO_TYPE_R4:			return NativeType::Float;
+        case MONO_TYPE_R8:			return NativeType::Double;
 
-        case MONO_TYPE_CHAR:		TypeEnum = Char; return;
+        case MONO_TYPE_CHAR:		return NativeType::Char;
 			
-        case MONO_TYPE_STRING:		TypeEnum = String; return;
+        case MONO_TYPE_STRING:		return NativeType::String;
         case MONO_TYPE_VALUETYPE: 
         {
-            const ManagedClass typeClass = mono_class_from_mono_type(monoType);
-            if (typeClass == *TR_API_CACHED_CLASS(Vector2))     { TypeEnum = Vector2; return; }
-            if (typeClass == *TR_API_CACHED_CLASS(Vector3))     { TypeEnum = Vector3; return; }
-            if (typeClass == *TR_API_CACHED_CLASS(Color))       { TypeEnum = Color; return; }
-            if (typeClass == *TR_API_CACHED_CLASS(LayerMask))   { TypeEnum = LayerMask; return; }
+            TR_NATIVE_TYPE_DEF(Vector2)
+            TR_NATIVE_TYPE_DEF(Vector3)
+            TR_NATIVE_TYPE_DEF(Color)
+            TR_NATIVE_TYPE_DEF(LayerMask)
 
-            if (mono_class_is_enum(typeClass.GetMonoClass())) 
+            if (mono_class_is_enum(monoTypeClass)) 
             {
-                MonoType* enumType = mono_class_enum_basetype(typeClass.GetMonoClass());
+                MonoType* enumType = mono_class_enum_basetype(monoTypeClass);
                 type = (MonoTypeEnum)mono_type_get_type(enumType);
 
                 switch (type)
                 {
-                case MONO_TYPE_BOOLEAN:		TypeEnum = Bool; return;
+                case MONO_TYPE_BOOLEAN:		return NativeType::Bool;
 
                 // signed integer types
-                case MONO_TYPE_I1:			TypeEnum = Int8; return;
-                case MONO_TYPE_I2:			TypeEnum = Int16; return;
-                case MONO_TYPE_I4:			TypeEnum = Int32; return;
-                case MONO_TYPE_I8:			TypeEnum = Int64; return;
+                case MONO_TYPE_I1:			return NativeType::Int8;
+                case MONO_TYPE_I2:			return NativeType::Int16;
+                case MONO_TYPE_I4:			return NativeType::Int32;
+                case MONO_TYPE_I8:			return NativeType::Int64;
 
                 // unsigned integer types
-                case MONO_TYPE_U1:			TypeEnum = UInt8; return;
-                case MONO_TYPE_U2:			TypeEnum = UInt16; return;
-                case MONO_TYPE_U4:			TypeEnum = UInt32; return;
-                case MONO_TYPE_U8:			TypeEnum = UInt64; return;
+                case MONO_TYPE_U1:			return NativeType::UInt8;
+                case MONO_TYPE_U2:			return NativeType::UInt16;
+                case MONO_TYPE_U4:			return NativeType::UInt32;
+                case MONO_TYPE_U8:			return NativeType::UInt64;
 
-                case MONO_TYPE_R4:			TypeEnum = Float; return;
-                case MONO_TYPE_R8:			TypeEnum = Double; return;
+                case MONO_TYPE_R4:			return NativeType::Float;
+                case MONO_TYPE_R8:			return NativeType::Double;
 
-                case MONO_TYPE_CHAR:		TypeEnum = Char; return;
+                case MONO_TYPE_CHAR:		return NativeType::Char;
                 }
             }
                 
@@ -73,69 +74,60 @@ namespace TerranEngine
         }
         case MONO_TYPE_CLASS:
         {
-            const ManagedClass typeClass = mono_class_from_mono_type(monoType);
-            if(typeClass == *TR_API_CACHED_CLASS(UUID))   { TypeEnum = UUID; return; }
-            if(typeClass == *TR_API_CACHED_CLASS(Entity))   { TypeEnum = Entity; return; }
+            TR_NATIVE_TYPE_DEF(UUID)
+            TR_NATIVE_TYPE_DEF(Entity)
         }
         }
 
-        TypeEnum = None;
+        return NativeType::None;
     }
     
-    ScriptType::ScriptType(MonoType* monoType)
-        : m_MonoType(monoType)
+    ManagedType::ManagedType(const ManagedType& other)
+        : m_NativeType(other.m_NativeType),
+        m_MonoType(other.m_MonoType),
+        m_TypeClass(other.m_TypeClass),
+        m_TypeEncoding(other.m_TypeEncoding),
+        m_Size(other.m_Size) { }
+
+    ManagedType::ManagedType(MonoClass* monoClass) 
+    {
+        MonoType* monoType = mono_class_get_type(monoClass);
+        m_MonoType = monoType;
+        m_TypeEncoding = mono_type_get_type(monoType);
+        m_TypeClass = monoClass;
+        m_NativeType = GetNativeTypeFromMonoType(monoType, m_TypeClass);
+        int alignment = 0;
+        m_Size = mono_type_size(monoType, &alignment);
+    }
+
+    ManagedType::ManagedType(MonoType* monoType) 
     {
         m_TypeEncoding = mono_type_get_type(monoType);
 
         MonoClass* monoTypeClass = nullptr;
-        
-        if(m_TypeEncoding == MONO_TYPE_CLASS || m_TypeEncoding == MONO_TYPE_VALUETYPE)
-             monoTypeClass = mono_type_get_class(monoType);
+
+        if (m_TypeEncoding == MONO_TYPE_CLASS || m_TypeEncoding == MONO_TYPE_VALUETYPE)
+            monoTypeClass = mono_type_get_class(monoType);
         else
             monoTypeClass = mono_class_from_mono_type(monoType);
 
-        // NOTE: kinda shit; try to make better
-        m_TypeClass = ManagedClass(monoTypeClass);
-        
-        GetUnmanagedType(m_MonoType);
-        
+        m_TypeClass = monoTypeClass;
+        m_NativeType = GetNativeTypeFromMonoType(monoType, m_TypeClass);
+        m_MonoType = monoType;
         int alignment = 0;
-        m_Size = mono_type_size(m_MonoType, &alignment);
+        m_Size = mono_type_size(monoType, &alignment);
+
     }
 
-    ScriptType::ScriptType(const ScriptType& other)
-        :TypeEnum(other.TypeEnum),  m_MonoType(other.m_MonoType), m_TypeEncoding(other.m_TypeEncoding),
-            m_Size(other.m_Size)
+    bool ManagedType::IsArray() const       { return m_TypeEncoding == MONO_TYPE_ARRAY || m_TypeEncoding == MONO_TYPE_SZARRAY; }
+    bool ManagedType::IsPointer() const     { return mono_type_is_pointer(m_MonoType); }
+    bool ManagedType::IsVoid() const        { return mono_type_is_void(m_MonoType); }
+    bool ManagedType::IsObject() const      { return m_TypeEncoding == MONO_TYPE_OBJECT; }
+    bool ManagedType::IsEnum() const        { return mono_class_is_enum(m_TypeClass); }
+
+    ManagedType& ManagedType::operator=(const ManagedType& other)
     {
-        m_TypeClass = other.m_TypeClass;
-    }
-
-    ScriptType::~ScriptType() { }
-
-    ScriptType ScriptType::FromClass(MonoClass* monoClass)
-    {
-        MonoType* type = mono_class_get_type(monoClass);
-        return { type };
-    }
-
-    ScriptType ScriptType::GetElementType() const
-    {
-        const MonoArrayType* monoElementType = mono_type_get_array_type(m_MonoType);
-        ScriptType elementType = FromClass(monoElementType->eklass);
-        elementType.m_TypeEncoding = m_TypeEncoding;
-        return elementType;
-    }
-
-    bool ScriptType::IsArray() const
-    { return m_TypeEncoding == MONO_TYPE_ARRAY || m_TypeEncoding == MONO_TYPE_SZARRAY; }
-    bool ScriptType::IsPointer() const  { return mono_type_is_pointer(m_MonoType); }
-    bool ScriptType::IsVoid() const     { return mono_type_is_void(m_MonoType); }
-    bool ScriptType::IsObject() const   { return m_TypeEncoding == MONO_TYPE_OBJECT; }
-    bool ScriptType::IsEnum() const     { return mono_class_is_enum(m_TypeClass); }
-
-    ScriptType& ScriptType::operator=(const ScriptType& other)
-    {
-        TypeEnum = other.TypeEnum;
+        m_NativeType = other.m_NativeType;
         m_MonoType = other.m_MonoType;
         m_TypeClass = other.m_TypeClass;
         m_TypeEncoding = other.m_TypeEncoding;

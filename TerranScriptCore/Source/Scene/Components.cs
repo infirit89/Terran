@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.InteropServices;
+
 namespace Terran
 {
 	public class Component

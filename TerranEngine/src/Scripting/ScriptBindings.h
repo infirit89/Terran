@@ -51,7 +51,7 @@ namespace TerranEngine
 		static MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr);
 
 		static MonoArray* Entity_FindEntityWithName(MonoString* monoName);
-		static MonoArray* Entity_FindEntityWithID(MonoArray* monoIDArray);
+		static bool Entity_FindEntityWithID(MonoArray* monoIDArray);
 
 		static void Entity_DestroyEntity(MonoArray* entityUUIDArr);
 		

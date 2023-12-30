@@ -15,15 +15,11 @@ namespace ScriptAssembly
 
 		protected override void Init()
 		{
-			Log.Warn("initialize");
+			Log.Warn(Entity.HasComponent<Transform>());
 		}
 
 		protected override void Update(float deltaTime)
 		{
-			Log.Trace("update");
-
-			Log.Trace(Entity.Transform is null);
-			Log.Trace(string.Join(", ", Test3));
 		}
 	}
 }

@@ -1207,7 +1207,7 @@ namespace TerranEditor
 
 	template<typename T>
 	static void DrawFieldValue(ScriptField* field, GCHandle handle,
-		const std::function<bool(const std::string& fieldName, T& value, const ScriptType& fieldType)>& drawFunc)
+		const std::function<bool(const std::string& fieldName, T& value, const ManagedType& fieldType)>& drawFunc)
 	{
 		T value = field->GetData<T>(handle);
 		std::string fieldName = ProccessFieldName(field->GetName());
@@ -1216,10 +1216,10 @@ namespace TerranEditor
 	}
 
 #define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case NativeType::FieldType:\
 	{\
 		DrawFieldValue<Type>(field, handle,\
-		[](const std::string& fieldName, auto& value, const ScriptType& fieldType)\
+		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)\
 		{\
 			return PropertyScalar(fieldName, value);\
 		});\
@@ -1233,22 +1233,22 @@ namespace TerranEditor
 		const ManagedClass& typeClass = field->GetType().GetTypeClass();
 		std::vector<ScriptField> enumFields;
 
-		switch (field->GetType().TypeEnum)
+		switch (field->GetType().GetNativeType())
 		{
-		case ScriptType::Bool:
+		case NativeType::Bool:
 		{
 			DrawFieldValue<bool>(field, handle,
-				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					return PropertyBool(fieldName, value);
 				});
 
 			break;
 		}
-		case ScriptType::Char:
+		case NativeType::Char:
 		{
 			DrawFieldValue<wchar_t>(field, handle,
-				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					// TODO: support wide strings
 					std::string strVal; strVal += (char)value;
@@ -1272,50 +1272,50 @@ namespace TerranEditor
 		DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
 		DRAW_FIELD_PROPERTY_SCALAR(Float, float);
 		DRAW_FIELD_PROPERTY_SCALAR(Double, double);
-		case ScriptType::String:
+		case NativeType::String:
 		{
 			DrawFieldValue<std::string>(field, handle,
-				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					return PropertyString(fieldName, value);
 				});
 
 			break;
 		}
-		case ScriptType::Vector2:
+		case NativeType::Vector2:
 		{
 			DrawFieldValue<glm::vec2>(field, handle,
-				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					return PropertyVec2(fieldName, value);
 				});
 
 			break;
 		}
-		case ScriptType::Vector3:
+		case NativeType::Vector3:
 		{
 			DrawFieldValue<glm::vec3>(field, handle,
-				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					return PropertyVec3(fieldName, value);
 				});
 
 			break;
 		}
-		case ScriptType::Color:
+		case NativeType::Color:
 		{
 			DrawFieldValue<glm::vec4>(field, handle,
-				[](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					return PropertyColor(fieldName, value);
 				});
 
 			break;
 		}
-		case ScriptType::Entity:
+		case NativeType::Entity:
 		{
 			DrawFieldValue<UUID>(field, handle,
-				[&](const std::string& fieldName, auto& value, const ScriptType& fieldType)
+				[&](const std::string& fieldName, auto& value, const ManagedType& fieldType)
 				{
 					return PropertyEntity(fieldName, value, scene);
 				});
@@ -1552,7 +1552,7 @@ namespace TerranEditor
 	}
 
 #define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)		\
-	case ScriptType::FieldType:								\
+	case NativeType::FieldType:								\
 	{														\
 		Type value = array.Get<Type>(i);					\
 		if(UI::PropertyScalar<Type>(elementName, value))	\
@@ -1564,7 +1564,7 @@ namespace TerranEditor
 	break
 
 #define DRAW_FIELD_ARRAY_VALUE_OBJECT(FieldType, Type, DrawFunc)	\
-	case ScriptType::FieldType:										\
+	case NativeType::FieldType:										\
 	{																\
 		Type value = array.At(i);									\
 		if(DrawFunc(elementName, value))							\
@@ -1619,9 +1619,9 @@ namespace TerranEditor
 			{
 				ImGui::TableNextRow();
 				std::string elementName = std::to_string(i);
-				switch (array.GetType().TypeEnum)
+				switch (array.GetElementType().GetNativeType())
 				{
-				case ScriptType::Bool:
+				case NativeType::Bool:
 				{
 					bool value = array.Get<bool>(i);
 					if (PropertyBool(elementName, value))
@@ -1632,7 +1632,7 @@ namespace TerranEditor
 
 					break;
 				}
-				case ScriptType::Char:
+				case NativeType::Char:
 				{
 					char value = (char)array.Get<wchar_t>(i);
 					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
@@ -1662,7 +1662,7 @@ namespace TerranEditor
 				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector2, glm::vec2, UI::PropertyVec2);
 				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector3, glm::vec3, UI::PropertyVec3);
 				DRAW_FIELD_ARRAY_VALUE_OBJECT(Color, glm::vec4, UI::PropertyColor);
-				case ScriptType::Entity:
+				case NativeType::Entity:
 				{
 					UUID value = array.At(i);
 					if (UI::PropertyEntity(elementName, value, scene))

@@ -1,13 +1,13 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Terran
+﻿namespace Terran
 {
 	public class Entity
 	{
-		public UUID ID
+		internal UUID ID
 		{
-			get;
+			get => m_ID;
 		}
+
+		private UUID m_ID;
 
 		public string Name
 		{
@@ -18,12 +18,12 @@ namespace Terran
 
 		public Entity()
 		{
-			ID = new UUID();
+			m_ID = new UUID();
 		}
 
 		internal Entity(byte[] uuidData)
 		{
-			ID = new UUID(uuidData);
+			m_ID = new UUID(uuidData);
 		}
 
 		public static Entity FindWithName(string name)
@@ -36,14 +36,9 @@ namespace Terran
 			return null;
 		}
 
-		public static Entity FindWithID(UUID id)
+		internal static Entity FindWithID(UUID id)
 		{
-			byte[] entityID = Internal.Entity_FindEntityWithID(id);
-
-			if (entityID != null)
-				return new Entity(entityID);
-
-			return null;
+			return Internal.Entity_FindEntityWithID(id) ? new Entity(id) : null;
 		}
 
 		public static void Destroy(Entity entity) 
@@ -72,17 +67,13 @@ namespace Terran
 			
 			Entity[] children = new Entity[childrenIDs.Length];
 
-			int i = 0;
-			foreach (var id in childrenIDs)
-			{
-				children[i] = FindWithID(id);
-				i++;
-			}
+			for (int i = 0; i < childrenIDs.Length; i++)
+				children[i] = new Entity(childrenIDs[i]);
 
 			return children;
 		}
 
-		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(ID.Data, typeof(T));
+		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(m_ID, typeof(T));
 
 		public void RemoveComponent<T>() where T : Component 
 		{

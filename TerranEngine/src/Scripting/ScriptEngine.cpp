@@ -5,7 +5,7 @@
 #include "ScriptMarshal.h"
 #include "GCManager.h"
 #include "ScriptCache.h"
-#include "ScriptMethodThunks.h"
+#include "ManagedMethodThunks.h"
 #include "ScriptAssembly.h"
 #include "ManagedObject.h"
 #include "ScriptArray.h"
@@ -37,14 +37,14 @@ namespace TerranEngine
 	struct ScriptableInstance 
 	{
 		GCHandle ObjectHandle;
-		ScriptMethodThunks<MonoArray*> Constructor;
-		ScriptMethodThunks<> InitMethod;
-		ScriptMethodThunks<float> UpdateMethod;
+		ManagedMethodThunks<MonoArray*> Constructor;
+		ManagedMethodThunks<> InitMethod;
+		ManagedMethodThunks<float> UpdateMethod;
 		
-		ScriptMethodThunks<MonoArray*> PhysicsBeginContact;
-		ScriptMethodThunks<MonoArray*> PhysicsEndContact;
+		ManagedMethodThunks<MonoArray*> PhysicsBeginContact;
+		ManagedMethodThunks<MonoArray*> PhysicsEndContact;
 
-		ScriptMethodThunks<> PhysicsUpdateMethod;
+		ManagedMethodThunks<> PhysicsUpdateMethod;
 
         // TODO: make static?
 		void GetMethods() 
@@ -370,10 +370,9 @@ namespace TerranEngine
 		instance.ObjectHandle = GCManager::CreateStrongHandle(object);
 		instance.GetMethods();
 
-		ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
-			
+		MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 		MonoException* exception = nullptr;
-		instance.Constructor.Invoke(object.GetMonoObject(), uuidArray.GetMonoArray(), &exception);
+		instance.Constructor.Invoke(object.GetMonoObject(), uuidArray, &exception);
 
 		if (exception) 
 		{
@@ -451,10 +450,10 @@ namespace TerranEngine
 
 		if (instance.PhysicsBeginContact) 
 		{
-			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			MonoArray* uuidData = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
 			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsBeginContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exception);
+			instance.PhysicsBeginContact.Invoke(monoObject, uuidData, &exception);
 
 			if(exception)
 				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);
@@ -468,10 +467,10 @@ namespace TerranEngine
 
 		if (instance.PhysicsEndContact)
 		{
-			ScriptArray uuidArr = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
+			MonoArray* uuidData = ScriptMarshal::UUIDToMonoArray(collidee.GetID());
 			MonoException* exception = nullptr;
 			MonoObject* monoObject = GCManager::GetManagedObject(instance.ObjectHandle);
-			instance.PhysicsEndContact.Invoke(monoObject, uuidArr.GetMonoArray(), &exception);
+			instance.PhysicsEndContact.Invoke(monoObject, uuidData, &exception);
 
 			if(exception)
 				Log(ScriptUtils::GetExceptionMessage(exception), spdlog::level::err);

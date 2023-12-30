@@ -7,7 +7,7 @@
 #include "ScriptCache.h"
 #include "ScriptArray.h"
 #include "ManagedObject.h"
-#include "ScriptMethodThunks.h"
+#include "ManagedMethodThunks.h"
 
 #include "Core/Input.h"
 
@@ -36,7 +36,7 @@ namespace TerranEngine
 
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)
 
-		static ScriptMethodThunks<MonoArray*> s_IDClassCtor;
+		static ManagedMethodThunks<MonoArray*> s_IDClassCtor;
 		static std::unordered_map <MonoType*, std::function<bool(Entity)>> s_HasComponentFuncs;
 		static std::unordered_map <MonoType*, std::function<void(Entity)>> s_AddComponentFuncs;
 		static std::unordered_map <MonoType*, std::function<void(Entity)>> s_RemoveComponentFuncs;
@@ -231,11 +231,11 @@ namespace TerranEngine
         }
 
 		// ---- Entity Utils ----
-		bool Entity_HasComponent(MonoArray* uuid, MonoReflectionType* monoRefType)
+		bool Entity_HasComponent(MonoArray* uuidData, MonoReflectionType* monoRefType)
 		{
 			TR_PROFILE_FUNCTION();
-			
-            Entity entity = GetEntityFromMonoArray(uuid);
+
+            Entity entity = GetEntityFromMonoArray(uuidData);
             if(!entity)
                 return false;
 
@@ -313,17 +313,11 @@ namespace TerranEngine
 			return GCManager::GetManagedObject(objectHandle);
 		}
 
-		MonoArray* Entity_FindEntityWithID(MonoArray* monoIDArray)
+		bool Entity_FindEntityWithID(MonoArray* monoIDArray)
 		{
 			TR_PROFILE_FUNCTION();
             Entity entity = GetEntityFromMonoArray(monoIDArray);
-
-			if (entity)
-			{
-				MonoArray* idArray = ScriptMarshal::UUIDToMonoArray(entity.GetID()).GetMonoArray();
-				return idArray;
-			}
-			return nullptr;
+			return (bool)entity;
 		}
 
 		MonoArray* Entity_FindEntityWithName(MonoString* monoEntityName)
@@ -334,7 +328,7 @@ namespace TerranEngine
 
 			if (entity)
 			{
-				MonoArray* monoArray = ScriptMarshal::UUIDToMonoArray(entity.GetID()).GetMonoArray();
+				MonoArray* monoArray = ScriptMarshal::UUIDToMonoArray(entity.GetID());
 				return monoArray;
 			}
 			return nullptr;
@@ -369,10 +363,10 @@ namespace TerranEngine
 			for (const UUID& id : entity.GetChildren())
 			{
 				ManagedObject idObject = idClass->CreateInstance();
-				MonoArray* uuidArray = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
+				MonoArray* uuidData = ScriptMarshal::UUIDToMonoArray(id);
 
 				MonoException* exc = nullptr;
-				s_IDClassCtor.Invoke(idObject.GetMonoObject(), uuidArray, &exc);
+				s_IDClassCtor.Invoke(idObject.GetMonoObject(), uuidData, &exc);
 				childrenIDs.Set(i, idObject.GetMonoObject());
 				i++;
 			}
@@ -631,9 +625,9 @@ namespace TerranEngine
 			}
 
 			//outHitInfo.UUID = ScriptMarshal::UUIDToMonoArray(id).GetMonoArray();
-			ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+			MonoArray* uuidData = ScriptMarshal::UUIDToMonoArray(id);
 
-			void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
+			void* entityCtorArgs[] = { uuidData };
 			ManagedObject entityObj = TR_API_CACHED_CLASS(Entity)->CreateInstance();
 			ManagedMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 			entityConstructor->Invoke(entityObj, entityCtorArgs);
@@ -670,9 +664,9 @@ namespace TerranEngine
 					id = entity.GetID();
 				}
 
-				ScriptArray uuidArray = ScriptMarshal::UUIDToMonoArray(id);
+				MonoArray* uuidData = ScriptMarshal::UUIDToMonoArray(id);
 
-				void* entityCtorArgs[] = { uuidArray.GetMonoArray() };
+				void* entityCtorArgs[] = { uuidData };
 				ManagedObject entityObj = TR_API_CACHED_CLASS(Entity)->CreateInstance();
 				ManagedMethod* entityConstructor = ScriptCache::GetCachedMethod("Terran.Entity", ":.ctor(byte[])");
 				entityConstructor->Invoke(entityObj, entityCtorArgs);
@@ -1232,6 +1226,7 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FUNCTION();
 			std::string message = ScriptMarshal::MonoStringToUTF8(monoMessage);
+			TR_TRACE(message);
 			switch (logLevel)
 			{
 			case 1 << 0: TR_CLIENT_TRACE(message); break;
