@@ -127,7 +127,7 @@ namespace TerranEngine
 			std::filesystem::path assetInfoPath = Project::GetAssetInfoDBPath();
 			node = YAML::LoadFile(assetInfoPath.string());
 		}
-		catch (const YAML::Exception& e) 
+		catch (const YAML::BadFile& e) 
 		{
 			TR_ERROR(e.what());
 			return;

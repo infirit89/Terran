@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/PlatformCheck.h"
+
 #include <string>
 #include <filesystem>
 #include <functional>
@@ -8,7 +10,8 @@ namespace TerranEngine
 {
 	enum class FileAction 
 	{
-		Added = 0,
+		None = 0,
+		Added,
 		Removed,
 		Modified,
 		Renamed
@@ -42,7 +45,12 @@ namespace TerranEngine
 		static void SetFileSystemChangeCallback(const FileSystemChangeCallbackFn& changeCallback);
 
 	private:
+
+#if defined(TR_WINDOWS_64)
 		static unsigned long Watch(void* params);
+#elif defined(TR_LINUX)
+		static void* Watch(void* params);
+#endif
 
 		static FileSystemChangeCallbackFn s_ChangeCallback;
 		static std::filesystem::path s_PathToWatch;

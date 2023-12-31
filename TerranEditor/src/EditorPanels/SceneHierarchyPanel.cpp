@@ -235,9 +235,10 @@ namespace TerranEditor
 
 		if (isDeleted)
 		{
-			m_Scene->DestroyEntity(entity, true);
 			if (selectedEntity == entity)
 				SelectionManager::Deselect(SelectionContext::Scene);
+				
+			m_Scene->DestroyEntity(entity, true);
 		}
 
 		ImGui::PopID();
