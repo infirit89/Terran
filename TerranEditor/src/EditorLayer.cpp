@@ -127,10 +127,10 @@ namespace TerranEditor
 		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
-		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
+		/*ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });*/
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
-		ScriptEngine::LoadAppAssembly();
+		//ScriptEngine::LoadAppAssembly();
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();

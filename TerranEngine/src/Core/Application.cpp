@@ -11,6 +11,7 @@
 #include "Graphics/BatchRenderer2D.h"
 
 #include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptingTest.h"
 
 #include "Physics/Physics.h"
 
@@ -40,7 +41,8 @@ namespace TerranEngine
 		// TODO: this should NOT be initialized here; 
 		// it should be initialized on project load
 		AssetManager::Init();
-        ScriptEngine::Initialize(appData.ScriptCorePath);
+        //ScriptEngine::Initialize(appData.ScriptCorePath);
+		ScriptingTest::Initialize();
         Physics2D::Initialize();
 
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
@@ -54,7 +56,8 @@ namespace TerranEngine
 	Application::~Application()
 	{
 		m_Stack.RemoveAllLayers();
-        ScriptEngine::Shutdown();
+        //ScriptEngine::Shutdown();
+		ScriptingTest::Shutdown();
         Physics2D::Shutdown();
 		BatchRenderer2D::Shutdown();
 		AssetManager::Shutdown();

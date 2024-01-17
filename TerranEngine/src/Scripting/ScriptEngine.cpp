@@ -303,7 +303,7 @@ namespace TerranEngine
 
 	void ScriptEngine::CreateAppDomain() 
 	{
-		s_Data->AppDomain = mono_domain_create_appdomain("ScriptAssemblyDomain", NULL);
+		s_Data->AppDomain = mono_domain_create_appdomain((char*)"ScriptAssemblyDomain", NULL);
 		
 		if (!mono_domain_set(s_Data->AppDomain, false))
 			TR_ERROR("Couldn't set the new domain");

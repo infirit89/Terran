@@ -1,20 +1,31 @@
 project "TerranScriptCore"
     kind "SharedLib"
     language "C#"
+    dotnetframework "net8.0"
+    clr "Unsafe"
+
+    propertytags
+    {
+        { "AppendTargetFrameworkToOutputPath", "false" },
+        { "Nullable", "enable" }
+    }
 
     targetdir ("../TerranEditor/Resources/Scripts")
     objdir ("../TerranEditor//Resources/Scripts/Intermidiates")
 
     files 
     {
-        "Source/**.cs",
-        "Properties/**.cs"
+        "Source/**.cs"
     }
 
     includedirs 
     {
-        "Source",
-        "Properties"
+        "Source"
+    }
+
+    links 
+    {
+        "Coral.Managed"
     }
 
     filter "system:windows"

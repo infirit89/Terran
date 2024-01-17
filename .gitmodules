@@ -26,3 +26,6 @@
 [submodule "TerranEngine/vendor/ImGui"]
 	path = TerranEngine/vendor/ImGui
 	url = https://github.com/OKAY808/imgui
+[submodule "TerranEngine/vendor/Coral"]
+	path = TerranEngine/vendor/Coral
+	url = https://github.com/infirit89/Coral

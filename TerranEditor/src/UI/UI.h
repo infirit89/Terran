@@ -191,7 +191,7 @@ namespace TerranEditor::UI
 	}
 
 	template<typename T>
-	bool PropertyScalar(const std::string& label, T& value) 
+	bool PropertyScalar(const std::string& label, T& value, float power = 0.1f)
 	{
 		ImGui::PushID(label.c_str());
 		

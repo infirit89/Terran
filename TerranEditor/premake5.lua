@@ -1,8 +1,10 @@
 project "TerranEditor"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
-    staticruntime "on"
+    cppdialect "C++20"
+    staticruntime "Off"
+
+    architecture "x86_64"
 
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
@@ -43,6 +45,7 @@ project "TerranEditor"
     CopyCommands["mono"] = "{COPY} %{Libraries.mono_shared} %{prj.location}/bin/%{outputdir}"
     CopyCommands["optick"] = "{COPY} %{Libraries.optick} %{prj.location}/bin/%{outputdir}"
     CopyCommands["shaderc"] = "{COPY} %{Libraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
+    CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
 
     filter "system:windows"
         systemversion "latest"
@@ -52,7 +55,8 @@ project "TerranEditor"
              -- todo: copy the pdb
              "%{CopyCommands.mono}",
              "%{CopyCommands.optick}",
-             "%{CopyCommands.shaderc}"
+             "%{CopyCommands.shaderc}",
+             "%{CopyCommands.coral}",
          }
 
     filter "configurations:Debug"

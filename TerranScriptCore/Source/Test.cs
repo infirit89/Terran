@@ -5,8 +5,9 @@ namespace Terran
 {
 	class Test 
 	{
-		void T1() 
+		static void T1() 
 		{
+			Console.WriteLine("cum");
 		}
 	}
 

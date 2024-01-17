@@ -1596,7 +1596,7 @@ namespace TerranEditor
 		size_t arrayLength = array.Length();
 
 		std::string name = fmt::format("##{0}{1}", field->GetName().c_str(), "array_size");
-		if (UI::DragScalar<uint64_t>(name.c_str(), &arrayLength, 0.1f))
+		if (UI::DragScalar<uint64_t>(name.c_str(), (uint64_t*) &arrayLength, 0.1f))
 		{
 			if (array)
 				array.Resize(arrayLength);
