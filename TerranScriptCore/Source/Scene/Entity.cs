@@ -23,7 +23,7 @@
 
 		internal Entity(byte[] uuidData)
 		{
-			m_ID = new UUID(uuidData);
+			//m_ID = new UUID(uuidData);
 		}
 
 		public static Entity FindWithName(string name)
@@ -43,8 +43,8 @@
 
 		public static void Destroy(Entity entity) 
 		{
-			if (entity != null)
-				Internal.Entity_DestroyEntity(entity.ID.Data);
+			//if (entity != null)
+			//	Internal.Entity_DestroyEntity(entity.ID.Data);
 		}
 
 		public void AddComponent<T>() where T : Component
@@ -55,7 +55,7 @@
 				return;
 			}
 
-			Internal.Entity_AddComponent(ID.Data, typeof(T));
+			//Internal.Entity_AddComponent(ID.Data, typeof(T));
 		}
 
 		public Entity[] GetChildren()
@@ -85,7 +85,7 @@
 					return;
 				}
 
-				Internal.Entity_RemoveComponent(ID.Data, typeof(T));
+				//Internal.Entity_RemoveComponent(ID.Data, typeof(T));
 			}
 		} 
 
@@ -93,8 +93,8 @@
 		{
 			if (HasComponent<T>())
 			{
-				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
-					return Internal.Entity_GetScriptableComponent(ID.Data) as T;
+				//if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
+				//	return Internal.Entity_GetScriptableComponent(ID.Data) as T;
 
 				T component = new T { Entity = new Entity(ID) };
 				return component;
