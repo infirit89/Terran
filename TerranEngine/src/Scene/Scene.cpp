@@ -378,29 +378,29 @@ namespace TerranEngine
 		{
 			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
 
-			if constexpr (std::is_same<Component, ScriptComponent>::value)
-			{
-				ScriptComponent& sc = dstRegistry.get<ScriptComponent>(dstHandle);
+			//if constexpr (std::is_same<Component, ScriptComponent>::value)
+			//{
+			//	ScriptComponent& sc = dstRegistry.get<ScriptComponent>(dstHandle);
 
-				for (const auto& fieldID : sc.PublicFieldIDs)
-				{
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-					
-					const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
-					const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
+			//	for (const auto& fieldID : sc.PublicFieldIDs)
+			//	{
+			//		//ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+			//		
+			//		const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
+			//		const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
 
-					const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
-					const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
+			//		const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
+			//		const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
 
-					const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
-					const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
-					
-					const GCHandle srcEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(srcSceneID, srcEntityID);
-					const GCHandle dstEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(dstSceneID, dstEntityID);
+			//		const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
+			//		const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
+			//		
+			//		//const GCHandle srcEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(srcSceneID, srcEntityID);
+			//		//const GCHandle dstEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(dstSceneID, dstEntityID);
 
-					field->CopyData(srcEntityHandle, dstEntityHandle);
-				}
-			}
+			//		//field->CopyData(srcEntityHandle, dstEntityHandle);
+			//	}
+			//}
 		}
 	}
 

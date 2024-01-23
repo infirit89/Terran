@@ -284,9 +284,9 @@ namespace TerranEditor
 
 				for (const auto& fieldID : component.PublicFieldIDs)
 				{
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					//ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-					if (field->GetType().IsArray())
+					/*if (field->GetType().IsArray())
 					{
 						UI::EndPropertyGroup();
 						ScriptArray array = field->GetArray(handle);
@@ -299,7 +299,7 @@ namespace TerranEditor
 					{
 						ImGui::TableNextRow();
 						UI::PropertyScriptField(m_Scene, field, handle);
-					}
+					}*/
 				}
 			}
 			UI::EndPropertyGroup();

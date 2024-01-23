@@ -49,65 +49,65 @@ namespace TerranEngine
 		for (auto& fieldID : sc.PublicFieldIDs)
 		{
 			out << YAML::BeginMap;
-			ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+			//ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
 
-			if(field->GetType().IsArray()) 
-			{
-				ScriptArray array = field->GetArray(handle);
-				out << YAML::Key << field->GetName() << YAML::Value << YAML::Flow << YAML::BeginSeq;
-				
-				for(size_t i = 0; i < array.Length(); i++) 
-				{
-					switch (array.GetElementType().GetNativeType())
-					{
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
-						// NOTE: maybe wchar_t?
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, uint8_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
-						default: TR_ASSERT(false, "Unsupported field type"); break;
-					}
-				}
+			//if(field->GetType().IsArray()) 
+			//{
+			//	ScriptArray array = field->GetArray(handle);
+			//	out << YAML::Key << field->GetName() << YAML::Value << YAML::Flow << YAML::BeginSeq;
+			//	
+			//	for(size_t i = 0; i < array.Length(); i++) 
+			//	{
+			//		switch (array.GetElementType().GetNativeType())
+			//		{
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
+			//			// NOTE: maybe wchar_t?
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, uint8_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
+			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+			//			default: TR_ASSERT(false, "Unsupported field type"); break;
+			//		}
+			//	}
 
-				out << YAML::EndSeq;
-			}
-			else 
-			{
-				switch (field->GetType().GetNativeType())
-				{
-					WRITE_SCRIPT_FIELD(Bool, bool);
-					WRITE_SCRIPT_FIELD(Char, wchar_t);
-					WRITE_SCRIPT_FIELD(Int8, int8_t);
-					WRITE_SCRIPT_FIELD(Int16, int16_t);
-					WRITE_SCRIPT_FIELD(Int32, int32_t);
-					WRITE_SCRIPT_FIELD(Int64, int64_t);
-					WRITE_SCRIPT_FIELD(UInt8, uint8_t);
-					WRITE_SCRIPT_FIELD(UInt16, uint16_t);
-					WRITE_SCRIPT_FIELD(UInt32, uint32_t);
-					WRITE_SCRIPT_FIELD(UInt64, uint64_t);
-					WRITE_SCRIPT_FIELD(Float, float);
-					WRITE_SCRIPT_FIELD(Double, double);
-					WRITE_SCRIPT_FIELD(String, std::string);
-					WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
-					WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
-					WRITE_SCRIPT_FIELD(Color, glm::vec4);
-					WRITE_SCRIPT_FIELD(Entity, UUID);
-					default: TR_ASSERT(false, "Unsupported field type"); break;
-				}
-			}
+			//	out << YAML::EndSeq;
+			//}
+			//else 
+			//{
+			//	switch (field->GetType().GetNativeType())
+			//	{
+			//		WRITE_SCRIPT_FIELD(Bool, bool);
+			//		WRITE_SCRIPT_FIELD(Char, wchar_t);
+			//		WRITE_SCRIPT_FIELD(Int8, int8_t);
+			//		WRITE_SCRIPT_FIELD(Int16, int16_t);
+			//		WRITE_SCRIPT_FIELD(Int32, int32_t);
+			//		WRITE_SCRIPT_FIELD(Int64, int64_t);
+			//		WRITE_SCRIPT_FIELD(UInt8, uint8_t);
+			//		WRITE_SCRIPT_FIELD(UInt16, uint16_t);
+			//		WRITE_SCRIPT_FIELD(UInt32, uint32_t);
+			//		WRITE_SCRIPT_FIELD(UInt64, uint64_t);
+			//		WRITE_SCRIPT_FIELD(Float, float);
+			//		WRITE_SCRIPT_FIELD(Double, double);
+			//		WRITE_SCRIPT_FIELD(String, std::string);
+			//		WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+			//		WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+			//		WRITE_SCRIPT_FIELD(Color, glm::vec4);
+			//		WRITE_SCRIPT_FIELD(Entity, UUID);
+			//		default: TR_ASSERT(false, "Unsupported field type"); break;
+			//	}
+			//}
 
 			out << YAML::EndMap;
 		}
@@ -321,7 +321,7 @@ namespace TerranEngine
 	{
 		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
 		{
-			ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
+			/*ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
 			YAML::Node scriptField;
 			bool valid = false;
 			
@@ -388,7 +388,7 @@ namespace TerranEngine
 					READ_SCRIPT_FIELD(Color, glm::vec4);
 					READ_SCRIPT_FIELD(Entity, UUID);
 				}
-			}
+			}*/
 
 		}
 	}
@@ -494,10 +494,10 @@ namespace TerranEngine
 
 			if (ScriptEngine::ClassExists(sc.ModuleName)) 
 			{
-				GCHandle handle = ScriptEngine::InitializeScriptable(deserializedEntity);
-				auto scriptFields = scriptComponent["Fields"];
-				if (scriptFields)
-					DeserializeScriptFields(handle, sc, scriptFields);
+				//GCHandle handle = ScriptEngine::InitializeScriptable(deserializedEntity);
+				//auto scriptFields = scriptComponent["Fields"];
+				//if (scriptFields)
+					//DeserializeScriptFields(handle, sc, scriptFields);
 			}
 		}
 

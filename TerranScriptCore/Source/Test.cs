@@ -17,6 +17,8 @@ namespace Terran
 		internal static unsafe delegate*<NativeString, void> PrintICall;
 		internal static unsafe delegate*<NativeArray<UUID>> GetIDs;
         internal static unsafe delegate*<in UUID, void> Cum;
+		public int[] TestArr = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+
         static void T1() 
 		{
 			UUID[] structs;

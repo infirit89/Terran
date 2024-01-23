@@ -10,6 +10,11 @@
 
 #include <filesystem>
 
+namespace Coral 
+{
+	class ManagedObject;
+}
+
 namespace TerranEngine 
 {
 #define TR_CORE_ASSEMBLY_INDEX 0
@@ -25,15 +30,11 @@ namespace TerranEngine
 
 		static void ReloadAppAssembly();
 		
-		static ManagedClass GetClassFromName(const std::string& moduleName, int assemblyIndex);
-		static ManagedClass GetClassFromTypeToken(uint32_t typeToken, int assemblyIndex);
-		
-		static ManagedMethod GetMethodFromDesc(const std::string& methodDesc, int assemblyIndex);
 		static bool ClassExists(const std::string& moduleName);
 
-		static Shared<ScriptAssembly>& GetAssembly(int assemblyIndex);
+		static Shared<ScriptAssembly> GetAssembly(int assemblyIndex);
 		
-		static GCHandle InitializeScriptable(Entity entity);
+		static void InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 
 		static void OnStart(Entity entity);
@@ -51,6 +52,7 @@ namespace TerranEngine
 
 		static void SetLogCallback(LogFN logCallback);
 	private:
+		static Coral::ManagedObject* IntializeScriptable_Internal(Entity entity);
 		static bool LoadCoreAssembly();
 		
 		static void CreateAppDomain();

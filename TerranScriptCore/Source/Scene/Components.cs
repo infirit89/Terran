@@ -207,7 +207,7 @@ namespace Terran
 	{
 		public Scriptable() { }
 
-		internal Scriptable(byte[] id)
+		internal Scriptable(UUID id)
 		{
 			if (Entity == null) 
 				Entity = new Entity(id);

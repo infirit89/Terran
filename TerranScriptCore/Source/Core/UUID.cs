@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Terran
 {
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct UUID
+	public struct UUID
 	{
 		//public UUID(byte[] data) 
 		//{

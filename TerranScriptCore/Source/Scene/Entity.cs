@@ -2,7 +2,7 @@
 {
 	public class Entity
 	{
-		internal UUID ID
+		public UUID ID
 		{
 			get => m_ID;
 		}
@@ -21,17 +21,18 @@
 			m_ID = new UUID();
 		}
 
-		internal Entity(byte[] uuidData)
+		internal Entity(UUID id)
 		{
+			m_ID = id;
 			//m_ID = new UUID(uuidData);
 		}
 
 		public static Entity FindWithName(string name)
 		{
-			byte[] entityID = Internal.Entity_FindEntityWithName(name);
+			//byte[] entityID = Internal.Entity_FindEntityWithName(name);
 
-			if (entityID != null)
-				return new Entity(entityID);
+			//if (entityID != null)
+			//	return new Entity(entityID);
 
 			return null;
 		}

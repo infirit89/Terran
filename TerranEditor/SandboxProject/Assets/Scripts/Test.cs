@@ -15,7 +15,7 @@ namespace ScriptAssembly
 
 		protected override void Init()
 		{
-			Log.Warn(Entity.HasComponent<Transform>());
+			Console.WriteLine(this.Entity.ID);
 		}
 
 		protected override void Update(float deltaTime)

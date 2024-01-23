@@ -2,15 +2,15 @@
 #include "ScriptEngine.h"
 
 #include "ScriptBindings.h"
-#include "ScriptMarshal.h"
-#include "GCManager.h"
-#include "ScriptCache.h"
-#include "ManagedMethodThunks.h"
-#include "ScriptAssembly.h"
-#include "ManagedObject.h"
-#include "ScriptArray.h"
-#include "ScriptUtils.h"
-#include "ManagedMetadata.h"
+//#include "ScriptMarshal.h"
+//#include "GCManager.h"
+//#include "ScriptCache.h"
+//#include "ManagedMethodThunks.h"
+//#include "ScriptAssembly.h"
+//#include "ManagedObject.h"
+//#include "ScriptArray.h"
+//#include "ScriptUtils.h"
+//#include "ManagedMetadata.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -23,66 +23,58 @@
 
 #include "Utils/Debug/OptickProfiler.h"
 
-#include <mono/jit/jit.h>
-#include <mono/metadata/assembly.h>
-#include <mono/metadata/mono-gc.h>
-#include <mono/metadata/mono-debug.h>
-#include <mono/utils/mono-logger.h>
-#include <mono/metadata/mono-config.h>
-
 #include <unordered_map>
+
+#include <Coral/HostInstance.hpp>
+#include <Coral/GC.hpp>
+#include <Coral/Array.hpp>
 
 namespace TerranEngine
 {
-	struct ScriptableInstance 
-	{
-		GCHandle ObjectHandle;
-		ManagedMethodThunks<MonoArray*> Constructor;
-		ManagedMethodThunks<> InitMethod;
-		ManagedMethodThunks<float> UpdateMethod;
-		
-		ManagedMethodThunks<MonoArray*> PhysicsBeginContact;
-		ManagedMethodThunks<MonoArray*> PhysicsEndContact;
+	//struct ScriptableInstance 
+	//{
+	//	GCHandle ObjectHandle;
+	//	ManagedMethodThunks<MonoArray*> Constructor;
+	//	ManagedMethodThunks<> InitMethod;
+	//	ManagedMethodThunks<float> UpdateMethod;
+	//	
+	//	ManagedMethodThunks<MonoArray*> PhysicsBeginContact;
+	//	ManagedMethodThunks<MonoArray*> PhysicsEndContact;
 
-		ManagedMethodThunks<> PhysicsUpdateMethod;
+	//	ManagedMethodThunks<> PhysicsUpdateMethod;
 
-        // TODO: make static?
-		void GetMethods() 
-		{
-			Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
+ //       // TODO: make static?
+	//	void GetMethods() 
+	//	{
+	//		Constructor.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":.ctor(byte[])"));
 
-			InitMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
-			UpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update(single)"));
+	//		InitMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Init()"));
+	//		UpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":Update(single)"));
 
-			PhysicsBeginContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
-			PhysicsEndContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
+	//		PhysicsBeginContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionBegin(Entity)"));
+	//		PhysicsEndContact.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":OnCollisionEnd(Entity)"));
 
-			PhysicsUpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":PhysicsUpdate()"));
-		}
-	};
+	//		PhysicsUpdateMethod.SetFromMethod(ScriptCache::GetCachedMethod("Terran.Scriptable", ":PhysicsUpdate()"));
+	//	}
+	//};
 	
-	using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, ScriptableInstance>>;
+	using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, Coral::ManagedObject>>;
 	
 	struct ScriptEngineData 
 	{
-		MonoDomain* CoreDomain;
-		MonoDomain* AppDomain;
-
-		std::array<Shared<ScriptAssembly>, TR_ASSEMBLIES> Assemblies;
+		Coral::HostInstance HostInstance;
+		Coral::AssemblyLoadContext LoadContext;
+		std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> Assemblies;
 		
-		std::filesystem::path MonoPath = "mono";
+		std::string CoralDirectory = "Resources/Scripts";
+		Coral::Type ScriptableBaseClass;
 
-		std::filesystem::path LibPath = MonoPath / "lib";
-		std::filesystem::path EtcPath = MonoPath / "etc";
-
-		std::filesystem::path MonoConfigPath = EtcPath / "config";
-	
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
 		std::function<void(std::string, spdlog::level::level_enum)> LogCallback;
 	};
 
-	static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
+	//static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
 	
 	static ScriptEngineData* s_Data;
 
@@ -92,9 +84,9 @@ namespace TerranEngine
 			s_Data->LogCallback(message, logLevel);
 	}
 
-	static ScriptableInstance s_EmptyInstance;
+	//static ScriptableInstance s_EmptyInstance;
 
-	static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
+	/*static ScriptableInstance& GetInstance(const UUID& sceneUUID, const UUID& entityUUID) 
 	{
 		TR_PROFILE_FUNCTION();
 		if (s_Data->ScriptInstanceMap.find(sceneUUID) != s_Data->ScriptInstanceMap.end()) 
@@ -104,9 +96,144 @@ namespace TerranEngine
 		}
 
 		return s_EmptyInstance;
+	}*/
+
+	static void OnException(std::string_view message) 
+	{
+		TR_ERROR(message);
 	}
 
+	static void OnMessage(std::string_view message, Coral::MessageLevel messageLevel) 
+	{
+		switch (messageLevel)
+		{
+		case Coral::MessageLevel::Info:		TR_INFO(message); break;
+		case Coral::MessageLevel::Warning:	TR_WARN(message); break;
+		case Coral::MessageLevel::Error:	TR_ERROR(message); break;
+		}
+	}
 
+	void ScriptEngine::Initialize(const std::filesystem::path& scriptCoreAssemblyPath) 
+	{
+		s_Data = new ScriptEngineData;
+		s_Data->ScriptCoreAssemblyPath = scriptCoreAssemblyPath;
+
+		Coral::HostSettings settings = 
+		{
+			.CoralDirectory = s_Data->CoralDirectory,
+			.MessageCallback = OnMessage,
+			.ExceptionCallback = OnException
+		};
+
+		s_Data->HostInstance.Initialize(settings);
+		s_Data->LoadContext = s_Data->HostInstance.CreateAssemblyLoadContext("ScriptAppContext");
+
+		 auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+		 coreAssembly = s_Data->LoadContext.LoadAssembly(scriptCoreAssemblyPath.string());
+
+		 s_Data->ScriptableBaseClass = coreAssembly.GetType("Terran.Scriptable");
+		 if (!s_Data->ScriptableBaseClass)
+			 TR_ERROR("The scriptable base class wasn't found!");
+	}
+
+	void ScriptEngine::Shutdown() 
+	{
+		Coral::GC::Collect();
+		s_Data->HostInstance.UnloadAssemblyLoadContext(s_Data->LoadContext);
+	}
+
+	void ScriptEngine::ReloadAppAssembly() {}
+
+	bool ScriptEngine::ClassExists(const std::string& moduleName) { return false;  }
+
+	Shared<ScriptAssembly> ScriptEngine::GetAssembly(int assemblyIndex) { return nullptr; }
+
+	void ScriptEngine::InitializeScriptable(Entity entity) 
+	{
+		IntializeScriptable_Internal(entity);
+	}
+
+	void ScriptEngine::UninitalizeScriptable(Entity entity) {}
+
+	void ScriptEngine::OnStart(Entity entity) {}
+	void ScriptEngine::OnUpdate(Entity entity, float deltaTime) {}
+
+	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee) {}
+	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee) {}
+
+	void ScriptEngine::OnPhysicsUpdate(Entity entity) {}
+
+	ManagedObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
+	GCHandle ScriptEngine::GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
+
+	bool ScriptEngine::LoadAppAssembly() 
+	{
+		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+		appAssembly = s_Data->LoadContext.LoadAssembly(Project::GetAppAssemblyPath().string());
+
+		Coral::AssemblyLoadStatus status = appAssembly.GetLoadStatus();
+
+		if (status != Coral::AssemblyLoadStatus::Success)
+		{
+			TR_ERROR("Couldn't load the ScriptAssembly assembly");
+			return false;
+		}
+
+		Coral::Type& test = appAssembly.GetType("Terran.Test");
+
+		Coral::ManagedObject object = test.CreateInstance();
+		void* arr = object.GetFieldValue<void*>("TestArr");
+		void* a = (long*)arr - 2;
+		TR_TRACE(*((long*)(a)));
+
+		return true;
+	}
+
+	Coral::ManagedObject* ScriptEngine::IntializeScriptable_Internal(Entity entity)
+	{
+		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+
+		if (scriptComponent.ModuleName.empty()) return nullptr;
+
+		Coral::ManagedAssembly& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+		Coral::Type& type = appAssembly.GetType(scriptComponent.ModuleName);
+
+		if (!type) 
+		{
+			scriptComponent.ClassExists = false;
+			TR_ERROR("Class {0} doesn't exist", scriptComponent.ModuleName);
+			return nullptr;
+		}
+
+		scriptComponent.ClassExists = true;
+
+		if (s_Data->ScriptInstanceMap.find(entity.GetSceneID()) != s_Data->ScriptInstanceMap.end()) 
+		{
+			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneID()).find(entity.GetID());
+			if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneID()).end())
+				return &((*obj).second);
+		}
+
+		if (!type.IsSubclassOf(s_Data->ScriptableBaseClass)) 
+		{
+			TR_ERROR("Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
+			return nullptr;
+		}
+
+		Coral::ManagedObject object = type.CreateInstance(entity.GetID());
+		s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = object;
+
+		scriptComponent.PublicFieldIDs.clear();
+		for (Coral::FieldInfo& field : type.GetFields()) 
+		{
+			/*if(field.GetAccessibility() == Coral::TypeAccessibility::Public)
+				scriptComponent.PublicFieldIDs.emplace_back(field.)*/
+		}
+
+		return &s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+	}
+
+#if 0
 	void ScriptEngine::Initialize(const std::filesystem::path& scriptCoreAssemblyPath)
 	{
 		s_Data = new ScriptEngineData;
@@ -517,4 +644,5 @@ namespace TerranEngine
 				TR_TRACE("Domain: {0}; Message: {1}; Log Level: {2}", logDomain, message, logLevel);
 		}
 	}
+#endif
 }

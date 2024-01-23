@@ -45,7 +45,7 @@ namespace TerranEngine
     private:
         static Shared<Project> s_ActiveProject;
         const std::filesystem::path m_AssetPath = "Assets";
-        const std::filesystem::path m_ScriptAssembliesPath = "ScriptAssemblies";
+        const std::filesystem::path m_ScriptAssembliesPath = "ScriptAssemblies/net8.0";
         const std::filesystem::path m_AppAssemblyName = "ScriptAssembly.dll";
         const std::filesystem::path m_AssetInfoDBPath = "AssetInfoDB";
         std::filesystem::path m_ProjectPath;

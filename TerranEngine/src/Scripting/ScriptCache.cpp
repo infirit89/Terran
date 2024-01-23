@@ -50,7 +50,7 @@ namespace TerranEngine
 	CacheMethodsForClass(s_CachedClasses.at(klass##ID))
 		
 		// api core classes
-		CACHE_API_CLASS(Vector2);
+		/*CACHE_API_CLASS(Vector2);
 		CACHE_API_CLASS(Vector3);
 		CACHE_API_CLASS(LayerMask);
 		CACHE_API_CLASS(Color);
@@ -70,7 +70,7 @@ namespace TerranEngine
 		CACHE_API_CLASS(CircleRenderer);
 		CACHE_API_CLASS(TextRenderer);
 		CACHE_API_CLASS(RayCastHitInfo2D);
-		CACHE_API_CLASS(KeyCode);
+		CACHE_API_CLASS(KeyCode);*/
 	}
 
 	void ScriptCache::ClearCache()
