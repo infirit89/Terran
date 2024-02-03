@@ -1205,7 +1205,7 @@ namespace TerranEditor
 		return TreeNodeBehavior(window->GetID(label), flags, label, NULL);
 	}
 
-	template<typename T>
+	/*template<typename T>
 	static void DrawFieldValue(ScriptField* field, GCHandle handle,
 		const std::function<bool(const std::string& fieldName, T& value, const ManagedType& fieldType)>& drawFunc)
 	{
@@ -1213,7 +1213,7 @@ namespace TerranEditor
 		std::string fieldName = ProccessFieldName(field->GetName());
 		if (drawFunc(fieldName, value, field->GetType()))
 			field->SetData<Utils::Variant>(value, handle);
-	}
+	}*/
 
 #define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)\
 	case NativeType::FieldType:\
@@ -1226,103 +1226,103 @@ namespace TerranEditor
 	}\
 	break
 
-	void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
-	{
-		TR_ASSERT(handle, "Invalid handle");
+	//void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
+	//{
+		//TR_ASSERT(handle, "Invalid handle");
 
-		const ManagedClass& typeClass = field->GetType().GetTypeClass();
-		std::vector<ScriptField> enumFields;
+		//const ManagedClass& typeClass = field->GetType().GetTypeClass();
+		//std::vector<ScriptField> enumFields;
 
-		switch (field->GetType().GetNativeType())
-		{
-		case NativeType::Bool:
-		{
-			DrawFieldValue<bool>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyBool(fieldName, value);
-				});
+		//switch (field->GetType().GetNativeType())
+		//{
+		//case NativeType::Bool:
+		//{
+		//	DrawFieldValue<bool>(field, handle,
+		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			return PropertyBool(fieldName, value);
+		//		});
 
-			break;
-		}
-		case NativeType::Char:
-		{
-			DrawFieldValue<wchar_t>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					// TODO: support wide strings
-					std::string strVal; strVal += (char)value;
-					bool changed = PropertyString(fieldName, strVal, 0, 2);
+		//	break;
+		//}
+		//case NativeType::Char:
+		//{
+		//	DrawFieldValue<wchar_t>(field, handle,
+		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			// TODO: support wide strings
+		//			std::string strVal; strVal += (char)value;
+		//			bool changed = PropertyString(fieldName, strVal, 0, 2);
 
-					if (strVal.empty()) return false;
-					value = strVal.at(0);
+		//			if (strVal.empty()) return false;
+		//			value = strVal.at(0);
 
-					return changed;
-				});
+		//			return changed;
+		//		});
 
-			break;
-		}
-		DRAW_FIELD_PROPERTY_SCALAR(Int8, int8_t);
-		DRAW_FIELD_PROPERTY_SCALAR(Int16, int16_t);
-		DRAW_FIELD_PROPERTY_SCALAR(Int32, int32_t);
-		DRAW_FIELD_PROPERTY_SCALAR(Int64, int64_t);
-		DRAW_FIELD_PROPERTY_SCALAR(UInt8, uint8_t);
-		DRAW_FIELD_PROPERTY_SCALAR(UInt16, uint16_t);
-		DRAW_FIELD_PROPERTY_SCALAR(UInt32, uint32_t);
-		DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
-		DRAW_FIELD_PROPERTY_SCALAR(Float, float);
-		DRAW_FIELD_PROPERTY_SCALAR(Double, double);
-		case NativeType::String:
-		{
-			DrawFieldValue<std::string>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyString(fieldName, value);
-				});
+		//	break;
+		//}
+		//DRAW_FIELD_PROPERTY_SCALAR(Int8, int8_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(Int16, int16_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(Int32, int32_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(Int64, int64_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(UInt8, uint8_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(UInt16, uint16_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(UInt32, uint32_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
+		//DRAW_FIELD_PROPERTY_SCALAR(Float, float);
+		//DRAW_FIELD_PROPERTY_SCALAR(Double, double);
+		//case NativeType::String:
+		//{
+		//	DrawFieldValue<std::string>(field, handle,
+		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			return PropertyString(fieldName, value);
+		//		});
 
-			break;
-		}
-		case NativeType::Vector2:
-		{
-			DrawFieldValue<glm::vec2>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyVec2(fieldName, value);
-				});
+		//	break;
+		//}
+		//case NativeType::Vector2:
+		//{
+		//	DrawFieldValue<glm::vec2>(field, handle,
+		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			return PropertyVec2(fieldName, value);
+		//		});
 
-			break;
-		}
-		case NativeType::Vector3:
-		{
-			DrawFieldValue<glm::vec3>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyVec3(fieldName, value);
-				});
+		//	break;
+		//}
+		//case NativeType::Vector3:
+		//{
+		//	DrawFieldValue<glm::vec3>(field, handle,
+		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			return PropertyVec3(fieldName, value);
+		//		});
 
-			break;
-		}
-		case NativeType::Color:
-		{
-			DrawFieldValue<glm::vec4>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyColor(fieldName, value);
-				});
+		//	break;
+		//}
+		//case NativeType::Color:
+		//{
+		//	DrawFieldValue<glm::vec4>(field, handle,
+		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			return PropertyColor(fieldName, value);
+		//		});
 
-			break;
-		}
-		case NativeType::Entity:
-		{
-			DrawFieldValue<UUID>(field, handle,
-				[&](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyEntity(fieldName, value, scene);
-				});
+		//	break;
+		//}
+		//case NativeType::Entity:
+		//{
+		//	DrawFieldValue<UUID>(field, handle,
+		//		[&](const std::string& fieldName, auto& value, const ManagedType& fieldType)
+		//		{
+		//			return PropertyEntity(fieldName, value, scene);
+		//		});
 
-			break;
-		}
-		}
+		//	break;
+		//}
+		//}
 
 #if 0
 		const char** enumFieldNames = nullptr;
@@ -1549,7 +1549,7 @@ namespace TerranEditor
 			delete[] enumFieldNames;
 #endif
 
-	}
+	//}
 
 #define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)		\
 	case NativeType::FieldType:								\
@@ -1575,113 +1575,113 @@ namespace TerranEditor
 	}																\
 	break
 
-	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, TerranEngine::ScriptField* field, ScriptArray& array)
-	{
-		bool hasChanged = false;
+	//bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, TerranEngine::ScriptField* field, ScriptArray& array)
+	//{
+	//	bool hasChanged = false;
 
-		UI::PushID();
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth |
-									ImGuiTreeNodeFlags_FramePadding |
-									ImGuiTreeNodeFlags_AllowItemOverlap;
+	//	UI::PushID();
+	//	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth |
+	//								ImGuiTreeNodeFlags_FramePadding |
+	//								ImGuiTreeNodeFlags_AllowItemOverlap;
 
-		ImGui::Unindent(20.0f);
-		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+	//	ImGui::Unindent(20.0f);
+	//	ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+	//	float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 
-		bool opened = ImGui::TreeNodeEx(field->GetName().c_str(), flags);
+	//	bool opened = ImGui::TreeNodeEx(field->GetName().c_str(), flags);
 
-		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
+	//	ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
 
-		ImGui::PushItemWidth(lineHeight * 1.5f);
-		size_t arrayLength = array.Length();
+	//	ImGui::PushItemWidth(lineHeight * 1.5f);
+	//	size_t arrayLength = array.Length();
 
-		std::string name = fmt::format("##{0}{1}", field->GetName().c_str(), "array_size");
-		if (UI::DragScalar<uint64_t>(name.c_str(), (uint64_t*) &arrayLength, 0.1f))
-		{
-			if (array)
-				array.Resize(arrayLength);
-			else
-				array = ScriptArray(field->GetType().GetTypeClass(), arrayLength);
+	//	std::string name = fmt::format("##{0}{1}", field->GetName().c_str(), "array_size");
+	//	if (UI::DragScalar<uint64_t>(name.c_str(), (uint64_t*) &arrayLength, 0.1f))
+	//	{
+	//		if (array)
+	//			array.Resize(arrayLength);
+	//		else
+	//			array = ScriptArray(field->GetType().GetTypeClass(), arrayLength);
 
-			hasChanged = true;
-		}
-		ImGui::PopItemWidth();
+	//		hasChanged = true;
+	//	}
+	//	ImGui::PopItemWidth();
 
-		ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth |
-											ImGuiTreeNodeFlags_OpenOnArrow |
-											ImGuiTreeNodeFlags_Leaf |
-											ImGuiTreeNodeFlags_FramePadding;
+	//	ImGuiTreeNodeFlags elementsFlags = ImGuiTreeNodeFlags_SpanAvailWidth |
+	//										ImGuiTreeNodeFlags_OpenOnArrow |
+	//										ImGuiTreeNodeFlags_Leaf |
+	//										ImGuiTreeNodeFlags_FramePadding;
 
-		if (opened)
-		{
-			UI::BeginPropertyGroup("script_array_values");
-			for (uint32_t i = 0; i < array.Length(); i++)
-			{
-				ImGui::TableNextRow();
-				std::string elementName = std::to_string(i);
-				switch (array.GetElementType().GetNativeType())
-				{
-				case NativeType::Bool:
-				{
-					bool value = array.Get<bool>(i);
-					if (PropertyBool(elementName, value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
+	//	if (opened)
+	//	{
+	//		UI::BeginPropertyGroup("script_array_values");
+	//		for (uint32_t i = 0; i < array.Length(); i++)
+	//		{
+	//			ImGui::TableNextRow();
+	//			std::string elementName = std::to_string(i);
+	//			switch (array.GetElementType().GetNativeType())
+	//			{
+	//			case NativeType::Bool:
+	//			{
+	//				bool value = array.Get<bool>(i);
+	//				if (PropertyBool(elementName, value))
+	//				{
+	//					array.Set(i, value);
+	//					hasChanged = true;
+	//				}
 
-					break;
-				}
-				case NativeType::Char:
-				{
-					char value = (char)array.Get<wchar_t>(i);
-					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-					std::string strVal; strVal += value;
-					if (PropertyString(elementName, strVal, 0, 2))
-					{
-						if (strVal.empty())
-							break;
-						const wchar_t wc = strVal.at(0);
-						array.Set<wchar_t>(i, wc);
-						hasChanged = true;
-					}
+	//				break;
+	//			}
+	//			case NativeType::Char:
+	//			{
+	//				char value = (char)array.Get<wchar_t>(i);
+	//				// TODO: kinda hacky implementation, make a UI::DrawCharControl function
+	//				std::string strVal; strVal += value;
+	//				if (PropertyString(elementName, strVal, 0, 2))
+	//				{
+	//					if (strVal.empty())
+	//						break;
+	//					const wchar_t wc = strVal.at(0);
+	//					array.Set<wchar_t>(i, wc);
+	//					hasChanged = true;
+	//				}
 
-					break;
-				}
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int8, int8_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int16, int16_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int32, int32_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int64, int64_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt8, uint8_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt16, uint16_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt32, uint32_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt64, uint64_t);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(Float, float);
-				DRAW_FIELD_ARRAY_VALUE_SCALAR(Double, double);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(String, std::string, UI::PropertyString);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector2, glm::vec2, UI::PropertyVec2);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector3, glm::vec3, UI::PropertyVec3);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(Color, glm::vec4, UI::PropertyColor);
-				case NativeType::Entity:
-				{
-					UUID value = array.At(i);
-					if (UI::PropertyEntity(elementName, value, scene))
-					{
-						array.Set<Utils::Variant>(i, value);
-						hasChanged = true;
-					}
-					break;
-				}
-				}
-			}
-			UI::EndPropertyGroup();
+	//				break;
+	//			}
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(Int8, int8_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(Int16, int16_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(Int32, int32_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(Int64, int64_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt8, uint8_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt16, uint16_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt32, uint32_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt64, uint64_t);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(Float, float);
+	//			DRAW_FIELD_ARRAY_VALUE_SCALAR(Double, double);
+	//			DRAW_FIELD_ARRAY_VALUE_OBJECT(String, std::string, UI::PropertyString);
+	//			DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector2, glm::vec2, UI::PropertyVec2);
+	//			DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector3, glm::vec3, UI::PropertyVec3);
+	//			DRAW_FIELD_ARRAY_VALUE_OBJECT(Color, glm::vec4, UI::PropertyColor);
+	//			case NativeType::Entity:
+	//			{
+	//				UUID value = array.At(i);
+	//				if (UI::PropertyEntity(elementName, value, scene))
+	//				{
+	//					array.Set<Utils::Variant>(i, value);
+	//					hasChanged = true;
+	//				}
+	//				break;
+	//			}
+	//			}
+	//		}
+	//		UI::EndPropertyGroup();
 
-			ImGui::TreePop();
-		}
-		ImGui::Indent(20.0f);
+	//		ImGui::TreePop();
+	//	}
+	//	ImGui::Indent(20.0f);
 
-		UI::PopID();
+	//	UI::PopID();
 
-		return hasChanged;
-	}
+	//	return hasChanged;
+	//}
 }

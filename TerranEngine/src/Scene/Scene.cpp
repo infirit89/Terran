@@ -10,7 +10,7 @@
 #include "Systems/SceneRenderer.h"
 
 #include "Scripting/ScriptEngine.h"
-#include "Scripting/ScriptCache.h"
+//#include "Scripting/ScriptCache.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"

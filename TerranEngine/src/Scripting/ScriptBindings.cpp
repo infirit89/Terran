@@ -2,12 +2,12 @@
 #include "ScriptBindings.h"
 
 #include "ScriptEngine.h"
-#include "ScriptMarshal.h"
-#include "GCManager.h"
-#include "ScriptCache.h"
-#include "ScriptArray.h"
-#include "ManagedObject.h"
-#include "ManagedMethodThunks.h"
+//#include "ScriptMarshal.h"
+//#include "GCManager.h"
+//#include "ScriptCache.h"
+//#include "ScriptArray.h"
+//#include "ManagedObject.h"
+//#include "ManagedMethodThunks.h"
 
 #include "Core/Input.h"
 
@@ -33,7 +33,7 @@ namespace TerranEngine
 {
 	namespace ScriptBindings 
 	{				
-
+#if 0
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)
 
 		static ManagedMethodThunks<MonoArray*> s_IDClassCtor;
@@ -1273,6 +1273,7 @@ namespace TerranEngine
 		}
 
 		// ---------------
+#endif
 	}
 }
 

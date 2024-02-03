@@ -125,7 +125,7 @@ namespace TerranEngine
 		// "can" have more than one script (because of the 1 component of a type per entity)
 
 		std::string ModuleName;
-		std::vector<std::string> PublicFieldIDs;
+		std::vector<int32_t> PublicFieldIDs;
 		bool ClassExists = true;
 	};
 

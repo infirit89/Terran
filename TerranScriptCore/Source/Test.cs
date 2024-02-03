@@ -12,29 +12,22 @@ namespace Terran
         public unsafe fixed byte Arr[4];
 	}
 
-	class Test 
+	class Test
 	{
 		internal static unsafe delegate*<NativeString, void> PrintICall;
 		internal static unsafe delegate*<NativeArray<UUID>> GetIDs;
         internal static unsafe delegate*<in UUID, void> Cum;
-		public int[] TestArr = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+		public int[] TestArr = new[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-        static void T1() 
+        void T1() 
 		{
-			UUID[] structs;
-            unsafe
-			{
-				using var nativeArr = GetIDs();
-				structs = nativeArr.ToArray();
-			}
-			foreach (var item in structs)
-			{
-				Console.WriteLine(item.ToString());
-				unsafe 
-				{
-					Cum(in item);
-				}
-			}
+			Console.WriteLine(string.Join(' ', TestArr));
+		}
+
+		void T2(int a)
+		{
+			Console.WriteLine("a a a a a  a a a a aa ");
+			Console.WriteLine(a);
 		}
 	}
 

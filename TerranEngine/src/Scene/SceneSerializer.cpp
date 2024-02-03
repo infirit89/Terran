@@ -3,8 +3,8 @@
 #include "SceneSerializer.h"
 #include "Entity.h"
 
-#include "Scripting/ScriptField.h"
-#include "Scripting/ScriptCache.h"
+//#include "Scripting/ScriptField.h"
+//#include "Scripting/ScriptCache.h"
 #include "Scripting/ScriptEngine.h"
 
 #include "Assets/AssetManager.h"
@@ -44,7 +44,7 @@ namespace TerranEngine
 	static void SerializeScriptFields(YAML::Emitter& out, Entity entity) 
 	{
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
-		GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+		//GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 		
 		for (auto& fieldID : sc.PublicFieldIDs)
 		{
@@ -317,10 +317,10 @@ namespace TerranEngine
 	}\
 	break
 
-	static void DeserializeScriptFields(GCHandle handle, ScriptComponent& scriptComponent, YAML::Node scriptFields) 
-	{
-		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
-		{
+	//static void DeserializeScriptFields(GCHandle handle, ScriptComponent& scriptComponent, YAML::Node scriptFields) 
+	//{
+		//for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+		//{
 			/*ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
 			YAML::Node scriptField;
 			bool valid = false;
@@ -390,8 +390,8 @@ namespace TerranEngine
 				}
 			}*/
 
-		}
-	}
+		//}
+	//}
 
 	static YAML::Node FindEntity(YAML::Node scene, const UUID& entityID)
 	{

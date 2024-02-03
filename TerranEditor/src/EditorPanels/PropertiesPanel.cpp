@@ -5,7 +5,7 @@
 #include "Scene/Components.h"
 #include "SelectionManager.h"
 
-#include "Scripting/ScriptCache.h"
+//#include "Scripting/ScriptCache.h"
 
 #include "Physics/PhysicsLayerManager.h"
 
@@ -280,7 +280,7 @@ namespace TerranEditor
 			UI::BeginPropertyGroup("script_properties");
 			if (!component.PublicFieldIDs.empty())
 			{
-				const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+				//const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 
 				for (const auto& fieldID : component.PublicFieldIDs)
 				{

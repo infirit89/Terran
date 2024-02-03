@@ -10,10 +10,28 @@ namespace ScriptAssembly
 	internal class Test : Scriptable
 	{
 		//public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
-		public Vector2[] Test3;
-		public string Test2 = "cum";
+		public byte TestB;
+        public ushort TestUS;
+        public uint TestUI;
+        public ulong TestUL;
 
-		protected override void Init()
+        public sbyte TestSB;
+        public short TestS;
+        public int TestI;
+        public long TestL;
+
+        public float TestF;
+        public double TestD;
+
+        public bool TestBool;
+        public char TestC;
+
+        public Vector2 TestV2;
+        public Vector3 TestV3;
+        public Color TestCol;
+        public Entity TestE;
+
+        protected override void Init()
 		{
 			Console.WriteLine(this.Entity.ID);
 		}

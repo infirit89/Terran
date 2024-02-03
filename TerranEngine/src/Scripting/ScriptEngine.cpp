@@ -28,6 +28,9 @@
 #include <Coral/HostInstance.hpp>
 #include <Coral/GC.hpp>
 #include <Coral/Array.hpp>
+#include <Coral/TypeCache.hpp>
+
+#include <oaidl.h>
 
 namespace TerranEngine
 {
@@ -58,7 +61,7 @@ namespace TerranEngine
 	//	}
 	//};
 	
-	using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, Coral::ManagedObject>>;
+	using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, Shared<ScriptInstance>>>;
 	
 	struct ScriptEngineData 
 	{
@@ -72,6 +75,7 @@ namespace TerranEngine
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
 		std::function<void(std::string, spdlog::level::level_enum)> LogCallback;
+		std::unordered_map<Coral::TypeId, ScriptType> TypeConverters;
 	};
 
 	//static void OnLogMono(const char* logDomain, const char* logLevel, const char* message, mono_bool fatal, void* userData);
@@ -128,15 +132,24 @@ namespace TerranEngine
 		s_Data->HostInstance.Initialize(settings);
 		s_Data->LoadContext = s_Data->HostInstance.CreateAssemblyLoadContext("ScriptAppContext");
 
-		 auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
-		 coreAssembly = s_Data->LoadContext.LoadAssembly(scriptCoreAssemblyPath.string());
-
-		 s_Data->ScriptableBaseClass = coreAssembly.GetType("Terran.Scriptable");
-		 if (!s_Data->ScriptableBaseClass)
-			 TR_ERROR("The scriptable base class wasn't found!");
+		LoadCoreAssembly();
 	}
 
-	void ScriptEngine::Shutdown() 
+	bool ScriptEngine::LoadCoreAssembly() 
+	{
+		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+		coreAssembly = s_Data->LoadContext.LoadAssembly(s_Data->ScriptCoreAssemblyPath.string());
+		TR_ASSERT(coreAssembly.GetLoadStatus() == Coral::AssemblyLoadStatus::Success, "Couldn't load the TerranScriptCore assembly");
+
+		s_Data->ScriptableBaseClass = coreAssembly.GetType("Terran.Scriptable");
+		if (!s_Data->ScriptableBaseClass)
+			TR_ERROR("The scriptable base class wasn't found!");
+
+		InitializeTypeConverters();
+		return true;
+	}
+
+	void ScriptEngine::Shutdown()
 	{
 		Coral::GC::Collect();
 		s_Data->HostInstance.UnloadAssemblyLoadContext(s_Data->LoadContext);
@@ -146,11 +159,103 @@ namespace TerranEngine
 
 	bool ScriptEngine::ClassExists(const std::string& moduleName) { return false;  }
 
-	Shared<ScriptAssembly> ScriptEngine::GetAssembly(int assemblyIndex) { return nullptr; }
+	//Shared<ScriptAssembly> ScriptEngine::GetAssembly(int assemblyIndex) { return nullptr; }
 
-	void ScriptEngine::InitializeScriptable(Entity entity) 
+	ScriptType ScriptEngine::GetScriptType(Coral::Type& type)
 	{
-		IntializeScriptable_Internal(entity);
+		Coral::ManagedType managedType = type.GetManagedType();
+		if (managedType != Coral::ManagedType::Unknown || managedType != Coral::ManagedType::Pointer)
+			return (ScriptType)managedType;
+
+		if (s_Data->TypeConverters.find(type.GetTypeId()) != s_Data->TypeConverters.end())
+			return s_Data->TypeConverters.at(type.GetTypeId());
+
+		return ScriptType::None;
+	}
+
+#define ADD_SYSTEM_TYPE(TypeName, Type)\
+	typeConverters.emplace(typeCache.GetTypeByName("System."#TypeName)->GetTypeId(), ScriptType::Type);
+
+#define ADD_TERRAN_TYPE(TypeName)\
+	typeConverters.emplace(typeCache.GetTypeByName("Terran."#TypeName)->GetTypeId(), ScriptType::TypeName);
+
+	void ScriptEngine::InitializeTypeConverters()
+	{
+		auto& typeCache = Coral::TypeCache::Get();
+		auto& typeConverters = s_Data->TypeConverters;
+		/*ADD_SYSTEM_TYPE(Byte, UInt8);
+		ADD_SYSTEM_TYPE(UInt16, UInt16);
+		ADD_SYSTEM_TYPE(UInt32, UInt32);
+		ADD_SYSTEM_TYPE(UInt64, UInt64);
+		
+		ADD_SYSTEM_TYPE(SByte, Int8);
+		ADD_SYSTEM_TYPE(Int16, Int16);
+		ADD_SYSTEM_TYPE(Int32, Int32);
+		ADD_SYSTEM_TYPE(Int64, Int64);
+
+		ADD_SYSTEM_TYPE(Single, Float);
+		ADD_SYSTEM_TYPE(Double, Double);
+
+		ADD_SYSTEM_TYPE(Boolean, Bool);
+		ADD_SYSTEM_TYPE(Char, Char);*/
+
+		ADD_TERRAN_TYPE(Vector2);
+		ADD_TERRAN_TYPE(Vector3);
+		ADD_TERRAN_TYPE(Color);
+		ADD_TERRAN_TYPE(Entity);
+	}
+
+	Shared<ScriptInstance> ScriptEngine::InitializeScriptable(Entity entity) 
+	{
+		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+
+		if (scriptComponent.ModuleName.empty()) return nullptr;
+
+		Coral::ManagedAssembly& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+		Coral::Type& type = appAssembly.GetType(scriptComponent.ModuleName);
+
+		if (!type)
+		{
+			scriptComponent.ClassExists = false;
+			TR_ERROR("Class {0} doesn't exist", scriptComponent.ModuleName);
+			return nullptr;
+		}
+
+		scriptComponent.ClassExists = true;
+
+		if (s_Data->ScriptInstanceMap.find(entity.GetSceneID()) != s_Data->ScriptInstanceMap.end())
+		{
+			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneID()).find(entity.GetID());
+			if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneID()).end())
+				return ((*obj).second);
+		}
+
+		if (!type.IsSubclassOf(s_Data->ScriptableBaseClass))
+		{
+			TR_ERROR("Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
+			return nullptr;
+		}
+
+		//Coral::ManagedObject object = type.CreateInstance(entity.GetID());
+		Shared<ScriptInstance> instance =
+			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] =
+			CreateShared<ScriptInstance>(type, entity);
+
+		scriptComponent.PublicFieldIDs.clear();
+		for (Coral::FieldInfo& fieldInfo : type.GetFields())
+		{
+			if (fieldInfo.GetAccessibility() == Coral::TypeAccessibility::Public)
+			{
+				scriptComponent.PublicFieldIDs.emplace_back(fieldInfo.GetHandle());
+				Coral::ScopedString fieldName = fieldInfo.GetName();
+				ScriptField field = { GetScriptType(fieldInfo.GetType()), fieldName };
+				instance->m_Fields.emplace(fieldInfo.GetHandle(), field);
+			}
+		}
+
+		Shared<ScriptInstance> i2 = s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+
+		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity) {}
@@ -163,8 +268,8 @@ namespace TerranEngine
 
 	void ScriptEngine::OnPhysicsUpdate(Entity entity) {}
 
-	ManagedObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
-	GCHandle ScriptEngine::GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
+	//ManagedObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
+	//GCHandle ScriptEngine::GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
 
 	bool ScriptEngine::LoadAppAssembly() 
 	{
@@ -179,58 +284,7 @@ namespace TerranEngine
 			return false;
 		}
 
-		Coral::Type& test = appAssembly.GetType("Terran.Test");
-
-		Coral::ManagedObject object = test.CreateInstance();
-		void* arr = object.GetFieldValue<void*>("TestArr");
-		void* a = (long*)arr - 2;
-		TR_TRACE(*((long*)(a)));
-
 		return true;
-	}
-
-	Coral::ManagedObject* ScriptEngine::IntializeScriptable_Internal(Entity entity)
-	{
-		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
-
-		if (scriptComponent.ModuleName.empty()) return nullptr;
-
-		Coral::ManagedAssembly& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
-		Coral::Type& type = appAssembly.GetType(scriptComponent.ModuleName);
-
-		if (!type) 
-		{
-			scriptComponent.ClassExists = false;
-			TR_ERROR("Class {0} doesn't exist", scriptComponent.ModuleName);
-			return nullptr;
-		}
-
-		scriptComponent.ClassExists = true;
-
-		if (s_Data->ScriptInstanceMap.find(entity.GetSceneID()) != s_Data->ScriptInstanceMap.end()) 
-		{
-			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneID()).find(entity.GetID());
-			if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneID()).end())
-				return &((*obj).second);
-		}
-
-		if (!type.IsSubclassOf(s_Data->ScriptableBaseClass)) 
-		{
-			TR_ERROR("Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
-			return nullptr;
-		}
-
-		Coral::ManagedObject object = type.CreateInstance(entity.GetID());
-		s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] = object;
-
-		scriptComponent.PublicFieldIDs.clear();
-		for (Coral::FieldInfo& field : type.GetFields()) 
-		{
-			/*if(field.GetAccessibility() == Coral::TypeAccessibility::Public)
-				scriptComponent.PublicFieldIDs.emplace_back(field.)*/
-		}
-
-		return &s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
 	}
 
 #if 0

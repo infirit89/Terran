@@ -5,9 +5,9 @@
 #include "Scene/Scene.h"
 #include "Scene/Entity.h"
 
-#include "Scripting/ScriptField.h"
-#include "Scripting/ScriptArray.h"
-#include "Scripting/GCManager.h"
+//#include "Scripting/ScriptField.h"
+//#include "Scripting/ScriptArray.h"
+//#include "Scripting/GCManager.h"
 
 #include "EditorPanel.h"
 
