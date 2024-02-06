@@ -19,6 +19,21 @@ namespace TerranEngine
 		object.GetFieldValueByHandleRaw(fieldHandle, value);
 	}
 
+	void ScriptInstance::InvokeInit()
+	{
+		Coral::ManagedObject object = m_Context;
+		if(m_OnInitMethodHandle > 0)
+			object.InvokeMethodByMethodInfo(m_OnInitMethodHandle);
+	}
+
+	void ScriptInstance::InvokeUpdate(float deltaTime)
+	{
+		Coral::ManagedObject object = m_Context;
+
+		if(m_OnUpdateMethodHandle > 0)
+			object.InvokeMethodByMethodInfo(m_OnUpdateMethodHandle, deltaTime);
+	}
+
 	void ScriptInstance::SetFieldValueInternal(int32_t fieldHandle, void* value) const
 	{
 		Coral::ManagedObject object = m_Context;

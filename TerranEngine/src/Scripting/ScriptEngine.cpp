@@ -12,6 +12,8 @@
 //#include "ScriptUtils.h"
 //#include "ManagedMetadata.h"
 
+#include "ManagedArray.h"
+
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
 #include "Project/Project.h"
@@ -29,6 +31,7 @@
 #include <Coral/GC.hpp>
 #include <Coral/Array.hpp>
 #include <Coral/TypeCache.hpp>
+#include <Coral/ManagedArray.hpp>
 
 #include <oaidl.h>
 
@@ -133,6 +136,11 @@ namespace TerranEngine
 		s_Data->LoadContext = s_Data->HostInstance.CreateAssemblyLoadContext("ScriptAppContext");
 
 		LoadCoreAssembly();
+
+		Coral::Type* type = Coral::TypeCache::Get().GetTypeByName("System.Int32");
+		const int32_t lengths[4] = { 4, 5, 6, 7 };
+		Coral::ManagedArray arr = Coral::ManagedArray::New(*type, lengths, 4);
+		TR_TRACE("cum");
 	}
 
 	bool ScriptEngine::LoadCoreAssembly() 
@@ -164,7 +172,7 @@ namespace TerranEngine
 	ScriptType ScriptEngine::GetScriptType(Coral::Type& type)
 	{
 		Coral::ManagedType managedType = type.GetManagedType();
-		if (managedType != Coral::ManagedType::Unknown || managedType != Coral::ManagedType::Pointer)
+		if (managedType != Coral::ManagedType::Unknown && managedType != Coral::ManagedType::Pointer)
 			return (ScriptType)managedType;
 
 		if (s_Data->TypeConverters.find(type.GetTypeId()) != s_Data->TypeConverters.end())
@@ -205,7 +213,12 @@ namespace TerranEngine
 		ADD_TERRAN_TYPE(Entity);
 	}
 
-	Shared<ScriptInstance> ScriptEngine::InitializeScriptable(Entity entity) 
+	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity entity)
+	{
+		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+	}
+
+	Shared<ScriptInstance> ScriptEngine::InitializeScriptable(Entity entity)
 	{
 		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 
@@ -253,15 +266,36 @@ namespace TerranEngine
 			}
 		}
 
-		Shared<ScriptInstance> i2 = s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+		ManagedArray<int> arr = instance->GetFieldValue<ManagedArray<int>>(scriptComponent.PublicFieldIDs[0]);
 
+		ManagedArray<int>::Resize(arr, arr.Length() + 1);
+		arr[arr.Length() - 1] = 40;
+		
+		instance->SetFieldValue(scriptComponent.PublicFieldIDs[0], arr);
+		instance->InvokeInit();
+
+		arr = instance->GetFieldValue<ManagedArray<int>>(scriptComponent.PublicFieldIDs[0]);
+		
 		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity) {}
 
-	void ScriptEngine::OnStart(Entity entity) {}
-	void ScriptEngine::OnUpdate(Entity entity, float deltaTime) {}
+	void ScriptEngine::OnStart(Entity entity) 
+	{
+		TR_PROFILE_FUNCTION();
+		Shared<ScriptInstance> instance = GetScriptInstance(entity);
+
+		instance->InvokeInit();
+	}
+
+	void ScriptEngine::OnUpdate(Entity entity, float deltaTime) 
+	{
+		TR_PROFILE_FUNCTION();
+		Shared<ScriptInstance> instance = GetScriptInstance(entity);
+
+		instance->InvokeUpdate(deltaTime);
+	}
 
 	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee) {}
 	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee) {}

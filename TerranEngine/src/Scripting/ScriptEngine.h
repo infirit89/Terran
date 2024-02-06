@@ -35,6 +35,7 @@ namespace TerranEngine
 
 		//static Shared<ScriptAssembly> GetAssembly(int assemblyIndex);
 		
+		static Shared<ScriptInstance> GetScriptInstance(Entity entity);
 		static Shared<ScriptInstance> InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 

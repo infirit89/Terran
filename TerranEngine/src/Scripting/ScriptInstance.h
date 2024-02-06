@@ -41,6 +41,9 @@ namespace TerranEngine
 
 		const ScriptField& GetScriptField(int32_t fieldHandle) const { return m_Fields.at(fieldHandle); }
 
+		void InvokeInit();
+		void InvokeUpdate(float deltaTime);
+
 	private:
 		void SetFieldValueInternal(int32_t fieldHandle, void* value) const;
 		void GetFieldValueInternal(int32_t fieldHandle, void* value) const;
