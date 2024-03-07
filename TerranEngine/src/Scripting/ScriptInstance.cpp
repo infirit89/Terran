@@ -2,6 +2,7 @@
 #include "ScriptInstance.h"
 
 #include <Coral/Type.hpp>
+#include <Coral/ManagedArray.hpp>
 
 namespace TerranEngine 
 {
@@ -13,10 +14,31 @@ namespace TerranEngine
 		m_OnUpdateMethodHandle = type.GetMethod<float>("Update").GetHandle();
 	}
 
+	ScriptInstance::~ScriptInstance()
+	{
+		Coral::ManagedObject object = m_Context;
+		object.Destroy();
+		m_Context = nullptr;
+	}
+
 	void ScriptInstance::GetFieldValueInternal(int32_t fieldHandle, void* value) const
 	{
 		Coral::ManagedObject object = m_Context;
 		object.GetFieldValueByHandleRaw(fieldHandle, value);
+	}
+
+	void ScriptInstance::SetFieldArrayValueInternal(int32_t fieldHandle, void* value, const int32_t* indices, size_t indicesSize) const
+	{
+		Coral::ManagedObject object = m_Context;
+		Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
+		array.SetValueRaw(indices, indicesSize, value);
+	}
+
+	void ScriptInstance::GetFieldArrayValueInternal(int32_t fieldHandle, void* value, const int32_t* indices, size_t indicesSize) const
+	{
+		Coral::ManagedObject object = m_Context;
+		Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
+		array.GetValueRaw(indices, indicesSize, value);
 	}
 
 	void ScriptInstance::InvokeInit()

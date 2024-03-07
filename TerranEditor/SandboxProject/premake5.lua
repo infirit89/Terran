@@ -11,12 +11,6 @@ project "ScriptAssembly"
     language "C#"
     dotnetframework "net8.0"
 
-    vsprops
-    {
-        AppendTargetFrameworkToOutputPath = "false",
-        Nullable = "enable"
-    }
-
     targetdir ("ScriptAssemblies")
     objdir ("ScriptAssemblies/Intermidiates")
 

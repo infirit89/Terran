@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {}
+    "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {}
   },
   "projects": {
-    "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {
+    "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
+        "projectUniqueName": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
         "projectName": "ScriptAssembly",
-        "projectPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
+        "projectPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
         "packagesPath": "C:\\Users\\georg\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEditor\\SandboxProject\\obj\\",
+        "outputPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\georg\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -59,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

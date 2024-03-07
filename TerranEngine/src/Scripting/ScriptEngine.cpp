@@ -249,7 +249,6 @@ namespace TerranEngine
 			return nullptr;
 		}
 
-		//Coral::ManagedObject object = type.CreateInstance(entity.GetID());
 		Shared<ScriptInstance> instance =
 			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] =
 			CreateShared<ScriptInstance>(type, entity);
@@ -261,25 +260,37 @@ namespace TerranEngine
 			{
 				scriptComponent.PublicFieldIDs.emplace_back(fieldInfo.GetHandle());
 				Coral::ScopedString fieldName = fieldInfo.GetName();
-				ScriptField field = { GetScriptType(fieldInfo.GetType()), fieldName };
+				ScriptField field;
+				Coral::Type& fieldType = fieldInfo.GetType();
+				field.IsArray = fieldType.IsArray();
+				if (field.IsArray)
+					field.Type = GetScriptType(fieldType.GetElementType());
+				else
+					field.Type = GetScriptType(fieldType);
+
+				field.Name = fieldName;
 				instance->m_Fields.emplace(fieldInfo.GetHandle(), field);
 			}
 		}
 
-		ManagedArray<int> arr = instance->GetFieldValue<ManagedArray<int>>(scriptComponent.PublicFieldIDs[0]);
-
-		ManagedArray<int>::Resize(arr, arr.Length() + 1);
-		arr[arr.Length() - 1] = 40;
-		
-		instance->SetFieldValue(scriptComponent.PublicFieldIDs[0], arr);
 		instance->InvokeInit();
-
-		arr = instance->GetFieldValue<ManagedArray<int>>(scriptComponent.PublicFieldIDs[0]);
 		
 		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
 	}
 
-	void ScriptEngine::UninitalizeScriptable(Entity entity) {}
+	void ScriptEngine::UninitalizeScriptable(Entity entity) 
+	{
+		if (!entity || !entity.HasComponent<TagComponent>())
+			return;
+
+		if (s_Data->ScriptInstanceMap.contains(entity.GetSceneID()) && s_Data->ScriptInstanceMap.at(entity.GetSceneID()).contains(entity.GetID()))
+		{
+			s_Data->ScriptInstanceMap[entity.GetSceneID()].erase(entity.GetID());
+
+			if (s_Data->ScriptInstanceMap.empty())
+				s_Data->ScriptInstanceMap.erase(entity.GetSceneID());
+		}
+	}
 
 	void ScriptEngine::OnStart(Entity entity) 
 	{

@@ -17,7 +17,6 @@ namespace ScriptAssembly
 		{
 			//Console.WriteLine(this.Entity.ID);
 			Console.WriteLine(string.Join(' ', TestArr));
-			Array.Resize
 		}
 
 		protected override void Update(float deltaTime)
