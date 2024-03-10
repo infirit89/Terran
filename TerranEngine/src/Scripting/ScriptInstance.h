@@ -4,6 +4,8 @@
 
 #include "Scene/Entity.h"
 
+#include "Utils/Variant.h"
+
 #include <vector>
 
 namespace Coral 
@@ -27,6 +29,9 @@ namespace TerranEngine
 		int32_t Rank;
 	};
 
+	template<typename... TIndices>
+	concept indices_concept = sizeof...(TIndices) > 0;
+
 	class ScriptInstance 
 	{
 	public:
@@ -48,6 +53,7 @@ namespace TerranEngine
 		}
 
 		template<typename TValue, std::same_as<int32_t>... TIndices>
+			requires indices_concept<TIndices...>
 		void SetFieldArrayValue(int32_t fieldHandle, TValue value, TIndices... indices) 
 		{
 			constexpr size_t indicesSize = sizeof...(indices);
@@ -57,6 +63,7 @@ namespace TerranEngine
 		}
 
 		template<typename TReturn, std::same_as<int32_t>... TIndices>
+			requires indices_concept<TIndices...>
 		TReturn GetFieldArrayValue(int32_t fieldHandle, TIndices... indices)
 		{
 			constexpr size_t indicesSize = sizeof...(indices);
@@ -67,7 +74,21 @@ namespace TerranEngine
 			return value;
 		}
 
+		template<std::same_as<int32_t>... TLengths>
+			requires indices_concept<TLengths...>
+		void ResizeFieldArray(int32_t fieldHandle, TLengths... lengths) 
+		{
+			constexpr size_t lengthsSize = sizeof...(lengths);
+			int32_t lengthsArray[lengthsSize]{};
+			AddToIndexArray<TLengths...>(lengthsArray, std::forward<TLengths>(lengths)..., std::make_index_sequence<lengthsSize>{});
+			if constexpr (lengthsSize > 1)
+				ResizeFieldArrayInternal(fieldHandle, lengthsArray, lengthsSize);
+			else
+				ResizeFieldArrayInternal(fieldHandle, lengthsArray[0]);
+		}
+
 		const ScriptField& GetScriptField(int32_t fieldHandle) const { return m_Fields.at(fieldHandle); }
+		const ScriptArray& GetScriptArray(int32_t fieldHandle) const { return m_FieldArrays.at(fieldHandle); }
 
 		void InvokeInit();
 		void InvokeUpdate(float deltaTime);
@@ -77,6 +98,9 @@ namespace TerranEngine
 		void GetFieldValueInternal(int32_t fieldHandle, void* value) const;
 		void SetFieldArrayValueInternal(int32_t fieldHandle, void* value, const int32_t* indices, size_t indicesSize) const;
 		void GetFieldArrayValueInternal(int32_t fieldHandle, void* value, const int32_t* indices, size_t indicesSize) const;
+		Utils::Variant GetFieldArrayValueInternal(int32_t fieldHandle, const int32_t* indices, size_t indicesSize) const;
+		void ResizeFieldArrayInternal(int32_t fieldHandle, int32_t length);
+		void ResizeFieldArrayInternal(int32_t fieldHandle, const int32_t* lengths, size_t lengthsSize);
 
 		template<typename TArg, size_t TIndex>
 		void AddToIndexArrayI(int32_t* indicesArray, TArg value)
@@ -95,7 +119,7 @@ namespace TerranEngine
 		int32_t m_OnInitMethodHandle;
 		int32_t m_OnUpdateMethodHandle;
 		std::unordered_map<int32_t, ScriptField> m_Fields;
-		std::unordered_map<int32_t, ScriptArray> m_FieldArrays;
+		mutable std::unordered_map<int32_t, ScriptArray> m_FieldArrays;
 
 		friend class ScriptEngine;
 	};

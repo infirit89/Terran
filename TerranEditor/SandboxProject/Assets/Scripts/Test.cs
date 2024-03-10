@@ -16,6 +16,7 @@ namespace ScriptAssembly
         protected override void Init()
 		{
 			//Console.WriteLine(this.Entity.ID);
+			Console.WriteLine(TestArr.Length);
 			Console.WriteLine(string.Join(' ', TestArr));
 		}
 

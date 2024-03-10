@@ -163,7 +163,10 @@ namespace TerranEngine
 		s_Data->HostInstance.UnloadAssemblyLoadContext(s_Data->LoadContext);
 	}
 
-	void ScriptEngine::ReloadAppAssembly() {}
+	void ScriptEngine::ReloadAppAssembly() 
+	{
+
+	}
 
 	bool ScriptEngine::ClassExists(const std::string& moduleName) { return false;  }
 
@@ -263,8 +266,11 @@ namespace TerranEngine
 				ScriptField field;
 				Coral::Type& fieldType = fieldInfo.GetType();
 				field.IsArray = fieldType.IsArray();
-				if (field.IsArray)
+				if (field.IsArray) 
+				{
 					field.Type = GetScriptType(fieldType.GetElementType());
+					instance->ResizeFieldArray(fieldInfo.GetHandle(), 12);
+				}
 				else
 					field.Type = GetScriptType(fieldType);
 
