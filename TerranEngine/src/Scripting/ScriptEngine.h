@@ -10,12 +10,6 @@
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
-namespace Coral 
-{
-	class ManagedObject;
-	class Type;
-}
-
 namespace TerranEngine 
 {
 #define TR_CORE_ASSEMBLY_INDEX 0
@@ -36,6 +30,7 @@ namespace TerranEngine
 		//static Shared<ScriptAssembly> GetAssembly(int assemblyIndex);
 		
 		static Shared<ScriptInstance> GetScriptInstance(Entity entity);
+		static Shared<ScriptInstance> GetScriptInstance(const UUID& sceneID, const UUID& entityID);
 		static Shared<ScriptInstance> InitializeScriptable(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 
@@ -58,7 +53,6 @@ namespace TerranEngine
 		
 		static void CreateAppDomain();
 		static void UnloadDomain();
-		static ScriptType GetScriptType(Coral::Type& type);
 		static void InitializeTypeConverters();
 	};
 }

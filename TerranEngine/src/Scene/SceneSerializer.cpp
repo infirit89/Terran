@@ -17,6 +17,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <iostream>
+#include <cwchar>
+
 // NOTE: this is not the final version of the scene serializer, this is a poc
 // NOTE: think about using yaml instead of json, because json has some limitation that i dont really like
 
@@ -29,85 +32,134 @@ namespace TerranEngine
 		: m_Scene(scene) { }
 
 #define WRITE_SCRIPT_FIELD(FieldType, Type)\
-	case NativeType::FieldType:\
-	out << YAML::Key << field->GetName() << YAML::Value << field->GetData<Type>(handle);\
+	case ScriptType::FieldType:\
+	out << YAML::Key << field.Name << YAML::Value << scriptInstance->GetFieldValue<Type>(fieldID);\
 	break
 
 #define WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-	Type value = array.At(i);\
+	Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
 	out << value;\
 	}\
 	break
 
+	// TODO: n dimensional arrays maybe someday in the future?
+	//static void SerializeScriptArray(YAML::Emitter& out, Shared<ScriptInstance> scriptInstance, const ScriptArray& array, const ScriptField& field, int32_t* indices, int dimension = 0)
+	//{
+	//	int32_t length = scriptInstance->GetFieldArrayLength(array, dimension);
+	//	if (dimension == array.Rank - 1)
+	//	{
+	//		out << YAML::BeginSeq;
+	//		for (int32_t i = 0; i < length; i++)
+	//		{
+	//			indices[dimension] = i;
+	//			switch (field.Type)
+	//			{
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
+	//				// NOTE: maybe wchar_t?
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, std::byte);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+	//				default: TR_ASSERT(false, "Unsupported field type"); break;
+	//			}
+	//		}
+	//		out << YAML::EndSeq;
+	//	}
+	//	else 
+	//	{
+	//		out << YAML::BeginSeq;
+	//		for (int32_t i = 0; i < length; i++) 
+	//		{
+	//			indices[dimension] = i;
+	//			SerializeScriptArray(out, scriptInstance, array, field, indices, dimension + 1);
+	//		}
+	//		out << YAML::EndSeq;
+	//	}
+	//}
+
 	static void SerializeScriptFields(YAML::Emitter& out, Entity entity) 
 	{
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
-		//GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+		Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
 		
 		for (auto& fieldID : sc.PublicFieldIDs)
 		{
 			out << YAML::BeginMap;
-			//ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+			ScriptField field = scriptInstance->GetScriptField(fieldID);
 
-			//if(field->GetType().IsArray()) 
-			//{
-			//	ScriptArray array = field->GetArray(handle);
-			//	out << YAML::Key << field->GetName() << YAML::Value << YAML::Flow << YAML::BeginSeq;
-			//	
-			//	for(size_t i = 0; i < array.Length(); i++) 
-			//	{
-			//		switch (array.GetElementType().GetNativeType())
-			//		{
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
-			//			// NOTE: maybe wchar_t?
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, uint8_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
-			//			WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
-			//			default: TR_ASSERT(false, "Unsupported field type"); break;
-			//		}
-			//	}
+			if(field.IsArray) 
+			{
+				ScriptArray& array = scriptInstance->GetScriptArray(fieldID);
+				out << YAML::Key << field.Name << YAML::Value << YAML::Flow;
+				out << YAML::BeginSeq;
 
-			//	out << YAML::EndSeq;
-			//}
-			//else 
-			//{
-			//	switch (field->GetType().GetNativeType())
-			//	{
-			//		WRITE_SCRIPT_FIELD(Bool, bool);
-			//		WRITE_SCRIPT_FIELD(Char, wchar_t);
-			//		WRITE_SCRIPT_FIELD(Int8, int8_t);
-			//		WRITE_SCRIPT_FIELD(Int16, int16_t);
-			//		WRITE_SCRIPT_FIELD(Int32, int32_t);
-			//		WRITE_SCRIPT_FIELD(Int64, int64_t);
-			//		WRITE_SCRIPT_FIELD(UInt8, uint8_t);
-			//		WRITE_SCRIPT_FIELD(UInt16, uint16_t);
-			//		WRITE_SCRIPT_FIELD(UInt32, uint32_t);
-			//		WRITE_SCRIPT_FIELD(UInt64, uint64_t);
-			//		WRITE_SCRIPT_FIELD(Float, float);
-			//		WRITE_SCRIPT_FIELD(Double, double);
-			//		WRITE_SCRIPT_FIELD(String, std::string);
-			//		WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
-			//		WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
-			//		WRITE_SCRIPT_FIELD(Color, glm::vec4);
-			//		WRITE_SCRIPT_FIELD(Entity, UUID);
-			//		default: TR_ASSERT(false, "Unsupported field type"); break;
-			//	}
-			//}
+				int32_t length = scriptInstance->GetFieldArrayLength(array, 0);
+				for (int32_t i = 0; i < length; i++)
+				{
+					switch (field.Type)
+					{
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
+						// NOTE: maybe wchar_t?
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, std::byte);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
+						//WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID); // TODO
+						default: TR_ASSERT(false, "Unsupported field type"); break;
+					}
+				}
+				out << YAML::EndSeq;
+			}
+			else 
+			{
+				switch (field.Type)
+				{
+					WRITE_SCRIPT_FIELD(Bool, bool);
+					// TODO: wchar
+					WRITE_SCRIPT_FIELD(Char, char);
+					WRITE_SCRIPT_FIELD(Int8, int8_t);
+					WRITE_SCRIPT_FIELD(Int16, int16_t);
+					WRITE_SCRIPT_FIELD(Int32, int32_t);
+					WRITE_SCRIPT_FIELD(Int64, int64_t);
+					WRITE_SCRIPT_FIELD(UInt8, std::byte);
+					WRITE_SCRIPT_FIELD(UInt16, uint16_t);
+					WRITE_SCRIPT_FIELD(UInt32, uint32_t);
+					WRITE_SCRIPT_FIELD(UInt64, uint64_t);
+					WRITE_SCRIPT_FIELD(Float, float);
+					WRITE_SCRIPT_FIELD(Double, double);
+					WRITE_SCRIPT_FIELD(String, std::string);
+					WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+					WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+					WRITE_SCRIPT_FIELD(Color, glm::vec4);
+					//WRITE_SCRIPT_FIELD(Entity, UUID); // TODO
+					default: TR_ASSERT(false, "Unsupported field type"); break;
+				}
+			}
 
 			out << YAML::EndMap;
 		}
@@ -302,34 +354,34 @@ namespace TerranEngine
 	}
 
 #define READ_SCRIPT_FIELD(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-	Type value = scriptField.as<Type>();\
-	cachedField->SetData(value, handle);\
+	Type value = scriptFieldNode.as<Type>();\
+	scriptInstance->SetFieldValue(fieldID, value);\
 	}\
 	break
 
 #define READ_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-	Utils::Variant value = scriptField[i].as<Type>();\
-	array.Set(i, value);\
+	Type value = scriptFieldNode[i].as<Type>();\
+	scriptInstance->SetFieldArrayValue(array, value, i);\
 	}\
 	break
 
-	//static void DeserializeScriptFields(GCHandle handle, ScriptComponent& scriptComponent, YAML::Node scriptFields) 
-	//{
-		//for (const auto& fieldID : scriptComponent.PublicFieldIDs)
-		//{
-			/*ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
-			YAML::Node scriptField;
+	static void DeserializeScriptFields(Shared<ScriptInstance> scriptInstance, ScriptComponent& scriptComponent, const YAML::Node& scriptFieldsNode) 
+	{
+		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+		{
+			ScriptField scriptField = scriptInstance->GetScriptField(fieldID);
+			YAML::Node scriptFieldNode;
 			bool valid = false;
 			
-			for (auto field : scriptFields)
+			for (auto field : scriptFieldsNode)
 			{
-				if (field[cachedField->GetName()]) 
+				if (field[scriptField.Name])
 				{
-					scriptField = field[cachedField->GetName()];
+					scriptFieldNode = field[scriptField.Name];
 					valid = true;
 					break;
 				}
@@ -337,14 +389,16 @@ namespace TerranEngine
 
 			if (!valid) continue;
 			
-			TR_TRACE(scriptField);
+			//TR_TRACE(scriptFieldNode);
 
-			if (cachedField->GetType().IsArray()) 
+			if (scriptField.IsArray)
 			{
-				ScriptArray array = cachedField->GetArray(handle);
-				for(size_t i = 0; i < array.Length() && i < scriptField.size(); i++) 
+				ScriptArray array = scriptInstance->GetScriptArray(fieldID);
+				// TODO: n dimensional arrays someday in the future?
+				int32_t length = scriptInstance->GetFieldArrayLength(array);
+				for(int32_t i = 0; i < length && i < scriptFieldNode.size(); i++)
 				{
-					switch(array.GetElementType().GetNativeType())
+					switch(scriptField.Type)
 					{
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
@@ -362,13 +416,14 @@ namespace TerranEngine
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
-						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+						//READ_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID); // TODO
+						default: TR_ASSERT(false, "Invalid script type");
 					}
 				}
 			}
 			else
 			{
-				switch (cachedField->GetType().GetNativeType())
+				switch (scriptField.Type)
 				{
 					READ_SCRIPT_FIELD(Bool, bool);
 					READ_SCRIPT_FIELD(Char, char);
@@ -386,12 +441,12 @@ namespace TerranEngine
 					READ_SCRIPT_FIELD(Vector2, glm::vec2);
 					READ_SCRIPT_FIELD(Vector3, glm::vec3);
 					READ_SCRIPT_FIELD(Color, glm::vec4);
-					READ_SCRIPT_FIELD(Entity, UUID);
+					//READ_SCRIPT_FIELD(Entity, UUID); // TODO
+					default: TR_ASSERT(false, "Invalid script type");
 				}
-			}*/
-
-		//}
-	//}
+			}
+		}
+	}
 
 	static YAML::Node FindEntity(YAML::Node scene, const UUID& entityID)
 	{
@@ -475,7 +530,6 @@ namespace TerranEngine
 				Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
 				if (!child)
 				{
-					// todo deserialize;
 					YAML::Node childNode = FindEntity(scene, deserializedChildID);
 					child = DeserializeEntity(childNode, scene, deserializedScene);
 				}
@@ -488,17 +542,13 @@ namespace TerranEngine
 		auto scriptComponent = data["ScriptComponent"];
 		if (scriptComponent)
 		{
-			// TODO:
 			auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
 			sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
 
-			if (ScriptEngine::ClassExists(sc.ModuleName)) 
-			{
-				//GCHandle handle = ScriptEngine::InitializeScriptable(deserializedEntity);
-				//auto scriptFields = scriptComponent["Fields"];
-				//if (scriptFields)
-					//DeserializeScriptFields(handle, sc, scriptFields);
-			}
+			Shared<ScriptInstance> scriptInstance = ScriptEngine::InitializeScriptable(deserializedEntity);
+			auto scriptFields = scriptComponent["Fields"];
+			if (scriptFields)
+				DeserializeScriptFields(scriptInstance, sc, scriptFields);
 		}
 
 		auto boxColliderComponent = data["BoxCollider2DComponent"];

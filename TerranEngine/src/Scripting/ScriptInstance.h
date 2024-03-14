@@ -7,6 +7,7 @@
 #include "Utils/Variant.h"
 
 #include <vector>
+#include <string>
 
 namespace Coral 
 {
@@ -27,7 +28,20 @@ namespace TerranEngine
 	{
 		void* Handle;
 		int32_t Rank;
+		int32_t FieldHandle;
 	};
+
+	template<typename TArg, size_t TIndex>
+	void AddToIndexArrayI(int32_t* indicesArray, TArg value)
+	{
+		indicesArray[TIndex] = value;
+	}
+
+	template<typename... TArgs, size_t... TIndices>
+	void AddToIndexArray(int32_t* indicesArray, TArgs&&... args, const std::index_sequence<TIndices...>&)
+	{
+		(AddToIndexArrayI<TArgs, TIndices>(indicesArray, std::forward<TArgs>(args)), ...);
+	}
 
 	template<typename... TIndices>
 	concept indices_concept = sizeof...(TIndices) > 0;
@@ -39,10 +53,16 @@ namespace TerranEngine
 		~ScriptInstance();
 
 		template<typename TValue>
-		void SetFieldValue(int32_t fieldHandle, TValue value) const
+		void SetFieldValue(int32_t fieldHandle, const TValue& value) const
 		{
-			SetFieldValueInternal(fieldHandle, &value);
+			SetFieldValueInternal(fieldHandle, (void*)&value);
 		}
+
+		template<>
+		void SetFieldValue<std::string>(int32_t fieldHandle, const std::string& value) const;
+
+		template<>
+		void SetFieldValue<Utils::Variant>(int32_t fieldHandle, const Utils::Variant& value) const;
 
 		template<typename TReturn>
 		TReturn GetFieldValue(int32_t fieldHandle) const 
@@ -52,67 +72,88 @@ namespace TerranEngine
 			return value;
 		}
 
+		template<>
+		std::string GetFieldValue<std::string>(int32_t fieldHandle) const;
+
+		template<>
+		Utils::Variant GetFieldValue<Utils::Variant>(int32_t fieldHandle) const;
+
 		template<typename TValue, std::same_as<int32_t>... TIndices>
 			requires indices_concept<TIndices...>
-		void SetFieldArrayValue(int32_t fieldHandle, TValue value, TIndices... indices) 
+		void SetFieldArrayValue(const ScriptArray& array, const TValue& value, TIndices... indices) 
 		{
 			constexpr size_t indicesSize = sizeof...(indices);
 			int32_t indicesArray[indicesSize]{};
 			AddToIndexArray<TIndices...>(indicesArray, std::forward<TIndices>(indices)..., std::make_index_sequence<indicesSize>{});
-			SetFieldArrayValueInternal(fieldHandle, &value, indicesArray, indicesSize);
+			SetFieldArrayValue(array, value, indicesArray, indicesSize);
+		}
+
+		template<typename TValue>
+		void SetFieldArrayValue(const ScriptArray& array, const TValue& value, const int32_t* indices, size_t indicesSize) 
+		{
+			if constexpr (std::same_as<std::string, TValue>)
+				SetFieldArrayStringValueInternal(array, value, indices, indicesSize);
+			else
+				SetFieldArrayValueInternal(array, (void*)&value, indices, indicesSize);
 		}
 
 		template<typename TReturn, std::same_as<int32_t>... TIndices>
 			requires indices_concept<TIndices...>
-		TReturn GetFieldArrayValue(int32_t fieldHandle, TIndices... indices)
+		TReturn GetFieldArrayValue(const ScriptArray& array, TIndices... indices)
 		{
 			constexpr size_t indicesSize = sizeof...(indices);
-			TReturn value;
 			int32_t indicesArray[indicesSize]{};
 			AddToIndexArray<TIndices...>(indicesArray, std::forward<TIndices>(indices)..., std::make_index_sequence<indicesSize>{});
-			GetFieldArrayValueInternal(fieldHandle, &value, indicesArray, indicesSize);
+
+			return GetFieldArrayValue<TReturn>(array, indicesArray, indicesSize);
+		}
+
+		template<typename TReturn>
+		TReturn GetFieldArrayValue(const ScriptArray& array, const int32_t* indices, size_t indicesSize) 
+		{
+			if constexpr (std::same_as<std::string, TReturn>)
+				return GetFieldArrayStringValueInternal(array, indices, indicesSize);
+
+			TReturn value;
+			GetFieldArrayValueInternal(array, &value, indices, indicesSize);
 			return value;
 		}
 
 		template<std::same_as<int32_t>... TLengths>
 			requires indices_concept<TLengths...>
-		void ResizeFieldArray(int32_t fieldHandle, TLengths... lengths) 
+		void ResizeFieldArray(ScriptArray& array, TLengths... lengths) 
 		{
 			constexpr size_t lengthsSize = sizeof...(lengths);
 			int32_t lengthsArray[lengthsSize]{};
 			AddToIndexArray<TLengths...>(lengthsArray, std::forward<TLengths>(lengths)..., std::make_index_sequence<lengthsSize>{});
 			if constexpr (lengthsSize > 1)
-				ResizeFieldArrayInternal(fieldHandle, lengthsArray, lengthsSize);
+				ResizeFieldArrayInternal(array, lengthsArray, lengthsSize);
 			else
-				ResizeFieldArrayInternal(fieldHandle, lengthsArray[0]);
+				ResizeFieldArrayInternal(array, lengthsArray[0]);
 		}
 
+		int32_t GetFieldArrayLength(const ScriptArray& array, int dimension = 0) const;
+
 		const ScriptField& GetScriptField(int32_t fieldHandle) const { return m_Fields.at(fieldHandle); }
-		const ScriptArray& GetScriptArray(int32_t fieldHandle) const { return m_FieldArrays.at(fieldHandle); }
+		ScriptArray& GetScriptArray(int32_t fieldHandle);
 
 		void InvokeInit();
 		void InvokeUpdate(float deltaTime);
 
+		void CopyFieldFrom(int32_t fieldHandle, Shared<ScriptInstance> source);
+		void CopyAllFieldsFrom(Shared<ScriptInstance> source);
+
 	private:
 		void SetFieldValueInternal(int32_t fieldHandle, void* value) const;
 		void GetFieldValueInternal(int32_t fieldHandle, void* value) const;
-		void SetFieldArrayValueInternal(int32_t fieldHandle, void* value, const int32_t* indices, size_t indicesSize) const;
-		void GetFieldArrayValueInternal(int32_t fieldHandle, void* value, const int32_t* indices, size_t indicesSize) const;
-		Utils::Variant GetFieldArrayValueInternal(int32_t fieldHandle, const int32_t* indices, size_t indicesSize) const;
-		void ResizeFieldArrayInternal(int32_t fieldHandle, int32_t length);
-		void ResizeFieldArrayInternal(int32_t fieldHandle, const int32_t* lengths, size_t lengthsSize);
-
-		template<typename TArg, size_t TIndex>
-		void AddToIndexArrayI(int32_t* indicesArray, TArg value)
-		{
-			indicesArray[TIndex] = value;
-		}
-
-		template<typename... TArgs, size_t... TIndices>
-		void AddToIndexArray(int32_t* indicesArray, TArgs&&... args, const std::index_sequence<TIndices...>&) 
-		{
-			(AddToIndexArrayI<TArgs, TIndices>(indicesArray, std::forward<TArgs>(args)), ...);
-		}
+		void SetFieldArrayStringValueInternal(const ScriptArray& array, const std::string& value, const int32_t* indices, size_t indicesSize) const;
+		std::string GetFieldArrayStringValueInternal(const ScriptArray& array, const int32_t* indices, size_t indicesSize) const;
+		void SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const;
+		void GetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const;
+		void SetFieldArrayVariantValueInternal(const ScriptArray& array, const Utils::Variant& value, const int32_t* indices, size_t indicesSize) const;
+		Utils::Variant GetFieldArrayVariantValueInternal(const ScriptArray& array, const int32_t* indices, size_t indicesSize) const;
+		void ResizeFieldArrayInternal(ScriptArray& array, int32_t length);
+		void ResizeFieldArrayInternal(ScriptArray& array, const int32_t* lengths, size_t lengthsSize);
 
 	private:
 		const void* m_Context;

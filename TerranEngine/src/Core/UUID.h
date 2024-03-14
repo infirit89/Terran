@@ -2,7 +2,7 @@
 
 #include <string>
 #include <array>
-#include <xhash>
+#include <functional>
 
 namespace TerranEngine 
 {

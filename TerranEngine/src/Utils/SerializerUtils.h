@@ -26,6 +26,7 @@ namespace TerranEngine
     YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v);
     YAML::Emitter& operator<<(YAML::Emitter& out, const UUID& v);
     YAML::Emitter& operator<<(YAML::Emitter& out, const TextureFilter& v);
+    YAML::Emitter& operator<<(YAML::Emitter& out, std::byte v);
 }
 
 namespace YAML {
@@ -115,7 +116,7 @@ namespace YAML {
     };
 
     template<>
-        struct convert<TerranEngine::TextureFilter> {
+    struct convert<TerranEngine::TextureFilter> {
         static Node encode(const TerranEngine::TextureFilter& rhs) {
             Node node;
             node.push_back(TerranEngine::TextureFilterToString(rhs));
@@ -125,6 +126,19 @@ namespace YAML {
         static bool decode(const Node& node, TerranEngine::TextureFilter& rhs) {
 
             rhs = TerranEngine::TextureFilterFromString(node.as<std::string>());
+            return true;
+        }
+    };
+
+    template<>
+    struct convert<std::byte> {
+        static Node encode(std::byte rhs) {
+            Node node;
+            node.push_back((int)rhs);
+            return node;
+        }
+        static bool decode(const Node& node, std::byte& rhs) {
+            rhs = (std::byte)node.as<int32_t>();
             return true;
         }
     };

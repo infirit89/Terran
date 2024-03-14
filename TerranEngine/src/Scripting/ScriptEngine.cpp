@@ -12,8 +12,6 @@
 //#include "ScriptUtils.h"
 //#include "ManagedMetadata.h"
 
-#include "ManagedArray.h"
-
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
 #include "Project/Project.h"
@@ -172,7 +170,7 @@ namespace TerranEngine
 
 	//Shared<ScriptAssembly> ScriptEngine::GetAssembly(int assemblyIndex) { return nullptr; }
 
-	ScriptType ScriptEngine::GetScriptType(Coral::Type& type)
+	static ScriptType GetScriptType(Coral::Type& type)
 	{
 		Coral::ManagedType managedType = type.GetManagedType();
 		if (managedType != Coral::ManagedType::Unknown && managedType != Coral::ManagedType::Pointer)
@@ -221,8 +219,14 @@ namespace TerranEngine
 		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
 	}
 
+	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID) 
+	{
+		return s_Data->ScriptInstanceMap.at(sceneID).at(entityID);
+	}
+
 	Shared<ScriptInstance> ScriptEngine::InitializeScriptable(Entity entity)
 	{
+		TR_PROFILE_FUNCTION();
 		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 
 		if (scriptComponent.ModuleName.empty()) return nullptr;
@@ -266,20 +270,12 @@ namespace TerranEngine
 				ScriptField field;
 				Coral::Type& fieldType = fieldInfo.GetType();
 				field.IsArray = fieldType.IsArray();
-				if (field.IsArray) 
-				{
-					field.Type = GetScriptType(fieldType.GetElementType());
-					instance->ResizeFieldArray(fieldInfo.GetHandle(), 12);
-				}
-				else
-					field.Type = GetScriptType(fieldType);
+				field.Type = GetScriptType(field.IsArray ? fieldType.GetElementType() : fieldType);
 
 				field.Name = fieldName;
 				instance->m_Fields.emplace(fieldInfo.GetHandle(), field);
 			}
 		}
-
-		instance->InvokeInit();
 		
 		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
 	}

@@ -1,0 +1,43 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 5b1fe0f3-c240-4ff5-8ddc-3db14aebadf6
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: e05ffed7-2a7c-4648-bbab-bf51fb30ec96
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    ScriptComponent:
+      ModuleName: ScriptAssembly.Test
+      Fields:
+        - TestArr: [3, 2, 3, 5, 5]
+        - TestBool: false
+        - TestB: 30
+        - TestSB: -50
+        - TestUS: 200
+        - TestS: -20
+        - TestUI: 100000
+        - TestI: -300000
+        - TestUL: 999908999
+        - TestL: -1099990899
+        - TestF: 20.6780004
+        - TestD: -1000.03
+        - TestC: b
+        - TestVec2: [10, 2]
+        - TestVec3: [123, 10.0312004, -21]
+        - TestCol: [0.2, 0.2, 0.2, 1]
+        - TestStr: This is may be a test string! It will show up!

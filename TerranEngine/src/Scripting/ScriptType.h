@@ -21,12 +21,12 @@ namespace TerranEngine
 		Bool,
 		Char,
 
+		String,
 
 		Vector2,
 		Vector3,
 		Color,
 
-		String,
 		Entity
 	};
 }

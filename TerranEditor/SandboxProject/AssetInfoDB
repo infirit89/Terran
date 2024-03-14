@@ -80,3 +80,6 @@ AssetInfos:
   - Asset: c219bf28-7434-456c-8a23-481de70b8e40
     Type: 4
     Path: ScriptTest2.terran
+  - Asset: b11fc18a-b305-4353-be1e-770f9f65fff6
+    Type: 4
+    Path: Scenes\TestScene9.terran

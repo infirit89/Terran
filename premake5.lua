@@ -1,3 +1,5 @@
+require "extensions/vscode"
+
 require "dependecies"
 
 workspace "Terran"
