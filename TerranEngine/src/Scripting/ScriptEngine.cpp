@@ -157,7 +157,7 @@ namespace TerranEngine
 		s_Data->HostInstance.UnloadAssemblyLoadContext(s_Data->LoadContext);
 	}
 
-	void ScriptEngine::ReloadAppAssembly() 
+	void ScriptEngine::ReloadAppAssembly()
 	{
 
 	}
@@ -256,12 +256,12 @@ namespace TerranEngine
 			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] =
 			CreateShared<ScriptInstance>(type, entity);
 
-		scriptComponent.PublicFieldIDs.clear();
+		scriptComponent.FieldHandles.clear();
 		for (Coral::FieldInfo& fieldInfo : type.GetFields())
 		{
 			if (fieldInfo.GetAccessibility() == Coral::TypeAccessibility::Public)
 			{
-				scriptComponent.PublicFieldIDs.emplace_back(fieldInfo.GetHandle());
+				scriptComponent.FieldHandles.emplace_back(fieldInfo.GetHandle());
 				Coral::ScopedString fieldName = fieldInfo.GetName();
 				ScriptField field;
 				Coral::Type& fieldType = fieldInfo.GetType();

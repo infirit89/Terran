@@ -278,28 +278,28 @@ namespace TerranEditor
 			}
 
 			UI::BeginPropertyGroup("script_properties");
-			if (!component.PublicFieldIDs.empty())
+			if (!component.FieldHandles.empty())
 			{
-				//const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+				Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
 
-				for (const auto& fieldID : component.PublicFieldIDs)
+				for (const auto& fieldHandle : component.FieldHandles)
 				{
-					//ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					const ScriptField& field = scriptInstance->GetScriptField(fieldHandle);
 
-					/*if (field->GetType().IsArray())
+					if (field.IsArray)
 					{
-						UI::EndPropertyGroup();
+						/*UI::EndPropertyGroup();
 						ScriptArray array = field->GetArray(handle);
 						if (UI::PropertyScriptArrayField(m_Scene, field, array))
 							field->SetArray(array, handle);
 
-						UI::BeginPropertyGroup("script_properties");
+						UI::BeginPropertyGroup("script_properties");*/
 					}
 					else 
 					{
 						ImGui::TableNextRow();
-						UI::PropertyScriptField(m_Scene, field, handle);
-					}*/
+						UI::PropertyScriptField(m_Scene, fieldHandle, scriptInstance);
+					}
 				}
 			}
 			UI::EndPropertyGroup();

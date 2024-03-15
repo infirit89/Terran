@@ -3,6 +3,7 @@
 #include "Core/Assert.h"
 
 #include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptInstance.h"
 
 #include "Assets/AssetManager.h"
 #include "Graphics/Texture.h"
@@ -152,16 +153,17 @@ namespace TerranEditor::UI
 		{ typeid(double), ImGuiDataType_Double }
 	};
 
-	bool PropertyColor(const std::string& label, glm::vec4& value);
+	bool PropertyColor(std::string_view label, glm::vec4& value);
 	bool PropertyVec3(const std::string& label, glm::vec3& value);
 	bool PropertyVec2(const std::string& label, glm::vec2& value);
 	bool PropertyEntity(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
-	//void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle);
+	void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, int32_t fieldHandle, const TerranEngine::Shared<TerranEngine::ScriptInstance>& handle);
 	//bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, TerranEngine::ScriptArray& array);
 	bool PropertyFloat(const std::string& label, float& value);
 	bool PropertyInt(const std::string& label, int& value);
 	bool PropertyBool(const std::string& label, bool& value);
 	bool PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+	bool PropertyChar(const std::string& label, char& value);
 	bool Button(const std::string& label, const char* buttonLabel);
 
 	template<typename T>

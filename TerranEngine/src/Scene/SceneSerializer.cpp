@@ -96,7 +96,7 @@ namespace TerranEngine
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
 		Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
 		
-		for (auto& fieldID : sc.PublicFieldIDs)
+		for (auto& fieldID : sc.FieldHandles)
 		{
 			out << YAML::BeginMap;
 			ScriptField field = scriptInstance->GetScriptField(fieldID);
@@ -104,6 +104,9 @@ namespace TerranEngine
 			if(field.IsArray) 
 			{
 				ScriptArray& array = scriptInstance->GetScriptArray(fieldID);
+				if (array.Rank > 1)
+					continue;
+
 				out << YAML::Key << field.Name << YAML::Value << YAML::Flow;
 				out << YAML::BeginSeq;
 
@@ -271,7 +274,7 @@ namespace TerranEngine
 
 			BEGIN_COMPONENT_MAP("ScriptComponent");
 			WRITE_COMPONENT_PROPERY("ModuleName", scriptComponent.ModuleName);
-			if (!scriptComponent.PublicFieldIDs.empty()) 
+			if (!scriptComponent.FieldHandles.empty()) 
 			{
 				//WRITE_COMPONENT_PROPERY("Fields", YAML::BeginSeq);
 				out << YAML::Key << "Fields" << YAML::Value;
@@ -371,7 +374,7 @@ namespace TerranEngine
 
 	static void DeserializeScriptFields(Shared<ScriptInstance> scriptInstance, ScriptComponent& scriptComponent, const YAML::Node& scriptFieldsNode) 
 	{
-		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+		for (const auto& fieldID : scriptComponent.FieldHandles)
 		{
 			ScriptField scriptField = scriptInstance->GetScriptField(fieldID);
 			YAML::Node scriptFieldNode;
@@ -394,6 +397,9 @@ namespace TerranEngine
 			if (scriptField.IsArray)
 			{
 				ScriptArray array = scriptInstance->GetScriptArray(fieldID);
+				if (array.Rank > 1)
+					continue;
+
 				// TODO: n dimensional arrays someday in the future?
 				int32_t length = scriptInstance->GetFieldArrayLength(array);
 				for(int32_t i = 0; i < length && i < scriptFieldNode.size(); i++)

@@ -754,13 +754,13 @@ namespace TerranEditor
 
 	static constexpr float power = 0.1f;
 
-	bool UI::PropertyColor(const std::string& label, glm::vec4& value)
+	bool UI::PropertyColor(std::string_view label, glm::vec4& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
@@ -994,6 +994,18 @@ namespace TerranEditor
 		return changed;
 	}
 
+	// TODO: support wide strings
+	bool UI::PropertyChar(const std::string& label, char& value)
+	{
+		std::string strVal; strVal += value;
+		bool changed = PropertyString(label, strVal, 0, 2);
+
+		if (strVal.empty()) return false;
+		value = strVal.at(0);
+
+		return changed;
+	}
+
 	bool UI::Button(const std::string& label, const char* buttonLabel)
 	{
 		ImGui::PushID(label.c_str());
@@ -1205,124 +1217,68 @@ namespace TerranEditor
 		return TreeNodeBehavior(window->GetID(label), flags, label, NULL);
 	}
 
-	/*template<typename T>
-	static void DrawFieldValue(ScriptField* field, GCHandle handle,
-		const std::function<bool(const std::string& fieldName, T& value, const ManagedType& fieldType)>& drawFunc)
+	template<typename T>
+	static void DrawFieldValue(int32_t fieldHandle, const std::string& fieldName, const Shared<ScriptInstance>& scriptInstance,
+		const std::function<bool(const std::string& fieldName, T& value)>& drawFunc)
 	{
-		T value = field->GetData<T>(handle);
-		std::string fieldName = ProccessFieldName(field->GetName());
-		if (drawFunc(fieldName, value, field->GetType()))
-			field->SetData<Utils::Variant>(value, handle);
-	}*/
+		T value = scriptInstance->GetFieldValue<T>(fieldHandle);
+		std::string proccessedFieldName = ProccessFieldName(fieldName);
+		if (drawFunc(proccessedFieldName, value))
+			scriptInstance->SetFieldValue<T>(fieldHandle, value);
+	}
+
+#define DRAW_FIELD_PROPERTY(FieldType, Type, DrawFunc, ...)\
+	case ScriptType::FieldType:\
+	{\
+		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,\
+		[&__VA_ARGS__](const std::string& fieldName, auto& value)\
+		{\
+			return DrawFunc(fieldName, value, __VA_ARGS__);\
+		});\
+	}\
+	break
 
 #define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-		DrawFieldValue<Type>(field, handle,\
-		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)\
+		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,\
+		[](const std::string& fieldName, auto& value)\
 		{\
 			return PropertyScalar(fieldName, value);\
 		});\
 	}\
 	break
 
-	//void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
-	//{
-		//TR_ASSERT(handle, "Invalid handle");
+	void UI::PropertyScriptField(const Shared<Scene>& scene, int32_t fieldHandle, const Shared<ScriptInstance>& scriptInstance)
+	{
+		TR_ASSERT(scriptInstance, "Invalid script instance");
+		
+		/*const ManagedClass& typeClass = field->GetType().GetTypeClass();*/
+		/*std::vector<ScriptField> enumFields;*/
 
-		//const ManagedClass& typeClass = field->GetType().GetTypeClass();
-		//std::vector<ScriptField> enumFields;
+		const ScriptField& field = scriptInstance->GetScriptField(fieldHandle);
 
-		//switch (field->GetType().GetNativeType())
-		//{
-		//case NativeType::Bool:
-		//{
-		//	DrawFieldValue<bool>(field, handle,
-		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			return PropertyBool(fieldName, value);
-		//		});
-
-		//	break;
-		//}
-		//case NativeType::Char:
-		//{
-		//	DrawFieldValue<wchar_t>(field, handle,
-		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			// TODO: support wide strings
-		//			std::string strVal; strVal += (char)value;
-		//			bool changed = PropertyString(fieldName, strVal, 0, 2);
-
-		//			if (strVal.empty()) return false;
-		//			value = strVal.at(0);
-
-		//			return changed;
-		//		});
-
-		//	break;
-		//}
-		//DRAW_FIELD_PROPERTY_SCALAR(Int8, int8_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(Int16, int16_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(Int32, int32_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(Int64, int64_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(UInt8, uint8_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(UInt16, uint16_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(UInt32, uint32_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
-		//DRAW_FIELD_PROPERTY_SCALAR(Float, float);
-		//DRAW_FIELD_PROPERTY_SCALAR(Double, double);
-		//case NativeType::String:
-		//{
-		//	DrawFieldValue<std::string>(field, handle,
-		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			return PropertyString(fieldName, value);
-		//		});
-
-		//	break;
-		//}
-		//case NativeType::Vector2:
-		//{
-		//	DrawFieldValue<glm::vec2>(field, handle,
-		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			return PropertyVec2(fieldName, value);
-		//		});
-
-		//	break;
-		//}
-		//case NativeType::Vector3:
-		//{
-		//	DrawFieldValue<glm::vec3>(field, handle,
-		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			return PropertyVec3(fieldName, value);
-		//		});
-
-		//	break;
-		//}
-		//case NativeType::Color:
-		//{
-		//	DrawFieldValue<glm::vec4>(field, handle,
-		//		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			return PropertyColor(fieldName, value);
-		//		});
-
-		//	break;
-		//}
-		//case NativeType::Entity:
-		//{
-		//	DrawFieldValue<UUID>(field, handle,
-		//		[&](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-		//		{
-		//			return PropertyEntity(fieldName, value, scene);
-		//		});
-
-		//	break;
-		//}
-		//}
+		switch (field.Type)
+		{
+		DRAW_FIELD_PROPERTY_SCALAR(Int8, int8_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Int16, int16_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Int32, int32_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Int64, int64_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt8, uint8_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt16, uint16_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt32, uint32_t);
+		DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
+		DRAW_FIELD_PROPERTY_SCALAR(Float, float);
+		DRAW_FIELD_PROPERTY_SCALAR(Double, double);
+		DRAW_FIELD_PROPERTY(Bool, bool, PropertyBool);
+		DRAW_FIELD_PROPERTY(Char, char, PropertyChar);
+		DRAW_FIELD_PROPERTY(String, std::string, PropertyString);
+		DRAW_FIELD_PROPERTY(Vector2, glm::vec2, PropertyVec2);
+		DRAW_FIELD_PROPERTY(Vector3, glm::vec3, PropertyVec3);
+		DRAW_FIELD_PROPERTY(Color, glm::vec4, PropertyColor);
+		DRAW_FIELD_PROPERTY(Entity, UUID, PropertyEntity, scene);
+		}
+	}
 
 #if 0
 		const char** enumFieldNames = nullptr;
