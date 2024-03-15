@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Coral.Managed.Interop;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Terran
 {
-	internal class Internal
+	internal static class Internal
 	{
-		#region Log
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Log_Log(byte level, string text);
+		internal static unsafe delegate*<byte, NativeString, void> Log_LogICall;
+		#region Utils
 		#endregion
 
 		#region Input

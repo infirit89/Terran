@@ -4,6 +4,9 @@
 #include "Core/MouseButtons.h"
 #include "Core/ControllerIndices.h"
 
+#include <Coral/String.hpp>
+#include <Coral/Assembly.hpp>
+
 #include <glm/glm.hpp>
 
 extern "C" 
@@ -16,15 +19,16 @@ extern "C"
 
 namespace TerranEngine 
 {
-	namespace ScriptBindings
+	class ScriptBindings
 	{
-		void Bind();
+	public:
+		static void Bind(Coral::ManagedAssembly& assembly);
 
 		// clear the entity functions
-		void Unbind();
+		static void Unbind();
 
 		// ---- Utils ----
-		static void Log_Log(uint8_t logLevel, MonoString* monoMessage);
+		static void Log_LogICall(uint8_t logLevel, Coral::String message);
 		// ---------------
 
 		// ---- Input ----
@@ -172,5 +176,5 @@ namespace TerranEngine
 		static MonoString* TextRenderer_GetText(MonoArray* entityUUIDArr);
 		static void TextRenderer_SetText(MonoArray* entityUUIDArr, MonoString* text);
 		// ---------------------------------
-	}
+	};
 }

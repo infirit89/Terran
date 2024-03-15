@@ -41,28 +41,27 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-			//Console.WriteLine(this.Entity.ID);
-			Console.WriteLine(TestArr.Length);
-			Console.WriteLine(string.Join(' ', TestArr));
-			Console.WriteLine(string.Join(' ', TestArr2));
-            Console.WriteLine(string.Join(' ', TestArr3));
+            Log.Trace(this.Entity.ID);
+            Log.Trace(string.Join(' ', TestArr));
+            Log.Trace(string.Join(' ', TestArr2));
+            Log.Trace(string.Join(' ', TestArr3));
 
-            Console.WriteLine(TestBool);
-            Console.WriteLine(TestB);
-            Console.WriteLine(TestSB);
-            Console.WriteLine(TestUS);
-            Console.WriteLine(TestS);
-            Console.WriteLine(TestUI);
-            Console.WriteLine(TestI);
-            Console.WriteLine(TestUL);
-            Console.WriteLine(TestL);
-            Console.WriteLine(TestF);
-            Console.WriteLine(TestD);
-            Console.WriteLine(TestC);
-            Console.WriteLine(TestVec2);
-            Console.WriteLine(TestVec3);
-            Console.WriteLine(TestCol);
-            Console.WriteLine(TestStr);
+            Log.Trace(TestBool);
+            Log.Trace(TestB);
+            Log.Trace(TestSB);
+            Log.Trace(TestUS);
+            Log.Trace(TestS);
+            Log.Trace(TestUI);
+            Log.Trace(TestI);
+            Log.Trace(TestUL);
+            Log.Trace(TestL);
+            Log.Trace(TestF);
+            Log.Trace(TestD);
+            Log.Trace(TestC);
+            Log.Trace(TestVec2);
+            Log.Trace(TestVec3);
+            Log.Trace(TestCol);
+            Log.Trace(TestStr);
         }
 
 		protected override void Update(float deltaTime)

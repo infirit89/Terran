@@ -31,8 +31,28 @@
 
 namespace TerranEngine 
 {
-	namespace ScriptBindings 
-	{				
+#define BIND_INTERNAL_FUNC(func) assembly.AddInternalCall("Terran.Internal", #func, reinterpret_cast<void*>(&func))
+
+	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly) 
+	{
+		//assembly.AddInternalCall("Terran.Internal", "Log_LogICall", reinterpret_cast<void*>(&Log_LogICall));
+		BIND_INTERNAL_FUNC(Log_LogICall);
+		assembly.UploadInternalCalls();
+	}
+
+	void ScriptBindings::Log_LogICall(uint8_t logLevel, Coral::String message)
+	{
+		TR_PROFILE_FUNCTION();
+		std::string messageStr = message;
+		TR_TRACE(messageStr);
+		switch (logLevel)
+		{
+		case 1 << 0: TR_CLIENT_TRACE(messageStr); break;
+		case 1 << 1: TR_CLIENT_WARN(messageStr); break;
+		case 1 << 2: TR_CLIENT_ERROR(messageStr); break;
+		}
+	}
+
 #if 0
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)
 
@@ -1274,6 +1294,5 @@ namespace TerranEngine
 
 		// ---------------
 #endif
-	}
 }
 

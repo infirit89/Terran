@@ -12,7 +12,7 @@ namespace Terran
         public unsafe fixed byte Arr[4];
 	}
 
-	class Test
+	public class Test : Scriptable
 	{
 		internal static unsafe delegate*<NativeString, void> PrintICall;
 		internal static unsafe delegate*<NativeArray<UUID>> GetIDs;
@@ -23,7 +23,12 @@ namespace Terran
 			Console.WriteLine(string.Join(' ', TestArr));
 		}
 
-		void T2(int a)
+        protected override void Init()
+        {
+			Log.Trace("test");
+        }
+
+        void T2(int a)
 		{
 			Console.WriteLine("a a a a a  a a a a aa ");
 			Console.WriteLine(a);

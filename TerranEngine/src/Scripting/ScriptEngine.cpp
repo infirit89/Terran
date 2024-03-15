@@ -134,11 +134,6 @@ namespace TerranEngine
 		s_Data->LoadContext = s_Data->HostInstance.CreateAssemblyLoadContext("ScriptAppContext");
 
 		LoadCoreAssembly();
-
-		Coral::Type* type = Coral::TypeCache::Get().GetTypeByName("System.Int32");
-		const int32_t lengths[4] = { 4, 5, 6, 7 };
-		Coral::ManagedArray arr = Coral::ManagedArray::New(*type, lengths, 4);
-		TR_TRACE("cum");
 	}
 
 	bool ScriptEngine::LoadCoreAssembly() 
@@ -152,6 +147,7 @@ namespace TerranEngine
 			TR_ERROR("The scriptable base class wasn't found!");
 
 		InitializeTypeConverters();
+		ScriptBindings::Bind(coreAssembly);
 		return true;
 	}
 
