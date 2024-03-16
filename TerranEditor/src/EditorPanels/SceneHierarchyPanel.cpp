@@ -200,14 +200,17 @@ namespace TerranEditor
 			}
 		}
 
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && Input::IsKeyDown(Key::LeftControl)) 
+		if (ImGui::IsItemHovered())
 		{
-			SelectionManager::Select(entity);
-		}
-		else if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right)) 
-		{
-			SelectionManager::DeselectAll(SelectionContext::Scene);
-			SelectionManager::Select(entity);
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && Input::IsKeyDown(Key::LeftControl))
+			{
+				SelectionManager::Select(entity);
+			}
+			else if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) || ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+			{
+				SelectionManager::DeselectAll(SelectionContext::Scene);
+				SelectionManager::Select(entity);
+			}
 		}
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

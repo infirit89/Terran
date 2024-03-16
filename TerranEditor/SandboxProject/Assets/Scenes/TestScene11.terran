@@ -25,22 +25,20 @@ Entities:
       ModuleName: ScriptAssembly.Test
       Fields:
         - TestArr: [3, 2, 3, 5, 5]
-        - TestArr2: [-858993460, -858993460]
-        - TestArr3: [-858993460, -858993460]
-        - TestBool: true
-        - TestB: 14
-        - TestSB: 35
-        - TestUS: 145
-        - TestS: -330
-        - TestUI: 100129
-        - TestI: -300081
-        - TestUL: 999909156
-        - TestL: -1099991269
-        - TestF: 51.1800003
-        - TestD: -1055.23
-        - TestC: v
-        - TestVec2: [-30.6000004, 15.8000002]
-        - TestVec3: [-34.4000015, 86.4300003, -118.099998]
-        - TestCol: [0.838427961, 0.318529397, 0.318529397, 1]
-        - TestStr: test test test
+        - TestBool: false
+        - TestB: 30
+        - TestSB: -50
+        - TestUS: 200
+        - TestS: -20
+        - TestUI: 100000
+        - TestI: -300000
+        - TestUL: 999908999
+        - TestL: -1099990899
+        - TestF: 20.6779995
+        - TestD: -1000.03
+        - TestC: b
+        - TestVec2: [10, 2]
+        - TestVec3: [123, 10.0312004, -21]
+        - TestCol: [0.200000003, 0.200000003, 0.200000003, 1]
+        - TestStr: This is may be a test string! It will show up!
         - TestEntity: 5b1fe0f3-c240-4ff5-8ddc-3db14aebadf6

@@ -6,7 +6,7 @@ namespace Terran
 {
 	public class Component
 	{
-		public Entity Entity { internal set; get; }
+		public Entity Entity { internal set; get; } = null!;
 	}
 
 	public class TextRenderer : Component 

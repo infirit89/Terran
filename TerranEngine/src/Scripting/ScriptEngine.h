@@ -41,6 +41,8 @@ namespace TerranEngine
 		static void OnPhysicsEndContact(Entity collider, Entity collidee);
 		
 		static void OnPhysicsUpdate(Entity entity);
+		static const void* CreateEntityInstance(const UUID& id);
+		static int32_t GetEntityIDFieldHandle();
 
 		//static ManagedObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		//static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);

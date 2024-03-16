@@ -72,6 +72,8 @@ namespace TerranEngine
 		
 		std::string CoralDirectory = "Resources/Scripts";
 		Coral::Type ScriptableBaseClass;
+		Coral::Type EntityClass;
+		int32_t EntityIDFieldHandle;
 
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
@@ -143,8 +145,11 @@ namespace TerranEngine
 		TR_ASSERT(coreAssembly.GetLoadStatus() == Coral::AssemblyLoadStatus::Success, "Couldn't load the TerranScriptCore assembly");
 
 		s_Data->ScriptableBaseClass = coreAssembly.GetType("Terran.Scriptable");
-		if (!s_Data->ScriptableBaseClass)
-			TR_ERROR("The scriptable base class wasn't found!");
+		TR_ASSERT(s_Data->ScriptableBaseClass, "The scriptable base class wasn't found");
+
+		s_Data->EntityClass = coreAssembly.GetType("Terran.Entity");
+		TR_ASSERT(s_Data->EntityClass, "The entity class wasn't found");
+		s_Data->EntityIDFieldHandle = s_Data->EntityClass.GetField("m_ID");
 
 		InitializeTypeConverters();
 		ScriptBindings::Bind(coreAssembly);
@@ -310,6 +315,16 @@ namespace TerranEngine
 	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee) {}
 
 	void ScriptEngine::OnPhysicsUpdate(Entity entity) {}
+
+	const void* ScriptEngine::CreateEntityInstance(const UUID& id) 
+	{
+		return s_Data->EntityClass.CreateInstance(id).GetHandle();
+	}
+
+	int32_t ScriptEngine::GetEntityIDFieldHandle() 
+	{
+		return s_Data->EntityIDFieldHandle;
+	}
 
 	//ManagedObject ScriptEngine::GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }
 	//GCHandle ScriptEngine::GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID) { return {}; }

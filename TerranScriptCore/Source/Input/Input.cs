@@ -5,18 +5,57 @@ namespace Terran
 	public class Input
 	{
 
-		public static bool IsKeyPressed(KeyCode keyCode) => Internal.Input_KeyPressed((ushort)keyCode);
-		public static bool IsKeyDown(KeyCode keyCode) => Internal.Input_KeyDown((ushort)keyCode);
-		public static bool IsKeyReleased(KeyCode keyCode) => Internal.Input_KeyReleased((ushort)keyCode);
-
-		public static bool IsMouseButtonPressed(MouseButton mouseButton) => Internal.Input_MouseButtonPressed((byte)mouseButton);
-		public static bool IsMouseButtonDown(MouseButton mouseButton) => Internal.Input_MouseButtonDown((byte)mouseButton);
-		public static bool IsMouseButtonReleased(MouseButton mouseButton) => Internal.Input_MouseButtonReleased((byte)mouseButton);
-
-		public static Vector2 GetMousePosition() 
+		public static bool IsKeyPressed(KeyCode keyCode) 
 		{
-			Internal.Input_GetMousePosition(out var mousePosition);
-			return mousePosition;
+			unsafe
+			{
+				return Internal.Input_KeyPressedICall((ushort)keyCode);
+			}
+        }
+		public static bool IsKeyDown(KeyCode keyCode)
+		{
+			unsafe 
+			{
+				return Internal.Input_KeyDownICall((ushort)keyCode);
+			}
+		}
+		public static bool IsKeyReleased(KeyCode keyCode)
+		{
+			unsafe 
+			{
+				return Internal.Input_KeyReleasedICall((ushort)keyCode);
+			}
+		}
+
+		public static bool IsMouseButtonPressed(MouseButton mouseButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_MouseButtonPressedICall((byte)mouseButton);
+			}
+		}
+		public static bool IsMouseButtonDown(MouseButton mouseButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_MouseButtonDownICall((byte)mouseButton);
+			}
+		}
+		public static bool IsMouseButtonReleased(MouseButton mouseButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_MouseButtonReleasedICall((byte)mouseButton);
+			}
+		}
+
+		public static Vector2 GetMousePosition()
+		{
+			unsafe 
+			{
+				Internal.Input_GetMousePositionICall(out Vector2 mousePostion);
+				return mousePostion;
+			}
 		}
 
 		public static float GetMouseX() => GetMousePosition().X;

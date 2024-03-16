@@ -288,12 +288,15 @@ namespace TerranEditor
 
 					if (field.IsArray)
 					{
-						/*UI::EndPropertyGroup();
-						ScriptArray array = field->GetArray(handle);
-						if (UI::PropertyScriptArrayField(m_Scene, field, array))
-							field->SetArray(array, handle);
+						const ScriptArray& array = scriptInstance->GetScriptArray(fieldHandle);
+						if (array.Rank > 1)
+							continue;
 
-						UI::BeginPropertyGroup("script_properties");*/
+						UI::EndPropertyGroup();
+						UI::PropertyScriptArrayField(m_Scene, fieldHandle, scriptInstance);
+							//field->SetArray(array, handle);
+
+						UI::BeginPropertyGroup("script_properties");
 					}
 					else 
 					{

@@ -11,10 +11,10 @@
 
 		public string Name
 		{
-			get => GetComponent<Tag>().Name;
-			set => GetComponent<Tag>().Name = value;
+			get => GetComponent<Tag>()!.Name;
+			set => GetComponent<Tag>()!.Name = value;
 		}
-		public Transform Transform => GetComponent<Transform>();
+		public Transform Transform => GetComponent<Transform>()!;
 
 		public Entity()
 		{
@@ -27,7 +27,7 @@
 			//m_ID = new UUID(uuidData);
 		}
 
-		public static Entity FindWithName(string name)
+		public static Entity? FindWithName(string name)
 		{
 			//byte[] entityID = Internal.Entity_FindEntityWithName(name);
 
@@ -37,7 +37,7 @@
 			return null;
 		}
 
-		internal static Entity FindWithID(UUID id)
+		internal static Entity? FindWithID(UUID id)
 		{
 			return Internal.Entity_FindEntityWithID(id) ? new Entity(id) : null;
 		}
@@ -59,7 +59,7 @@
 			//Internal.Entity_AddComponent(ID.Data, typeof(T));
 		}
 
-		public Entity[] GetChildren()
+		public Entity[]? GetChildren()
 		{
 			UUID[] childrenIDs = Internal.Entity_GetChildren(ID);
 
@@ -90,7 +90,7 @@
 			}
 		} 
 
-		public T GetComponent<T>() where T : Component, new()
+		public T? GetComponent<T>() where T : Component, new()
 		{
 			if (HasComponent<T>())
 			{

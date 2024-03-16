@@ -12,13 +12,14 @@ namespace ScriptAssembly
 	{
 		//public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
 		public int[] TestArr = new[] { 1, 2, 3, 4, 5 };
+        public Entity[] TestEntityArr = new Entity[6]; 
 		public int[,] TestArr2 = new int[2, 2]
 		{
 			{ 1, 2 }, { 3, 4 }
 		};
         public int[,,] TestArr3 = new int[2, 2, 2]
         {
-            { {1, 2 }, {1, 2 }, }, { {3, 4 }, {3, 4 } }
+            { { 1, 2 }, { 1, 2 }, }, { { 3, 4 }, { 3, 4 } }
         };
 
 
@@ -38,10 +39,11 @@ namespace ScriptAssembly
         public Vector3 TestVec3 = new Vector3(10.0312f, 123.0f, 2132f);
         public Color TestCol = new Color(1.0f, 0.5f, 0.0f, 1.0f);
         public string TestStr = "This is a test string! Will it show up?";
+        public Entity TestEntity;
 
         protected override void Init()
 		{
-            Log.Trace(this.Entity.ID);
+            Log.Trace(TestEntity.ID);
             Log.Trace(string.Join(' ', TestArr));
             Log.Trace(string.Join(' ', TestArr2));
             Log.Trace(string.Join(' ', TestArr3));
@@ -66,6 +68,28 @@ namespace ScriptAssembly
 
 		protected override void Update(float deltaTime)
 		{
-		}
+            if (Input.IsKeyDown(KeyCode.A))
+                Log.Warn("A is down");
+
+            if (Input.IsKeyPressed(KeyCode.S))
+                Log.Warn("S is pressed");
+
+            if (Input.IsKeyReleased(KeyCode.D))
+                Log.Warn("D is pressed");
+
+            if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+                Log.Warn("Left button down");
+
+            if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
+            {
+                Log.Warn("Middle button pressed");
+                Log.Warn(Input.GetMousePosition());
+            }
+
+            if (Input.IsMouseButtonReleased(MouseButton.RightButton))
+                Log.Warn("Right button released");
+
+            Log.Warn(Input.GetMousePosition());
+        }
 	}
 }

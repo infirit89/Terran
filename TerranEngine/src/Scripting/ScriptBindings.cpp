@@ -37,6 +37,15 @@ namespace TerranEngine
 	{
 		//assembly.AddInternalCall("Terran.Internal", "Log_LogICall", reinterpret_cast<void*>(&Log_LogICall));
 		BIND_INTERNAL_FUNC(Log_LogICall);
+
+		BIND_INTERNAL_FUNC(Input_KeyDownICall);
+		BIND_INTERNAL_FUNC(Input_KeyPressedICall);
+		BIND_INTERNAL_FUNC(Input_KeyReleasedICall);
+
+		BIND_INTERNAL_FUNC(Input_MouseButtonDownICall);
+		BIND_INTERNAL_FUNC(Input_MouseButtonPressedICall);
+		BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
+		BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
 		assembly.UploadInternalCalls();
 	}
 
@@ -51,6 +60,41 @@ namespace TerranEngine
 		case 1 << 1: TR_CLIENT_WARN(messageStr); break;
 		case 1 << 2: TR_CLIENT_ERROR(messageStr); break;
 		}
+	}
+
+	bool ScriptBindings::Input_KeyPressedICall(Key keyCode)
+	{
+		return Input::IsKeyPressed(keyCode);
+	}
+
+	bool ScriptBindings::Input_KeyDownICall(Key keyCode)
+	{
+		return Input::IsKeyDown(keyCode);
+	}
+
+	bool ScriptBindings::Input_KeyReleasedICall(Key keyCode)
+	{
+		return Input::IsKeyReleased(keyCode);
+	}
+
+	bool ScriptBindings::Input_MouseButtonPressedICall(MouseButton mouseButton)
+	{
+		return Input::IsMouseButtonPressed(mouseButton);
+	}
+
+	bool ScriptBindings::Input_MouseButtonDownICall(MouseButton mouseButton)
+	{
+		return Input::IsMouseButtonDown(mouseButton);
+	}
+
+	bool ScriptBindings::Input_MouseButtonReleasedICall(MouseButton mouseButton)
+	{
+		return Input::IsMouseButtonReleased(mouseButton);
+	}
+
+	void ScriptBindings::Input_GetMousePositionICall(glm::vec2& outMousePosition)
+	{
+		outMousePosition = Input::GetMousePos();
 	}
 
 #if 0

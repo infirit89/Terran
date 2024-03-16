@@ -7,35 +7,23 @@ namespace Terran
 {
 	internal static class Internal
 	{
-		internal static unsafe delegate*<byte, NativeString, void> Log_LogICall;
 		#region Utils
+		internal static unsafe delegate* unmanaged<byte, NativeString, void> Log_LogICall = default;
 		#endregion
 
 		#region Input
 
 		// ---- Keyboard ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyPressed(ushort keyCode);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyDown(ushort keyCode);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyReleased(ushort keyCode);
+		internal static unsafe delegate* unmanaged<ushort, bool> Input_KeyPressedICall = default;
+		internal static unsafe delegate* unmanaged<ushort, bool> Input_KeyDownICall = default;
+		internal static unsafe delegate* unmanaged<ushort, bool> Input_KeyReleasedICall = default;
 		// ------------------
 
 		// ---- Mouse ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonPressed(byte mouseButton);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonDown(byte mouseButton);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonReleased(byte mouseButton);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Input_GetMousePosition(out Vector2 outMousePosition);
+		internal static unsafe delegate* unmanaged<byte, bool> Input_MouseButtonPressedICall = default;
+		internal static unsafe delegate* unmanaged<byte, bool> Input_MouseButtonDownICall = default;
+		internal static unsafe delegate* unmanaged<byte, bool> Input_MouseButtonReleasedICall = default;
+		internal static unsafe delegate* unmanaged<out Vector2, void> Input_GetMousePositionICall = default;
 		// ---------------
 
 		// ---- Controller ----

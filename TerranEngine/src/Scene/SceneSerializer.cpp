@@ -98,7 +98,6 @@ namespace TerranEngine
 		
 		for (auto& fieldID : sc.FieldHandles)
 		{
-			out << YAML::BeginMap;
 			ScriptField field = scriptInstance->GetScriptField(fieldID);
 
 			if(field.IsArray) 
@@ -107,6 +106,7 @@ namespace TerranEngine
 				if (array.Rank > 1)
 					continue;
 
+				out << YAML::BeginMap;
 				out << YAML::Key << field.Name << YAML::Value << YAML::Flow;
 				out << YAML::BeginSeq;
 
@@ -132,14 +132,16 @@ namespace TerranEngine
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
-						//WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID); // TODO
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
 						default: TR_ASSERT(false, "Unsupported field type"); break;
 					}
 				}
 				out << YAML::EndSeq;
+				out << YAML::EndMap;
 			}
-			else 
+			else
 			{
+				out << YAML::BeginMap;
 				switch (field.Type)
 				{
 					WRITE_SCRIPT_FIELD(Bool, bool);
@@ -159,12 +161,11 @@ namespace TerranEngine
 					WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
 					WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
 					WRITE_SCRIPT_FIELD(Color, glm::vec4);
-					//WRITE_SCRIPT_FIELD(Entity, UUID); // TODO
+					WRITE_SCRIPT_FIELD(Entity, UUID);
 					default: TR_ASSERT(false, "Unsupported field type"); break;
 				}
+				out << YAML::EndMap;
 			}
-
-			out << YAML::EndMap;
 		}
 	}
 
@@ -422,7 +423,7 @@ namespace TerranEngine
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
-						//READ_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID); // TODO
+						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
 						default: TR_ASSERT(false, "Invalid script type");
 					}
 				}
@@ -447,7 +448,7 @@ namespace TerranEngine
 					READ_SCRIPT_FIELD(Vector2, glm::vec2);
 					READ_SCRIPT_FIELD(Vector3, glm::vec3);
 					READ_SCRIPT_FIELD(Color, glm::vec4);
-					//READ_SCRIPT_FIELD(Entity, UUID); // TODO
+					READ_SCRIPT_FIELD(Entity, UUID);
 					default: TR_ASSERT(false, "Invalid script type");
 				}
 			}

@@ -24,9 +24,15 @@ namespace TerranEngine
 		bool IsArray;
 	};
 
-	struct ScriptArray 
+	struct ScriptObject 
 	{
-		void* Handle;
+		const void* Handle;
+		int32_t Padding[2];
+	};
+
+	struct ScriptArray
+	{
+		const void* Handle;
 		int32_t Rank;
 		int32_t FieldHandle;
 	};
@@ -62,6 +68,9 @@ namespace TerranEngine
 		void SetFieldValue<std::string>(int32_t fieldHandle, const std::string& value) const;
 
 		template<>
+		void SetFieldValue<UUID>(int32_t fieldHandle, const UUID& value) const;
+
+		template<>
 		void SetFieldValue<Utils::Variant>(int32_t fieldHandle, const Utils::Variant& value) const;
 
 		template<typename TReturn>
@@ -74,6 +83,9 @@ namespace TerranEngine
 
 		template<>
 		std::string GetFieldValue<std::string>(int32_t fieldHandle) const;
+
+		template<>
+		UUID GetFieldValue<UUID>(int32_t fieldHandle) const;
 
 		template<>
 		Utils::Variant GetFieldValue<Utils::Variant>(int32_t fieldHandle) const;
@@ -91,11 +103,17 @@ namespace TerranEngine
 		template<typename TValue>
 		void SetFieldArrayValue(const ScriptArray& array, const TValue& value, const int32_t* indices, size_t indicesSize) 
 		{
-			if constexpr (std::same_as<std::string, TValue>)
-				SetFieldArrayStringValueInternal(array, value, indices, indicesSize);
-			else
-				SetFieldArrayValueInternal(array, (void*)&value, indices, indicesSize);
+			SetFieldArrayValueInternal(array, (void*)&value, indices, indicesSize);
 		}
+
+		template<>
+		void SetFieldArrayValue<std::string>(const ScriptArray& array, const std::string& value, const int32_t* indices, size_t indicesSize);
+
+		template<>
+		void SetFieldArrayValue<UUID>(const ScriptArray& array, const UUID& value, const int32_t* indices, size_t indicesSize);
+
+		template<>
+		void SetFieldArrayValue<Utils::Variant>(const ScriptArray& array, const Utils::Variant& value, const int32_t* indices, size_t indicesSize);
 
 		template<typename TReturn, std::same_as<int32_t>... TIndices>
 			requires indices_concept<TIndices...>
@@ -111,13 +129,19 @@ namespace TerranEngine
 		template<typename TReturn>
 		TReturn GetFieldArrayValue(const ScriptArray& array, const int32_t* indices, size_t indicesSize) 
 		{
-			if constexpr (std::same_as<std::string, TReturn>)
-				return GetFieldArrayStringValueInternal(array, indices, indicesSize);
-
 			TReturn value;
 			GetFieldArrayValueInternal(array, &value, indices, indicesSize);
 			return value;
 		}
+
+		template<>
+		std::string GetFieldArrayValue(const ScriptArray& array, const int32_t* indices, size_t indicesSize);
+
+		template<>
+		UUID GetFieldArrayValue(const ScriptArray& array, const int32_t* indices, size_t indicesSize);
+
+		template<>
+		Utils::Variant GetFieldArrayValue(const ScriptArray& array, const int32_t* indices, size_t indicesSize);
 
 		template<std::same_as<int32_t>... TLengths>
 			requires indices_concept<TLengths...>
@@ -146,12 +170,8 @@ namespace TerranEngine
 	private:
 		void SetFieldValueInternal(int32_t fieldHandle, void* value) const;
 		void GetFieldValueInternal(int32_t fieldHandle, void* value) const;
-		void SetFieldArrayStringValueInternal(const ScriptArray& array, const std::string& value, const int32_t* indices, size_t indicesSize) const;
-		std::string GetFieldArrayStringValueInternal(const ScriptArray& array, const int32_t* indices, size_t indicesSize) const;
 		void SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const;
 		void GetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const;
-		void SetFieldArrayVariantValueInternal(const ScriptArray& array, const Utils::Variant& value, const int32_t* indices, size_t indicesSize) const;
-		Utils::Variant GetFieldArrayVariantValueInternal(const ScriptArray& array, const int32_t* indices, size_t indicesSize) const;
 		void ResizeFieldArrayInternal(ScriptArray& array, int32_t length);
 		void ResizeFieldArrayInternal(ScriptArray& array, const int32_t* lengths, size_t lengthsSize);
 
@@ -160,7 +180,7 @@ namespace TerranEngine
 		int32_t m_OnInitMethodHandle;
 		int32_t m_OnUpdateMethodHandle;
 		std::unordered_map<int32_t, ScriptField> m_Fields;
-		mutable std::unordered_map<int32_t, ScriptArray> m_FieldArrays;
+		mutable std::unordered_map<int32_t, ScriptObject> m_FieldObjects;
 
 		friend class ScriptEngine;
 	};
