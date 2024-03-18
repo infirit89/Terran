@@ -1,5 +1,4 @@
-require "extensions/vscode"
-
+--require "extensions/vscode"
 require "dependecies"
 
 workspace "Terran"
@@ -40,4 +39,4 @@ group "Tools"
     include "TerranEditor"
 
 group "Runtime"
-    include "Sandbox"
+    -- include "Sandbox"

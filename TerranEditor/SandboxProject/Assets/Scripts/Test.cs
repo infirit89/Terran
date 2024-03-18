@@ -43,53 +43,43 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            Log.Trace(TestEntity.ID);
-            Log.Trace(string.Join(' ', TestArr));
-            Log.Trace(string.Join(' ', TestArr2));
-            Log.Trace(string.Join(' ', TestArr3));
-
-            Log.Trace(TestBool);
-            Log.Trace(TestB);
-            Log.Trace(TestSB);
-            Log.Trace(TestUS);
-            Log.Trace(TestS);
-            Log.Trace(TestUI);
-            Log.Trace(TestI);
-            Log.Trace(TestUL);
-            Log.Trace(TestL);
-            Log.Trace(TestF);
-            Log.Trace(TestD);
-            Log.Trace(TestC);
-            Log.Trace(TestVec2);
-            Log.Trace(TestVec3);
-            Log.Trace(TestCol);
-            Log.Trace(TestStr);
+            Log.Trace(Entity.HasComponent<Transform>());
+            Log.Trace(Entity.HasComponent<Tag>());
+            Log.Trace(Entity.HasComponent<CapsuleCollider2D>());
+            Log.Trace(Entity.HasComponent<CircleCollider2D>());
+            Log.Trace(Entity.HasComponent<BoxCollider2D>());
+            Log.Trace(Entity.HasComponent<Rigidbody2D>());
+            Log.Trace(Entity.HasComponent<Camera>());
+            Log.Trace(Entity.HasComponent<SpriteRenderer>());
+            Log.Trace(Entity.HasComponent<CircleRenderer>());
+            Log.Trace(Entity.HasComponent<TextRenderer>());
+            Log.Trace(Entity.HasComponent<Test>());
         }
 
 		protected override void Update(float deltaTime)
 		{
-            if (Input.IsKeyDown(KeyCode.A))
-                Log.Warn("A is down");
+            //if (Input.IsKeyDown(KeyCode.A))
+            //    Log.Warn("A is down");
 
-            if (Input.IsKeyPressed(KeyCode.S))
-                Log.Warn("S is pressed");
+            //if (Input.IsKeyPressed(KeyCode.S))
+            //    Log.Warn("S is pressed");
 
-            if (Input.IsKeyReleased(KeyCode.D))
-                Log.Warn("D is pressed");
+            //if (Input.IsKeyReleased(KeyCode.D))
+            //    Log.Warn("D is pressed");
 
-            if (Input.IsMouseButtonDown(MouseButton.LeftButton))
-                Log.Warn("Left button down");
+            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+            //    Log.Warn("Left button down");
 
-            if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
-            {
-                Log.Warn("Middle button pressed");
-                Log.Warn(Input.GetMousePosition());
-            }
+            //if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
+            //{
+            //    Log.Warn("Middle button pressed");
+            //    Log.Warn(Input.GetMousePosition());
+            //}
 
-            if (Input.IsMouseButtonReleased(MouseButton.RightButton))
-                Log.Warn("Right button released");
+            //if (Input.IsMouseButtonReleased(MouseButton.RightButton))
+            //    Log.Warn("Right button released");
 
-            Log.Warn(Input.GetMousePosition());
+            //Log.Warn(Input.GetMousePosition());
         }
 	}
 }

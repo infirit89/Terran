@@ -74,7 +74,13 @@
 			return children;
 		}
 
-		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(m_ID, typeof(T));
+		public bool HasComponent<T>() where T : Component 
+		{
+			unsafe 
+			{
+				return Internal.Entity_HasComponentICall(in m_ID, typeof(T).GetHashCode());			
+			}
+		}
 
 		public void RemoveComponent<T>() where T : Component 
 		{

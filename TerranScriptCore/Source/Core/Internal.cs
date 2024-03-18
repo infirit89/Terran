@@ -45,8 +45,7 @@ namespace Terran
 		#endregion
 
 		#region Entity
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Entity_HasComponent(byte[] runtimeID, Type componentType);
+		internal static unsafe delegate* unmanaged<in UUID, int, bool> Entity_HasComponentICall = default;
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		internal static extern void Entity_AddComponent(byte[] runtimeID, Type componentType);

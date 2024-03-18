@@ -49,7 +49,7 @@ namespace TerranEngine
 		// ---------------
 
 		// ---- Entity ----
-		static bool Entity_HasComponent(MonoArray* uuid, MonoReflectionType* monoRefType);
+		static bool Entity_HasComponentICall(const UUID& id, int32_t typeId);
 		static void Entity_AddComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
 		static void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
 		static MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr);

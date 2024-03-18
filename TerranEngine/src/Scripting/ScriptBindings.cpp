@@ -22,6 +22,7 @@
 
 #include "Utils/Debug/OptickProfiler.h"
 
+#include <functional>
 #include <glm/glm.hpp>
 
 #include <mono/metadata/object.h>
@@ -29,13 +30,42 @@
 
 #include <box2d/box2d.h>
 
+#include <Coral/Type.hpp>
+#include <Coral/TypeCache.hpp>
+
 namespace TerranEngine 
 {
 #define BIND_INTERNAL_FUNC(func) assembly.AddInternalCall("Terran.Internal", #func, reinterpret_cast<void*>(&func))
 
-	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly) 
+	static std::unordered_map<int32_t, std::function<bool(Entity)>> s_HasComponentFuncs;
+	static std::unordered_map<int32_t, std::function<void(Entity)>> s_AddComponentFuncs;
+	static std::unordered_map<int32_t, std::function<void(Entity)>> s_RemoveComponentFuncs;
+	static Coral::Type* s_ScriptableType;
+
+#define REGISTER_COMPONENT(ComponentType, Component)																				\
+	Coral::Type type_##ComponentType = assembly.GetType("Terran."#ComponentType);													\
+	TR_ASSERT(type_##ComponentType, "Invalid type");																				\
+	s_HasComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { return entity.HasComponent<Component>(); });	\
+	s_AddComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { entity.AddComponent<Component>(); });			\
+	s_RemoveComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { entity.RemoveComponent<Component>(); })
+
+
+	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 	{
-		//assembly.AddInternalCall("Terran.Internal", "Log_LogICall", reinterpret_cast<void*>(&Log_LogICall));
+		s_ScriptableType = Coral::TypeCache::Get().GetTypeByName("Terran.Scriptable");
+		TR_ASSERT(s_ScriptableType, "Failed to find the scriptable type");
+
+		REGISTER_COMPONENT(Transform, TransformComponent);
+		REGISTER_COMPONENT(Tag, TagComponent);
+		REGISTER_COMPONENT(CapsuleCollider2D, CapsuleCollider2DComponent);
+		REGISTER_COMPONENT(CircleCollider2D, CircleCollider2DComponent);
+		REGISTER_COMPONENT(BoxCollider2D, BoxCollider2DComponent);
+		REGISTER_COMPONENT(Rigidbody2D, Rigidbody2DComponent);
+		REGISTER_COMPONENT(Camera, CameraComponent);
+		REGISTER_COMPONENT(SpriteRenderer, SpriteRendererComponent);
+		REGISTER_COMPONENT(CircleRenderer, CircleRendererComponent);
+		REGISTER_COMPONENT(TextRenderer, TextRendererComponent);
+
 		BIND_INTERNAL_FUNC(Log_LogICall);
 
 		BIND_INTERNAL_FUNC(Input_KeyDownICall);
@@ -46,6 +76,8 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Input_MouseButtonPressedICall);
 		BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
 		BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
+
+		BIND_INTERNAL_FUNC(Entity_HasComponentICall);
 		assembly.UploadInternalCalls();
 	}
 
@@ -95,6 +127,32 @@ namespace TerranEngine
 	void ScriptBindings::Input_GetMousePositionICall(glm::vec2& outMousePosition)
 	{
 		outMousePosition = Input::GetMousePos();
+	}
+
+	bool ScriptBindings::Entity_HasComponentICall(const UUID& id, int32_t typeId)
+	{
+		TR_PROFILE_FUNCTION();
+		if (!SceneManager::GetCurrentScene())
+			return {};
+
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+		if (!entity)
+			return false;
+
+		if (s_HasComponentFuncs.find(typeId) != s_HasComponentFuncs.end())
+			return s_HasComponentFuncs.at(typeId)(entity);
+
+		Coral::Type* type = Coral::TypeCache::Get().GetTypeByID(typeId);
+		if (!type)
+			return false;
+
+		if (type->IsSubclassOf(*s_ScriptableType) && entity.HasComponent<ScriptComponent>()) 
+		{
+			Coral::ScopedString typeName = type->GetFullName();
+			return entity.GetComponent<ScriptComponent>().ModuleName == typeName;
+		}
+
+		return false;
 	}
 
 #if 0
