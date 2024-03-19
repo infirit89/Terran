@@ -167,6 +167,8 @@ namespace TerranEngine
 		void CopyFieldFrom(int32_t fieldHandle, Shared<ScriptInstance> source);
 		void CopyAllFieldsFrom(Shared<ScriptInstance> source);
 
+		const void* GetHandle() const { return m_Context; }
+
 	private:
 		void SetFieldValueInternal(int32_t fieldHandle, void* value) const;
 		void GetFieldValueInternal(int32_t fieldHandle, void* value) const;

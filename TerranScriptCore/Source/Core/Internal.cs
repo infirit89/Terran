@@ -46,27 +46,12 @@ namespace Terran
 
 		#region Entity
 		internal static unsafe delegate* unmanaged<in UUID, int, bool> Entity_HasComponentICall = default;
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_AddComponent(byte[] runtimeID, Type componentType);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_RemoveComponent(byte[] runtimeID, Type componentType);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern object Entity_GetScriptableComponent(byte[] uuid);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern byte[] Entity_FindEntityWithName(string name);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Entity_FindEntityWithID(byte[] id);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_DestroyEntity(byte[] id);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern UUID[] Entity_GetChildren(byte[] id);
+		internal static unsafe delegate* unmanaged<in UUID, int, void> Entity_AddComponentICall = default;		
+		internal static unsafe delegate* unmanaged<in UUID, int, void> Entity_RemoveComponentICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, object> Entity_GetScriptableComponentICall = default;
+		internal static unsafe delegate* unmanaged<NativeString, out UUID, bool> Entity_FindEntityWithNameICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, void> Entity_DestroyEntityICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, UUID[]> Entity_GetChildrenICall = default;
 		#endregion
 
 		#region Physics 2D

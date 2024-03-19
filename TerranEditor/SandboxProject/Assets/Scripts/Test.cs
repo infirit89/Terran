@@ -8,7 +8,8 @@ using Terran;
 
 namespace ScriptAssembly
 {
-	internal class Test : Scriptable
+#nullable enable
+    internal class Test : Scriptable
 	{
 		//public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
 		public int[] TestArr = new[] { 1, 2, 3, 4, 5 };
@@ -43,17 +44,7 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            Log.Trace(Entity.HasComponent<Transform>());
-            Log.Trace(Entity.HasComponent<Tag>());
-            Log.Trace(Entity.HasComponent<CapsuleCollider2D>());
-            Log.Trace(Entity.HasComponent<CircleCollider2D>());
-            Log.Trace(Entity.HasComponent<BoxCollider2D>());
-            Log.Trace(Entity.HasComponent<Rigidbody2D>());
-            Log.Trace(Entity.HasComponent<Camera>());
-            Log.Trace(Entity.HasComponent<SpriteRenderer>());
-            Log.Trace(Entity.HasComponent<CircleRenderer>());
-            Log.Trace(Entity.HasComponent<TextRenderer>());
-            Log.Trace(Entity.HasComponent<Test>());
+            Log.Trace(TestEntity.GetComponent<Test2>().Test);
         }
 
 		protected override void Update(float deltaTime)
@@ -82,4 +73,5 @@ namespace ScriptAssembly
             //Log.Warn(Input.GetMousePosition());
         }
 	}
+#nullable disable
 }

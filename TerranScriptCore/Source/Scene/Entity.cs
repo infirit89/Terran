@@ -29,23 +29,24 @@
 
 		public static Entity? FindWithName(string name)
 		{
-			//byte[] entityID = Internal.Entity_FindEntityWithName(name);
+			unsafe 
+			{
+				if (!Internal.Entity_FindEntityWithNameICall(name, out var id))
+					return null;
 
-			//if (entityID != null)
-			//	return new Entity(entityID);
+				Log.Trace(id);
 
-			return null;
-		}
-
-		internal static Entity? FindWithID(UUID id)
-		{
-			return Internal.Entity_FindEntityWithID(id) ? new Entity(id) : null;
+				return new Entity(id);
+			}
 		}
 
 		public static void Destroy(Entity entity) 
 		{
-			//if (entity != null)
-			//	Internal.Entity_DestroyEntity(entity.ID.Data);
+			unsafe 
+			{
+				if (entity != null)
+					Internal.Entity_DestroyEntityICall(entity.ID);
+			}
 		}
 
 		public void AddComponent<T>() where T : Component
@@ -56,22 +57,26 @@
 				return;
 			}
 
-			//Internal.Entity_AddComponent(ID.Data, typeof(T));
+			unsafe 
+			{
+				Internal.Entity_AddComponentICall(ID, typeof(T).GetHashCode());
+			}
 		}
 
 		public Entity[]? GetChildren()
 		{
-			UUID[] childrenIDs = Internal.Entity_GetChildren(ID);
+			//UUID[] childrenIDs = Internal.Entity_GetChildren(ID);
 
-			if (childrenIDs == null)
-				return null;
-			
-			Entity[] children = new Entity[childrenIDs.Length];
+			//if (childrenIDs == null)
+			//	return null;
 
-			for (int i = 0; i < childrenIDs.Length; i++)
-				children[i] = new Entity(childrenIDs[i]);
+			//Entity[] children = new Entity[childrenIDs.Length];
 
-			return children;
+			//for (int i = 0; i < childrenIDs.Length; i++)
+			//	children[i] = new Entity(childrenIDs[i]);
+
+			//return children;
+			return null;
 		}
 
 		public bool HasComponent<T>() where T : Component 
@@ -92,7 +97,10 @@
 					return;
 				}
 
-				//Internal.Entity_RemoveComponent(ID.Data, typeof(T));
+				unsafe 
+				{
+					Internal.Entity_RemoveComponentICall(ID, typeof(T).GetHashCode());
+				}
 			}
 		} 
 
@@ -100,8 +108,13 @@
 		{
 			if (HasComponent<T>())
 			{
-				//if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
-				//	return Internal.Entity_GetScriptableComponent(ID.Data) as T;
+				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
+				{
+					unsafe 
+					{
+						return Internal.Entity_GetScriptableComponentICall(ID) as T;
+					}
+				}
 
 				T component = new T { Entity = new Entity(ID) };
 				return component;

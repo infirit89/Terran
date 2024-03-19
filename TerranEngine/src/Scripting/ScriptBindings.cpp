@@ -78,6 +78,11 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
 
 		BIND_INTERNAL_FUNC(Entity_HasComponentICall);
+		BIND_INTERNAL_FUNC(Entity_AddComponentICall);
+		BIND_INTERNAL_FUNC(Entity_RemoveComponentICall);
+		BIND_INTERNAL_FUNC(Entity_GetScriptableComponentICall);
+		BIND_INTERNAL_FUNC(Entity_DestroyEntityICall);
+		BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
 		assembly.UploadInternalCalls();
 	}
 
@@ -129,13 +134,13 @@ namespace TerranEngine
 		outMousePosition = Input::GetMousePos();
 	}
 
+#define GET_ENTITY()															\
+	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id)
+
 	bool ScriptBindings::Entity_HasComponentICall(const UUID& id, int32_t typeId)
 	{
 		TR_PROFILE_FUNCTION();
-		if (!SceneManager::GetCurrentScene())
-			return {};
-
-		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
+		GET_ENTITY();
 		if (!entity)
 			return false;
 
@@ -153,6 +158,74 @@ namespace TerranEngine
 		}
 
 		return false;
+	}
+
+	void ScriptBindings::Entity_AddComponentICall(const UUID& id, int32_t typeId)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		if (!entity)
+			return;
+
+		if (s_AddComponentFuncs.find(typeId) != s_AddComponentFuncs.end()) 
+		{
+			s_AddComponentFuncs.at(typeId)(entity);
+			return;
+		}
+
+		Coral::Type* type = Coral::TypeCache::Get().GetTypeByID(typeId);
+		if (type->IsSubclassOf(*s_ScriptableType))
+		{
+			Coral::ScopedString typeName = type->GetFullName();
+			entity.AddComponent<ScriptComponent>((std::string)typeName);
+		}
+	}
+
+	void ScriptBindings::Entity_RemoveComponentICall(const UUID& id, int32_t typeId)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		if (!entity)
+			return;
+
+		if (s_RemoveComponentFuncs.find(typeId) != s_RemoveComponentFuncs.end())
+			s_RemoveComponentFuncs.at(typeId)(entity);
+
+		// TODO: handle removing script component
+	}
+
+	Coral::ManagedObject ScriptBindings::Entity_GetScriptableComponentICall(const UUID& id)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		if (!entity)
+			return nullptr;
+
+		Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
+		return scriptInstance->GetHandle();
+	}
+
+	bool ScriptBindings::Entity_FindEntityWithNameICall(Coral::String entityName, UUID& id)
+	{
+		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName(entityName);
+
+		if (!entity)
+			return false;
+
+		TR_TRACE(entity.GetID());
+		id = entity.GetID();
+		return true;
+	}
+
+	void ScriptBindings::Entity_DestroyEntityICall(const UUID& id)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+
+		if (entity)
+			SceneManager::GetCurrentScene()->DestroyEntity(entity, true);
+		else
+			TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 	}
 
 #if 0

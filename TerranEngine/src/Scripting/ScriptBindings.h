@@ -6,6 +6,7 @@
 
 #include <Coral/String.hpp>
 #include <Coral/Assembly.hpp>
+#include <Coral/ManagedObject.hpp>
 
 #include <glm/glm.hpp>
 
@@ -50,14 +51,13 @@ namespace TerranEngine
 
 		// ---- Entity ----
 		static bool Entity_HasComponentICall(const UUID& id, int32_t typeId);
-		static void Entity_AddComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
-		static void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
-		static MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr);
+		static void Entity_AddComponentICall(const UUID& id, int32_t typeId);
+		static void Entity_RemoveComponentICall(const UUID& id, int32_t typeId);
+		static Coral::ManagedObject Entity_GetScriptableComponentICall(const UUID& id);
 
-		static MonoArray* Entity_FindEntityWithName(MonoString* monoName);
-		static bool Entity_FindEntityWithID(MonoArray* monoIDArray);
-
-		static void Entity_DestroyEntity(MonoArray* entityUUIDArr);
+		static bool Entity_FindEntityWithNameICall(Coral::String entityName, UUID& id);
+		
+		static void Entity_DestroyEntityICall(const UUID& id);
 		
 		static MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr);
 		// ----------------
