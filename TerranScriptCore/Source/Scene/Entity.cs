@@ -1,4 +1,7 @@
-﻿namespace Terran
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace Terran
 {
 	public class Entity
 	{
@@ -65,18 +68,19 @@
 
 		public Entity[]? GetChildren()
 		{
-			//UUID[] childrenIDs = Internal.Entity_GetChildren(ID);
+			unsafe 
+			{
+				IntPtr childrenIdsHandle = Internal.Entity_GetChildrenICall(in m_ID);
+				if (childrenIdsHandle == IntPtr.Zero)
+					return null;
 
-			//if (childrenIDs == null)
-			//	return null;
+				UUID[] childrenIds =  GCHandle.FromIntPtr(childrenIdsHandle).Target as UUID[];
+				Entity[] children = new Entity[childrenIds!.Length];
 
-			//Entity[] children = new Entity[childrenIDs.Length];
-
-			//for (int i = 0; i < childrenIDs.Length; i++)
-			//	children[i] = new Entity(childrenIDs[i]);
-
-			//return children;
-			return null;
+				for (int i = 0; i < childrenIds.Length; i++)
+					children[i] = new Entity(childrenIds[i]);
+				return children;
+			}
 		}
 
 		public bool HasComponent<T>() where T : Component 
@@ -112,8 +116,17 @@
 				{
 					unsafe 
 					{
-						return Internal.Entity_GetScriptableComponentICall(ID) as T;
-					}
+						IntPtr handle = Internal.Entity_GetScriptableComponentICall(ID);
+						if (handle == IntPtr.Zero)
+							return null;
+
+                        GCHandle gcHandle = GCHandle.FromIntPtr(handle);
+
+                        if (!(gcHandle.Target is T))
+                            return null;
+
+                        return (T)gcHandle.Target;
+                    }
 				}
 
 				T component = new T { Entity = new Entity(ID) };

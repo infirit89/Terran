@@ -294,8 +294,7 @@ namespace TerranEditor
 
 						UI::EndPropertyGroup();
 						UI::PropertyScriptArrayField(m_Scene, fieldHandle, scriptInstance);
-							//field->SetArray(array, handle);
-
+						
 						UI::BeginPropertyGroup("script_properties");
 					}
 					else 

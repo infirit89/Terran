@@ -40,7 +40,7 @@ namespace TerranEngine
 	static std::unordered_map<int32_t, std::function<bool(Entity)>> s_HasComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_AddComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_RemoveComponentFuncs;
-	static Coral::Type* s_ScriptableType;
+	static Coral::Type* s_ScriptableType, * s_IdType;
 
 #define REGISTER_COMPONENT(ComponentType, Component)																				\
 	Coral::Type type_##ComponentType = assembly.GetType("Terran."#ComponentType);													\
@@ -55,6 +55,9 @@ namespace TerranEngine
 		s_ScriptableType = Coral::TypeCache::Get().GetTypeByName("Terran.Scriptable");
 		TR_ASSERT(s_ScriptableType, "Failed to find the scriptable type");
 
+		s_IdType = Coral::TypeCache::Get().GetTypeByName("Terran.UUID");
+		TR_ASSERT(s_IdType, "Failed to find the id type");
+
 		REGISTER_COMPONENT(Transform, TransformComponent);
 		REGISTER_COMPONENT(Tag, TagComponent);
 		REGISTER_COMPONENT(CapsuleCollider2D, CapsuleCollider2DComponent);
@@ -68,6 +71,8 @@ namespace TerranEngine
 
 		BIND_INTERNAL_FUNC(Log_LogICall);
 
+		// ---- Input ----
+		#pragma region Input
 		BIND_INTERNAL_FUNC(Input_KeyDownICall);
 		BIND_INTERNAL_FUNC(Input_KeyPressedICall);
 		BIND_INTERNAL_FUNC(Input_KeyReleasedICall);
@@ -76,13 +81,50 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Input_MouseButtonPressedICall);
 		BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
 		BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
+		#pragma endregion
+		// ---------------
 
+		// ---- Entity ----
+		#pragma region Entity
 		BIND_INTERNAL_FUNC(Entity_HasComponentICall);
 		BIND_INTERNAL_FUNC(Entity_AddComponentICall);
 		BIND_INTERNAL_FUNC(Entity_RemoveComponentICall);
 		BIND_INTERNAL_FUNC(Entity_GetScriptableComponentICall);
 		BIND_INTERNAL_FUNC(Entity_DestroyEntityICall);
 		BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
+		BIND_INTERNAL_FUNC(Entity_GetChildrenICall);
+		#pragma endregion
+		// ----------------
+
+		// ---- Tag Component ----
+		#pragma region Tag Component
+		BIND_INTERNAL_FUNC(Tag_GetNameICall);
+		BIND_INTERNAL_FUNC(Tag_SetNameICall);
+		#pragma endregion
+		// -------------
+
+		// ---- Transform Component ----
+		#pragma region Transform Component
+		BIND_INTERNAL_FUNC(Transform_GetPositionICall);
+		BIND_INTERNAL_FUNC(Transform_SetPositionICall);
+		BIND_INTERNAL_FUNC(Transform_GetRotationICall);
+		BIND_INTERNAL_FUNC(Transform_SetRotationICall);
+		BIND_INTERNAL_FUNC(Transform_GetScaleICall);
+		BIND_INTERNAL_FUNC(Transform_SetScaleICall);
+		BIND_INTERNAL_FUNC(Transform_IsDirtyICall);
+		BIND_INTERNAL_FUNC(Transform_GetForwardICall);
+		BIND_INTERNAL_FUNC(Transform_GetUpICall);
+		BIND_INTERNAL_FUNC(Transform_GetRightICall);
+		#pragma endregion
+		// -----------------------------
+
+		// ---- Sprite Renderer Component ----
+		#pragma region Sprite Renderer Component
+		BIND_INTERNAL_FUNC(SpriteRenderer_GetColorICall);
+		BIND_INTERNAL_FUNC(SpriteRenderer_SetColorICall);
+		#pragma endregion
+		// -----------------------------------
+
 		assembly.UploadInternalCalls();
 	}
 
@@ -99,6 +141,8 @@ namespace TerranEngine
 		}
 	}
 
+	// ---- Input ----
+	#pragma region Input
 	bool ScriptBindings::Input_KeyPressedICall(Key keyCode)
 	{
 		return Input::IsKeyPressed(keyCode);
@@ -133,7 +177,11 @@ namespace TerranEngine
 	{
 		outMousePosition = Input::GetMousePos();
 	}
+	#pragma endregion
+	// ---------------
 
+	// ---- Entity ----
+	#pragma region Entity
 #define GET_ENTITY()															\
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id)
 
@@ -194,7 +242,7 @@ namespace TerranEngine
 		// TODO: handle removing script component
 	}
 
-	Coral::ManagedObject ScriptBindings::Entity_GetScriptableComponentICall(const UUID& id)
+	void* ScriptBindings::Entity_GetScriptableComponentICall(const UUID& id)
 	{
 		TR_PROFILE_FUNCTION();
 		GET_ENTITY();
@@ -202,7 +250,7 @@ namespace TerranEngine
 			return nullptr;
 
 		Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
-		return scriptInstance->GetHandle();
+		return (void*)scriptInstance->GetHandle();
 	}
 
 	bool ScriptBindings::Entity_FindEntityWithNameICall(Coral::String entityName, UUID& id)
@@ -227,6 +275,154 @@ namespace TerranEngine
 		else
 			TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 	}
+
+	void* ScriptBindings::Entity_GetChildrenICall(const UUID& id)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		if (!entity)
+			return nullptr;
+
+		if (entity.GetChildCount() <= 0)
+			return nullptr;
+
+		Coral::ManagedArray childrenIds = Coral::ManagedArray::New(*s_IdType, entity.GetChildCount());
+		
+		int i = 0;
+		for (const UUID& id : entity.GetChildren())
+		{
+			TR_TRACE(id);
+			childrenIds.SetValueRaw(i, (UUID*)&id);
+			i++;
+		}
+
+		return childrenIds.GetHandle();
+	}
+	#pragma endregion
+	// ----------------
+
+	// ---- Tag Component ----
+	#pragma region Tag Component
+	Coral::String ScriptBindings::Tag_GetNameICall(const UUID& id)
+	{
+		GET_ENTITY();
+		if (!entity)
+			return Coral::String::New("");
+
+		return Coral::String::New(entity.GetName());
+	}
+
+	void ScriptBindings::Tag_SetNameICall(const UUID& id, Coral::String name)
+	{
+		GET_ENTITY();
+		if (!entity)
+			return;
+
+		entity.GetComponent<TagComponent>().Name = name;
+	}
+	#pragma endregion
+	// -----------------------
+
+// bullshit?
+#define SET_COMPONENT_PROPERTY(var, componentType)								\
+    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
+	if(entity)																	\
+		entity.GetComponent<componentType>().var = var;							\
+	else																		\
+		TR_ERROR("Invalid entity id")
+
+// bullshit #2? 
+#define GET_COMPONENT_PROPERTY(var, componentType)								\
+    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
+	if(entity)																	\
+		var = entity.GetComponent<componentType>().var;							\
+	else																		\
+		TR_ERROR("Invalid entity id")
+
+
+	// ---- Transform Component ----
+	#pragma region Transform Component
+	glm::vec3 ScriptBindings::Transform_GetPositionICall(const UUID& id) 
+	{
+		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+		GET_COMPONENT_PROPERTY(Position, TransformComponent);
+		return Position;
+	}
+
+	void ScriptBindings::Transform_SetPositionICall(const UUID& id, const glm::vec3& Position)
+	{
+		SET_COMPONENT_PROPERTY(Position, TransformComponent);
+	}
+
+	glm::vec3 ScriptBindings::Transform_GetRotationICall(const UUID& id) 
+	{
+		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+		GET_COMPONENT_PROPERTY(Rotation, TransformComponent);
+		return Rotation;
+	}
+
+	void ScriptBindings::Transform_SetRotationICall(const UUID& id, const glm::vec3& Rotation) 
+	{
+		SET_COMPONENT_PROPERTY(Rotation, TransformComponent);
+	}
+
+	glm::vec3 ScriptBindings::Transform_GetScaleICall(const UUID& id) 
+	{
+		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+		GET_COMPONENT_PROPERTY(Scale, TransformComponent);
+		return Scale;
+	}
+
+	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& Scale) 
+	{
+		SET_COMPONENT_PROPERTY(Scale, TransformComponent);
+	}
+
+	bool ScriptBindings::Transform_IsDirtyICall(const UUID& id) 
+	{
+		bool IsDirty = false;
+		GET_COMPONENT_PROPERTY(IsDirty, TransformComponent);
+		return IsDirty;
+	}
+
+	glm::vec3 ScriptBindings::Transform_GetForwardICall(const UUID& id) 
+	{
+		glm::vec3 Forward = { 0.0f, 0.0f, 1.0f };
+		GET_COMPONENT_PROPERTY(Forward, TransformComponent);
+		return Forward;
+	}
+
+	glm::vec3 ScriptBindings::Transform_GetUpICall(const UUID& id) 
+	{
+		glm::vec3 Up = { 0.0f, 1.0f, 0.0f };
+		GET_COMPONENT_PROPERTY(Up, TransformComponent);
+		return Up;
+	}
+	glm::vec3 ScriptBindings::Transform_GetRightICall(const UUID& id) 
+	{
+		glm::vec3 Right = { 1.0f, 0.0f, 0.0f };
+		GET_COMPONENT_PROPERTY(Right, TransformComponent);
+		return Right;
+	}
+	#pragma endregion
+	// -----------------------------
+
+	// ---- Sprite Renderer Component ----
+	#pragma region Sprite Renderer Component
+	glm::vec4 ScriptBindings::SpriteRenderer_GetColorICall(const UUID& id) 
+	{
+		glm::vec4 Color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		GET_COMPONENT_PROPERTY(Color, SpriteRendererComponent);
+		return Color;
+	}
+
+	void ScriptBindings::SpriteRenderer_SetColorICall(const UUID& id, const glm::vec4& Color)
+	{
+		SET_COMPONENT_PROPERTY(Color, SpriteRendererComponent);
+	}
+	#pragma endregion
+	// -----------------------------------
+
 
 #if 0
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)

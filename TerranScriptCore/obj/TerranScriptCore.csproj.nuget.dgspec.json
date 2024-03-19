@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranScriptCore\\TerranScriptCore.csproj": {}
+    "C:\\Projects\\terran\\terran-dotnet\\TerranScriptCore\\TerranScriptCore.csproj": {}
   },
   "projects": {
-    "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj": {
+    "C:\\Projects\\terran\\terran-dotnet\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj",
+        "projectUniqueName": "C:\\Projects\\terran\\terran-dotnet\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj",
         "projectName": "Coral.Managed",
-        "projectPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj",
+        "projectPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj",
         "packagesPath": "C:\\Users\\georg\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEngine\\vendor\\Coral\\Coral.Managed\\obj\\",
+        "outputPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEngine\\vendor\\Coral\\Coral.Managed\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\georg\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -59,21 +59,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranScriptCore\\TerranScriptCore.csproj": {
+    "C:\\Projects\\terran\\terran-dotnet\\TerranScriptCore\\TerranScriptCore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranScriptCore\\TerranScriptCore.csproj",
+        "projectUniqueName": "C:\\Projects\\terran\\terran-dotnet\\TerranScriptCore\\TerranScriptCore.csproj",
         "projectName": "TerranScriptCore",
-        "projectPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranScriptCore\\TerranScriptCore.csproj",
+        "projectPath": "C:\\Projects\\terran\\terran-dotnet\\TerranScriptCore\\TerranScriptCore.csproj",
         "packagesPath": "C:\\Users\\georg\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranScriptCore\\obj\\",
+        "outputPath": "C:\\Projects\\terran\\terran-dotnet\\TerranScriptCore\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\georg\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -91,8 +91,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj": {
-                "projectPath": "D:\\Projects\\github\\terran\\terran-dotnet8\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj"
+              "C:\\Projects\\terran\\terran-dotnet\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj": {
+                "projectPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEngine\\vendor\\Coral\\Coral.Managed\\Coral.Managed.csproj"
               }
             }
           }
@@ -122,7 +122,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -266,6 +266,7 @@ namespace TerranEditor
 		{
 			if (isSelected)
 				SelectionManager::Deselect(SelectionContext::Scene, entity.GetID());
+
 			m_Scene->DestroyEntity(entity, true);
 		}
 

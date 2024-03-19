@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Terran;
@@ -44,7 +45,9 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            Log.Trace(TestEntity.GetComponent<Test2>().Test);
+            SpriteRenderer? sr = Entity.GetComponent<SpriteRenderer>();
+            Log.Trace(sr!.Color);
+            sr.Color = Color.Cyan;
         }
 
 		protected override void Update(float deltaTime)

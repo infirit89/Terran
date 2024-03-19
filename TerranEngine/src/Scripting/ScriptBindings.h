@@ -7,6 +7,7 @@
 #include <Coral/String.hpp>
 #include <Coral/Assembly.hpp>
 #include <Coral/ManagedObject.hpp>
+#include <Coral/ManagedArray.hpp>
 
 #include <glm/glm.hpp>
 
@@ -33,6 +34,7 @@ namespace TerranEngine
 		// ---------------
 
 		// ---- Input ----
+		#pragma region Input
 		static bool Input_KeyPressedICall(Key keyCode);
 		static bool Input_KeyDownICall(Key keyCode);
 		static bool Input_KeyReleasedICall(Key keyCode);
@@ -47,19 +49,22 @@ namespace TerranEngine
 		static bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex);
 		static float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex);
 		static MonoArray* Input_GetConnectedControllers();
+		#pragma endregion
 		// ---------------
 
 		// ---- Entity ----
+		#pragma region Entity
 		static bool Entity_HasComponentICall(const UUID& id, int32_t typeId);
 		static void Entity_AddComponentICall(const UUID& id, int32_t typeId);
 		static void Entity_RemoveComponentICall(const UUID& id, int32_t typeId);
-		static Coral::ManagedObject Entity_GetScriptableComponentICall(const UUID& id);
+		static void* Entity_GetScriptableComponentICall(const UUID& id);
 
 		static bool Entity_FindEntityWithNameICall(Coral::String entityName, UUID& id);
 		
 		static void Entity_DestroyEntityICall(const UUID& id);
 		
-		static MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr);
+		static void* Entity_GetChildrenICall(const UUID&);
+		#pragma endregion
 		// ----------------
 
 		// ---- Physics ----
@@ -128,30 +133,36 @@ namespace TerranEngine
 		// ------------------
 
 		// ---- Tag component ----
-		static MonoString* Tag_GetName(MonoArray* entityUUIDArr);
-		static void Tag_SetName(MonoArray* entityUUIDArr, MonoString* inName);
+		#pragma region Tag Component
+		static Coral::String Tag_GetNameICall(const UUID& id);
+		static void Tag_SetNameICall(const UUID& id, Coral::String name);
+		#pragma endregion
 		// -----------------------
 
 		// ---- Transform component ----
-		static glm::vec3 Transform_GetPosition(MonoArray* entityUUIDArr);
-		static void Transform_SetPosition(MonoArray* entityUUIDArr, const glm::vec3& inPosition);
+		#pragma region Transform Component
+		static glm::vec3 Transform_GetPositionICall(const UUID& id);
+		static void Transform_SetPositionICall(const UUID& id, const glm::vec3& inPosition);
 
-		static glm::vec3 Transform_GetRotation(MonoArray* entityUUIDArr);
-		static void Transform_SetRotation(MonoArray* entityUUIDArr, const glm::vec3& inRotation);
+		static glm::vec3 Transform_GetRotationICall(const UUID& id);
+		static void Transform_SetRotationICall(const UUID& id, const glm::vec3& inRotation);
 
-		static glm::vec3 Transform_GetScale(MonoArray* entityUUIDArr);
-		static void Transform_SetScale(MonoArray* entityUUIDArr, const glm::vec3& inScale);
+		static glm::vec3 Transform_GetScaleICall(const UUID& id);
+		static void Transform_SetScaleICall(const UUID& id, const glm::vec3& inScale);
 
-		static bool Transform_IsDirty(MonoArray* entityUUIDArr);
+		static bool Transform_IsDirtyICall(const UUID& id);
 
-		static glm::vec3 Transform_GetForward(MonoArray* entityUUIDArr);
-		static glm::vec3 Transform_GetUp(MonoArray* entityUUIDArr);
-		static glm::vec3 Transform_GetRight(MonoArray* entityUUIDArr);
+		static glm::vec3 Transform_GetForwardICall(const UUID& id);
+		static glm::vec3 Transform_GetUpICall(const UUID& id);
+		static glm::vec3 Transform_GetRightICall(const UUID& id);
+		#pragma endregion
 		// -----------------------------
 
 		// ---- Sprite Renderer Component ----
-		static glm::vec4 SpriteRenderer_GetColor(MonoArray* entityUUIDArr);
-		static void SpriteRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+		#pragma region Sprite Renderer Component
+		static glm::vec4 SpriteRenderer_GetColorICall(const UUID& id);
+		static void SpriteRenderer_SetColorICall(const UUID& id, const glm::vec4& color);
+		#pragma endregion
 		// -----------------------------------
 
 		// ---- Camera Component ----

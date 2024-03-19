@@ -48,10 +48,10 @@ namespace Terran
 		internal static unsafe delegate* unmanaged<in UUID, int, bool> Entity_HasComponentICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, int, void> Entity_AddComponentICall = default;		
 		internal static unsafe delegate* unmanaged<in UUID, int, void> Entity_RemoveComponentICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, object> Entity_GetScriptableComponentICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, IntPtr> Entity_GetScriptableComponentICall = default;
 		internal static unsafe delegate* unmanaged<NativeString, out UUID, bool> Entity_FindEntityWithNameICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, void> Entity_DestroyEntityICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, UUID[]> Entity_GetChildrenICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, IntPtr> Entity_GetChildrenICall = default;
 		#endregion
 
 		#region Physics 2D
@@ -148,50 +148,26 @@ namespace Terran
 		#endregion
 
 		#region Tag
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern string Tag_GetName(byte[] entityID);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Tag_SetName(byte[] entityID, in string inName);
+		internal static unsafe delegate* unmanaged<in UUID, NativeString> Tag_GetNameICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, NativeString, void> Tag_SetNameICall = default;
         #endregion
 
         #region Transform
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetPosition(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Transform_SetPosition(byte[] entityID, in Vector3 inPosition);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetRotation(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Transform_SetRotation(byte[] entityID, in Vector3 inRotation);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetScale(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Transform_SetScale(byte[] entityID, in Vector3 inScale);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Transform_IsDirty(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetForward(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetUp(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetRight(byte[] entityID);
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetPositionICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector3, void> Transform_SetPositionICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetRotationICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector3, void> Transform_SetRotationICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetScaleICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector3, void> Transform_SetScaleICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, bool> Transform_IsDirtyICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetForwardICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetUpICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetRightICall = default;
         #endregion
 
         #region SpriteRender
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern Color SpriteRenderer_GetColor(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void SpriteRenderer_SetColor(byte[] entityID, in Color color);
+        internal static unsafe delegate* unmanaged<in UUID, Color> SpriteRenderer_GetColorICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, in Color, void> SpriteRenderer_SetColorICall = default;
         #endregion
 
         #region Camera

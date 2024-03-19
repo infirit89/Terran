@@ -83,6 +83,17 @@ namespace TerranEngine
 	{
 		Coral::ManagedObject object = m_Context;
 		Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(value);
+		auto it = m_FieldObjects.find(fieldHandle);
+		if (it == m_FieldObjects.end())
+			m_FieldObjects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
+		else 
+		{
+			ScriptObject& temp = m_FieldObjects.at(fieldHandle);
+			Coral::ManagedObject tempObject = temp.Handle;
+			tempObject.Destroy();
+			temp.Handle = entityObject.GetHandle();
+		}
+
 		object.SetFieldValueByHandleRaw(fieldHandle, &entityObject);
 	}
 
