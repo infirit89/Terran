@@ -245,6 +245,10 @@ namespace TerranEditor
 			if (UI::PropertyFloat("Size", camSize))
 				component.Camera.SetOrthographicSize(camSize);
 
+			ImGui::TableNextRow();
+			if (UI::PropertyBool("Is Primary", component.Primary))
+				component.Primary = !component.Primary;
+
 			UI::EndPropertyGroup();
 
 			ImGui::Text("Clipping planes");

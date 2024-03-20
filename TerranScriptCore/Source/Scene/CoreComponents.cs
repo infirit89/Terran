@@ -59,10 +59,7 @@
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        return Internal.Transform_GetPositionICall(Entity.ID);
-
-                    return new Vector3(0.0f, 0.0f, 0.0f);
+                    return Internal.Transform_GetPositionICall(Entity.ID);
                 }
             }
 
@@ -82,10 +79,7 @@
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        return Internal.Transform_GetRotationICall(Entity.ID);
-
-                    return new Vector3(0.0f, 0.0f, 0.0f);
+                    return Internal.Transform_GetRotationICall(Entity.ID);
                 }
             }
 
@@ -105,10 +99,7 @@
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        return Internal.Transform_GetScaleICall(Entity.ID);
-
-                    return new Vector3(0.0f, 0.0f, 0.0f);
+                    return Internal.Transform_GetScaleICall(Entity.ID);
                 }
             }
 

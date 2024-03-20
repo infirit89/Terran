@@ -166,10 +166,12 @@ namespace TerranEngine
 		// -----------------------------------
 
 		// ---- Camera Component ----
-		static bool Camera_IsPrimary(MonoArray* entityUUIDArr);
-		static void Camera_SetPrimary(MonoArray* entityUUIDArr, bool togglePrimary);
-		static glm::vec4 Camera_GetBackgroundColor(MonoArray* entityUUIDArr);
-		static void Camera_SetBackgroundColor(MonoArray* entityUUIDArr,const glm::vec4& color);
+		#pragma region Camera Component
+		static bool Camera_IsPrimaryICall(const UUID& id);
+		static void Camera_SetPrimaryICall(const UUID& id, bool togglePrimary);
+		static glm::vec4 Camera_GetBackgroundColorICall(const UUID& id);
+		static void Camera_SetBackgroundColorICall(const UUID& id, const glm::vec4& color);
+		#pragma endregion
 		// --------------------------
 
 		// ---- Circle Renderer Component ----

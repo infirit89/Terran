@@ -19,14 +19,38 @@
     {
         public Color Color
         {
-            get => Internal.CircleRenderer_GetColor(Entity.ID);
-            set => Internal.CircleRenderer_SetColor(Entity.ID, value);
+            get
+            {
+                unsafe
+                {
+                    return Internal.CircleRenderer_GetColorICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.CircleRenderer_SetColorICall(Entity.ID, in value);
+                }
+            }
         }
 
         public float Thickness
         {
-            get => Internal.CircleRenderer_GetThickness(Entity.ID);
-            set => Internal.CircleRenderer_SetThickness(Entity.ID, value);
+            get
+            {
+                unsafe
+                {
+                    return Internal.CircleRenderer_GetThicknessICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.CircleRenderer_SetThicknessICall(Entity.ID, value);
+                }
+            }
         }
     }
 
@@ -34,14 +58,38 @@
     {
         public bool IsPrimary
         {
-            get => Internal.Camera_IsPrimary(Entity.ID);
-            set => Internal.Camera_SetPrimary(Entity.ID, value);
+            get
+            {
+                unsafe 
+                {
+                    return Internal.Camera_IsPrimaryICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.Camera_SetPrimaryICall(Entity.ID, value);
+                }
+            }
         }
 
         public Color BackgroundColor
         {
-            get => Internal.Camera_GetBackgroundColor(Entity.ID);
-            set => Internal.Camera_SetBackgroundColor(Entity.ID, value);
+            get
+            {
+                unsafe 
+                {
+                    return Internal.Camera_GetBackgroundColorICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.Camera_SetBackgroundColorICall(Entity.ID, value);
+                }
+            }
         }
     }
 

@@ -45,9 +45,11 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            SpriteRenderer? sr = Entity.GetComponent<SpriteRenderer>();
-            Log.Trace(sr!.Color);
-            sr.Color = Color.Cyan;
+            Camera? c = TestEntity.GetComponent<Camera>();
+            Log.Trace(c.BackgroundColor);
+            Log.Trace(c.IsPrimary);
+            c.BackgroundColor = Color.Cyan;
+            c.IsPrimary = false;
         }
 
 		protected override void Update(float deltaTime)

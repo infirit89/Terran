@@ -125,6 +125,24 @@ namespace TerranEngine
 		#pragma endregion
 		// -----------------------------------
 
+		// ---- Camera Component ----
+		#pragma region Camera Component
+		BIND_INTERNAL_FUNC(Camera_IsPrimaryICall);
+		BIND_INTERNAL_FUNC(Camera_SetPrimaryICall);
+		BIND_INTERNAL_FUNC(Camera_GetBackgroundColorICall);
+		BIND_INTERNAL_FUNC(Camera_SetBackgroundColorICall);
+		#pragma endregion
+		// --------------------------
+
+		// ---- Circle Renderer Component ----
+		#pragma region Circle Renderer Component
+		BIND_INTERNAL_FUNC(CircleRenderer_GetColorICall);
+		BIND_INTERNAL_FUNC(CircleRenderer_SetColorICall);
+		BIND_INTERNAL_FUNC(CircleRenderer_GetThicknessICall);
+		BIND_INTERNAL_FUNC(CircleRenderer_SetThicknessICall);
+		#pragma endregion
+		// -----------------------------------
+
 		assembly.UploadInternalCalls();
 	}
 
@@ -324,85 +342,72 @@ namespace TerranEngine
 	// -----------------------
 
 // bullshit?
-#define SET_COMPONENT_PROPERTY(var, componentType)								\
+#define SET_COMPONENT_PROPERTY(ComponentType, Property, Value)					\
     Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(entity)																	\
-		entity.GetComponent<componentType>().var = var;							\
+		entity.GetComponent<ComponentType>().Property = Value;					\
 	else																		\
 		TR_ERROR("Invalid entity id")
 
 // bullshit #2? 
-#define GET_COMPONENT_PROPERTY(var, componentType)								\
+#define GET_COMPONENT_PROPERTY(ComponentType, Property, DefaultValue)			\
     Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(entity)																	\
-		var = entity.GetComponent<componentType>().var;							\
-	else																		\
-		TR_ERROR("Invalid entity id")
+		return entity.GetComponent<ComponentType>().Property;					\
+																				\
+	TR_ERROR("Invalid entity id");												\
+	return DefaultValue;
 
 
 	// ---- Transform Component ----
 	#pragma region Transform Component
 	glm::vec3 ScriptBindings::Transform_GetPositionICall(const UUID& id) 
 	{
-		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
-		GET_COMPONENT_PROPERTY(Position, TransformComponent);
-		return Position;
+		GET_COMPONENT_PROPERTY(TransformComponent, Position, glm::vec3(0.0f, 0.0f, 0.0f));
 	}
 
-	void ScriptBindings::Transform_SetPositionICall(const UUID& id, const glm::vec3& Position)
+	void ScriptBindings::Transform_SetPositionICall(const UUID& id, const glm::vec3& position)
 	{
-		SET_COMPONENT_PROPERTY(Position, TransformComponent);
+		SET_COMPONENT_PROPERTY(TransformComponent, Position, position);
 	}
 
 	glm::vec3 ScriptBindings::Transform_GetRotationICall(const UUID& id) 
 	{
-		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-		GET_COMPONENT_PROPERTY(Rotation, TransformComponent);
-		return Rotation;
+		GET_COMPONENT_PROPERTY(TransformComponent, Rotation, glm::vec3(0.0f, 0.0f, 0.0f));
 	}
 
-	void ScriptBindings::Transform_SetRotationICall(const UUID& id, const glm::vec3& Rotation) 
+	void ScriptBindings::Transform_SetRotationICall(const UUID& id, const glm::vec3& rotation)
 	{
-		SET_COMPONENT_PROPERTY(Rotation, TransformComponent);
+		SET_COMPONENT_PROPERTY(TransformComponent, Rotation, rotation);
 	}
 
 	glm::vec3 ScriptBindings::Transform_GetScaleICall(const UUID& id) 
 	{
-		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-		GET_COMPONENT_PROPERTY(Scale, TransformComponent);
-		return Scale;
+		GET_COMPONENT_PROPERTY(TransformComponent, Scale, glm::vec3(1.0f, 1.0f, 1.0f));
 	}
 
-	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& Scale) 
+	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& scale) 
 	{
-		SET_COMPONENT_PROPERTY(Scale, TransformComponent);
+		SET_COMPONENT_PROPERTY(TransformComponent, Scale, scale);
 	}
 
 	bool ScriptBindings::Transform_IsDirtyICall(const UUID& id) 
 	{
-		bool IsDirty = false;
-		GET_COMPONENT_PROPERTY(IsDirty, TransformComponent);
-		return IsDirty;
+		GET_COMPONENT_PROPERTY(TransformComponent, IsDirty, false);
 	}
 
 	glm::vec3 ScriptBindings::Transform_GetForwardICall(const UUID& id) 
 	{
-		glm::vec3 Forward = { 0.0f, 0.0f, 1.0f };
-		GET_COMPONENT_PROPERTY(Forward, TransformComponent);
-		return Forward;
+		GET_COMPONENT_PROPERTY(TransformComponent, Forward, glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 
 	glm::vec3 ScriptBindings::Transform_GetUpICall(const UUID& id) 
 	{
-		glm::vec3 Up = { 0.0f, 1.0f, 0.0f };
-		GET_COMPONENT_PROPERTY(Up, TransformComponent);
-		return Up;
+		GET_COMPONENT_PROPERTY(TransformComponent, Up, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	glm::vec3 ScriptBindings::Transform_GetRightICall(const UUID& id) 
 	{
-		glm::vec3 Right = { 1.0f, 0.0f, 0.0f };
-		GET_COMPONENT_PROPERTY(Right, TransformComponent);
-		return Right;
+		GET_COMPONENT_PROPERTY(TransformComponent, Right, glm::vec3(1.0f, 0.0f, 0.0f));
 	}
 	#pragma endregion
 	// -----------------------------
@@ -411,18 +416,60 @@ namespace TerranEngine
 	#pragma region Sprite Renderer Component
 	glm::vec4 ScriptBindings::SpriteRenderer_GetColorICall(const UUID& id) 
 	{
-		glm::vec4 Color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		GET_COMPONENT_PROPERTY(Color, SpriteRendererComponent);
-		return Color;
+		GET_COMPONENT_PROPERTY(SpriteRendererComponent, Color, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
-	void ScriptBindings::SpriteRenderer_SetColorICall(const UUID& id, const glm::vec4& Color)
+	void ScriptBindings::SpriteRenderer_SetColorICall(const UUID& id, const glm::vec4& color)
 	{
-		SET_COMPONENT_PROPERTY(Color, SpriteRendererComponent);
+		SET_COMPONENT_PROPERTY(SpriteRendererComponent, Color, color);
 	}
 	#pragma endregion
 	// -----------------------------------
 
+	// ---- Camera Component ----
+	#pragma region Camera Component
+	bool ScriptBindings::Camera_IsPrimaryICall(const UUID& id) 
+	{
+		GET_COMPONENT_PROPERTY(CameraComponent, Primary, false);
+	}
+	void ScriptBindings::Camera_SetPrimaryICall(const UUID& id, bool primary)
+	{
+		SET_COMPONENT_PROPERTY(CameraComponent, Primary, primary);
+	}
+
+	glm::vec4 ScriptBindings::Camera_GetBackgroundColorICall(const UUID& id) 
+	{
+		GET_COMPONENT_PROPERTY(CameraComponent, BackgroundColor, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+	}
+	void ScriptBindings::Camera_SetBackgroundColorICall(const UUID& id, const glm::vec4& backgroundColor)
+	{
+		SET_COMPONENT_PROPERTY(CameraComponent, BackgroundColor, backgroundColor);
+	}
+	#pragma endregion
+	// ----------------
+
+	// ---- Circle Renderer Component ----
+	#pragma region Circle Renderer Component
+	glm::vec4 ScriptBindings::CircleRenderer_GetColorICall(const UUID& id) 
+	{
+		GET_COMPONENT_PROPERTY(CircleRendererComponent, Color, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+	void ScriptBindings::CircleRenderer_SetColorICall(const UUID& id, const glm::vec4& color) 
+	{
+		SET_COMPONENT_PROPERTY(CircleRendererComponent, Color, color);
+	}
+
+	float ScriptBindings::CircleRenderer_GetThicknessICall(const UUID& id) 
+	{
+		GET_COMPONENT_PROPERTY(CircleRendererComponent, Thickness, 1.0f);
+	}
+
+	void ScriptBindings::CircleRenderer_SetThicknessICall(const UUID& id, float thickness) 
+	{
+		SET_COMPONENT_PROPERTY(CircleRendererComponent, Thickness, thickness);
+	}
+	#pragma endregion
+	// -----------------------------------
 
 #if 0
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)
