@@ -24,7 +24,7 @@ namespace TerranEngine
 		bool IsArray;
 	};
 
-	struct ScriptObject 
+	class ScriptObject 
 	{
 		const void* Handle;
 		int32_t Padding[2];
@@ -52,7 +52,7 @@ namespace TerranEngine
 	template<typename... TIndices>
 	concept indices_concept = sizeof...(TIndices) > 0;
 
-	class ScriptInstance 
+	struct ScriptInstance 
 	{
 	public:
 		ScriptInstance(Coral::Type& type, Entity entity);

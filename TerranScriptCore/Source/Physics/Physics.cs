@@ -39,18 +39,25 @@ namespace Terran
 	{
 		public static RayCastHitInfo2D RayCast(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF)
 		{
-			RayCastHitInfo2D hitInfo;
-			bool hasHit = Internal.Physics2D_RayCast(in origin, in direction, length, out hitInfo, layerMask);
+			unsafe
+			{
+				RayCastHitInfo2D hitInfo;
+				bool hasHit = Internal.Physics2D_RayCastICall(in origin, in direction, length, layerMask, out hitInfo);
 
-            if(!hasHit)
-                return default(RayCastHitInfo2D);
+				if(!hasHit)
+					return default;
 
-			return hitInfo;
+				return hitInfo;
+			}
 		}
 
 		public static RayCastHitInfo2D[] RayCastAll(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF) 
 		{
-			return Internal.Physics2D_RayCastAll(origin, direction, length, layerMask);
+			unsafe 
+			{
+				IntPtr handle = Internal.Physics2D_RayCastAllICall(origin, direction, length, layerMask);
+				return GCHandle.FromIntPtr(handle).Target as RayCastHitInfo2D[];
+			}
 		}
 	}
 }

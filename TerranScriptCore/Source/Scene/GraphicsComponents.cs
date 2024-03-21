@@ -4,14 +4,38 @@
     {
         public Color Color
         {
-            get => Internal.TextRenderer_GetColor(Entity.ID);
-            set => Internal.TextRenderer_SetColor(Entity.ID, value);
+            get
+            {
+                unsafe 
+                {
+                    return Internal.TextRenderer_GetColorICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.TextRenderer_SetColorICall(Entity.ID, in value);
+                }
+            }
         }
 
         public string Text
         {
-            get => Internal.TextRenderer_GetText(Entity.ID);
-            set => Internal.TextRenderer_SetText(Entity.ID, value);
+            get
+            {
+                unsafe 
+                {
+                    return Internal.TextRenderer_GetTextICall(Entity.ID)!;
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.TextRenderer_SetTextICall(Entity.ID, value);
+                }
+            }
         }
     }
 
@@ -87,7 +111,7 @@
             {
                 unsafe 
                 {
-                    Internal.Camera_SetBackgroundColorICall(Entity.ID, value);
+                    Internal.Camera_SetBackgroundColorICall(Entity.ID, in value);
                 }
             }
         }

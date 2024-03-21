@@ -27,20 +27,11 @@ namespace Terran
 		// ---------------
 
 		// ---- Controller ----
-		[MethodImplICall = default]
-		internal static extern bool Input_IsControllerConnectedICall = default;
-
-		[MethodImplICall = default]
-		internal static extern string Input_GetControllerNameICall = default;
-
-		[MethodImplICall = default]
-		internal static extern bool Input_IsControllerButtonPressedICall = default;
-
-		[MethodImplICall = default]
-		internal static extern float Input_GetControllerAxisICall = default;
-
-		[MethodImplICall = default]
-		internal static extern byte[] Input_GetConnectedControllers();
+		internal static unsafe delegate* unmanaged<byte, bool> Input_IsControllerConnectedICall = default;
+		internal static unsafe delegate* unmanaged<byte, NativeString> Input_GetControllerNameICall = default;
+		internal static unsafe delegate* unmanaged<byte, ControllerButton, bool> Input_IsControllerButtonPressedICall = default;
+		internal static unsafe delegate* unmanaged<byte, ControllerAxis, float> Input_GetControllerAxisICall = default;
+		internal static unsafe delegate* unmanaged<IntPtr> Input_GetConnectedControllersICall = default;
 		// --------------------
 		#endregion
 
@@ -55,96 +46,48 @@ namespace Terran
 		#endregion
 
 		#region Physics 2D
-		[MethodImplICall = default]
-		internal static extern bool Physics2D_RayCastICall = default;
+		internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, out RayCastHitInfo2D, bool> Physics2D_RayCastICall = default;
+		internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, IntPtr> Physics2D_RayCastAllICall = default;
+        internal static unsafe delegate* unmanaged<ushort, NativeString> LayerMask_GetNameICall = default;
+        #endregion
 
-		[MethodImplICall = default]
-		internal static extern RayCastHitInfo2D[] Physics2D_RayCastAllICall = default;
-		#endregion
-
-		#region Physics Body 2D
-		[MethodImplICall = default]
-		internal static extern bool Rigidbody2D_IsFixedRotationICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_SetFixedRotationICall = default;
-
-		[MethodImplICall = default]
-		internal static extern byte Rigidbody2D_GetSleepStateICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_SetSleepStateICall = default;
-
-		[MethodImplICall = default]
-		internal static extern float Rigidbody2D_GetGravityScaleICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_SetGravityScaleICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_ApplyForceICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_ApplyForceAtCenterICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_GetLinearVelocityICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_SetLinearVelocityICall = default;
-
-		[MethodImplICall = default]
-		internal static extern float Rigidbody2D_GetAngularVelocityICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_SetAngularVelocityICall = default;
-
-		[MethodImplICall = default]
-		internal static extern byte Rigidbody2D_GetTypeICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Rigidbody2D_SetTypeICall = default;
-
-        [MethodImplICall = default]
-        internal static extern string LayerMask_GetNameICall = default;
+        #region Physics Body 2D
+        internal static unsafe delegate* unmanaged <in UUID, bool> Rigidbody2D_IsFixedRotationICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, bool, void> Rigidbody2D_SetFixedRotationICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, byte> Rigidbody2D_GetSleepStateICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, byte, void> Rigidbody2D_SetSleepStateICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float> Rigidbody2D_GetGravityScaleICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float, void> Rigidbody2D_SetGravityScaleICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, in Vector2, byte, void> Rigidbody2D_ApplyForceICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, byte, void> Rigidbody2D_ApplyForceAtCenterICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, Vector2> Rigidbody2D_GetLinearVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, void> Rigidbody2D_SetLinearVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float> Rigidbody2D_GetAngularVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float, void> Rigidbody2D_SetAngularVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, byte> Rigidbody2D_GetTypeICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, byte, void> Rigidbody2D_SetTypeICall = default;
         #endregion
 
         #region Collider 2D
-        [MethodImplICall = default]
-		internal static extern void Collider2D_GetOffsetICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Collider2D_SetOffsetICall = default;
-
-		[MethodImplICall = default]
-		internal static extern bool Collider2D_IsSensorICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void Collider2D_SetSensorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, byte, Vector2> Collider2D_GetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, byte, in Vector2, void> Collider2D_SetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, byte, bool> Collider2D_IsSensorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, byte, bool, void> Collider2D_SetSensorICall = default;
         #endregion
 
         #region Box Collider 2D
-        [MethodImplICall = default]
-		internal static extern void BoxCollider2D_GetSizeICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void BoxCollider2D_SetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector2> BoxCollider2D_GetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector2, void> BoxCollider2D_SetSizeICall = default;
         #endregion
 
         #region Circle Collider 2D
-        [MethodImplICall = default]
-		internal static extern float CircleCollider2D_GetRadiusICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void CircleCollider2D_SetRadiusICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, float> CircleCollider2D_GetRadiusICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, float, void> CircleCollider2D_SetRadiusICall = default;
 		#endregion
 
 		#region Capsule Collider 2D
-		[MethodImplICall = default]
-		internal static extern void CapsuleCollider2D_GetSizeICall = default;
-
-		[MethodImplICall = default]
-		internal static extern void CapsuleCollider2D_SetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector2> CapsuleCollider2D_GetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector2, void> CapsuleCollider2D_SetSizeICall = default;
 		#endregion
 
 		#region Tag

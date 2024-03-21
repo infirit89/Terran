@@ -143,6 +143,15 @@ namespace TerranEngine
 		#pragma endregion
 		// -----------------------------------
 
+		// ---- Text Renderer Component ----
+		#pragma region Text Renderer Component
+		BIND_INTERNAL_FUNC(TextRenderer_GetColorICall);
+		BIND_INTERNAL_FUNC(TextRenderer_SetColorICall);
+		BIND_INTERNAL_FUNC(TextRenderer_GetTextICall);
+		BIND_INTERNAL_FUNC(TextRenderer_SetTextICall);
+		#pragma endregion
+		// ---------------------------------
+
 		assembly.UploadInternalCalls();
 	}
 
@@ -470,6 +479,115 @@ namespace TerranEngine
 	}
 	#pragma endregion
 	// -----------------------------------
+
+	// ---- Text Renderer Component ----
+	#pragma region Text Renderer Component
+	glm::vec4 ScriptBindings::TextRenderer_GetColorICall(const UUID& id)
+	{
+		GET_COMPONENT_PROPERTY(TextRendererComponent, TextColor, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+	void ScriptBindings::TextRenderer_SetColorICall(const UUID& id, const glm::vec4& color) 
+	{
+		SET_COMPONENT_PROPERTY(TextRendererComponent, TextColor, color);
+	}
+
+	Coral::String ScriptBindings::TextRenderer_GetTextICall(const UUID& id) 
+	{
+		GET_ENTITY();
+		if (!entity)
+			return Coral::String::New("");
+
+		return Coral::String::New(entity.GetComponent<TextRendererComponent>().Text);
+	}
+	void ScriptBindings::TextRenderer_SetTextICall(const UUID& id, Coral::String text) 
+	{
+		GET_ENTITY();
+		if (!entity)
+			return;
+
+		entity.GetComponent<TextRendererComponent>().Text = text;
+	}
+	#pragma endregion
+	// ---------------------------------
+
+
+	// ---- Physics ----
+	Coral::String LayerMask_GetNameICall(uint16_t layer);
+
+
+	// ---- Physics 2D ----
+	#pragma region Physics 2D
+	struct RayCastHitInfo2D_Internal
+	{
+		glm::vec2 Point;
+		glm::vec2 Normal;
+		MonoObject* UUID;
+	};
+
+	bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
+	void* Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+	#pragma endregion
+	// --------------------
+
+
+	// ---- Rigidbody 2D ----
+	#pragma region Rigidbody 2D
+	bool ScriptBindings::Rigidbody2D_IsFixedRotationICall(const UUID& id) {}
+	void ScriptBindings::Rigidbody2D_SetFixedRotationICall(const UUID& id, bool fixedRotation) {}
+
+	uint8_t ScriptBindings::Rigidbody2D_GetSleepStateICall(const UUID& id) {}
+	void ScriptBindings::Rigidbody2D_SetSleepStateICall(const UUID& id, uint8_t awakeState) {}
+
+	float ScriptBindings::Rigidbody2D_GetGravityScaleICall(const UUID& id) {}
+	void ScriptBindings::Rigidbody2D_SetGravityScaleICall(const UUID& id, float gravityScale) {}
+
+	void ScriptBindings::Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode) {}
+	void ScriptBindings::Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, uint8_t forceMode) {}
+
+	glm::vec2 ScriptBindings::Rigidbody2D_GetLinearVelocityICall(const UUID& id) {}
+	void ScriptBindings::Rigidbody2D_SetLinearVelocityICall(const UUID& id, const glm::vec2& linearVelocity) {}
+
+	float ScriptBindings::Rigidbody2D_GetAngularVelocityICall(const UUID& id) {}
+	void ScriptBindings::Rigidbody2D_SetAngularVelocityICall(const UUID& id, float angularVelocity) {}
+
+	uint8_t ScriptBindings::Rigidbody2D_GetTypeICall(const UUID& id) {}
+	void ScriptBindings::Rigidbody2D_SetTypeICall(const UUID& id, uint8_t bodyType) {}
+	#pragma endregion
+	// ----------------------
+
+	// ---- Collider 2D ----
+	#pragma region Collider 2D
+	glm::vec2 ScriptBindings::Collider2D_GetOffsetICall(const UUID& id, uint8_t colliderType) {}
+	void ScriptBindings::Collider2D_SetOffsetICall(const UUID& id, uint8_t colliderType, const glm::vec2& offset) {}
+
+	bool ScriptBindings::Collider2D_IsSensorICall(const UUID& id, uint8_t colliderType) {}
+	void ScriptBindings::Collider2D_SetSensorICall(const UUID& id, uint8_t colliderType, bool isSensor) {}
+	#pragma endregion
+	// ---------------------
+
+	// ---- Box Collider 2D ----
+	#pragma region Box Collider 2D
+	glm::vec2 ScriptBindings::BoxCollider2D_GetSizeICall(const UUID& id) {}
+	void ScriptBindings::BoxCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size) {}
+	#pragma endregion
+	// -------------------------
+
+	// ---- Circle Collider 2D ----
+	#pragma region Circle Collider 2D
+	float ScriptBindings::CircleCollider2D_GetRadiusICall(const UUID& id) {}
+	void ScriptBindings::CircleCollider2D_SetRadiusICall(const UUID& id, float radius) {}
+	#pragma endregion
+	// ----------------------------
+
+	// ---- Capsule Collider 2D ----
+	#pragma region Capsule Collider 2D
+	glm::vec2 ScriptBindings::CapsuleCollider2D_GetSizeICall(const UUID& id) {}
+	void ScriptBindings::CapsuleCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size) {}
+	#pragma endregion
+	// -----------------------------
+
+	// ------------------
+
 
 #if 0
 #define BIND_INTERNAL_FUNC(func) mono_add_internal_call("Terran.Internal::"#func, (const void*)func)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Terran
 {
@@ -61,14 +62,45 @@ namespace Terran
 		public static float GetMouseX() => GetMousePosition().X;
 		public static float GetMouseY() => GetMousePosition().Y;
 
-		public static bool IsControllerConnected(byte controllerIndex) => Internal.Input_IsControllerConnected(controllerIndex);
+		public static bool IsControllerConnected(byte controllerIndex)
+		{
+			unsafe 
+			{
+				return Internal.Input_IsControllerConnectedICall(controllerIndex);
+			}
+		}
 
-		public static string GetControllerName(byte controllerIndex) => Internal.Input_GetControllerName(controllerIndex);
+		public static string GetControllerName(byte controllerIndex)
+		{
+			unsafe 
+			{
+				return Internal.Input_GetControllerNameICall(controllerIndex)!;
+			}
+		}
 
-		public static bool IsControllerButtonPressed(ControllerButton controllerButton, byte controllerIndex) => Internal.Input_IsControllerButtonPressed((byte)controllerButton, controllerIndex);
+		public static bool IsControllerButtonPressed(byte controllerIndex, ControllerButton controllerButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_IsControllerButtonPressedICall(controllerIndex, controllerButton);
+			}
+		}
 
-		public static float GetControllerAxis(ControllerAxis controllerAxis, byte controllerIndex) => Internal.Input_GetControllerAxis((byte)controllerAxis, controllerIndex);
+		public static float GetControllerAxis(byte controllerIndex, ControllerAxis controllerAxis)
+		{
+			unsafe 
+			{
+				return Internal.Input_GetControllerAxisICall(controllerIndex, controllerAxis);
+			}
+		}
 
-		public static byte[] GetConnectedControllers() => Internal.Input_GetConnectedControllers();
+		public static byte[] GetConnectedControllers()
+		{
+			unsafe 
+			{
+				IntPtr handle = Internal.Input_GetConnectedControllersICall();
+				return GCHandle.FromIntPtr(handle).Target as byte[];
+			}
+		}
 	}
 }

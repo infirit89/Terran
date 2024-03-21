@@ -11,49 +11,128 @@
 
         public bool FixedRotation
         {
-            get => Internal.Rigidbody2D_IsFixedRotation(Entity.ID);
-            set => Internal.Rigidbody2D_SetFixedRotation(Entity.ID, value);
+            get
+            {
+                unsafe
+                {
+                    return Internal.Rigidbody2D_IsFixedRotationICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe
+                {
+                    Internal.Rigidbody2D_SetFixedRotationICall(Entity.ID, value);
+                }
+            }
         }
 
         public RigidbodySleepState AwakeState
         {
-            get => (RigidbodySleepState)Internal.Rigidbody2D_GetSleepState(Entity.ID);
-            set => Internal.Rigidbody2D_SetSleepState(Entity.ID, (byte)value);
+            get 
+            {
+                unsafe 
+                {
+                    return (RigidbodySleepState)Internal.Rigidbody2D_GetSleepStateICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.Rigidbody2D_SetSleepStateICall(Entity.ID, (byte)value);
+                }
+            }
         }
 
         public float GravityScale
         {
-            get => Internal.Rigidbody2D_GetGravityScale(Entity.ID);
-            set => Internal.Rigidbody2D_SetGravityScale(Entity.ID, value);
+            get
+            {
+                unsafe
+                {
+                    return Internal.Rigidbody2D_GetGravityScaleICall(Entity.ID);
+                }
+            } 
+            set
+            {
+                unsafe 
+                {
+                    Internal.Rigidbody2D_SetGravityScaleICall(Entity.ID, value);
+                }
+            }
         }
 
         public RigidbodyType BodyType
         {
-            get => (RigidbodyType)Internal.Rigidbody2D_GetType(Entity.ID);
-            set => Internal.Rigidbody2D_SetType(Entity.ID, (byte)value);
+            get 
+            {
+                unsafe
+                {
+                    return (RigidbodyType)Internal.Rigidbody2D_GetTypeICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe
+                {
+                    Internal.Rigidbody2D_SetTypeICall(Entity.ID, (byte)value);
+                }
+            }
         }
 
         public Vector2 LinearVelocity
         {
             get
             {
-                Vector2 linearVelocity;
-                Internal.Rigidbody2D_GetLinearVelocity(Entity.ID, out linearVelocity);
-                return linearVelocity;
+                unsafe
+                {
+                    return Internal.Rigidbody2D_GetLinearVelocityICall(Entity.ID);
+                }
             }
 
-            set => Internal.Rigidbody2D_SetLinearVelocity(Entity.ID, in value);
+            set
+            {
+                unsafe 
+                {
+                    Internal.Rigidbody2D_SetLinearVelocityICall(Entity.ID, in value);
+                }
+            }
         }
 
         public float AngularVelocity
         {
-            get => Internal.Rigidbody2D_GetAngularVelocity(Entity.ID);
-            set => Internal.Rigidbody2D_SetAngularVelocity(Entity.ID, value);
+            get
+            {
+                unsafe 
+                {
+                    return Internal.Rigidbody2D_GetAngularVelocityICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe
+                {
+                    Internal.Rigidbody2D_SetAngularVelocityICall(Entity.ID, value);
+                }
+            }
         }
 
-        public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForce(Entity.ID, in force, in position, (byte)forceMode);
+        public void ApplyForce(Vector2 force, Vector2 position, ForceMode2D forceMode)
+        {
+            unsafe
+            {
+                Internal.Rigidbody2D_ApplyForceICall(Entity.ID, in force, in position, (byte)forceMode);
+            }
+        }
 
-        public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode) => Internal.Rigidbody2D_ApplyForceAtCenter(Entity.ID, in force, (byte)forceMode);
+        public void ApplyForceAtCenter(Vector2 force, ForceMode2D forceMode)
+        {
+            unsafe
+            {
+                Internal.Rigidbody2D_ApplyForceAtCenterICall(Entity.ID, in force, (byte)forceMode);
+            }
+        }
     }
 
     public enum ColliderType2D : byte
@@ -77,17 +156,36 @@
         {
             get
             {
-                Vector2 offset;
-                Internal.Collider2D_GetOffset(Entity.ID, (byte)p_ColliderType, out offset);
-                return offset;
+                unsafe 
+                {
+                    return Internal.Collider2D_GetOffsetICall(Entity.ID, (byte)p_ColliderType);
+                }
             }
-            set => Internal.Collider2D_SetOffset(Entity.ID, (byte)p_ColliderType, in value);
+            set
+            {
+                unsafe
+                {
+                    Internal.Collider2D_SetOffsetICall(Entity.ID, (byte)p_ColliderType, in value);
+                }
+            }
         }
 
         public bool IsSensor
         {
-            get => Internal.Collider2D_IsSensor(Entity.ID, (byte)p_ColliderType);
-            set => Internal.Collider2D_SetSensor(Entity.ID, (byte)p_ColliderType, value);
+            get
+            {
+                unsafe
+                {
+                    return Internal.Collider2D_IsSensorICall(Entity.ID, (byte)p_ColliderType);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.Collider2D_SetSensorICall(Entity.ID, (byte)p_ColliderType, value);
+                }
+            }
         }
 
         public ColliderType2D ColliderType => p_ColliderType;
@@ -103,12 +201,19 @@
         {
             get
             {
-                Vector2 size;
-                Internal.BoxCollider2D_GetSize(Entity.ID, out size);
-                return size;
+                unsafe 
+                {
+                    return Internal.BoxCollider2D_GetSizeICall(Entity.ID);
+                }
             }
 
-            set => Internal.BoxCollider2D_SetSize(Entity.ID, in value);
+            set 
+            {
+                unsafe 
+                {
+                    Internal.BoxCollider2D_SetSizeICall(Entity.ID, in value);
+                }
+            }
         }
     }
 
@@ -118,8 +223,20 @@
 
         public float Radius
         {
-            get => Internal.CircleCollider2D_GetRadius(Entity.ID);
-            set => Internal.CircleCollider2D_SetRadius(Entity.ID, value);
+            get
+            {
+                unsafe
+                {
+                    return Internal.CircleCollider2D_GetRadiusICall(Entity.ID);
+                }
+            }
+            set
+            {
+                unsafe 
+                {
+                    Internal.CircleCollider2D_SetRadiusICall(Entity.ID, value);
+                }
+            }
         }
     }
 
@@ -131,12 +248,19 @@
         {
             get
             {
-                Vector2 size;
-                Internal.CapsuleCollider2D_GetSize(Entity.ID, out size);
-                return size;
+                unsafe 
+                {
+                    return Internal.CapsuleCollider2D_GetSizeICall(Entity.ID);
+                }
             }
 
-            set => Internal.CapsuleCollider2D_SetSize(Entity.ID, in value);
+            set
+            {
+                unsafe 
+                {
+                    Internal.CapsuleCollider2D_SetSizeICall(Entity.ID, in value);
+                }
+            }
         }
     }
 }

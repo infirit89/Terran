@@ -68,7 +68,11 @@ namespace TerranEngine
 		// ----------------
 
 		// ---- Physics ----
+		static Coral::String LayerMask_GetNameICall(uint16_t layer);
+
+
 		// ---- Physics 2D ----
+		#pragma region Physics 2D
 		struct RayCastHitInfo2D_Internal
 		{
 			glm::vec2 Point;
@@ -76,59 +80,67 @@ namespace TerranEngine
 			MonoObject* UUID;
 		};
 
-		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
-		static MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
+		static void* Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+		#pragma endregion
 		// --------------------
 		
+
 		// ---- Rigidbody 2D ----
-		static bool Rigidbody2D_IsFixedRotation(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetFixedRotation(MonoArray* entityUUIDArr, bool fixedRotation);
+		#pragma region Rigidbody 2D
+		static bool Rigidbody2D_IsFixedRotationICall(const UUID& id);
+		static void Rigidbody2D_SetFixedRotationICall(const UUID& id, bool fixedRotation);
 
-		static uint8_t Rigidbody2D_GetSleepState(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetSleepState(MonoArray* entityUUIDArr, uint8_t awakeState);
+		static uint8_t Rigidbody2D_GetSleepStateICall(const UUID& id);
+		static void Rigidbody2D_SetSleepStateICall(const UUID& id, uint8_t awakeState);
 
-		static float Rigidbody2D_GetGravityScale(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetGravityScale(MonoArray* entityUUIDArr, float gravityScale);
+		static float Rigidbody2D_GetGravityScaleICall(const UUID& id);
+		static void Rigidbody2D_SetGravityScaleICall(const UUID& id, float gravityScale);
 
-		static void Rigidbody2D_ApplyForce(MonoArray* entityUUIDArr, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode);
-		static void Rigidbody2D_ApplyForceAtCenter(MonoArray* entityUUIDArr, const glm::vec2& force, uint8_t forceMode);
+		static void Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode);
+		static void Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, uint8_t forceMode);
 
-		static void Rigidbody2D_GetLinearVelocity(MonoArray* entityUUIDArr, glm::vec2& linearVelocity);
-		static void Rigidbody2D_SetLinearVelocity(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity);
+		static glm::vec2 Rigidbody2D_GetLinearVelocityICall(const UUID& id);
+		static void Rigidbody2D_SetLinearVelocityICall(const UUID& id, const glm::vec2& linearVelocity);
 
-		static float Rigidbody2D_GetAngularVelocity(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetAngularVelocity(MonoArray* entityUUIDArr, float angularVelocity);
+		static float Rigidbody2D_GetAngularVelocityICall(const UUID& id);
+		static void Rigidbody2D_SetAngularVelocityICall(const UUID& id, float angularVelocity);
 
-		static uint8_t Rigidbody2D_GetType(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetType(MonoArray* entityUUIDArr, uint8_t bodyType);
+		static uint8_t Rigidbody2D_GetTypeICall(const UUID& id);
+		static void Rigidbody2D_SetTypeICall(const UUID& id, uint8_t bodyType);
+		#pragma endregion
 		// ----------------------
 
 		// ---- Collider 2D ----
-		static void Collider2D_GetOffset(MonoArray* entityUUIDArr, uint8_t colliderType, glm::vec2& outOffset);
-		static void Collider2D_SetOffset(MonoArray* entityUUIDArr, uint8_t colliderType, const glm::vec2& inOffset);
+		#pragma region Collider 2D
+		static glm::vec2 Collider2D_GetOffsetICall(const UUID& id, uint8_t colliderType);
+		static void Collider2D_SetOffsetICall(const UUID& id, uint8_t colliderType, const glm::vec2& inOffset);
 
-		static bool Collider2D_IsSensor(MonoArray* entityUUIDArr, uint8_t colliderType);
-		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor);
+		static bool Collider2D_IsSensorICall(const UUID& id, uint8_t colliderType);
+		static void Collider2D_SetSensorICall(const UUID& id, uint8_t colliderType, bool isSensor);
+		#pragma endregion
 		// ---------------------
 
 		// ---- Box Collider 2D ----
-		static void BoxCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size);
-		static void BoxCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size);
+		#pragma region Box Collider 2D
+		static glm::vec2 BoxCollider2D_GetSizeICall(const UUID& id);
+		static void BoxCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size);
+		#pragma endregion
 		// -------------------------
 
 		// ---- Circle Collider 2D ----
-		static float CircleCollider2D_GetRadius(MonoArray* entityUUIDArr);
-		static void CircleCollider2D_SetRadius(MonoArray* entityUUIDArr, float radius);
+		#pragma region Circle Collider 2D
+		static float CircleCollider2D_GetRadiusICall(const UUID& id);
+		static void CircleCollider2D_SetRadiusICall(const UUID& id, float radius);
+		#pragma endregion
 		// ----------------------------
 
 		// ---- Capsule Collider 2D ----
-		static void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size);
-		static void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size);
+		#pragma region Capsule Collider 2D
+		static glm::vec2 CapsuleCollider2D_GetSizeICall(const UUID& id);
+		static void CapsuleCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size);
+		#pragma endregion
 		// -----------------------------
-
-        // ---- Layer Mask ----
-        static MonoString* LayerMask_GetName(uint16_t layer);
-        // --------------------
 
 		// ------------------
 
@@ -175,19 +187,23 @@ namespace TerranEngine
 		// --------------------------
 
 		// ---- Circle Renderer Component ----
+		#pragma region Circle Renderer Component
 		static glm::vec4 CircleRenderer_GetColorICall(const UUID& id);
 		static void CircleRenderer_SetColorICall(const UUID& id, const glm::vec4& color);
 
 		static float CircleRenderer_GetThicknessICall(const UUID& id);
 		static void CircleRenderer_SetThicknessICall(const UUID& id, float thickness);
+		#pragma endregion
 		// -----------------------------------
 
 		// ---- Text Renderer Component ----
-		static glm::vec4 TextRenderer_GetColor(MonoArray* entityUUIDArr);
-		static void TextRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+		#pragma region Text Renderer Component
+		static glm::vec4 TextRenderer_GetColorICall(const UUID& id);
+		static void TextRenderer_SetColorICall(const UUID& id, const glm::vec4& color);
 
-		static MonoString* TextRenderer_GetText(MonoArray* entityUUIDArr);
-		static void TextRenderer_SetText(MonoArray* entityUUIDArr, MonoString* text);
+		static Coral::String TextRenderer_GetTextICall(const UUID& id);
+		static void TextRenderer_SetTextICall(const UUID& id, Coral::String text);
+		#pragma endregion
 		// ---------------------------------
 	};
 }
