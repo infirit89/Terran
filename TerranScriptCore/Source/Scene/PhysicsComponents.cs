@@ -33,14 +33,14 @@
             {
                 unsafe 
                 {
-                    return (RigidbodySleepState)Internal.Rigidbody2D_GetSleepStateICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetSleepStateICall(Entity.ID);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.Rigidbody2D_SetSleepStateICall(Entity.ID, (byte)value);
+                    Internal.Rigidbody2D_SetSleepStateICall(Entity.ID, value);
                 }
             }
         }
@@ -69,14 +69,14 @@
             {
                 unsafe
                 {
-                    return (RigidbodyType)Internal.Rigidbody2D_GetTypeICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetTypeICall(Entity.ID);
                 }
             }
             set
             {
                 unsafe
                 {
-                    Internal.Rigidbody2D_SetTypeICall(Entity.ID, (byte)value);
+                    Internal.Rigidbody2D_SetTypeICall(Entity.ID, value);
                 }
             }
         }
@@ -122,7 +122,7 @@
         {
             unsafe
             {
-                Internal.Rigidbody2D_ApplyForceICall(Entity.ID, in force, in position, (byte)forceMode);
+                Internal.Rigidbody2D_ApplyForceICall(Entity.ID, in force, in position, forceMode);
             }
         }
 
@@ -130,7 +130,7 @@
         {
             unsafe
             {
-                Internal.Rigidbody2D_ApplyForceAtCenterICall(Entity.ID, in force, (byte)forceMode);
+                Internal.Rigidbody2D_ApplyForceAtCenterICall(Entity.ID, in force, forceMode);
             }
         }
     }
@@ -149,7 +149,7 @@
 
         protected Collider2D(ColliderType2D type)
         {
-            p_ColliderType = type;
+            m_ColliderType = type;
         }
 
         public Vector2 Offset
@@ -158,14 +158,14 @@
             {
                 unsafe 
                 {
-                    return Internal.Collider2D_GetOffsetICall(Entity.ID, (byte)p_ColliderType);
+                    return Internal.Collider2D_GetOffsetICall(Entity.ID, m_ColliderType);
                 }
             }
             set
             {
                 unsafe
                 {
-                    Internal.Collider2D_SetOffsetICall(Entity.ID, (byte)p_ColliderType, in value);
+                    Internal.Collider2D_SetOffsetICall(Entity.ID, m_ColliderType, in value);
                 }
             }
         }
@@ -176,21 +176,21 @@
             {
                 unsafe
                 {
-                    return Internal.Collider2D_IsSensorICall(Entity.ID, (byte)p_ColliderType);
+                    return Internal.Collider2D_IsSensorICall(Entity.ID, m_ColliderType);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.Collider2D_SetSensorICall(Entity.ID, (byte)p_ColliderType, value);
+                    Internal.Collider2D_SetSensorICall(Entity.ID, m_ColliderType, value);
                 }
             }
         }
 
-        public ColliderType2D ColliderType => p_ColliderType;
+        public ColliderType2D ColliderType => m_ColliderType;
 
-        protected ColliderType2D p_ColliderType = ColliderType2D.None;
+        protected ColliderType2D m_ColliderType = ColliderType2D.None;
     }
 
     public class BoxCollider2D : Collider2D

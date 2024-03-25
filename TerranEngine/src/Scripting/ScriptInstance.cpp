@@ -21,6 +21,7 @@ namespace TerranEngine
 	ScriptInstance::~ScriptInstance()
 	{
 		Coral::ManagedObject object = m_Context;
+		TR_TRACE("destroying script instance");
 		for (const auto& [fieldHandle, value] : m_FieldObjects)
 		{
 			const ScriptField& field = GetScriptField(fieldHandle);
@@ -322,7 +323,11 @@ namespace TerranEngine
 		auto it = m_FieldObjects.find(fieldHandle);
 		if (it == m_FieldObjects.end())
 		{
+			TR_TRACE(m_Context);
 			Coral::ManagedObject object = m_Context;
+			const Coral::Type& objectType = object.GetType();
+			Coral::ScopedString typeName = objectType.GetFullName();
+			TR_TRACE("Type before: {0}", (std::string)typeName);
 			Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
 			m_FieldObjects.emplace(fieldHandle, ScriptObject{ array.GetHandle(), array.GetRank(), fieldHandle });
 		}
@@ -349,8 +354,9 @@ namespace TerranEngine
 	{
 		const ScriptField& field = GetScriptField(fieldHandle);
 
-		if (field.IsArray) 
+		if (field.IsArray)
 		{
+			/*
 			const ScriptArray& sourceArray = source->GetScriptArray(fieldHandle);
 			ScriptArray& destArray = GetScriptArray(fieldHandle);
 			if (sourceArray.Rank > 1 || destArray.Rank > 1)
@@ -370,9 +376,9 @@ namespace TerranEngine
 				SetFieldArrayValue<Utils::Variant>(destArray, value, i);
 			}
 
+			*/
 			return;
 		}
-
 		Utils::Variant value = source->GetFieldValue<Utils::Variant>(fieldHandle);
 		SetFieldValue(fieldHandle, value);
 	}

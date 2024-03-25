@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Coral.Managed.Interop;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -29,13 +30,15 @@ namespace Terran
 	{
 		public Vector2 Point;
 		public Vector2 Normal;
-		public Rigidbody2D Rigidbody;
-		//public Collider2D Collider;
+		private NativeInstance<Rigidbody2D> m_RigidbodyHandle;
 
+
+		public Rigidbody2D Rigidbody => m_RigidbodyHandle!;
+		
         public static implicit operator bool(RayCastHitInfo2D hit) => !hit.Equals(default(RayCastHitInfo2D));
 	}
 
-	public static class Physics2D 
+	public static class Physics2D
 	{
 		public static RayCastHitInfo2D RayCast(Vector2 origin, Vector2 direction, float length = 10.0f, ushort layerMask = 0xFFFF)
 		{

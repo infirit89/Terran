@@ -4,6 +4,9 @@
 #include "Core/MouseButtons.h"
 #include "Core/ControllerIndices.h"
 
+#include "Physics/PhysicsStates.h"
+#include "Physics/Collider.h"
+
 #include <Coral/String.hpp>
 #include <Coral/Assembly.hpp>
 #include <Coral/ManagedObject.hpp>
@@ -73,12 +76,7 @@ namespace TerranEngine
 
 		// ---- Physics 2D ----
 		#pragma region Physics 2D
-		struct RayCastHitInfo2D_Internal
-		{
-			glm::vec2 Point;
-			glm::vec2 Normal;
-			MonoObject* UUID;
-		};
+		struct RayCastHitInfo2D_Internal;
 
 		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
 		static void* Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
@@ -91,14 +89,14 @@ namespace TerranEngine
 		static bool Rigidbody2D_IsFixedRotationICall(const UUID& id);
 		static void Rigidbody2D_SetFixedRotationICall(const UUID& id, bool fixedRotation);
 
-		static uint8_t Rigidbody2D_GetSleepStateICall(const UUID& id);
-		static void Rigidbody2D_SetSleepStateICall(const UUID& id, uint8_t awakeState);
+		static PhysicsBodySleepState Rigidbody2D_GetSleepStateICall(const UUID& id);
+		static void Rigidbody2D_SetSleepStateICall(const UUID& id, PhysicsBodySleepState sleepState);
 
 		static float Rigidbody2D_GetGravityScaleICall(const UUID& id);
 		static void Rigidbody2D_SetGravityScaleICall(const UUID& id, float gravityScale);
 
-		static void Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode);
-		static void Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, uint8_t forceMode);
+		static void Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, ForceMode2D forceMode);
+		static void Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, ForceMode2D forceMode);
 
 		static glm::vec2 Rigidbody2D_GetLinearVelocityICall(const UUID& id);
 		static void Rigidbody2D_SetLinearVelocityICall(const UUID& id, const glm::vec2& linearVelocity);
@@ -106,18 +104,18 @@ namespace TerranEngine
 		static float Rigidbody2D_GetAngularVelocityICall(const UUID& id);
 		static void Rigidbody2D_SetAngularVelocityICall(const UUID& id, float angularVelocity);
 
-		static uint8_t Rigidbody2D_GetTypeICall(const UUID& id);
-		static void Rigidbody2D_SetTypeICall(const UUID& id, uint8_t bodyType);
+		static PhysicsBodyType Rigidbody2D_GetTypeICall(const UUID& id);
+		static void Rigidbody2D_SetTypeICall(const UUID& id, PhysicsBodyType bodyType);
 		#pragma endregion
 		// ----------------------
 
 		// ---- Collider 2D ----
 		#pragma region Collider 2D
-		static glm::vec2 Collider2D_GetOffsetICall(const UUID& id, uint8_t colliderType);
-		static void Collider2D_SetOffsetICall(const UUID& id, uint8_t colliderType, const glm::vec2& inOffset);
+		static glm::vec2 Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType);
+		static void Collider2D_SetOffsetICall(const UUID& id, ColliderType2D colliderType, const glm::vec2& inOffset);
 
-		static bool Collider2D_IsSensorICall(const UUID& id, uint8_t colliderType);
-		static void Collider2D_SetSensorICall(const UUID& id, uint8_t colliderType, bool isSensor);
+		static bool Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType);
+		static void Collider2D_SetSensorICall(const UUID& id, ColliderType2D colliderType, bool isSensor);
 		#pragma endregion
 		// ---------------------
 

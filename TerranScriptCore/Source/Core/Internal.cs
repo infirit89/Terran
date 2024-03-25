@@ -54,25 +54,25 @@ namespace Terran
         #region Physics Body 2D
         internal static unsafe delegate* unmanaged <in UUID, bool> Rigidbody2D_IsFixedRotationICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, bool, void> Rigidbody2D_SetFixedRotationICall = default;
-		internal static unsafe delegate* unmanaged <in UUID, byte> Rigidbody2D_GetSleepStateICall = default;
-		internal static unsafe delegate* unmanaged <in UUID, byte, void> Rigidbody2D_SetSleepStateICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodySleepState> Rigidbody2D_GetSleepStateICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodySleepState, void> Rigidbody2D_SetSleepStateICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, float> Rigidbody2D_GetGravityScaleICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, float, void> Rigidbody2D_SetGravityScaleICall = default;
-		internal static unsafe delegate* unmanaged <in UUID, in Vector2, in Vector2, byte, void> Rigidbody2D_ApplyForceICall = default;
-		internal static unsafe delegate* unmanaged <in UUID, in Vector2, byte, void> Rigidbody2D_ApplyForceAtCenterICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, in Vector2, ForceMode2D, void> Rigidbody2D_ApplyForceICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, ForceMode2D, void> Rigidbody2D_ApplyForceAtCenterICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, Vector2> Rigidbody2D_GetLinearVelocityICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, in Vector2, void> Rigidbody2D_SetLinearVelocityICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, float> Rigidbody2D_GetAngularVelocityICall = default;
 		internal static unsafe delegate* unmanaged <in UUID, float, void> Rigidbody2D_SetAngularVelocityICall = default;
-		internal static unsafe delegate* unmanaged <in UUID, byte> Rigidbody2D_GetTypeICall = default;
-		internal static unsafe delegate* unmanaged <in UUID, byte, void> Rigidbody2D_SetTypeICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodyType> Rigidbody2D_GetTypeICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodyType, void> Rigidbody2D_SetTypeICall = default;
         #endregion
 
         #region Collider 2D
-		internal static unsafe delegate* unmanaged<in UUID, byte, Vector2> Collider2D_GetOffsetICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, byte, in Vector2, void> Collider2D_SetOffsetICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, byte, bool> Collider2D_IsSensorICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, byte, bool, void> Collider2D_SetSensorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, Vector2> Collider2D_GetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, in Vector2, void> Collider2D_SetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, bool> Collider2D_IsSensorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, bool, void> Collider2D_SetSensorICall = default;
         #endregion
 
         #region Box Collider 2D

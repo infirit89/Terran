@@ -352,7 +352,7 @@ namespace TerranEngine
 
 // bullshit?
 #define SET_COMPONENT_PROPERTY(ComponentType, Property, Value)					\
-    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
+	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(entity)																	\
 		entity.GetComponent<ComponentType>().Property = Value;					\
 	else																		\
@@ -360,7 +360,7 @@ namespace TerranEngine
 
 // bullshit #2? 
 #define GET_COMPONENT_PROPERTY(ComponentType, Property, DefaultValue)			\
-    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
+	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(entity)																	\
 		return entity.GetComponent<ComponentType>().Property;					\
 																				\
@@ -512,7 +512,12 @@ namespace TerranEngine
 
 
 	// ---- Physics ----
-	Coral::String LayerMask_GetNameICall(uint16_t layer);
+	Coral::String ScriptBindings::LayerMask_GetNameICall(uint16_t layer)
+	{
+		int index = layer >> 1;
+		PhysicsLayer& physicsLayer = PhysicsLayerManager::GetLayer(index);
+		return Coral::String::New(physicsLayer.Name);
+	}
 
 
 	// ---- Physics 2D ----
@@ -521,67 +526,414 @@ namespace TerranEngine
 	{
 		glm::vec2 Point;
 		glm::vec2 Normal;
-		MonoObject* UUID;
+		Coral::ManagedObject Rigidbody;
 	};
 
-	bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
-	void* Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+	bool ScriptBindings::Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask) 
+	{
+		return false;
+	}
+
+	void* ScriptBindings::Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask) 
+	{
+		return nullptr;
+	}
 	#pragma endregion
 	// --------------------
 
 
 	// ---- Rigidbody 2D ----
+#define GET_RIGIDBODY_PROPERTY(Property, DefaultValue)\
+	GET_ENTITY();\
+	if (entity)\
+	{\
+		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);\
+		return physicsBody->Get##Property();\
+	}\
+	return DefaultValue
+
+#define SET_RIGIDBODY_COMPONENT_PROPERTY(Property, Value)\
+	do\
+	{\
+		SET_COMPONENT_PROPERTY(Rigidbody2DComponent, Property, Value);\
+		if (entity)\
+		{\
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);\
+			physicsBody->Set##Property(Value);\
+		}\
+	} while(0)
+
+#define SET_RIGIDBODY_PROPERTY(Property, ...)\
+	do\
+	{\
+		GET_ENTITY();\
+		if (entity)\
+		{\
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);\
+			physicsBody->Property(__VA_ARGS__);\
+		}\
+	} while(0)
+
+
 	#pragma region Rigidbody 2D
-	bool ScriptBindings::Rigidbody2D_IsFixedRotationICall(const UUID& id) {}
-	void ScriptBindings::Rigidbody2D_SetFixedRotationICall(const UUID& id, bool fixedRotation) {}
+	bool ScriptBindings::Rigidbody2D_IsFixedRotationICall(const UUID& id) 
+	{
+		TR_PROFILE_FUNCTION();
+		GET_RIGIDBODY_PROPERTY(FixedRotation, false);
+	}
 
-	uint8_t ScriptBindings::Rigidbody2D_GetSleepStateICall(const UUID& id) {}
-	void ScriptBindings::Rigidbody2D_SetSleepStateICall(const UUID& id, uint8_t awakeState) {}
+	void ScriptBindings::Rigidbody2D_SetFixedRotationICall(const UUID& id, bool fixedRotation) 
+	{
+		TR_PROFILE_FUNCTION();
+		SET_RIGIDBODY_COMPONENT_PROPERTY(FixedRotation, fixedRotation);
+	}
 
-	float ScriptBindings::Rigidbody2D_GetGravityScaleICall(const UUID& id) {}
-	void ScriptBindings::Rigidbody2D_SetGravityScaleICall(const UUID& id, float gravityScale) {}
+	PhysicsBodySleepState ScriptBindings::Rigidbody2D_GetSleepStateICall(const UUID& id) 
+	{
+		TR_PROFILE_FUNCTION();
+		GET_RIGIDBODY_PROPERTY(SleepState, PhysicsBodySleepState::Awake);
+	}
+	void ScriptBindings::Rigidbody2D_SetSleepStateICall(const UUID& id, PhysicsBodySleepState sleepState)
+	{
+		TR_PROFILE_FUNCTION();
+		SET_RIGIDBODY_COMPONENT_PROPERTY(SleepState, sleepState);
+	}
 
-	void ScriptBindings::Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode) {}
-	void ScriptBindings::Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, uint8_t forceMode) {}
+	float ScriptBindings::Rigidbody2D_GetGravityScaleICall(const UUID& id) 
+	{
+		TR_PROFILE_FUNCTION();
+		GET_RIGIDBODY_PROPERTY(GravityScale, 0.0f);
+	}
+	void ScriptBindings::Rigidbody2D_SetGravityScaleICall(const UUID& id, float gravityScale) 
+	{
+		TR_PROFILE_FUNCTION();
+		SET_RIGIDBODY_COMPONENT_PROPERTY(GravityScale, gravityScale);
+	}
 
-	glm::vec2 ScriptBindings::Rigidbody2D_GetLinearVelocityICall(const UUID& id) {}
-	void ScriptBindings::Rigidbody2D_SetLinearVelocityICall(const UUID& id, const glm::vec2& linearVelocity) {}
+	void ScriptBindings::Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, ForceMode2D forceMode)
+	{
+		TR_PROFILE_FUNCTION();
+		SET_RIGIDBODY_PROPERTY(ApplyForce, force, position, forceMode);
+	}
+	void ScriptBindings::Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, ForceMode2D forceMode)
+	{
+		TR_PROFILE_FUNCTION();
+		SET_RIGIDBODY_PROPERTY(ApplyForceAtCenter, force, forceMode);
+	}
 
-	float ScriptBindings::Rigidbody2D_GetAngularVelocityICall(const UUID& id) {}
-	void ScriptBindings::Rigidbody2D_SetAngularVelocityICall(const UUID& id, float angularVelocity) {}
+	glm::vec2 ScriptBindings::Rigidbody2D_GetLinearVelocityICall(const UUID& id) 
+	{
+		TR_PROFILE_FUNCTION();
+		GET_RIGIDBODY_PROPERTY(LinearVelocity, glm::vec2(0.0f, 0.0f));
+	}
+	void ScriptBindings::Rigidbody2D_SetLinearVelocityICall(const UUID& id, const glm::vec2& linearVelocity) 
+	{
+		TR_PROFILE_FUNCTION();
+		SET_RIGIDBODY_PROPERTY(SetLinearVelocity, linearVelocity);
+	}
 
-	uint8_t ScriptBindings::Rigidbody2D_GetTypeICall(const UUID& id) {}
-	void ScriptBindings::Rigidbody2D_SetTypeICall(const UUID& id, uint8_t bodyType) {}
+	float ScriptBindings::Rigidbody2D_GetAngularVelocityICall(const UUID& id) 
+	{
+		TR_PROFILE_FUNCTION();
+		GET_RIGIDBODY_PROPERTY(AngularVelocity, 0.0f);
+	}
+	void ScriptBindings::Rigidbody2D_SetAngularVelocityICall(const UUID& id, float angularVelocity) 
+	{
+		SET_RIGIDBODY_PROPERTY(SetAngularVelocity, angularVelocity);
+	}
+
+	PhysicsBodyType ScriptBindings::Rigidbody2D_GetTypeICall(const UUID& id)
+	{
+		GET_RIGIDBODY_PROPERTY(BodyType, PhysicsBodyType::Dynamic);
+	}
+	void ScriptBindings::Rigidbody2D_SetTypeICall(const UUID& id, PhysicsBodyType bodyType)
+	{
+		SET_RIGIDBODY_COMPONENT_PROPERTY(BodyType, bodyType);
+	}
 	#pragma endregion
 	// ----------------------
 
 	// ---- Collider 2D ----
 	#pragma region Collider 2D
-	glm::vec2 ScriptBindings::Collider2D_GetOffsetICall(const UUID& id, uint8_t colliderType) {}
-	void ScriptBindings::Collider2D_SetOffsetICall(const UUID& id, uint8_t colliderType, const glm::vec2& offset) {}
+	glm::vec2 ScriptBindings::Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType) 
+	{
+		TR_PROFILE_FUNCTION();
+		constexpr glm::vec2 defaultValue = { 0.0f, 0.0f };
+		switch ((ColliderType2D)colliderType)
+		{
+		case ColliderType2D::Box:
+		{
+			GET_COMPONENT_PROPERTY(BoxCollider2DComponent, Offset, defaultValue);
+			break;
+		}
+		case ColliderType2D::Circle:
+		{
+			GET_COMPONENT_PROPERTY(CircleCollider2DComponent, Offset, defaultValue);
+			break;
+		}
+		case ColliderType2D::Capsule:
+		{
+			GET_COMPONENT_PROPERTY(CapsuleCollider2DComponent, Offset, defaultValue);
+			break;
+		}
+		case ColliderType2D::None:
+		{
+			GET_ENTITY();
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+			if (physicsBody)
+			{
 
-	bool ScriptBindings::Collider2D_IsSensorICall(const UUID& id, uint8_t colliderType) {}
-	void ScriptBindings::Collider2D_SetSensorICall(const UUID& id, uint8_t colliderType, bool isSensor) {}
+				Shared<Collider2D> collider;
+				if (physicsBody->GetColliders().size() > 0)
+					collider = physicsBody->GetColliders()[0];
+
+				return collider->GetOffset();
+
+				//if (collider)
+				//{
+				//	// nested switch statements; fucking disgusting
+				//	switch (collider->GetType())
+				//	{
+				//	case ColliderType2D::Box:
+				//	{
+				//		Shared<BoxCollider2D> boxCollider = std::dynamic_pointer_cast<BoxCollider2D>(collider);
+				//		if (boxCollider)
+				//			return boxCollider->GetOffset();
+				//		break;
+				//	}
+				//	case ColliderType2D::Circle:
+				//	{
+				//		Shared<CircleCollider2D> circleCollider = std::dynamic_pointer_cast<CircleCollider2D>(collider);
+				//		if (circleCollider)
+				//			return circleCollider->GetOffset();
+
+				//		break;
+				//	}
+				//	case ColliderType2D::Capsule:
+				//	{
+				//		Shared<CapsuleCollider2D> capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider2D>(collider);
+				//		if (capsuleCollider)
+				//			return capsuleCollider->GetOffset();
+
+				//		break;
+				//	}
+				//	}
+				//}
+			}
+
+			break;
+		}
+		}
+		return defaultValue;
+	}
+	void ScriptBindings::Collider2D_SetOffsetICall(const UUID& id, ColliderType2D colliderType, const glm::vec2& offset) 
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+		if (physicsBody)
+		{
+			switch ((ColliderType2D)colliderType)
+			{
+			case ColliderType2D::Box:
+			{
+				BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
+
+				if (collider)
+					collider->SetOffset(offset);
+				break;
+			}
+			case ColliderType2D::Circle:
+			{
+				CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+				if (collider)
+					collider->SetOffset(offset);
+
+				break;
+			}
+			case ColliderType2D::Capsule:
+			{
+				CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+				if (collider)
+					collider->SetOffset(offset);
+
+				break;
+			}
+			case ColliderType2D::None:
+			{
+				Shared<Collider2D> collider = physicsBody->GetColliders()[0];
+
+				if (collider)
+					collider->SetOffset(offset);
+
+				// NOTE: this does not scale if in the future an entity can have multiple colliders of the same type;
+				// but it fucking works for now
+				//switch (collider->GetType())
+				//{
+				//case ColliderType2D::Box:
+				//{
+				//	BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+				//	bcComponent.Offset = offset;
+				//	break;
+				//}
+				//case ColliderType2D::Circle:
+				//{
+				//	CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+				//	ccComponent.Offset = offset;
+				//	break;
+				//}
+				//case ColliderType2D::Capsule:
+				//{
+				//	CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+				//	ccComponent.Offset = offset;
+				//	break;
+				//}
+				//}
+				break;
+			}
+			}
+		}
+	}
+
+	bool ScriptBindings::Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType) 
+	{
+		TR_PROFILE_FUNCTION();
+		
+		switch ((ColliderType2D)colliderType)
+		{
+		case ColliderType2D::Box:
+		{
+			GET_COMPONENT_PROPERTY(BoxCollider2DComponent, Sensor, false);
+			break;
+		}
+		case ColliderType2D::Circle:
+		{
+			GET_COMPONENT_PROPERTY(CircleCollider2DComponent, Sensor, false);
+			break;
+		}
+		case ColliderType2D::Capsule:
+		{
+			GET_COMPONENT_PROPERTY(CapsuleCollider2DComponent, Sensor, false);
+			break;
+		}
+		case ColliderType2D::None:
+		{
+			GET_ENTITY();
+			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+			if (physicsBody)
+			{
+				Shared<Collider2D> collider = physicsBody->GetColliders()[0];
+
+				if (collider)
+					return collider->IsSensor();
+			}
+			break;
+		}
+		}
+		return false;
+	}
+
+	void ScriptBindings::Collider2D_SetSensorICall(const UUID& id, ColliderType2D colliderType, bool isSensor) 
+	{
+		GET_ENTITY();
+		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+		if (physicsBody)
+		{
+			switch ((ColliderType2D)colliderType)
+			{
+			case ColliderType2D::Box:
+			{
+				BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
+				bcComponent.Sensor = isSensor;
+				collider->SetSensor(isSensor);
+				break;
+			}
+			case ColliderType2D::Circle:
+			{
+				CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+				ccComponent.Sensor = isSensor;
+				collider->SetSensor(isSensor);
+				break;
+			}
+			case ColliderType2D::Capsule:
+			{
+				CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+				Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+				ccComponent.Sensor = isSensor;
+				collider->SetSensor(isSensor);
+				break;
+			}
+			case ColliderType2D::None:
+			{
+				Shared<Collider2D> collider = physicsBody->GetColliders()[0];
+
+				if (collider)
+					collider->SetSensor(isSensor);
+
+				switch (collider->GetType())
+				{
+				case ColliderType2D::Box:
+				{
+					BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
+					bcComponent.Sensor = isSensor;
+					break;
+				}
+				case ColliderType2D::Circle:
+				{
+					CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
+					ccComponent.Sensor = isSensor;
+					break;
+				}
+				case ColliderType2D::Capsule:
+				{
+					CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
+					ccComponent.Sensor = isSensor;
+					break;
+				}
+				}
+
+				break;
+			}
+			}
+		}
+	}
 	#pragma endregion
 	// ---------------------
 
 	// ---- Box Collider 2D ----
 	#pragma region Box Collider 2D
-	glm::vec2 ScriptBindings::BoxCollider2D_GetSizeICall(const UUID& id) {}
+	glm::vec2 ScriptBindings::BoxCollider2D_GetSizeICall(const UUID& id) 
+	{
+		return { 0.0f, 0.0f };
+	}
 	void ScriptBindings::BoxCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size) {}
 	#pragma endregion
 	// -------------------------
 
 	// ---- Circle Collider 2D ----
 	#pragma region Circle Collider 2D
-	float ScriptBindings::CircleCollider2D_GetRadiusICall(const UUID& id) {}
+	float ScriptBindings::CircleCollider2D_GetRadiusICall(const UUID& id) 
+	{
+		return 0.0f;
+	}
 	void ScriptBindings::CircleCollider2D_SetRadiusICall(const UUID& id, float radius) {}
 	#pragma endregion
 	// ----------------------------
 
 	// ---- Capsule Collider 2D ----
 	#pragma region Capsule Collider 2D
-	glm::vec2 ScriptBindings::CapsuleCollider2D_GetSizeICall(const UUID& id) {}
+	glm::vec2 ScriptBindings::CapsuleCollider2D_GetSizeICall(const UUID& id) 
+	{
+		return { 0.0f, 0.0f };
+	}
 	void ScriptBindings::CapsuleCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size) {}
 	#pragma endregion
 	// -----------------------------
@@ -736,9 +1088,9 @@ namespace TerranEngine
 				BIND_INTERNAL_FUNC(BoxCollider2D_SetSize);
 				// -----------------------------
 
-                // ---- layer mask ----
-                BIND_INTERNAL_FUNC(LayerMask_GetName);
-                // --------------------
+				// ---- layer mask ----
+				BIND_INTERNAL_FUNC(LayerMask_GetName);
+				// --------------------
 			}
 
 			// -----------------
@@ -776,24 +1128,24 @@ namespace TerranEngine
 			s_RemoveComponentFuncs.clear();
 		}
 
-        Entity GetEntityFromMonoArray(MonoArray* id)
-        {
+		Entity GetEntityFromMonoArray(MonoArray* id)
+		{
 			TR_PROFILE_FUNCTION();
-            if(!SceneManager::GetCurrentScene())
-                return {};
+			if(!SceneManager::GetCurrentScene())
+				return {};
 
-            UUID entityUUID = ScriptMarshal::MonoArrayToUUID(id);
-            return SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
-        }
+			UUID entityUUID = ScriptMarshal::MonoArrayToUUID(id);
+			return SceneManager::GetCurrentScene()->FindEntityWithUUID(entityUUID);
+		}
 
 		// ---- Entity Utils ----
 		bool Entity_HasComponent(MonoArray* uuidData, MonoReflectionType* monoRefType)
 		{
 			TR_PROFILE_FUNCTION();
 
-            Entity entity = GetEntityFromMonoArray(uuidData);
-            if(!entity)
-                return false;
+			Entity entity = GetEntityFromMonoArray(uuidData);
+			if(!entity)
+				return false;
 
 			MonoType* monoType = mono_reflection_type_get_type(monoRefType);
 			
@@ -810,9 +1162,9 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FUNCTION();
 			
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-            if(!entity)
-                return;
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			if(!entity)
+				return;
 
 			MonoType* monoType = mono_reflection_type_get_type(monoRefType);
 
@@ -846,9 +1198,9 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FUNCTION();
 			
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-            if(!entity)
-                return;
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			if(!entity)
+				return;
 
 			MonoType* monoType = mono_reflection_type_get_type(monoRefType);
 
@@ -861,9 +1213,9 @@ namespace TerranEngine
 		MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-            if(!entity)
-                return nullptr;
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			if(!entity)
+				return nullptr;
 
 			GCHandle objectHandle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
 			return GCManager::GetManagedObject(objectHandle);
@@ -872,7 +1224,7 @@ namespace TerranEngine
 		bool Entity_FindEntityWithID(MonoArray* monoIDArray)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(monoIDArray);
+			Entity entity = GetEntityFromMonoArray(monoIDArray);
 			return (bool)entity;
 		}
 
@@ -893,7 +1245,7 @@ namespace TerranEngine
 		void Entity_DestroyEntity(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 				SceneManager::GetCurrentScene()->DestroyEntity(entity, true);
@@ -905,9 +1257,9 @@ namespace TerranEngine
 		MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
-            if(!entity)
-                return nullptr;
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			if(!entity)
+				return nullptr;
 
 			if(entity.GetChildCount() <= 0)
 				return nullptr;
@@ -934,7 +1286,7 @@ namespace TerranEngine
 
 // bullshit?
 #define SET_COMPONENT_VAR(var, entityID, componentType)\
-    Entity entity = GetEntityFromMonoArray(entityUUIDArr);\
+	Entity entity = GetEntityFromMonoArray(entityUUIDArr);\
 	if(entity)\
 		entity.GetComponent<componentType>().var = var;\
 	else\
@@ -942,7 +1294,7 @@ namespace TerranEngine
 
 // bullshit #2? 
 #define GET_COMPONENT_VAR(var, entityID, componentType)\
-    Entity entity = GetEntityFromMonoArray(entityUUIDArr);\
+	Entity entity = GetEntityFromMonoArray(entityUUIDArr);\
 	if(entity)\
 		var = entity.GetComponent<componentType>().var;\
 	else\
@@ -1000,9 +1352,9 @@ namespace TerranEngine
 		bool Transform_IsDirty(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            bool IsDirty = false;
-            GET_COMPONENT_VAR(IsDirty, entityUUIDArr, TransformComponent);
-            return IsDirty;
+			bool IsDirty = false;
+			GET_COMPONENT_VAR(IsDirty, entityUUIDArr, TransformComponent);
+			return IsDirty;
 		}
 
 		glm::vec3 Transform_GetForward(MonoArray* entityUUIDArr)
@@ -1244,7 +1596,7 @@ namespace TerranEngine
 		static bool Rigidbody2D_IsFixedRotation(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1270,7 +1622,7 @@ namespace TerranEngine
 		static uint8_t Rigidbody2D_GetSleepState(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1297,7 +1649,7 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FUNCTION();
 			float GravityScale = 0.0f;
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1323,7 +1675,7 @@ namespace TerranEngine
 		static void Rigidbody2D_ApplyForce(MonoArray* entityUUIDArr, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1335,7 +1687,7 @@ namespace TerranEngine
 		static void Rigidbody2D_ApplyForceAtCenter(MonoArray* entityUUIDArr, const glm::vec2& force, uint8_t forceMode)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1347,7 +1699,7 @@ namespace TerranEngine
 		static void Rigidbody2D_GetLinearVelocity(MonoArray* entityUUIDArr, glm::vec2& linearVelocity)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1361,7 +1713,7 @@ namespace TerranEngine
 		static void Rigidbody2D_SetLinearVelocity(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1373,7 +1725,7 @@ namespace TerranEngine
 		static float Rigidbody2D_GetAngularVelocity(MonoArray* entityUUIDArr)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1386,7 +1738,7 @@ namespace TerranEngine
 		static void Rigidbody2D_SetAngularVelocity(MonoArray* entityUUIDArr, float angularVelocity)
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity)
 			{
@@ -1398,7 +1750,7 @@ namespace TerranEngine
 		static uint8_t Rigidbody2D_GetType(MonoArray* entityUUIDArr) 
 		{
 			TR_PROFILE_FUNCTION();
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 			if (entity) 
 			{
@@ -1467,7 +1819,7 @@ namespace TerranEngine
 		
 		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor) 
 		{
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
@@ -1557,7 +1909,7 @@ namespace TerranEngine
 			}
 			case ColliderType2D::None:
 			{
-                Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+				Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 
 				Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 				if (physicsBody)
@@ -1609,7 +1961,7 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FUNCTION();
 			glm::vec2 Offset = inOffset;
-            Entity entity = GetEntityFromMonoArray(entityUUIDArr);
+			Entity entity = GetEntityFromMonoArray(entityUUIDArr);
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
 			if (physicsBody) 
@@ -1736,7 +2088,7 @@ namespace TerranEngine
 			}
 		}
 		// ----------------------------
-        
+		
 		// ---- Capsule Collider 2D ----
 		void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size) 
 		{
@@ -1767,15 +2119,15 @@ namespace TerranEngine
 
 		// -----------------------------
 
-        // ---- Layer Mask ----
-        MonoString* LayerMask_GetName(uint16_t layer)
-        {
+		// ---- Layer Mask ----
+		MonoString* LayerMask_GetName(uint16_t layer)
+		{
 			TR_PROFILE_FUNCTION();
-            int index = layer >> 1;
-            PhysicsLayer& physicsLayer = PhysicsLayerManager::GetLayer(index);
-            return ScriptMarshal::UTF8ToMonoString(physicsLayer.Name);
-        }
-        // --------------------
+			int index = layer >> 1;
+			PhysicsLayer& physicsLayer = PhysicsLayerManager::GetLayer(index);
+			return ScriptMarshal::UTF8ToMonoString(physicsLayer.Name);
+		}
+		// --------------------
 
 		// ---- Log ----
 		void Log_Log(uint8_t logLevel, MonoString* monoMessage)
