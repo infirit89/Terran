@@ -152,6 +152,12 @@ namespace TerranEngine
 		#pragma endregion
 		// ---------------------------------
 
+		// ---- Physics ----
+		#pragma region Physics
+		BIND_INTERNAL_FUNC(LayerMask_GetNameICall);
+		#pragma endregion
+		// -----------------
+
 		assembly.UploadInternalCalls();
 	}
 
@@ -775,64 +781,43 @@ namespace TerranEngine
 		if (!physicsBody)
 			return;
 
+		Shared<Collider2D> collider;
+		if (colliderType == ColliderType2D::None) 
+		{
+			collider = physicsBody->GetColliders()[0];
+			colliderType = collider->GetType();
+		}
+
+		uint32_t colliderIndex = 0;
 		switch ((ColliderType2D)colliderType)
 		{
 		case ColliderType2D::Box:
 		{
 			BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-			Shared<Collider2D> collider = physicsBody->GetColliders()[bcComponent.ColliderIndex];
+			colliderIndex = bcComponent.ColliderIndex;
 			bcComponent.Sensor = isSensor;
-			collider->SetSensor(isSensor);
 			break;
 		}
 		case ColliderType2D::Circle:
 		{
 			CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-			Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+			colliderIndex = ccComponent.ColliderIndex;
 			ccComponent.Sensor = isSensor;
-			collider->SetSensor(isSensor);
 			break;
 		}
 		case ColliderType2D::Capsule:
 		{
 			CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
-			Shared<Collider2D> collider = physicsBody->GetColliders()[ccComponent.ColliderIndex];
+			colliderIndex = ccComponent.ColliderIndex;
 			ccComponent.Sensor = isSensor;
-			collider->SetSensor(isSensor);
-			break;
-		}
-		case ColliderType2D::None:
-		{
-			Shared<Collider2D> collider = physicsBody->GetColliders()[0];
-
-			if (collider)
-				collider->SetSensor(isSensor);
-
-			switch (collider->GetType())
-			{
-			case ColliderType2D::Box:
-			{
-				BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-				bcComponent.Sensor = isSensor;
-				break;
-			}
-			case ColliderType2D::Circle:
-			{
-				CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-				ccComponent.Sensor = isSensor;
-				break;
-			}
-			case ColliderType2D::Capsule:
-			{
-				CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
-				ccComponent.Sensor = isSensor;
-				break;
-			}
-			}
-
 			break;
 		}
 		}
+
+		if (colliderIndex != 0)
+			collider = physicsBody->GetColliders()[colliderIndex];
+
+		collider->SetSensor(isSensor);
 	}
 	#pragma endregion
 	// ---------------------
