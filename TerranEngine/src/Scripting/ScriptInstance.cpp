@@ -37,6 +37,7 @@ namespace TerranEngine
 				object.Destroy();
 			}
 		}
+		m_FieldObjects.clear();
 
 		object.Destroy();
 		m_Context = nullptr;
@@ -318,21 +319,12 @@ namespace TerranEngine
 		return managedArray.GetLength(dimension);
 	}
 
-	ScriptArray& ScriptInstance::GetScriptArray(int32_t fieldHandle)
+	// NOTE: maybe cache the array?
+	ScriptArray ScriptInstance::GetScriptArray(int32_t fieldHandle)
 	{
-		auto it = m_FieldObjects.find(fieldHandle);
-		if (it == m_FieldObjects.end())
-		{
-			TR_TRACE(m_Context);
-			Coral::ManagedObject object = m_Context;
-			const Coral::Type& objectType = object.GetType();
-			Coral::ScopedString typeName = objectType.GetFullName();
-			TR_TRACE("Type before: {0}", (std::string)typeName);
-			Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
-			m_FieldObjects.emplace(fieldHandle, ScriptObject{ array.GetHandle(), array.GetRank(), fieldHandle });
-		}
-
-		return (ScriptArray&)m_FieldObjects.at(fieldHandle);
+		Coral::ManagedObject object = m_Context;
+		Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
+		return { array.GetHandle(), array.GetRank(), fieldHandle };
 	}
 
 	void ScriptInstance::InvokeInit()
@@ -356,9 +348,8 @@ namespace TerranEngine
 
 		if (field.IsArray)
 		{
-			/*
-			const ScriptArray& sourceArray = source->GetScriptArray(fieldHandle);
-			ScriptArray& destArray = GetScriptArray(fieldHandle);
+			ScriptArray sourceArray = source->GetScriptArray(fieldHandle);
+			ScriptArray destArray = GetScriptArray(fieldHandle);
 			if (sourceArray.Rank > 1 || destArray.Rank > 1)
 				return;
 
@@ -375,8 +366,7 @@ namespace TerranEngine
 				Utils::Variant value = source->GetFieldArrayValue<Utils::Variant>(sourceArray, i);
 				SetFieldArrayValue<Utils::Variant>(destArray, value, i);
 			}
-
-			*/
+	
 			return;
 		}
 		Utils::Variant value = source->GetFieldValue<Utils::Variant>(fieldHandle);
