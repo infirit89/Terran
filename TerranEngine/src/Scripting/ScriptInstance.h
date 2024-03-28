@@ -159,7 +159,7 @@ namespace TerranEngine
 		int32_t GetFieldArrayLength(const ScriptArray& array, int dimension = 0) const;
 
 		const ScriptField& GetScriptField(int32_t fieldHandle) const { return m_Fields.at(fieldHandle); }
-		ScriptArray GetScriptArray(int32_t fieldHandle);
+		ScriptArray& GetScriptArray(int32_t fieldHandle);
 
 		void InvokeInit();
 		void InvokeUpdate(float deltaTime);
@@ -183,7 +183,7 @@ namespace TerranEngine
 		int32_t m_OnUpdateMethodHandle;
 		std::unordered_map<int32_t, ScriptField> m_Fields;
 		mutable std::unordered_map<int32_t, ScriptObject> m_FieldObjects;
-		
+
 		friend class ScriptEngine;
 	};
 }
