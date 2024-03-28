@@ -1531,11 +1531,12 @@ namespace TerranEditor
 	}																	\
 	break
 
-	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, TerranEngine::ScriptArray& array, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance)
+	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, int32_t fieldHandle, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance)
 	{
 		bool hasChanged = false;
 
-		const ScriptField& field = scriptInstance->GetScriptField(array.FieldHandle);
+		const ScriptField& field = scriptInstance->GetScriptField(fieldHandle);
+		ScriptArray& array = scriptInstance->GetScriptArray(fieldHandle);
 
 		UI::PushID();
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth |
