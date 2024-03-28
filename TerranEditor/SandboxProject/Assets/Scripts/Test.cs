@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,9 +45,6 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            LayerMask mask = new LayerMask();
-            mask.Value = 0;
-            Log.Trace(mask.Name);
             //TextRenderer? cr = Entity.GetComponent<TextRenderer>();
             //Log.Trace(cr.Color);
             //cr.Color = Color.Cyan;
