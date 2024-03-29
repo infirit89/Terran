@@ -5,7 +5,7 @@ Physics:
   PhysicsTimestep: 0.0199999996
   Layers:
     - Layer: Default
-      Mask: 0xfffe
+      Mask: 0xffff
     - Layer: IgnoreRayCast
       Mask: 0xffff
     - Layer: ""
