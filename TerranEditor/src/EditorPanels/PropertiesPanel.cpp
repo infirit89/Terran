@@ -292,7 +292,7 @@ namespace TerranEditor
 
 					if (field.IsArray)
 					{
-						const ScriptArray& array = scriptInstance->GetScriptArray(fieldHandle);
+						ScriptArray array = scriptInstance->GetScriptArray(fieldHandle);
 						if (array.Rank > 1)
 							continue;
 
