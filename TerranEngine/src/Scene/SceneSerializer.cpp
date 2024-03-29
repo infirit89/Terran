@@ -102,7 +102,7 @@ namespace TerranEngine
 
 			if(field.IsArray) 
 			{
-				ScriptArray& array = scriptInstance->GetScriptArray(fieldID);
+				ScriptArray array = scriptInstance->GetScriptArray(fieldID);
 				if (array.Rank > 1)
 					continue;
 

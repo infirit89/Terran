@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,8 +44,23 @@ namespace ScriptAssembly
         //      public string TestStr = "This is a test string! Will it show up?";
         //      public Entity TestEntity;
 
+        Rigidbody2D? rb;
+
         protected override void Init()
 		{
+            rb = Entity.GetComponent<Rigidbody2D>();
+            if (rb == null)
+                return;
+
+            Log.Trace(rb.FixedRotation);
+            rb.FixedRotation = true;
+
+            //Log.Trace(rb.SleepState);
+            //rb.SleepState = RigidbodySleepState.NeverSleep;
+
+            //Log.Trace(rb.GravityScale);
+            //rb.GravityScale += 10.0f;
+
             //TextRenderer? cr = Entity.GetComponent<TextRenderer>();
             //Log.Trace(cr.Color);
             //cr.Color = Color.Cyan;

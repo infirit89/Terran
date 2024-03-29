@@ -296,9 +296,7 @@ namespace TerranEngine
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		managedArray.Resize(length);
 		object.SetFieldValueByHandle<Coral::ManagedArray>(array.FieldHandle, managedArray);
-		m_FieldObjects.at(array.FieldHandle).Handle =
-			array.Handle =
-			managedArray.GetHandle();
+		array.Handle = managedArray.GetHandle();
 	}
 
 	void ScriptInstance::ResizeFieldArrayInternal(ScriptArray& array, const int32_t* lengths, size_t lengthsSize)
@@ -307,9 +305,7 @@ namespace TerranEngine
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		managedArray.Resize(lengths, lengthsSize);
 		object.SetFieldValueByHandle<Coral::ManagedArray>(array.FieldHandle, managedArray);
-		m_FieldObjects.at(array.FieldHandle).Handle =
-			array.Handle =
-			managedArray.GetHandle();
+		array.Handle = managedArray.GetHandle();
 	}
 
 	int32_t ScriptInstance::GetFieldArrayLength(const ScriptArray& array, int dimension) const
@@ -318,9 +314,10 @@ namespace TerranEngine
 		return managedArray.GetLength(dimension);
 	}
 
-	ScriptArray& ScriptInstance::GetScriptArray(int32_t fieldHandle)
+	// NOTE: maybe cache the field array?
+	ScriptArray ScriptInstance::GetScriptArray(int32_t fieldHandle)
 	{
-		auto it = m_FieldObjects.find(fieldHandle);
+		/*auto it = m_FieldObjects.find(fieldHandle);
 		if (it == m_FieldObjects.end())
 		{
 			TR_TRACE(m_Context);
@@ -332,7 +329,11 @@ namespace TerranEngine
 			m_FieldObjects.emplace(fieldHandle, ScriptObject{ array.GetHandle(), array.GetRank(), fieldHandle });
 		}
 
-		return (ScriptArray&)m_FieldObjects.at(fieldHandle);
+		return (ScriptArray&)m_FieldObjects.at(fieldHandle);*/
+
+		Coral::ManagedObject object = m_Context;
+		Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
+		return ScriptArray{ array.GetHandle(), array.GetRank(), fieldHandle };
 	}
 
 	void ScriptInstance::InvokeInit()
@@ -356,9 +357,8 @@ namespace TerranEngine
 
 		if (field.IsArray)
 		{
-			/*
-			const ScriptArray& sourceArray = source->GetScriptArray(fieldHandle);
-			ScriptArray& destArray = GetScriptArray(fieldHandle);
+			ScriptArray sourceArray = source->GetScriptArray(fieldHandle);
+			ScriptArray destArray = GetScriptArray(fieldHandle);
 			if (sourceArray.Rank > 1 || destArray.Rank > 1)
 				return;
 
@@ -376,7 +376,7 @@ namespace TerranEngine
 				SetFieldArrayValue<Utils::Variant>(destArray, value, i);
 			}
 
-			*/
+			
 			return;
 		}
 		Utils::Variant value = source->GetFieldValue<Utils::Variant>(fieldHandle);
