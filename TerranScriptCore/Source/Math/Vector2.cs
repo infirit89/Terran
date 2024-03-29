@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Terran
@@ -37,8 +38,11 @@ namespace Terran
 		public static Vector2 Zero = new Vector2(0.0f, 0.0f);
 		public static Vector2 One = new Vector2(1.0f, 1.0f);
 
-		public static Vector2 Up = new Vector2(0.0f, 1.0f);
 		public static Vector2 Right = new Vector2(1.0f, 0.0f);
+		public static Vector2 Left = new Vector2(-1.0f, 0.0f);
+
+		public static Vector2 Up = new Vector2(0.0f, 1.0f);
+		public static Vector2 Down = new Vector2(0.0f, -1.0f);
 
 		public static float Dot(in Vector2 a, in Vector2 b) => (a.X * b.X) + (a.Y * b.Y);
 		

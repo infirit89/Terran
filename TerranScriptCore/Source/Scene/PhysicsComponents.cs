@@ -27,7 +27,7 @@
             }
         }
 
-        public RigidbodySleepState AwakeState
+        public RigidbodySleepState SleepState
         {
             get 
             {

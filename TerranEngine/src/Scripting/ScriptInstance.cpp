@@ -314,6 +314,7 @@ namespace TerranEngine
 		return managedArray.GetLength(dimension);
 	}
 
+	// NOTE: maybe cache the field array?
 	ScriptArray ScriptInstance::GetScriptArray(int32_t fieldHandle)
 	{
 		/*auto it = m_FieldObjects.find(fieldHandle);

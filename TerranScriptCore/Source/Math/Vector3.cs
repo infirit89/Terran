@@ -13,7 +13,6 @@ namespace Terran
 		public float Y;
 		public float Z;
 
-
 		public float Magnitude => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
 
 		public Vector3(float x, float y, float z)
@@ -49,8 +48,8 @@ namespace Terran
 		public static Vector3 Zero = new Vector3(0.0f, 0.0f, 0.0f);
 		public static Vector3 One = new Vector3(1.0f, 1.0f, 1.0f);
 
-		public static Vector3 Up = new Vector3(0.0f, 1.0f, 0.0f);
 		public static Vector3 Right = new Vector3(1.0f, 0.0f, 0.0f);
+		public static Vector3 Up = new Vector3(0.0f, 1.0f, 0.0f);
 		public static Vector3 Forward = new Vector3(0.0f, 0.0f, 1.0f);
 
 		public static Vector3 Negate(Vector3 vec) => new Vector3(-vec.X, -vec.Y, -vec.Z);

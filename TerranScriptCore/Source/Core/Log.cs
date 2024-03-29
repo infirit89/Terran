@@ -2,7 +2,7 @@
 
 namespace Terran
 {
-	public class Log
+	public static class Log
 	{
 		enum LogLevel : byte
 		{
