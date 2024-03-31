@@ -1,0 +1,59 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 5b1fe0f3-c240-4ff5-8ddc-3db14aebadf6
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: e05ffed7-2a7c-4648-bbab-bf51fb30ec96
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, -3.75394344, 0]
+      Scale: [8.10091782, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false
+  - Entity: 16ec3d51-762a-4293-9af7-c344d925aed4
+    TagComponent:
+      Tag: Entity Copy
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    ScriptComponent:
+      ModuleName: ScriptAssembly.Test
+      Fields:
+        - TestArr: [55, -35, -45, 19, 52]
+        - TestEntityArr: [5b1fe0f3-c240-4ff5-8ddc-3db14aebadf6, 5b1fe0f3-c240-4ff5-8ddc-3db14aebadf6, e05ffed7-2a7c-4648-bbab-bf51fb30ec96, e05ffed7-2a7c-4648-bbab-bf51fb30ec96, 5b1fe0f3-c240-4ff5-8ddc-3db14aebadf6, e05ffed7-2a7c-4648-bbab-bf51fb30ec96]
+    Rigidbody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false

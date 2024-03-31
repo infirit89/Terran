@@ -44,17 +44,15 @@ namespace ScriptAssembly
         //      public string TestStr = "This is a test string! Will it show up?";
         //      public Entity TestEntity;
 
-        Rigidbody2D? rb;
-
         protected override void Init()
 		{
-            rb = Entity.GetComponent<Rigidbody2D>();
-            if (rb == null)
+            BoxCollider2D? collider = Entity.GetComponent<BoxCollider2D>();
+            if (collider == null)
                 return;
 
-            Log.Trace(rb.FixedRotation);
-            rb.FixedRotation = true;
-
+            Log.Trace(collider.IsSensor);
+            collider.IsSensor = true;
+            
             //Log.Trace(rb.SleepState);
             //rb.SleepState = RigidbodySleepState.NeverSleep;
 

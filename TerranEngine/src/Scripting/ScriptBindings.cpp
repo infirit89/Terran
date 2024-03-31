@@ -409,6 +409,15 @@ namespace TerranEngine
 	TR_ERROR("Invalid entity id");												\
 	return DefaultValue;
 
+#define GET_COMPONENT_PROPERTY_NORET(ComponentType, Property, Value)			\
+	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
+	if(entity)																	\
+	{																			\
+		Value = entity.GetComponent<ComponentType>().Property;					\
+		return;																	\
+	}																			\
+																				\
+	TR_ERROR("Invalid entity id");												\
 
 	// ---- Transform Component ----
 	#pragma region Transform Component
@@ -691,167 +700,105 @@ namespace TerranEngine
 	#pragma endregion
 	// ----------------------
 
+#define GET_COLLIDER2D_PROPERTY(Property, ColliderProperty, Value, DefaultValue)	\
+	switch (colliderType)															\
+	{																				\
+	case ColliderType2D::Box:														\
+	{																				\
+		GET_COMPONENT_PROPERTY_NORET(BoxCollider2DComponent, Property, Value);		\
+		break;																		\
+	}																				\
+	case ColliderType2D::Circle:													\
+	{																				\
+		GET_COMPONENT_PROPERTY_NORET(CircleCollider2DComponent, Property, Value);	\
+		break;																		\
+	}																				\
+	case ColliderType2D::Capsule:													\
+	{																				\
+		GET_COMPONENT_PROPERTY_NORET(CapsuleCollider2DComponent, Property, Value);	\
+		break;																		\
+	}																				\
+	case ColliderType2D::None:														\
+	{																				\
+		GET_ENTITY();																\
+		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);		\
+		if (!physicsBody)															\
+			break;																	\
+		if (physicsBody->GetColliders().size() > 0)									\
+			Value = physicsBody->GetCollider(0)->ColliderProperty();				\
+																					\
+		break;																		\
+	}																				\
+	}																				\
+	Value = DefaultValue
+
+#define SET_COLLIDER2D_PROPERTY(Property, ColliderPropery, Value)										\
+	GET_ENTITY();																						\
+	Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);								\
+	if (!physicsBody)																					\
+		return;																							\
+																										\
+	uint32_t colliderIndex = 0;																			\
+	Shared<Collider2D> collider = nullptr;																\
+																										\
+	if (colliderType == ColliderType2D::None)															\
+		collider = physicsBody->GetCollider(0);															\
+																										\
+	switch (colliderType)																				\
+	{																									\
+	case ColliderType2D::Box:																			\
+	{																									\
+		BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();			\
+		colliderIndex = bcComponent.ColliderIndex;														\
+		bcComponent.Property = Value;																	\
+		break;																							\
+	}																									\
+	case ColliderType2D::Circle:																		\
+	{																									\
+		CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();		\
+		colliderIndex = ccComponent.ColliderIndex;														\
+		ccComponent.Property = Value;																	\
+		break;																							\
+	}																									\
+	case ColliderType2D::Capsule:																		\
+	{																									\
+		CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();	\
+		colliderIndex = ccComponent.ColliderIndex;														\
+		ccComponent.Property = Value;																	\
+		break;																							\
+	}																									\
+	}																									\
+																										\
+	if (colliderType != ColliderType2D::None)															\
+		collider = physicsBody->GetCollider(colliderIndex);												\
+																										\
+	if (collider)																						\
+		collider->ColliderPropery(Value)
+
 	// ---- Collider 2D ----
 	#pragma region Collider 2D
-	glm::vec2 ScriptBindings::Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType) 
+	void ScriptBindings::Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType, glm::vec2& offset) 
 	{
 		TR_PROFILE_FUNCTION();
 		constexpr glm::vec2 defaultValue = { 0.0f, 0.0f };
-		switch ((ColliderType2D)colliderType)
-		{
-		case ColliderType2D::Box:
-		{
-			GET_COMPONENT_PROPERTY(BoxCollider2DComponent, Offset, defaultValue);
-			break;
-		}
-		case ColliderType2D::Circle:
-		{
-			GET_COMPONENT_PROPERTY(CircleCollider2DComponent, Offset, defaultValue);
-			break;
-		}
-		case ColliderType2D::Capsule:
-		{
-			GET_COMPONENT_PROPERTY(CapsuleCollider2DComponent, Offset, defaultValue);
-			break;
-		}
-		case ColliderType2D::None:
-		{
-			GET_ENTITY();
-			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-			if (!physicsBody)
-				break;
-
-			Shared<Collider2D> collider;
-			if (physicsBody->GetColliders().size() > 0) 
-			{
-				collider = physicsBody->GetColliders()[0];
-				return collider->GetOffset();
-			}
-
-
-			break;
-		}
-		}
-		return defaultValue;
+		GET_COLLIDER2D_PROPERTY(Offset, GetOffset, offset, defaultValue);
 	}
 	void ScriptBindings::Collider2D_SetOffsetICall(const UUID& id, ColliderType2D colliderType, const glm::vec2& offset) 
 	{
 		TR_PROFILE_FUNCTION();
-		GET_ENTITY();
-		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-		if (!physicsBody)
-			return;
-
-		uint32_t colliderIndex = 0;
-		switch ((ColliderType2D)colliderType)
-		{
-		case ColliderType2D::Box:
-		{
-			colliderIndex = entity.GetComponent<BoxCollider2DComponent>().ColliderIndex;
-			break;
-		}
-		case ColliderType2D::Circle:
-		{
-			colliderIndex = entity.GetComponent<CircleCollider2DComponent>().ColliderIndex;
-			break;
-		}
-		case ColliderType2D::Capsule:
-		{
-			colliderIndex = entity.GetComponent<CapsuleCollider2DComponent>().ColliderIndex;
-			break;
-		}
-		}
-
-		Shared<Collider2D> collider = physicsBody->GetCollider(colliderIndex);
-
-		if (collider)
-			collider->SetOffset(offset);
+		SET_COLLIDER2D_PROPERTY(Offset, SetOffset, offset);
 	}
 
-	bool ScriptBindings::Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType) 
+	void ScriptBindings::Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType, bool& sensor)
 	{
 		TR_PROFILE_FUNCTION();
-		
-		switch ((ColliderType2D)colliderType)
-		{
-		case ColliderType2D::Box:
-		{
-			GET_COMPONENT_PROPERTY(BoxCollider2DComponent, Sensor, false);
-			break;
-		}
-		case ColliderType2D::Circle:
-		{
-			GET_COMPONENT_PROPERTY(CircleCollider2DComponent, Sensor, false);
-			break;
-		}
-		case ColliderType2D::Capsule:
-		{
-			GET_COMPONENT_PROPERTY(CapsuleCollider2DComponent, Sensor, false);
-			break;
-		}
-		case ColliderType2D::None:
-		{
-			GET_ENTITY();
-			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-			if (physicsBody)
-			{
-				Shared<Collider2D> collider = physicsBody->GetColliders()[0];
-
-				if (collider)
-					return collider->IsSensor();
-			}
-			break;
-		}
-		}
-		return false;
+		GET_COLLIDER2D_PROPERTY(Sensor, IsSensor, sensor, false);
 	}
 
 	void ScriptBindings::Collider2D_SetSensorICall(const UUID& id, ColliderType2D colliderType, bool isSensor) 
 	{
 		GET_ENTITY();
-		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-		if (physicsBody)
-			return;
-
-		Shared<Collider2D> collider = nullptr;
-		uint32_t colliderIndex = 0;
-
-		if (colliderType == ColliderType2D::None) 
-			collider = physicsBody->GetCollider(0);
-
-		switch ((ColliderType2D)colliderType)
-		{
-		case ColliderType2D::Box:
-		{
-			BoxCollider2DComponent& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-			colliderIndex = bcComponent.ColliderIndex;
-			bcComponent.Sensor = isSensor;
-			break;
-		}
-		case ColliderType2D::Circle:
-		{
-			CircleCollider2DComponent& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-			colliderIndex = ccComponent.ColliderIndex;
-			ccComponent.Sensor = isSensor;
-			break;
-		}
-		case ColliderType2D::Capsule:
-		{
-			CapsuleCollider2DComponent& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
-			colliderIndex = ccComponent.ColliderIndex;
-			ccComponent.Sensor = isSensor;
-			break;
-		}
-		}
-
-		if (colliderIndex != 0)
-			collider = physicsBody->GetCollider(colliderIndex);
-
-		if (collider)
-			collider->SetSensor(isSensor);
+		SET_COLLIDER2D_PROPERTY(Sensor, SetSensor, isSensor);
 	}
 	#pragma endregion
 	// ---------------------
