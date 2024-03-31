@@ -158,7 +158,8 @@
             {
                 unsafe 
                 {
-                    return Internal.Collider2D_GetOffsetICall(Entity.ID, m_ColliderType);
+                    Internal.Collider2D_GetOffsetICall(Entity.ID, m_ColliderType, out var offset);
+                    return offset;
                 }
             }
             set
@@ -176,7 +177,8 @@
             {
                 unsafe
                 {
-                    return Internal.Collider2D_IsSensorICall(Entity.ID, m_ColliderType);
+                    Internal.Collider2D_IsSensorICall(Entity.ID, m_ColliderType, out var sensor);
+                    return sensor;
                 }
             }
             set

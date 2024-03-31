@@ -111,10 +111,10 @@ namespace TerranEngine
 
 		// ---- Collider 2D ----
 		#pragma region Collider 2D
-		static glm::vec2 Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType);
+		static void Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType, glm::vec2& offset);
 		static void Collider2D_SetOffsetICall(const UUID& id, ColliderType2D colliderType, const glm::vec2& inOffset);
 
-		static bool Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType);
+		static void Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType, bool& sensor);
 		static void Collider2D_SetSensorICall(const UUID& id, ColliderType2D colliderType, bool isSensor);
 		#pragma endregion
 		// ---------------------
