@@ -69,9 +69,9 @@ namespace Terran
         #endregion
 
         #region Collider 2D
-		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, Vector2> Collider2D_GetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, out Vector2, void> Collider2D_GetOffsetICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, in Vector2, void> Collider2D_SetOffsetICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, bool> Collider2D_IsSensorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, out bool, void> Collider2D_IsSensorICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, bool, void> Collider2D_SetSensorICall = default;
         #endregion
 
