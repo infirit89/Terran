@@ -76,7 +76,7 @@ namespace Terran
         #endregion
 
         #region Box Collider 2D
-		internal static unsafe delegate* unmanaged<in UUID, Vector2> BoxCollider2D_GetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, out Vector2, void> BoxCollider2D_GetSizeICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, in Vector2, void> BoxCollider2D_SetSizeICall = default;
         #endregion
 

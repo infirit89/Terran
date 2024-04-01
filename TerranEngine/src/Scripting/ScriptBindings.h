@@ -121,7 +121,7 @@ namespace TerranEngine
 
 		// ---- Box Collider 2D ----
 		#pragma region Box Collider 2D
-		static glm::vec2 BoxCollider2D_GetSizeICall(const UUID& id);
+		static void BoxCollider2D_GetSizeICall(const UUID& id, glm::vec2& size);
 		static void BoxCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size);
 		#pragma endregion
 		// -------------------------

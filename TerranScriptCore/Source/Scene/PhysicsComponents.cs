@@ -1,4 +1,6 @@
-﻿namespace Terran
+﻿using Microsoft.VisualBasic;
+
+namespace Terran
 {
     public class Rigidbody2D : Component
     {
@@ -205,13 +207,14 @@
             {
                 unsafe 
                 {
-                    return Internal.BoxCollider2D_GetSizeICall(Entity.ID);
+                    Internal.BoxCollider2D_GetSizeICall(Entity.ID, out var size);
+                    return size;
                 }
             }
 
             set 
             {
-                unsafe 
+                unsafe
                 {
                     Internal.BoxCollider2D_SetSizeICall(Entity.ID, in value);
                 }
