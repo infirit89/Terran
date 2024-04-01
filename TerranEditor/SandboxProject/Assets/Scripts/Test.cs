@@ -46,12 +46,15 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            BoxCollider2D? collider = Entity.GetComponent<BoxCollider2D>();
-            if (collider == null)
+            CircleCollider2D? collider = Entity.GetComponent<CircleCollider2D>();
+            if (collider == null) 
+            {
+                Log.Error("collider is null");
                 return;
+            }
 
-            Log.Trace(collider.IsSensor);
-            collider.IsSensor = true;
+            Log.Trace(collider.Radius);
+            collider.Radius *= 2.0f;
             
             //Log.Trace(rb.SleepState);
             //rb.SleepState = RigidbodySleepState.NeverSleep;
