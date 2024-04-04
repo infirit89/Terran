@@ -44,20 +44,17 @@ namespace TerranEngine
 
 		virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
 
-		size_t GetHitCount() const { return m_HitInfos.size(); }
+		size_t GetHitCount() const { return m_HitInfos->size(); }
 		//Entity GetHitEntity(int index) const;
 		//glm::vec2 GetPoint(int index) const;
 		//glm::vec2 GetNormal(int index) const;
-		RayCastHitInfo2D GetHitInfo(int index) const { return m_HitInfos.at(index); }
-		std::vector<RayCastHitInfo2D> GetHitInfos() const { return m_HitInfos; }
+		RayCastHitInfo2D GetHitInfo(int index) const { return m_HitInfos->at(index); }
+		Shared<std::vector<RayCastHitInfo2D>> GetHitInfos() const { return m_HitInfos; }
 
 	private:
 		uint16_t m_LayerMask;
 
-		std::vector<RayCastHitInfo2D> m_HitInfos;
-		bool m_Hit;
-		glm::vec2 m_Origin;
-		float m_Length;
+		Shared<std::vector<RayCastHitInfo2D>> m_HitInfos;
 	};
 }
 

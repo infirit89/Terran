@@ -99,7 +99,7 @@ namespace Terran
 			unsafe 
 			{
 				IntPtr handle = Internal.Input_GetConnectedControllersICall();
-				return GCHandle.FromIntPtr(handle).Target as byte[];
+				return GCHandle.FromIntPtr(handle).Target as byte[] ?? throw new NullReferenceException();
 			}
 		}
 	}

@@ -11,7 +11,6 @@
 #include <Coral/Assembly.hpp>
 #include <Coral/ManagedObject.hpp>
 #include <Coral/ManagedArray.hpp>
-
 #include <glm/glm.hpp>
 
 extern "C" 
@@ -48,10 +47,10 @@ namespace TerranEngine
 		static void Input_GetMousePositionICall(glm::vec2& outMousePosition);
 
 		static bool Input_IsControllerConnected(uint8_t controllerIndex);
-		static MonoString* Input_GetControllerName(uint8_t controllerIndex);
-		static bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex);
-		static float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex);
-		static MonoArray* Input_GetConnectedControllers();
+		static Coral::String Input_GetControllerName(uint8_t controllerIndex);
+		static bool Input_IsControllerButtonPressed(uint8_t controllerIndex, ControllerButton controllerButton);
+		static float Input_GetControllerAxis(uint8_t controllerIndex, ControllerAxis controllerAxis);
+		static void* Input_GetConnectedControllers();
 		#pragma endregion
 		// ---------------
 
@@ -76,9 +75,14 @@ namespace TerranEngine
 
 		// ---- Physics 2D ----
 		#pragma region Physics 2D
-		struct RayCastHitInfo2D_Internal;
+		struct RayCastHitInfo2D_Internal
+		{
+			glm::vec2 Point;
+			glm::vec2 Normal;
+			Coral::ManagedObject Rigidbody;
+		};
 
-		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
+		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask, RayCastHitInfo2D_Internal& outHitInfo);
 		static void* Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 		#pragma endregion
 		// --------------------
@@ -135,7 +139,7 @@ namespace TerranEngine
 
 		// ---- Capsule Collider 2D ----
 		#pragma region Capsule Collider 2D
-		static glm::vec2 CapsuleCollider2D_GetSizeICall(const UUID& id);
+		static void CapsuleCollider2D_GetSizeICall(const UUID& id, glm::vec2& size);
 		static void CapsuleCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size);
 		#pragma endregion
 		// -----------------------------
