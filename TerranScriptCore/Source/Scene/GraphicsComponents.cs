@@ -2,6 +2,9 @@
 {
     public class TextRenderer : Component
     {
+        internal TextRenderer(UUID id)
+            : base(id) { }
+
         public Color Color
         {
             get
@@ -41,6 +44,9 @@
 
     public class CircleRenderer : Component
     {
+        internal CircleRenderer(UUID id)
+            : base(id) { }
+
         public Color Color
         {
             get
@@ -80,6 +86,9 @@
 
     public class Camera : Component
     {
+        internal Camera(UUID id)
+            : base(id) { }
+
         public bool IsPrimary
         {
             get
@@ -119,6 +128,9 @@
 
     public class SpriteRenderer : Component
     {
+        internal SpriteRenderer(UUID id) 
+            : base(id) { }
+
         public Color Color
         {
             get

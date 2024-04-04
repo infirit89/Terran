@@ -4,12 +4,8 @@ namespace Terran
 {
     public class Rigidbody2D : Component
     {
-        public Rigidbody2D() { }
-
-        internal Rigidbody2D(Entity entity)
-        {
-            Entity = entity;
-        }
+        internal Rigidbody2D(UUID id)
+            : base(id) { }
 
         public bool FixedRotation
         {
@@ -147,9 +143,11 @@ namespace Terran
 
     public class Collider2D : Component
     {
-        public Collider2D() { }
+        internal Collider2D(UUID id) 
+            : base(id) { }
 
-        protected Collider2D(ColliderType2D type)
+        protected Collider2D(UUID id, ColliderType2D type)
+            : base(id)
         {
             m_ColliderType = type;
         }
@@ -199,7 +197,7 @@ namespace Terran
 
     public class BoxCollider2D : Collider2D
     {
-        public BoxCollider2D() : base(ColliderType2D.Box) { }
+        internal BoxCollider2D(UUID id) : base(id, ColliderType2D.Box) { }
 
         public Vector2 Size
         {
@@ -224,7 +222,7 @@ namespace Terran
 
     public class CircleCollider2D : Collider2D
     {
-        public CircleCollider2D() : base(ColliderType2D.Circle) { }
+        internal CircleCollider2D(UUID id) : base(id, ColliderType2D.Circle) { }
 
         public float Radius
         {
@@ -247,7 +245,7 @@ namespace Terran
 
     public class CapsuleCollider2D : Collider2D
     {
-        public CapsuleCollider2D() : base(ColliderType2D.Capsule) { }
+        internal CapsuleCollider2D(UUID id) : base(id, ColliderType2D.Capsule) { }
 
         public Vector2 Size
         {
@@ -255,7 +253,8 @@ namespace Terran
             {
                 unsafe 
                 {
-                    return Internal.CapsuleCollider2D_GetSizeICall(Entity.ID);
+                    Internal.CapsuleCollider2D_GetSizeICall(Entity.ID, out var size);
+                    return size;
                 }
             }
 

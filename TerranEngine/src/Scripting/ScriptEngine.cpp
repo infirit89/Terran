@@ -118,8 +118,8 @@ namespace TerranEngine
 
 	void ScriptEngine::ReloadAppAssembly()
 	{
-		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, Utils::Variant>>> scriptFieldsStates;
-		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, std::vector<Utils::Variant>>>> scriptFieldArraysStates;
+		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<std::string, Utils::Variant>>> scriptFieldsStates;
+		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<std::string, std::vector<Utils::Variant>>>> scriptFieldArraysStates;
 
 		for (const auto& [sceneId, entityScriptMap] : s_Data->ScriptInstanceMap)
 		{
@@ -138,15 +138,15 @@ namespace TerranEngine
 						if (array.Rank > 1)
 							continue;
 						int32_t arrayLength = scriptInstance->GetFieldArrayLength(array);
-						scriptFieldArraysStates[sceneId][entityId][fieldHandle].reserve(arrayLength);
+						scriptFieldArraysStates[sceneId][entityId][field.Name].reserve(arrayLength);
 
 						for (int32_t i = 0; i < arrayLength; i++)
-							scriptFieldArraysStates.at(sceneId).at(entityId).at(fieldHandle).push_back(scriptInstance->GetFieldArrayValue<Utils::Variant>(array, i));
+							scriptFieldArraysStates.at(sceneId).at(entityId).at(field.Name).push_back(scriptInstance->GetFieldArrayValue<Utils::Variant>(array, i));
 
 						continue;
 					}
 
-					scriptFieldsStates[sceneId][entityId][fieldHandle] = scriptInstance->GetFieldValue<Utils::Variant>(fieldHandle);
+					scriptFieldsStates[sceneId][entityId][field.Name] = scriptInstance->GetFieldValue<Utils::Variant>(fieldHandle);
 				}
 			}
 		}
@@ -165,7 +165,7 @@ namespace TerranEngine
 		for (const auto& [sceneId, scene] : SceneManager::GetActiveScenes())
 		{
 			auto scriptComponentView = scene->GetEntitiesWith<ScriptComponent>();
-			for (const auto e : scriptComponentView) 
+			for (const auto e : scriptComponentView)
 			{
 				Entity entity(e, scene.get());
 				auto& sc = entity.GetComponent<ScriptComponent>();
@@ -183,9 +183,9 @@ namespace TerranEngine
 						if (array.Rank > 1)
 							continue;
 
-						try
+						try 
 						{
-							const std::vector<Utils::Variant>& cachedFieldArrayData = scriptFieldArraysStates.at(sceneId).at(entityId).at(fieldHandle);
+							const std::vector<Utils::Variant>& cachedFieldArrayData = scriptFieldArraysStates.at(sceneId).at(entityId).at(scriptField.Name);
 
 							if (instance->GetFieldArrayLength(array) != cachedFieldArrayData.size())
 								instance->ResizeFieldArray(array, (int32_t)cachedFieldArrayData.size());
@@ -204,7 +204,7 @@ namespace TerranEngine
 
 					try 
 					{
-						const Utils::Variant& cachedFieldData = scriptFieldsStates.at(sceneId).at(entityId).at(fieldHandle);
+						const Utils::Variant& cachedFieldData = scriptFieldsStates.at(sceneId).at(entityId).at(scriptField.Name);
 						instance->SetFieldValue(fieldHandle, cachedFieldData);
 					}
 					catch (std::out_of_range e) 
@@ -377,7 +377,15 @@ namespace TerranEngine
 		return s_Data->EntityIDFieldHandle;
 	}
 
-	bool ScriptEngine::LoadAppAssembly() 
+	const void* ScriptEngine::CreateComponentInstance(int32_t componentTypeId, const UUID& entityId)
+	{
+		Coral::Type* componentType = Coral::TypeCache::Get().GetTypeByID(componentTypeId);
+		TR_ASSERT(componentType, "Couldn't find component");
+
+		return componentType->CreateInstance(entityId).GetHandle();
+	}
+
+	bool ScriptEngine::LoadAppAssembly()
 	{
 		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
 		appAssembly = s_Data->LoadContext.LoadAssembly(Project::GetAppAssemblyPath().string());

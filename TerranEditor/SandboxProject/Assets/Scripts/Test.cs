@@ -25,6 +25,7 @@ namespace ScriptAssembly
             { { 1, 2 }, { 1, 2 }, }, { { 3, 4 }, { 3, 4 } }
         };
 
+        public Entity E;
 
         //public bool TestBool = false;
         //      public byte TestB = 10;
@@ -46,16 +47,18 @@ namespace ScriptAssembly
 
         protected override void Init()
 		{
-            CircleCollider2D? collider = Entity.GetComponent<CircleCollider2D>();
-            if (collider == null) 
+            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(Entity.Transform.Position, Vector2.Down, 30.0f);
+            Log.Trace(hitInfos.Length);
+
+            foreach(var hitInfo in hitInfos)
             {
-                Log.Error("collider is null");
-                return;
+                Log.Trace(hitInfo.Point);
+                Log.Trace(hitInfo.Normal);
+
+                if(hitInfo.Rigidbody != null)
+                    Log.Trace(hitInfo.Rigidbody.Entity.Name);
             }
 
-            Log.Trace(collider.Radius);
-            collider.Radius *= 2.0f;
-            
             //Log.Trace(rb.SleepState);
             //rb.SleepState = RigidbodySleepState.NeverSleep;
 

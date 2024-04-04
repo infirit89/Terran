@@ -101,6 +101,7 @@ namespace TerranEngine
 	std::vector<uint8_t> Input::GetConnectedControllers()
 	{
 		std::vector<uint8_t> connectedControllers;
+		connectedControllers.reserve(GLFW_JOYSTICK_LAST);
 
 		for (uint8_t i = 0; i < GLFW_JOYSTICK_LAST; i++)
 		{

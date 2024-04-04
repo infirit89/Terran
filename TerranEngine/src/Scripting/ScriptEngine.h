@@ -47,14 +47,16 @@ namespace TerranEngine
 		//static ManagedObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
 		//static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
 
+		static const void* CreateComponentInstance(int32_t componentTypeId, const UUID& entityId);
+
         static bool LoadAppAssembly();
 
 		static void SetLogCallback(LogFN logCallback);
 	private:
 		static bool LoadCoreAssembly();
 		
-		static void CreateAppDomain();
-		static void UnloadDomain();
+		/*static void CreateAppDomain();
+		static void UnloadDomain();*/
 		static void InitializeTypeConverters();
 	};
 }

@@ -53,7 +53,7 @@ namespace TerranEngine
 
 		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
 		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);
-		static std::vector<RayCastHitInfo2D> RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+		static Shared<std::vector<RayCastHitInfo2D>> RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
 	};
 }
 

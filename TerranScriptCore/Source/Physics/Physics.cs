@@ -33,7 +33,7 @@ namespace Terran
 		private NativeInstance<Rigidbody2D> m_RigidbodyHandle;
 
 
-		public Rigidbody2D Rigidbody => m_RigidbodyHandle!;
+		public Rigidbody2D? Rigidbody => m_RigidbodyHandle;
 		
         public static implicit operator bool(RayCastHitInfo2D hit) => !hit.Equals(default(RayCastHitInfo2D));
 	}
@@ -59,7 +59,7 @@ namespace Terran
 			unsafe 
 			{
 				IntPtr handle = Internal.Physics2D_RayCastAllICall(origin, direction, length, layerMask);
-				return GCHandle.FromIntPtr(handle).Target as RayCastHitInfo2D[];
+				return GCHandle.FromIntPtr(handle).Target as RayCastHitInfo2D[] ?? throw new NullReferenceException();
 			}
 		}
 	}

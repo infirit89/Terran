@@ -209,7 +209,7 @@ namespace TerranEngine
 		return raycastCallback.HasHit();
 	}
 
-	std::vector<RayCastHitInfo2D> Physics2D::RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
+	Shared<std::vector<RayCastHitInfo2D>> Physics2D::RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask)
 	{
 		TR_PROFILE_FUNCTION();
 		const b2Vec2 point1 = { origin.x, origin.y };
