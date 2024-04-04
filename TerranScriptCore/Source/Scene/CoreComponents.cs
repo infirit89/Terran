@@ -3,13 +3,11 @@
     // ---- Scriptable ----
     public class Scriptable : Component
     {
-        public Scriptable() { }
+        public Scriptable() 
+            : base(default){ }
 
         internal Scriptable(UUID id)
-        {
-            if (Entity == null)
-                Entity = new Entity(id);
-        }
+            : base(id) { }
 
         protected virtual void Init() { }
         protected virtual void Update(float deltaTime) { }
@@ -24,6 +22,10 @@
     // ---- Tag ----
     public class Tag : Component
     {
+
+        internal Tag(UUID id)
+            : base(id) { }
+
         public string Name
         {
             get
@@ -53,6 +55,9 @@
     // ---- Transform ----
     public class Transform : Component
     {
+        internal Transform(UUID id)
+            : base(id) { }
+
         public Vector3 Position
         {
             get

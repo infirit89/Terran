@@ -86,7 +86,7 @@ namespace Terran
 		#endregion
 
 		#region Capsule Collider 2D
-		internal static unsafe delegate* unmanaged<in UUID, Vector2> CapsuleCollider2D_GetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, out Vector2, void> CapsuleCollider2D_GetSizeICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, in Vector2, void> CapsuleCollider2D_SetSizeICall = default;
 		#endregion
 
@@ -135,4 +135,3 @@ namespace Terran
         #endregion
     }
 }
-

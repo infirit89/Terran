@@ -40,7 +40,7 @@ namespace TerranEngine
 	static std::unordered_map<int32_t, std::function<bool(Entity)>> s_HasComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_AddComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_RemoveComponentFuncs;
-	static Coral::Type* s_ScriptableType, * s_IdType;
+	static Coral::Type* s_ScriptableType, * s_IdType, * s_RigidbodyType, * s_HitInfoType;
 
 #define REGISTER_COMPONENT(ComponentType, Component)																				\
 	Coral::Type type_##ComponentType = assembly.GetType("Terran."#ComponentType);													\
@@ -57,6 +57,12 @@ namespace TerranEngine
 
 		s_IdType = Coral::TypeCache::Get().GetTypeByName("Terran.UUID");
 		TR_ASSERT(s_IdType, "Failed to find the id type");
+
+		s_RigidbodyType = Coral::TypeCache::Get().GetTypeByName("Terran.Rigidbody2D");
+		TR_ASSERT(s_RigidbodyType, "Failed to find the rigidbody2d type");
+
+		s_HitInfoType = Coral::TypeCache::Get().GetTypeByName("Terran.RayCastHitInfo2D");
+		TR_ASSERT(s_HitInfoType, "Failed to find the RayCastHitInfo2D type");
 
 		REGISTER_COMPONENT(Transform, TransformComponent);
 		REGISTER_COMPONENT(Tag, TagComponent);
@@ -81,6 +87,12 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Input_MouseButtonPressedICall);
 		BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
 		BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
+
+		BIND_INTERNAL_FUNC(Input_IsControllerConnected);
+		BIND_INTERNAL_FUNC(Input_GetControllerName);
+		BIND_INTERNAL_FUNC(Input_IsControllerButtonPressed);
+		BIND_INTERNAL_FUNC(Input_GetControllerAxis);
+		BIND_INTERNAL_FUNC(Input_GetConnectedControllers);
 		#pragma endregion
 		// ---------------
 
@@ -155,6 +167,8 @@ namespace TerranEngine
 		// ---- Physics ----
 		#pragma region Physics
 		BIND_INTERNAL_FUNC(LayerMask_GetNameICall);
+		BIND_INTERNAL_FUNC(Physics2D_RayCastICall);
+		BIND_INTERNAL_FUNC(Physics2D_RayCastAllICall);
 
 		// ---- Rigidbody 2D ----
 		#pragma region Rigidbody 2D
@@ -274,6 +288,35 @@ namespace TerranEngine
 	{
 		outMousePosition = Input::GetMousePos();
 	}
+
+	bool ScriptBindings::Input_IsControllerConnected(uint8_t controllerIndex)
+	{
+		return Input::IsControllerConnected(controllerIndex);
+	}
+
+	Coral::String ScriptBindings::Input_GetControllerName(uint8_t controllerIndex)
+	{
+		return Coral::String::New(Input::GetControllerName(controllerIndex));
+	}
+	bool ScriptBindings::Input_IsControllerButtonPressed(uint8_t controllerIndex, ControllerButton controllerButton)
+	{
+		return Input::IsControllerButtonPressed(controllerButton, controllerIndex);
+	}
+	float ScriptBindings::Input_GetControllerAxis(uint8_t controllerIndex, ControllerAxis controllerAxis)
+	{
+		return Input::GetControllerAxis(controllerAxis, controllerIndex);
+	}
+	void* ScriptBindings::Input_GetConnectedControllers()
+	{
+		std::vector<uint8_t> connectedControllers = Input::GetConnectedControllers();
+		Coral::Type* byteType = Coral::TypeCache::Get().GetTypeByName("System.Byte");
+		Coral::ManagedArray connectedControllersArray = Coral::ManagedArray::New(*byteType, connectedControllers.size());
+		for (size_t i = 0; i < connectedControllers.size(); i++)
+			connectedControllersArray.SetValue(static_cast<int32_t>(i), connectedControllers.at(i));
+
+		return connectedControllersArray.GetHandle();
+	}
+
 	#pragma endregion
 	// ---------------
 
@@ -447,7 +490,7 @@ namespace TerranEngine
 		return;																	\
 	}																			\
 																				\
-	TR_ERROR("Invalid entity id");												\
+	TR_ERROR("Invalid entity id")
 
 	// ---- Transform Component ----
 	#pragma region Transform Component
@@ -603,21 +646,42 @@ namespace TerranEngine
 
 	// ---- Physics 2D ----
 	#pragma region Physics 2D
-	struct RayCastHitInfo2D_Internal
+	
+	bool ScriptBindings::Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask, RayCastHitInfo2D_Internal& outHitInfo)
 	{
-		glm::vec2 Point;
-		glm::vec2 Normal;
-		Coral::ManagedObject Rigidbody;
-	};
+		TR_PROFILE_FUNCTION();
+		RayCastHitInfo2D hitInfo;
+		bool hasHit = Physics2D::RayCast(origin, direction, length, hitInfo, layerMask);
 
-	bool ScriptBindings::Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask) 
-	{
-		return false;
+		outHitInfo.Point = hitInfo.Point;
+		outHitInfo.Normal = hitInfo.Normal;
+
+		Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
+		outHitInfo.Rigidbody = s_RigidbodyType->CreateInstance(hitEntity.GetID());
+
+		return hasHit;
 	}
 
 	void* ScriptBindings::Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask) 
 	{
-		return nullptr;
+		TR_PROFILE_FUNCTION();
+		Shared<std::vector<RayCastHitInfo2D>> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
+
+		Coral::ManagedArray hitInfosArray = Coral::ManagedArray::New(*s_HitInfoType, hitInfos->size());
+		for (size_t i = 0; i < hitInfos->size(); i++) 
+		{
+			RayCastHitInfo2D& hitInfo = hitInfos->at(i);
+			RayCastHitInfo2D_Internal hitInfo_Internal;
+			hitInfo_Internal.Normal = hitInfo.Normal;
+			hitInfo_Internal.Point = hitInfo.Point;
+
+			Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
+			hitInfo_Internal.Rigidbody = s_RigidbodyType->CreateInstance(hitEntity.GetID());
+			
+			hitInfosArray.SetValue(static_cast<int32_t>(i), hitInfo_Internal);
+		}
+
+		return hitInfosArray.GetHandle();
 	}
 	#pragma endregion
 	// --------------------
@@ -851,14 +915,7 @@ namespace TerranEngine
 	void ScriptBindings::BoxCollider2D_GetSizeICall(const UUID& id, glm::vec2& size)
 	{
 		TR_PROFILE_FUNCTION();
-		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);
-		if (entity) 
-		{
-			size = entity.GetComponent<BoxCollider2DComponent>().Size;
-			return;
-		}
-
-		TR_ERROR("Invalid entity id");
+		GET_COMPONENT_PROPERTY_NORET(BoxCollider2DComponent, Size, size);
 		size = { 0.0f, 0.0f };
 	}
 	void ScriptBindings::BoxCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size) 
@@ -886,10 +943,11 @@ namespace TerranEngine
 
 	// ---- Capsule Collider 2D ----
 	#pragma region Capsule Collider 2D
-	glm::vec2 ScriptBindings::CapsuleCollider2D_GetSizeICall(const UUID& id) 
+	void ScriptBindings::CapsuleCollider2D_GetSizeICall(const UUID& id, glm::vec2& size) 
 	{
 		TR_PROFILE_FUNCTION();
-		GET_COMPONENT_PROPERTY(CapsuleCollider2DComponent, Size, glm::vec2(0.0f, 0.0f));
+		GET_COMPONENT_PROPERTY_NORET(CapsuleCollider2DComponent, Size, size);
+		size = { 0.0f, 0.0f };
 	}
 	void ScriptBindings::CapsuleCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size) 
 	{

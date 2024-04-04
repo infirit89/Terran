@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace Terran
 {
@@ -74,7 +75,10 @@ namespace Terran
 				if (childrenIdsHandle == IntPtr.Zero)
 					return null;
 
-				UUID[] childrenIds =  GCHandle.FromIntPtr(childrenIdsHandle).Target as UUID[];
+				UUID[]? childrenIds =  GCHandle.FromIntPtr(childrenIdsHandle).Target as UUID[];
+				if (childrenIds == null)
+					return null;
+
 				Entity[] children = new Entity[childrenIds!.Length];
 
 				for (int i = 0; i < childrenIds.Length; i++)
@@ -108,7 +112,7 @@ namespace Terran
 			}
 		} 
 
-		public T? GetComponent<T>() where T : Component, new()
+		public T? GetComponent<T>() where T : Component
 		{
 			if (HasComponent<T>())
 			{
@@ -129,7 +133,7 @@ namespace Terran
                     }
 				}
 
-				T component = new T { Entity = new Entity(ID) };
+				T? component = (T?)Activator.CreateInstance(typeof(T), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { ID }, null);
 				return component;
 			}
 
