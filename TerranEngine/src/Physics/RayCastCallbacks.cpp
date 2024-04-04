@@ -34,7 +34,7 @@ namespace TerranEngine
     }
 
     RayCastMultipleCallback::RayCastMultipleCallback(uint16_t layerMask)
-        : m_LayerMask(layerMask)
+        : m_LayerMask(layerMask), m_HitInfos(CreateShared<std::vector<RayCastHitInfo2D>>())
     { }
 
     float RayCastMultipleCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
@@ -59,7 +59,7 @@ namespace TerranEngine
             { physicsBody }
         };
 
-        m_HitInfos.emplace_back(hitInfo);
+        m_HitInfos->emplace_back(hitInfo);
 
         return 1.0f;
     }
