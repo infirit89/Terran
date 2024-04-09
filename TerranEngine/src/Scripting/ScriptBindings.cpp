@@ -254,19 +254,19 @@ namespace TerranEngine
 
 	// ---- Input ----
 	#pragma region Input
-	bool ScriptBindings::Input_KeyPressedICall(Key keyCode)
+	void ScriptBindings::Input_KeyPressedICall(Key keyCode, bool& isPressed)
 	{
-		return Input::IsKeyPressed(keyCode);
+		isPressed = Input::IsKeyPressed(keyCode);
 	}
 
-	bool ScriptBindings::Input_KeyDownICall(Key keyCode)
+	void ScriptBindings::Input_KeyDownICall(Key keyCode, bool& isDown)
 	{
-		return Input::IsKeyDown(keyCode);
+		isDown = Input::IsKeyDown(keyCode);
 	}
 
-	bool ScriptBindings::Input_KeyReleasedICall(Key keyCode)
+	void ScriptBindings::Input_KeyReleasedICall(Key keyCode, bool& isReleased)
 	{
-		return Input::IsKeyReleased(keyCode);
+		isReleased = Input::IsKeyReleased(keyCode);
 	}
 
 	bool ScriptBindings::Input_MouseButtonPressedICall(MouseButton mouseButton)

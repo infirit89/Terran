@@ -14,9 +14,9 @@ namespace Terran
 		#region Input
 
 		// ---- Keyboard ----
-		internal static unsafe delegate* unmanaged<ushort, bool> Input_KeyPressedICall = default;
-		internal static unsafe delegate* unmanaged<ushort, bool> Input_KeyDownICall = default;
-		internal static unsafe delegate* unmanaged<ushort, bool> Input_KeyReleasedICall = default;
+		internal static unsafe delegate* unmanaged<KeyCode, out bool, void> Input_KeyPressedICall = default;
+		internal static unsafe delegate* unmanaged<KeyCode, out bool, void> Input_KeyDownICall = default;
+		internal static unsafe delegate* unmanaged<KeyCode, out bool, void> Input_KeyReleasedICall = default;
 		// ------------------
 
 		// ---- Mouse ----

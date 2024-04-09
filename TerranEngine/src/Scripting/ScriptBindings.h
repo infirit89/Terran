@@ -37,9 +37,9 @@ namespace TerranEngine
 
 		// ---- Input ----
 		#pragma region Input
-		static bool Input_KeyPressedICall(Key keyCode);
-		static bool Input_KeyDownICall(Key keyCode);
-		static bool Input_KeyReleasedICall(Key keyCode);
+		static void Input_KeyPressedICall(Key keyCode, bool& isPressed);
+		static void Input_KeyDownICall(Key keyCode, bool& isDown);
+		static void Input_KeyReleasedICall(Key keyCode, bool& isReleased);
 
 		static bool Input_MouseButtonPressedICall(MouseButton mouseButton);
 		static bool Input_MouseButtonDownICall(MouseButton mouseButton);
