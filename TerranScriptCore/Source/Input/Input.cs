@@ -10,21 +10,24 @@ namespace Terran
 		{
 			unsafe
 			{
-				return Internal.Input_KeyPressedICall((ushort)keyCode);
+				Internal.Input_KeyPressedICall(keyCode, out bool isPressed);
+				return isPressed;
 			}
         }
 		public static bool IsKeyDown(KeyCode keyCode)
 		{
 			unsafe 
 			{
-				return Internal.Input_KeyDownICall((ushort)keyCode);
+				Internal.Input_KeyDownICall(keyCode, out bool isDown);
+				return isDown;
 			}
 		}
 		public static bool IsKeyReleased(KeyCode keyCode)
 		{
 			unsafe 
 			{
-				return Internal.Input_KeyReleasedICall((ushort)keyCode);
+				Internal.Input_KeyReleasedICall(keyCode, out bool isReleased);
+				return isReleased;
 			}
 		}
 
