@@ -12,8 +12,8 @@
         protected virtual void Init() { }
         protected virtual void Update(float deltaTime) { }
 
-        protected virtual void OnCollisionBegin(Entity entity) { }
-        protected virtual void OnCollisionEnd(Entity entity) { }
+        protected virtual void OnCollisionBegin(Entity other) { }
+        protected virtual void OnCollisionEnd(Entity other) { }
 
         protected virtual void PhysicsUpdate() { }
     }

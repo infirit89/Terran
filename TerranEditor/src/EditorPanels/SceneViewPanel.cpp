@@ -24,6 +24,9 @@ namespace TerranEditor
 {
 	bool operator!=(const glm::vec2& vec1, const ImVec2& vec2) { return vec1.x != vec2.x || vec1.y != vec2.y; }
 
+	static int s_PixelData = -1;
+	static int s_PreviousPixelData = s_PixelData;
+
 	static ImGuizmo::OPERATION ConvertToImGuizmoOperation(GizmoType gizmoType) 
 	{
 		switch (gizmoType)
@@ -135,21 +138,25 @@ namespace TerranEditor
 				if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)m_ViewportSize.x && mouseY < (int)m_ViewportSize.y)
 				{
 					framebuffer->Bind();
-					int pixelData = -1; 
 
-					Renderer::Submit([&pixelData, framebuffer, mouseX, mouseY]() 
+					Renderer::Submit([framebuffer, mouseX, mouseY]() 
 					{
-						pixelData = framebuffer->ReadPixel_RT(1, mouseX, mouseY);
-						TR_TRACE(pixelData);
+						s_PixelData = framebuffer->ReadPixel_RT(1, mouseX, mouseY);
 					});
-
-					Entity entity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_Scene->GetRaw());
-						
-					if(entity)
-						SelectionManager::Select(entity);
 
 					framebuffer->Unbind();
 				}
+			}
+
+			if (s_PixelData != s_PreviousPixelData)
+			{
+				Entity entity = s_PixelData == -1 ? Entity() : Entity((entt::entity)s_PixelData, m_Scene->GetRaw());
+
+				SelectionManager::DeselectAll(SelectionContext::Scene);
+				if (entity)
+					SelectionManager::Select(entity);
+
+				s_PreviousPixelData = s_PixelData;
 			}
 		}
 

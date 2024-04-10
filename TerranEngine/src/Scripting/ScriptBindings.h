@@ -13,14 +13,6 @@
 #include <Coral/ManagedArray.hpp>
 #include <glm/glm.hpp>
 
-extern "C" 
-{
-	typedef struct _MonoString MonoString;
-	typedef struct _MonoArray MonoArray;
-	typedef struct _MonoObject MonoObject;
-	typedef struct _MonoReflectionType MonoReflectionType;
-}
-
 namespace TerranEngine 
 {
 	class ScriptBindings

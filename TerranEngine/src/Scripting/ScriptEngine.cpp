@@ -268,7 +268,14 @@ namespace TerranEngine
 
 	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity entity)
 	{
-		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+		try 
+		{
+			return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+		}
+		catch (std::out_of_range e)
+		{
+			return nullptr;
+		}
 	}
 
 	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID) 
@@ -362,10 +369,29 @@ namespace TerranEngine
 		instance->InvokeUpdate(deltaTime);
 	}
 
-	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee) {}
-	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee) {}
+	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee) 
+	{
+		TR_PROFILE_FUNCTION();
+		Shared<ScriptInstance> instance = GetScriptInstance(collider);
+		if(instance)
+			instance->InvokeCollisionBegin(collidee);
+	}
 
-	void ScriptEngine::OnPhysicsUpdate(Entity entity) {}
+	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee) 
+	{
+		TR_PROFILE_FUNCTION();
+		Shared<ScriptInstance> instance = GetScriptInstance(collider);
+
+		if(instance)
+			instance->InvokeCollisionEnd(collidee);
+	}
+
+	void ScriptEngine::OnPhysicsUpdate(Entity entity) 
+	{
+		TR_PROFILE_FUNCTION();
+		Shared<ScriptInstance> instance = GetScriptInstance(entity);
+		instance->InvokePhysicsUpdate();
+	}
 
 	const void* ScriptEngine::CreateEntityInstance(const UUID& id) 
 	{
