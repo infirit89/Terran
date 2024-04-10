@@ -500,6 +500,17 @@ namespace TerranEngine
 																				\
 	TR_ERROR("Invalid entity id")
 
+#define SET_TRANSFORM_COMPONENT_PROPERTY(Property, Value)\
+	GET_ENTITY();\
+	if(!entity)\
+	{\
+		TR_ERROR("Invalid entity id");\
+		return;\
+	}\
+	TransformComponent& tc = entity.GetComponent<TransformComponent>();\
+	tc.Property = Value;\
+	tc.IsDirty = true
+
 	// ---- Transform Component ----
 	#pragma region Transform Component
 	glm::vec3 ScriptBindings::Transform_GetPositionICall(const UUID& id) 
@@ -509,6 +520,7 @@ namespace TerranEngine
 
 	void ScriptBindings::Transform_SetPositionICall(const UUID& id, const glm::vec3& position)
 	{
+		//SET_COMPONENT_PROPERTY(TransformComponent, Position, position);
 		SET_TRANSFORM_COMPONENT_PROPERTY(Position, position);
 	}
 

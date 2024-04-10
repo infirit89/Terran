@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using Terran;
 
 namespace ScriptAssembly
 {
 #nullable enable
     internal class Test : Scriptable
-	{
+    {
         //public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
         //public bool TestBool = false;
         //      public byte TestB = 10;
@@ -35,6 +28,7 @@ namespace ScriptAssembly
         public bool IsGrounded = false;
 
         protected override void Init()
+<<<<<<< HEAD
 		{
         }
 
@@ -56,6 +50,63 @@ namespace ScriptAssembly
         {
             Log.Trace(entity.Name);
         }
+=======
+        {
+            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(Entity.Transform.Position, Vector2.Down, 30.0f);
+            Log.Trace(hitInfos.Length);
+
+            foreach (var hitInfo in hitInfos)
+            {
+                Log.Trace(hitInfo.Point);
+                Log.Trace(hitInfo.Normal);
+
+                if (hitInfo.Rigidbody != null)
+                    Log.Trace(hitInfo.Rigidbody.Entity.Name);
+            }
+            Console.WriteLine("10");
+            Log.Trace(1);
+            Log.Warn(2);
+            //Log.Trace(rb.SleepState);
+            //rb.SleepState = RigidbodySleepState.NeverSleep;
+
+            //Log.Trace(rb.GravityScale);
+            //rb.GravityScale += 10.0f;
+
+            //TextRenderer? cr = Entity.GetComponent<TextRenderer>();
+            //Log.Trace(cr.Color);
+            //cr.Color = Color.Cyan;
+
+            //Log.Trace(cr.Text);
+            //cr.Text = "Test test test this is a test";
+        }
+
+        protected override void Update(float deltaTime)
+        {
+            //if (Input.IsKeyDown(KeyCode.A))
+            //    Log.Warn("A is down");
+
+            //if (Input.IsKeyPressed(KeyCode.S))
+            //    Log.Warn("S is pressed");
+
+            //if (Input.IsKeyReleased(KeyCode.D))
+            //    Log.Warn("D is pressed");
+
+            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+            //    Log.Warn("Left button down");
+
+            //if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
+            //{
+            //    Log.Warn("Middle button pressed");
+            //    Log.Warn(Input.GetMousePosition());
+            //}
+
+            //if (Input.IsMouseButtonReleased(MouseButton.RightButton))
+            //    Log.Warn("Right button released");
+
+            //Log.Warn(Input.GetMousePosition());
+            Log.Trace("chep");
+        }
+>>>>>>> 4ec76f3a0e9e85761747c042a8563ff94d1899d5
     }
 #nullable disable
 }
