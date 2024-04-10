@@ -16,6 +16,9 @@ namespace TerranEngine
 
 		m_OnInitMethodHandle = type.GetMethod("Init").GetHandle();
 		m_OnUpdateMethodHandle = type.GetMethod<float>("Update").GetHandle();
+		m_OnPhysicsUpdateMethodHandle = type.GetMethod("PhysicsUpdate").GetHandle();
+		m_OnCollisionBeginMethodHandle = type.GetMethod("Void OnCollisionBegin(Entity)").GetHandle();
+		m_OnCollisionEndMethodHandle = type.GetMethod("Void OnCollisionEnd(Entity)").GetHandle();
 	}
 
 	ScriptInstance::~ScriptInstance()
@@ -339,7 +342,7 @@ namespace TerranEngine
 	void ScriptInstance::InvokeInit()
 	{
 		Coral::ManagedObject object = m_Context;
-		if(m_OnInitMethodHandle > 0)
+		if(m_OnInitMethodHandle)
 			object.InvokeMethodByMethodInfo(m_OnInitMethodHandle);
 	}
 
@@ -347,8 +350,37 @@ namespace TerranEngine
 	{
 		Coral::ManagedObject object = m_Context;
 
-		if(m_OnUpdateMethodHandle > 0)
+		if(m_OnUpdateMethodHandle)
 			object.InvokeMethodByMethodInfo(m_OnUpdateMethodHandle, deltaTime);
+	}
+
+	void ScriptInstance::InvokePhysicsUpdate()
+	{
+		Coral::ManagedObject object = m_Context;
+		if (m_OnPhysicsUpdateMethodHandle)
+			object.InvokeMethodByMethodInfo(m_OnPhysicsUpdateMethodHandle);
+	}
+
+	void ScriptInstance::InvokeCollisionBegin(Entity other)
+	{
+		Coral::ManagedObject object = m_Context;
+		if (m_OnCollisionBeginMethodHandle) 
+		{
+			Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
+			object.InvokeMethodByMethodInfo(m_OnCollisionBeginMethodHandle, entityObject);
+			entityObject.Destroy();
+		}
+	}
+
+	void ScriptInstance::InvokeCollisionEnd(Entity other)
+	{
+		Coral::ManagedObject object = m_Context;
+		if (m_OnCollisionEndMethodHandle)
+		{
+			Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
+			object.InvokeMethodByMethodInfo(m_OnCollisionEndMethodHandle, entityObject);
+			entityObject.Destroy();
+		}
 	}
 
 	void ScriptInstance::CopyFieldFrom(int32_t fieldHandle, Shared<ScriptInstance> source)

@@ -39,8 +39,8 @@ namespace TerranEngine
 
 		static void OnPhysicsBeginContact(Entity collider, Entity collidee);
 		static void OnPhysicsEndContact(Entity collider, Entity collidee);
-		
 		static void OnPhysicsUpdate(Entity entity);
+		
 		static const void* CreateEntityInstance(const UUID& id);
 		static int32_t GetEntityIDFieldHandle();
 
