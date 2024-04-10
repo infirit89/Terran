@@ -468,134 +468,142 @@ namespace TerranEngine
 
 	static Entity DeserializeEntity(YAML::Node data, YAML::Node scene, Shared<Scene> deserializedScene)
 	{
-		UUID id = data["Entity"].as<UUID>();
-		if (!id)
+		try 
 		{
-			TR_ASSERT(false, "Invalid id");
-			return { };
-		}
-
-		Entity entity = deserializedScene->FindEntityWithUUID(id);
-		if (entity) return entity;
-
-		auto tagComponent = data["TagComponent"];
-		if (!tagComponent)
-		{
-			TR_ASSERT(false, "Invalid tag component");
-			return { };
-		}
-
-		std::string name = tagComponent["Tag"].as<std::string>();
-		Entity deserializedEntity = deserializedScene->CreateEntityWithUUID(name, id);
-
-		auto transformComponent = data["TransformComponent"];
-		if (transformComponent) 
-		{
-			auto& tc = deserializedEntity.GetTransform();
-			tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
-			tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
-			tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-
-		auto cameraComponent = data["CameraComponent"];
-		if (cameraComponent) 
-		{
-			auto& cc = deserializedEntity.AddComponent<CameraComponent>();
-			auto camera = cameraComponent["Camera"];
-			cc.Camera.SetOrthographicSize(camera["Size"].as<float>(10.0f));
-			cc.Camera.SetOrthographicNear(camera["Near"].as<float>(-10.0f));
-			cc.Camera.SetOrthographicFar(camera["Far"].as<float>(10.0f));
-
-			cc.Primary = cameraComponent["Primary"].as<bool>(false);
-			cc.BackgroundColor = cameraComponent["ClearColor"].as<glm::vec4>(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-		}
-
-		auto spriteRendererComponent = data["SpriteRendererComponent"];
-		if (spriteRendererComponent) 
-		{
-			auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
-			src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-			src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
-		}
-
-		auto circleRendererComponent = data["CircleRendererComponent"];
-		if (circleRendererComponent) 
-		{
-			auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
-			crc.Color = circleRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-			crc.Thickness = circleRendererComponent["Thickness"].as<float>(1.0f);
-		}
-
-		auto relationshipComponent = data["RelationshipComponent"];
-		if (relationshipComponent) 
-		{
-			// TODO:
-			auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
-			for (auto childID : relationshipComponent["Children"])
+			UUID id = data["Entity"].as<UUID>();
+			if (!id)
 			{
-				UUID deserializedChildID = childID.as<UUID>();
-				Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
-				if (!child)
-				{
-					YAML::Node childNode = FindEntity(scene, deserializedChildID);
-					child = DeserializeEntity(childNode, scene, deserializedScene);
-				}
-
-				if(child)
-					child.SetParent(deserializedEntity, true);
+				TR_ASSERT(false, "Invalid id");
+				return { };
 			}
-		}
 
-		auto scriptComponent = data["ScriptComponent"];
-		if (scriptComponent)
+			Entity entity = deserializedScene->FindEntityWithUUID(id);
+			if (entity) return entity;
+
+			auto tagComponent = data["TagComponent"];
+			if (!tagComponent)
+			{
+				TR_ASSERT(false, "Invalid tag component");
+				return { };
+			}
+
+			std::string name = tagComponent["Tag"].as<std::string>();
+			Entity deserializedEntity = deserializedScene->CreateEntityWithUUID(name, id);
+
+			auto transformComponent = data["TransformComponent"];
+			if (transformComponent)
+			{
+				auto& tc = deserializedEntity.GetTransform();
+				tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+				tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+				tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+
+			auto cameraComponent = data["CameraComponent"];
+			if (cameraComponent)
+			{
+				auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+				auto camera = cameraComponent["Camera"];
+				cc.Camera.SetOrthographicSize(camera["Size"].as<float>(10.0f));
+				cc.Camera.SetOrthographicNear(camera["Near"].as<float>(-10.0f));
+				cc.Camera.SetOrthographicFar(camera["Far"].as<float>(10.0f));
+
+				cc.Primary = cameraComponent["Primary"].as<bool>(false);
+				cc.BackgroundColor = cameraComponent["ClearColor"].as<glm::vec4>(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+			}
+
+			auto spriteRendererComponent = data["SpriteRendererComponent"];
+			if (spriteRendererComponent)
+			{
+				auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
+				src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
+			}
+
+			auto circleRendererComponent = data["CircleRendererComponent"];
+			if (circleRendererComponent)
+			{
+				auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
+				crc.Color = circleRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				crc.Thickness = circleRendererComponent["Thickness"].as<float>(1.0f);
+			}
+
+			auto relationshipComponent = data["RelationshipComponent"];
+			if (relationshipComponent)
+			{
+				// TODO:
+				auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
+				for (auto childID : relationshipComponent["Children"])
+				{
+					UUID deserializedChildID = childID.as<UUID>();
+					Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
+					if (!child)
+					{
+						YAML::Node childNode = FindEntity(scene, deserializedChildID);
+						child = DeserializeEntity(childNode, scene, deserializedScene);
+					}
+
+					if (child)
+						child.SetParent(deserializedEntity, true);
+				}
+			}
+
+			auto scriptComponent = data["ScriptComponent"];
+			if (scriptComponent)
+			{
+				auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
+				sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
+
+				Shared<ScriptInstance> scriptInstance = ScriptEngine::InitializeScriptable(deserializedEntity);
+				auto scriptFields = scriptComponent["Fields"];
+				if (scriptFields)
+					DeserializeScriptFields(scriptInstance, sc, scriptFields);
+			}
+
+			auto boxColliderComponent = data["BoxCollider2DComponent"];
+			if (boxColliderComponent)
+			{
+				auto& bcc = deserializedEntity.AddComponent<BoxCollider2DComponent>();
+				bcc.Offset = boxColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+				bcc.Size = boxColliderComponent["Size"].as<glm::vec2>(glm::vec2(1.0f, 1.0f));
+				bcc.Sensor = boxColliderComponent["Sensor"].as<bool>(false);
+			}
+
+			auto circleColliderComponent = data["CircleCollider2DComponent"];
+			if (circleRendererComponent)
+			{
+				auto& ccc = deserializedEntity.AddComponent<CircleCollider2DComponent>();
+				ccc.Offset = circleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+				ccc.Radius = circleColliderComponent["Radius"].as<float>(0.5f);
+				ccc.Sensor = circleColliderComponent["Sensor"].as<bool>(false);
+			}
+
+			auto rigidbodyComponent = data["Rigidbody2DComponent"];
+			if (rigidbodyComponent)
+			{
+				auto& rbc = deserializedEntity.AddComponent<Rigidbody2DComponent>();
+				rbc.BodyType = PhysicsBodyTypeFromString(rigidbodyComponent["BodyType"].as<std::string>());
+				rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
+				rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
+				rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
+			}
+
+			auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
+			if (capsuleColliderComponent)
+			{
+				auto& ccc = deserializedEntity.AddComponent<CapsuleCollider2DComponent>();
+				ccc.Offset = capsuleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+				ccc.Size = capsuleColliderComponent["Size"].as<glm::vec2>(glm::vec2(0.5f, 1.0f));
+				ccc.Sensor = capsuleColliderComponent["Sensor"].as<bool>(false);
+			}
+
+			return deserializedEntity;
+		}
+		catch (const YAML::InvalidNode& ex) 
 		{
-			auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
-			sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
-
-			Shared<ScriptInstance> scriptInstance = ScriptEngine::InitializeScriptable(deserializedEntity);
-			auto scriptFields = scriptComponent["Fields"];
-			if (scriptFields)
-				DeserializeScriptFields(scriptInstance, sc, scriptFields);
+			TR_ERROR(ex.what());
+			return Entity();
 		}
-
-		auto boxColliderComponent = data["BoxCollider2DComponent"];
-		if (boxColliderComponent) 
-		{
-			auto& bcc = deserializedEntity.AddComponent<BoxCollider2DComponent>();
-			bcc.Offset = boxColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
-			bcc.Size = boxColliderComponent["Size"].as<glm::vec2>(glm::vec2(1.0f, 1.0f));
-			bcc.Sensor = boxColliderComponent["Sensor"].as<bool>(false);
-		}
-
-		auto circleColliderComponent = data["CircleCollider2DComponent"];
-		if (circleRendererComponent) 
-		{
-			auto& ccc = deserializedEntity.AddComponent<CircleCollider2DComponent>();
-			ccc.Offset = circleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
-			ccc.Radius = circleColliderComponent["Radius"].as<float>(0.5f);
-			ccc.Sensor = circleColliderComponent["Sensor"].as<bool>(false);
-		}
-
-		auto rigidbodyComponent = data["Rigidbody2DComponent"];
-		if (rigidbodyComponent) 
-		{
-			auto& rbc = deserializedEntity.AddComponent<Rigidbody2DComponent>();
-			rbc.BodyType = PhysicsBodyTypeFromString(rigidbodyComponent["BodyType"].as<std::string>());
-			rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
-			rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
-			rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
-		}
-		
-		auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
-		if (capsuleColliderComponent)
-		{
-			auto& ccc = deserializedEntity.AddComponent<CapsuleCollider2DComponent>();
-			ccc.Offset = capsuleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
-			ccc.Size = capsuleColliderComponent["Size"].as<glm::vec2>(glm::vec2(0.5f, 1.0f));
-			ccc.Sensor = capsuleColliderComponent["Sensor"].as<bool>(false);
-		}
-
-		return deserializedEntity;
 	}
 
 	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
@@ -616,7 +624,8 @@ namespace TerranEngine
 		{
 			for (auto entity : entities)
 			{
-				DeserializeEntity(entity, entities, m_Scene);
+				if (!DeserializeEntity(entity, entities, m_Scene))
+					return false;
 			}
 		}
 
