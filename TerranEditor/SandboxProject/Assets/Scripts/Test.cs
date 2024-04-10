@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using Terran;
 
 namespace ScriptAssembly
 {
 #nullable enable
     internal class Test : Scriptable
-	{
+    {
         //public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
         public int[] TestArr = new[] { 1, 2, 3, 4, 5 };
         public Entity[] TestEntityArr = new Entity[6];
@@ -46,19 +39,21 @@ namespace ScriptAssembly
         //      public Entity TestEntity;
 
         protected override void Init()
-		{
+        {
             RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(Entity.Transform.Position, Vector2.Down, 30.0f);
             Log.Trace(hitInfos.Length);
 
-            foreach(var hitInfo in hitInfos)
+            foreach (var hitInfo in hitInfos)
             {
                 Log.Trace(hitInfo.Point);
                 Log.Trace(hitInfo.Normal);
 
-                if(hitInfo.Rigidbody != null)
+                if (hitInfo.Rigidbody != null)
                     Log.Trace(hitInfo.Rigidbody.Entity.Name);
             }
-
+            Console.WriteLine("10");
+            Log.Trace(1);
+            Log.Warn(2);
             //Log.Trace(rb.SleepState);
             //rb.SleepState = RigidbodySleepState.NeverSleep;
 
@@ -73,8 +68,8 @@ namespace ScriptAssembly
             //cr.Text = "Test test test this is a test";
         }
 
-		protected override void Update(float deltaTime)
-		{
+        protected override void Update(float deltaTime)
+        {
             //if (Input.IsKeyDown(KeyCode.A))
             //    Log.Warn("A is down");
 
@@ -97,7 +92,8 @@ namespace ScriptAssembly
             //    Log.Warn("Right button released");
 
             //Log.Warn(Input.GetMousePosition());
+            Log.Trace("chep");
         }
-	}
+    }
 #nullable disable
 }
