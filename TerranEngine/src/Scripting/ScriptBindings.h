@@ -13,14 +13,6 @@
 #include <Coral/ManagedArray.hpp>
 #include <glm/glm.hpp>
 
-extern "C" 
-{
-	typedef struct _MonoString MonoString;
-	typedef struct _MonoArray MonoArray;
-	typedef struct _MonoObject MonoObject;
-	typedef struct _MonoReflectionType MonoReflectionType;
-}
-
 namespace TerranEngine 
 {
 	class ScriptBindings
@@ -37,20 +29,20 @@ namespace TerranEngine
 
 		// ---- Input ----
 		#pragma region Input
-		static bool Input_KeyPressedICall(Key keyCode);
-		static bool Input_KeyDownICall(Key keyCode);
-		static bool Input_KeyReleasedICall(Key keyCode);
+		static void Input_KeyPressedICall(Key keyCode, bool& isPressed);
+		static void Input_KeyDownICall(Key keyCode, bool& isDown);
+		static void Input_KeyReleasedICall(Key keyCode, bool& isReleased);
 
 		static bool Input_MouseButtonPressedICall(MouseButton mouseButton);
 		static bool Input_MouseButtonDownICall(MouseButton mouseButton);
 		static bool Input_MouseButtonReleasedICall(MouseButton mouseButton);
 		static void Input_GetMousePositionICall(glm::vec2& outMousePosition);
 
-		static bool Input_IsControllerConnected(uint8_t controllerIndex);
-		static Coral::String Input_GetControllerName(uint8_t controllerIndex);
-		static bool Input_IsControllerButtonPressed(uint8_t controllerIndex, ControllerButton controllerButton);
-		static float Input_GetControllerAxis(uint8_t controllerIndex, ControllerAxis controllerAxis);
-		static void* Input_GetConnectedControllers();
+		static bool Input_IsControllerConnectedICall(uint8_t controllerIndex);
+		static Coral::String Input_GetControllerNameICall(uint8_t controllerIndex);
+		static bool Input_IsControllerButtonPressedICall(uint8_t controllerIndex, ControllerButton controllerButton);
+		static float Input_GetControllerAxisICall(uint8_t controllerIndex, ControllerAxis controllerAxis);
+		static void* Input_GetConnectedControllersICall();
 		#pragma endregion
 		// ---------------
 

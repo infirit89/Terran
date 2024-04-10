@@ -25,9 +25,6 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-#include <mono/metadata/object.h>
-#include <mono/metadata/reflection.h>
-
 #include <box2d/box2d.h>
 
 #include <Coral/Type.hpp>
@@ -88,11 +85,11 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
 		BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
 
-		BIND_INTERNAL_FUNC(Input_IsControllerConnected);
-		BIND_INTERNAL_FUNC(Input_GetControllerName);
-		BIND_INTERNAL_FUNC(Input_IsControllerButtonPressed);
-		BIND_INTERNAL_FUNC(Input_GetControllerAxis);
-		BIND_INTERNAL_FUNC(Input_GetConnectedControllers);
+		BIND_INTERNAL_FUNC(Input_IsControllerConnectedICall);
+		BIND_INTERNAL_FUNC(Input_GetControllerNameICall);
+		BIND_INTERNAL_FUNC(Input_IsControllerButtonPressedICall);
+		BIND_INTERNAL_FUNC(Input_GetControllerAxisICall);
+		BIND_INTERNAL_FUNC(Input_GetConnectedControllersICall);
 		#pragma endregion
 		// ---------------
 
@@ -254,19 +251,19 @@ namespace TerranEngine
 
 	// ---- Input ----
 	#pragma region Input
-	bool ScriptBindings::Input_KeyPressedICall(Key keyCode)
+	void ScriptBindings::Input_KeyPressedICall(Key keyCode, bool& isPressed)
 	{
-		return Input::IsKeyPressed(keyCode);
+		isPressed = Input::IsKeyPressed(keyCode);
 	}
 
-	bool ScriptBindings::Input_KeyDownICall(Key keyCode)
+	void ScriptBindings::Input_KeyDownICall(Key keyCode, bool& isDown)
 	{
-		return Input::IsKeyDown(keyCode);
+		isDown = Input::IsKeyDown(keyCode);
 	}
 
-	bool ScriptBindings::Input_KeyReleasedICall(Key keyCode)
+	void ScriptBindings::Input_KeyReleasedICall(Key keyCode, bool& isReleased)
 	{
-		return Input::IsKeyReleased(keyCode);
+		isReleased = Input::IsKeyReleased(keyCode);
 	}
 
 	bool ScriptBindings::Input_MouseButtonPressedICall(MouseButton mouseButton)
@@ -289,24 +286,24 @@ namespace TerranEngine
 		outMousePosition = Input::GetMousePos();
 	}
 
-	bool ScriptBindings::Input_IsControllerConnected(uint8_t controllerIndex)
+	bool ScriptBindings::Input_IsControllerConnectedICall(uint8_t controllerIndex)
 	{
 		return Input::IsControllerConnected(controllerIndex);
 	}
 
-	Coral::String ScriptBindings::Input_GetControllerName(uint8_t controllerIndex)
+	Coral::String ScriptBindings::Input_GetControllerNameICall(uint8_t controllerIndex)
 	{
 		return Coral::String::New(Input::GetControllerName(controllerIndex));
 	}
-	bool ScriptBindings::Input_IsControllerButtonPressed(uint8_t controllerIndex, ControllerButton controllerButton)
+	bool ScriptBindings::Input_IsControllerButtonPressedICall(uint8_t controllerIndex, ControllerButton controllerButton)
 	{
 		return Input::IsControllerButtonPressed(controllerButton, controllerIndex);
 	}
-	float ScriptBindings::Input_GetControllerAxis(uint8_t controllerIndex, ControllerAxis controllerAxis)
+	float ScriptBindings::Input_GetControllerAxisICall(uint8_t controllerIndex, ControllerAxis controllerAxis)
 	{
 		return Input::GetControllerAxis(controllerAxis, controllerIndex);
 	}
-	void* ScriptBindings::Input_GetConnectedControllers()
+	void* ScriptBindings::Input_GetConnectedControllersICall()
 	{
 		std::vector<uint8_t> connectedControllers = Input::GetConnectedControllers();
 		Coral::Type* byteType = Coral::TypeCache::Get().GetTypeByName("System.Byte");
@@ -463,6 +460,17 @@ namespace TerranEngine
 	#pragma endregion
 	// -----------------------
 
+#define SET_TRANSFORM_COMPONENT_PROPERTY(Property, Value)\
+	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);\
+	if(!entity)\
+	{\
+		TR_ERROR("Invalid entity id");\
+		return;\
+	}\
+	TransformComponent& component = entity.GetComponent<TransformComponent>();\
+	component.Property = Value;\
+	component.IsDirty = true
+
 // bullshit?
 #define SET_COMPONENT_PROPERTY(ComponentType, Property, Value)					\
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
@@ -501,7 +509,7 @@ namespace TerranEngine
 
 	void ScriptBindings::Transform_SetPositionICall(const UUID& id, const glm::vec3& position)
 	{
-		SET_COMPONENT_PROPERTY(TransformComponent, Position, position);
+		SET_TRANSFORM_COMPONENT_PROPERTY(Position, position);
 	}
 
 	glm::vec3 ScriptBindings::Transform_GetRotationICall(const UUID& id) 
@@ -511,7 +519,7 @@ namespace TerranEngine
 
 	void ScriptBindings::Transform_SetRotationICall(const UUID& id, const glm::vec3& rotation)
 	{
-		SET_COMPONENT_PROPERTY(TransformComponent, Rotation, rotation);
+		SET_TRANSFORM_COMPONENT_PROPERTY(Rotation, rotation);
 	}
 
 	glm::vec3 ScriptBindings::Transform_GetScaleICall(const UUID& id) 
@@ -519,9 +527,9 @@ namespace TerranEngine
 		GET_COMPONENT_PROPERTY(TransformComponent, Scale, glm::vec3(1.0f, 1.0f, 1.0f));
 	}
 
-	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& scale) 
+	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& scale)
 	{
-		SET_COMPONENT_PROPERTY(TransformComponent, Scale, scale);
+		SET_TRANSFORM_COMPONENT_PROPERTY(Scale, scale);
 	}
 
 	bool ScriptBindings::Transform_IsDirtyICall(const UUID& id) 
