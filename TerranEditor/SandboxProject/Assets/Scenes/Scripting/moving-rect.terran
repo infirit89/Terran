@@ -1,6 +1,6 @@
 SerializerVersion: yml1.0
 Entities:
-  - Entity: 0770eba5-2dc4-4f0b-b4b7-403cba0af557
+  - Entity: 61559a8b-79fb-4238-bf55-013781b19770
     TagComponent:
       Tag: Camera
     TransformComponent:
@@ -14,7 +14,7 @@ Entities:
         Far: 10
       Primary: true
       ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
-  - Entity: 3de24c9d-6e7e-4944-9714-274122438ac5
+  - Entity: 196281b9-02f6-40cf-9e69-e043486ddeb4
     TagComponent:
       Tag: Entity
     TransformComponent:
@@ -22,11 +22,12 @@ Entities:
       Scale: [1, 1, 1]
       Rotation: [0, 0, 0]
     SpriteRendererComponent:
-      Color: [0.986842096, 0.186114952, 0.186114952, 1]
+      Color: [1, 1, 1, 1]
       Texture: 00000000-0000-0000-0000-000000000000
     ScriptComponent:
-      ModuleName: ScriptAssembly.Test
-      Fields:
-        - TestArr: [1, 2, 3, 4, 5]
-        - TestEntityArr: [0bd74567-7a69-4103-8b0e-a8b6f7369df4, 961c2eca-0a37-47ce-8190-6cab4c052287, 6a4bb04e-1c6f-43ea-b6f8-628c1e494d5a, 188272ba-d645-43d7-a221-6b3b871af690, 96cc67e4-ba4b-4ef0-b6f9-f6529ad28419, fa9ec3ae-b3fa-4c60-915d-910fb3b5bbb9]
-        - E: 3de24c9d-6e7e-4944-9714-274122438ac5
+      ModuleName: ScriptAssembly.Test3
+    Rigidbody2DComponent:
+      BodyType: Kinematic
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
