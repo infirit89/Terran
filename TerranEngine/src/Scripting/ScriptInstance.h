@@ -163,6 +163,9 @@ namespace TerranEngine
 
 		void InvokeInit();
 		void InvokeUpdate(float deltaTime);
+		void InvokePhysicsUpdate();
+		void InvokeCollisionBegin(Entity other);
+		void InvokeCollisionEnd(Entity other);
 
 		void CopyFieldFrom(int32_t fieldHandle, Shared<ScriptInstance> source);
 		void CopyAllFieldsFrom(Shared<ScriptInstance> source);
@@ -181,6 +184,9 @@ namespace TerranEngine
 		const void* m_Context;
 		int32_t m_OnInitMethodHandle;
 		int32_t m_OnUpdateMethodHandle;
+		int32_t m_OnPhysicsUpdateMethodHandle;
+		int32_t m_OnCollisionBeginMethodHandle;
+		int32_t m_OnCollisionEndMethodHandle;
 		std::unordered_map<int32_t, ScriptField> m_Fields;
 		mutable std::unordered_map<int32_t, ScriptObject> m_FieldObjects;
 

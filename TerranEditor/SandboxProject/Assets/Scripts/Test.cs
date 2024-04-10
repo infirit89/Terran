@@ -7,19 +7,6 @@ namespace ScriptAssembly
     internal class Test : Scriptable
     {
         //public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
-        public int[] TestArr = new[] { 1, 2, 3, 4, 5 };
-        public Entity[] TestEntityArr = new Entity[6];
-        public int[,] TestArr2 = new int[2, 2]
-        {
-            { 1, 2 }, { 3, 4 }
-        };
-        public int[,,] TestArr3 = new int[2, 2, 2]
-        {
-            { { 1, 2 }, { 1, 2 }, }, { { 3, 4 }, { 3, 4 } }
-        };
-
-        public Entity E;
-
         //public bool TestBool = false;
         //      public byte TestB = 10;
         //      public sbyte TestSB = -10;
@@ -38,61 +25,29 @@ namespace ScriptAssembly
         //      public string TestStr = "This is a test string! Will it show up?";
         //      public Entity TestEntity;
 
+        public bool IsGrounded = false;
+
         protected override void Init()
-        {
-            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(Entity.Transform.Position, Vector2.Down, 30.0f);
-            Log.Trace(hitInfos.Length);
-
-            foreach (var hitInfo in hitInfos)
-            {
-                Log.Trace(hitInfo.Point);
-                Log.Trace(hitInfo.Normal);
-
-                if (hitInfo.Rigidbody != null)
-                    Log.Trace(hitInfo.Rigidbody.Entity.Name);
-            }
-            Console.WriteLine("10");
-            Log.Trace(1);
-            Log.Warn(2);
-            //Log.Trace(rb.SleepState);
-            //rb.SleepState = RigidbodySleepState.NeverSleep;
-
-            //Log.Trace(rb.GravityScale);
-            //rb.GravityScale += 10.0f;
-
-            //TextRenderer? cr = Entity.GetComponent<TextRenderer>();
-            //Log.Trace(cr.Color);
-            //cr.Color = Color.Cyan;
-
-            //Log.Trace(cr.Text);
-            //cr.Text = "Test test test this is a test";
+		{
         }
 
-        protected override void Update(float deltaTime)
+		protected override void Update(float deltaTime)
+		{
+        }
+
+        protected override void PhysicsUpdate()
         {
-            //if (Input.IsKeyDown(KeyCode.A))
-            //    Log.Warn("A is down");
+            Log.Trace("physics update");
+        }
 
-            //if (Input.IsKeyPressed(KeyCode.S))
-            //    Log.Warn("S is pressed");
+        protected override void OnCollisionBegin(Entity entity)
+        {
+            Log.Trace(entity.Name);
+        }
 
-            //if (Input.IsKeyReleased(KeyCode.D))
-            //    Log.Warn("D is pressed");
-
-            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
-            //    Log.Warn("Left button down");
-
-            //if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
-            //{
-            //    Log.Warn("Middle button pressed");
-            //    Log.Warn(Input.GetMousePosition());
-            //}
-
-            //if (Input.IsMouseButtonReleased(MouseButton.RightButton))
-            //    Log.Warn("Right button released");
-
-            //Log.Warn(Input.GetMousePosition());
-            Log.Trace("chep");
+        protected override void OnCollisionEnd(Entity entity)
+        {
+            Log.Trace(entity.Name);
         }
     }
 #nullable disable
