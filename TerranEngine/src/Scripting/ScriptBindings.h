@@ -46,11 +46,11 @@ namespace TerranEngine
 		static bool Input_MouseButtonReleasedICall(MouseButton mouseButton);
 		static void Input_GetMousePositionICall(glm::vec2& outMousePosition);
 
-		static bool Input_IsControllerConnected(uint8_t controllerIndex);
-		static Coral::String Input_GetControllerName(uint8_t controllerIndex);
-		static bool Input_IsControllerButtonPressed(uint8_t controllerIndex, ControllerButton controllerButton);
-		static float Input_GetControllerAxis(uint8_t controllerIndex, ControllerAxis controllerAxis);
-		static void* Input_GetConnectedControllers();
+		static bool Input_IsControllerConnectedICall(uint8_t controllerIndex);
+		static Coral::String Input_GetControllerNameICall(uint8_t controllerIndex);
+		static bool Input_IsControllerButtonPressedICall(uint8_t controllerIndex, ControllerButton controllerButton);
+		static float Input_GetControllerAxisICall(uint8_t controllerIndex, ControllerAxis controllerAxis);
+		static void* Input_GetConnectedControllersICall();
 		#pragma endregion
 		// ---------------
 
