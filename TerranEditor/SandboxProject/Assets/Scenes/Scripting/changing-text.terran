@@ -1,6 +1,6 @@
 SerializerVersion: yml1.0
 Entities:
-  - Entity: d2fab1f8-56aa-474f-a505-bff941196f1b
+  - Entity: c93f5acb-40ce-4af6-b2bd-459a6db80c38
     TagComponent:
       Tag: Camera
     TransformComponent:
@@ -14,17 +14,15 @@ Entities:
         Far: 10
       Primary: true
       ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
-  - Entity: 3bcc27a1-d0df-4c0d-8aa2-330f6dedff5b
+  - Entity: 00237564-5169-45d1-b8fd-329d3a848d22
     TagComponent:
       Tag: Entity
     TransformComponent:
-      Position: [0, 0, 0]
+      Position: [-6.5999999, 0, 0]
       Scale: [1, 1, 1]
       Rotation: [0, 0, 0]
-    SpriteRendererComponent:
+    TextRendererCompoent:
       Color: [1, 1, 1, 1]
-      Texture: 00000000-0000-0000-0000-000000000000
+      Text: Very good, i come pick u up now
     ScriptComponent:
-      ModuleName: ScriptAssembly.Test2
-      Fields:
-        - Test: 10
+      ModuleName: ScriptAssembly.Test4
