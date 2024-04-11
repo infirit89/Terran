@@ -132,6 +132,13 @@ namespace Terran
         internal static unsafe delegate* unmanaged<in UUID, in Color, void> TextRenderer_SetColorICall = default;
         internal static unsafe delegate* unmanaged<in UUID, NativeString> TextRenderer_GetTextICall = default;
         internal static unsafe delegate* unmanaged<in UUID, NativeString, void> TextRenderer_SetTextICall = default;
+		#endregion
+
+		#region
+		internal static unsafe delegate* unmanaged<float> Window_GetWidthICall = default;
+		internal static unsafe delegate* unmanaged<float> Window_GetHeightICall = default;
+		internal static unsafe delegate* unmanaged<bool> Window_IsVSyncICall = default;
+		internal static unsafe delegate* unmanaged<Vector2> Window_GetContentScaleICall = default;
         #endregion
     }
 }

@@ -10,6 +10,7 @@
 //#include "ManagedMethodThunks.h"
 
 #include "Core/Input.h"
+#include "Core/Application.h"
 
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
@@ -653,6 +654,29 @@ namespace TerranEngine
 	#pragma endregion
 	// ---------------------------------
 
+	// ---- Window ----
+	#pragma region Window
+	float ScriptBindings::Window_GetWidthICall() 
+	{
+		return Application::Get()->GetWindow().GetWidth();
+	}
+
+	float ScriptBindings::Window_GetHeightICall() 
+	{
+		return Application::Get()->GetWindow().GetWidth();
+	}
+
+	bool ScriptBindings::Window_IsVSyncICall() 
+	{
+		return Application::Get()->GetWindow().IsVsync();
+	}
+
+	glm::vec2 ScriptBindings::Window_GetContentScaleICall() 
+	{
+		return Application::Get()->GetWindow().GetContentScale();
+	}
+	#pragma endregion
+	// ----------------
 
 	// ---- Physics ----
 	Coral::String ScriptBindings::LayerMask_GetNameICall(uint16_t layer)

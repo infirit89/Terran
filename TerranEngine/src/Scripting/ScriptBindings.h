@@ -199,5 +199,14 @@ namespace TerranEngine
 		static void TextRenderer_SetTextICall(const UUID& id, Coral::String text);
 		#pragma endregion
 		// ---------------------------------
+
+		// ---- Window ----
+		#pragma region Window
+		static float Window_GetWidthICall();
+		static float Window_GetHeightICall();
+		static bool Window_IsVSyncICall();
+		static glm::vec2 Window_GetContentScaleICall();
+		#pragma endregion
+		// ----------------
 	};
 }

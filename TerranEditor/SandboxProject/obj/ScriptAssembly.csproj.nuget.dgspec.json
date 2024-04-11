@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\PC\\Downloads\\terran\\Terran\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {}
+    "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {}
   },
   "projects": {
-    "C:\\Users\\PC\\Downloads\\terran\\Terran\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {
+    "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\PC\\Downloads\\terran\\Terran\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
+        "projectUniqueName": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
         "projectName": "ScriptAssembly",
-        "projectPath": "C:\\Users\\PC\\Downloads\\terran\\Terran\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
-        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\PC\\Downloads\\terran\\Terran\\TerranEditor\\SandboxProject\\obj\\",
+        "projectPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
+        "packagesPath": "C:\\Users\\georg\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -60,7 +60,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.104/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
