@@ -44,6 +44,12 @@ AssetInfos:
   - Asset: 1b9f31ab-3187-4ff3-b45b-a791d1a1f5e3
     Type: 4
     Path: Scenes\TestScene7.terran
+  - Asset: fdd323d4-4f70-4974-8fe7-f71486e59fa7
+    Type: 4
+    Path: Scenes\Scripting\changing-text.terran
+  - Asset: e3d59fd2-f5bc-4ff5-b045-0973e91b11d4
+    Type: 3
+    Path: ""
   - Asset: 39e9e8ca-e6c9-48ee-9b31-1b278bbfae06
     Type: 4
     Path: Scenes\TestScene8.terran
@@ -56,6 +62,9 @@ AssetInfos:
   - Asset: 3052c3bb-c2a2-4ee5-807e-b065c2e9c96d
     Type: 1
     Path: test.png
+  - Asset: cfb01cce-df31-4dca-b414-874bbc7efabf
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: 0d7008db-0eb4-47c2-a99c-2f8a79943191
     Type: 5
     Path: New Physics Material.trpm2d
@@ -95,3 +104,12 @@ AssetInfos:
   - Asset: 0b3e2dec-e868-4e6a-89b3-53347a7a20ed
     Type: 4
     Path: Scenes\TestScene13.terran
+  - Asset: cd2ad124-676a-4294-a413-b65756e076b7
+    Type: 3
+    Path: Scripts\Test3.cs
+  - Asset: d094fe31-5a78-4fcf-8b80-5aee5eb7b79b
+    Type: 4
+    Path: Scenes\Scripting\moving-rect.terran
+  - Asset: 954c3ea3-45a7-48fe-8de4-9c8008c79d41
+    Type: 3
+    Path: Scripts\Test5.cs
