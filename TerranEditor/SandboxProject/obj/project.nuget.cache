@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "X202G4c0ZA5iSq+VuC+rcYs3j7bDRb6RVw53SzzI2oRzV2VNLsqOIJEihEeJTWEU1fTgmJfiFAg446NSNFrl1w==",
+  "dgSpecHash": "MVqR0iGA3gKTruaNZpGDmZkFvaWL7tGEtOm3VeYOiIiPaghoAeQod1hZgYO/2bJi4FwT+OYQuPZqknfbqc2UYA==",
   "success": true,
-  "projectFilePath": "D:\\Projects\\github\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
+  "projectFilePath": "C:\\Projects\\terran\\terran-dotnet\\TerranEditor\\SandboxProject\\ScriptAssembly.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

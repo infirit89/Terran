@@ -40,32 +40,8 @@ namespace ScriptAssembly
 
         protected override void Init()
         {
-            RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(Entity.Transform.Position, Vector2.Down, 30.0f);
-            Log.Trace(hitInfos.Length);
-
-            foreach (var hitInfo in hitInfos)
-            {
-                Log.Trace(hitInfo.Point);
-                Log.Trace(hitInfo.Normal);
-
-                if (hitInfo.Rigidbody != null)
-                    Log.Trace(hitInfo.Rigidbody.Entity.Name);
-            }
-            Console.WriteLine("10");
-            Log.Trace(1);
-            Log.Warn(2);
-            //Log.Trace(rb.SleepState);
-            //rb.SleepState = RigidbodySleepState.NeverSleep;
-
-            //Log.Trace(rb.GravityScale);
-            //rb.GravityScale += 10.0f;
-
-            //TextRenderer? cr = Entity.GetComponent<TextRenderer>();
-            //Log.Trace(cr.Color);
-            //cr.Color = Color.Cyan;
-
-            //Log.Trace(cr.Text);
-            //cr.Text = "Test test test this is a test";
+            SpriteRenderer sp = Entity.GetComponent<SpriteRenderer>();
+            Log.Trace(sp.Color);
         }
 
         protected override void Update(float deltaTime)
