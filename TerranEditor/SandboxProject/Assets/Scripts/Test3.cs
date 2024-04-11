@@ -28,8 +28,9 @@ namespace ScriptAssembly
             Log.Trace(_Index);
             //Log.Trace(_Vectors[_Index]);
 
-            Entity.GetComponent<SpriteRenderer>().Color = _Index % 2 == 0 ? Color.Blue : Color.Red;
+            Entity.GetComponent<SpriteRenderer>().Color = _Index % 2 == 0 ? Color.Green : Color.Blue;
             Entity.Transform.Position = _Vectors[_Index];
+            Log.Trace(Entity.Transform.IsDirty);
             Log.Trace(Entity.Transform.IsDirty);
 
             _Index++;
