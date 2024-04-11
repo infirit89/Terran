@@ -38,7 +38,6 @@ project "TerranEngine"
         "%{IncludeDirectories.entt}",
         "%{IncludeDirectories.msdfgen}",
         "%{IncludeDirectories.msdf_atlas_gen}",
-        "%{IncludeDirectories.mono}",
         "%{IncludeDirectories.box2d}",
         "%{IncludeDirectories.optick}",
         "%{IncludeDirectories.yaml}",
@@ -57,7 +56,6 @@ project "TerranEngine"
         "OptickCore",
         "yaml-cpp",
         "Coral.Native",
-        "%{Libraries.mono_static}",
         "%{Libraries.shaderc}"
     }
 

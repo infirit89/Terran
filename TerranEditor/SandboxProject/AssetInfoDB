@@ -89,6 +89,9 @@ AssetInfos:
   - Asset: a48774c7-ec12-464b-a12b-67054e1dbd80
     Type: 4
     Path: ScriptTEst.terran
+  - Asset: a43f53cb-729c-4766-b08a-3be74a40b176
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: c219bf28-7434-456c-8a23-481de70b8e40
     Type: 4
     Path: ScriptTest2.terran

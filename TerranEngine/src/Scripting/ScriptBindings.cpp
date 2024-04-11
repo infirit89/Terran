@@ -25,9 +25,6 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-#include <mono/metadata/object.h>
-#include <mono/metadata/reflection.h>
-
 #include <box2d/box2d.h>
 
 #include <Coral/Type.hpp>
@@ -463,6 +460,17 @@ namespace TerranEngine
 	#pragma endregion
 	// -----------------------
 
+#define SET_TRANSFORM_COMPONENT_PROPERTY(Property, Value)\
+	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);\
+	if(!entity)\
+	{\
+		TR_ERROR("Invalid entity id");\
+		return;\
+	}\
+	TransformComponent& component = entity.GetComponent<TransformComponent>();\
+	component.Property = Value;\
+	component.IsDirty = true
+
 // bullshit?
 #define SET_COMPONENT_PROPERTY(ComponentType, Property, Value)					\
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
@@ -531,7 +539,7 @@ namespace TerranEngine
 		GET_COMPONENT_PROPERTY(TransformComponent, Scale, glm::vec3(1.0f, 1.0f, 1.0f));
 	}
 
-	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& scale) 
+	void ScriptBindings::Transform_SetScaleICall(const UUID& id, const glm::vec3& scale)
 	{
 		SET_TRANSFORM_COMPONENT_PROPERTY(Scale, scale);
 	}

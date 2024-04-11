@@ -7,19 +7,6 @@ namespace ScriptAssembly
     internal class Test : Scriptable
     {
         //public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
-        public int[] TestArr = new[] { 1, 2, 3, 4, 5 };
-        public Entity[] TestEntityArr = new Entity[6];
-        public int[,] TestArr2 = new int[2, 2]
-        {
-            { 1, 2 }, { 3, 4 }
-        };
-        public int[,,] TestArr3 = new int[2, 2, 2]
-        {
-            { { 1, 2 }, { 1, 2 }, }, { { 3, 4 }, { 3, 4 } }
-        };
-
-        public Entity E;
-
         //public bool TestBool = false;
         //      public byte TestB = 10;
         //      public sbyte TestSB = -10;
@@ -38,7 +25,32 @@ namespace ScriptAssembly
         //      public string TestStr = "This is a test string! Will it show up?";
         //      public Entity TestEntity;
 
+        public bool IsGrounded = false;
+
         protected override void Init()
+<<<<<<< HEAD
+		{
+        }
+
+		protected override void Update(float deltaTime)
+		{
+        }
+
+        protected override void PhysicsUpdate()
+        {
+            Log.Trace("physics update");
+        }
+
+        protected override void OnCollisionBegin(Entity entity)
+        {
+            Log.Trace(entity.Name);
+        }
+
+        protected override void OnCollisionEnd(Entity entity)
+        {
+            Log.Trace(entity.Name);
+        }
+=======
         {
             RayCastHitInfo2D[] hitInfos = Physics2D.RayCastAll(Entity.Transform.Position, Vector2.Down, 30.0f);
             Log.Trace(hitInfos.Length);
@@ -94,6 +106,7 @@ namespace ScriptAssembly
             //Log.Warn(Input.GetMousePosition());
             Log.Trace("chep");
         }
+>>>>>>> 4ec76f3a0e9e85761747c042a8563ff94d1899d5
     }
 #nullable disable
 }
