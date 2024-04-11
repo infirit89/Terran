@@ -70,6 +70,7 @@ namespace TerranEngine
 		
 		static inline Shared<spdlog::logger> GetClientLogger() { return s_ClientLogger; }
 		static inline void SetClientLogger(Shared<spdlog::logger> logger) { s_ClientLogger = logger; }
+		static std::string GetFormattedFileLoggerName(std::string_view loggerName);
 
 	private:
 		static Shared<spdlog::logger> s_CoreLogger;

@@ -32,6 +32,9 @@ AssetInfos:
   - Asset: f9011f22-ab0e-4fdd-a77d-43d9d1641ebb
     Type: 4
     Path: Scenes\TestScene2.terran
+  - Asset: cea14fda-890e-4e3c-bee7-0aedcb07a297
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: ea033a41-55b7-4382-b40f-c04505fd1566
     Type: 4
     Path: Scenes\TestScene3.terran
@@ -110,15 +113,12 @@ AssetInfos:
   - Asset: 0b3e2dec-e868-4e6a-89b3-53347a7a20ed
     Type: 4
     Path: Scenes\TestScene13.terran
-  - Asset: cd2ad124-676a-4294-a413-b65756e076b7
-    Type: 3
-    Path: Scripts\Test3.cs
-  - Asset: d094fe31-5a78-4fcf-8b80-5aee5eb7b79b
+  - Asset: a37b3dbc-61e4-46f9-a46d-0342380b6001
+    Type: 4
+    Path: Scenes\Scripting\changing-text.terran
+  - Asset: 8b752851-aec8-4576-aad6-d5432d2bb054
     Type: 4
     Path: Scenes\Scripting\moving-rect.terran
-  - Asset: 954c3ea3-45a7-48fe-8de4-9c8008c79d41
+  - Asset: 3ad4a227-46a4-466d-be20-3572e7fca122
     Type: 3
     Path: Scripts\Test3.cs
-  - Asset: 1d16fca9-3c7a-44f9-9c01-bec8c66e80f5
-    Type: 4
-    Path: Scenes\Test\cum.terran

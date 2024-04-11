@@ -7,8 +7,9 @@ namespace ScriptAssembly
         public Entity Tomaaaaa;
 
         protected override void Init()
-<<<<<<< HEAD
-		{
+        {
+            SpriteRenderer sp = Entity.GetComponent<SpriteRenderer>();
+            Log.Trace(sp.Color);
         }
 
 		protected override void Update(float deltaTime)
