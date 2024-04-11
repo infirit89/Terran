@@ -17,6 +17,9 @@ AssetInfos:
   - Asset: df428e6e-1f1d-4ca4-a368-bf5cac1da716
     Type: 3
     Path: Scripts\Pong\Ball.cs
+  - Asset: c09381ab-2a58-4d7c-a8a4-d624106234c5
+    Type: 3
+    Path: Scripts\Test6.cs
   - Asset: 96ccaa8f-2571-4c9e-b9d2-0ba2d7234479
     Type: 3
     Path: Scripts\Pong\CollisionUtils.cs
@@ -44,9 +47,9 @@ AssetInfos:
   - Asset: 1b9f31ab-3187-4ff3-b45b-a791d1a1f5e3
     Type: 4
     Path: Scenes\TestScene7.terran
-  - Asset: c203c7dd-921c-4318-9332-eec9763be452
-    Type: 3
-    Path: Scripts\Test.cs
+  - Asset: fdd323d4-4f70-4974-8fe7-f71486e59fa7
+    Type: 4
+    Path: Scenes\Scripting\changing-text.terran
   - Asset: 39e9e8ca-e6c9-48ee-9b31-1b278bbfae06
     Type: 4
     Path: Scenes\TestScene8.terran
