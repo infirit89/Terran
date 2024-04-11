@@ -1,0 +1,28 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 6021a6a7-c791-4c45-84ef-24da026b22b6
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: 02c5f2c7-5623-47f3-aeca-4d51917b80e1
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    ScriptComponent:
+      ModuleName: ScriptAssembly.Test6
