@@ -41,6 +41,7 @@
 bin/
 bin-int/
 Intermidiates/
+obj/
 
 # Visual Studio Solution
 *.sln

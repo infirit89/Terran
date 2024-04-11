@@ -17,6 +17,9 @@ AssetInfos:
   - Asset: df428e6e-1f1d-4ca4-a368-bf5cac1da716
     Type: 3
     Path: Scripts\Pong\Ball.cs
+  - Asset: c09381ab-2a58-4d7c-a8a4-d624106234c5
+    Type: 3
+    Path: Scripts\Test6.cs
   - Asset: 96ccaa8f-2571-4c9e-b9d2-0ba2d7234479
     Type: 3
     Path: Scripts\Pong\CollisionUtils.cs
@@ -47,6 +50,9 @@ AssetInfos:
   - Asset: 1b9f31ab-3187-4ff3-b45b-a791d1a1f5e3
     Type: 4
     Path: Scenes\TestScene7.terran
+  - Asset: fdd323d4-4f70-4974-8fe7-f71486e59fa7
+    Type: 4
+    Path: Scenes\Scripting\changing-text.terran
   - Asset: 39e9e8ca-e6c9-48ee-9b31-1b278bbfae06
     Type: 4
     Path: Scenes\TestScene8.terran
@@ -59,6 +65,9 @@ AssetInfos:
   - Asset: 3052c3bb-c2a2-4ee5-807e-b065c2e9c96d
     Type: 1
     Path: test.png
+  - Asset: cfb01cce-df31-4dca-b414-874bbc7efabf
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: 0d7008db-0eb4-47c2-a99c-2f8a79943191
     Type: 5
     Path: New Physics Material.trpm2d
@@ -83,6 +92,9 @@ AssetInfos:
   - Asset: a48774c7-ec12-464b-a12b-67054e1dbd80
     Type: 4
     Path: ScriptTEst.terran
+  - Asset: a43f53cb-729c-4766-b08a-3be74a40b176
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: c219bf28-7434-456c-8a23-481de70b8e40
     Type: 4
     Path: ScriptTest2.terran
@@ -98,6 +110,7 @@ AssetInfos:
   - Asset: 0b3e2dec-e868-4e6a-89b3-53347a7a20ed
     Type: 4
     Path: Scenes\TestScene13.terran
+<<<<<<< HEAD
   - Asset: a37b3dbc-61e4-46f9-a46d-0342380b6001
     Type: 4
     Path: Scenes\Scripting\changing-text.terran
@@ -107,3 +120,14 @@ AssetInfos:
   - Asset: 3ad4a227-46a4-466d-be20-3572e7fca122
     Type: 3
     Path: Scripts\Test3.cs
+=======
+  - Asset: cd2ad124-676a-4294-a413-b65756e076b7
+    Type: 3
+    Path: Scripts\Test3.cs
+  - Asset: d094fe31-5a78-4fcf-8b80-5aee5eb7b79b
+    Type: 4
+    Path: Scenes\Scripting\moving-rect.terran
+  - Asset: 954c3ea3-45a7-48fe-8de4-9c8008c79d41
+    Type: 3
+    Path: Scripts\Test5.cs
+>>>>>>> 33ef74fe8279f112eb98b76ab30985d6d7c7d158
