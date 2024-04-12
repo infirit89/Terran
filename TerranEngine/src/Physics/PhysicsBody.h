@@ -102,4 +102,3 @@ namespace TerranEngine
 		std::vector<Shared<Collider2D>> m_Colliders;
 	};
 }
-
