@@ -245,13 +245,12 @@ namespace TerranEngine
 
     void PhysicsBody2D::RemoveCollider(int index)
     {
-        if(m_Body)
-        {
-            Shared<Collider2D> collider = m_Colliders.at(index);
-            for(int i = 0; i < collider->p_FixtureArraySize; i++)
-                m_Body->DestroyFixture(collider->p_Fixtures[i]);
-        }
+        if (!m_Body)
+            return;
 
+        Shared<Collider2D> collider = m_Colliders.at(index);
+        for(int i = 0; i < collider->p_FixtureArraySize; i++)
+            m_Body->DestroyFixture(collider->p_Fixtures[i]);
         m_Colliders.erase(m_Colliders.begin() + index);
     }
 

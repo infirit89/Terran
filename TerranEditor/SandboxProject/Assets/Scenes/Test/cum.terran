@@ -1,0 +1,26 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 30d1e9b6-16b4-4598-b296-82e94700b8d7
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: ce7861f1-b80a-4693-a83f-1dcef8c499f9
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
