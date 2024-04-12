@@ -118,4 +118,7 @@ AssetInfos:
     Path: Scenes\Scripting\moving-rect.terran
   - Asset: 954c3ea3-45a7-48fe-8de4-9c8008c79d41
     Type: 3
-    Path: Scripts\Test5.cs
+    Path: Scripts\Test3.cs
+  - Asset: 1d16fca9-3c7a-44f9-9c01-bec8c66e80f5
+    Type: 4
+    Path: Scenes\Test\cum.terran
