@@ -112,7 +112,7 @@ namespace Terran
 			}
 		} 
 
-		public T? GetComponent<T>() where T : Component
+		public T GetComponent<T>() where T : Component
 		{
 			if (HasComponent<T>())
 			{
@@ -122,22 +122,26 @@ namespace Terran
 					{
 						IntPtr handle = Internal.Entity_GetScriptableComponentICall(ID);
 						if (handle == IntPtr.Zero)
-							return null;
+                            throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 
                         GCHandle gcHandle = GCHandle.FromIntPtr(handle);
 
                         if (!(gcHandle.Target is T))
-                            return null;
+                            throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 
                         return (T)gcHandle.Target;
                     }
 				}
 
 				T? component = (T?)Activator.CreateInstance(typeof(T), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { ID }, null);
-				return component;
+
+				if(component == null)
+                    throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
+
+                return component;
 			}
 
-			return null;
+			throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 		}		
 	}
 }
