@@ -41,6 +41,8 @@
 bin/
 bin-int/
 Intermidiates/
+obj/
+net8.0/
 
 # Visual Studio Solution
 *.sln
@@ -80,3 +82,6 @@ shaderc/
 #VSCode
 .vscode/
 *.code-workspace
+
+# Terran
+AssetInfoDB
