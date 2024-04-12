@@ -107,3 +107,6 @@ AssetInfos:
   - Asset: 03e21c51-0fca-4a31-9a36-6cbb52e98bfa
     Type: 3
     Path: Scripts\Test3.cs
+  - Asset: 1d16fca9-3c7a-44f9-9c01-bec8c66e80f5
+    Type: 4
+    Path: Scenes\Test\cum.terran
