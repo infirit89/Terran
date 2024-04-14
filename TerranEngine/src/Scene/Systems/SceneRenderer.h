@@ -28,8 +28,8 @@ namespace TerranEngine
 
 		void SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID);
 
-		uint32_t GetViewportWidth() { return m_Width; }
-		uint32_t GetViewportHeight() { return m_Height; }
+		uint32_t GetViewportWidth() const { return m_Width; }
+		uint32_t GetViewportHeight() const { return m_Height; }
 
 		void EndScene();
 
