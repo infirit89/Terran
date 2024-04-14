@@ -554,7 +554,7 @@ namespace TerranEngine
 				auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
 				sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
 
-				Shared<ScriptInstance> scriptInstance = ScriptEngine::InitializeScriptable(deserializedEntity);
+				Shared<ScriptInstance> scriptInstance = ScriptEngine::CreateScriptInstance(deserializedEntity);
 				auto scriptFields = scriptComponent["Fields"];
 				if (scriptFields)
 					DeserializeScriptFields(scriptInstance, sc, scriptFields);

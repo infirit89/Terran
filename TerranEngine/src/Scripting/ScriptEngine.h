@@ -31,7 +31,7 @@ namespace TerranEngine
 		
 		static Shared<ScriptInstance> GetScriptInstance(Entity entity);
 		static Shared<ScriptInstance> GetScriptInstance(const UUID& sceneID, const UUID& entityID);
-		static Shared<ScriptInstance> InitializeScriptable(Entity entity);
+		static Shared<ScriptInstance> CreateScriptInstance(Entity entity);
 		static void UninitalizeScriptable(Entity entity);
 
 		static void OnStart(Entity entity);

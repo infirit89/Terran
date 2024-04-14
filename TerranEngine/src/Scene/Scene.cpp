@@ -586,7 +586,7 @@ namespace TerranEngine
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
-		ScriptEngine::InitializeScriptable(entity);
+		ScriptEngine::CreateScriptInstance(entity);
 
         if(m_IsPlaying)
             ScriptEngine::OnStart(entity);

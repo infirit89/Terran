@@ -6,10 +6,12 @@ namespace ScriptAssembly
     {
         public Entity Tomaaaaa;
 
+        [field: SerializeField]
+        public int TestI { get; set; }
+
         protected override void Init()
         {
-            SpriteRenderer sp = Entity.GetComponent<SpriteRenderer>();
-            Log.Trace(sp.Color);
+            Log.Trace(TestI);
         }
 
         protected override void Update(float deltaTime)
@@ -36,7 +38,6 @@ namespace ScriptAssembly
             //    Log.Warn("Right button released");
 
             //Log.Warn(Input.GetMousePosition());
-            Log.Trace("chep");
         }
     }
 #nullable disable

@@ -37,6 +37,7 @@ namespace TerranEngine
 		std::string CoralDirectory = "Resources/Scripts";
 		Coral::Type ScriptableBaseClass;
 		Coral::Type EntityClass;
+		Coral::Type SerializeFieldClass;
 		int32_t EntityIDFieldHandle;
 
 		ScriptInstanceMap ScriptInstanceMap;
@@ -104,6 +105,9 @@ namespace TerranEngine
 		TR_ASSERT(s_Data->EntityClass, "The entity class wasn't found");
 		s_Data->EntityIDFieldHandle = s_Data->EntityClass.GetField("m_ID");
 
+		s_Data->SerializeFieldClass = coreAssembly.GetType("Terran.SerializeFieldAttribute");
+		TR_ASSERT(s_Data->SerializeFieldClass, "The SerializeFieldAttribute class wasn't found");
+
 		InitializeTypeConverters();
 		ScriptBindings::Bind(coreAssembly);
 		return true;
@@ -170,7 +174,7 @@ namespace TerranEngine
 				Entity entity(e, scene.get());
 				auto& sc = entity.GetComponent<ScriptComponent>();
 				const UUID& entityId = entity.GetID();
-				Shared<ScriptInstance> instance = InitializeScriptable(entity);
+				Shared<ScriptInstance> instance = CreateScriptInstance(entity);
 
 				if (!instance)
 					continue;
@@ -283,7 +287,7 @@ namespace TerranEngine
 		return s_Data->ScriptInstanceMap.at(sceneID).at(entityID);
 	}
 
-	Shared<ScriptInstance> ScriptEngine::InitializeScriptable(Entity entity)
+	Shared<ScriptInstance> ScriptEngine::CreateScriptInstance(Entity entity)
 	{
 		TR_PROFILE_FUNCTION();
 		auto& scriptComponent = entity.GetComponent<ScriptComponent>();
@@ -322,7 +326,8 @@ namespace TerranEngine
 		scriptComponent.FieldHandles.clear();
 		for (Coral::FieldInfo& fieldInfo : type.GetFields())
 		{
-			if (fieldInfo.GetAccessibility() == Coral::TypeAccessibility::Public)
+			if (fieldInfo.GetAccessibility() == Coral::TypeAccessibility::Public
+				|| fieldInfo.HasAttribute(s_Data->SerializeFieldClass))
 			{
 				scriptComponent.FieldHandles.emplace_back(fieldInfo.GetHandle());
 				Coral::ScopedString fieldName = fieldInfo.GetName();
