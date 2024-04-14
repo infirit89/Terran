@@ -6,35 +6,38 @@ namespace ScriptAssembly
     {
         public Entity Tomaaaaa;
 
+        [field: SerializeField]
+        public int TestI { get; set; }
+
         protected override void Init()
         {
-            SpriteRenderer sp = Entity.GetComponent<SpriteRenderer>();
-            Log.Trace(sp.Color);
+            Log.Trace(TestI);
         }
 
-		protected override void Update(float deltaTime)
-		{
-        }
-
-        protected override void PhysicsUpdate()
-=======
->>>>>>> 33ef74f (added mouse scene)
+        protected override void Update(float deltaTime)
         {
-            Test2 test2 = Tomaaaaa.GetComponent<Test2>();
-            Log.Trace(test2.Test);
-        }
-<<<<<<< HEAD
+            //if (Input.IsKeyDown(KeyCode.A))
+            //    Log.Warn("A is down");
 
-        protected override void OnCollisionBegin(Entity entity)
-        {
-            Log.Trace(entity.Name);
-        }
+            //if (Input.IsKeyPressed(KeyCode.S))
+            //    Log.Warn("S is pressed");
 
-        protected override void OnCollisionEnd(Entity entity)
-        {
-            Log.Trace(entity.Name);
+            //if (Input.IsKeyReleased(KeyCode.D))
+            //    Log.Warn("D is pressed");
+
+            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+            //    Log.Warn("Left button down");
+
+            //if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
+            //{
+            //    Log.Warn("Middle button pressed");
+            //    Log.Warn(Input.GetMousePosition());
+            //}
+
+            //if (Input.IsMouseButtonReleased(MouseButton.RightButton))
+            //    Log.Warn("Right button released");
+
+            //Log.Warn(Input.GetMousePosition());
         }
-=======
->>>>>>> 33ef74f (added mouse scene)
     }
 }
