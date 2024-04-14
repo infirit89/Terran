@@ -271,7 +271,7 @@ namespace TerranEditor
 			UI::BeginPropertyGroup("script_module");
 			ImGui::TableNextRow();
 			if (UI::PropertyString("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
-				ScriptEngine::InitializeScriptable(entity);
+				ScriptEngine::CreateScriptInstance(entity);
 			UI::EndPropertyGroup();
 
 			if (!component.ClassExists)
