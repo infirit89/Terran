@@ -90,6 +90,7 @@ namespace TerranEditor
 
 		Shared<Texture2D> colorAttachment = framebuffer->GetColorAttachment(0);
 
+		m_Scene->SetViewportPosition({ viewportOffset.x, viewportOffset.y });
 		ImGui::Image(
 			(ImTextureID)(colorAttachment ? colorAttachment->GetHandle() : -1),
 			regionAvail, { 0, 1 }, { 1, 0 });

@@ -2,6 +2,7 @@
 #include "ScriptEngine.h"
 
 #include "ScriptBindings.h"
+#include "ScriptTypes.h"
 
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
@@ -35,9 +36,6 @@ namespace TerranEngine
 		std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> Assemblies;
 		
 		std::string CoralDirectory = "Resources/Scripts";
-		Coral::Type ScriptableBaseClass;
-		Coral::Type EntityClass;
-		Coral::Type SerializeFieldClass;
 		int32_t EntityIDFieldHandle;
 
 		ScriptInstanceMap ScriptInstanceMap;
@@ -98,15 +96,9 @@ namespace TerranEngine
 		coreAssembly = s_Data->LoadContext.LoadAssembly(s_Data->ScriptCoreAssemblyPath.string());
 		TR_ASSERT(coreAssembly.GetLoadStatus() == Coral::AssemblyLoadStatus::Success, "Couldn't load the TerranScriptCore assembly");
 
-		s_Data->ScriptableBaseClass = coreAssembly.GetType("Terran.Scriptable");
-		TR_ASSERT(s_Data->ScriptableBaseClass, "The scriptable base class wasn't found");
-
-		s_Data->EntityClass = coreAssembly.GetType("Terran.Entity");
-		TR_ASSERT(s_Data->EntityClass, "The entity class wasn't found");
-		s_Data->EntityIDFieldHandle = s_Data->EntityClass.GetField("m_ID");
-
-		s_Data->SerializeFieldClass = coreAssembly.GetType("Terran.SerializeFieldAttribute");
-		TR_ASSERT(s_Data->SerializeFieldClass, "The SerializeFieldAttribute class wasn't found");
+		ScriptTypes::Initialize();
+		s_Data->EntityIDFieldHandle = ScriptTypes::EntityType->GetField("m_ID");
+		TR_ASSERT(s_Data->EntityIDFieldHandle > -1, "Failed to find Terran.Entity m_ID field");
 
 		InitializeTypeConverters();
 		ScriptBindings::Bind(coreAssembly);
@@ -313,7 +305,7 @@ namespace TerranEngine
 				return ((*obj).second);
 		}
 
-		if (!type.IsSubclassOf(s_Data->ScriptableBaseClass))
+		if (!type.IsSubclassOf(*ScriptTypes::ScriptableType))
 		{
 			TR_ERROR("Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
 			return nullptr;
@@ -327,7 +319,7 @@ namespace TerranEngine
 		for (Coral::FieldInfo& fieldInfo : type.GetFields())
 		{
 			if (fieldInfo.GetAccessibility() == Coral::TypeAccessibility::Public
-				|| fieldInfo.HasAttribute(s_Data->SerializeFieldClass))
+				|| fieldInfo.HasAttribute(*ScriptTypes::SerializeFieldType))
 			{
 				scriptComponent.FieldHandles.emplace_back(fieldInfo.GetHandle());
 				Coral::ScopedString fieldName = fieldInfo.GetName();
@@ -400,10 +392,10 @@ namespace TerranEngine
 
 	const void* ScriptEngine::CreateEntityInstance(const UUID& id) 
 	{
-		return s_Data->EntityClass.CreateInstance(id).GetHandle();
+		return ScriptTypes::EntityType->CreateInstance(id).GetHandle();
 	}
 
-	int32_t ScriptEngine::GetEntityIDFieldHandle() 
+	int32_t ScriptEngine::GetEntityIDFieldHandle()
 	{
 		return s_Data->EntityIDFieldHandle;
 	}

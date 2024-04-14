@@ -43,8 +43,8 @@ namespace TerranEngine
 		void UpdateEditor();
 		void OnResize(float width, float height);
 
-		void OnRender(Shared<SceneRenderer>& sceneRenderer);
-		void OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
+		void OnRender(Shared<SceneRenderer> sceneRenderer);
+		void OnRenderEditor(Shared<SceneRenderer> sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
 		Entity FindEntityWithUUID(UUID uuid);
 		Entity FindEntityWithName(const std::string& name);
@@ -90,6 +90,8 @@ namespace TerranEngine
 		void ConvertToWorldSpace(Entity entity);
 	
 		void SortEntities();
+		const glm::vec2& GetViewportPosition() const { return m_ViewportPosition; }
+		void SetViewportPosition(const glm::vec2& viewportPosition) { m_ViewportPosition = viewportPosition; }
 	private:
 
         // scripting components
@@ -118,6 +120,7 @@ namespace TerranEngine
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 
 		entt::registry m_Registry;
+		glm::vec2 m_ViewportPosition = { 0.0f, 0.0f };
 
 		friend class SceneRenderer;
 		friend class Entity;

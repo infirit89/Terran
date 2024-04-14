@@ -37,7 +37,7 @@ namespace ScriptAssembly
             //if (Input.IsMouseButtonReleased(MouseButton.RightButton))
             //    Log.Warn("Right button released");
 
-            //Log.Warn(Input.GetMousePosition());
+            Log.Warn(Input.GetMousePosition());
         }
     }
 #nullable disable

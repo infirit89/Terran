@@ -2,12 +2,7 @@
 #include "ScriptBindings.h"
 
 #include "ScriptEngine.h"
-//#include "ScriptMarshal.h"
-//#include "GCManager.h"
-//#include "ScriptCache.h"
-//#include "ScriptArray.h"
-//#include "ManagedObject.h"
-//#include "ManagedMethodThunks.h"
+#include "ScriptTypes.h"
 
 #include "Core/Input.h"
 #include "Core/Application.h"
@@ -15,6 +10,7 @@
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
+#include "Scene/Systems/SceneRenderer.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
@@ -31,6 +27,8 @@
 #include <Coral/Type.hpp>
 #include <Coral/TypeCache.hpp>
 
+#include <imgui.h>
+
 namespace TerranEngine 
 {
 #define BIND_INTERNAL_FUNC(func) assembly.AddInternalCall("Terran.Internal", #func, reinterpret_cast<void*>(&func))
@@ -38,8 +36,7 @@ namespace TerranEngine
 	static std::unordered_map<int32_t, std::function<bool(Entity)>> s_HasComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_AddComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_RemoveComponentFuncs;
-	static Coral::Type* s_ScriptableType, * s_IdType, * s_RigidbodyType, * s_HitInfoType;
-
+	
 #define REGISTER_COMPONENT(ComponentType, Component)																				\
 	Coral::Type type_##ComponentType = assembly.GetType("Terran."#ComponentType);													\
 	TR_ASSERT(type_##ComponentType, "Invalid type");																				\
@@ -50,18 +47,6 @@ namespace TerranEngine
 
 	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 	{
-		s_ScriptableType = Coral::TypeCache::Get().GetTypeByName("Terran.Scriptable");
-		TR_ASSERT(s_ScriptableType, "Failed to find the scriptable type");
-
-		s_IdType = Coral::TypeCache::Get().GetTypeByName("Terran.UUID");
-		TR_ASSERT(s_IdType, "Failed to find the id type");
-
-		s_RigidbodyType = Coral::TypeCache::Get().GetTypeByName("Terran.Rigidbody2D");
-		TR_ASSERT(s_RigidbodyType, "Failed to find the rigidbody2d type");
-
-		s_HitInfoType = Coral::TypeCache::Get().GetTypeByName("Terran.RayCastHitInfo2D");
-		TR_ASSERT(s_HitInfoType, "Failed to find the RayCastHitInfo2D type");
-
 		REGISTER_COMPONENT(Transform, TransformComponent);
 		REGISTER_COMPONENT(Tag, TagComponent);
 		REGISTER_COMPONENT(CapsuleCollider2D, CapsuleCollider2DComponent);
@@ -284,7 +269,8 @@ namespace TerranEngine
 
 	void ScriptBindings::Input_GetMousePositionICall(glm::vec2& outMousePosition)
 	{
-		outMousePosition = Input::GetMousePos();
+		glm::vec2 viewportPosition = SceneManager::GetCurrentScene()->GetViewportPosition();
+		outMousePosition = Input::GetMousePos() - viewportPosition;
 	}
 
 	bool ScriptBindings::Input_IsControllerConnectedICall(uint8_t controllerIndex)
@@ -337,7 +323,7 @@ namespace TerranEngine
 		if (!type)
 			return false;
 
-		if (type->IsSubclassOf(*s_ScriptableType) && entity.HasComponent<ScriptComponent>()) 
+		if (type->IsSubclassOf(*ScriptTypes::ScriptableType) && entity.HasComponent<ScriptComponent>()) 
 		{
 			Coral::ScopedString typeName = type->GetFullName();
 			return entity.GetComponent<ScriptComponent>().ModuleName == typeName;
@@ -360,7 +346,7 @@ namespace TerranEngine
 		}
 
 		Coral::Type* type = Coral::TypeCache::Get().GetTypeByID(typeId);
-		if (type->IsSubclassOf(*s_ScriptableType))
+		if (type->IsSubclassOf(*ScriptTypes::ScriptableType))
 		{
 			Coral::ScopedString typeName = type->GetFullName();
 			entity.AddComponent<ScriptComponent>((std::string)typeName);
@@ -424,7 +410,7 @@ namespace TerranEngine
 		if (entity.GetChildCount() <= 0)
 			return nullptr;
 
-		Coral::ManagedArray childrenIds = Coral::ManagedArray::New(*s_IdType, entity.GetChildCount());
+		Coral::ManagedArray childrenIds = Coral::ManagedArray::New(*ScriptTypes::IdType, entity.GetChildCount());
 		
 		int i = 0;
 		for (const UUID& id : entity.GetChildren())
@@ -700,7 +686,7 @@ namespace TerranEngine
 		outHitInfo.Normal = hitInfo.Normal;
 
 		Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
-		outHitInfo.Rigidbody = s_RigidbodyType->CreateInstance(hitEntity.GetID());
+		outHitInfo.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
 
 		return hasHit;
 	}
@@ -710,7 +696,7 @@ namespace TerranEngine
 		TR_PROFILE_FUNCTION();
 		Shared<std::vector<RayCastHitInfo2D>> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
 
-		Coral::ManagedArray hitInfosArray = Coral::ManagedArray::New(*s_HitInfoType, hitInfos->size());
+		Coral::ManagedArray hitInfosArray = Coral::ManagedArray::New(*ScriptTypes::HitInfoType, hitInfos->size());
 		for (size_t i = 0; i < hitInfos->size(); i++) 
 		{
 			RayCastHitInfo2D& hitInfo = hitInfos->at(i);
@@ -719,7 +705,7 @@ namespace TerranEngine
 			hitInfo_Internal.Point = hitInfo.Point;
 
 			Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
-			hitInfo_Internal.Rigidbody = s_RigidbodyType->CreateInstance(hitEntity.GetID());
+			hitInfo_Internal.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
 			
 			hitInfosArray.SetValue(static_cast<int32_t>(i), hitInfo_Internal);
 		}
