@@ -59,6 +59,8 @@ project "TerranEditor"
              "%{CopyCommands.coral}",
          }
 
+    defines "TR_EDITOR"
+
     filter "configurations:Debug"
         defines "TR_DEBUG"
         runtime "Debug"
