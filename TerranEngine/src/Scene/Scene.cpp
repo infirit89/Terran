@@ -583,6 +583,12 @@ namespace TerranEngine
 			{ return lEntity < rEntity; });
 	}
 
+	void Scene::OnResize(uint32_t width, uint32_t height)
+	{
+		if (m_ViewportWidth != width || m_ViewportHeight != height)
+			m_ViewportWidth = width; m_ViewportHeight = height;
+	}
+
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
