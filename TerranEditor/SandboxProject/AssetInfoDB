@@ -44,18 +44,27 @@ AssetInfos:
   - Asset: 01d3b6fe-6fba-4160-82d1-d609c61d3f27
     Type: 4
     Path: Scenes\TestScene6.terran
-  - Asset: 1b9f31ab-3187-4ff3-b45b-a791d1a1f5e3
+  - Asset: 60b847e2-a25e-4149-8f10-ef75c0ee1c3d
     Type: 4
-    Path: Scenes\TestScene7.terran
+    Path: Scenes\Scripting\mouse-rect.terran
   - Asset: fdd323d4-4f70-4974-8fe7-f71486e59fa7
     Type: 4
     Path: Scenes\Scripting\changing-text.terran
+  - Asset: 1b9f31ab-3187-4ff3-b45b-a791d1a1f5e3
+    Type: 4
+    Path: Scenes\TestScene7.terran
+  - Asset: c203c7dd-921c-4318-9332-eec9763be452
+    Type: 3
+    Path: Scripts\Test.cs
   - Asset: 39e9e8ca-e6c9-48ee-9b31-1b278bbfae06
     Type: 4
     Path: Scenes\TestScene8.terran
   - Asset: 8e4fe58b-94b4-411e-86de-bedee0f916ef
     Type: 1
     Path: testimg.png
+  - Asset: cfb01cce-df31-4dca-b414-874bbc7efabf
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: 3052c3bb-c2a2-4ee5-807e-b065c2e9c96d
     Type: 1
     Path: test.png
@@ -89,6 +98,9 @@ AssetInfos:
   - Asset: c219bf28-7434-456c-8a23-481de70b8e40
     Type: 4
     Path: ScriptTest2.terran
+  - Asset: a43f53cb-729c-4766-b08a-3be74a40b176
+    Type: 3
+    Path: Scripts\Test4.cs
   - Asset: e969f21d-db79-472d-aad2-c94950a5866b
     Type: 4
     Path: Scenes\TestScene10.terran
