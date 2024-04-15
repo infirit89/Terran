@@ -92,6 +92,11 @@ namespace TerranEngine
 		void SortEntities();
 		const glm::vec2& GetViewportPosition() const { return m_ViewportPosition; }
 		void SetViewportPosition(const glm::vec2& viewportPosition) { m_ViewportPosition = viewportPosition; }
+
+		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
+		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
+
+		void OnResize(uint32_t width, uint32_t height);
 	private:
 
         // scripting components
@@ -121,6 +126,7 @@ namespace TerranEngine
 
 		entt::registry m_Registry;
 		glm::vec2 m_ViewportPosition = { 0.0f, 0.0f };
+		uint32_t m_ViewportWidth = 1080, m_ViewportHeight = 720;
 
 		friend class SceneRenderer;
 		friend class Entity;

@@ -18,8 +18,6 @@ namespace TerranEngine
 {
 	SceneRenderer::SceneRenderer(FramebufferParameters params)
 	{
-		params.Width = m_Width;
-		params.Height = m_Height;
 		m_Framebuffer = CreateShared<Framebuffer>(params);
 	}
 
@@ -86,11 +84,8 @@ namespace TerranEngine
 
 	void SceneRenderer::OnResize(uint32_t width, uint32_t height)
 	{
-		if (m_Width != width || m_Height != height) 
-		{
-			m_Width = width; m_Height = height;
-			m_Framebuffer->Resize(m_Width, m_Height);
-		}
+		if(m_Framebuffer->GetWidth() != width || m_Framebuffer->GetHeight() != height)
+			m_Framebuffer->Resize(width, height);
 	}
 
 	void SceneRenderer::SubmitColliderBounds()
