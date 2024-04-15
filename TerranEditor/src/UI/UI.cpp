@@ -30,14 +30,18 @@ namespace TerranEditor
 
 		for (size_t i = 0; i < name.size(); i++)
 		{
+			if (name.at(i) == '<')
+				continue;
+
+			if (name.at(i) == '>')
+				break;
+
 			if (isupper(name.at(i)))
-			{
 				result += " ";
-				result += name.at(i);
-			}
-			else
-				result += name.at(i);
+
+			result += name.at(i);
 		}
+
 
 		return result;
 	}

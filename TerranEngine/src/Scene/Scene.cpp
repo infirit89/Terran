@@ -196,7 +196,7 @@ namespace TerranEngine
 		}
 	}
 
-	void Scene::OnRender(Shared<SceneRenderer>& sceneRenderer)
+	void Scene::OnRender(Shared<SceneRenderer> sceneRenderer)
 	{
 		TR_PROFILE_FUNCTION();
 		Entity primaryCamera = GetPrimaryCamera();
@@ -270,7 +270,7 @@ namespace TerranEngine
 		}
 	}
 	
-	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
+	void Scene::OnRenderEditor(Shared<SceneRenderer> sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		TR_PROFILE_FUNCTION();
 		sceneRenderer->SetScene(this);
@@ -586,7 +586,7 @@ namespace TerranEngine
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
-		ScriptEngine::InitializeScriptable(entity);
+		ScriptEngine::CreateScriptInstance(entity);
 
         if(m_IsPlaying)
             ScriptEngine::OnStart(entity);

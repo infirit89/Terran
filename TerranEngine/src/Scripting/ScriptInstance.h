@@ -74,7 +74,7 @@ namespace TerranEngine
 		void SetFieldValue<Utils::Variant>(int32_t fieldHandle, const Utils::Variant& value) const;
 
 		template<typename TReturn>
-		TReturn GetFieldValue(int32_t fieldHandle) const 
+		TReturn GetFieldValue(int32_t fieldHandle) const
 		{
 			TReturn value;
 			GetFieldValueInternal(fieldHandle, &value);

@@ -6,10 +6,38 @@ namespace ScriptAssembly
     {
         public Entity Tomaaaaa;
 
+        [field: SerializeField]
+        public int TestI { get; set; }
+
         protected override void Init()
         {
-            Test2 test2 = Tomaaaaa.GetComponent<Test2>();
-            Log.Trace(test2.Test);
+            Log.Trace(TestI);
+        }
+
+        protected override void Update(float deltaTime)
+        {
+            //if (Input.IsKeyDown(KeyCode.A))
+            //    Log.Warn("A is down");
+
+            //if (Input.IsKeyPressed(KeyCode.S))
+            //    Log.Warn("S is pressed");
+
+            //if (Input.IsKeyReleased(KeyCode.D))
+            //    Log.Warn("D is pressed");
+
+            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+            //    Log.Warn("Left button down");
+
+            //if (Input.IsMouseButtonPressed(MouseButton.MiddleButton)) 
+            //{
+            //    Log.Warn("Middle button pressed");
+            //    Log.Warn(Input.GetMousePosition());
+            //}
+
+            //if (Input.IsMouseButtonReleased(MouseButton.RightButton))
+            //    Log.Warn("Right button released");
+
+            Log.Warn(Input.GetMousePosition());
         }
     }
 }
