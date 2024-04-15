@@ -644,12 +644,14 @@ namespace TerranEngine
 	#pragma region Window
 	float ScriptBindings::Window_GetWidthICall() 
 	{
-		return Application::Get()->GetWindow().GetWidth();
+		const Shared<Scene>& currentScene = SceneManager::GetCurrentScene();
+		return currentScene->GetViewportWidth();
 	}
 
 	float ScriptBindings::Window_GetHeightICall() 
 	{
-		return Application::Get()->GetWindow().GetWidth();
+		const Shared<Scene>& currentScene = SceneManager::GetCurrentScene();
+		return currentScene->GetViewportHeight();
 	}
 
 	bool ScriptBindings::Window_IsVSyncICall() 
