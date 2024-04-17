@@ -177,6 +177,7 @@ namespace TerranEngine
 		static void Camera_SetPrimaryICall(const UUID& id, bool togglePrimary);
 		static glm::vec4 Camera_GetBackgroundColorICall(const UUID& id);
 		static void Camera_SetBackgroundColorICall(const UUID& id, const glm::vec4& color);
+		static glm::vec3 Camera_ScreenToWorldPointICall(const UUID& id, const glm::vec3& point);
 		#pragma endregion
 		// --------------------------
 
@@ -208,5 +209,11 @@ namespace TerranEngine
 		static glm::vec2 Window_GetContentScaleICall();
 		#pragma endregion
 		// ----------------
+
+		// ---- Scene ----
+		#pragma region Scene
+		static UUID Scene_GetMainCameraICall();
+		#pragma endregion
+		// ---------------
 	};
 }
