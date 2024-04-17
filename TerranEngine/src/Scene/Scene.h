@@ -95,8 +95,6 @@ namespace TerranEngine
 
 		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
 		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
-
-		void OnResize(uint32_t width, uint32_t height);
 	private:
 
         // scripting components
