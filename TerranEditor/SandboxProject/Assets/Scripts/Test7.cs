@@ -1,5 +1,4 @@
 ﻿using Terran;
-using TerranScriptCore.Source.Graphics;
 
 namespace ScriptAssembly
 {

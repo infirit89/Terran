@@ -221,6 +221,12 @@ namespace TerranEngine
 		#pragma endregion
 		// ----------------
 
+		// ---- Scene ----
+		#pragma region Scene
+		BIND_INTERNAL_FUNC(Scene_GetMainCameraICall);
+		#pragma endregion
+		// ---------------
+
 		assembly.UploadInternalCalls();
 	}
 
@@ -594,6 +600,14 @@ namespace TerranEngine
 	{
 		SET_COMPONENT_PROPERTY(CameraComponent, BackgroundColor, backgroundColor);
 	}
+	glm::vec3 ScriptBindings::Camera_ScreenToWorldPointICall(const UUID& id, const glm::vec3& point)
+	{
+		GET_ENTITY();
+		auto& tc = entity.GetComponent<TransformComponent>();
+		auto& camera = entity.GetComponent<CameraComponent>();
+
+		return camera.Camera.ScreenToWorld(tc.WorldSpaceTransformMatrix, point);
+	}
 	#pragma endregion
 	// ----------------
 
@@ -664,17 +678,28 @@ namespace TerranEngine
 		return currentScene->GetViewportHeight();
 	}
 
-	bool ScriptBindings::Window_IsVSyncICall() 
+	bool ScriptBindings::Window_IsVSyncICall()
 	{
 		return Application::Get()->GetWindow().IsVsync();
 	}
 
-	glm::vec2 ScriptBindings::Window_GetContentScaleICall() 
+	glm::vec2 ScriptBindings::Window_GetContentScaleICall()
 	{
 		return Application::Get()->GetWindow().GetContentScale();
 	}
 	#pragma endregion
 	// ----------------
+
+	// ---- Scene ----
+	#pragma region Scene
+	UUID ScriptBindings::Scene_GetMainCameraICall()
+	{
+		const Shared<Scene>& currentScene = SceneManager::GetCurrentScene();
+		Entity primaryCamera = currentScene->GetPrimaryCamera();
+		return primaryCamera.GetID();
+	}
+	#pragma endregion
+	// ---------------
 
 	// ---- Physics ----
 	Coral::String ScriptBindings::LayerMask_GetNameICall(uint16_t layer)
