@@ -1,4 +1,5 @@
 ﻿using Terran;
+using TerranScriptCore.Source.Graphics;
 
 namespace ScriptAssembly
 {
@@ -11,7 +12,7 @@ namespace ScriptAssembly
 
         protected override void Update(float deltaTime)
         {
-            var input = Input.GetMousePosition() + new Vector2(500, 500);
+            var input = Input.GetMousePosition() + new Vector2(Window.Width / 2, Window.Height / 2);
 
             Entity.Transform.Position = new Vector3(input.X, input.Y, 1);
 
