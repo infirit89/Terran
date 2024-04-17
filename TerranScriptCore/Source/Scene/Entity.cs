@@ -67,25 +67,25 @@ namespace Terran
             }
         }
 
-        public Entity[]? GetChildren()
-        {
-            unsafe
-            {
-                IntPtr childrenIdsHandle = Internal.Entity_GetChildrenICall(in m_ID);
-                if (childrenIdsHandle == IntPtr.Zero)
-                    return null;
+        //public Entity[]? GetChildren()
+        //{
+        //    unsafe
+        //    {
+        //        IntPtr childrenIdsHandle = Internal.Entity_GetChildrenICall(in m_ID);
+        //        if (childrenIdsHandle == IntPtr.Zero)
+        //            return null;
 
-                UUID[]? childrenIds = GCHandle.FromIntPtr(childrenIdsHandle).Target as UUID[];
-                if (childrenIds == null)
-                    return null;
+        //        UUID[]? childrenIds = GCHandle.FromIntPtr(childrenIdsHandle).Target as UUID[];
+        //        if (childrenIds == null)
+        //            return null;
 
-                Entity[] children = new Entity[childrenIds!.Length];
+        //        Entity[] children = new Entity[childrenIds!.Length];
 
-                for (int i = 0; i < childrenIds.Length; i++)
-                    children[i] = new Entity(childrenIds[i]);
-                return children;
-            }
-        }
+        //        for (int i = 0; i < childrenIds.Length; i++)
+        //            children[i] = new Entity(childrenIds[i]);
+        //        return children;
+        //    }
+        //}
 
         public bool HasComponent<T>() where T : Component
         {
@@ -143,5 +143,28 @@ namespace Terran
 
             throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
         }
+
+        public int ChildrenCount
+        {
+            get 
+            {
+                unsafe 
+                {
+                    return Internal.Entity_GetChildrenCountICall(ID);
+                }
+            }
+        }
+
+        public Entity GetChild(int index) 
+        {
+            unsafe 
+            {
+                if (index < 0 || index >= ChildrenCount)
+                    throw new ArgumentOutOfRangeException("Index is out of range");
+
+                return new Entity(Internal.Entity_GetChildICall(ID, index));
+            }
+        }
+
     }
 }

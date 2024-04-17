@@ -43,11 +43,12 @@ namespace Terran
 		internal static unsafe delegate* unmanaged<in UUID, IntPtr> Entity_GetScriptableComponentICall = default;
 		internal static unsafe delegate* unmanaged<NativeString, out UUID, bool> Entity_FindEntityWithNameICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, void> Entity_DestroyEntityICall = default;
-		internal static unsafe delegate* unmanaged<in UUID, IntPtr> Entity_GetChildrenICall = default;
-		#endregion
+		internal static unsafe delegate* unmanaged<in UUID, int> Entity_GetChildrenCountICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, int, UUID> Entity_GetChildICall = default;
+        #endregion
 
-		#region Physics 2D
-		internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, out RayCastHitInfo2D, bool> Physics2D_RayCastICall = default;
+        #region Physics 2D
+        internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, out RayCastHitInfo2D, bool> Physics2D_RayCastICall = default;
 		internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, IntPtr> Physics2D_RayCastAllICall = default;
         internal static unsafe delegate* unmanaged<ushort, NativeString> LayerMask_GetNameICall = default;
         #endregion
