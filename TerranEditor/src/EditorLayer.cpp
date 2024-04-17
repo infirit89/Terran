@@ -479,7 +479,7 @@ namespace TerranEditor
 
 		switch (m_SceneState)
 		{
-		case TerranEditor::SceneState::Edit: 
+		case TerranEditor::SceneState::Edit:
 		{
 			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
