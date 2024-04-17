@@ -87,7 +87,8 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Entity_GetScriptableComponentICall);
 		BIND_INTERNAL_FUNC(Entity_DestroyEntityICall);
 		BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
-		BIND_INTERNAL_FUNC(Entity_GetChildrenICall);
+		BIND_INTERNAL_FUNC(Entity_GetChildrenCountICall);
+		BIND_INTERNAL_FUNC(Entity_GetChildICall);
 		#pragma endregion
 		// ----------------
 
@@ -415,14 +416,15 @@ namespace TerranEngine
 			TR_CLIENT_ERROR("Can't destroy entity because it doesnt exist");
 	}
 
-	void* ScriptBindings::Entity_GetChildrenICall(const UUID& id)
+	int ScriptBindings::Entity_GetChildrenCountICall(const UUID& id)
 	{
 		TR_PROFILE_FUNCTION();
 		GET_ENTITY();
 		if (!entity)
-			return nullptr;
+			return 0;
 
-		if (entity.GetChildCount() <= 0)
+		return entity.GetChildCount();
+		/*if (entity.GetChildCount() <= 0)
 			return nullptr;
 
 		Coral::ManagedArray childrenIds = Coral::ManagedArray::New(*ScriptTypes::IdType, entity.GetChildCount());
@@ -435,7 +437,17 @@ namespace TerranEngine
 			i++;
 		}
 
-		return childrenIds.GetHandle();
+		return childrenIds.GetHandle();*/
+	}
+
+	UUID ScriptBindings::Entity_GetChildICall(const UUID& id, int index)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		if (!entity)
+			return UUID::Invalid();
+
+		return entity.GetChild(index).GetID();
 	}
 	#pragma endregion
 	// ----------------

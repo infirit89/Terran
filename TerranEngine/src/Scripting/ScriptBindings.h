@@ -57,7 +57,8 @@ namespace TerranEngine
 		
 		static void Entity_DestroyEntityICall(const UUID& id);
 		
-		static void* Entity_GetChildrenICall(const UUID&);
+		static int Entity_GetChildrenCountICall(const UUID& id);
+		static UUID Entity_GetChildICall(const UUID& id, int index);
 		#pragma endregion
 		// ----------------
 

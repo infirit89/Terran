@@ -17,20 +17,21 @@ namespace ScriptAssembly
             Entity.GetComponent<TextRenderer>().Text = "Test";
             Entity.GetComponent<TextRenderer>().Color = Color.Blue;
             Entity.Name = "Test";
+
+            for (int i = 0; i < Entity.ChildrenCount; i++)
+                Log.Trace(Entity.GetChild(i).Name);
         }
 
         protected override void Update(float deltaTime)
         {
-            var children = Entity.GetChildren();
-
-            if (Input.IsMouseButtonDown(MouseButton.LeftButton))
-            {
-                Entity.Destroy(children[1]);
-            }
-            if (Input.IsMouseButtonDown(MouseButton.RightButton))
-            {
-                Entity.Destroy(children[0]);
-            }
+            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+            //{
+            //    Entity.Destroy(Entity.GetChild(1));
+            //}
+            //if (Input.IsMouseButtonDown(MouseButton.RightButton))
+            //{
+            //    Entity.Destroy(Entity.GetChild(0));
+            //}
         }
     }
 }
