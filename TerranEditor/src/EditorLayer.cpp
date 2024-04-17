@@ -477,24 +477,12 @@ namespace TerranEditor
 	{
 		m_ViewportSize = newViewportSize;
 
-		switch (m_SceneState)
-		{
-		case TerranEditor::SceneState::Edit:
-		{
-			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+		if(m_SceneState == SceneState::Edit)
 			m_EditorCamera.OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
-			break;
-		}
-		case TerranEditor::SceneState::Play:
-		{
-			//m_RuntimeSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
-			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 
-			break;
-		}
-		}
+		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+		m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+
 	}
 
 	void EditorLayer::ImGuiRender()
