@@ -185,14 +185,19 @@ namespace TerranEngine
 
 	void Scene::OnResize(float width, float height)
 	{
-		auto cameraView = m_Registry.view<CameraComponent>();
-
-		for (auto e : cameraView)
+		if (m_ViewportWidth != width || m_ViewportHeight != height) 
 		{
-			Entity entity(e, this);
-			auto& cameraComponent = entity.GetComponent<CameraComponent>();
+			m_ViewportWidth = width; m_ViewportHeight = height;
 
-			cameraComponent.Camera.SetViewport(width, height);
+			auto cameraView = m_Registry.view<CameraComponent>();
+
+			for (auto e : cameraView)
+			{
+				Entity entity(e, this);
+				auto& cameraComponent = entity.GetComponent<CameraComponent>();
+
+				cameraComponent.Camera.SetViewport(width, height);
+			}
 		}
 	}
 
@@ -581,12 +586,6 @@ namespace TerranEngine
 	{
 		m_Registry.sort<TagComponent>([](const entt::entity& lEntity, const entt::entity& rEntity)
 			{ return lEntity < rEntity; });
-	}
-
-	void Scene::OnResize(uint32_t width, uint32_t height)
-	{
-		if (m_ViewportWidth != width || m_ViewportHeight != height)
-			m_ViewportWidth = width; m_ViewportHeight = height;
 	}
 
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
