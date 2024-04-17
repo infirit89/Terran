@@ -212,6 +212,15 @@ namespace TerranEngine
 		#pragma endregion
 		// -----------------
 
+		// ---- Window ----
+		#pragma region Window
+		BIND_INTERNAL_FUNC(Window_GetWidthICall);
+		BIND_INTERNAL_FUNC(Window_GetHeightICall);
+		BIND_INTERNAL_FUNC(Window_IsVSyncICall);
+		BIND_INTERNAL_FUNC(Window_GetContentScaleICall);
+		#pragma endregion
+		// ----------------
+
 		assembly.UploadInternalCalls();
 	}
 
@@ -648,7 +657,7 @@ namespace TerranEngine
 		return currentScene->GetViewportWidth();
 	}
 
-	float ScriptBindings::Window_GetHeightICall() 
+	float ScriptBindings::Window_GetHeightICall()
 	{
 		const Shared<Scene>& currentScene = SceneManager::GetCurrentScene();
 		return currentScene->GetViewportHeight();
