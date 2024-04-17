@@ -37,7 +37,7 @@ Entities:
       Parent: 00000000-0000-0000-0000-000000000000
   - Entity: c329de7b-d11e-4dc6-b9e7-fe8634e70a1f
     TagComponent:
-      Tag: Entity
+      Tag: Child 1
     TransformComponent:
       Position: [0, 0, 0]
       Scale: [1, 1, 1]
@@ -71,7 +71,7 @@ Entities:
       Parent: c329de7b-d11e-4dc6-b9e7-fe8634e70a1f
   - Entity: 408ba4c8-05c6-4d68-bd2c-b5e7e1138599
     TagComponent:
-      Tag: Entity
+      Tag: Child 2
     TransformComponent:
       Position: [0, 0, 0]
       Scale: [1, 1, 1]
