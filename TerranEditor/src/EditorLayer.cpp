@@ -497,8 +497,6 @@ namespace TerranEditor
 
 		RenderDockspace();
 
-		//ImGui::ShowDemoWindow();
-
 		AssetEditorManager::RenderEditors();
 
 		m_PanelManager->ImGuiRender();

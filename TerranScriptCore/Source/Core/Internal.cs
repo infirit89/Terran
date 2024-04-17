@@ -1,5 +1,6 @@
 ﻿using Coral.Managed.Interop;
 using System;
+using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -118,6 +119,7 @@ namespace Terran
         internal static unsafe delegate* unmanaged <in UUID, bool, void> Camera_SetPrimaryICall = default;
         internal static unsafe delegate* unmanaged <in UUID, Color> Camera_GetBackgroundColorICall = default;
         internal static unsafe delegate* unmanaged <in UUID, in Color, void> Camera_SetBackgroundColorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3, Vector3> Camera_ScreenToWorldPointICall = default;
         #endregion
 
         #region CircleRenderer
@@ -134,11 +136,15 @@ namespace Terran
         internal static unsafe delegate* unmanaged<in UUID, NativeString, void> TextRenderer_SetTextICall = default;
 		#endregion
 
-		#region
+		#region Window
 		internal static unsafe delegate* unmanaged<float> Window_GetWidthICall = default;
 		internal static unsafe delegate* unmanaged<float> Window_GetHeightICall = default;
 		internal static unsafe delegate* unmanaged<bool> Window_IsVSyncICall = default;
 		internal static unsafe delegate* unmanaged<Vector2> Window_GetContentScaleICall = default;
+		#endregion
+
+		#region Scene
+		internal static unsafe delegate* unmanaged<UUID> Scene_GetMainCameraICall = default;
         #endregion
     }
 }
