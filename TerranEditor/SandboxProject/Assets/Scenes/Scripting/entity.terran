@@ -1,0 +1,82 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: ee35d830-a5fc-4d60-b756-0bc1007c4023
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: 7374feb5-88d1-4c36-8931-a91237f7d79b
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    ScriptComponent:
+      ModuleName: ScriptAssembly.Test8
+  - Entity: 738c25af-ec06-4447-9a61-8e120f00e3e9
+    TagComponent:
+      Tag: Tomaaa
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    RelationshipComponent:
+      Children:
+        - c329de7b-d11e-4dc6-b9e7-fe8634e70a1f
+        - 408ba4c8-05c6-4d68-bd2c-b5e7e1138599
+      Parent: 00000000-0000-0000-0000-000000000000
+  - Entity: c329de7b-d11e-4dc6-b9e7-fe8634e70a1f
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, -0, 0]
+    RelationshipComponent:
+      Children:
+        - e3516d34-9967-48f5-a9a1-c995f261ebeb
+        - c137c492-cbe2-47b9-8caf-8b8860129bc3
+      Parent: 738c25af-ec06-4447-9a61-8e120f00e3e9
+  - Entity: e3516d34-9967-48f5-a9a1-c995f261ebeb
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, -0, 0]
+    RelationshipComponent:
+      Children:
+        []
+      Parent: c329de7b-d11e-4dc6-b9e7-fe8634e70a1f
+  - Entity: c137c492-cbe2-47b9-8caf-8b8860129bc3
+    TagComponent:
+      Tag: Entity Copy
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, -0, 0]
+    RelationshipComponent:
+      Children:
+        []
+      Parent: c329de7b-d11e-4dc6-b9e7-fe8634e70a1f
+  - Entity: 408ba4c8-05c6-4d68-bd2c-b5e7e1138599
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, -0, 0]
+    RelationshipComponent:
+      Children:
+        []
+      Parent: 738c25af-ec06-4447-9a61-8e120f00e3e9
