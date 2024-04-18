@@ -27,13 +27,39 @@ Entities:
     TagComponent:
       Tag: Entity
     TransformComponent:
-      Position: [0, 0, 0]
+      Position: [0.699999988, 0, 0]
       Scale: [1, 1, 1]
       Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+      Material: 00000000-0000-0000-0000-000000000000
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false
   - Entity: 81178d36-0812-47d1-89be-91a1947b4a4a
     TagComponent:
       Tag: Entity
     TransformComponent:
-      Position: [0, 0, 0]
+      Position: [2.29999995, 0, 0]
       Scale: [1, 1, 1]
       Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+      Material: 00000000-0000-0000-0000-000000000000
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false
