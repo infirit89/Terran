@@ -14,6 +14,8 @@
 
 #include "SelectionManager.h"
 
+#include "AssetEditorManager.h"
+
 #include "UI/UI.h"
 #include "UI/FontManager.h"
 
@@ -164,20 +166,35 @@ namespace TerranEditor
 					item->BeginRender();
 					ItemAction action = item->OnRender();
 
-					if (action == ItemAction::NavigateTo) 
+					switch (action) 
+					{
+					case ItemAction::NavigateTo: 
 					{
 						directoryToOpen = DynamicCast<ContentBrowserDirectory>(item)->GetDirectoryInfo();
 						while (!m_NextDirectoryStack.empty()) m_NextDirectoryStack.pop();
+						break;
 					}
-					else if (action == ItemAction::Activate)
+					case ItemAction::Activate: 
 					{
+						AssetEditorManager::OpenAssetEditor(item->GetHandle());
+						break;
 					}
-					else if (action == ItemAction::Select)
+					case ItemAction::Select: 
+					{
 						SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
-					else if (action == ItemAction::MoveTo)
+						break;
+					}
+					case ItemAction::MoveTo:
+					{
 						MoveSelectedItemsToDirectory(m_Directories[item->GetHandle()]);
-					else if (action == ItemAction::StartRename)
+						break;
+					}
+					case ItemAction::StartRename: 
+					{
 						item->StartRename();
+						break;
+					}
+					}
 
 					item->EndRender();
 				}
