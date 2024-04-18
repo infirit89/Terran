@@ -124,6 +124,14 @@
                 }
             }
         }
+
+        public Vector3 ScreenToWorldPoint(Vector3 screenPoint) 
+        {
+            unsafe 
+            {
+                return Internal.Camera_ScreenToWorldPointICall(Entity.ID, screenPoint);
+            }
+        }
     }
 
     public class SpriteRenderer : Component
