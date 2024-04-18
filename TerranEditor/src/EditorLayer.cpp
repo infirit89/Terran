@@ -77,6 +77,8 @@ namespace TerranEditor
 		EditorResources::Init();
 		UI::SetupUIStyle4();
 
+		Font::DefaultFont = CreateShared<Font>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+
 		m_EditorScene = SceneManager::CreateEmpyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();

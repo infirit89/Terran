@@ -430,7 +430,6 @@ namespace TerranEngine
 		int i = 0;
 		for (const UUID& id : entity.GetChildren())
 		{
-			TR_TRACE(id);
 			childrenIds.SetValueRaw(i, (UUID*)&id);
 			i++;
 		}
