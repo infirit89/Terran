@@ -732,6 +732,9 @@ namespace TerranEngine
 		outHitInfo.Point = hitInfo.Point;
 		outHitInfo.Normal = hitInfo.Normal;
 
+		if (!hitInfo.PhysicsBody)
+			return hasHit;
+
 		Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
 		outHitInfo.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
 
