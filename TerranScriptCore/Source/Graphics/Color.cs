@@ -27,6 +27,11 @@ namespace Terran
             A = a;
         }
 
+        public Color(int r, int g, int b) 
+        {
+
+        }
+
         public static Color White => new Color(1.0f, 1.0f, 1.0f, 1.0f);
         public static Color Black => new Color(0.0f, 0.0f, 0.0f, 1.0f);
         
