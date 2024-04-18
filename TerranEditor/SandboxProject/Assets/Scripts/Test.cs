@@ -11,8 +11,8 @@ namespace ScriptAssembly
 
         protected override void Init()
         {
-            Entity mainCamera = Scene.MainCamera;
-            Log.Trace(mainCamera.Name);
+            //Entity mainCamera = Scene.MainCamera;
+            //Log.Trace(mainCamera.Name);
         }
 
         protected override void Update(float deltaTime)

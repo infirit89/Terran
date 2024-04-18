@@ -24,14 +24,14 @@ namespace ScriptAssembly
 
         protected override void Update(float deltaTime)
         {
-            //if (Input.IsMouseButtonDown(MouseButton.LeftButton))
-            //{
-            //    Entity.Destroy(Entity.GetChild(1));
-            //}
-            //if (Input.IsMouseButtonDown(MouseButton.RightButton))
-            //{
-            //    Entity.Destroy(Entity.GetChild(0));
-            //}
+            if (Input.IsMouseButtonDown(MouseButton.LeftButton))
+            {
+                Entity.Destroy(Entity.GetChild(1));
+            }
+            if (Input.IsMouseButtonDown(MouseButton.RightButton))
+            {
+                Entity.Destroy(Entity.GetChild(0));
+            }
         }
     }
 }

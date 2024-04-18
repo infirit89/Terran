@@ -146,18 +146,18 @@ namespace Terran
 
         public int ChildrenCount
         {
-            get 
+            get
             {
-                unsafe 
+                unsafe
                 {
                     return Internal.Entity_GetChildrenCountICall(ID);
                 }
             }
         }
 
-        public Entity GetChild(int index) 
+        public Entity GetChild(int index)
         {
-            unsafe 
+            unsafe
             {
                 if (index < 0 || index >= ChildrenCount)
                     throw new ArgumentOutOfRangeException("Index is out of range");
