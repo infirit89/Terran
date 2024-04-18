@@ -5,6 +5,8 @@
 
 namespace TerranEngine 
 {
+	Shared<Font> Font::DefaultFont;
+
 	Font::Font(const std::string& fontPath)
 		: m_Glyphs(nullptr), m_FontGeometry(nullptr), m_AtlasWidth(-1), m_AtlasHeight(-1), m_Path(fontPath)
 	{

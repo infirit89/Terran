@@ -22,6 +22,8 @@ namespace ScriptAssembly
         protected override void Update(float deltaTime)
         {
             var children = Entity.GetChildren();
+            if (children == null)
+                Log.Trace("maikati e momje denislaveeeeeeeeeeeeeeeee");
 
             if (Input.IsMouseButtonDown(MouseButton.LeftButton))
             {

@@ -46,6 +46,8 @@ namespace TerranEngine
 		// gets the advance between two characters with kerning
 		double GetAdvance(char c1, char c2);
 
+		static Shared<Font> DefaultFont;
+
 	private:
 		Shared<Texture2D> LoadFont(const std::string& fontPath);
 

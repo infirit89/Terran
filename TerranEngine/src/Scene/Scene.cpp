@@ -54,6 +54,8 @@ namespace TerranEngine
 
 		m_Registry.on_construct<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentConstructed>(this);
 		m_Registry.on_destroy<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<TextRendererComponent>().connect<&Scene::OnTextComponentConstructed>(this);
 	}
 
 	Scene::~Scene()
@@ -694,4 +696,16 @@ namespace TerranEngine
                 physicsBody->RemoveCollider(ccComponent.ColliderIndex);
         }
     }
+
+	void Scene::OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+	{
+		Entity entity(entityHandle, this);
+		auto& trc = entity.GetComponent<TextRendererComponent>();
+		if (!trc.FontAtlas)
+			trc.FontAtlas = Font::DefaultFont;
+	}
+
+	void Scene::OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+	{
+	}
 }

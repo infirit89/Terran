@@ -113,6 +113,10 @@ namespace TerranEngine
 
 		void OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
+		// text component
+		void OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 	private:
 		// TODO: add scene name and UUID
 
