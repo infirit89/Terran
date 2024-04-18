@@ -295,6 +295,7 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("FixedRotation", rigidbodyComponent.FixedRotation);
 			WRITE_COMPONENT_PROPERY("SleepState", PhysicsBodySleepStateToString(rigidbodyComponent.SleepState));
 			WRITE_COMPONENT_PROPERY("GravityScale", rigidbodyComponent.GravityScale);
+			WRITE_COMPONENT_PROPERY("Material", rigidbodyComponent.PhysicsMaterialHandle);
 			END_COMPONENT_MAP();
 		}
 
@@ -517,7 +518,7 @@ namespace TerranEngine
 			{
 				auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
 				src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-				src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
+				src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>(UUID::Invalid());
 			}
 
 			auto circleRendererComponent = data["CircleRendererComponent"];
@@ -586,6 +587,7 @@ namespace TerranEngine
 				rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
 				rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
 				rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
+				rbc.PhysicsMaterialHandle = rigidbodyComponent["Material"].as<UUID>(UUID::Invalid());
 			}
 
 			auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
