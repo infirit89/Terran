@@ -127,6 +127,7 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Camera_SetPrimaryICall);
 		BIND_INTERNAL_FUNC(Camera_GetBackgroundColorICall);
 		BIND_INTERNAL_FUNC(Camera_SetBackgroundColorICall);
+		BIND_INTERNAL_FUNC(Camera_ScreenToWorldPointICall);
 		#pragma endregion
 		// --------------------------
 
