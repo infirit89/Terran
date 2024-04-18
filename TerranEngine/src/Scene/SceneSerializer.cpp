@@ -587,7 +587,9 @@ namespace TerranEngine
 				rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
 				rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
 				rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
-				rbc.PhysicsMaterialHandle = rigidbodyComponent["Material"].as<UUID>(UUID::Invalid());
+
+				if(rigidbodyComponent["Material"])
+					rbc.PhysicsMaterialHandle = rigidbodyComponent["Material"].as<UUID>(UUID::Invalid());
 			}
 
 			auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
