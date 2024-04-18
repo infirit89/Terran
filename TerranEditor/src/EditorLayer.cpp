@@ -147,6 +147,7 @@ namespace TerranEditor
 	{
 		FileSystem::StopWatch();
 		EditorResources::Shutdown();
+		Font::DefaultFont = nullptr;
 	}
 
 	void EditorLayer::Update(Time& time)

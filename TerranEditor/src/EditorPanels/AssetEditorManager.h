@@ -19,6 +19,7 @@ namespace TerranEditor
 
 		static void Init();
 		static void RenderEditors();
+		static void OpenAssetEditor(const TerranEngine::UUID& assetHandle);
 
 	private:
 		static void RegisterAssetEditors();

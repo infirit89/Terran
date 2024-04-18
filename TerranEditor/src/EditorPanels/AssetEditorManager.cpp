@@ -18,20 +18,25 @@ namespace TerranEditor
 	void AssetEditorManager::RenderEditors()
 	{
 		// TODO: add multiselect functionality
-		const std::vector<UUID>& selected = SelectionManager::GetSelected(SelectionContext::ContentPanel);
+		/*const std::vector<UUID>& selected = SelectionManager::GetSelected(SelectionContext::ContentPanel);
 		if (!selected.empty()) 
 		{
 			UUID assetHandle = selected[0];
-			if (assetHandle)
-			{
-				AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
-				if (s_Editors.find(assetInfo.Type) != s_Editors.end())
-					s_Editors.at(assetInfo.Type)->SetOpen(true, assetHandle);
-			}
-		}
+			
+		}*/
 
 		for (const auto& [assetType, assetEditorPanel] : s_Editors) 
 			assetEditorPanel->OnRender();
+	}
+
+	void AssetEditorManager::OpenAssetEditor(const UUID& assetHandle)
+	{
+		if (!assetHandle.IsValid())
+			return;
+
+		AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
+		if (s_Editors.find(assetInfo.Type) != s_Editors.end())
+			s_Editors.at(assetInfo.Type)->SetOpen(true, assetHandle);
 	}
 
 	void AssetEditorManager::RegisterAssetEditors()
