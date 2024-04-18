@@ -17,14 +17,16 @@ namespace TerranEditor
 		Shared<PhysicsMaterial2DAsset> material = AssetManager::GetAsset<PhysicsMaterial2DAsset>(m_ID);
 		if (material) 
 		{
-			UI::BeginPropertyGroup("pm2d_properties");
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Density", material->Density);
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Friction", material->Friction);
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Restitution", material->Restitution);
-			UI::EndPropertyGroup();
+			if (UI::BeginPropertyGroup("pm2d_properties")) 
+			{
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Density", material->Density);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Friction", material->Friction);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Restitution", material->Restitution);
+				UI::EndPropertyGroup();
+			}
 		}
 
 		ImGui::End();
