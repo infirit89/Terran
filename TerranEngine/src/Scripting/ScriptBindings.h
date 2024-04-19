@@ -68,11 +68,27 @@ namespace TerranEngine
 
 		// ---- Physics 2D ----
 		#pragma region Physics 2D
+		struct ScopedInstance
+		{
+			ScopedInstance(Coral::ManagedObject object)
+				: Object(object)
+			{}
+
+			~ScopedInstance()
+			{
+				Object.Destroy();
+			}
+
+			Coral::ManagedObject Object;
+		};
+
+
 		struct RayCastHitInfo2D_Internal
 		{
 			glm::vec2 Point;
 			glm::vec2 Normal;
-			Coral::ManagedObject Rigidbody;
+			UUID RigidbodyEntityId;
+			//Coral::ManagedObject Rigidbody;
 		};
 
 		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask, RayCastHitInfo2D_Internal& outHitInfo);

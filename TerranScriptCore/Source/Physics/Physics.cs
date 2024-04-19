@@ -30,10 +30,9 @@ namespace Terran
 	{
 		public Vector2 Point;
 		public Vector2 Normal;
-		private NativeInstance<Rigidbody2D> m_RigidbodyHandle;
+		private UUID m_RigidbodyEntityId;
 
-		public Rigidbody2D Rigidbody => (Rigidbody2D?)m_RigidbodyHandle 
-											?? throw new NullReferenceException("Rigidbody is null");
+		public Rigidbody2D Rigidbody => new Rigidbody2D(m_RigidbodyEntityId);
 		
         public static implicit operator bool(RayCastHitInfo2D hit) => !hit.Equals(default(RayCastHitInfo2D));
 	}
