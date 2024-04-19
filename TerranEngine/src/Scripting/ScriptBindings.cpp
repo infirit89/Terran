@@ -26,6 +26,7 @@
 
 #include <Coral/Type.hpp>
 #include <Coral/TypeCache.hpp>
+#include <Coral/Array.hpp>
 
 #include <imgui.h>
 
@@ -721,7 +722,7 @@ namespace TerranEngine
 		return Coral::String::New(physicsLayer.Name);
 	}
 
-
+	
 	// ---- Physics 2D ----
 	#pragma region Physics 2D
 	
@@ -734,21 +735,29 @@ namespace TerranEngine
 		outHitInfo.Point = hitInfo.Point;
 		outHitInfo.Normal = hitInfo.Normal;
 
-		if (!hitInfo.PhysicsBody)
+		if (!hitInfo.PhysicsBody) 
+		{
+			outHitInfo.RigidbodyEntityId = UUID::Invalid();
 			return hasHit;
+		}
 
 		Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
-		outHitInfo.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
+		//outHitInfo.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
+		outHitInfo.RigidbodyEntityId = hitEntity.GetID();
 
 		return hasHit;
 	}
 
+	static Coral::ManagedArray s_OutHitInfosArray;
 	void* ScriptBindings::Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask) 
 	{
 		TR_PROFILE_FUNCTION();
 		Shared<std::vector<RayCastHitInfo2D>> hitInfos = Physics2D::RayCastAll(origin, direction, length, layerMask);
 
-		Coral::ManagedArray hitInfosArray = Coral::ManagedArray::New(*ScriptTypes::HitInfoType, hitInfos->size());
+		if (s_OutHitInfosArray.GetHandle())
+			s_OutHitInfosArray.Destroy();
+
+		s_OutHitInfosArray = Coral::ManagedArray::New(*ScriptTypes::HitInfoType, hitInfos->size());
 		for (size_t i = 0; i < hitInfos->size(); i++) 
 		{
 			RayCastHitInfo2D& hitInfo = hitInfos->at(i);
@@ -757,12 +766,13 @@ namespace TerranEngine
 			hitInfo_Internal.Point = hitInfo.Point;
 
 			Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
-			hitInfo_Internal.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
+			//hitInfo_Internal.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
+			hitInfo_Internal.RigidbodyEntityId = hitEntity.GetID();
 			
-			hitInfosArray.SetValue(static_cast<int32_t>(i), hitInfo_Internal);
+			s_OutHitInfosArray.SetValue(static_cast<int32_t>(i), hitInfo_Internal);
 		}
 
-		return hitInfosArray.GetHandle();
+		return s_OutHitInfosArray.GetHandle();
 	}
 	#pragma endregion
 	// --------------------
