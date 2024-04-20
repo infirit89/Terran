@@ -699,9 +699,9 @@ namespace TerranEditor
 
 		ScaleUI();
 	}
-	bool UI::BeginPropertyGroup(const char* propertyGroupName)
+	bool UI::BeginPropertyGroup(std::string_view propertyGroupName)
 	{
-		if (!ImGui::BeginTable(propertyGroupName, 2, ImGuiTableFlags_SizingFixedFit))
+		if (!ImGui::BeginTable(propertyGroupName.data(), 2, ImGuiTableFlags_SizingFixedFit))
 			return false;
 		// NOTE: consider exposing this to some sort of settings
 		const float labelColumnWidth = 100.0f;

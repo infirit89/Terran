@@ -129,18 +129,13 @@ namespace TerranEditor
 		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
-		/*ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });*/
+		ScriptEngine::SetLogCallback([this](std::string_view message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
 		ScriptEngine::LoadAppAssembly();
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
-
-		TR_CLIENT_ERROR("Test");
-		TR_CLIENT_WARN("Test");
-		TR_CLIENT_TRACE("Test");
-		TR_CLIENT_INFO("Test");
 	}
 
 	void EditorLayer::OnDettach()
@@ -457,7 +452,7 @@ namespace TerranEditor
 			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
-	void EditorLayer::OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level)
+	void EditorLayer::OnScriptEngineLog(std::string_view message, spdlog::level::level_enum level)
 	{
 		switch (level)
 		{

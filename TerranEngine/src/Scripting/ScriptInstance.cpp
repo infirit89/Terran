@@ -343,22 +343,21 @@ namespace TerranEngine
 	{
 		Coral::ManagedObject object = m_Context;
 		if(m_OnInitMethodHandle)
-			object.InvokeMethodByMethodInfo(m_OnInitMethodHandle);
+			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnInitMethodHandle);
 	}
 
 	void ScriptInstance::InvokeUpdate(float deltaTime)
 	{
 		Coral::ManagedObject object = m_Context;
-
 		if(m_OnUpdateMethodHandle)
-			object.InvokeMethodByMethodInfo(m_OnUpdateMethodHandle, deltaTime);
+			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnUpdateMethodHandle, deltaTime);
 	}
 
 	void ScriptInstance::InvokePhysicsUpdate()
 	{
 		Coral::ManagedObject object = m_Context;
 		if (m_OnPhysicsUpdateMethodHandle)
-			object.InvokeMethodByMethodInfo(m_OnPhysicsUpdateMethodHandle);
+			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnPhysicsUpdateMethodHandle);
 	}
 
 	void ScriptInstance::InvokeCollisionBegin(Entity other)
@@ -367,7 +366,7 @@ namespace TerranEngine
 		if (m_OnCollisionBeginMethodHandle) 
 		{
 			Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
-			object.InvokeMethodByMethodInfo(m_OnCollisionBeginMethodHandle, entityObject);
+			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnCollisionBeginMethodHandle, entityObject);
 			entityObject.Destroy();
 		}
 	}
@@ -378,7 +377,7 @@ namespace TerranEngine
 		if (m_OnCollisionEndMethodHandle)
 		{
 			Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
-			object.InvokeMethodByMethodInfo(m_OnCollisionEndMethodHandle, entityObject);
+			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnCollisionEndMethodHandle, entityObject);
 			entityObject.Destroy();
 		}
 	}
