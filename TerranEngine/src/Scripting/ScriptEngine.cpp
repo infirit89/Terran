@@ -40,13 +40,13 @@ namespace TerranEngine
 
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
-		std::function<void(std::string, spdlog::level::level_enum)> LogCallback;
+		ScriptEngine::LogFN LogCallback;
 		std::unordered_map<Coral::TypeId, ScriptType> TypeConverters;
 	};
 
 	static ScriptEngineData* s_Data;
 
-	static void Log(const std::string& message, spdlog::level::level_enum logLevel) 
+	static void Log(std::string_view message, spdlog::level::level_enum logLevel) 
 	{
 		if (s_Data->LogCallback)
 			s_Data->LogCallback(message, logLevel);
@@ -54,7 +54,9 @@ namespace TerranEngine
 
 	static void OnException(std::string_view message) 
 	{
-		TR_ERROR(message);
+		std::string_view processedMessage = message.substr(0, message.find_first_of('\n'));
+		TR_ERROR(processedMessage);
+		Log(processedMessage, spdlog::level::err);
 	}
 
 	static void OnMessage(std::string_view message, Coral::MessageLevel messageLevel) 
@@ -422,5 +424,10 @@ namespace TerranEngine
 		}
 
 		return true;
+	}
+
+	void ScriptEngine::SetLogCallback(LogFN logCallback)
+	{
+		s_Data->LogCallback = logCallback;
 	}
 }
