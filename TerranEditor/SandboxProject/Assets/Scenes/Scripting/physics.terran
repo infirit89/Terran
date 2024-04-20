@@ -29,6 +29,7 @@ Entities:
       FixedRotation: false
       SleepState: Awake
       GravityScale: 1
+      Material: 9444602d-e63d-4562-9123-fd273c018a7b
     BoxCollider2DComponent:
       Offset: [0, 0]
       Size: [1, 1]
@@ -57,6 +58,7 @@ Entities:
       FixedRotation: false
       SleepState: Awake
       GravityScale: 1
+      Material: 00000000-0000-0000-0000-000000000000
     BoxCollider2DComponent:
       Offset: [0, 0]
       Size: [1, 1]
