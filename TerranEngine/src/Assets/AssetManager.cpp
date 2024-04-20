@@ -11,7 +11,7 @@
 namespace TerranEngine 
 {
 	std::unordered_map<UUID, Shared<Asset>> AssetManager::s_LoadedAssets;
-	std::unordered_map<UUID, AssetInfo> AssetManager::s_AssetsInfos;
+	std::map<UUID, AssetInfo> AssetManager::s_AssetsInfos;
 	AssetManager::AssetChangeCallbackFn AssetManager::s_ChangeCallback;
 
 	static AssetInfo s_EmptyAssetInfo;
