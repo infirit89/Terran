@@ -8,13 +8,14 @@
 #include "Core/Log.h"
 
 #include <unordered_map>
+#include <map>
 #include <filesystem>
 
 namespace TerranEngine 
 {
 	class AssetManager 
 	{
-		using AssetInfoMap = std::unordered_map<UUID, AssetInfo>;
+		using AssetInfoMap = std::map<UUID, AssetInfo>;
 		using AssetChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;
 	public:
 		static void Init();
