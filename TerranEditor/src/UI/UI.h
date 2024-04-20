@@ -133,8 +133,19 @@ namespace TerranEditor::UI
 
 	void Tooltip(const char* text);
 
-	bool BeginPropertyGroup(const char* propertyGroupName);
+	bool BeginPropertyGroup(std::string_view propertyGroupName);
 	void EndPropertyGroup();
+
+	template<typename Func>
+	void PropertyGroup(std::string_view propertyGroupName, Func&& func) 
+	{
+		if (!BeginPropertyGroup(propertyGroupName))
+			return;
+
+		func();
+
+		EndPropertyGroup();
+	}
 
 	bool BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
 	bool BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);

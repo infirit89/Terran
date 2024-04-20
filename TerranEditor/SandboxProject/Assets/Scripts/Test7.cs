@@ -9,7 +9,7 @@ namespace ScriptAssembly
         private Camera Camera;
         protected override void Init()
         {
-            Camera = Scene.MainCamera.GetComponent<Camera>();
+            Camera = Scene.MainCamera;
         }
 
         protected override void Update(float deltaTime)

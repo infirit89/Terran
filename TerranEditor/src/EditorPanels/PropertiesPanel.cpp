@@ -35,6 +35,7 @@ namespace TerranEditor
 	template<typename T>
 	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool removable = true)
 	{
+		TR_PROFILE_FUNCTION();
 		if (entity.HasComponent<T>()) 
 		{
 			auto& component = entity.GetComponent<T>();
@@ -151,87 +152,89 @@ namespace TerranEditor
 			bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
-			UI::BeginPropertyGroup("transform");
-			ImGui::TableNextRow();
-
-			if (UI::PropertyVec3("Position", component.Position))
+			UI::PropertyGroup("transform", [&component, &physicsBody, isScenePlaying]() 
 			{
-				component.IsDirty = true;
+				ImGui::TableNextRow();
 
-				if (physicsBody && isScenePlaying)
-					physicsBody->SetPosition({ component.Position.x, component.Position.y });
-			}
+				if (UI::PropertyVec3("Position", component.Position))
+				{
+					component.IsDirty = true;
 
-			ImGui::TableNextRow();
-			if (UI::PropertyVec3("Rotation", component.Rotation))
-			{
-				component.IsDirty = true;
+					if (physicsBody && isScenePlaying)
+						physicsBody->SetPosition({ component.Position.x, component.Position.y });
+				}
 
-				if (physicsBody && isScenePlaying)
-					physicsBody->SetRotation(component.Rotation.z);
-			}
+				ImGui::TableNextRow();
+				if (UI::PropertyVec3("Rotation", component.Rotation))
+				{
+					component.IsDirty = true;
 
-			ImGui::TableNextRow();
-			if (UI::PropertyVec3("Scale", component.Scale))
-				component.IsDirty = true;
+					if (physicsBody && isScenePlaying)
+						physicsBody->SetRotation(component.Rotation.z);
+				}
 
-			UI::EndPropertyGroup();
+				ImGui::TableNextRow();
+				if (UI::PropertyVec3("Scale", component.Scale))
+					component.IsDirty = true;
+			});
 
 		}, false);
 
 		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
 		{
-			UI::BeginPropertyGroup("sprite_renderer");
-			ImGui::TableNextRow();
-			UI::PropertyColor("Color", component.Color);
-			ImGui::TableNextRow();
-			UI::PropertyAssetField<Texture2D>("Sprite", AssetType::Texture2D, component.TextureHandle);
-
-			Shared<Texture2D> texture = 
-							AssetManager::GetAsset<Texture2D>(component.TextureHandle);
-			if (texture) 
+			UI::PropertyGroup("sprite_renderer", [&component]() 
 			{
 				ImGui::TableNextRow();
-				constexpr size_t textureFilterNamesSize = 2;
-				const char* textureFilterNames[textureFilterNamesSize] = 
-				{ 
-					"Linear",
-					"Nearest"
-				};
+				UI::PropertyColor("Color", component.Color);
+				ImGui::TableNextRow();
+				UI::PropertyAssetField<Texture2D>("Sprite", AssetType::Texture2D, component.TextureHandle);
 
-				TextureFilter filter = texture->GetTextureParameters().Filter;
-				if (UI::PropertyDropdown("Filter", textureFilterNames, 
-										textureFilterNamesSize, filter)) 
+				Shared<Texture2D> texture = 
+								AssetManager::GetAsset<Texture2D>(component.TextureHandle);
+				if (texture) 
 				{
-					texture->SetTextureFilter(filter);
-				}
-			}
+					ImGui::TableNextRow();
+					constexpr size_t textureFilterNamesSize = 2;
+					const char* textureFilterNames[textureFilterNamesSize] = 
+					{ 
+						"Linear",
+						"Nearest"
+					};
 
-			UI::EndPropertyGroup();
+					TextureFilter filter = texture->GetTextureParameters().Filter;
+					if (UI::PropertyDropdown("Filter", textureFilterNames, 
+											textureFilterNamesSize, filter)) 
+					{
+						texture->SetTextureFilter(filter);
+					}
+				}
+			});
 		});
 
 		DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](CircleRendererComponent& component)
 		{
-			UI::BeginPropertyGroup("circle_renderer");
-			ImGui::TableNextRow();
-			UI::PropertyColor("Color", component.Color);
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Thickness", component.Thickness);
-			UI::EndPropertyGroup();
+			UI::PropertyGroup("circle_renderer", [&component]()
+			{
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", component.Color);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Thickness", component.Thickness);
+			});
 		});
 
 		DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer)
 		{
-			UI::BeginPropertyGroup("line_renderer");
-			ImGui::TableNextRow();
-			UI::PropertyColor("Color", lineRenderer.Color);
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Thickness", lineRenderer.Thickness);
-			ImGui::TableNextRow();
-			UI::PropertyVec3("Start Point", lineRenderer.StartPoint);
-			ImGui::TableNextRow();
-			UI::PropertyVec3("End Point", lineRenderer.EndPoint);
-			UI::EndPropertyGroup();
+			UI::PropertyGroup("line_renderer", [&lineRenderer]()
+			{
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", lineRenderer.Color);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Thickness", lineRenderer.Thickness);
+				ImGui::TableNextRow();
+				UI::PropertyVec3("Start Point", lineRenderer.StartPoint);
+				ImGui::TableNextRow();
+				UI::PropertyVec3("End Point", lineRenderer.EndPoint);
+			});
 		});
 
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)

@@ -82,6 +82,3 @@ shaderc/
 #VSCode
 .vscode/
 *.code-workspace
-
-# Terran
-AssetInfoDB

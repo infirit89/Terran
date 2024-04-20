@@ -244,7 +244,6 @@ namespace TerranEngine
 	{
 		TR_PROFILE_FUNCTION();
 		std::string messageStr = message;
-		TR_TRACE(messageStr);
 		switch (logLevel)
 		{
 		case 1 << 0: TR_CLIENT_TRACE(messageStr); break;
@@ -426,19 +425,6 @@ namespace TerranEngine
 			return 0;
 
 		return entity.GetChildCount();
-		/*if (entity.GetChildCount() <= 0)
-			return nullptr;
-
-		Coral::ManagedArray childrenIds = Coral::ManagedArray::New(*ScriptTypes::IdType, entity.GetChildCount());
-		
-		int i = 0;
-		for (const UUID& id : entity.GetChildren())
-		{
-			childrenIds.SetValueRaw(i, (UUID*)&id);
-			i++;
-		}
-
-		return childrenIds.GetHandle();*/
 	}
 
 	UUID ScriptBindings::Entity_GetChildICall(const UUID& id, int index)
@@ -475,18 +461,6 @@ namespace TerranEngine
 	#pragma endregion
 	// -----------------------
 
-#define SET_TRANSFORM_COMPONENT_PROPERTY(Property, Value)\
-	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);\
-	if(!entity)\
-	{\
-		TR_ERROR("Invalid entity id");\
-		return;\
-	}\
-	TransformComponent& component = entity.GetComponent<TransformComponent>();\
-	component.Property = Value;\
-	component.IsDirty = true
-
-// bullshit?
 #define SET_COMPONENT_PROPERTY(ComponentType, Property, Value)					\
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(!entity)																	\
@@ -496,7 +470,6 @@ namespace TerranEngine
 	}																			\
 	entity.GetComponent<ComponentType>().Property = Value
 
-// bullshit #2? 
 #define GET_COMPONENT_PROPERTY(ComponentType, Property, DefaultValue)			\
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(entity)																	\
@@ -741,7 +714,6 @@ namespace TerranEngine
 		}
 
 		Entity hitEntity = hitInfo.PhysicsBody->GetEntity();
-		//outHitInfo.Rigidbody = ScriptTypes::RigidbodyType->CreateInstance(hitEntity.GetID());
 		outHitInfo.RigidbodyEntityId = hitEntity.GetID();
 
 		return hasHit;
