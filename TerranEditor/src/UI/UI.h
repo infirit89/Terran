@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Core/Assert.h"
+
 #include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptInstance.h"
 
 #include "Assets/AssetManager.h"
 #include "Graphics/Texture.h"
@@ -130,8 +133,19 @@ namespace TerranEditor::UI
 
 	void Tooltip(const char* text);
 
-	bool BeginPropertyGroup(const char* propertyGroupName);
+	bool BeginPropertyGroup(std::string_view propertyGroupName);
 	void EndPropertyGroup();
+
+	template<typename Func>
+	void PropertyGroup(std::string_view propertyGroupName, Func&& func) 
+	{
+		if (!BeginPropertyGroup(propertyGroupName))
+			return;
+
+		func();
+
+		EndPropertyGroup();
+	}
 
 	bool BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
 	bool BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
@@ -150,16 +164,17 @@ namespace TerranEditor::UI
 		{ typeid(double), ImGuiDataType_Double }
 	};
 
-	bool PropertyColor(const std::string& label, glm::vec4& value);
+	bool PropertyColor(std::string_view label, glm::vec4& value);
 	bool PropertyVec3(const std::string& label, glm::vec3& value);
 	bool PropertyVec2(const std::string& label, glm::vec2& value);
 	bool PropertyEntity(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
-	void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle);
-	bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptField* field, TerranEngine::ScriptArray& array);
+	void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, int32_t fieldHandle, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance);
+	bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptArray& array, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance);
 	bool PropertyFloat(const std::string& label, float& value);
 	bool PropertyInt(const std::string& label, int& value);
 	bool PropertyBool(const std::string& label, bool& value);
 	bool PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+	bool PropertyChar(const std::string& label, char& value);
 	bool Button(const std::string& label, const char* buttonLabel);
 
 	template<typename T>
@@ -191,7 +206,7 @@ namespace TerranEditor::UI
 	}
 
 	template<typename T>
-	bool PropertyScalar(const std::string& label, T& value) 
+	bool PropertyScalar(const std::string& label, T& value, float power = 0.1f)
 	{
 		ImGui::PushID(label.c_str());
 		

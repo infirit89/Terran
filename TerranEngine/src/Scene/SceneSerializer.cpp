@@ -3,8 +3,8 @@
 #include "SceneSerializer.h"
 #include "Entity.h"
 
-#include "Scripting/ScriptField.h"
-#include "Scripting/ScriptCache.h"
+//#include "Scripting/ScriptField.h"
+//#include "Scripting/ScriptCache.h"
 #include "Scripting/ScriptEngine.h"
 
 #include "Assets/AssetManager.h"
@@ -16,6 +16,9 @@
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+
+#include <iostream>
+#include <cwchar>
 
 // NOTE: this is not the final version of the scene serializer, this is a poc
 // NOTE: think about using yaml instead of json, because json has some limitation that i dont really like
@@ -29,36 +32,88 @@ namespace TerranEngine
 		: m_Scene(scene) { }
 
 #define WRITE_SCRIPT_FIELD(FieldType, Type)\
-	case NativeType::FieldType:\
-	out << YAML::Key << field->GetName() << YAML::Value << field->GetData<Type>(handle);\
+	case ScriptType::FieldType:\
+	out << YAML::Key << field.Name << YAML::Value << scriptInstance->GetFieldValue<Type>(fieldID);\
 	break
 
 #define WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-	Type value = array.At(i);\
+	Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
 	out << value;\
 	}\
 	break
 
+	// TODO: n dimensional arrays maybe someday in the future?
+	//static void SerializeScriptArray(YAML::Emitter& out, Shared<ScriptInstance> scriptInstance, const ScriptArray& array, const ScriptField& field, int32_t* indices, int dimension = 0)
+	//{
+	//	int32_t length = scriptInstance->GetFieldArrayLength(array, dimension);
+	//	if (dimension == array.Rank - 1)
+	//	{
+	//		out << YAML::BeginSeq;
+	//		for (int32_t i = 0; i < length; i++)
+	//		{
+	//			indices[dimension] = i;
+	//			switch (field.Type)
+	//			{
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
+	//				// NOTE: maybe wchar_t?
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int8, int8_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, std::byte);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Float, float);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Double, double);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(String, std::string);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector2, glm::vec2);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
+	//				WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+	//				default: TR_ASSERT(false, "Unsupported field type"); break;
+	//			}
+	//		}
+	//		out << YAML::EndSeq;
+	//	}
+	//	else 
+	//	{
+	//		out << YAML::BeginSeq;
+	//		for (int32_t i = 0; i < length; i++) 
+	//		{
+	//			indices[dimension] = i;
+	//			SerializeScriptArray(out, scriptInstance, array, field, indices, dimension + 1);
+	//		}
+	//		out << YAML::EndSeq;
+	//	}
+	//}
+
 	static void SerializeScriptFields(YAML::Emitter& out, Entity entity) 
 	{
 		ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
-		GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+		Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
 		
-		for (auto& fieldID : sc.PublicFieldIDs)
+		for (auto& fieldID : sc.FieldHandles)
 		{
-			out << YAML::BeginMap;
-			ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+			ScriptField field = scriptInstance->GetScriptField(fieldID);
 
-			if(field->GetType().IsArray()) 
+			if(field.IsArray) 
 			{
-				ScriptArray array = field->GetArray(handle);
-				out << YAML::Key << field->GetName() << YAML::Value << YAML::Flow << YAML::BeginSeq;
-				
-				for(size_t i = 0; i < array.Length(); i++) 
+				ScriptArray array = scriptInstance->GetScriptArray(fieldID);
+				if (array.Rank > 1)
+					continue;
+
+				out << YAML::BeginMap;
+				out << YAML::Key << field.Name << YAML::Value << YAML::Flow;
+				out << YAML::BeginSeq;
+
+				int32_t length = scriptInstance->GetFieldArrayLength(array, 0);
+				for (int32_t i = 0; i < length; i++)
 				{
-					switch (array.GetElementType().GetNativeType())
+					switch (field.Type)
 					{
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
 						// NOTE: maybe wchar_t?
@@ -67,7 +122,7 @@ namespace TerranEngine
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int16, int16_t);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int32, int32_t);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(Int64, int64_t);
-						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, uint8_t);
+						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt8, std::byte);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt16, uint16_t);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt32, uint32_t);
 						WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(UInt64, uint64_t);
@@ -81,20 +136,22 @@ namespace TerranEngine
 						default: TR_ASSERT(false, "Unsupported field type"); break;
 					}
 				}
-
 				out << YAML::EndSeq;
+				out << YAML::EndMap;
 			}
-			else 
+			else
 			{
-				switch (field->GetType().GetNativeType())
+				out << YAML::BeginMap;
+				switch (field.Type)
 				{
 					WRITE_SCRIPT_FIELD(Bool, bool);
-					WRITE_SCRIPT_FIELD(Char, wchar_t);
+					// TODO: wchar
+					WRITE_SCRIPT_FIELD(Char, char);
 					WRITE_SCRIPT_FIELD(Int8, int8_t);
 					WRITE_SCRIPT_FIELD(Int16, int16_t);
 					WRITE_SCRIPT_FIELD(Int32, int32_t);
 					WRITE_SCRIPT_FIELD(Int64, int64_t);
-					WRITE_SCRIPT_FIELD(UInt8, uint8_t);
+					WRITE_SCRIPT_FIELD(UInt8, std::byte);
 					WRITE_SCRIPT_FIELD(UInt16, uint16_t);
 					WRITE_SCRIPT_FIELD(UInt32, uint32_t);
 					WRITE_SCRIPT_FIELD(UInt64, uint64_t);
@@ -107,9 +164,8 @@ namespace TerranEngine
 					WRITE_SCRIPT_FIELD(Entity, UUID);
 					default: TR_ASSERT(false, "Unsupported field type"); break;
 				}
+				out << YAML::EndMap;
 			}
-
-			out << YAML::EndMap;
 		}
 	}
 
@@ -219,7 +275,7 @@ namespace TerranEngine
 
 			BEGIN_COMPONENT_MAP("ScriptComponent");
 			WRITE_COMPONENT_PROPERY("ModuleName", scriptComponent.ModuleName);
-			if (!scriptComponent.PublicFieldIDs.empty()) 
+			if (!scriptComponent.FieldHandles.empty()) 
 			{
 				//WRITE_COMPONENT_PROPERY("Fields", YAML::BeginSeq);
 				out << YAML::Key << "Fields" << YAML::Value;
@@ -239,6 +295,7 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("FixedRotation", rigidbodyComponent.FixedRotation);
 			WRITE_COMPONENT_PROPERY("SleepState", PhysicsBodySleepStateToString(rigidbodyComponent.SleepState));
 			WRITE_COMPONENT_PROPERY("GravityScale", rigidbodyComponent.GravityScale);
+			WRITE_COMPONENT_PROPERY("Material", rigidbodyComponent.PhysicsMaterialHandle);
 			END_COMPONENT_MAP();
 		}
 
@@ -302,34 +359,34 @@ namespace TerranEngine
 	}
 
 #define READ_SCRIPT_FIELD(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-	Type value = scriptField.as<Type>();\
-	cachedField->SetData(value, handle);\
+	Type value = scriptFieldNode.as<Type>();\
+	scriptInstance->SetFieldValue(fieldID, value);\
 	}\
 	break
 
 #define READ_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case NativeType::FieldType:\
+	case ScriptType::FieldType:\
 	{\
-	Utils::Variant value = scriptField[i].as<Type>();\
-	array.Set(i, value);\
+	Type value = scriptFieldNode[i].as<Type>();\
+	scriptInstance->SetFieldArrayValue(array, value, i);\
 	}\
 	break
 
-	static void DeserializeScriptFields(GCHandle handle, ScriptComponent& scriptComponent, YAML::Node scriptFields) 
+	static void DeserializeScriptFields(Shared<ScriptInstance> scriptInstance, ScriptComponent& scriptComponent, const YAML::Node& scriptFieldsNode) 
 	{
-		for (const auto& fieldID : scriptComponent.PublicFieldIDs)
+		for (const auto& fieldID : scriptComponent.FieldHandles)
 		{
-			ScriptField* cachedField = ScriptCache::GetCachedFieldFromID(fieldID);
-			YAML::Node scriptField;
+			ScriptField scriptField = scriptInstance->GetScriptField(fieldID);
+			YAML::Node scriptFieldNode;
 			bool valid = false;
 			
-			for (auto field : scriptFields)
+			for (auto field : scriptFieldsNode)
 			{
-				if (field[cachedField->GetName()]) 
+				if (field[scriptField.Name])
 				{
-					scriptField = field[cachedField->GetName()];
+					scriptFieldNode = field[scriptField.Name];
 					valid = true;
 					break;
 				}
@@ -337,14 +394,19 @@ namespace TerranEngine
 
 			if (!valid) continue;
 			
-			TR_TRACE(scriptField);
+			//TR_TRACE(scriptFieldNode);
 
-			if (cachedField->GetType().IsArray()) 
+			if (scriptField.IsArray)
 			{
-				ScriptArray array = cachedField->GetArray(handle);
-				for(size_t i = 0; i < array.Length() && i < scriptField.size(); i++) 
+				ScriptArray array = scriptInstance->GetScriptArray(fieldID);
+				if (array.Rank > 1)
+					continue;
+
+				// TODO: n dimensional arrays someday in the future?
+				int32_t length = scriptInstance->GetFieldArrayLength(array);
+				for(int32_t i = 0; i < length && i < scriptFieldNode.size(); i++)
 				{
-					switch(array.GetElementType().GetNativeType())
+					switch(scriptField.Type)
 					{
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Bool, bool);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Char, char);
@@ -363,12 +425,13 @@ namespace TerranEngine
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Vector3, glm::vec3);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Color, glm::vec4);
 						READ_SCRIPT_FIELD_ARRAY_ELEMENT(Entity, UUID);
+						default: TR_ASSERT(false, "Invalid script type");
 					}
 				}
 			}
 			else
 			{
-				switch (cachedField->GetType().GetNativeType())
+				switch (scriptField.Type)
 				{
 					READ_SCRIPT_FIELD(Bool, bool);
 					READ_SCRIPT_FIELD(Char, char);
@@ -387,9 +450,9 @@ namespace TerranEngine
 					READ_SCRIPT_FIELD(Vector3, glm::vec3);
 					READ_SCRIPT_FIELD(Color, glm::vec4);
 					READ_SCRIPT_FIELD(Entity, UUID);
+					default: TR_ASSERT(false, "Invalid script type");
 				}
 			}
-
 		}
 	}
 
@@ -406,139 +469,145 @@ namespace TerranEngine
 
 	static Entity DeserializeEntity(YAML::Node data, YAML::Node scene, Shared<Scene> deserializedScene)
 	{
-		UUID id = data["Entity"].as<UUID>();
-		if (!id)
+		try 
 		{
-			TR_ASSERT(false, "Invalid id");
-			return { };
-		}
-
-		Entity entity = deserializedScene->FindEntityWithUUID(id);
-		if (entity) return entity;
-
-		auto tagComponent = data["TagComponent"];
-		if (!tagComponent)
-		{
-			TR_ASSERT(false, "Invalid tag component");
-			return { };
-		}
-
-		std::string name = tagComponent["Tag"].as<std::string>();
-		Entity deserializedEntity = deserializedScene->CreateEntityWithUUID(name, id);
-
-		auto transformComponent = data["TransformComponent"];
-		if (transformComponent) 
-		{
-			auto& tc = deserializedEntity.GetTransform();
-			tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
-			tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
-			tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-
-		auto cameraComponent = data["CameraComponent"];
-		if (cameraComponent) 
-		{
-			auto& cc = deserializedEntity.AddComponent<CameraComponent>();
-			auto camera = cameraComponent["Camera"];
-			cc.Camera.SetOrthographicSize(camera["Size"].as<float>(10.0f));
-			cc.Camera.SetOrthographicNear(camera["Near"].as<float>(-10.0f));
-			cc.Camera.SetOrthographicFar(camera["Far"].as<float>(10.0f));
-
-			cc.Primary = cameraComponent["Primary"].as<bool>(false);
-			cc.BackgroundColor = cameraComponent["ClearColor"].as<glm::vec4>(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-		}
-
-		auto spriteRendererComponent = data["SpriteRendererComponent"];
-		if (spriteRendererComponent) 
-		{
-			auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
-			src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-			src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>();
-		}
-
-		auto circleRendererComponent = data["CircleRendererComponent"];
-		if (circleRendererComponent) 
-		{
-			auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
-			crc.Color = circleRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-			crc.Thickness = circleRendererComponent["Thickness"].as<float>(1.0f);
-		}
-
-		auto relationshipComponent = data["RelationshipComponent"];
-		if (relationshipComponent) 
-		{
-			// TODO:
-			auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
-			for (auto childID : relationshipComponent["Children"])
+			UUID id = data["Entity"].as<UUID>();
+			if (!id)
 			{
-				UUID deserializedChildID = childID.as<UUID>();
-				Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
-				if (!child)
-				{
-					// todo deserialize;
-					YAML::Node childNode = FindEntity(scene, deserializedChildID);
-					child = DeserializeEntity(childNode, scene, deserializedScene);
-				}
-
-				if(child)
-					child.SetParent(deserializedEntity, true);
+				TR_ASSERT(false, "Invalid id");
+				return { };
 			}
-		}
 
-		auto scriptComponent = data["ScriptComponent"];
-		if (scriptComponent)
-		{
-			// TODO:
-			auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
-			sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
+			Entity entity = deserializedScene->FindEntityWithUUID(id);
+			if (entity) return entity;
 
-			if (ScriptEngine::ClassExists(sc.ModuleName)) 
+			auto tagComponent = data["TagComponent"];
+			if (!tagComponent)
 			{
-				GCHandle handle = ScriptEngine::InitializeScriptable(deserializedEntity);
+				TR_ASSERT(false, "Invalid tag component");
+				return { };
+			}
+
+			std::string name = tagComponent["Tag"].as<std::string>();
+			Entity deserializedEntity = deserializedScene->CreateEntityWithUUID(name, id);
+
+			auto transformComponent = data["TransformComponent"];
+			if (transformComponent)
+			{
+				auto& tc = deserializedEntity.GetTransform();
+				tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+				tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+				tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+
+			auto cameraComponent = data["CameraComponent"];
+			if (cameraComponent)
+			{
+				auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+				auto camera = cameraComponent["Camera"];
+				cc.Camera.SetOrthographicSize(camera["Size"].as<float>(10.0f));
+				cc.Camera.SetOrthographicNear(camera["Near"].as<float>(-10.0f));
+				cc.Camera.SetOrthographicFar(camera["Far"].as<float>(10.0f));
+
+				cc.Primary = cameraComponent["Primary"].as<bool>(false);
+				cc.BackgroundColor = cameraComponent["ClearColor"].as<glm::vec4>(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+			}
+
+			auto spriteRendererComponent = data["SpriteRendererComponent"];
+			if (spriteRendererComponent)
+			{
+				auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
+				src.Color = spriteRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				src.TextureHandle = spriteRendererComponent["Texture"].as<UUID>(UUID::Invalid());
+			}
+
+			auto circleRendererComponent = data["CircleRendererComponent"];
+			if (circleRendererComponent)
+			{
+				auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
+				crc.Color = circleRendererComponent["Color"].as<glm::vec4>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				crc.Thickness = circleRendererComponent["Thickness"].as<float>(1.0f);
+			}
+
+			auto relationshipComponent = data["RelationshipComponent"];
+			if (relationshipComponent)
+			{
+				// TODO:
+				auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
+				for (auto childID : relationshipComponent["Children"])
+				{
+					UUID deserializedChildID = childID.as<UUID>();
+					Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
+					if (!child)
+					{
+						YAML::Node childNode = FindEntity(scene, deserializedChildID);
+						child = DeserializeEntity(childNode, scene, deserializedScene);
+					}
+
+					if (child)
+						child.SetParent(deserializedEntity, true);
+				}
+			}
+
+			auto scriptComponent = data["ScriptComponent"];
+			if (scriptComponent)
+			{
+				auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
+				sc.ModuleName = scriptComponent["ModuleName"].as<std::string>();
+
+				Shared<ScriptInstance> scriptInstance = ScriptEngine::CreateScriptInstance(deserializedEntity);
 				auto scriptFields = scriptComponent["Fields"];
 				if (scriptFields)
-					DeserializeScriptFields(handle, sc, scriptFields);
+					DeserializeScriptFields(scriptInstance, sc, scriptFields);
 			}
-		}
 
-		auto boxColliderComponent = data["BoxCollider2DComponent"];
-		if (boxColliderComponent) 
-		{
-			auto& bcc = deserializedEntity.AddComponent<BoxCollider2DComponent>();
-			bcc.Offset = boxColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
-			bcc.Size = boxColliderComponent["Size"].as<glm::vec2>(glm::vec2(1.0f, 1.0f));
-			bcc.Sensor = boxColliderComponent["Sensor"].as<bool>(false);
-		}
+			auto boxColliderComponent = data["BoxCollider2DComponent"];
+			if (boxColliderComponent)
+			{
+				auto& bcc = deserializedEntity.AddComponent<BoxCollider2DComponent>();
+				bcc.Offset = boxColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+				bcc.Size = boxColliderComponent["Size"].as<glm::vec2>(glm::vec2(1.0f, 1.0f));
+				bcc.Sensor = boxColliderComponent["Sensor"].as<bool>(false);
+			}
 
-		auto circleColliderComponent = data["CircleCollider2DComponent"];
-		if (circleRendererComponent) 
-		{
-			auto& ccc = deserializedEntity.AddComponent<CircleCollider2DComponent>();
-			ccc.Offset = circleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
-			ccc.Radius = circleColliderComponent["Radius"].as<float>(0.5f);
-			ccc.Sensor = circleColliderComponent["Sensor"].as<bool>(false);
-		}
+			auto circleColliderComponent = data["CircleCollider2DComponent"];
+			if (circleRendererComponent)
+			{
+				auto& ccc = deserializedEntity.AddComponent<CircleCollider2DComponent>();
+				ccc.Offset = circleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+				ccc.Radius = circleColliderComponent["Radius"].as<float>(0.5f);
+				ccc.Sensor = circleColliderComponent["Sensor"].as<bool>(false);
+			}
 
-		auto rigidbodyComponent = data["Rigidbody2DComponent"];
-		if (rigidbodyComponent) 
-		{
-			auto& rbc = deserializedEntity.AddComponent<Rigidbody2DComponent>();
-			rbc.BodyType = PhysicsBodyTypeFromString(rigidbodyComponent["BodyType"].as<std::string>());
-			rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
-			rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
-			rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
-		}
-		
-		auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
-		if (capsuleColliderComponent)
-		{
-			auto& ccc = deserializedEntity.AddComponent<CapsuleCollider2DComponent>();
-			ccc.Offset = capsuleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
-			ccc.Size = capsuleColliderComponent["Size"].as<glm::vec2>(glm::vec2(0.5f, 1.0f));
-			ccc.Sensor = capsuleColliderComponent["Sensor"].as<bool>(false);
-		}
+			auto rigidbodyComponent = data["Rigidbody2DComponent"];
+			if (rigidbodyComponent)
+			{
+				auto& rbc = deserializedEntity.AddComponent<Rigidbody2DComponent>();
+				rbc.BodyType = PhysicsBodyTypeFromString(rigidbodyComponent["BodyType"].as<std::string>());
+				rbc.FixedRotation = rigidbodyComponent["FixedRotation"].as<bool>(false);
+				rbc.SleepState = PhysicsBodySleepStateFromString(rigidbodyComponent["SleepState"].as<std::string>());
+				rbc.GravityScale = rigidbodyComponent["GravityScale"].as<float>(1.0f);
 
-		return deserializedEntity;
+				if(rigidbodyComponent["Material"])
+					rbc.PhysicsMaterialHandle = rigidbodyComponent["Material"].as<UUID>(UUID::Invalid());
+			}
+
+			auto capsuleColliderComponent = data["CapsuleCollider2DComponent"];
+			if (capsuleColliderComponent)
+			{
+				auto& ccc = deserializedEntity.AddComponent<CapsuleCollider2DComponent>();
+				ccc.Offset = capsuleColliderComponent["Offset"].as<glm::vec2>(glm::vec2(0.0f, 0.0f));
+				ccc.Size = capsuleColliderComponent["Size"].as<glm::vec2>(glm::vec2(0.5f, 1.0f));
+				ccc.Sensor = capsuleColliderComponent["Sensor"].as<bool>(false);
+			}
+
+			return deserializedEntity;
+		}
+		catch (const YAML::InvalidNode& ex) 
+		{
+			TR_ERROR(ex.what());
+			return Entity();
+		}
 	}
 
 	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
@@ -559,7 +628,8 @@ namespace TerranEngine
 		{
 			for (auto entity : entities)
 			{
-				DeserializeEntity(entity, entities, m_Scene);
+				if (!DeserializeEntity(entity, entities, m_Scene))
+					return false;
 			}
 		}
 

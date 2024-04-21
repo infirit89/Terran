@@ -33,7 +33,7 @@ namespace TerranEngine
 		/*if (GetCurrentDirectoryA(256, currentDir))
 			ofn.lpstrInitialDir = currentDir;*/
 
-		std::string assetPathStr = Project::GetAssetPath().string();
+		std::string assetPathStr = std::filesystem::absolute(Project::GetAssetPath()).string();
 		ofn.lpstrInitialDir = assetPathStr.c_str();
 
 		ofn.lpstrFilter = filter;
@@ -63,7 +63,7 @@ namespace TerranEngine
 		/*if (GetCurrentDirectoryA(256, currentDir))
 			ofn.lpstrInitialDir = currentDir;*/
 
-		std::string assetPathStr = Project::GetAssetPath().string();
+		std::string assetPathStr = std::filesystem::absolute(Project::GetAssetPath()).string();
 		ofn.lpstrInitialDir = assetPathStr.c_str();
 
 		ofn.lpstrFilter = filter;

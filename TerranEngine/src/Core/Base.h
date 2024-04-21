@@ -29,12 +29,6 @@ namespace TerranEngine
 	template<typename T>
 	using Weak = std::weak_ptr<T>;
 
-	template<typename T, typename... Args>
-	Weak<T> CreateWeak(Args&&... args)
-	{
-		return std::make_weak<T>(std::forward<Args>(args)...);
-	}
-
 	template<typename T1, typename T2>
 	Shared<T1> DynamicCast(const Shared<T2>& ptr) 
 	{

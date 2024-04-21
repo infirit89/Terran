@@ -5,7 +5,7 @@
 #include "Scene/Components.h"
 #include "SelectionManager.h"
 
-#include "Scripting/ScriptCache.h"
+//#include "Scripting/ScriptCache.h"
 
 #include "Physics/PhysicsLayerManager.h"
 
@@ -35,6 +35,7 @@ namespace TerranEditor
 	template<typename T>
 	static void DrawComponent(const char* label, Entity entity, UIFunc<T> func, bool removable = true)
 	{
+		TR_PROFILE_FUNCTION();
 		if (entity.HasComponent<T>()) 
 		{
 			auto& component = entity.GetComponent<T>();
@@ -151,87 +152,89 @@ namespace TerranEditor
 			bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
-			UI::BeginPropertyGroup("transform");
-			ImGui::TableNextRow();
-
-			if (UI::PropertyVec3("Position", component.Position))
+			UI::PropertyGroup("transform", [&component, &physicsBody, isScenePlaying]() 
 			{
-				component.IsDirty = true;
+				ImGui::TableNextRow();
 
-				if (physicsBody && isScenePlaying)
-					physicsBody->SetPosition({ component.Position.x, component.Position.y });
-			}
+				if (UI::PropertyVec3("Position", component.Position))
+				{
+					component.IsDirty = true;
 
-			ImGui::TableNextRow();
-			if (UI::PropertyVec3("Rotation", component.Rotation))
-			{
-				component.IsDirty = true;
+					if (physicsBody && isScenePlaying)
+						physicsBody->SetPosition({ component.Position.x, component.Position.y });
+				}
 
-				if (physicsBody && isScenePlaying)
-					physicsBody->SetRotation(component.Rotation.z);
-			}
+				ImGui::TableNextRow();
+				if (UI::PropertyVec3("Rotation", component.Rotation))
+				{
+					component.IsDirty = true;
 
-			ImGui::TableNextRow();
-			if (UI::PropertyVec3("Scale", component.Scale))
-				component.IsDirty = true;
+					if (physicsBody && isScenePlaying)
+						physicsBody->SetRotation(component.Rotation.z);
+				}
 
-			UI::EndPropertyGroup();
+				ImGui::TableNextRow();
+				if (UI::PropertyVec3("Scale", component.Scale))
+					component.IsDirty = true;
+			});
 
 		}, false);
 
 		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
 		{
-			UI::BeginPropertyGroup("sprite_renderer");
-			ImGui::TableNextRow();
-			UI::PropertyColor("Color", component.Color);
-			ImGui::TableNextRow();
-			UI::PropertyAssetField<Texture2D>("Sprite", AssetType::Texture2D, component.TextureHandle);
-
-			Shared<Texture2D> texture = 
-							AssetManager::GetAsset<Texture2D>(component.TextureHandle);
-			if (texture) 
+			UI::PropertyGroup("sprite_renderer", [&component]() 
 			{
 				ImGui::TableNextRow();
-				constexpr size_t textureFilterNamesSize = 2;
-				const char* textureFilterNames[textureFilterNamesSize] = 
-				{ 
-					"Linear",
-					"Nearest"
-				};
+				UI::PropertyColor("Color", component.Color);
+				ImGui::TableNextRow();
+				UI::PropertyAssetField<Texture2D>("Sprite", AssetType::Texture2D, component.TextureHandle);
 
-				TextureFilter filter = texture->GetTextureParameters().Filter;
-				if (UI::PropertyDropdown("Filter", textureFilterNames, 
-										textureFilterNamesSize, filter)) 
+				Shared<Texture2D> texture = 
+								AssetManager::GetAsset<Texture2D>(component.TextureHandle);
+				if (texture) 
 				{
-					texture->SetTextureFilter(filter);
-				}
-			}
+					ImGui::TableNextRow();
+					constexpr size_t textureFilterNamesSize = 2;
+					const char* textureFilterNames[textureFilterNamesSize] = 
+					{ 
+						"Linear",
+						"Nearest"
+					};
 
-			UI::EndPropertyGroup();
+					TextureFilter filter = texture->GetTextureParameters().Filter;
+					if (UI::PropertyDropdown("Filter", textureFilterNames, 
+											textureFilterNamesSize, filter)) 
+					{
+						texture->SetTextureFilter(filter);
+					}
+				}
+			});
 		});
 
 		DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](CircleRendererComponent& component)
 		{
-			UI::BeginPropertyGroup("circle_renderer");
-			ImGui::TableNextRow();
-			UI::PropertyColor("Color", component.Color);
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Thickness", component.Thickness);
-			UI::EndPropertyGroup();
+			UI::PropertyGroup("circle_renderer", [&component]()
+			{
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", component.Color);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Thickness", component.Thickness);
+			});
 		});
 
 		DrawComponent<LineRendererComponent>("Line Renderer", entity, [](LineRendererComponent& lineRenderer)
 		{
-			UI::BeginPropertyGroup("line_renderer");
-			ImGui::TableNextRow();
-			UI::PropertyColor("Color", lineRenderer.Color);
-			ImGui::TableNextRow();
-			UI::PropertyFloat("Thickness", lineRenderer.Thickness);
-			ImGui::TableNextRow();
-			UI::PropertyVec3("Start Point", lineRenderer.StartPoint);
-			ImGui::TableNextRow();
-			UI::PropertyVec3("End Point", lineRenderer.EndPoint);
-			UI::EndPropertyGroup();
+			UI::PropertyGroup("line_renderer", [&lineRenderer]()
+			{
+				ImGui::TableNextRow();
+				UI::PropertyColor("Color", lineRenderer.Color);
+				ImGui::TableNextRow();
+				UI::PropertyFloat("Thickness", lineRenderer.Thickness);
+				ImGui::TableNextRow();
+				UI::PropertyVec3("Start Point", lineRenderer.StartPoint);
+				ImGui::TableNextRow();
+				UI::PropertyVec3("End Point", lineRenderer.EndPoint);
+			});
 		});
 
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
@@ -244,6 +247,10 @@ namespace TerranEditor
 			float camSize = component.Camera.GetOrthographicSize();
 			if (UI::PropertyFloat("Size", camSize))
 				component.Camera.SetOrthographicSize(camSize);
+
+			ImGui::TableNextRow();
+			if (UI::PropertyBool("Is Primary", component.Primary))
+				component.Primary = !component.Primary;
 
 			UI::EndPropertyGroup();
 
@@ -267,7 +274,7 @@ namespace TerranEditor
 			UI::BeginPropertyGroup("script_module");
 			ImGui::TableNextRow();
 			if (UI::PropertyString("Script", component.ModuleName, ImGuiInputTextFlags_EnterReturnsTrue))
-				ScriptEngine::InitializeScriptable(entity);
+				ScriptEngine::CreateScriptInstance(entity);
 			UI::EndPropertyGroup();
 
 			if (!component.ClassExists)
@@ -278,27 +285,29 @@ namespace TerranEditor
 			}
 
 			UI::BeginPropertyGroup("script_properties");
-			if (!component.PublicFieldIDs.empty())
+			if (!component.FieldHandles.empty())
 			{
-				const GCHandle handle = ScriptEngine::GetScriptInstanceGCHandle(entity.GetSceneID(), entity.GetID());
+				Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
 
-				for (const auto& fieldID : component.PublicFieldIDs)
+				for (const auto& fieldHandle : component.FieldHandles)
 				{
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
+					const ScriptField& field = scriptInstance->GetScriptField(fieldHandle);
 
-					if (field->GetType().IsArray())
+					if (field.IsArray)
 					{
-						UI::EndPropertyGroup();
-						ScriptArray array = field->GetArray(handle);
-						if (UI::PropertyScriptArrayField(m_Scene, field, array))
-							field->SetArray(array, handle);
+						ScriptArray array = scriptInstance->GetScriptArray(fieldHandle);
+						if (array.Rank > 1)
+							continue;
 
+						UI::EndPropertyGroup();
+						UI::PropertyScriptArrayField(m_Scene, array, scriptInstance);
+						
 						UI::BeginPropertyGroup("script_properties");
 					}
 					else 
 					{
 						ImGui::TableNextRow();
-						UI::PropertyScriptField(m_Scene, field, handle);
+						UI::PropertyScriptField(m_Scene, fieldHandle, scriptInstance);
 					}
 				}
 			}
@@ -530,7 +539,7 @@ namespace TerranEditor
 
 			// TODO: make it changeable
 			if (!textRenderer.FontAtlas)
-				textRenderer.FontAtlas = CreateShared<Font>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
+				textRenderer.FontAtlas = Font::DefaultFont;
 
 			UI::PropertyColor("Text Color", textRenderer.TextColor);
 

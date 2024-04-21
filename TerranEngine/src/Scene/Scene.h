@@ -43,8 +43,8 @@ namespace TerranEngine
 		void UpdateEditor();
 		void OnResize(float width, float height);
 
-		void OnRender(Shared<SceneRenderer>& sceneRenderer);
-		void OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
+		void OnRender(Shared<SceneRenderer> sceneRenderer);
+		void OnRenderEditor(Shared<SceneRenderer> sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
 		Entity FindEntityWithUUID(UUID uuid);
 		Entity FindEntityWithName(const std::string& name);
@@ -90,6 +90,11 @@ namespace TerranEngine
 		void ConvertToWorldSpace(Entity entity);
 	
 		void SortEntities();
+		const glm::vec2& GetViewportPosition() const { return m_ViewportPosition; }
+		void SetViewportPosition(const glm::vec2& viewportPosition) { m_ViewportPosition = viewportPosition; }
+
+		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
+		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
 	private:
 
         // scripting components
@@ -108,6 +113,10 @@ namespace TerranEngine
 
 		void OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
+		// text component
+		void OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+		void OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 	private:
 		// TODO: add scene name and UUID
 
@@ -118,6 +127,8 @@ namespace TerranEngine
 		std::unordered_map<UUID, entt::entity> m_EntityMap;
 
 		entt::registry m_Registry;
+		glm::vec2 m_ViewportPosition = { 0.0f, 0.0f };
+		uint32_t m_ViewportWidth = 1080, m_ViewportHeight = 720;
 
 		friend class SceneRenderer;
 		friend class Entity;

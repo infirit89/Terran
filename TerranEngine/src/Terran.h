@@ -52,14 +52,6 @@
 
 /* ---- Scripting ---- */
 #include "Scripting/ScriptEngine.h"
-#include "Scripting/ManagedClass.h"
-#include "Scripting/ScriptField.h"
-#include "Scripting/ManagedMethod.h"
-#include "Scripting/ManagedObject.h"
-#include "Scripting/ScriptArray.h"
-#include "Scripting/ScriptCache.h"
-
-#include "Scripting/ScriptBindings.h"
 
 /* ---- Physics ---- */
 #include "Physics/Physics.h"

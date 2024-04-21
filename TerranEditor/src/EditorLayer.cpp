@@ -59,7 +59,7 @@ namespace TerranEditor
 
 		std::vector<spdlog::sink_ptr> clientSinks
 		{
-			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Terran_Editor.log", true),
+			std::make_shared<spdlog::sinks::basic_file_sink_mt>(Log::GetFormattedFileLoggerName("Terran_Editor"), true),
 			std::make_shared<EditorConsoleSink>()
 		};
 
@@ -76,6 +76,8 @@ namespace TerranEditor
 	{
 		EditorResources::Init();
 		UI::SetupUIStyle4();
+
+		Font::DefaultFont = CreateShared<Font>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
 		m_EditorScene = SceneManager::CreateEmpyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
@@ -127,24 +129,20 @@ namespace TerranEditor
 		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
-		ScriptEngine::SetLogCallback([this](const std::string& message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
+		ScriptEngine::SetLogCallback([this](std::string_view message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
 		ScriptEngine::LoadAppAssembly();
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
-
-		TR_CLIENT_ERROR("Test");
-		TR_CLIENT_WARN("Test");
-		TR_CLIENT_TRACE("Test");
-		TR_CLIENT_INFO("Test");
 	}
 
 	void EditorLayer::OnDettach()
 	{
 		FileSystem::StopWatch();
 		EditorResources::Shutdown();
+		Font::DefaultFont = nullptr;
 	}
 
 	void EditorLayer::Update(Time& time)
@@ -454,7 +452,7 @@ namespace TerranEditor
 			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
-	void EditorLayer::OnScriptEngineLog(const std::string& message, spdlog::level::level_enum level)
+	void EditorLayer::OnScriptEngineLog(std::string_view message, spdlog::level::level_enum level)
 	{
 		switch (level)
 		{
@@ -477,23 +475,12 @@ namespace TerranEditor
 	{
 		m_ViewportSize = newViewportSize;
 
-		switch (m_SceneState)
-		{
-		case TerranEditor::SceneState::Edit: 
-		{
-			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		if(m_SceneState == SceneState::Edit)
 			m_EditorCamera.OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
-			break;
-		}
-		case TerranEditor::SceneState::Play:
-		{
-			//m_RuntimeSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
-			m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 
-			break;
-		}
-		}
+		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+		m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+
 	}
 
 	void EditorLayer::ImGuiRender()
@@ -507,8 +494,6 @@ namespace TerranEditor
 		}
 
 		RenderDockspace();
-
-		ImGui::ShowDemoWindow();
 
 		AssetEditorManager::RenderEditors();
 

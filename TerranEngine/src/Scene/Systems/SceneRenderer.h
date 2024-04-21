@@ -28,9 +28,6 @@ namespace TerranEngine
 
 		void SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID);
 
-		uint32_t GetViewportWidth() { return m_Width; }
-		uint32_t GetViewportHeight() { return m_Height; }
-
 		void EndScene();
 
 		Shared<Framebuffer>& GetFramebuffer() { return m_Framebuffer; }
@@ -48,8 +45,6 @@ namespace TerranEngine
 		bool m_ShowColliders = false;
 
 		glm::vec4 m_ClearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-
-		uint32_t m_Width = 1080, m_Height = 720;
 
 		Shared<Framebuffer> m_Framebuffer;
 	};

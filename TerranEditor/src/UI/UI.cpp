@@ -30,14 +30,18 @@ namespace TerranEditor
 
 		for (size_t i = 0; i < name.size(); i++)
 		{
+			if (name.at(i) == '<')
+				continue;
+
+			if (name.at(i) == '>')
+				break;
+
 			if (isupper(name.at(i)))
-			{
 				result += " ";
-				result += name.at(i);
-			}
-			else
-				result += name.at(i);
+
+			result += name.at(i);
 		}
+
 
 		return result;
 	}
@@ -695,9 +699,9 @@ namespace TerranEditor
 
 		ScaleUI();
 	}
-	bool UI::BeginPropertyGroup(const char* propertyGroupName)
+	bool UI::BeginPropertyGroup(std::string_view propertyGroupName)
 	{
-		if (!ImGui::BeginTable(propertyGroupName, 2, ImGuiTableFlags_SizingFixedFit))
+		if (!ImGui::BeginTable(propertyGroupName.data(), 2, ImGuiTableFlags_SizingFixedFit))
 			return false;
 		// NOTE: consider exposing this to some sort of settings
 		const float labelColumnWidth = 100.0f;
@@ -754,13 +758,13 @@ namespace TerranEditor
 
 	static constexpr float power = 0.1f;
 
-	bool UI::PropertyColor(const std::string& label, glm::vec4& value)
+	bool UI::PropertyColor(std::string_view label, glm::vec4& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
@@ -994,6 +998,18 @@ namespace TerranEditor
 		return changed;
 	}
 
+	// TODO: support wide strings
+	bool UI::PropertyChar(const std::string& label, char& value)
+	{
+		std::string strVal; strVal += value;
+		bool changed = PropertyString(label, strVal, 0, 2);
+
+		if (strVal.empty()) return false;
+		value = strVal.at(0);
+
+		return changed;
+	}
+
 	bool UI::Button(const std::string& label, const char* buttonLabel)
 	{
 		ImGui::PushID(label.c_str());
@@ -1206,62 +1222,48 @@ namespace TerranEditor
 	}
 
 	template<typename T>
-	static void DrawFieldValue(ScriptField* field, GCHandle handle,
-		const std::function<bool(const std::string& fieldName, T& value, const ManagedType& fieldType)>& drawFunc)
+	static void DrawFieldValue(int32_t fieldHandle, const std::string& fieldName, const Shared<ScriptInstance>& scriptInstance,
+		const std::function<bool(const std::string& fieldName, T& value)>& drawFunc)
 	{
-		T value = field->GetData<T>(handle);
-		std::string fieldName = ProccessFieldName(field->GetName());
-		if (drawFunc(fieldName, value, field->GetType()))
-			field->SetData<Utils::Variant>(value, handle);
+		T value = scriptInstance->GetFieldValue<T>(fieldHandle);
+		std::string proccessedFieldName = ProccessFieldName(fieldName);
+		if (drawFunc(proccessedFieldName, value))
+			scriptInstance->SetFieldValue<T>(fieldHandle, value);
 	}
 
-#define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)\
-	case NativeType::FieldType:\
-	{\
-		DrawFieldValue<Type>(field, handle,\
-		[](const std::string& fieldName, auto& value, const ManagedType& fieldType)\
-		{\
-			return PropertyScalar(fieldName, value);\
-		});\
-	}\
+#define DRAW_FIELD_PROPERTY(FieldType, Type, DrawFunc, ...)				\
+	case ScriptType::FieldType:											\
+	{																	\
+		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,	\
+		[&__VA_ARGS__](const std::string& fieldName, auto& value)		\
+		{																\
+			return DrawFunc(fieldName, value, __VA_ARGS__);				\
+		});																\
+	}																	\
 	break
 
-	void UI::PropertyScriptField(const TerranEngine::Shared<Scene>& scene, TerranEngine::ScriptField* field, const TerranEngine::GCHandle& handle)
+#define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)						\
+	case ScriptType::FieldType:											\
+	{																	\
+		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,	\
+		[](const std::string& fieldName, auto& value)					\
+		{																\
+			return PropertyScalar(fieldName, value);					\
+		});																\
+	}																	\
+	break
+
+	void UI::PropertyScriptField(const Shared<Scene>& scene, int32_t fieldHandle, const Shared<ScriptInstance>& scriptInstance)
 	{
-		TR_ASSERT(handle, "Invalid handle");
+		TR_ASSERT(scriptInstance, "Invalid script instance");
+		
+		/*const ManagedClass& typeClass = field->GetType().GetTypeClass();*/
+		/*std::vector<ScriptField> enumFields;*/
 
-		const ManagedClass& typeClass = field->GetType().GetTypeClass();
-		std::vector<ScriptField> enumFields;
+		const ScriptField& field = scriptInstance->GetScriptField(fieldHandle);
 
-		switch (field->GetType().GetNativeType())
+		switch (field.Type)
 		{
-		case NativeType::Bool:
-		{
-			DrawFieldValue<bool>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyBool(fieldName, value);
-				});
-
-			break;
-		}
-		case NativeType::Char:
-		{
-			DrawFieldValue<wchar_t>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					// TODO: support wide strings
-					std::string strVal; strVal += (char)value;
-					bool changed = PropertyString(fieldName, strVal, 0, 2);
-
-					if (strVal.empty()) return false;
-					value = strVal.at(0);
-
-					return changed;
-				});
-
-			break;
-		}
 		DRAW_FIELD_PROPERTY_SCALAR(Int8, int8_t);
 		DRAW_FIELD_PROPERTY_SCALAR(Int16, int16_t);
 		DRAW_FIELD_PROPERTY_SCALAR(Int32, int32_t);
@@ -1272,57 +1274,15 @@ namespace TerranEditor
 		DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
 		DRAW_FIELD_PROPERTY_SCALAR(Float, float);
 		DRAW_FIELD_PROPERTY_SCALAR(Double, double);
-		case NativeType::String:
-		{
-			DrawFieldValue<std::string>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyString(fieldName, value);
-				});
-
-			break;
+		DRAW_FIELD_PROPERTY(Bool, bool, PropertyBool);
+		DRAW_FIELD_PROPERTY(Char, char, PropertyChar);
+		DRAW_FIELD_PROPERTY(String, std::string, PropertyString);
+		DRAW_FIELD_PROPERTY(Vector2, glm::vec2, PropertyVec2);
+		DRAW_FIELD_PROPERTY(Vector3, glm::vec3, PropertyVec3);
+		DRAW_FIELD_PROPERTY(Color, glm::vec4, PropertyColor);
+		DRAW_FIELD_PROPERTY(Entity, UUID, PropertyEntity, scene);
 		}
-		case NativeType::Vector2:
-		{
-			DrawFieldValue<glm::vec2>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyVec2(fieldName, value);
-				});
-
-			break;
-		}
-		case NativeType::Vector3:
-		{
-			DrawFieldValue<glm::vec3>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyVec3(fieldName, value);
-				});
-
-			break;
-		}
-		case NativeType::Color:
-		{
-			DrawFieldValue<glm::vec4>(field, handle,
-				[](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyColor(fieldName, value);
-				});
-
-			break;
-		}
-		case NativeType::Entity:
-		{
-			DrawFieldValue<UUID>(field, handle,
-				[&](const std::string& fieldName, auto& value, const ManagedType& fieldType)
-				{
-					return PropertyEntity(fieldName, value, scene);
-				});
-
-			break;
-		}
-		}
+	}
 
 #if 0
 		const char** enumFieldNames = nullptr;
@@ -1549,35 +1509,37 @@ namespace TerranEditor
 			delete[] enumFieldNames;
 #endif
 
-	}
+	//}
 
-#define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)		\
-	case NativeType::FieldType:								\
-	{														\
-		Type value = array.Get<Type>(i);					\
-		if(UI::PropertyScalar<Type>(elementName, value))	\
-		{													\
-			array.Set<Type>(i, value);						\
-			hasChanged = true;								\
-		}													\
-	}														\
+#define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)					\
+	case ScriptType::FieldType:											\
+	{																	\
+		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
+		if(UI::PropertyScalar<Type>(elementName, value))				\
+		{																\
+			scriptInstance->SetFieldArrayValue(array, value, i);		\
+			hasChanged = false;											\
+		}																\
+	}																	\
 	break
 
-#define DRAW_FIELD_ARRAY_VALUE_OBJECT(FieldType, Type, DrawFunc)	\
-	case NativeType::FieldType:										\
-	{																\
-		Type value = array.At(i);									\
-		if(DrawFunc(elementName, value))							\
-		{															\
-			array.Set<Utils::Variant>(i, value);					\
-			hasChanged = true;										\
-		}															\
-	}																\
+#define DRAW_FIELD_ARRAY_VALUE(FieldType, Type, DrawFunc, ...)			\
+	case ScriptType::FieldType:											\
+	{																	\
+		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
+		if(DrawFunc(elementName, value, __VA_ARGS__))					\
+		{																\
+			scriptInstance->SetFieldArrayValue(array, value, i);		\
+			hasChanged = false;											\
+		}																\
+	}																	\
 	break
 
-	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, TerranEngine::ScriptField* field, ScriptArray& array)
+	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, ScriptArray& array, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance)
 	{
 		bool hasChanged = false;
+
+		const ScriptField& field = scriptInstance->GetScriptField(array.FieldHandle);
 
 		UI::PushID();
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth |
@@ -1588,20 +1550,23 @@ namespace TerranEditor
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 
-		bool opened = ImGui::TreeNodeEx(field->GetName().c_str(), flags);
+		bool opened = ImGui::TreeNodeEx(field.Name.c_str(), flags);
 
 		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 1.5f);
 
 		ImGui::PushItemWidth(lineHeight * 1.5f);
-		size_t arrayLength = array.Length();
+		int32_t arrayLength = scriptInstance->GetFieldArrayLength(array);
 
-		std::string name = fmt::format("##{0}{1}", field->GetName().c_str(), "array_size");
-		if (UI::DragScalar<uint64_t>(name.c_str(), &arrayLength, 0.1f))
+		std::string name = fmt::format("##{0}{1}", field.Name.c_str(), "array_size");
+		if (UI::DragScalar<int32_t>(name.c_str(), &arrayLength, 0.1f))
 		{
-			if (array)
+			// TODO: when array isn't initialized in c# code
+			/*if (array.Handle)
 				array.Resize(arrayLength);
 			else
-				array = ScriptArray(field->GetType().GetTypeClass(), arrayLength);
+				array = ScriptArray(field->GetType().GetTypeClass(), arrayLength);*/
+
+			scriptInstance->ResizeFieldArray(array, arrayLength);
 
 			hasChanged = true;
 		}
@@ -1615,39 +1580,14 @@ namespace TerranEditor
 		if (opened)
 		{
 			UI::BeginPropertyGroup("script_array_values");
-			for (uint32_t i = 0; i < array.Length(); i++)
+			for (int32_t i = 0; i < arrayLength; i++)
 			{
 				ImGui::TableNextRow();
 				std::string elementName = std::to_string(i);
-				switch (array.GetElementType().GetNativeType())
+				switch (field.Type)
 				{
-				case NativeType::Bool:
-				{
-					bool value = array.Get<bool>(i);
-					if (PropertyBool(elementName, value))
-					{
-						array.Set(i, value);
-						hasChanged = true;
-					}
-
-					break;
-				}
-				case NativeType::Char:
-				{
-					char value = (char)array.Get<wchar_t>(i);
-					// TODO: kinda hacky implementation, make a UI::DrawCharControl function
-					std::string strVal; strVal += value;
-					if (PropertyString(elementName, strVal, 0, 2))
-					{
-						if (strVal.empty())
-							break;
-						const wchar_t wc = strVal.at(0);
-						array.Set<wchar_t>(i, wc);
-						hasChanged = true;
-					}
-
-					break;
-				}
+				DRAW_FIELD_ARRAY_VALUE(Bool, bool, PropertyBool);
+				DRAW_FIELD_ARRAY_VALUE(Char, char, PropertyChar);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int8, int8_t);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int16, int16_t);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int32, int32_t);
@@ -1658,20 +1598,11 @@ namespace TerranEditor
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt64, uint64_t);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Float, float);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Double, double);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(String, std::string, UI::PropertyString);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector2, glm::vec2, UI::PropertyVec2);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(Vector3, glm::vec3, UI::PropertyVec3);
-				DRAW_FIELD_ARRAY_VALUE_OBJECT(Color, glm::vec4, UI::PropertyColor);
-				case NativeType::Entity:
-				{
-					UUID value = array.At(i);
-					if (UI::PropertyEntity(elementName, value, scene))
-					{
-						array.Set<Utils::Variant>(i, value);
-						hasChanged = true;
-					}
-					break;
-				}
+				DRAW_FIELD_ARRAY_VALUE(String, std::string, UI::PropertyString);
+				DRAW_FIELD_ARRAY_VALUE(Vector2, glm::vec2, UI::PropertyVec2);
+				DRAW_FIELD_ARRAY_VALUE(Vector3, glm::vec3, UI::PropertyVec3);
+				DRAW_FIELD_ARRAY_VALUE(Color, glm::vec4, UI::PropertyColor);
+				DRAW_FIELD_ARRAY_VALUE(Entity, UUID, PropertyEntity, scene);
 				}
 			}
 			UI::EndPropertyGroup();

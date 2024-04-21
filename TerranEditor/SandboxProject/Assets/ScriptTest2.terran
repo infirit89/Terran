@@ -21,7 +21,10 @@ Entities:
       Position: [0, 0, 0]
       Scale: [1, 1, 1]
       Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
     ScriptComponent:
-      ModuleName: ScriptAssembly.Test
+      ModuleName: ScriptAssembly.Test2
       Fields:
-        - Test1: [cum, cum2, cum5]
+        - Test: 10

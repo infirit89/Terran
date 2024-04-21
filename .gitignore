@@ -41,6 +41,8 @@
 bin/
 bin-int/
 Intermidiates/
+obj/
+net8.0/
 
 # Visual Studio Solution
 *.sln
@@ -76,3 +78,7 @@ shaderc/
 
 # Cached Shaders
 *.cached
+
+#VSCode
+.vscode/
+*.code-workspace

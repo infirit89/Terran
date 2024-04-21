@@ -1,106 +1,170 @@
-﻿namespace Terran
+﻿using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+namespace Terran
 {
-	public class Entity
-	{
-		internal UUID ID
-		{
-			get => m_ID;
-		}
+    public class Entity
+    {
+        public UUID ID
+        {
+            get => m_ID;
+        }
 
-		private UUID m_ID;
+        private UUID m_ID;
 
-		public string Name
-		{
-			get => GetComponent<Tag>().Name;
-			set => GetComponent<Tag>().Name = value;
-		}
-		public Transform Transform => GetComponent<Transform>();
+        public string Name
+        {
+            get => GetComponent<Tag>()!.Name;
+            set => GetComponent<Tag>()!.Name = value;
+        }
+        public Transform Transform => GetComponent<Transform>()!;
 
-		public Entity()
-		{
-			m_ID = new UUID();
-		}
+        public Entity()
+        {
+            m_ID = new UUID();
+        }
 
-		internal Entity(byte[] uuidData)
-		{
-			m_ID = new UUID(uuidData);
-		}
+        internal Entity(UUID id)
+        {
+            m_ID = id;
+            //m_ID = new UUID(uuidData);
+        }
 
-		public static Entity FindWithName(string name)
-		{
-			byte[] entityID = Internal.Entity_FindEntityWithName(name);
+        public static Entity? FindWithName(string name)
+        {
+            unsafe
+            {
+                if (!Internal.Entity_FindEntityWithNameICall(name, out var id))
+                    return null;
 
-			if (entityID != null)
-				return new Entity(entityID);
+                Log.Trace(id);
 
-			return null;
-		}
+                return new Entity(id);
+            }
+        }
 
-		internal static Entity FindWithID(UUID id)
-		{
-			return Internal.Entity_FindEntityWithID(id) ? new Entity(id) : null;
-		}
+        public static void Destroy(Entity entity)
+        {
+            unsafe
+            {
+                if (entity != null)
+                    Internal.Entity_DestroyEntityICall(entity.ID);
+            }
+        }
 
-		public static void Destroy(Entity entity) 
-		{
-			if (entity != null)
-				Internal.Entity_DestroyEntity(entity.ID.Data);
-		}
+        public void AddComponent<T>() where T : Component
+        {
+            if (typeof(T) == typeof(Collider2D))
+            {
+                Log.Error("Can't add Collider2D to an entity because it is abstract!");
+                return;
+            }
 
-		public void AddComponent<T>() where T : Component
-		{
-			if (typeof(T) == typeof(Collider2D)) 
-			{
-				Log.Error("Can't add Collider2D to an entity because it is abstract!");
-				return;
-			}
+            unsafe
+            {
+                Internal.Entity_AddComponentICall(ID, typeof(T).GetHashCode());
+            }
+        }
 
-			Internal.Entity_AddComponent(ID.Data, typeof(T));
-		}
+        //public Entity[]? GetChildren()
+        //{
+        //    unsafe
+        //    {
+        //        IntPtr childrenIdsHandle = Internal.Entity_GetChildrenICall(in m_ID);
+        //        if (childrenIdsHandle == IntPtr.Zero)
+        //            return null;
 
-		public Entity[] GetChildren()
-		{
-			UUID[] childrenIDs = Internal.Entity_GetChildren(ID);
+        //        UUID[]? childrenIds = GCHandle.FromIntPtr(childrenIdsHandle).Target as UUID[];
+        //        if (childrenIds == null)
+        //            return null;
 
-			if (childrenIDs == null)
-				return null;
-			
-			Entity[] children = new Entity[childrenIDs.Length];
+        //        Entity[] children = new Entity[childrenIds!.Length];
 
-			for (int i = 0; i < childrenIDs.Length; i++)
-				children[i] = new Entity(childrenIDs[i]);
+        //        for (int i = 0; i < childrenIds.Length; i++)
+        //            children[i] = new Entity(childrenIds[i]);
+        //        return children;
+        //    }
+        //}
 
-			return children;
-		}
+        public bool HasComponent<T>() where T : Component
+        {
+            unsafe
+            {
+                return Internal.Entity_HasComponentICall(in m_ID, typeof(T).GetHashCode());
+            }
+        }
 
-		public bool HasComponent<T>() where T : Component => Internal.Entity_HasComponent(m_ID, typeof(T));
+        public void RemoveComponent<T>() where T : Component
+        {
+            if (HasComponent<T>())
+            {
+                if (typeof(T) == typeof(Collider2D))
+                {
+                    Log.Error("Can't remove Collider2D from an entity because it is abstract!");
+                    return;
+                }
 
-		public void RemoveComponent<T>() where T : Component 
-		{
-			if(HasComponent<T>()) 
-			{
-				if (typeof(T) == typeof(Collider2D))
-				{
-					Log.Error("Can't remove Collider2D from an entity because it is abstract!");
-					return;
-				}
+                unsafe
+                {
+                    Internal.Entity_RemoveComponentICall(ID, typeof(T).GetHashCode());
+                }
+            }
+        }
 
-				Internal.Entity_RemoveComponent(ID.Data, typeof(T));
-			}
-		} 
+        public T GetComponent<T>() where T : Component
+        {
+            if (HasComponent<T>())
+            {
+                if (typeof(T).IsSubclassOf(typeof(Scriptable)))
+                {
+                    unsafe
+                    {
+                        IntPtr handle = Internal.Entity_GetScriptableComponentICall(ID);
+                        if (handle == IntPtr.Zero)
+                            throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 
-		public T GetComponent<T>() where T : Component, new()
-		{
-			if (HasComponent<T>())
-			{
-				if (typeof(T).IsSubclassOf(typeof(Scriptable))) 
-					return Internal.Entity_GetScriptableComponent(ID.Data) as T;
+                        GCHandle gcHandle = GCHandle.FromIntPtr(handle);
 
-				T component = new T { Entity = new Entity(ID) };
-				return component;
-			}
+                        if (!(gcHandle.Target is T))
+                            throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 
-			return null;
-		}		
-	}
+                        return (T)gcHandle.Target;
+                    }
+                }
+
+                T? component = (T?)Activator.CreateInstance(typeof(T), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { ID }, null);
+
+                if (component == null)
+                    throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
+
+                return component;
+            }
+
+            throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
+        }
+
+        public int ChildrenCount
+        {
+            get
+            {
+                unsafe
+                {
+                    return Internal.Entity_GetChildrenCountICall(ID);
+                }
+            }
+        }
+
+        public Entity GetChild(int index)
+        {
+            unsafe
+            {
+                if (index < 0 || index >= ChildrenCount)
+                    throw new ArgumentOutOfRangeException("Index is out of range");
+
+                return new Entity(Internal.Entity_GetChildICall(ID, index));
+            }
+        }
+
+    }
 }

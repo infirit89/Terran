@@ -4,173 +4,233 @@
 #include "Core/MouseButtons.h"
 #include "Core/ControllerIndices.h"
 
-#include <glm/glm.hpp>
+#include "Physics/PhysicsStates.h"
+#include "Physics/Collider.h"
 
-extern "C" 
-{
-	typedef struct _MonoString MonoString;
-	typedef struct _MonoArray MonoArray;
-	typedef struct _MonoObject MonoObject;
-	typedef struct _MonoReflectionType MonoReflectionType;
-}
+#include <Coral/String.hpp>
+#include <Coral/Assembly.hpp>
+#include <Coral/ManagedObject.hpp>
+#include <Coral/ManagedArray.hpp>
+#include <glm/glm.hpp>
 
 namespace TerranEngine 
 {
-	namespace ScriptBindings
+	class ScriptBindings
 	{
-		void Bind();
+	public:
+		static void Bind(Coral::ManagedAssembly& assembly);
 
 		// clear the entity functions
-		void Unbind();
+		static void Unbind();
 
 		// ---- Utils ----
-		static void Log_Log(uint8_t logLevel, MonoString* monoMessage);
+		static void Log_LogICall(uint8_t logLevel, Coral::String message);
 		// ---------------
 
 		// ---- Input ----
-		static bool Input_KeyPressed(Key keyCode);
-		static bool Input_KeyDown(Key keyCode);
-		static bool Input_KeyReleased(Key keyCode);
+		#pragma region Input
+		static void Input_KeyPressedICall(Key keyCode, bool& isPressed);
+		static void Input_KeyDownICall(Key keyCode, bool& isDown);
+		static void Input_KeyReleasedICall(Key keyCode, bool& isReleased);
 
-		static bool Input_MouseButtonPressed(MouseButton mouseButton);
-		static bool Input_MouseButtonDown(MouseButton mouseButton);
-		static bool Input_MouseButtonReleased(MouseButton mouseButton);
-		static void Input_GetMousePosition(glm::vec2& outMousePosition);
+		static bool Input_MouseButtonPressedICall(MouseButton mouseButton);
+		static bool Input_MouseButtonDownICall(MouseButton mouseButton);
+		static bool Input_MouseButtonReleasedICall(MouseButton mouseButton);
+		static void Input_GetMousePositionICall(glm::vec2& outMousePosition);
 
-		static bool Input_IsControllerConnected(uint8_t controllerIndex);
-		static MonoString* Input_GetControllerName(uint8_t controllerIndex);
-		static bool Input_IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex);
-		static float Input_GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex);
-		static MonoArray* Input_GetConnectedControllers();
+		static bool Input_IsControllerConnectedICall(uint8_t controllerIndex);
+		static Coral::String Input_GetControllerNameICall(uint8_t controllerIndex);
+		static bool Input_IsControllerButtonPressedICall(uint8_t controllerIndex, ControllerButton controllerButton);
+		static float Input_GetControllerAxisICall(uint8_t controllerIndex, ControllerAxis controllerAxis);
+		static void* Input_GetConnectedControllersICall();
+		#pragma endregion
 		// ---------------
 
 		// ---- Entity ----
-		static bool Entity_HasComponent(MonoArray* uuid, MonoReflectionType* monoRefType);
-		static void Entity_AddComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
-		static void Entity_RemoveComponent(MonoArray* entityUUIDArr, MonoReflectionType* monoRefType);
-		static MonoObject* Entity_GetScriptableComponent(MonoArray* entityUUIDArr);
+		#pragma region Entity
+		static bool Entity_HasComponentICall(const UUID& id, int32_t typeId);
+		static void Entity_AddComponentICall(const UUID& id, int32_t typeId);
+		static void Entity_RemoveComponentICall(const UUID& id, int32_t typeId);
+		static void* Entity_GetScriptableComponentICall(const UUID& id);
 
-		static MonoArray* Entity_FindEntityWithName(MonoString* monoName);
-		static bool Entity_FindEntityWithID(MonoArray* monoIDArray);
-
-		static void Entity_DestroyEntity(MonoArray* entityUUIDArr);
+		static bool Entity_FindEntityWithNameICall(Coral::String entityName, UUID& id);
 		
-		static MonoArray* Entity_GetChildren(MonoArray* entityUUIDArr);
+		static void Entity_DestroyEntityICall(const UUID& id);
+		
+		static int Entity_GetChildrenCountICall(const UUID& id);
+		static UUID Entity_GetChildICall(const UUID& id, int index);
+		#pragma endregion
 		// ----------------
 
 		// ---- Physics ----
+		static Coral::String LayerMask_GetNameICall(uint16_t layer);
+
+
 		// ---- Physics 2D ----
+		#pragma region Physics 2D
+		struct ScopedInstance
+		{
+			ScopedInstance(Coral::ManagedObject object)
+				: Object(object)
+			{}
+
+			~ScopedInstance()
+			{
+				Object.Destroy();
+			}
+
+			Coral::ManagedObject Object;
+		};
+
+
 		struct RayCastHitInfo2D_Internal
 		{
 			glm::vec2 Point;
 			glm::vec2 Normal;
-			MonoObject* UUID;
+			UUID RigidbodyEntityId;
+			//Coral::ManagedObject Rigidbody;
 		};
 
-		static bool Physics2D_RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D_Internal& outHitInfo, uint16_t layerMask);
-		static MonoArray* Physics2D_RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask, RayCastHitInfo2D_Internal& outHitInfo);
+		static void* Physics2D_RayCastAllICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
+		#pragma endregion
 		// --------------------
 		
+
 		// ---- Rigidbody 2D ----
-		static bool Rigidbody2D_IsFixedRotation(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetFixedRotation(MonoArray* entityUUIDArr, bool fixedRotation);
+		#pragma region Rigidbody 2D
+		static bool Rigidbody2D_IsFixedRotationICall(const UUID& id);
+		static void Rigidbody2D_SetFixedRotationICall(const UUID& id, bool fixedRotation);
 
-		static uint8_t Rigidbody2D_GetSleepState(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetSleepState(MonoArray* entityUUIDArr, uint8_t awakeState);
+		static PhysicsBodySleepState Rigidbody2D_GetSleepStateICall(const UUID& id);
+		static void Rigidbody2D_SetSleepStateICall(const UUID& id, PhysicsBodySleepState sleepState);
 
-		static float Rigidbody2D_GetGravityScale(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetGravityScale(MonoArray* entityUUIDArr, float gravityScale);
+		static float Rigidbody2D_GetGravityScaleICall(const UUID& id);
+		static void Rigidbody2D_SetGravityScaleICall(const UUID& id, float gravityScale);
 
-		static void Rigidbody2D_ApplyForce(MonoArray* entityUUIDArr, const glm::vec2& force, const glm::vec2& position, uint8_t forceMode);
-		static void Rigidbody2D_ApplyForceAtCenter(MonoArray* entityUUIDArr, const glm::vec2& force, uint8_t forceMode);
+		static void Rigidbody2D_ApplyForceICall(const UUID& id, const glm::vec2& force, const glm::vec2& position, ForceMode2D forceMode);
+		static void Rigidbody2D_ApplyForceAtCenterICall(const UUID& id, const glm::vec2& force, ForceMode2D forceMode);
 
-		static void Rigidbody2D_GetLinearVelocity(MonoArray* entityUUIDArr, glm::vec2& linearVelocity);
-		static void Rigidbody2D_SetLinearVelocity(MonoArray* entityUUIDArr, const glm::vec2& linearVelocity);
+		static glm::vec2 Rigidbody2D_GetLinearVelocityICall(const UUID& id);
+		static void Rigidbody2D_SetLinearVelocityICall(const UUID& id, const glm::vec2& linearVelocity);
 
-		static float Rigidbody2D_GetAngularVelocity(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetAngularVelocity(MonoArray* entityUUIDArr, float angularVelocity);
+		static float Rigidbody2D_GetAngularVelocityICall(const UUID& id);
+		static void Rigidbody2D_SetAngularVelocityICall(const UUID& id, float angularVelocity);
 
-		static uint8_t Rigidbody2D_GetType(MonoArray* entityUUIDArr);
-		static void Rigidbody2D_SetType(MonoArray* entityUUIDArr, uint8_t bodyType);
+		static PhysicsBodyType Rigidbody2D_GetTypeICall(const UUID& id);
+		static void Rigidbody2D_SetTypeICall(const UUID& id, PhysicsBodyType bodyType);
+		#pragma endregion
 		// ----------------------
 
 		// ---- Collider 2D ----
-		static void Collider2D_GetOffset(MonoArray* entityUUIDArr, uint8_t colliderType, glm::vec2& outOffset);
-		static void Collider2D_SetOffset(MonoArray* entityUUIDArr, uint8_t colliderType, const glm::vec2& inOffset);
+		#pragma region Collider 2D
+		static void Collider2D_GetOffsetICall(const UUID& id, ColliderType2D colliderType, glm::vec2& offset);
+		static void Collider2D_SetOffsetICall(const UUID& id, ColliderType2D colliderType, const glm::vec2& inOffset);
 
-		static bool Collider2D_IsSensor(MonoArray* entityUUIDArr, uint8_t colliderType);
-		static void Collider2D_SetSensor(MonoArray* entityUUIDArr, uint8_t colliderType, bool isSensor);
+		static void Collider2D_IsSensorICall(const UUID& id, ColliderType2D colliderType, bool& sensor);
+		static void Collider2D_SetSensorICall(const UUID& id, ColliderType2D colliderType, bool isSensor);
+		#pragma endregion
 		// ---------------------
 
 		// ---- Box Collider 2D ----
-		static void BoxCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size);
-		static void BoxCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size);
+		#pragma region Box Collider 2D
+		static void BoxCollider2D_GetSizeICall(const UUID& id, glm::vec2& size);
+		static void BoxCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size);
+		#pragma endregion
 		// -------------------------
 
 		// ---- Circle Collider 2D ----
-		static float CircleCollider2D_GetRadius(MonoArray* entityUUIDArr);
-		static void CircleCollider2D_SetRadius(MonoArray* entityUUIDArr, float radius);
+		#pragma region Circle Collider 2D
+		static float CircleCollider2D_GetRadiusICall(const UUID& id);
+		static void CircleCollider2D_SetRadiusICall(const UUID& id, float radius);
+		#pragma endregion
 		// ----------------------------
 
 		// ---- Capsule Collider 2D ----
-		static void CapsuleCollider2D_GetSize(MonoArray* entityUUIDArr, glm::vec2& size);
-		static void CapsuleCollider2D_SetSize(MonoArray* entityUUIDArr, const glm::vec2& size);
+		#pragma region Capsule Collider 2D
+		static void CapsuleCollider2D_GetSizeICall(const UUID& id, glm::vec2& size);
+		static void CapsuleCollider2D_SetSizeICall(const UUID& id, const glm::vec2& size);
+		#pragma endregion
 		// -----------------------------
-
-        // ---- Layer Mask ----
-        static MonoString* LayerMask_GetName(uint16_t layer);
-        // --------------------
 
 		// ------------------
 
 		// ---- Tag component ----
-		static MonoString* Tag_GetName(MonoArray* entityUUIDArr);
-		static void Tag_SetName(MonoArray* entityUUIDArr, MonoString* inName);
+		#pragma region Tag Component
+		static Coral::String Tag_GetNameICall(const UUID& id);
+		static void Tag_SetNameICall(const UUID& id, Coral::String name);
+		#pragma endregion
 		// -----------------------
 
 		// ---- Transform component ----
-		static glm::vec3 Transform_GetPosition(MonoArray* entityUUIDArr);
-		static void Transform_SetPosition(MonoArray* entityUUIDArr, const glm::vec3& inPosition);
+		#pragma region Transform Component
+		static glm::vec3 Transform_GetPositionICall(const UUID& id);
+		static void Transform_SetPositionICall(const UUID& id, const glm::vec3& inPosition);
 
-		static glm::vec3 Transform_GetRotation(MonoArray* entityUUIDArr);
-		static void Transform_SetRotation(MonoArray* entityUUIDArr, const glm::vec3& inRotation);
+		static glm::vec3 Transform_GetRotationICall(const UUID& id);
+		static void Transform_SetRotationICall(const UUID& id, const glm::vec3& inRotation);
 
-		static glm::vec3 Transform_GetScale(MonoArray* entityUUIDArr);
-		static void Transform_SetScale(MonoArray* entityUUIDArr, const glm::vec3& inScale);
+		static glm::vec3 Transform_GetScaleICall(const UUID& id);
+		static void Transform_SetScaleICall(const UUID& id, const glm::vec3& inScale);
 
-		static bool Transform_IsDirty(MonoArray* entityUUIDArr);
+		static bool Transform_IsDirtyICall(const UUID& id);
 
-		static glm::vec3 Transform_GetForward(MonoArray* entityUUIDArr);
-		static glm::vec3 Transform_GetUp(MonoArray* entityUUIDArr);
-		static glm::vec3 Transform_GetRight(MonoArray* entityUUIDArr);
+		static glm::vec3 Transform_GetForwardICall(const UUID& id);
+		static glm::vec3 Transform_GetUpICall(const UUID& id);
+		static glm::vec3 Transform_GetRightICall(const UUID& id);
+		#pragma endregion
 		// -----------------------------
 
 		// ---- Sprite Renderer Component ----
-		static glm::vec4 SpriteRenderer_GetColor(MonoArray* entityUUIDArr);
-		static void SpriteRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+		#pragma region Sprite Renderer Component
+		static glm::vec4 SpriteRenderer_GetColorICall(const UUID& id);
+		static void SpriteRenderer_SetColorICall(const UUID& id, const glm::vec4& color);
+		#pragma endregion
 		// -----------------------------------
 
 		// ---- Camera Component ----
-		static bool Camera_IsPrimary(MonoArray* entityUUIDArr);
-		static void Camera_SetPrimary(MonoArray* entityUUIDArr, bool togglePrimary);
-		static glm::vec4 Camera_GetBackgroundColor(MonoArray* entityUUIDArr);
-		static void Camera_SetBackgroundColor(MonoArray* entityUUIDArr,const glm::vec4& color);
+		#pragma region Camera Component
+		static bool Camera_IsPrimaryICall(const UUID& id);
+		static void Camera_SetPrimaryICall(const UUID& id, bool togglePrimary);
+		static glm::vec4 Camera_GetBackgroundColorICall(const UUID& id);
+		static void Camera_SetBackgroundColorICall(const UUID& id, const glm::vec4& color);
+		static glm::vec3 Camera_ScreenToWorldPointICall(const UUID& id, const glm::vec3& point);
+		#pragma endregion
 		// --------------------------
 
 		// ---- Circle Renderer Component ----
-		static glm::vec4 CircleRenderer_GetColor(MonoArray* entityUUIDArr);
-		static void CircleRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+		#pragma region Circle Renderer Component
+		static glm::vec4 CircleRenderer_GetColorICall(const UUID& id);
+		static void CircleRenderer_SetColorICall(const UUID& id, const glm::vec4& color);
 
-		static float CircleRenderer_GetThickness(MonoArray* entityUUIDArr);
-		static void CircleRenderer_SetThickness(MonoArray* entityUUIDArr, float thickness);
+		static float CircleRenderer_GetThicknessICall(const UUID& id);
+		static void CircleRenderer_SetThicknessICall(const UUID& id, float thickness);
+		#pragma endregion
 		// -----------------------------------
 
 		// ---- Text Renderer Component ----
-		static glm::vec4 TextRenderer_GetColor(MonoArray* entityUUIDArr);
-		static void TextRenderer_SetColor(MonoArray* entityUUIDArr, const glm::vec4& color);
+		#pragma region Text Renderer Component
+		static glm::vec4 TextRenderer_GetColorICall(const UUID& id);
+		static void TextRenderer_SetColorICall(const UUID& id, const glm::vec4& color);
 
-		static MonoString* TextRenderer_GetText(MonoArray* entityUUIDArr);
-		static void TextRenderer_SetText(MonoArray* entityUUIDArr, MonoString* text);
+		static Coral::String TextRenderer_GetTextICall(const UUID& id);
+		static void TextRenderer_SetTextICall(const UUID& id, Coral::String text);
+		#pragma endregion
 		// ---------------------------------
-	}
+
+		// ---- Window ----
+		#pragma region Window
+		static float Window_GetWidthICall();
+		static float Window_GetHeightICall();
+		static bool Window_IsVSyncICall();
+		static glm::vec2 Window_GetContentScaleICall();
+		#pragma endregion
+		// ----------------
+
+		// ---- Scene ----
+		#pragma region Scene
+		static UUID Scene_GetMainCameraICall();
+		#pragma endregion
+		// ---------------
+	};
 }

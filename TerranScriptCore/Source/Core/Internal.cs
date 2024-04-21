@@ -1,271 +1,151 @@
-﻿using System;
+﻿using Coral.Managed.Interop;
+using System;
+using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Terran
 {
-	internal class Internal
+	internal static class Internal
 	{
-		#region Log
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Log_Log(byte level, string text);
+		#region Utils
+		internal static unsafe delegate* unmanaged<byte, NativeString, void> Log_LogICall = default;
 		#endregion
 
 		#region Input
 
 		// ---- Keyboard ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyPressed(ushort keyCode);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyDown(ushort keyCode);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_KeyReleased(ushort keyCode);
+		internal static unsafe delegate* unmanaged<KeyCode, out bool, void> Input_KeyPressedICall = default;
+		internal static unsafe delegate* unmanaged<KeyCode, out bool, void> Input_KeyDownICall = default;
+		internal static unsafe delegate* unmanaged<KeyCode, out bool, void> Input_KeyReleasedICall = default;
 		// ------------------
 
 		// ---- Mouse ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonPressed(byte mouseButton);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonDown(byte mouseButton);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_MouseButtonReleased(byte mouseButton);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Input_GetMousePosition(out Vector2 outMousePosition);
+		internal static unsafe delegate* unmanaged<byte, bool> Input_MouseButtonPressedICall = default;
+		internal static unsafe delegate* unmanaged<byte, bool> Input_MouseButtonDownICall = default;
+		internal static unsafe delegate* unmanaged<byte, bool> Input_MouseButtonReleasedICall = default;
+		internal static unsafe delegate* unmanaged<out Vector2, void> Input_GetMousePositionICall = default;
 		// ---------------
 
 		// ---- Controller ----
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_IsControllerConnected(byte controllerIndex);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern string Input_GetControllerName(byte controllerIndex);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Input_IsControllerButtonPressed(byte controllerButton, byte controllerIndex);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern float Input_GetControllerAxis(byte controllerAxis, byte controllerIndex);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern byte[] Input_GetConnectedControllers();
+		internal static unsafe delegate* unmanaged<byte, bool> Input_IsControllerConnectedICall = default;
+		internal static unsafe delegate* unmanaged<byte, NativeString> Input_GetControllerNameICall = default;
+		internal static unsafe delegate* unmanaged<byte, ControllerButton, bool> Input_IsControllerButtonPressedICall = default;
+		internal static unsafe delegate* unmanaged<byte, ControllerAxis, float> Input_GetControllerAxisICall = default;
+		internal static unsafe delegate* unmanaged<IntPtr> Input_GetConnectedControllersICall = default;
 		// --------------------
 		#endregion
 
 		#region Entity
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Entity_HasComponent(byte[] runtimeID, Type componentType);
+		internal static unsafe delegate* unmanaged<in UUID, int, bool> Entity_HasComponentICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, int, void> Entity_AddComponentICall = default;		
+		internal static unsafe delegate* unmanaged<in UUID, int, void> Entity_RemoveComponentICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, IntPtr> Entity_GetScriptableComponentICall = default;
+		internal static unsafe delegate* unmanaged<NativeString, out UUID, bool> Entity_FindEntityWithNameICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, void> Entity_DestroyEntityICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, int> Entity_GetChildrenCountICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, int, UUID> Entity_GetChildICall = default;
+        #endregion
 
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_AddComponent(byte[] runtimeID, Type componentType);
+        #region Physics 2D
+        internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, out RayCastHitInfo2D, bool> Physics2D_RayCastICall = default;
+		internal static unsafe delegate* unmanaged<in Vector2, in Vector2, float, ushort, IntPtr> Physics2D_RayCastAllICall = default;
+        internal static unsafe delegate* unmanaged<ushort, NativeString> LayerMask_GetNameICall = default;
+        #endregion
 
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_RemoveComponent(byte[] runtimeID, Type componentType);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern object Entity_GetScriptableComponent(byte[] uuid);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern byte[] Entity_FindEntityWithName(string name);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Entity_FindEntityWithID(byte[] id);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Entity_DestroyEntity(byte[] id);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern UUID[] Entity_GetChildren(byte[] id);
-		#endregion
-
-		#region Physics 2D
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Physics2D_RayCast(in Vector2 origin, in Vector2 direction, float length, out RayCastHitInfo2D hitInfo, ushort layerMask);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern RayCastHitInfo2D[] Physics2D_RayCastAll(in Vector2 origin, in Vector2 direction, float length, ushort layerMask);
-		#endregion
-
-		#region Physics Body 2D
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Rigidbody2D_IsFixedRotation(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_SetFixedRotation(byte[] entityUUID, bool fixedRotation);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern byte Rigidbody2D_GetSleepState(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_SetSleepState(byte[] entityUUID, byte awakeState);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern float Rigidbody2D_GetGravityScale(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_SetGravityScale(byte[] entityUUID, float gravityScale);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_ApplyForce(byte[] entityUUID, in Vector2 force, in Vector2 position, byte forceMode);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_ApplyForceAtCenter(byte[] entityUUID, in Vector2 force, byte forceMode);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_GetLinearVelocity(byte[] entityUUID, out Vector2 linearVelocity);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_SetLinearVelocity(byte[] entityUUID, in Vector2 linearVelocity);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern float Rigidbody2D_GetAngularVelocity(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_SetAngularVelocity(byte[] entityUUID, float angularVelocity);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern byte Rigidbody2D_GetType(byte[] entityUUID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Rigidbody2D_SetType(byte[] entityUUID, byte bodyType);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern string LayerMask_GetName(ushort layer);
+        #region Physics Body 2D
+        internal static unsafe delegate* unmanaged <in UUID, bool> Rigidbody2D_IsFixedRotationICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, bool, void> Rigidbody2D_SetFixedRotationICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodySleepState> Rigidbody2D_GetSleepStateICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodySleepState, void> Rigidbody2D_SetSleepStateICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float> Rigidbody2D_GetGravityScaleICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float, void> Rigidbody2D_SetGravityScaleICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, in Vector2, ForceMode2D, void> Rigidbody2D_ApplyForceICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, ForceMode2D, void> Rigidbody2D_ApplyForceAtCenterICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, Vector2> Rigidbody2D_GetLinearVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, in Vector2, void> Rigidbody2D_SetLinearVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float> Rigidbody2D_GetAngularVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, float, void> Rigidbody2D_SetAngularVelocityICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodyType> Rigidbody2D_GetTypeICall = default;
+		internal static unsafe delegate* unmanaged <in UUID, RigidbodyType, void> Rigidbody2D_SetTypeICall = default;
         #endregion
 
         #region Collider 2D
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Collider2D_GetOffset(byte[] entityUUID, byte colliderType, out Vector2 offset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Collider2D_SetOffset(byte[] entityUUID, byte colliderType, in Vector2 offset);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Collider2D_IsSensor(byte[] entityUUID, byte colliderType);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Collider2D_SetSensor(byte[] entityUUID, byte colliderType, bool isSensor);
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, out Vector2, void> Collider2D_GetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, in Vector2, void> Collider2D_SetOffsetICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, out bool, void> Collider2D_IsSensorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, ColliderType2D, bool, void> Collider2D_SetSensorICall = default;
         #endregion
 
         #region Box Collider 2D
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void BoxCollider2D_GetSize(byte[] entityID, out Vector2 outSize);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void BoxCollider2D_SetSize(byte[] entityID, in Vector2 size);
+		internal static unsafe delegate* unmanaged<in UUID, out Vector2, void> BoxCollider2D_GetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector2, void> BoxCollider2D_SetSizeICall = default;
         #endregion
 
         #region Circle Collider 2D
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern float CircleCollider2D_GetRadius(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void CircleCollider2D_SetRadius(byte[] entityID, float radius);
+		internal static unsafe delegate* unmanaged<in UUID, float> CircleCollider2D_GetRadiusICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, float, void> CircleCollider2D_SetRadiusICall = default;
 		#endregion
 
 		#region Capsule Collider 2D
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void CapsuleCollider2D_GetSize(byte[] entityID, out Vector2 size);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void CapsuleCollider2D_SetSize(byte[] entityID, in Vector2 size);
+		internal static unsafe delegate* unmanaged<in UUID, out Vector2, void> CapsuleCollider2D_GetSizeICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector2, void> CapsuleCollider2D_SetSizeICall = default;
 		#endregion
 
 		#region Tag
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern string Tag_GetName(byte[] entityID);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Tag_SetName(byte[] entityID, in string inName);
+		internal static unsafe delegate* unmanaged<in UUID, NativeString> Tag_GetNameICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, NativeString, void> Tag_SetNameICall = default;
         #endregion
 
         #region Transform
-        [MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetPosition(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Transform_SetPosition(byte[] entityID, in Vector3 inPosition);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetRotation(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Transform_SetRotation(byte[] entityID, in Vector3 inRotation);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetScale(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern void Transform_SetScale(byte[] entityID, in Vector3 inScale);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern bool Transform_IsDirty(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetForward(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetUp(byte[] entityID);
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Vector3 Transform_GetRight(byte[] entityID);
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetPositionICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector3, void> Transform_SetPositionICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetRotationICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector3, void> Transform_SetRotationICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetScaleICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, in Vector3, void> Transform_SetScaleICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, bool> Transform_IsDirtyICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetForwardICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetUpICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3> Transform_GetRightICall = default;
         #endregion
 
         #region SpriteRender
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern Color SpriteRenderer_GetColor(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void SpriteRenderer_SetColor(byte[] entityID, in Color color);
+        internal static unsafe delegate* unmanaged<in UUID, Color> SpriteRenderer_GetColorICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, in Color, void> SpriteRenderer_SetColorICall = default;
         #endregion
 
         #region Camera
-		
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern bool Camera_IsPrimary(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void Camera_SetPrimary(byte[] entityID, bool togglePrimary);
-        
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern Color Camera_GetBackgroundColor(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void Camera_SetBackgroundColor(byte[] entityID, in Color color);
+        internal static unsafe delegate* unmanaged <in UUID, bool> Camera_IsPrimaryICall = default;
+        internal static unsafe delegate* unmanaged <in UUID, bool, void> Camera_SetPrimaryICall = default;
+        internal static unsafe delegate* unmanaged <in UUID, Color> Camera_GetBackgroundColorICall = default;
+        internal static unsafe delegate* unmanaged <in UUID, in Color, void> Camera_SetBackgroundColorICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, Vector3, Vector3> Camera_ScreenToWorldPointICall = default;
         #endregion
 
         #region CircleRenderer
-		
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern float CircleRenderer_GetThickness(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void CircleRenderer_SetThickness(byte[] entityID, float thickness);
-        
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern Color CircleRenderer_GetColor(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void CircleRenderer_SetColor(byte[] entityID, in Color color);
+        internal static unsafe delegate* unmanaged<in UUID, float> CircleRenderer_GetThicknessICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, float, void> CircleRenderer_SetThicknessICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, Color> CircleRenderer_GetColorICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, in Color, void> CircleRenderer_SetColorICall = default;
 		#endregion
 
 		#region TextRenderer
+		internal static unsafe delegate* unmanaged<in UUID, Color> TextRenderer_GetColorICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, in Color, void> TextRenderer_SetColorICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, NativeString> TextRenderer_GetTextICall = default;
+        internal static unsafe delegate* unmanaged<in UUID, NativeString, void> TextRenderer_SetTextICall = default;
+		#endregion
 
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		internal static extern Color TextRenderer_GetColor(byte[] entityID);
+		#region Window
+		internal static unsafe delegate* unmanaged<float> Window_GetWidthICall = default;
+		internal static unsafe delegate* unmanaged<float> Window_GetHeightICall = default;
+		internal static unsafe delegate* unmanaged<bool> Window_IsVSyncICall = default;
+		internal static unsafe delegate* unmanaged<Vector2> Window_GetContentScaleICall = default;
+		#endregion
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void TextRenderer_SetColor(byte[] entityID, in Color color);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern string TextRenderer_GetText(byte[] entityID);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern void TextRenderer_SetText(byte[] entityID, string text);
+		#region Scene
+		internal static unsafe delegate* unmanaged<UUID> Scene_GetMainCameraICall = default;
         #endregion
     }
 }
-

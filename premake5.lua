@@ -1,8 +1,8 @@
+--require "extensions/vscode"
 require "dependecies"
 
 workspace "Terran"
 
-    architecture "x86_64"
     startproject "TerranEditor"
     
     configurations 
@@ -28,6 +28,8 @@ group "Dependencies"
     include "TerranEngine/vendor/Box2D"
     include "TerranEngine/vendor/Optick"
     include "TerranEngine/vendor/yaml-cpp"
+    include "TerranEngine/vendor/Coral/Coral.Managed"
+    include "TerranEngine/vendor/Coral/Coral.Native"
 
 group "Core"
     include "TerranEngine"
@@ -37,4 +39,4 @@ group "Tools"
     include "TerranEditor"
 
 group "Runtime"
-    include "Sandbox"
+    -- include "Sandbox"

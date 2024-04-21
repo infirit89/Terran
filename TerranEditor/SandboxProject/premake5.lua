@@ -1,7 +1,6 @@
 workspace "SandboxProject"
-    architecture "x86_64"
-    
-    configurations 
+
+    configurations
     {
         "Debug",
         "Release"
@@ -10,6 +9,7 @@ workspace "SandboxProject"
 project "ScriptAssembly"
     kind "SharedLib"
     language "C#"
+    dotnetframework "net8.0"
 
     targetdir ("ScriptAssemblies")
     objdir ("ScriptAssemblies/Intermidiates")

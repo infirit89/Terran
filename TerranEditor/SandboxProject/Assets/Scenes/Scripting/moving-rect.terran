@@ -1,0 +1,33 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 61559a8b-79fb-4238-bf55-013781b19770
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: 196281b9-02f6-40cf-9e69-e043486ddeb4
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    ScriptComponent:
+      ModuleName: ScriptAssembly.Test3
+    Rigidbody2DComponent:
+      BodyType: Kinematic
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1

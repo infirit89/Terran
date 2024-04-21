@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terran;
+﻿using Terran;
 
 namespace ScriptAssembly
 {
-	internal class Test : Scriptable
-	{
-		//public string[] Test1 = new string[] { "cum", "cum2", "cum3" };
-		public Vector2[] Test3;
-		public string Test2 = "cum";
+    internal class Test : Scriptable
+    {
+        public Entity Tomaaaaa;
 
-		protected override void Init()
-		{
-			Log.Warn(Entity.HasComponent<Transform>());
-		}
+        [field: SerializeField]
+        public int TestI { get; set; }
 
-		protected override void Update(float deltaTime)
-		{
-		}
-	}
+        protected override void Init()
+        {
+            //Entity mainCamera = Scene.MainCamera;
+            //Log.Trace(mainCamera.Name);
+        }
+
+        protected override void Update(float deltaTime)
+        {
+        }
+    }
 }

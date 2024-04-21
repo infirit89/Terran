@@ -2,7 +2,7 @@
 
 #include <string>
 #include <array>
-#include <xhash>
+#include <functional>
 
 namespace TerranEngine 
 {
@@ -36,7 +36,7 @@ namespace TerranEngine
 		
 		inline operator bool() { return IsValid(); }
 
-		bool IsValid() 
+		bool IsValid() const
 		{
 			std::array<uint8_t, 16> empty{ {0} };
 

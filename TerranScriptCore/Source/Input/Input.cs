@@ -1,35 +1,109 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Terran
 {
 	public class Input
 	{
 
-		public static bool IsKeyPressed(KeyCode keyCode) => Internal.Input_KeyPressed((ushort)keyCode);
-		public static bool IsKeyDown(KeyCode keyCode) => Internal.Input_KeyDown((ushort)keyCode);
-		public static bool IsKeyReleased(KeyCode keyCode) => Internal.Input_KeyReleased((ushort)keyCode);
-
-		public static bool IsMouseButtonPressed(MouseButton mouseButton) => Internal.Input_MouseButtonPressed((byte)mouseButton);
-		public static bool IsMouseButtonDown(MouseButton mouseButton) => Internal.Input_MouseButtonDown((byte)mouseButton);
-		public static bool IsMouseButtonReleased(MouseButton mouseButton) => Internal.Input_MouseButtonReleased((byte)mouseButton);
-
-		public static Vector2 GetMousePosition() 
+		public static bool IsKeyPressed(KeyCode keyCode) 
 		{
-			Internal.Input_GetMousePosition(out var mousePosition);
-			return mousePosition;
+			unsafe
+			{
+				Internal.Input_KeyPressedICall(keyCode, out bool isPressed);
+				return isPressed;
+			}
+        }
+		public static bool IsKeyDown(KeyCode keyCode)
+		{
+			unsafe 
+			{
+				Internal.Input_KeyDownICall(keyCode, out bool isDown);
+				return isDown;
+			}
+		}
+		public static bool IsKeyReleased(KeyCode keyCode)
+		{
+			unsafe 
+			{
+				Internal.Input_KeyReleasedICall(keyCode, out bool isReleased);
+				return isReleased;
+			}
+		}
+
+		public static bool IsMouseButtonPressed(MouseButton mouseButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_MouseButtonPressedICall((byte)mouseButton);
+			}
+		}
+		public static bool IsMouseButtonDown(MouseButton mouseButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_MouseButtonDownICall((byte)mouseButton);
+			}
+		}
+		public static bool IsMouseButtonReleased(MouseButton mouseButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_MouseButtonReleasedICall((byte)mouseButton);
+			}
+		}
+
+		public static Vector2 GetMousePosition()
+		{
+			unsafe 
+			{
+				Internal.Input_GetMousePositionICall(out Vector2 mousePostion);
+				return mousePostion;
+			}
 		}
 
 		public static float GetMouseX() => GetMousePosition().X;
 		public static float GetMouseY() => GetMousePosition().Y;
 
-		public static bool IsControllerConnected(byte controllerIndex) => Internal.Input_IsControllerConnected(controllerIndex);
+		public static bool IsControllerConnected(byte controllerIndex)
+		{
+			unsafe 
+			{
+				return Internal.Input_IsControllerConnectedICall(controllerIndex);
+			}
+		}
 
-		public static string GetControllerName(byte controllerIndex) => Internal.Input_GetControllerName(controllerIndex);
+		public static string GetControllerName(byte controllerIndex)
+		{
+			unsafe 
+			{
+				return Internal.Input_GetControllerNameICall(controllerIndex)!;
+			}
+		}
 
-		public static bool IsControllerButtonPressed(ControllerButton controllerButton, byte controllerIndex) => Internal.Input_IsControllerButtonPressed((byte)controllerButton, controllerIndex);
+		public static bool IsControllerButtonPressed(byte controllerIndex, ControllerButton controllerButton)
+		{
+			unsafe 
+			{
+				return Internal.Input_IsControllerButtonPressedICall(controllerIndex, controllerButton);
+			}
+		}
 
-		public static float GetControllerAxis(ControllerAxis controllerAxis, byte controllerIndex) => Internal.Input_GetControllerAxis((byte)controllerAxis, controllerIndex);
+		public static float GetControllerAxis(byte controllerIndex, ControllerAxis controllerAxis)
+		{
+			unsafe 
+			{
+				return Internal.Input_GetControllerAxisICall(controllerIndex, controllerAxis);
+			}
+		}
 
-		public static byte[] GetConnectedControllers() => Internal.Input_GetConnectedControllers();
+		public static byte[] GetConnectedControllers()
+		{
+			unsafe 
+			{
+				IntPtr handle = Internal.Input_GetConnectedControllersICall();
+				return GCHandle.FromIntPtr(handle).Target as byte[] ?? throw new NullReferenceException();
+			}
+		}
 	}
 }

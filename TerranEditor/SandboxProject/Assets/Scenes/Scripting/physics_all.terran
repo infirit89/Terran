@@ -1,0 +1,65 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 8a603e5f-9390-4a71-9264-4832a9b44ecd
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: 6c0afb31-c1fd-4c91-be6e-aaff576ea7bc
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    ScriptComponent:
+      ModuleName: ScriptAssembly.Test10
+  - Entity: 2222db99-46c8-42bd-9307-4d6f9dd8d737
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0.699999988, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+      Material: 00000000-0000-0000-0000-000000000000
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false
+  - Entity: 81178d36-0812-47d1-89be-91a1947b4a4a
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [2.29999995, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: 00000000-0000-0000-0000-000000000000
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+      SleepState: Awake
+      GravityScale: 1
+      Material: 00000000-0000-0000-0000-000000000000
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [1, 1]
+      Sensor: false

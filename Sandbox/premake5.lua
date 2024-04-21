@@ -2,8 +2,10 @@ mono_path = os.getenv("MONO_PATH")
 project "Sandbox"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
     staticruntime "on"
+
+    architecture "x86_64"
 
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
@@ -25,15 +27,9 @@ project "Sandbox"
         "%{wks.location}/TerranEngine/vendor/entt/include/"
     } 
 
-    -- libdirs 
-    -- {
-    --     "%{mono_path}/lib/"
-    -- }
-
     links 
     {
         "TerranEngine"
-        -- "%{mono_path}/lib/mono-2.0-sgen.lib"
     }
 
     filter "system:windows"

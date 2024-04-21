@@ -1,12 +1,37 @@
-﻿using System;
+﻿using Coral.Managed.Interop;
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Terran
 {
-	class Test 
+
+	[StructLayout(LayoutKind.Sequential)]
+	struct TestStruct 
 	{
-		void T1() 
+        public unsafe fixed byte Arr[4];
+	}
+
+	public class Test : Scriptable
+	{
+		internal static unsafe delegate*<NativeString, void> PrintICall;
+		internal static unsafe delegate*<NativeArray<UUID>> GetIDs;
+        internal static unsafe delegate*<in UUID, void> Cum;
+		public int[] TestArr = new[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+        void T1() 
 		{
+			Console.WriteLine(string.Join(' ', TestArr));
+		}
+
+        protected override void Init()
+        {
+			Log.Trace("test");
+        }
+
+        void T2(int a)
+		{
+			Console.WriteLine("a a a a a  a a a a aa ");
+			Console.WriteLine(a);
 		}
 	}
 

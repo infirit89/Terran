@@ -13,7 +13,6 @@ namespace Terran
 		public float Y;
 		public float Z;
 
-
 		public float Magnitude => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
 
 		public Vector3(float x, float y, float z)
@@ -30,7 +29,7 @@ namespace Terran
 			Z = z;
 		}
 
-		public Vector3(Vector2 vec, float z) 
+		public Vector3(Vector2 vec, float z)
 		{
 			X = vec.X;
 			Y = vec.Y;
@@ -46,12 +45,12 @@ namespace Terran
 
 		public Vector3 Normalized => new Vector3(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
-		public static Vector3 Zero = new Vector3(0.0f, 0.0f, 0.0f);
-		public static Vector3 One = new Vector3(1.0f, 1.0f, 1.0f);
+		public static Vector3 Zero => new Vector3(0.0f, 0.0f, 0.0f);
+		public static Vector3 One => new Vector3(1.0f, 1.0f, 1.0f);
 
-		public static Vector3 Up = new Vector3(0.0f, 1.0f, 0.0f);
-		public static Vector3 Right = new Vector3(1.0f, 0.0f, 0.0f);
-		public static Vector3 Forward = new Vector3(0.0f, 0.0f, 1.0f);
+		public static Vector3 Right => new Vector3(1.0f, 0.0f, 0.0f);
+		public static Vector3 Up => new Vector3(0.0f, 1.0f, 0.0f);
+		public static Vector3 Forward => new Vector3(0.0f, 0.0f, 1.0f);
 
 		public static Vector3 Negate(Vector3 vec) => new Vector3(-vec.X, -vec.Y, -vec.Z);
 		
@@ -103,7 +102,7 @@ namespace Terran
 		}
 
 		// override object.Equals
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj == null || GetType() != obj.GetType())
 				return false;

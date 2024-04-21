@@ -10,7 +10,7 @@
 #include "Systems/SceneRenderer.h"
 
 #include "Scripting/ScriptEngine.h"
-#include "Scripting/ScriptCache.h"
+//#include "Scripting/ScriptCache.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
@@ -54,6 +54,8 @@ namespace TerranEngine
 
 		m_Registry.on_construct<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentConstructed>(this);
 		m_Registry.on_destroy<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentDestroyed>(this);
+
+		m_Registry.on_construct<TextRendererComponent>().connect<&Scene::OnTextComponentConstructed>(this);
 	}
 
 	Scene::~Scene()
@@ -185,18 +187,23 @@ namespace TerranEngine
 
 	void Scene::OnResize(float width, float height)
 	{
-		auto cameraView = m_Registry.view<CameraComponent>();
-
-		for (auto e : cameraView)
+		if (m_ViewportWidth != width || m_ViewportHeight != height) 
 		{
-			Entity entity(e, this);
-			auto& cameraComponent = entity.GetComponent<CameraComponent>();
+			m_ViewportWidth = width; m_ViewportHeight = height;
 
-			cameraComponent.Camera.SetViewport(width, height);
+			auto cameraView = m_Registry.view<CameraComponent>();
+
+			for (auto e : cameraView)
+			{
+				Entity entity(e, this);
+				auto& cameraComponent = entity.GetComponent<CameraComponent>();
+
+				cameraComponent.Camera.SetViewport(width, height);
+			}
 		}
 	}
 
-	void Scene::OnRender(Shared<SceneRenderer>& sceneRenderer)
+	void Scene::OnRender(Shared<SceneRenderer> sceneRenderer)
 	{
 		TR_PROFILE_FUNCTION();
 		Entity primaryCamera = GetPrimaryCamera();
@@ -270,7 +277,7 @@ namespace TerranEngine
 		}
 	}
 	
-	void Scene::OnRenderEditor(Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
+	void Scene::OnRenderEditor(Shared<SceneRenderer> sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		TR_PROFILE_FUNCTION();
 		sceneRenderer->SetScene(this);
@@ -378,28 +385,22 @@ namespace TerranEngine
 		{
 			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
 
-			if constexpr (std::is_same<Component, ScriptComponent>::value)
+			if constexpr (std::same_as<Component, ScriptComponent>)
 			{
 				ScriptComponent& sc = dstRegistry.get<ScriptComponent>(dstHandle);
 
-				for (const auto& fieldID : sc.PublicFieldIDs)
-				{
-					ScriptField* field = ScriptCache::GetCachedFieldFromID(fieldID);
-					
-					const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
-					const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
+				const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
+				const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
 
-					const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
-					const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
+				const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
+				const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
 
-					const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
-					const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
-					
-					const GCHandle srcEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(srcSceneID, srcEntityID);
-					const GCHandle dstEntityHandle = ScriptEngine::GetScriptInstanceGCHandle(dstSceneID, dstEntityID);
+				const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
+				const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
 
-					field->CopyData(srcEntityHandle, dstEntityHandle);
-				}
+				Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
+				Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
+				dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
 			}
 		}
 	}
@@ -592,7 +593,7 @@ namespace TerranEngine
 	void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
-		ScriptEngine::InitializeScriptable(entity);
+		ScriptEngine::CreateScriptInstance(entity);
 
         if(m_IsPlaying)
             ScriptEngine::OnStart(entity);
@@ -695,4 +696,16 @@ namespace TerranEngine
                 physicsBody->RemoveCollider(ccComponent.ColliderIndex);
         }
     }
+
+	void Scene::OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle)
+	{
+		Entity entity(entityHandle, this);
+		auto& trc = entity.GetComponent<TextRendererComponent>();
+		if (!trc.FontAtlas)
+			trc.FontAtlas = Font::DefaultFont;
+	}
+
+	void Scene::OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
+	{
+	}
 }

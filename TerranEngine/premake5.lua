@@ -1,8 +1,10 @@
 project "TerranEngine"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
-    staticruntime "on"
+    cppdialect "C++20"
+    staticruntime "Off"
+
+    architecture "x86_64"
 
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
@@ -19,6 +21,11 @@ project "TerranEngine"
         "vendor/glm/**.inl"
     }
 
+    dependson 
+    {
+        "TerranScriptCore"
+    }
+
     includedirs
     {
         "src",
@@ -31,19 +38,14 @@ project "TerranEngine"
         "%{IncludeDirectories.entt}",
         "%{IncludeDirectories.msdfgen}",
         "%{IncludeDirectories.msdf_atlas_gen}",
-        "%{IncludeDirectories.mono}",
         "%{IncludeDirectories.box2d}",
         "%{IncludeDirectories.optick}",
         "%{IncludeDirectories.yaml}",
-        "%{IncludeDirectories.shaderc}"   
+        "%{IncludeDirectories.shaderc}",
+        "%{IncludeDirectories.coral}",
     }
 
-    -- libdirs 
-    -- {
-    --     "%{wks.location}/TerranEngine/vendor/mono/lib/"
-    -- }
-
-    links 
+    links
     {
         "GLFW",
         "ImGui",
@@ -53,23 +55,14 @@ project "TerranEngine"
         "Box2D",
         "OptickCore",
         "yaml-cpp",
-        "%{Libraries.mono_static}",
+        "Coral.Native",
         "%{Libraries.shaderc}"
     }
 
     pchheader "trpch.h"
     pchsource "src/trpch.cpp"
 
-    -- disablewarnings 
-    -- {
-    --     26451,
-    --     26498,
-    --     26495,
-    --     26812,
-    --     4267
-    -- }
-
-    linkoptions 
+    linkoptions
     {
         "-IGNORE:4006"
     }

@@ -36,9 +36,9 @@ namespace TerranEngine
 		}
 	}
 
-	bool Input::IsKeyPressed(Key key) { return s_KeyStates[key].PreviousState == false && s_KeyStates[key].CurrentState == true; }
-	bool Input::IsKeyDown(Key key) { return s_KeyStates[key].CurrentState == true; }
-	bool Input::IsKeyReleased(Key key) { return s_KeyStates[key].PreviousState == true && s_KeyStates[key].CurrentState == false; }
+	bool Input::IsKeyPressed(Key key) { return s_KeyStates.at(key).PreviousState == false && s_KeyStates[key].CurrentState == true; }
+	bool Input::IsKeyDown(Key key) { return s_KeyStates.at(key).CurrentState == true; }
+	bool Input::IsKeyReleased(Key key) { return s_KeyStates.at(key).PreviousState == true && s_KeyStates[key].CurrentState == false; }
 
 	bool Input::IsMouseButtonPressed(MouseButton button) 
 	{ return s_MouseButtonStates[button].PreviousState == false && s_MouseButtonStates[button].CurrentState == true; }
