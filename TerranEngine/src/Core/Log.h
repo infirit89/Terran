@@ -71,12 +71,19 @@ struct fmt::formatter<glm::qua<T, Q>>
 #define TR_LOG_PHYSICS "PHYSICS"
 #define TR_CORE_LOGGER_COUNT 6
 
+struct LogSettings
+{
+	std::string_view Name;
+	spdlog::level::level_enum Level;
+};
+
 namespace TerranEngine 
 {
 	class Log 
 	{
 	public:
 		static void Init();
+		static void Shutdown();
 		static void SetClientLogger(Shared<spdlog::logger> logger);
 		static std::string GetFormattedFileLoggerName(std::string_view loggerName);
 		static bool Contains(std::string_view loggerName);

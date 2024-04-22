@@ -32,6 +32,7 @@ namespace TerranEngine
 			glDebugMessageCallback(glDebugOutput, nullptr);
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
 		}
+		TR_CORE_INFO(TR_LOG_RENDERER, "Setup opengl debug layer");
 #endif
 		s_RendererData = new RendererData;
 		s_RendererData->CreateResourceQueue = CreateShared<CommandQueue>();
@@ -42,6 +43,7 @@ namespace TerranEngine
 		EnableDepthTesting(true);
 
 		ShaderLibrary::Initialize();
+		TR_CORE_INFO(TR_LOG_RENDERER, "Initialized renderer");
 	}
 
 	void Renderer::Shutdown()
@@ -50,6 +52,7 @@ namespace TerranEngine
 		s_RendererData->RenderQueue = nullptr;
 		s_RendererData->FreeResourceQueue = nullptr;
 		delete s_RendererData;
+		TR_CORE_INFO(TR_LOG_RENDERER, "Destroyed renderer");
 	}
 
 	void Renderer::ExecuteCommands()
