@@ -28,8 +28,6 @@
 #include <Coral/TypeCache.hpp>
 #include <Coral/Array.hpp>
 
-#include <imgui.h>
-
 namespace TerranEngine 
 {
 #define BIND_INTERNAL_FUNC(func) assembly.AddInternalCall("Terran.Internal", #func, reinterpret_cast<void*>(&func))
@@ -401,7 +399,6 @@ namespace TerranEngine
 		if (!entity)
 			return false;
 
-		TR_TRACE(entity.GetID());
 		id = entity.GetID();
 		return true;
 	}
@@ -465,7 +462,7 @@ namespace TerranEngine
 	Entity entity = SceneManager::GetCurrentScene()->FindEntityWithUUID(id);	\
 	if(!entity)																	\
 	{																			\
-		TR_ERROR("Invalid entity id");											\
+		TR_CORE_ERROR(TR_LOG_SCRIPT, "Invalid entity id");						\
 		return;																	\
 	}																			\
 	entity.GetComponent<ComponentType>().Property = Value
@@ -475,7 +472,7 @@ namespace TerranEngine
 	if(entity)																	\
 		return entity.GetComponent<ComponentType>().Property;					\
 																				\
-	TR_ERROR("Invalid entity id");												\
+	TR_CORE_ERROR(TR_LOG_SCRIPT, "Invalid entity id");							\
 	return DefaultValue;
 
 #define GET_COMPONENT_PROPERTY_NORET(ComponentType, Property, Value)			\
@@ -486,17 +483,17 @@ namespace TerranEngine
 		return;																	\
 	}																			\
 																				\
-	TR_ERROR("Invalid entity id")
+	TR_CORE_ERROR(TR_LOG_SCRIPT, "Invalid entity id")
 
-#define SET_TRANSFORM_COMPONENT_PROPERTY(Property, Value)\
-	GET_ENTITY();\
-	if(!entity)\
-	{\
-		TR_ERROR("Invalid entity id");\
-		return;\
-	}\
-	TransformComponent& tc = entity.GetComponent<TransformComponent>();\
-	tc.Property = Value;\
+#define SET_TRANSFORM_COMPONENT_PROPERTY(Property, Value)				\
+	GET_ENTITY();														\
+	if(!entity)															\
+	{																	\
+		TR_CORE_ERROR(TR_LOG_SCRIPT, "Invalid entity id");				\
+		return;															\
+	}																	\
+	TransformComponent& tc = entity.GetComponent<TransformComponent>();	\
+	tc.Property = Value;												\
 	tc.IsDirty = true
 
 	// ---- Transform Component ----
@@ -758,24 +755,18 @@ namespace TerranEngine
 	return physicsBody->Get##Property()
 
 #define SET_RIGIDBODY_COMPONENT_PROPERTY(Property, Value)						\
-	do																			\
-	{																			\
-		SET_COMPONENT_PROPERTY(Rigidbody2DComponent, Property, Value);			\
-		if (!entity)															\
-			return;																\
-		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);	\
-		physicsBody->Set##Property(Value);										\
-	} while(0)
+	SET_COMPONENT_PROPERTY(Rigidbody2DComponent, Property, Value);			\
+	if (!entity)															\
+		return;																\
+	Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);	\
+	physicsBody->Set##Property(Value)
 
 #define SET_RIGIDBODY_PROPERTY(Property, ...)									\
-	do																			\
-	{																			\
-		GET_ENTITY();															\
-		if (!entity)															\
-			return;																\
-		Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);	\
-		physicsBody->Property(__VA_ARGS__);										\
-	} while(0)
+	GET_ENTITY();															\
+	if (!entity)															\
+		return;																\
+	Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);	\
+	physicsBody->Property(__VA_ARGS__)
 
 
 	#pragma region Rigidbody 2D

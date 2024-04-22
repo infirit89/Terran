@@ -53,7 +53,7 @@ namespace TerranEngine
 				
 				if (!asset)
 				{
-					TR_ERROR("Failed to load asset with path: {0}", info.Path);
+					TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
 					return nullptr;
 				}
 

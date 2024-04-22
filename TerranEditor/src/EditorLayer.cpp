@@ -609,7 +609,7 @@ namespace TerranEditor
 		{
 			if (scenePath.extension() != ".terran")
 			{
-				TR_ERROR("Couldn't load the file");
+				TR_CLIENT_ERROR("Couldn't load scene: {0}", scenePath);
 				return;
 			}
 

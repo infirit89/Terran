@@ -29,7 +29,7 @@ namespace TerranEngine
 
 				if (result != data->Length) 
 				{
-					TR_ERROR("Reading error");
+					TR_CORE_ERROR(TR_LOG_CORE, "Reading error");
 
 					fclose(filePtr);
 					free(data->Data);
@@ -40,10 +40,10 @@ namespace TerranEngine
 				fclose(filePtr);
 			}
 			else
-				TR_ERROR("Couldn't read from file {0}", filePath);
+				TR_CORE_ERROR(TR_LOG_CORE, "Couldn't read from file {0}", filePath);
 		}
 		else
-			TR_ERROR("Couldn't open file {0}", filePath);
+			TR_CORE_ERROR(TR_LOG_CORE, "Couldn't open file {0}", filePath);
 
 		return data;
 	}
@@ -79,7 +79,7 @@ namespace TerranEngine
 			 fclose(filePtr);
 		}
 		else
-			TR_ERROR("Couldn't open file {0}", filePath);
+			TR_CORE_ERROR(TR_LOG_CORE, "Couldn't open file {0}", filePath);
 
 		return data;
 	}
@@ -102,7 +102,7 @@ namespace TerranEngine
 			fclose(filePtr);
 		}
 		else 
-			TR_ERROR("Couldn't open file {0}", filePath);
+			TR_CORE_ERROR(TR_LOG_CORE, "Couldn't open file {0}", filePath);
 
 		return data;
 	}
@@ -141,7 +141,7 @@ namespace TerranEngine
 		fopen_s(&filePtr, filePath, "w");
 
 		if (filePtr == nullptr)
-			TR_ERROR("Couldn't create file {0}", filePath);
+			TR_CORE_ERROR(TR_LOG_CORE, "Couldn't create file {0}", filePath);
 
 		fclose(filePtr);
 	}

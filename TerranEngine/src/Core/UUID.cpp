@@ -53,7 +53,7 @@ namespace TerranEngine
 
 			if (index >= 16 || !isxdigit(str[i]))
 			{
-				TR_ERROR("UUID not in hexidecimal format!");
+				TR_CORE_ERROR(TR_LOG_CORE, "UUID not in hexidecimal format!");
 				return UUID({ 0 });
 			}
 

@@ -29,7 +29,7 @@ namespace TerranEngine
 		case TextureFormat::Depth24Stencil8:	return { GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8 };
 		case TextureFormat::Grayscale:			return { GL_RG8, GL_RG };
 		default:
-			TR_WARN("The texture type isn't supported");
+			TR_CORE_WARN(TR_LOG_RENDERER, "The texture type isn't supported");
 			break;
 		}
 
@@ -47,7 +47,7 @@ namespace TerranEngine
 			nativeFilter = GL_LINEAR - (uint32_t)filter;
 			break;
 		default:
-			TR_WARN("The texture filter isn't supported");
+			TR_CORE_WARN(TR_LOG_RENDERER, "The texture filter isn't supported");
 			break;
 		}
 
@@ -83,7 +83,7 @@ namespace TerranEngine
 		case TextureWrapMode::MirrorOnce:		return GL_MIRROR_CLAMP_TO_EDGE;
 		case TextureWrapMode::ClampToEdge:		return GL_CLAMP_TO_EDGE;
 		default:
-			TR_WARN("The texture wrap mode isn't supported");
+			TR_CORE_WARN(TR_LOG_RENDERER, "The texture wrap mode isn't supported");
 			break;
 		}
 
