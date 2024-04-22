@@ -126,7 +126,7 @@ namespace TerranEngine
 		}
 		catch (const YAML::Exception& e) 
 		{
-			TR_ERROR(e.what());
+			TR_CORE_ERROR(TR_LOG_ASSET, e.what());
 			return;
 		}
 		
@@ -154,7 +154,7 @@ namespace TerranEngine
 		}
 		catch (const YAML::BadSubscript& e)
 		{
-			TR_ERROR(e.what());
+			TR_CORE_ERROR(TR_LOG_ASSET, e.what());
 			return;
 		}
 	}
@@ -164,7 +164,7 @@ namespace TerranEngine
 		const AssetInfo& info = GetAssetInfo(assetID);
 		if (s_LoadedAssets.find(assetID) == s_LoadedAssets.end()) 
 		{
-			TR_WARN("Trying to reload an asset that was never loaded");
+			TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
 			Shared<Asset> asset;
 			AssetImporter::Load(info, asset);
 			return;

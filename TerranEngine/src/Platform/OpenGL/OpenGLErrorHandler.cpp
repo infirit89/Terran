@@ -26,40 +26,40 @@ namespace TerranEngine
 
 			spdlog::level::level_enum logLevel = GetSPDLogLevel(severity);
 
-			Log::GetCoreLogger()->log(logLevel, "---------------");
+			Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "---------------");
 
 			switch (source)
 			{
-			case GL_DEBUG_SOURCE_API:				Log::GetCoreLogger()->log(logLevel, "Source: API"); break;
-			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		Log::GetCoreLogger()->log(logLevel, "Source: Window System"); break;
-			case GL_DEBUG_SOURCE_SHADER_COMPILER:	Log::GetCoreLogger()->log(logLevel, "Source: Shader Compiler"); break;
-			case GL_DEBUG_SOURCE_THIRD_PARTY:		Log::GetCoreLogger()->log(logLevel, "Source: Third Party"); break;
-			case GL_DEBUG_SOURCE_APPLICATION:		Log::GetCoreLogger()->log(logLevel, "Source: Application"); break;
-			case GL_DEBUG_SOURCE_OTHER:				Log::GetCoreLogger()->log(logLevel, "Source: Other"); break;
+			case GL_DEBUG_SOURCE_API:				Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: API"); break;
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Window System"); break;
+			case GL_DEBUG_SOURCE_SHADER_COMPILER:	Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Shader Compiler"); break;
+			case GL_DEBUG_SOURCE_THIRD_PARTY:		Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Third Party"); break;
+			case GL_DEBUG_SOURCE_APPLICATION:		Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Application"); break;
+			case GL_DEBUG_SOURCE_OTHER:				Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Other"); break;
 			}
 
 			switch (type)
 			{
-			case GL_DEBUG_TYPE_ERROR:               Log::GetCoreLogger()->log(logLevel, "Type: Error"); break;
-			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: Log::GetCoreLogger()->log(logLevel, "Type: Deprecated Behaviour"); break;
-			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  Log::GetCoreLogger()->log(logLevel, "Type: Undefined Behaviour"); break;
-			case GL_DEBUG_TYPE_PORTABILITY:         Log::GetCoreLogger()->log(logLevel, "Type: Portability"); break;
-			case GL_DEBUG_TYPE_PERFORMANCE:         Log::GetCoreLogger()->log(logLevel, "Type: Performance"); break;
-			case GL_DEBUG_TYPE_MARKER:              Log::GetCoreLogger()->log(logLevel, "Type: Marker"); break;
-			case GL_DEBUG_TYPE_PUSH_GROUP:          Log::GetCoreLogger()->log(logLevel, "Type: Push Group"); break;
-			case GL_DEBUG_TYPE_POP_GROUP:           Log::GetCoreLogger()->log(logLevel, "Type: Pop Group"); break;
-			case GL_DEBUG_TYPE_OTHER:               Log::GetCoreLogger()->log(logLevel, "Type: Other"); break;
+			case GL_DEBUG_TYPE_ERROR:               Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Error"); break;
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Deprecated Behaviour"); break;
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Undefined Behaviour"); break;
+			case GL_DEBUG_TYPE_PORTABILITY:         Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Portability"); break;
+			case GL_DEBUG_TYPE_PERFORMANCE:         Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Performance"); break;
+			case GL_DEBUG_TYPE_MARKER:              Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Marker"); break;
+			case GL_DEBUG_TYPE_PUSH_GROUP:          Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Push Group"); break;
+			case GL_DEBUG_TYPE_POP_GROUP:           Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Pop Group"); break;
+			case GL_DEBUG_TYPE_OTHER:               Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Other"); break;
 			}
 
 			switch (severity)
 			{
-			case GL_DEBUG_SEVERITY_HIGH:			Log::GetCoreLogger()->log(logLevel, "Severity: high"); break;
-			case GL_DEBUG_SEVERITY_MEDIUM:			Log::GetCoreLogger()->log(logLevel, "Severity: medium"); break;
-			case GL_DEBUG_SEVERITY_LOW:				Log::GetCoreLogger()->log(logLevel, "Severity: low"); break;
-			case GL_DEBUG_SEVERITY_NOTIFICATION:	Log::GetCoreLogger()->log(logLevel, "Severity: notification"); break;
+			case GL_DEBUG_SEVERITY_HIGH:			Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: high"); break;
+			case GL_DEBUG_SEVERITY_MEDIUM:			Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: medium"); break;
+			case GL_DEBUG_SEVERITY_LOW:				Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: low"); break;
+			case GL_DEBUG_SEVERITY_NOTIFICATION:	Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: notification"); break;
 			}
 
-			Log::GetCoreLogger()->log(logLevel, "Debug message (" + std::to_string(id) + "): " + message);
+			Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Debug message (" + std::to_string(id) + "): " + message);
 		}
 	}
 }

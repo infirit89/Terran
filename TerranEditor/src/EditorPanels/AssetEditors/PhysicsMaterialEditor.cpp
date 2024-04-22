@@ -14,20 +14,23 @@ namespace TerranEditor
 		if (!m_Open) return;
 		ImGui::Begin("Physics Material Editor", &m_Open);
 
+		bool changed = false;
 		Shared<PhysicsMaterial2DAsset> material = AssetManager::GetAsset<PhysicsMaterial2DAsset>(m_ID);
 		if (material) 
 		{
-			if (UI::BeginPropertyGroup("pm2d_properties")) 
+			UI::PropertyGroup("pm2d_properties", [material, &changed]()
 			{
 				ImGui::TableNextRow();
-				UI::PropertyFloat("Density", material->Density);
+				changed |= UI::PropertyFloat("Density", material->Density);
 				ImGui::TableNextRow();
-				UI::PropertyFloat("Friction", material->Friction);
+				changed |= UI::PropertyFloat("Friction", material->Friction);
 				ImGui::TableNextRow();
-				UI::PropertyFloat("Restitution", material->Restitution);
-				UI::EndPropertyGroup();
-			}
+				changed |= UI::PropertyFloat("Restitution", material->Restitution);
+			});
 		}
+
+		if (changed)
+			AssetImporter::Save(AssetManager::GetAssetInfo(m_ID), material);
 
 		ImGui::End();
 	}

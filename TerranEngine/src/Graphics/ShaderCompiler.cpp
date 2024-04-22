@@ -42,14 +42,14 @@ namespace TerranEngine
         std::string shaderName = m_ShaderPath.stem().string();
         std::string shaderSource = ReadShader();
 
-        TR_INFO("Compiling or loading cached shader: {0}", shaderName);
+        TR_CORE_INFO(TR_LOG_RENDERER, "Compiling or loading cached shader: {0}", shaderName);
         ShaderSourcesMap sources = Preprocess(shaderSource);
         std::vector<ShaderUnitInfo> compiledShaders = Compile_Internal(sources, shaderName);
 
         Shared<Shader> shader = CreateShared<Shader>(compiledShaders);
         shader->m_Name = shaderName;
         shader->m_Path = m_ShaderPath;
-        TR_INFO("Compiling or loading done!");
+        TR_CORE_INFO(TR_LOG_RENDERER, "Compiling or loading done!");
 
         return shader;
     }
@@ -59,7 +59,7 @@ namespace TerranEngine
         Shared<ShaderCompiler> compiler = CreateShared<ShaderCompiler>(shader->m_Path);
         std::string shaderSource = compiler->ReadShader();
 
-        TR_INFO("Recompiling shader: {0}", shader->GetName());
+        TR_CORE_INFO(TR_LOG_RENDERER, "Recompiling shader: {0}", shader->GetName());
         ShaderSourcesMap sources = compiler->Preprocess(shaderSource);
         for (const auto& [stage, shaderSources] : sources)
         {
@@ -71,7 +71,7 @@ namespace TerranEngine
         std::vector<ShaderUnitInfo> compiledShaders = compiler->Compile_Internal(sources, shader->GetName());
         shader->Release();
         shader->CreateProgram(compiledShaders);
-        TR_INFO("Compiling or loading done!");
+        TR_CORE_INFO(TR_LOG_RENDERER, "Compiling or loading done!");
     }
 
     std::vector<ShaderUnitInfo> ShaderCompiler::Compile_Internal(const ShaderSourcesMap& shaderSources, const std::string& shaderName)

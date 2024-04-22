@@ -115,18 +115,18 @@ namespace TerranEngine
 
 			if (glyphsLoaded < 0)
 			{
-				TR_ERROR("Failed to load glyphs from font");
+				TR_CORE_ERROR(TR_LOG_CORE, "Failed to load glyphs from font");
 
 				// NOTE: not uninitializing freetype and not destroying the loaded font
 				return texture;
 			}
 
-			TR_TRACE("Loaded geometry of {0} out of {1} glyphs", glyphsLoaded, charset.size());
+			TR_CORE_TRACE(TR_LOG_CORE, "Loaded geometry of {0} out of {1} glyphs", glyphsLoaded, charset.size());
 		}
 
 		if (m_Glyphs->empty())
 		{
-			TR_ERROR("No glyphs loaded");
+			TR_CORE_ERROR(TR_LOG_CORE, "No glyphs loaded");
 			// NOTE: not uninitializing freetype and not destroying the loaded font
 			return texture;
 		}
@@ -149,7 +149,7 @@ namespace TerranEngine
 		atlasPacker.pack(m_Glyphs->data(), static_cast<int>(m_Glyphs->size()));
 
 		atlasPacker.getDimensions(m_AtlasWidth, m_AtlasHeight);
-		TR_TRACE("Atlas width: {0}; Atlas height: {1}", m_AtlasWidth, m_AtlasHeight);
+		TR_CORE_TRACE(TR_LOG_CORE, "Atlas width: {0}; Atlas height: {1}", m_AtlasWidth, m_AtlasHeight);
 
 		const double maxCornerAngle = 3.0;
 		

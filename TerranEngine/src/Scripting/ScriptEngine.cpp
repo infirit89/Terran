@@ -55,7 +55,7 @@ namespace TerranEngine
 	static void OnException(std::string_view message) 
 	{
 		std::string_view processedMessage = message.substr(0, message.find_first_of('\n'));
-		TR_ERROR(processedMessage);
+		TR_CORE_ERROR(TR_LOG_SCRIPT, processedMessage);
 		Log(processedMessage, spdlog::level::err);
 	}
 
@@ -63,9 +63,9 @@ namespace TerranEngine
 	{
 		switch (messageLevel)
 		{
-		case Coral::MessageLevel::Info:		TR_INFO(message); break;
-		case Coral::MessageLevel::Warning:	TR_WARN(message); break;
-		case Coral::MessageLevel::Error:	TR_ERROR(message); break;
+		case Coral::MessageLevel::Info:		TR_CORE_INFO(TR_LOG_SCRIPT, message); break;
+		case Coral::MessageLevel::Warning:	TR_CORE_WARN(TR_LOG_SCRIPT, message); break;
+		case Coral::MessageLevel::Error:	TR_CORE_ERROR(TR_LOG_SCRIPT, message); break;
 		}
 	}
 
@@ -214,7 +214,7 @@ namespace TerranEngine
 			}
 		}
 
-		TR_INFO("Reloaded assemblies!");
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Reloaded assemblies!");
 		Log("Reloaded assemblies", spdlog::level::info);
 	}
 
@@ -294,7 +294,7 @@ namespace TerranEngine
 		if (!type)
 		{
 			scriptComponent.ClassExists = false;
-			TR_ERROR("Class {0} doesn't exist", scriptComponent.ModuleName);
+			TR_CORE_ERROR(TR_LOG_SCRIPT, "Class {0} doesn't exist", scriptComponent.ModuleName);
 			return nullptr;
 		}
 
@@ -309,7 +309,7 @@ namespace TerranEngine
 
 		if (!type.IsSubclassOf(*ScriptTypes::ScriptableType))
 		{
-			TR_ERROR("Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
+			TR_CORE_ERROR(TR_LOG_SCRIPT, "Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
 			return nullptr;
 		}
 
@@ -419,7 +419,7 @@ namespace TerranEngine
 
 		if (status != Coral::AssemblyLoadStatus::Success)
 		{
-			TR_ERROR("Couldn't load the ScriptAssembly assembly");
+			TR_CORE_ERROR(TR_LOG_SCRIPT, "Couldn't load the ScriptAssembly assembly");
 			return false;
 		}
 

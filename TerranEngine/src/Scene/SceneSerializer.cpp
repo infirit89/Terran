@@ -605,7 +605,7 @@ namespace TerranEngine
 		}
 		catch (const YAML::InvalidNode& ex) 
 		{
-			TR_ERROR(ex.what());
+			TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
 			return Entity();
 		}
 	}
@@ -619,7 +619,7 @@ namespace TerranEngine
 		}
 		catch (const YAML::ParserException& ex) 
 		{
-			TR_ERROR(ex.what());
+			TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
 			return false;
 		}
 

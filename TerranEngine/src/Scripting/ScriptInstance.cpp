@@ -24,7 +24,7 @@ namespace TerranEngine
 	ScriptInstance::~ScriptInstance()
 	{
 		Coral::ManagedObject object = m_Context;
-		TR_TRACE("destroying script instance");
+		TR_CORE_TRACE(TR_LOG_SCRIPT, "destroying script instance");
 		for (const auto& [fieldHandle, value] : m_FieldObjects)
 		{
 			const ScriptField& field = GetScriptField(fieldHandle);

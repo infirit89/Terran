@@ -58,7 +58,7 @@ namespace TerranEngine
         s_State->Settings = settings;
 		if (s_State->PhysicsWorld)
 		{
-			TR_ERROR("The existing physics world must be deleted before a new one is created");
+			TR_CORE_ERROR(TR_LOG_PHYSICS, "The existing physics world must be deleted before a new one is created");
 			return;
 		}
 
@@ -73,7 +73,7 @@ namespace TerranEngine
 	{
 		if (!s_State->PhysicsWorld) 
 		{
-			TR_ERROR("Physics world is null");
+			TR_CORE_ERROR(TR_LOG_PHYSICS, "Physics world is null");
 			return;
 		}
 

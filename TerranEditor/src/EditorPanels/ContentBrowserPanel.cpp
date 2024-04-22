@@ -424,18 +424,18 @@ namespace TerranEditor
 		//dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(ContentPanel::OnKeyPressedEvent));
 	}
 
-	static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0)
+	/*static void PrintDirectoryInfo(const Shared<DirectoryInfo>& parent, int level = 0)
 	{
 		std::string childStr = std::string(level, '-');
 
 		if (level == 0)
-			TR_TRACE("Assets");
+			TR_CORE_TRACE("Assets");
 		else
-			TR_TRACE("{0}{1}", childStr, parent->Path.filename().string());
+			TR_CORE_TRACE("{0}{1}", childStr, parent->Path.filename().string());
 
 		for (const auto& [handle, subdirectory] : parent->Subdirectories)
 			PrintDirectoryInfo(subdirectory, level + 1);
-	}
+	}*/
 
 	// NOTE: there's a macro from windows with the name RemoveDirectory
 	UUID ContentPanel::RemoveDirectoryInfo(Shared<DirectoryInfo> directory)
@@ -510,7 +510,7 @@ namespace TerranEditor
 		std::error_code e;
 		
 		bool result = std::filesystem::exists(p, e);
-		TR_TRACE(e.message());
+		TR_CLIENT_ERROR(e.message());
 		return result;
 	}
 
