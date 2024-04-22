@@ -152,6 +152,7 @@ namespace TerranEngine
 
 	void BatchRenderer2D::Initialize(uint32_t batchSize)
 	{
+		TR_CORE_INFO(TR_LOG_RENDERER, "Initialized batch renderer with size: {}", batchSize);
 		s_Data = new BatchRenderer2DData();
 
 		s_Data->MaxIndices = batchSize * 6;
@@ -323,6 +324,8 @@ namespace TerranEngine
 		delete[] s_Data->TextVertexPtr;
 
 		delete[] s_Data->DebugLineVertexPtr;
+
+		TR_CORE_INFO(TR_LOG_RENDERER, "Shutdown batch renderer");
 	}
 
 	void BatchRenderer2D::BeginFrame(Camera& camera, const glm::mat4& transform, bool inverseView)

@@ -7,13 +7,29 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #pragma warning(pop)
 
+#include <yaml-cpp/yaml.h>
+
 #include <ctime>
+#include <filesystem>
 
 namespace TerranEngine 
 {
-	std::unordered_map<std::string_view, Shared<spdlog::logger>>  s_Loggers;
+	static std::unordered_map<std::string_view, Shared<spdlog::logger>>  s_Loggers;
+	static std::array<LogSettings, TR_CORE_LOGGER_COUNT> s_Settings
+	{
+		LogSettings { Name = TR_LOG_CORE },
+		LogSettings { Name = TR_LOG_RENDERER },
+		LogSettings { Name = TR_LOG_SCRIPT },
+		LogSettings { Name = TR_LOG_ASSET },
+		LogSettings { Name = TR_LOG_PHYSICS },
+	};
+
+	static std::filesystem::path s_SettingsPath = "Resources/LogSettings.settings";
+
 	void Log::Init()
 	{
+
+
 		std::array<std::string_view, TR_CORE_LOGGER_COUNT> sinkNames
 		{
 			TR_LOG_CORE,
@@ -38,6 +54,71 @@ namespace TerranEngine
 			Shared<spdlog::logger> logger = CreateShared<spdlog::logger>(std::string(sinkNames.at(i)), sinks.begin(), sinks.end());
 			logger->set_level(spdlog::level::trace);
 			s_Loggers.emplace(sinkNames.at(i), logger);
+		}
+	}
+
+	void Log::Shutdown()
+	{
+	}
+
+	static spdlog::level::level_enum GetLogLevel(const std::string& logLevel) 
+	{
+		if (logLevel == "trace") return spdlog::level::level_enum::trace;
+		if (logLevel == "info") return spdlog::level::level_enum::info;
+		if (logLevel == "warn") return spdlog::level::level_enum::warn;
+		if (logLevel == "err") return spdlog::level::level_enum::err;
+
+		TR_CORE_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
+		return spdlog::level::level_enum::trace;
+	}
+
+	static std::string_view LogLevelToString(spdlog::level::level_enum logLevel) 
+	{
+		switch (logLevel)
+		{
+		case spdlog::level::trace: return "trace";
+		case spdlog::level::info: return "info";
+		case spdlog::level::warn: return "warn";
+		case spdlog::level::err: return "err";
+		case spdlog::level::off: return "off";
+		}
+
+		TR_CORE_ERROR(TR_LOG_CORE, "Invalid log level");
+		return nullptr;
+	}
+
+	static void LoadLogSettings() 
+	{
+		YAML::Node node;
+
+		try 
+		{
+			node = YAML::LoadFile(s_SettingsPath.string());
+		}
+		catch (const YAML::Exception& e) 
+		{
+			TR_CORE_ERROR(TR_LOG_CORE, e.what());
+			return;
+		}
+
+		try 
+		{
+			auto logSettings = node["Settings"];
+
+			if (!logSettings)
+				return;
+
+			for (size_t i = 0; i < logSettings.size(); i++)
+			{
+				LogSettings& settings = s_Settings.at(i);
+				settings.Level = GetLogLevel(logSettings[i].as<std::string>(""));
+				
+			}
+		}
+		catch (const YAML::BadSubscript& e) 
+		{
+			TR_CORE_ERROR(TR_LOG_CORE, e.what());
+			return;
 		}
 	}
 

@@ -18,6 +18,8 @@ namespace TerranEngine
 
 		for (auto& mouseButton : InputUtils::MouseButtons)
 			s_MouseButtonStates[mouseButton] = {};
+
+		TR_CORE_INFO(TR_LOG_CORE, "Initialized input system");
 	}
 
 	void Input::Update() 
