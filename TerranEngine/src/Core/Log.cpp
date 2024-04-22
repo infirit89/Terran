@@ -11,30 +11,34 @@
 
 namespace TerranEngine 
 {
-	Shared<spdlog::logger> Log::s_CoreLogger;
-	Shared<spdlog::logger> Log::s_ClientLogger;
-	void Log::Init() 
+	std::unordered_map<std::string_view, Shared<spdlog::logger>>  s_Loggers;
+	void Log::Init()
 	{
-		std::vector<spdlog::sink_ptr> coreSinks
+		std::array<std::string_view, TR_CORE_LOGGER_COUNT> sinkNames
 		{
-			std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
-			std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetFormattedFileLoggerName("Terran"), true)
+			TR_LOG_CORE,
+			TR_LOG_RENDERER,
+			TR_LOG_SCRIPT,
+			TR_LOG_ASSET,
+			TR_LOG_PHYSICS
 		};
 
-		coreSinks[0]->set_pattern("%^[%T] %n: %v%$");
-		coreSinks[1]->set_pattern("%^[%T] %n: %v%$");
-
-		s_CoreLogger = CreateShared<spdlog::logger>("TERRAN", coreSinks.begin(), coreSinks.end());
-		s_CoreLogger->set_level(spdlog::level::trace);
-
-		std::vector<spdlog::sink_ptr> clientSinks
+		for (int32_t i = 0; i < TR_CORE_LOGGER_COUNT; i++)
 		{
-			std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetFormattedFileLoggerName("Terran_Client"), true)
-		};
+			std::vector<spdlog::sink_ptr> sinks
+			{
+				CreateShared<spdlog::sinks::stdout_color_sink_mt>(),
+				CreateShared<spdlog::sinks::basic_file_sink_mt>(GetFormattedFileLoggerName("Terran"), true)
+			};
 
-		clientSinks[0]->set_pattern("%^[%T] %n: %v%$");
-		s_ClientLogger = CreateShared<spdlog::logger>("TERRAN_CLIENT", clientSinks.begin(), clientSinks.end());
-		s_ClientLogger->set_level(spdlog::level::trace);
+			std::string pattern = "%^[%T] TERRAN [%n]: %v%$";
+			sinks[0]->set_pattern(pattern);
+			sinks[1]->set_pattern(pattern);
+
+			Shared<spdlog::logger> logger = CreateShared<spdlog::logger>(std::string(sinkNames.at(i)), sinks.begin(), sinks.end());
+			logger->set_level(spdlog::level::trace);
+			s_Loggers.emplace(sinkNames.at(i), logger);
+		}
 	}
 
 	std::string Log::GetFormattedFileLoggerName(std::string_view loggerName)
@@ -44,5 +48,20 @@ namespace TerranEngine
 		timeSS << "logs/" << std::put_time(time, "%m-%d-%G") << "/" 
 				<< std::put_time(time, "%H_%M") << "/" << loggerName << ".log";
 		return timeSS.str();
+	}
+
+	void Log::SetClientLogger(Shared<spdlog::logger> logger) 
+	{
+		s_Loggers.emplace(TR_LOG_CLIENT, logger);
+	}
+
+	bool Log::Contains(std::string_view loggerName)
+	{
+		return s_Loggers.contains(loggerName);
+	}
+
+	Shared<spdlog::logger> Log::GetLogger(std::string_view loggerName)
+	{
+		return s_Loggers.at(loggerName);
 	}
 }

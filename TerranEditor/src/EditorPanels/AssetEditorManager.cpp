@@ -42,7 +42,7 @@ namespace TerranEditor
 	void AssetEditorManager::RegisterAssetEditors()
 	{
 		s_Editors[AssetType::PhysicsMaterial2D] = CreateShared<PhysicsMaterialEditor>();
-		TR_INFO("Registered all asset editors");
+		TR_CORE_INFO(TR_LOG_CORE, "Registered all asset editors");
 	}
 }
 

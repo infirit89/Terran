@@ -21,7 +21,7 @@ namespace TerranEngine
             return;
         }
 
-        TR_ERROR("Invalid asset type for asset: {0}", assetInfo.Path);
+        TR_CORE_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetInfo.Path);
     }
 
     bool AssetImporter::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)
@@ -29,7 +29,7 @@ namespace TerranEngine
         if (s_Loaders.find(assetInfo.Type) != s_Loaders.end())
             return s_Loaders[assetInfo.Type]->Save(assetInfo, asset);
 
-        TR_ERROR("Invalid asset type for asset: {0}", assetInfo.Path);
+        TR_CORE_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetInfo.Path);
         return false;
     }
 }

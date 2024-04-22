@@ -70,7 +70,7 @@ namespace TerranEngine
         }
         catch (const YAML::BadFile& e) 
         {
-            TR_ERROR(e.what());
+            TR_CORE_ERROR(TR_LOG_CORE, e.what());
             return false;
         }
 
@@ -96,7 +96,7 @@ namespace TerranEngine
         }
         catch (const YAML::BadSubscript& e)
         {
-            TR_ERROR(e.what());
+            TR_CORE_ERROR(TR_LOG_CORE, e.what());
             return false;
         }
 

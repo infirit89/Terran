@@ -3,6 +3,7 @@
 #include "UUID.h"
 #include "Base.h"
 
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
@@ -11,6 +12,8 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/bundled/format.h>
 #pragma warning(pop)
+
+#include <unordered_map>
 
 template<glm::length_t L, typename T, glm::qualifier Q>
 struct fmt::formatter<glm::vec<L, T, Q>>
@@ -60,21 +63,24 @@ struct fmt::formatter<glm::qua<T, Q>>
 	}
 };
 
+#define TR_LOG_CLIENT "CLIENT"
+#define TR_LOG_CORE "CORE"
+#define TR_LOG_RENDERER "RENDERER"
+#define TR_LOG_SCRIPT "SCRIPT"
+#define TR_LOG_ASSET "ASSET"
+#define TR_LOG_PHYSICS "PHYSICS"
+#define TR_CORE_LOGGER_COUNT 6
+
 namespace TerranEngine 
 {
 	class Log 
 	{
 	public:
 		static void Init();
-		static inline Shared<spdlog::logger> GetCoreLogger() { return s_CoreLogger; }
-		
-		static inline Shared<spdlog::logger> GetClientLogger() { return s_ClientLogger; }
-		static inline void SetClientLogger(Shared<spdlog::logger> logger) { s_ClientLogger = logger; }
+		static void SetClientLogger(Shared<spdlog::logger> logger);
 		static std::string GetFormattedFileLoggerName(std::string_view loggerName);
-
-	private:
-		static Shared<spdlog::logger> s_CoreLogger;
-		static Shared<spdlog::logger> s_ClientLogger;
+		static bool Contains(std::string_view loggerName);
+		static Shared<spdlog::logger> GetLogger(std::string_view loggerName);
 	};
 
 	template<typename OStream>
@@ -101,13 +107,36 @@ namespace TerranEngine
 		return os;
 	}
 
-	#define TR_TRACE(...) TerranEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
-	#define TR_INFO(...) TerranEngine::Log::GetCoreLogger()->info(__VA_ARGS__)
-	#define TR_WARN(...) TerranEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
-	#define TR_ERROR(...) TerranEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
+	#define TR_CORE_TRACE(LoggerName, ...)								\
+		if(TerranEngine::Log::Contains(LoggerName))						\
+			TerranEngine::Log::GetLogger(LoggerName)->trace(__VA_ARGS__)
 
-	#define TR_CLIENT_TRACE(...) TerranEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
-	#define TR_CLIENT_INFO(...) TerranEngine::Log::GetClientLogger()->info(__VA_ARGS__)
-	#define TR_CLIENT_WARN(...) TerranEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
-	#define TR_CLIENT_ERROR(...) TerranEngine::Log::GetClientLogger()->error(__VA_ARGS__)
+	#define TR_CORE_INFO(LoggerName, ...)								\
+		if(TerranEngine::Log::Contains(LoggerName))						\
+			TerranEngine::Log::GetLogger(LoggerName)->info(__VA_ARGS__)
+
+	#define TR_CORE_WARN(LoggerName, ...)								\
+		if(TerranEngine::Log::Contains(LoggerName))						\
+			TerranEngine::Log::GetLogger(LoggerName)->warn(__VA_ARGS__)
+
+	#define TR_CORE_ERROR(LoggerName, ...)								\
+		if(TerranEngine::Log::Contains(LoggerName))						\
+			TerranEngine::Log::GetLogger(LoggerName)->error(__VA_ARGS__)
+
+
+	#define TR_CLIENT_TRACE(...)											\
+		if(TerranEngine::Log::Contains(TR_LOG_CLIENT))						\
+			TerranEngine::Log::GetLogger(TR_LOG_CLIENT)->trace(__VA_ARGS__)
+
+	#define TR_CLIENT_INFO(...)												\
+		if (TerranEngine::Log::Contains(TR_LOG_CLIENT))						\
+			TerranEngine::Log::GetLogger(TR_LOG_CLIENT)->info(__VA_ARGS__)
+
+	#define TR_CLIENT_WARN(...)												\
+		if (TerranEngine::Log::Contains(TR_LOG_CLIENT))						\
+			TerranEngine::Log::GetLogger(TR_LOG_CLIENT)->warn(__VA_ARGS__)
+
+	#define TR_CLIENT_ERROR(...)											\
+		if (TerranEngine::Log::Contains(TR_LOG_CLIENT))						\
+			TerranEngine::Log::GetLogger(TR_LOG_CLIENT)->error(__VA_ARGS__)
 }

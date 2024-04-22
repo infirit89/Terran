@@ -211,7 +211,6 @@ namespace TerranEngine
 		glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale) 
 		{
 			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
-			TR_TRACE("{0} {1}", xscale, yscale);
 			WindowContentScaleChangeEvent e(xscale, yscale);
 			data.EventCallback(e);
 			data.XScale = xscale;

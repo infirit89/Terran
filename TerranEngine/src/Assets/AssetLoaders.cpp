@@ -78,10 +78,10 @@ namespace TerranEngine
                 in.read(&result[0], size);
             }
             else
-                TR_ERROR("Couldn't read the file");
+                TR_CORE_ERROR(TR_LOG_CORE, "Couldn't read the file");
         }
         else
-            TR_ERROR("Couldn't open the file");
+            TR_CORE_ERROR(TR_LOG_CORE, "Couldn't open the file");
 
         asset = CreateShared<TextAsset>(result);
     }
@@ -113,7 +113,7 @@ namespace TerranEngine
         }
         catch (const YAML::Exception& e)
         {
-            TR_ERROR(e.what());
+            TR_CORE_ERROR(TR_LOG_ASSET, e.what());
             return;
         }
 
@@ -129,7 +129,7 @@ namespace TerranEngine
         }
         catch (const YAML::BadSubscript& e)
         {
-            TR_ERROR(e.what());
+            TR_CORE_ERROR(TR_LOG_ASSET, e.what());
             return;
         }
     }

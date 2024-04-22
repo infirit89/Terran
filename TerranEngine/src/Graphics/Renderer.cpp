@@ -16,8 +16,8 @@ namespace TerranEngine
 		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
 
-		TR_TRACE("Graphics card: {0}", glGetString(GL_RENDERER));
-		TR_TRACE("OpenGL version: {0}", glGetString(GL_VERSION));
+		TR_CORE_TRACE(TR_LOG_RENDERER, "Graphics card: {0}", glGetString(GL_RENDERER));
+		TR_CORE_TRACE(TR_LOG_RENDERER, "OpenGL version: {0}", glGetString(GL_VERSION));
 
 		TR_ASSERT(GLVersion.major >= 4 && GLVersion.minor > 5, "Terran doesn't support opengl versions older than 4.5.0");
 
@@ -140,7 +140,7 @@ namespace TerranEngine
 		case TerranEngine::RenderMode::TriangleFan:
 			return GL_POINTS + (uint32_t)mode;
 		default:
-			TR_ERROR("Unsupported render mode");
+			TR_CORE_ERROR(TR_LOG_RENDERER, "Unsupported render mode");
 			break;
 		}
 
