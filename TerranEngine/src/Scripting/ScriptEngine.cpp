@@ -90,6 +90,7 @@ namespace TerranEngine
 		CreateAssemblyLoadContext();
 
 		LoadCoreAssembly();
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Initialized script engine");
 	}
 
 	bool ScriptEngine::LoadCoreAssembly() 
@@ -109,9 +110,10 @@ namespace TerranEngine
 
 	void ScriptEngine::Shutdown()
 	{
+		s_Data->ScriptInstanceMap.clear();
 		Coral::GC::Collect();
 		s_Data->HostInstance.UnloadAssemblyLoadContext(s_Data->LoadContext);
-		s_Data->ScriptInstanceMap.clear();
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Shutdown script system");
 	}
 
 	void ScriptEngine::ReloadAppAssembly()

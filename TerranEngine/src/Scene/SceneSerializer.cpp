@@ -532,7 +532,6 @@ namespace TerranEngine
 			auto relationshipComponent = data["RelationshipComponent"];
 			if (relationshipComponent)
 			{
-				// TODO:
 				auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
 				for (auto childID : relationshipComponent["Children"])
 				{

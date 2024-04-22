@@ -46,11 +46,14 @@ namespace TerranEngine
         PhysicsLayerManager::SetLayerName(1, "IgnoreRayCast");
         PhysicsLayerManager::SetLayerName(3, "Test");
 		s_State->DefaultMaterial = AssetManager::CreateMemoryAsset<PhysicsMaterial2DAsset>();
+
+		TR_CORE_INFO(TR_LOG_PHYSICS, "Initialized physics system");
 	}
 
 	void Physics2D::Shutdown()
 	{
 		delete s_State;
+		TR_CORE_INFO(TR_LOG_PHYSICS, "Shutdown physics system");
 	}
 
 	void Physics2D::CreatePhysicsWorld(const PhysicsSettings& settings)

@@ -22,12 +22,15 @@ namespace TerranEngine
 
 		s_LoadedAssets.clear();
 		s_AssetsInfos.clear();
+		TR_CORE_INFO(TR_LOG_ASSET, "Initialized asset manager");
 	}
 
 	void AssetManager::Shutdown()
 	{
 		s_LoadedAssets.clear();
 		s_AssetsInfos.clear();
+
+		TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 	}
 
 	AssetInfo& AssetManager::GetAssetInfo_Internal(const UUID& assetID)

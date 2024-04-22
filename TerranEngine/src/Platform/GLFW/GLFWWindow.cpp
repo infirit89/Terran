@@ -81,8 +81,10 @@ namespace TerranEngine
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
 		
 		glfwGetWindowContentScale(m_Window, &m_WindowDataPtr.XScale, &m_WindowDataPtr.YScale);
+		TR_CORE_INFO(TR_LOG_CORE, "Created window");
 
 		SetupCallbacks();
+		TR_CORE_INFO(TR_LOG_CORE, "Setup window events");
 
 		glfwMakeContextCurrent(m_Window);
 		SetVsync(data.VSync);
@@ -223,5 +225,6 @@ namespace TerranEngine
 	{
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
+		TR_CORE_INFO(TR_LOG_CORE, "Destroyed window and opengl context");
 	}
 }
