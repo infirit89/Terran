@@ -63,17 +63,17 @@ struct fmt::formatter<glm::qua<T, Q>>
 	}
 };
 
-#define TR_LOG_CLIENT "CLIENT"
-#define TR_LOG_CORE "CORE"
-#define TR_LOG_RENDERER "RENDERER"
-#define TR_LOG_SCRIPT "SCRIPT"
-#define TR_LOG_ASSET "ASSET"
-#define TR_LOG_PHYSICS "PHYSICS"
+#define TR_LOG_CLIENT "Client"
+#define TR_LOG_CORE "Core"
+#define TR_LOG_RENDERER "Renderer"
+#define TR_LOG_SCRIPT "Script"
+#define TR_LOG_ASSET "Asset"
+#define TR_LOG_PHYSICS "Physics"
 #define TR_CORE_LOGGER_COUNT 6
 
 struct LogSettings
 {
-	std::string_view Name;
+	std::string Name;
 	spdlog::level::level_enum Level;
 };
 
@@ -84,10 +84,12 @@ namespace TerranEngine
 	public:
 		static void Init();
 		static void Shutdown();
-		static void SetClientLogger(Shared<spdlog::logger> logger);
+		//static void SetClientLogger(Shared<spdlog::logger> logger);
 		static std::string GetFormattedFileLoggerName(std::string_view loggerName);
-		static bool Contains(std::string_view loggerName);
-		static Shared<spdlog::logger> GetLogger(std::string_view loggerName);
+		static bool Contains(const std::string& loggerName);
+		static Shared<spdlog::logger> GetLogger(const std::string& loggerName);
+		static void SetLoggerSink(const std::string& loggerName, spdlog::sink_ptr sink, size_t sinkIndex = 0);
+		static void SetLogFormat(const std::string& loggerName, const std::string& format);
 	};
 
 	template<typename OStream>

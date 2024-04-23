@@ -14,65 +14,32 @@
 
 namespace TerranEngine 
 {
-	static std::unordered_map<std::string_view, Shared<spdlog::logger>>  s_Loggers;
-	static std::array<LogSettings, TR_CORE_LOGGER_COUNT> s_Settings
+	static std::unordered_map<std::string, Shared<spdlog::logger>>  s_Loggers;
+	static std::array<std::string, TR_CORE_LOGGER_COUNT> s_LoggersNames
 	{
-		LogSettings { Name = TR_LOG_CORE },
-		LogSettings { Name = TR_LOG_RENDERER },
-		LogSettings { Name = TR_LOG_SCRIPT },
-		LogSettings { Name = TR_LOG_ASSET },
-		LogSettings { Name = TR_LOG_PHYSICS },
+		TR_LOG_CORE,
+		TR_LOG_RENDERER,
+		TR_LOG_SCRIPT,
+		TR_LOG_ASSET,
+		TR_LOG_PHYSICS,
+		TR_LOG_CLIENT
 	};
 
 	static std::filesystem::path s_SettingsPath = "Resources/LogSettings.settings";
 
-	void Log::Init()
-	{
-
-
-		std::array<std::string_view, TR_CORE_LOGGER_COUNT> sinkNames
-		{
-			TR_LOG_CORE,
-			TR_LOG_RENDERER,
-			TR_LOG_SCRIPT,
-			TR_LOG_ASSET,
-			TR_LOG_PHYSICS
-		};
-
-		for (int32_t i = 0; i < TR_CORE_LOGGER_COUNT; i++)
-		{
-			std::vector<spdlog::sink_ptr> sinks
-			{
-				CreateShared<spdlog::sinks::stdout_color_sink_mt>(),
-				CreateShared<spdlog::sinks::basic_file_sink_mt>(GetFormattedFileLoggerName("Terran"), true)
-			};
-
-			std::string pattern = "%^[%T] TERRAN [%n]: %v%$";
-			sinks[0]->set_pattern(pattern);
-			sinks[1]->set_pattern(pattern);
-
-			Shared<spdlog::logger> logger = CreateShared<spdlog::logger>(std::string(sinkNames.at(i)), sinks.begin(), sinks.end());
-			logger->set_level(spdlog::level::trace);
-			s_Loggers.emplace(sinkNames.at(i), logger);
-		}
-	}
-
-	void Log::Shutdown()
-	{
-	}
-
-	static spdlog::level::level_enum GetLogLevel(const std::string& logLevel) 
+	static spdlog::level::level_enum GetLogLevel(const std::string& logLevel)
 	{
 		if (logLevel == "trace") return spdlog::level::level_enum::trace;
 		if (logLevel == "info") return spdlog::level::level_enum::info;
 		if (logLevel == "warn") return spdlog::level::level_enum::warn;
 		if (logLevel == "err") return spdlog::level::level_enum::err;
+		if (logLevel == "off") return spdlog::level::level_enum::off;
 
 		TR_CORE_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
 		return spdlog::level::level_enum::trace;
 	}
 
-	static std::string_view LogLevelToString(spdlog::level::level_enum logLevel) 
+	static std::string LogLevelToString(spdlog::level::level_enum logLevel)
 	{
 		switch (logLevel)
 		{
@@ -83,43 +50,96 @@ namespace TerranEngine
 		case spdlog::level::off: return "off";
 		}
 
-		TR_CORE_ERROR(TR_LOG_CORE, "Invalid log level");
-		return nullptr;
+		TR_CORE_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
+		return "trace";
 	}
 
-	static void LoadLogSettings() 
+	static void LoadLogSettings()
 	{
 		YAML::Node node;
 
-		try 
+		try
 		{
 			node = YAML::LoadFile(s_SettingsPath.string());
 		}
-		catch (const YAML::Exception& e) 
+		catch (const YAML::Exception& e)
 		{
 			TR_CORE_ERROR(TR_LOG_CORE, e.what());
 			return;
 		}
 
-		try 
+		try
 		{
-			auto logSettings = node["Settings"];
+			auto loggersSettings = node["Loggers"];
 
-			if (!logSettings)
+			if (!loggersSettings)
 				return;
 
-			for (size_t i = 0; i < logSettings.size(); i++)
+			size_t index = 0;
+			for (const auto& logName : s_LoggersNames)
 			{
-				LogSettings& settings = s_Settings.at(i);
-				settings.Level = GetLogLevel(logSettings[i].as<std::string>(""));
-				
+				auto logSettings = loggersSettings[index];
+				s_Loggers.at(logName)->set_level(GetLogLevel(logSettings[logName]["Level"].as<std::string>("")));
+				index++;
 			}
 		}
-		catch (const YAML::BadSubscript& e) 
+		catch (const YAML::BadSubscript& e)
 		{
 			TR_CORE_ERROR(TR_LOG_CORE, e.what());
 			return;
 		}
+	}
+
+	static void WriteLogSettings() 
+	{
+		YAML::Emitter out;
+
+		out << YAML::BeginMap;
+		out << YAML::Key << "Loggers" << YAML::BeginSeq;
+
+		for (const auto& name : s_LoggersNames)
+		{
+			out << YAML::BeginMap;
+			out << YAML::Key << name << YAML::BeginMap;
+
+			out << YAML::Key << "Level" << YAML::Value << LogLevelToString(s_Loggers.at(name)->level());
+
+			out << YAML::EndMap;
+			out << YAML::EndMap;
+		}
+
+		out << YAML::EndSeq;
+		out << YAML::EndMap;
+
+		std::ofstream ofs(s_SettingsPath);
+		ofs << out.c_str();
+	}
+
+	void Log::Init()
+	{
+		for (const auto& name : s_LoggersNames)
+		{
+			std::vector<spdlog::sink_ptr> sinks
+			{
+				CreateShared<spdlog::sinks::stdout_color_sink_mt>(),
+				CreateShared<spdlog::sinks::basic_file_sink_mt>(GetFormattedFileLoggerName(name), true)
+			};
+
+			std::string pattern = "%^[%T] TERRAN [%n]: %v%$";
+			sinks[0]->set_pattern(pattern);
+			sinks[1]->set_pattern(pattern);
+
+			Shared<spdlog::logger> logger = CreateShared<spdlog::logger>(name, sinks.begin(), sinks.end());
+			logger->set_level(spdlog::level::trace);
+			s_Loggers.emplace(name, logger);
+		}
+
+		LoadLogSettings();
+	}
+
+	void Log::Shutdown()
+	{
+		WriteLogSettings();
 	}
 
 	std::string Log::GetFormattedFileLoggerName(std::string_view loggerName)
@@ -131,18 +151,28 @@ namespace TerranEngine
 		return timeSS.str();
 	}
 
-	void Log::SetClientLogger(Shared<spdlog::logger> logger) 
+	/*void Log::SetClientLogger(Shared<spdlog::logger> logger) 
 	{
 		s_Loggers.emplace(TR_LOG_CLIENT, logger);
-	}
+	}*/
 
-	bool Log::Contains(std::string_view loggerName)
+	bool Log::Contains(const std::string& loggerName)
 	{
 		return s_Loggers.contains(loggerName);
 	}
 
-	Shared<spdlog::logger> Log::GetLogger(std::string_view loggerName)
+	Shared<spdlog::logger> Log::GetLogger(const std::string& loggerName)
 	{
 		return s_Loggers.at(loggerName);
+	}
+
+	void Log::SetLoggerSink(const std::string& loggerName, spdlog::sink_ptr sink, size_t sinkIndex)
+	{
+		s_Loggers.at(loggerName)->sinks().at(sinkIndex) = sink;
+	}
+
+	void Log::SetLogFormat(const std::string& loggerName, const std::string& format)
+	{
+		s_Loggers.at(loggerName)->set_pattern(format);
 	}
 }

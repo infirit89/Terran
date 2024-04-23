@@ -15,6 +15,7 @@ namespace TerranEngine
 
 	void ScriptTypes::Initialize()
 	{
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Caching script types");
 		ScriptableType = Coral::TypeCache::Get().GetTypeByName("Terran.Scriptable");
 		TR_ASSERT(ScriptableType, "Failed to find the Terran.Scriptable type");
 

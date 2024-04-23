@@ -57,19 +57,10 @@ namespace TerranEditor
 	{
 		s_Instance = this;
 
-		std::vector<spdlog::sink_ptr> clientSinks
-		{
-			std::make_shared<spdlog::sinks::basic_file_sink_mt>(Log::GetFormattedFileLoggerName("Terran_Editor"), true),
-			std::make_shared<EditorConsoleSink>()
-		};
+		spdlog::sink_ptr editorConsoleSink = CreateShared<EditorConsoleSink>();
 
-		clientSinks[0]->set_pattern("%^[%T] %v%$");
-		clientSinks[1]->set_pattern("%^[%T] %v%$");
-
-		Shared<spdlog::logger> clientLogger = CreateShared<spdlog::logger>("Console", clientSinks.begin(), clientSinks.end());
-		clientLogger->set_level(spdlog::level::trace);
-
-		Log::SetClientLogger(clientLogger);
+		Log::SetLoggerSink(TR_LOG_CLIENT, editorConsoleSink);
+		Log::SetLogFormat(TR_LOG_CLIENT, "%^[%T] %v%$");
 	}
 
 	void EditorLayer::OnAttach()

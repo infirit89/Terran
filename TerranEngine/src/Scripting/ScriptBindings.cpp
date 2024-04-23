@@ -46,6 +46,7 @@ namespace TerranEngine
 
 	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 	{
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Binding internal calls for core assembly");
 		REGISTER_COMPONENT(Transform, TransformComponent);
 		REGISTER_COMPONENT(Tag, TagComponent);
 		REGISTER_COMPONENT(CapsuleCollider2D, CapsuleCollider2DComponent);

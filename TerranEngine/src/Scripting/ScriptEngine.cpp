@@ -96,6 +96,7 @@ namespace TerranEngine
 	bool ScriptEngine::LoadCoreAssembly() 
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Loading core assembly at {}", s_Data->ScriptCoreAssemblyPath);
 		coreAssembly = s_Data->LoadContext.LoadAssembly(s_Data->ScriptCoreAssemblyPath.string());
 		TR_ASSERT(coreAssembly.GetLoadStatus() == Coral::AssemblyLoadStatus::Success, "Couldn't load the TerranScriptCore assembly");
 
@@ -118,6 +119,7 @@ namespace TerranEngine
 
 	void ScriptEngine::ReloadAppAssembly()
 	{
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Reloading app assembly");
 		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<std::string, Utils::Variant>>> scriptFieldsStates;
 		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<std::string, std::vector<Utils::Variant>>>> scriptFieldArraysStates;
 
@@ -242,6 +244,7 @@ namespace TerranEngine
 
 	void ScriptEngine::InitializeTypeConverters()
 	{
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Initializing type converters");
 		auto& typeCache = Coral::TypeCache::Get();
 		auto& typeConverters = s_Data->TypeConverters;
 		/*ADD_SYSTEM_TYPE(Byte, UInt8);
@@ -415,6 +418,7 @@ namespace TerranEngine
 	bool ScriptEngine::LoadAppAssembly()
 	{
 		auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+		TR_CORE_INFO(TR_LOG_SCRIPT, "Loading app assembly at: {}", Project::GetAppAssemblyPath());
 		appAssembly = s_Data->LoadContext.LoadAssembly(Project::GetAppAssemblyPath().string());
 
 		Coral::AssemblyLoadStatus status = appAssembly.GetLoadStatus();
