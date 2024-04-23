@@ -460,6 +460,7 @@ namespace TerranEngine
 	{
 		for (auto entity : scene)
 		{
+			TR_CORE_TRACE(TR_LOG_CORE, entity);
 			UUID id = entity["Entity"].as<UUID>();
 			if (id == entityID) return entity;
 		}

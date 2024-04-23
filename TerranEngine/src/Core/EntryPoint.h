@@ -12,5 +12,7 @@ int main(int argc, char** argv)
 	application->Run();
 	delete application;
 
+	TerranEngine::Log::Shutdown();
+
 	return 0;
 }

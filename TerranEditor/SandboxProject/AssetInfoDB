@@ -29,6 +29,9 @@ AssetInfos:
   - Asset: 28e5a083-0048-4420-ac09-7426c6644a51
     Type: 4
     Path: Scenes\TestScene7.terran
+  - Asset: 30897b95-9b3c-4c95-b850-65e16887402f
+    Type: 4
+    Path: Scenes\TestScene14terran.terran
   - Asset: 413a5aec-3a25-43a1-832c-6cd161aa6b57
     Type: 4
     Path: Scenes\Scripting\physics_all.terran
