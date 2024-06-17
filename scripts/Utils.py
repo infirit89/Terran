@@ -12,8 +12,6 @@ TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
 TerranEditorPath = f"{TerranRoot}/TerranEditor"
 
 def DownloadFile(url, filepath):
-    print("Downloading", url)
-
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
@@ -29,13 +27,13 @@ def DownloadFile(url, filepath):
         totalFileSize = int(totalFileSize)
         
         donwloaded = 0
-        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024))):
+        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024 * 1024))):
             donwloaded += len(chunk)
             f.write(chunk)
 
             percentage = (donwloaded / totalFileSize) * 100 if donwloaded < totalFileSize else 100
 
-            sys.stdout.write("\r{:.2f}%".format(percentage))
+            sys.stdout.write("\rDownloading {:s} {:.2f}%".format(os.path.basename(url), percentage))
             sys.stdout.flush()
         sys.stdout.write('\n')
 
@@ -57,7 +55,7 @@ def UnzipFile(zipPath, deleteZip : bool = True):
 
             percentage = (extracted / totalZipSize) * 100
 
-            sys.stdout.write("\rExtracting: {} {:.2f}%".format(zipFileName, percentage))
+            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zipFileName, percentage))
             sys.stdout.flush()
 
         sys.stdout.write('\n')

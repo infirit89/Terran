@@ -2,7 +2,7 @@ import sys
 import subprocess
 import os
 
-packages = [ "requests", "numpy" ]
+packages = [ "requests", "numpy", "GitPython" ]
 
 def InstallPackages():
     for package in packages:
@@ -18,6 +18,15 @@ def UpdateSubmodules():
 if __name__ == "__main__":
     UpdateSubmodules()
     os.chdir("../")
+
+    # maybe for future????
+    # from git import Repo
+    # from GitUpdateProgress import GitUpdateProgress
+
+    # repo = Repo("./")
+    # for submodule in repo.submodules:
+    #     print(submodule.name)
+    #     submodule.update(recursive=True, init=True, progress=GitUpdateProgress())
 
     # TODO: install dotnet8 if not installed 
     InstallPackages()

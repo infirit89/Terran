@@ -27,5 +27,5 @@ class PremakeSetup:
         premakeLicensePath = f"{self.premakeDir}/LICENSE.txt"
         Utils.DownloadFile(self.premakeLicenseURL, premakeLicensePath)
         print("Premake License has been downloaded!")
-
+        print("Premake setup complete")
 
