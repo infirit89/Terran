@@ -1,0 +1,38 @@
+SerializerVersion: yml1.0
+Entities:
+  - Entity: 78b306e3-0cba-4e42-a179-6cba097d9f4d
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        Size: 10
+        Near: -10
+        Far: 10
+      Primary: true
+      ClearColor: [0.100000001, 0.100000001, 0.100000001, 1]
+  - Entity: cb8e1568-6382-4b65-adb6-05476f5517f7
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    RelationshipComponent:
+      Children:
+        - 12952ac5-ccd4-452c-8c52-e4ad42c99832
+      Parent: 00000000-0000-0000-0000-000000000000
+  - Entity: 12952ac5-ccd4-452c-8c52-e4ad42c99832
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, -0, 0]
+    RelationshipComponent:
+      Children:
+        []
+      Parent: cb8e1568-6382-4b65-adb6-05476f5517f7

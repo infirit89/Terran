@@ -181,6 +181,7 @@ namespace TerranEditor
 					}
 					case ItemAction::Select: 
 					{
+						SelectionManager::DeselectAll(SelectionContext::ContentPanel);
 						SelectionManager::Select(SelectionContext::ContentPanel, item->GetHandle());
 						break;
 					}
