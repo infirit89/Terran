@@ -102,7 +102,7 @@ namespace TerranEngine
 		inline UUID GetParentID() const								{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : UUID::Invalid(); }
 		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
 
-		inline const UUID& GetSceneID() const						{ return m_Scene->GetID(); }
+		inline const UUID& GetSceneId() const						{ return m_Scene->GetHandle(); }
 
 		inline Entity GetChild(uint32_t index) const		
 		{ 

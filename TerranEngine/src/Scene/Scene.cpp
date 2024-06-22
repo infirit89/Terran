@@ -36,9 +36,8 @@ namespace TerranEngine
 	
 	Scene::Scene()
 	{
-		m_ID = UUID();
         const auto sceneEntity = m_Registry.create();
-        m_Registry.emplace<SceneComponent>(sceneEntity, m_ID);
+        m_Registry.emplace<SceneComponent>(sceneEntity, m_Handle);
 
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);

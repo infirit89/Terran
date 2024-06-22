@@ -3,8 +3,6 @@
 #include "SceneSerializer.h"
 #include "Entity.h"
 
-//#include "Scripting/ScriptField.h"
-//#include "Scripting/ScriptCache.h"
 #include "Scripting/ScriptEngine.h"
 
 #include "Assets/AssetManager.h"
@@ -21,7 +19,6 @@
 #include <cwchar>
 
 // NOTE: this is not the final version of the scene serializer, this is a poc
-// NOTE: think about using yaml instead of json, because json has some limitation that i dont really like
 
 namespace TerranEngine 
 {
@@ -610,7 +607,7 @@ namespace TerranEngine
 		}
 	}
 
-	bool SceneSerializer::DesirializeEditior(const std::filesystem::path& scenePath)
+	bool SceneSerializer::DesirializeEditor(const std::filesystem::path& scenePath)
 	{
 		YAML::Node data;
 		try 
@@ -618,6 +615,11 @@ namespace TerranEngine
 			data = YAML::LoadFile(scenePath.string());
 		}
 		catch (const YAML::ParserException& ex) 
+		{
+			TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
+			return false;
+		}
+		catch (const YAML::BadFile& ex)
 		{
 			TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
 			return false;

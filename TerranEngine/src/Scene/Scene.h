@@ -77,8 +77,6 @@ namespace TerranEngine
 
 		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
 
-		UUID& GetID() { return m_ID; }
-
 		bool IsPlaying() const { return m_IsPlaying; }
 
 		Scene* GetRaw() { return this; }
@@ -95,8 +93,8 @@ namespace TerranEngine
 
 		uint32_t GetViewportWidth() const { return m_ViewportWidth; }
 		uint32_t GetViewportHeight() const { return m_ViewportHeight; }
-	private:
 
+	private:
         // scripting components
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
@@ -117,11 +115,8 @@ namespace TerranEngine
 		// text component
 		void OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
 	private:
-		// TODO: add scene name and UUID
-
-		UUID m_ID;
-
 		bool m_IsPlaying = false;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMap;

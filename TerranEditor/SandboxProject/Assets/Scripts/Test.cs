@@ -19,5 +19,4 @@ namespace ScriptAssembly
         {
         }
     }
-#nullable disable
 }

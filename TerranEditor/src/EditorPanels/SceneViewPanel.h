@@ -24,7 +24,8 @@ namespace TerranEditor
 
 	class SceneViewPanel : public EditorPanel
 	{
-		using OpenSceneFN = std::function<void(const std::filesystem::path&, glm::vec2)>;
+		// void OpenScene(const AssetInfo& sceneAssetInfo, glm::vec2 viewportSize);
+		using OpenSceneFN = std::function<void(const AssetInfo&, const glm::vec2&)>;
 	public:
 		SceneViewPanel() = default;
 		~SceneViewPanel() = default;
@@ -37,7 +38,7 @@ namespace TerranEditor
 
 		virtual void OnEvent(Event& event) override;
 
-		void SetOpenSceneCallback(OpenSceneFN openSceneCallback) { m_OpenSceneCallback = openSceneCallback; }
+		void SetOpenSceneCallback(const OpenSceneFN& openSceneCallback) { m_OpenSceneCallback = openSceneCallback; }
 		void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
 
 		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }

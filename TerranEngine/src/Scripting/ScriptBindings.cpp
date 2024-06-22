@@ -11,6 +11,7 @@
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 #include "Scene/Systems/SceneRenderer.h"
+#include "Scene/SceneSerializer.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
@@ -19,7 +20,6 @@
 
 #include "Utils/Debug/OptickProfiler.h"
 
-#include <functional>
 #include <glm/glm.hpp>
 
 #include <box2d/box2d.h>
@@ -28,6 +28,8 @@
 #include <Coral/TypeCache.hpp>
 #include <Coral/Array.hpp>
 
+#include <functional>
+
 namespace TerranEngine 
 {
 #define BIND_INTERNAL_FUNC(func) assembly.AddInternalCall("Terran.Internal", #func, reinterpret_cast<void*>(&func))
@@ -35,6 +37,7 @@ namespace TerranEngine
 	static std::unordered_map<int32_t, std::function<bool(Entity)>> s_HasComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_AddComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_RemoveComponentFuncs;
+	static ScriptBindings::OnSceneTransitionFn s_OnSceneTransitionFn = nullptr;
 	
 #define REGISTER_COMPONENT(ComponentType, Component)																				\
 	Coral::Type type_##ComponentType = assembly.GetType("Terran."#ComponentType);													\
@@ -43,6 +46,11 @@ namespace TerranEngine
 	s_AddComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { entity.AddComponent<Component>(); });			\
 	s_RemoveComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { entity.RemoveComponent<Component>(); })
 
+
+	void ScriptBindings::SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn)
+	{
+		s_OnSceneTransitionFn = sceneTransitionFn;
+	}
 
 	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 	{
@@ -683,6 +691,11 @@ namespace TerranEngine
 	}
 	#pragma endregion
 	// ---------------
+
+	bool ScriptBindings::SceneManager_LoadScene(Coral::String scenePath)
+	{
+		std::string scenePathStr = scenePath;
+	}
 
 	// ---- Physics ----
 	Coral::String ScriptBindings::LayerMask_GetNameICall(uint16_t layer)

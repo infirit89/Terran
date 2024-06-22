@@ -42,7 +42,7 @@ namespace TerranEditor
 		void NewScene();
 
 		void OpenScene();
-		void OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize);
+		void OpenScene(const AssetInfo& assetInfo, const glm::vec2& viewportSize);
 		
 		void SaveScene();
 

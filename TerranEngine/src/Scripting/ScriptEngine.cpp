@@ -273,7 +273,7 @@ namespace TerranEngine
 	{
 		try 
 		{
-			return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+			return s_Data->ScriptInstanceMap.at(entity.GetSceneId()).at(entity.GetID());
 		}
 		catch (std::out_of_range e)
 		{
@@ -305,10 +305,10 @@ namespace TerranEngine
 
 		scriptComponent.ClassExists = true;
 
-		if (s_Data->ScriptInstanceMap.find(entity.GetSceneID()) != s_Data->ScriptInstanceMap.end())
+		if (s_Data->ScriptInstanceMap.find(entity.GetSceneId()) != s_Data->ScriptInstanceMap.end())
 		{
-			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneID()).find(entity.GetID());
-			if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneID()).end())
+			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneId()).find(entity.GetID());
+			if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneId()).end())
 				return ((*obj).second);
 		}
 
@@ -319,7 +319,7 @@ namespace TerranEngine
 		}
 
 		Shared<ScriptInstance> instance =
-			s_Data->ScriptInstanceMap[entity.GetSceneID()][entity.GetID()] =
+			s_Data->ScriptInstanceMap[entity.GetSceneId()][entity.GetID()] =
 			CreateShared<ScriptInstance>(type, entity);
 
 		scriptComponent.FieldHandles.clear();
@@ -340,7 +340,7 @@ namespace TerranEngine
 			}
 		}
 		
-		return s_Data->ScriptInstanceMap.at(entity.GetSceneID()).at(entity.GetID());
+		return s_Data->ScriptInstanceMap.at(entity.GetSceneId()).at(entity.GetID());
 	}
 
 	void ScriptEngine::UninitalizeScriptable(Entity entity) 
@@ -348,12 +348,12 @@ namespace TerranEngine
 		if (!entity || !entity.HasComponent<TagComponent>())
 			return;
 
-		if (s_Data->ScriptInstanceMap.contains(entity.GetSceneID()) && s_Data->ScriptInstanceMap.at(entity.GetSceneID()).contains(entity.GetID()))
+		if (s_Data->ScriptInstanceMap.contains(entity.GetSceneId()) && s_Data->ScriptInstanceMap.at(entity.GetSceneId()).contains(entity.GetID()))
 		{
-			s_Data->ScriptInstanceMap[entity.GetSceneID()].erase(entity.GetID());
+			s_Data->ScriptInstanceMap[entity.GetSceneId()].erase(entity.GetID());
 
 			if (s_Data->ScriptInstanceMap.empty())
-				s_Data->ScriptInstanceMap.erase(entity.GetSceneID());
+				s_Data->ScriptInstanceMap.erase(entity.GetSceneId());
 		}
 	}
 

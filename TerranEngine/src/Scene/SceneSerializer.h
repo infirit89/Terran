@@ -15,7 +15,7 @@ namespace TerranEngine
 		SceneSerializer(const Shared<Scene>& scene);
 
 		void SerializeEditor(const std::filesystem::path& scenePath);
-		bool DesirializeEditior(const std::filesystem::path& scenePath);
+		bool DesirializeEditor(const std::filesystem::path& scenePath);
 
 	public:
 		static const char* SceneFilter;

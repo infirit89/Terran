@@ -93,7 +93,12 @@ namespace TerranEngine
 
     void SceneAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
     {
-        
+        Shared<Scene> scene = CreateShared<Scene>();
+        SceneSerializer serializer(scene);
+        if (!serializer.DesirializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path)))
+            return;
+
+        asset = scene;
     }
 
     bool SceneAssetLoader::Save(const AssetInfo& assetInfo, const Shared<Asset>& asset)

@@ -40,27 +40,46 @@ namespace TerranEngine
 		{
 			if (s_LoadedAssets.find(assetID) != s_LoadedAssets.end())
 				return DynamicCast<T>(s_LoadedAssets.at(assetID));
-			else 
-			{
-				AssetInfo& info = GetAssetInfo_Internal(assetID);
 
-				if (!info)
-					return nullptr;
+			AssetInfo& info = GetAssetInfo_Internal(assetID);
 
-				// NOTE: poc code
-				Shared<Asset> asset = nullptr;
-				AssetImporter::Load(info, asset);
+			if (!info)
+				return nullptr;
+
+			// NOTE: poc code
+			Shared<Asset> asset = nullptr;
+			AssetImporter::Load(info, asset);
 				
-				if (!asset)
-				{
-					TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
-					return nullptr;
-				}
-
-				asset->m_Handle = assetID;
-				s_LoadedAssets[assetID] = asset;
-				return DynamicCast<T>(s_LoadedAssets[assetID]);
+			if (!asset)
+			{
+				TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
+				return nullptr;
 			}
+
+			asset->m_Handle = assetID;
+			s_LoadedAssets[assetID] = asset;
+			return DynamicCast<T>(s_LoadedAssets[assetID]);
+		}
+
+		template<typename T>
+		inline static Shared<T> GetAsset(const AssetInfo& assetInfo) 
+		{
+			if (s_LoadedAssets.contains(assetInfo.Handle))
+				return DynamicCast<T>(s_LoadedAssets.at(assetInfo.Handle));
+
+			// NOTE: poc code
+			Shared<Asset> asset = nullptr;
+			AssetImporter::Load(assetInfo, asset);
+
+			if (!asset)
+			{
+				TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetInfo.Path);
+				return nullptr;
+			}
+
+			asset->m_Handle = assetInfo.Handle;
+			s_LoadedAssets[assetInfo.Handle] = asset;
+			return DynamicCast<T>(s_LoadedAssets[assetInfo.Handle]);
 		}
 
 		template<typename T>

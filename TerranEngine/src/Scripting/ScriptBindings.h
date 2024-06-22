@@ -18,6 +18,10 @@ namespace TerranEngine
 	class ScriptBindings
 	{
 	public:
+		// void OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
+		using OnSceneTransitionFn = std::function<void(const Shared<Scene>&, const Shared<Scene>&)>;
+		
+		static void SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn);
 		static void Bind(Coral::ManagedAssembly& assembly);
 
 		// clear the entity functions
@@ -232,5 +236,9 @@ namespace TerranEngine
 		static UUID Scene_GetMainCameraICall();
 		#pragma endregion
 		// ---------------
+
+		// ---- Scene Manager ----
+		static bool SceneManager_LoadScene(Coral::String scenePath);
+		// -----------------------
 	};
 }

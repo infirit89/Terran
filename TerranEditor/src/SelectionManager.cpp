@@ -16,8 +16,7 @@ namespace TerranEditor
 		selected.push_back(entity.GetID());
 	}
 	void SelectionManager::Select(SelectionContext context, const UUID& id) 
-	{	
-		TR_CORE_TRACE(TR_LOG_CORE, s_Selections[context].size());
+	{
 		s_Selections[context].push_back(id);
 	}
 	

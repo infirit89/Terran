@@ -86,8 +86,8 @@ namespace TerranEditor
 		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
 		m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
-		sceneViewPanel->SetOpenSceneCallback([this](const std::filesystem::path& sceneName, glm::vec2 sceneViewport) { OpenScene(sceneName, sceneViewport); });
-		sceneViewPanel->SetViewportSizeChangedCallback([this](glm::vec2 viewportSize) {  OnViewportSizeChanged(viewportSize); });
+		sceneViewPanel->SetOpenSceneCallback([this](const AssetInfo& sceneAssetInfo, const glm::vec2& sceneViewport) { OpenScene(sceneAssetInfo, sceneViewport); });
+		sceneViewPanel->SetViewportSizeChangedCallback(TR_EVENT_BIND_FN(EditorLayer::OnViewportSizeChanged));
 		m_PanelManager->AddPanel<SceneHierarchyPanel>(SCENE_HIERARCHY_PANEL_NAME);
 		m_PanelManager->AddPanel<ECSPanel>(ECS_PANEL_NAME);
 		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
@@ -431,16 +431,10 @@ namespace TerranEditor
 
 	void EditorLayer::OnSceneStop()
 	{
-		/*UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
-		SelectionManager::Deselect(SelectionContext::Scene);*/
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
-		//SceneManager::RemoveScene(SceneManager::CurrentScene->GetID());
 		m_PanelManager->SetScene(m_EditorScene);
 		SceneManager::SetCurrentScene(m_EditorScene);
-
-		/*if(tempSelected)
-			SelectionManager::Select(SelectionContext::Scene, tempSelected);*/
 	}
 
 	void EditorLayer::OnScriptEngineLog(std::string_view message, spdlog::level::level_enum level)
@@ -571,8 +565,9 @@ namespace TerranEditor
 
 	void EditorLayer::OpenScene()
 	{
-		std::filesystem::path scenePath = FileSystem::OpenFile(SceneSerializer::SceneFilter);
-		OpenScene(scenePath, m_ViewportSize);
+		std::filesystem::path scenePath = FileSystem::OpenFileDialog(SceneSerializer::SceneFilter);
+		AssetInfo assetInfo = AssetManager::GetAssetInfo(scenePath);
+		OpenScene(assetInfo, m_ViewportSize);
 	}
 
 	static bool IsValidAssetPath(const std::filesystem::path& path)
@@ -589,39 +584,32 @@ namespace TerranEditor
 		return false;    
 	}
 
-	void EditorLayer::OpenScene(const std::filesystem::path& scenePath, const glm::vec2& viewportSize)
+	void EditorLayer::OpenScene(const AssetInfo& sceneAssetInfo, const glm::vec2& viewportSize)
 	{
-		std::filesystem::path path = scenePath.empty() ? m_CurrentScenePath : scenePath;
-
-		//if(!IsValidAssetPath(path))
-			//return;
-
-		if (!path.empty()) 
+		if (sceneAssetInfo.Type != AssetType::Scene)
 		{
-			if (scenePath.extension() != ".terran")
-			{
-				TR_CLIENT_ERROR("Couldn't load scene: {0}", scenePath);
-				return;
-			}
-
-			Shared<Scene> newScene = SceneManager::CreateEmpyScene();
-			SceneSerializer sSerializer(newScene);
-			if (sSerializer.DesirializeEditior(AssetManager::GetFileSystemPath(scenePath)))
-			{
-				if (SceneManager::GetCurrentScene()->IsPlaying())
-					OnSceneStop();
-
-				SelectionManager::DeselectAll(SelectionContext::Scene);
-				m_EditorScene = newScene;
-				m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
-					
-				SceneManager::SetCurrentScene(newScene);
-
-				m_PanelManager->SetScene(SceneManager::GetCurrentScene());
-
-				m_CurrentScenePath = scenePath;
-			}
+			TR_CLIENT_ERROR("Couldn't load scene: {0}", sceneAssetInfo.Path);
+			return;
 		}
+
+		Shared<Scene> loadedScene = AssetManager::GetAsset<Scene>(sceneAssetInfo);
+		if (!loadedScene)
+			return;
+
+		if (SceneManager::GetCurrentScene()->IsPlaying()) 
+		{
+			m_SceneState = SceneState::Edit;
+			SceneManager::GetCurrentScene()->StopRuntime();
+		}
+
+		SelectionManager::DeselectAll(SelectionContext::Scene);
+		m_EditorScene = loadedScene;
+		m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
+					
+		SceneManager::SetCurrentScene(m_EditorScene);
+		m_PanelManager->SetScene(m_EditorScene);
+
+		m_CurrentScenePath = sceneAssetInfo.Path;
 	}
 
 	void EditorLayer::SaveScene()

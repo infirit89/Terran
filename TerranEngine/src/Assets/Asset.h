@@ -36,7 +36,7 @@ namespace TerranEngine
 		virtual ~Asset() = default;
 
 		bool IsValid() { return m_Handle.IsValid(); }
-		UUID GetHandle() { return m_Handle; }
+		const UUID& GetHandle() { return m_Handle; }
 		virtual AssetType GetType() const = 0;
 
 	protected:

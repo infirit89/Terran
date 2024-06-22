@@ -16,7 +16,7 @@
 
 namespace TerranEngine 
 {
-	std::filesystem::path FileSystem::OpenFile(const char* filter) 
+	std::filesystem::path FileSystem::OpenFileDialog(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
 
