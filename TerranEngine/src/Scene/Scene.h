@@ -128,5 +128,6 @@ namespace TerranEngine
 		friend class SceneRenderer;
 		friend class Entity;
 		friend class SceneSerializer;
+		friend class SceneAssetLoader;
 	};
 }

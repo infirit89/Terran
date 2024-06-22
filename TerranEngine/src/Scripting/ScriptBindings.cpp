@@ -18,6 +18,8 @@
 #include "Physics/Collider.h"
 #include "Physics/PhysicsLayerManager.h"
 
+#include "Assets/AssetManager.h"
+
 #include "Utils/Debug/OptickProfiler.h"
 
 #include <glm/glm.hpp>
@@ -236,6 +238,8 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Scene_GetMainCameraICall);
 		#pragma endregion
 		// ---------------
+
+		BIND_INTERNAL_FUNC(SceneManager_LoadSceneICall);
 
 		assembly.UploadInternalCalls();
 	}
@@ -692,9 +696,22 @@ namespace TerranEngine
 	#pragma endregion
 	// ---------------
 
-	bool ScriptBindings::SceneManager_LoadScene(Coral::String scenePath)
+	bool ScriptBindings::SceneManager_LoadSceneICall(Coral::String scenePath)
 	{
-		std::string scenePathStr = scenePath;
+		const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfo(std::string(scenePath));
+		Shared<Scene> loadedScene = AssetManager::GetAsset<Scene>(sceneAssetInfo);
+		if (!loadedScene)
+			return false;
+
+		SceneManager::GetCurrentScene()->StopRuntime();
+
+		if(s_OnSceneTransitionFn)
+			s_OnSceneTransitionFn(SceneManager::GetCurrentScene(), loadedScene);
+
+		SceneManager::SetCurrentScene(loadedScene);
+		SceneManager::GetCurrentScene()->StartRuntime();
+
+		return true;
 	}
 
 	// ---- Physics ----

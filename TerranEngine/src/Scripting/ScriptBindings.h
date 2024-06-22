@@ -238,7 +238,7 @@ namespace TerranEngine
 		// ---------------
 
 		// ---- Scene Manager ----
-		static bool SceneManager_LoadScene(Coral::String scenePath);
+		static bool SceneManager_LoadSceneICall(Coral::String scenePath);
 		// -----------------------
 	};
 }

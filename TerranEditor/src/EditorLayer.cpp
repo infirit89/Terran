@@ -159,6 +159,7 @@ namespace TerranEditor
 			}
 			case SceneState::Play:
 			{
+				const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfo(SceneManager::GetCurrentScene()->GetHandle());
 				SceneManager::GetCurrentScene()->Update(time);
 				SceneManager::GetCurrentScene()->OnRender(m_EditorSceneRenderer);
 
@@ -466,6 +467,11 @@ namespace TerranEditor
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 		m_EditorSceneRenderer->OnResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 
+	}
+
+	void EditorLayer::OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene)
+	{
+		m_PanelManager->SetScene(newScene);
 	}
 
 	void EditorLayer::ImGuiRender()

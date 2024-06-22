@@ -146,6 +146,8 @@ namespace Terran
 
 		#region Scene
 		internal static unsafe delegate* unmanaged<UUID> Scene_GetMainCameraICall = default;
-        #endregion
+		#endregion
+
+		internal static unsafe delegate* unmanaged<NativeString, bool> SceneManager_LoadSceneICall = default;
     }
 }

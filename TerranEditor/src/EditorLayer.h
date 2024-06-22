@@ -54,7 +54,9 @@ namespace TerranEditor
 		void OnScriptEngineLog(std::string_view message, spdlog::level::level_enum level);
 
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
+		void OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
 
+	private:
 		EditorCamera m_EditorCamera;
 
 		OrthographicCamera m_Camera;
