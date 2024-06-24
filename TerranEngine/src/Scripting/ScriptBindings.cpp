@@ -39,7 +39,6 @@ namespace TerranEngine
 	static std::unordered_map<int32_t, std::function<bool(Entity)>> s_HasComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_AddComponentFuncs;
 	static std::unordered_map<int32_t, std::function<void(Entity)>> s_RemoveComponentFuncs;
-	static ScriptBindings::OnSceneTransitionFn s_OnSceneTransitionFn = nullptr;
 	
 #define REGISTER_COMPONENT(ComponentType, Component)																				\
 	Coral::Type type_##ComponentType = assembly.GetType("Terran."#ComponentType);													\
@@ -47,12 +46,6 @@ namespace TerranEngine
 	s_HasComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { return entity.HasComponent<Component>(); });	\
 	s_AddComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { entity.AddComponent<Component>(); });			\
 	s_RemoveComponentFuncs.emplace(type_##ComponentType.GetTypeId(), [](Entity entity) { entity.RemoveComponent<Component>(); })
-
-
-	void ScriptBindings::SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn)
-	{
-		s_OnSceneTransitionFn = sceneTransitionFn;
-	}
 
 	void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 	{
@@ -705,9 +698,8 @@ namespace TerranEngine
 
 		SceneManager::GetCurrentScene()->StopRuntime();
 
-		if(s_OnSceneTransitionFn)
-			s_OnSceneTransitionFn(SceneManager::GetCurrentScene(), loadedScene);
-
+		ScriptEngine::CallSceneTransitionCallback(SceneManager::GetCurrentScene(), loadedScene);
+		
 		SceneManager::SetCurrentScene(loadedScene);
 		SceneManager::GetCurrentScene()->StartRuntime();
 

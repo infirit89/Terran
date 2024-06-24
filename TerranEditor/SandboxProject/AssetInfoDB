@@ -1,0 +1,157 @@
+AssetInfos:
+  - Asset: 04c8702a-d7ce-4274-8591-722b284bef48
+    Type: 3
+    Path: Scripts\Test\Test10.cs
+  - Asset: 0805597f-f243-4fae-82ba-5436a7a1cbc9
+    Type: 3
+    Path: Scripts\Test\Test3.cs
+  - Asset: 09fb6448-7ea9-4263-bf5f-2a64ecabadf5
+    Type: 3
+    Path: Scripts\Test\Test2.cs
+  - Asset: 1891373f-0c3b-4129-97a8-78318eb775ce
+    Type: 4
+    Path: Scenes\Scripting\physics2.terran
+  - Asset: 19100c06-2ba6-4d53-af29-b9310186bec4
+    Type: 5
+    Path: New Physics Material.trpm2d
+  - Asset: 1d1286ca-aa9b-42c7-83ff-05c02cc40e05
+    Type: 3
+    Path: Scripts\Test\Test8.cs
+  - Asset: 1d3774d6-4685-4001-ad53-c5359e7bf955
+    Type: 4
+    Path: TestPhysics.terran
+  - Asset: 1f1cc0dc-27b4-4894-a127-966da3be79bc
+    Type: 4
+    Path: Scenes\BasicPhysicsTest.terran
+  - Asset: 1f9255da-ab6d-4ef0-831a-352f9cfbabd4
+    Type: 5
+    Path: Iron.trpm2d
+  - Asset: 2bba512a-38ac-4641-b054-233617f259ec
+    Type: 3
+    Path: Scripts\Pong\GameManager.cs
+  - Asset: 2c579e01-dad7-4e05-8aaf-25b7a8e9087a
+    Type: 4
+    Path: Scenes\TestScene7.terran
+  - Asset: 309f357a-b730-4cd5-a872-05677a4f0424
+    Type: 3
+    Path: Scripts\Pong\Player.cs
+  - Asset: 3487bd13-dfad-4818-8b3d-e5e605a051df
+    Type: 4
+    Path: Scenes\Scripting\entity.terran
+  - Asset: 3f723d16-4e54-4eee-a2cb-881812915e57
+    Type: 4
+    Path: Scenes\Scripting\changing-text.terran
+  - Asset: 4a3d5d78-a1ce-4f51-b527-66060ae637d3
+    Type: 3
+    Path: Scripts\Test\Test4.cs
+  - Asset: 5353cfa1-a965-4789-801c-85716b92c569
+    Type: 4
+    Path: Scenes\TestScene11.terran
+  - Asset: 573833d9-6d0c-4583-ba05-732f66a52da3
+    Type: 4
+    Path: Scenes\Transform\TransformHierarchyTest.terran
+  - Asset: 60202c64-b3c5-4ba7-bc00-05af1dab133a
+    Type: 4
+    Path: Scenes\Test\cum.terran
+  - Asset: 605f545b-cb1e-4b7b-a1eb-06a57b9c167d
+    Type: 4
+    Path: Scenes\TestScene2.terran
+  - Asset: 612d1fe1-fb2c-45c6-9406-ca91079c0c7c
+    Type: 3
+    Path: Scripts\Pong\CollisionUtils.cs
+  - Asset: 62ca8eda-e7e6-4d06-9178-afa482e8bb0b
+    Type: 3
+    Path: Scripts\Test\Test5.cs
+  - Asset: 681bbeb9-f0bc-4d14-a8e4-153b13245a1d
+    Type: 3
+    Path: Scripts\Test\Test9.cs
+  - Asset: 7767beeb-6a29-4b74-af4e-2d42f44c5233
+    Type: 4
+    Path: Scenes\Scripting\physics_all.terran
+  - Asset: 84c2646f-1b0e-4c8e-8592-f6b8268d9142
+    Type: 4
+    Path: Scenes\TestScene12.terran
+  - Asset: 86f2f271-c726-481b-bbcc-694d14b1e4fb
+    Type: 3
+    Path: Scripts\Test\SceneManagerTest.cs
+  - Asset: 88070d6c-e6eb-4293-9f10-d9976df2d530
+    Type: 1
+    Path: test.png
+  - Asset: 9741307d-9cdb-4e75-9777-b69bb42f7afe
+    Type: 3
+    Path: Scripts\Test\Test.cs
+  - Asset: 9921ba9c-48d9-40ec-8b5c-ed47eae017ed
+    Type: 4
+    Path: Scenes\TestScene6.terran
+  - Asset: 9a6a50bc-a51f-422e-a468-a76877b10c7c
+    Type: 4
+    Path: Pong.terran
+  - Asset: 9ef30086-7d58-44f6-bb8f-143e1d269b43
+    Type: 4
+    Path: Scenes\TestScene5.terran
+  - Asset: 9f3e4165-576a-457b-a296-400d76b9e620
+    Type: 1
+    Path: Scripts\Pong\floor.png
+  - Asset: a1daf4d4-1ab2-441e-852a-549c5bbd04d9
+    Type: 4
+    Path: Scenes\TestScene8.terran
+  - Asset: a4bb8f1d-6833-4080-9a87-a29baf25e695
+    Type: 3
+    Path: Scripts\Pong\Ball.cs
+  - Asset: a5da13c5-f7db-48d2-92a7-d78cd1b044b0
+    Type: 4
+    Path: Scenes\TestScene10.terran
+  - Asset: a9d776f5-99e9-45c5-a3ec-ec67325ca5b6
+    Type: 4
+    Path: Scenes\Scripting\moving-rect.terran
+  - Asset: abe33407-61cb-450a-b118-aa9193bb90ff
+    Type: 4
+    Path: Scenes\TestScene4.terran
+  - Asset: ae93b6fc-d71b-4696-a364-a945fb07c05c
+    Type: 4
+    Path: Scenes\TestScene13.terran
+  - Asset: b2b70080-67d8-4c06-a971-44379848701f
+    Type: 4
+    Path: Scenes\Physics\HierarchyPhysicsTest.terran
+  - Asset: b8200d2b-5733-4bba-b206-0530be2beafc
+    Type: 4
+    Path: Scenes\Scripting\mouse-rect.terran
+  - Asset: b871f9ff-f818-450c-9f37-509fddb2ac64
+    Type: 4
+    Path: Scenes\Scripting\physics.terran
+  - Asset: b9219af0-105a-42ab-a571-7e25731cd3b0
+    Type: 4
+    Path: Scenes\TestScene9.terran
+  - Asset: bc496274-eca9-4471-857c-c4032d41d60c
+    Type: 4
+    Path: ScriptTEst.terran
+  - Asset: be24b414-0ed5-445c-b14a-8c159097412d
+    Type: 4
+    Path: Scenes\Physics\RayCastTest.terran
+  - Asset: c8c434cc-0e6d-462c-b178-681c3ec10eee
+    Type: 4
+    Path: Scenes\Test\cum2.terran
+  - Asset: cf5c9555-f2fe-42f9-ab05-83156be8d4f7
+    Type: 3
+    Path: Scripts\Test\Test7.cs
+  - Asset: dc9aba55-e789-4f65-9137-2b02f7036c3f
+    Type: 4
+    Path: TestScene.terran
+  - Asset: df8a15f3-b746-479e-ae7c-bfc52e3eb814
+    Type: 4
+    Path: Scenes\Scripting\mouse-moving-rect.terran
+  - Asset: e2d18548-01f2-47b4-97b7-c38689596077
+    Type: 3
+    Path: Scripts\Test\Test6.cs
+  - Asset: e32b00bb-74cb-4a86-908e-62b6b3cec5af
+    Type: 4
+    Path: Scenes\TestScene3.terran
+  - Asset: e9fa602e-1e9e-4343-9cf5-fc76bd4324a9
+    Type: 1
+    Path: testimg.png
+  - Asset: ee581c1f-e2e0-4231-84a3-0128e5ef3695
+    Type: 4
+    Path: ScriptTest2.terran
+  - Asset: f23e82c1-5c3a-4750-a12b-2cbff852d0a0
+    Type: 4
+    Path: Scenes\TestScene14terran.terran

@@ -34,6 +34,7 @@ namespace TerranEngine
 	public:
 		Asset() = default;
 		virtual ~Asset() = default;
+		Asset(const UUID& handle) : m_Handle(handle) {}
 
 		bool IsValid() { return m_Handle.IsValid(); }
 		const UUID& GetHandle() { return m_Handle; }

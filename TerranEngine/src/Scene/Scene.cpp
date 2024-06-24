@@ -34,14 +34,17 @@ namespace TerranEngine
 		UUID SceneID;
 	};
 	
-	Scene::Scene()
+	Scene::Scene() : Scene(UUID()) {}
+
+	Scene::Scene(const UUID& handle)
+		: Asset(handle)
 	{
-        const auto sceneEntity = m_Registry.create();
-        m_Registry.emplace<SceneComponent>(sceneEntity, m_Handle);
+		const auto sceneEntity = m_Registry.create();
+		m_Registry.emplace<SceneComponent>(sceneEntity, m_Handle);
 
 		m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
 		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
-        
+
 		m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentConstructed>(this);
 		m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentDestroyed>(this);
 

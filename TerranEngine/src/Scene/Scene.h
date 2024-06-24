@@ -26,6 +26,7 @@ namespace TerranEngine
 	{
 	public:
 		Scene();
+		Scene(const UUID& handle);
 		virtual ~Scene() override;
 
 		ASSET_CLASS_TYPE(Scene)

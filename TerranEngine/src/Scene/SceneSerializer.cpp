@@ -625,6 +625,7 @@ namespace TerranEngine
 			return false;
 		}
 
+		TR_CORE_TRACE(TR_LOG_ASSET, "SceneSerializer: {0}", m_Scene->GetHandle());
 		auto entities = data["Entities"];
 		if (entities) 
 		{

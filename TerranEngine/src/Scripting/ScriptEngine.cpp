@@ -42,6 +42,7 @@ namespace TerranEngine
         std::filesystem::path ScriptCoreAssemblyPath;
 		ScriptEngine::LogFN LogCallback;
 		std::unordered_map<Coral::TypeId, ScriptType> TypeConverters;
+		ScriptEngine::OnSceneTransitionFn SceneTransitionFn;
 	};
 
 	static ScriptEngineData* s_Data;
@@ -93,7 +94,12 @@ namespace TerranEngine
 		TR_CORE_INFO(TR_LOG_SCRIPT, "Initialized script engine");
 	}
 
-	bool ScriptEngine::LoadCoreAssembly() 
+	void ScriptEngine::SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn)
+	{
+		s_Data->SceneTransitionFn = sceneTransitionFn;
+	}
+
+	bool ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
 		TR_CORE_INFO(TR_LOG_SCRIPT, "Loading core assembly at {}", s_Data->ScriptCoreAssemblyPath);
@@ -107,6 +113,12 @@ namespace TerranEngine
 		InitializeTypeConverters();
 		ScriptBindings::Bind(coreAssembly);
 		return true;
+	}
+
+	void ScriptEngine::CallSceneTransitionCallback(const Shared<Scene>& oldScene, const Shared<Scene>& newScene)
+	{
+		if(s_Data->SceneTransitionFn)
+			s_Data->SceneTransitionFn(oldScene, newScene);
 	}
 
 	void ScriptEngine::Shutdown()
@@ -283,6 +295,11 @@ namespace TerranEngine
 
 	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID) 
 	{
+		for (const auto& [sceneId, cum] : s_Data->ScriptInstanceMap)
+			TR_CORE_TRACE(TR_LOG_SCRIPT, sceneId);
+
+		TR_CORE_TRACE(TR_LOG_SCRIPT, sceneID);
+
 		return s_Data->ScriptInstanceMap.at(sceneID).at(entityID);
 	}
 

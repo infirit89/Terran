@@ -127,6 +127,8 @@ namespace TerranEditor
 
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
+
+		ScriptEngine::SetOnSceneTransition([this](const Shared<Scene>& oldScene, const Shared<Scene>& newScene) { OnSceneTransition(oldScene, newScene); });
 	}
 
 	void EditorLayer::OnDettach()
@@ -420,6 +422,7 @@ namespace TerranEditor
 
 		//UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
 		//SelectionManager::Deselect(SelectionContext::Scene);
+		TR_CORE_TRACE(TR_LOG_CORE, "Editor scene id: {}", m_EditorScene->GetHandle());
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
 		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
@@ -472,6 +475,7 @@ namespace TerranEditor
 	void EditorLayer::OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene)
 	{
 		m_PanelManager->SetScene(newScene);
+		newScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
 	}
 
 	void EditorLayer::ImGuiRender()
