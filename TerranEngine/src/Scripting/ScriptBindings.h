@@ -85,8 +85,8 @@ namespace TerranEngine
 
 		struct RayCastHitInfo2D_Internal
 		{
-			glm::vec2 Point;
-			glm::vec2 Normal;
+			glm::vec2 Point = { 0.0f, 0.0f };
+			glm::vec2 Normal = { 0.0f, 0.0f };
 			UUID RigidbodyEntityId;
 			//Coral::ManagedObject Rigidbody;
 		};

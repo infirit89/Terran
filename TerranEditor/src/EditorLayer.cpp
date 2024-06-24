@@ -120,7 +120,7 @@ namespace TerranEditor
 		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
-		ScriptEngine::SetLogCallback([this](std::string_view message, spdlog::level::level_enum level) { OnScriptEngineLog(message, level); });
+		ScriptEngine::SetLogCallback(std::bind_front(&EditorLayer::OnScriptEngineLog, this));
 
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
 		ScriptEngine::LoadAppAssembly();
@@ -128,7 +128,7 @@ namespace TerranEditor
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
 
-		ScriptEngine::SetOnSceneTransition([this](const Shared<Scene>& oldScene, const Shared<Scene>& newScene) { OnSceneTransition(oldScene, newScene); });
+		SceneManager::SetOnSceneTransition(std::bind_front(&EditorLayer::OnSceneTransition, this));
 	}
 
 	void EditorLayer::OnDettach()
@@ -422,11 +422,7 @@ namespace TerranEditor
 
 		//UUID tempSelected = SelectionManager::GetSelected(SelectionContext::Scene);
 		//SelectionManager::Deselect(SelectionContext::Scene);
-		TR_CORE_TRACE(TR_LOG_CORE, "Editor scene id: {}", m_EditorScene->GetHandle());
 		SceneManager::SetCurrentScene(Scene::CopyScene(m_EditorScene));
-		SceneManager::GetCurrentScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
-
-		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		SceneManager::GetCurrentScene()->StartRuntime();
 
 		/*if(tempSelected)
@@ -437,7 +433,6 @@ namespace TerranEditor
 	{
 		m_SceneState = SceneState::Edit;
 		SceneManager::GetCurrentScene()->StopRuntime();
-		m_PanelManager->SetScene(m_EditorScene);
 		SceneManager::SetCurrentScene(m_EditorScene);
 	}
 
@@ -614,11 +609,9 @@ namespace TerranEditor
 
 		SelectionManager::DeselectAll(SelectionContext::Scene);
 		m_EditorScene = loadedScene;
-		m_EditorScene->OnResize(viewportSize.x, viewportSize.y);
 					
 		SceneManager::SetCurrentScene(m_EditorScene);
-		m_PanelManager->SetScene(m_EditorScene);
-
+		
 		m_CurrentScenePath = sceneAssetInfo.Path;
 	}
 

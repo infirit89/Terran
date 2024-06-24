@@ -215,23 +215,23 @@ namespace TerranEngine
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		switch (value.GetType())
 		{
-		case Utils::Variant::Type::Int8: managedArray.SetValue<int8_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::UInt8: managedArray.SetValue<uint8_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Int16: managedArray.SetValue<int16_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::UInt16: managedArray.SetValue<uint16_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Int32: managedArray.SetValue<int32_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::UInt32: managedArray.SetValue<uint32_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Int64: managedArray.SetValue<int64_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::UInt64: managedArray.SetValue<uint64_t>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Float: managedArray.SetValue<float>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Double: managedArray.SetValue<double>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Bool: managedArray.SetValue<bool>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Char: managedArray.SetValue<char>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Vector2: managedArray.SetValue<glm::vec2>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Vector3: managedArray.SetValue<glm::vec3>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::Vector4: managedArray.SetValue<glm::vec4>(indices, indicesSize, value); return;
-		case Utils::Variant::Type::String: SetFieldArrayValue<std::string>(array, value, indices, indicesSize); return;
-		case Utils::Variant::Type::UUID: SetFieldArrayValue<UUID>(array, value, indices, indicesSize); return;
+		case Utils::Variant::Type::Int8:	managedArray.SetValue<int8_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::UInt8:	managedArray.SetValue<uint8_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Int16:	managedArray.SetValue<int16_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::UInt16:	managedArray.SetValue<uint16_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Int32:	managedArray.SetValue<int32_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::UInt32:	managedArray.SetValue<uint32_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Int64:	managedArray.SetValue<int64_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::UInt64:	managedArray.SetValue<uint64_t>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Float:	managedArray.SetValue<float>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Double:	managedArray.SetValue<double>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Bool:	managedArray.SetValue<bool>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Char:	managedArray.SetValue<char>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Vector2: managedArray.SetValue<glm::vec2>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Vector3: managedArray.SetValue<glm::vec3>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::Vector4: managedArray.SetValue<glm::vec4>(indices, static_cast<int32_t>(indicesSize), value); return;
+		case Utils::Variant::Type::String:	SetFieldArrayValue<std::string>(array, value, indices, static_cast<int32_t>(indicesSize)); return;
+		case Utils::Variant::Type::UUID:	SetFieldArrayValue<UUID>(array, value, indices, static_cast<int32_t>(indicesSize)); return;
 		}
 
 		TR_ASSERT(false, "Unknown variant type");
@@ -270,23 +270,23 @@ namespace TerranEngine
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		switch (m_Fields.at(array.FieldHandle).Type)
 		{
-		case ScriptType::Int8: return managedArray.GetValue<int8_t>(indices, indicesSize);
-		case ScriptType::UInt8: return managedArray.GetValue<uint8_t>(indices, indicesSize);
-		case ScriptType::Int16: return managedArray.GetValue<int16_t>(indices, indicesSize);
-		case ScriptType::UInt16: return managedArray.GetValue<uint16_t>(indices, indicesSize);
-		case ScriptType::Int32: return managedArray.GetValue<int32_t>(indices, indicesSize);
-		case ScriptType::UInt32: return managedArray.GetValue<uint32_t>(indices, indicesSize);
-		case ScriptType::Int64: return managedArray.GetValue<int64_t>(indices, indicesSize);
-		case ScriptType::UInt64: return managedArray.GetValue<uint64_t>(indices, indicesSize);
-		case ScriptType::Float: return managedArray.GetValue<float>(indices, indicesSize);
-		case ScriptType::Double: return managedArray.GetValue<double>(indices, indicesSize);
-		case ScriptType::Bool: return managedArray.GetValue<bool>(indices, indicesSize);
-		case ScriptType::Char: return managedArray.GetValue<char>(indices, indicesSize);
-		case ScriptType::Vector2: return managedArray.GetValue<glm::vec2>(indices, indicesSize);
-		case ScriptType::Vector3: return managedArray.GetValue<glm::vec3>(indices, indicesSize);
-		case ScriptType::Color: return managedArray.GetValue<glm::vec4>(indices, indicesSize);
-		case ScriptType::String: return GetFieldArrayValue<std::string>(array, indices, indicesSize);
-		case ScriptType::Entity: return GetFieldArrayValue<UUID>(array, indices, indicesSize);
+		case ScriptType::Int8:		return managedArray.GetValue<int8_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::UInt8:		return managedArray.GetValue<uint8_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Int16:		return managedArray.GetValue<int16_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::UInt16:	return managedArray.GetValue<uint16_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Int32:		return managedArray.GetValue<int32_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::UInt32:	return managedArray.GetValue<uint32_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Int64:		return managedArray.GetValue<int64_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::UInt64:	return managedArray.GetValue<uint64_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Float:		return managedArray.GetValue<float>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Double:	return managedArray.GetValue<double>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Bool:		return managedArray.GetValue<bool>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Char:		return managedArray.GetValue<char>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Vector2:	return managedArray.GetValue<glm::vec2>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Vector3:	return managedArray.GetValue<glm::vec3>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Color:		return managedArray.GetValue<glm::vec4>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::String:	return GetFieldArrayValue<std::string>(array, indices, static_cast<int32_t>(indicesSize));
+		case ScriptType::Entity:	return GetFieldArrayValue<UUID>(array, indices, static_cast<int32_t>(indicesSize));
 		}
 
 		TR_ASSERT(false, "Unknown script field type");

@@ -23,8 +23,8 @@ namespace TerranEngine
 
 	struct RayCastHitInfo2D 
 	{
-		glm::vec2 Point;
-		glm::vec2 Normal;
+		glm::vec2 Point = { 0.0f, 0.0f };
+		glm::vec2 Normal = { 0.0f, 0.0f };
 		Shared<PhysicsBody2D> PhysicsBody;
 
 		bool operator<(const RayCastHitInfo2D& other) { return glm::all(glm::lessThan(Point, other.Point)); }

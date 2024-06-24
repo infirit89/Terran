@@ -315,7 +315,8 @@ namespace TerranEngine
 	{
 		std::vector<uint8_t> connectedControllers = Input::GetConnectedControllers();
 		Coral::Type* byteType = Coral::TypeCache::Get().GetTypeByName("System.Byte");
-		Coral::ManagedArray connectedControllersArray = Coral::ManagedArray::New(*byteType, connectedControllers.size());
+		Coral::ManagedArray connectedControllersArray =
+			Coral::ManagedArray::New(*byteType, static_cast<int32_t>(connectedControllers.size()));
 		for (size_t i = 0; i < connectedControllers.size(); i++)
 			connectedControllersArray.SetValue(static_cast<int32_t>(i), connectedControllers.at(i));
 
@@ -427,7 +428,7 @@ namespace TerranEngine
 		if (!entity)
 			return 0;
 
-		return entity.GetChildCount();
+		return static_cast<int>(entity.GetChildCount());
 	}
 
 	UUID ScriptBindings::Entity_GetChildICall(const UUID& id, int index)
@@ -698,9 +699,7 @@ namespace TerranEngine
 
 		SceneManager::GetCurrentScene()->StopRuntime();
 
-		ScriptEngine::CallSceneTransitionCallback(SceneManager::GetCurrentScene(), loadedScene);
-		
-		SceneManager::SetCurrentScene(loadedScene);
+		SceneManager::SetCurrentScene(Scene::CopyScene(loadedScene));
 		SceneManager::GetCurrentScene()->StartRuntime();
 
 		return true;
@@ -748,7 +747,7 @@ namespace TerranEngine
 		if (s_OutHitInfosArray.GetHandle())
 			s_OutHitInfosArray.Destroy();
 
-		s_OutHitInfosArray = Coral::ManagedArray::New(*ScriptTypes::HitInfoType, hitInfos->size());
+		s_OutHitInfosArray = Coral::ManagedArray::New(*ScriptTypes::HitInfoType, static_cast<int32_t>(hitInfos->size()));
 		for (size_t i = 0; i < hitInfos->size(); i++) 
 		{
 			RayCastHitInfo2D& hitInfo = hitInfos->at(i);

@@ -36,13 +36,12 @@ namespace TerranEngine
 		std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> Assemblies;
 		
 		std::string CoralDirectory = "Resources/Scripts";
-		int32_t EntityIDFieldHandle;
+		int32_t EntityIDFieldHandle = 0;
 
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
 		ScriptEngine::LogFN LogCallback;
 		std::unordered_map<Coral::TypeId, ScriptType> TypeConverters;
-		ScriptEngine::OnSceneTransitionFn SceneTransitionFn;
 	};
 
 	static ScriptEngineData* s_Data;
@@ -94,11 +93,6 @@ namespace TerranEngine
 		TR_CORE_INFO(TR_LOG_SCRIPT, "Initialized script engine");
 	}
 
-	void ScriptEngine::SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn)
-	{
-		s_Data->SceneTransitionFn = sceneTransitionFn;
-	}
-
 	bool ScriptEngine::LoadCoreAssembly()
 	{
 		auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
@@ -113,12 +107,6 @@ namespace TerranEngine
 		InitializeTypeConverters();
 		ScriptBindings::Bind(coreAssembly);
 		return true;
-	}
-
-	void ScriptEngine::CallSceneTransitionCallback(const Shared<Scene>& oldScene, const Shared<Scene>& newScene)
-	{
-		if(s_Data->SceneTransitionFn)
-			s_Data->SceneTransitionFn(oldScene, newScene);
 	}
 
 	void ScriptEngine::Shutdown()
@@ -281,26 +269,21 @@ namespace TerranEngine
 		ADD_TERRAN_TYPE(Entity);
 	}
 
-	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity entity)
+	inline Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity entity)
+	{
+		return GetScriptInstance(entity.GetSceneId(), entity.GetID());
+	}
+
+	inline Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID)
 	{
 		try 
 		{
-			return s_Data->ScriptInstanceMap.at(entity.GetSceneId()).at(entity.GetID());
+			return s_Data->ScriptInstanceMap.at(sceneID).at(entityID);
 		}
-		catch (std::out_of_range e)
+		catch (std::out_of_range e) 
 		{
 			return nullptr;
 		}
-	}
-
-	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID) 
-	{
-		for (const auto& [sceneId, cum] : s_Data->ScriptInstanceMap)
-			TR_CORE_TRACE(TR_LOG_SCRIPT, sceneId);
-
-		TR_CORE_TRACE(TR_LOG_SCRIPT, sceneID);
-
-		return s_Data->ScriptInstanceMap.at(sceneID).at(entityID);
 	}
 
 	Shared<ScriptInstance> ScriptEngine::CreateScriptInstance(Entity entity)

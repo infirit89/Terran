@@ -93,11 +93,9 @@ namespace TerranEngine
 
     void SceneAssetLoader::Load(const AssetInfo& assetInfo, Shared<Asset>& asset)
     {
-        Shared<Scene> scene = CreateShared<Scene>(assetInfo.Handle);
         // NOTE: setting the scene handle here because otherwise it
         // generates another random handle which conflicts with the script engine
-        TR_CORE_TRACE(TR_LOG_ASSET, "SceneLoader: {0}", scene->m_Handle);
-
+        Shared<Scene> scene = CreateShared<Scene>(assetInfo.Handle);
         SceneSerializer serializer(scene);
         if (!serializer.DesirializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path)))
             return;

@@ -62,7 +62,7 @@ namespace TerranEditor
 			UI::ScopedFont mediumFont("Roboto-Regular_Medium");
 			
 			ImGuiListClipper logTextClipper;
-			logTextClipper.Begin(m_TextBuffer.size());
+			logTextClipper.Begin(static_cast<int>(m_TextBuffer.size()));
 
 			while(logTextClipper.Step()) 
 			{

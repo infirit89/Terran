@@ -19,9 +19,9 @@ namespace TerranEngine
 {
 	struct ScriptField
 	{
-		ScriptType Type;
+		ScriptType Type = ScriptType::None;
 		std::string Name;
-		bool IsArray;
+		bool IsArray = false;
 	};
 
 	struct ScriptObject 

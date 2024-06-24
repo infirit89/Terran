@@ -72,9 +72,9 @@ namespace TerranEngine
 		// ******** Base stuffs ********
 		static BatchRenderer2D* Instance;
 		BatchRendererStats Stats;
-		glm::vec4 VertexPositions[4];
-		glm::vec4 LineVertexPositions[4];
-		uint32_t MaxVertices, MaxIndices;
+		glm::vec4 VertexPositions[4] = {};
+		glm::vec4 LineVertexPositions[4] = {};
+		uint32_t MaxVertices = 0, MaxIndices = 0;
 
 		static const uint32_t MaxTextureSlots = 16;
 		// *****************************
@@ -144,7 +144,7 @@ namespace TerranEngine
 		// **********************
 
 		//  ******** Camera stuffs ********
-		CameraData CameraData;
+		CameraData CameraData = {};
 		Shared<UniformBuffer> CameraBuffer;
 	};
 
@@ -655,7 +655,7 @@ namespace TerranEngine
 		if (s_Data->QuadIndexCount)
 		{
 			size_t size = s_Data->QuadVertexPtrIndex * sizeof(QuadVertex);
-			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertexPtr, size);
+			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertexPtr, static_cast<uint32_t>(size));
 
 			for (size_t i = 0; i < s_Data->QuadTextureIndex; i++)
 				s_Data->QuadTextures[i]->Bind(static_cast<uint32_t>(i));

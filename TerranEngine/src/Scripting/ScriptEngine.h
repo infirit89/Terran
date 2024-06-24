@@ -53,14 +53,8 @@ namespace TerranEngine
 
 		static void SetLogCallback(LogFN logCallback);
 
-		// void OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
-		using OnSceneTransitionFn = std::function<void(const Shared<Scene>&, const Shared<Scene>&)>;
-
-		static void SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn);
-
 	private:
 		static bool LoadCoreAssembly();
-		static void CallSceneTransitionCallback(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
 		
 		/*static void CreateAppDomain();
 		static void UnloadDomain();*/

@@ -11,7 +11,7 @@ namespace TerranEngine
 	{
 		uint32_t Width = 1080, Height = 790;
 		std::vector<TextureFormat> ColorAttachments;
-		TextureFormat DepthAttachment;
+		TextureFormat DepthAttachment = TextureFormat::Depth24Stencil8;
 		uint32_t Samples = 1;
 	};
 
