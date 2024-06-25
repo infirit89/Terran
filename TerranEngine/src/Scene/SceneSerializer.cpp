@@ -18,8 +18,6 @@
 #include <iostream>
 #include <cwchar>
 
-// NOTE: this is not the final version of the scene serializer, this is a poc
-
 namespace TerranEngine 
 {
 	const char* SceneSerializer::SceneFilter = "Terran Scene\0*.terran\0";
@@ -223,12 +221,6 @@ namespace TerranEngine
 			BEGIN_COMPONENT_MAP("SpriteRendererComponent");
 			WRITE_COMPONENT_PROPERY("Color", spriteRendererComponent.Color);
 			WRITE_COMPONENT_PROPERY("Texture", spriteRendererComponent.TextureHandle);
-
-			/*Shared<Texture2D> texture = 
-					AssetManager::GetAsset<Texture2D>(spriteRendererComponent.TextureHandle);
-
-			WRITE_COMPONENT_PROPERY("TextureFilter",
-				(texture ? texture->GetTextureParameters().Filter : TextureFilter::Linear));*/
 			END_COMPONENT_MAP();
 		}
 
@@ -274,7 +266,6 @@ namespace TerranEngine
 			WRITE_COMPONENT_PROPERY("ModuleName", scriptComponent.ModuleName);
 			if (!scriptComponent.FieldHandles.empty()) 
 			{
-				//WRITE_COMPONENT_PROPERY("Fields", YAML::BeginSeq);
 				out << YAML::Key << "Fields" << YAML::Value;
 				out << YAML::BeginSeq;
 				SerializeScriptFields(out, entity);
@@ -391,8 +382,6 @@ namespace TerranEngine
 
 			if (!valid) continue;
 			
-			//TR_TRACE(scriptFieldNode);
-
 			if (scriptField.IsArray)
 			{
 				ScriptArray array = scriptInstance->GetScriptArray(fieldID);

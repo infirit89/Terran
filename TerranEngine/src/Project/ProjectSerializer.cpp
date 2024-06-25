@@ -6,8 +6,6 @@
 
 #include "Utils/SerializerUtils.h"
 
-//#include <json.hpp>
-
 #include <yaml-cpp/yaml.h>
 
 #include <fstream>
@@ -15,13 +13,8 @@
 
 namespace TerranEngine
 {
-    //using json = nlohmann::ordered_json;
-
     ProjectSerializer::ProjectSerializer(Shared<Project> project)
-       : m_Project(project)
-    {
-
-    }
+        : m_Project(project) {}
 
     void ProjectSerializer::Serialize() 
     {
