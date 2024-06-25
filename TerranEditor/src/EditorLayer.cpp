@@ -546,7 +546,7 @@ namespace TerranEditor
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::filesystem::path scenePath = FileSystem::SaveFile(SceneSerializer::SceneFilter);
+		std::filesystem::path scenePath = FileSystem::SaveFileDialog(SceneSerializer::SceneFilter);
 		if (!scenePath.empty())
 		{
 			m_CurrentScenePath = scenePath;

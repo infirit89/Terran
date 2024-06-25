@@ -5,7 +5,7 @@
 
 #include "Graphics/Texture.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include <string>
 #include <filesystem>

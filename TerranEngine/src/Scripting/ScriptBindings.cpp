@@ -18,7 +18,7 @@
 #include "Physics/Collider.h"
 #include "Physics/PhysicsLayerManager.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 
@@ -692,7 +692,7 @@ namespace TerranEngine
 
 	bool ScriptBindings::SceneManager_LoadSceneICall(Coral::String scenePath)
 	{
-		const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfo(std::string(scenePath));
+		const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfo(std::string(std::string(scenePath) + ".terran"));
 		Shared<Scene> loadedScene = AssetManager::GetAsset<Scene>(sceneAssetInfo);
 		if (!loadedScene)
 			return false;

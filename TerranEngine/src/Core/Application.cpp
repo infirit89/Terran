@@ -15,7 +15,7 @@
 
 #include "Physics/Physics.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Utils/Debug/Profiler.h"
 #include "Utils/Debug/OptickProfiler.h"

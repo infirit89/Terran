@@ -4,7 +4,7 @@
 #include "Core/Time.h"
 #include "Core/Base.h"
 
-#include "Assets/Asset.h"
+#include "Asset/Asset.h"
 
 #include "Graphics/Camera.h"
 

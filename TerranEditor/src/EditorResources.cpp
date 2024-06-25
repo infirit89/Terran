@@ -1,6 +1,6 @@
 #include "EditorResources.h"
 
-#include "Assets/AssetLoaders.h"
+#include "Asset/AssetLoaders.h"
 
 #include "IconsFontAwesome6.h"
 #include "IconsMaterialDesign.h"

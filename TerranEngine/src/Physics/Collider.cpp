@@ -12,7 +12,7 @@
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Math/Math.h"
 

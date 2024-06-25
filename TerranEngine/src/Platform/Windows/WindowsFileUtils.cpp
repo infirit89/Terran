@@ -46,7 +46,7 @@ namespace TerranEngine
 		return "";
 	}
 
-	std::filesystem::path FileSystem::SaveFile(const char* filter) 
+	std::filesystem::path FileSystem::SaveFileDialog(const char* filter) 
 	{
 		OPENFILENAMEA ofn;
 

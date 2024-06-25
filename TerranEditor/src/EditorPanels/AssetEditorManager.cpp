@@ -1,6 +1,6 @@
 #include "AssetEditorManager.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "AssetEditors/PhysicsMaterialEditor.h"
 #include "SelectionManager.h"

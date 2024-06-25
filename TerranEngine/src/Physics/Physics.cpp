@@ -12,7 +12,7 @@
 
 #include "Scripting/ScriptEngine.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Math/Math.h"
 

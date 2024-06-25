@@ -60,9 +60,9 @@
 #include "Physics/PhysicsLayerManager.h"
 
 /* ---- Assets ---- */
-#include "Assets/Asset.h"
-#include "Assets/AssetManager.h"
-#include "Assets/AssetImporter.h"
+#include "Asset/Asset.h"
+#include "Asset/AssetManager.h"
+#include "Asset/AssetImporter.h"
 
 /* ---- Project ---- */
 #include "Project/Project.h"

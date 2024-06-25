@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 #include "Core/Base.h"
+#include "Core/Result.h"
 
 #include <filesystem>
 
@@ -15,7 +16,7 @@ namespace TerranEngine
 		SceneSerializer(const Shared<Scene>& scene);
 
 		void SerializeEditor(const std::filesystem::path& scenePath);
-		bool DesirializeEditor(const std::filesystem::path& scenePath);
+		Result DesirializeEditor(const std::filesystem::path& scenePath);
 
 	public:
 		static const char* SceneFilter;

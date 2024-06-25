@@ -7,7 +7,7 @@
 
 #include "Scene/Scene.h"
 
-#include "Assets/Asset.h"
+#include "Asset/Asset.h"
 
 class b2World;
 

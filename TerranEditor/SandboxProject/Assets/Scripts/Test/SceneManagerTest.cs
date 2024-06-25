@@ -4,7 +4,7 @@ namespace ScriptAssembly
 {
     internal class SceneManagerTest : Scriptable
     {
-        private string ScenePath = "Scenes/Scripting/physics.terran";
+        private string ScenePath = "Scenes/Scripting/physics";
 
         protected override void Init()
         {

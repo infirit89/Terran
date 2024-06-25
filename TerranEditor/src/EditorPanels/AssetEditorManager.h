@@ -5,7 +5,7 @@
 #include "Core/UUID.h"
 #include "Core/Base.h"
 
-#include "Assets/Asset.h"
+#include "Asset/Asset.h"
 
 #include <unordered_map>
 

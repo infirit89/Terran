@@ -6,7 +6,7 @@
 #include "Core/FileUtils.h"
 #include "Core/Input.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Project/Project.h"
 

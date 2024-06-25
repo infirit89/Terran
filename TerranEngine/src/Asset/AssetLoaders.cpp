@@ -97,7 +97,7 @@ namespace TerranEngine
         // generates another random handle which conflicts with the script engine
         Shared<Scene> scene = CreateShared<Scene>(assetInfo.Handle);
         SceneSerializer serializer(scene);
-        if (!serializer.DesirializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path)))
+        if (serializer.DesirializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path)) != Result::OK)
             return;
 
         asset = scene;

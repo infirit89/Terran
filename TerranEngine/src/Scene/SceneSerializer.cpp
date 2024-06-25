@@ -5,7 +5,7 @@
 
 #include "Scripting/ScriptEngine.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Utils/SerializerUtils.h"
 
@@ -607,7 +607,7 @@ namespace TerranEngine
 		}
 	}
 
-	bool SceneSerializer::DesirializeEditor(const std::filesystem::path& scenePath)
+	Result SceneSerializer::DesirializeEditor(const std::filesystem::path& scenePath)
 	{
 		YAML::Node data;
 		try 
@@ -617,12 +617,12 @@ namespace TerranEngine
 		catch (const YAML::ParserException& ex) 
 		{
 			TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
-			return false;
+			return Result::PARSE_ERROR;
 		}
 		catch (const YAML::BadFile& ex)
 		{
 			TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
-			return false;
+			return Result::NOT_FOUND;
 		}
 
 		auto entities = data["Entities"];
@@ -631,10 +631,10 @@ namespace TerranEngine
 			for (auto entity : entities)
 			{
 				if (!DeserializeEntity(entity, entities, m_Scene))
-					return false;
+					return Result::PARSE_ERROR;
 			}
 		}
 
-		return true;
+		return Result::OK;
 	}
 }

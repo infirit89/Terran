@@ -8,7 +8,7 @@
 #include "Graphics/BatchRenderer2D.h"
 #include "Graphics/Renderer.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 
 #include "Math/Math.h"
 

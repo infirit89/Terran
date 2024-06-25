@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Assets/Asset.h"
+#include "Asset/Asset.h"
 #include "Core/Buffer.h"
 
 #include <string>

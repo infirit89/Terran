@@ -5,7 +5,7 @@
 #include "Scripting/ScriptEngine.h"
 #include "Scripting/ScriptInstance.h"
 
-#include "Assets/AssetManager.h"
+#include "Asset/AssetManager.h"
 #include "Graphics/Texture.h"
 
 #include "FontManager.h"

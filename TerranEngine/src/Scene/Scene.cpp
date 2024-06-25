@@ -401,7 +401,9 @@ namespace TerranEngine
 				const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
 
 				Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
+				TR_ASSERT(srcScriptInstance, "The script instance from the source scene was null");
 				Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
+				TR_ASSERT(srcScriptInstance, "The script instance from the destination scene was null");
 				dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
 			}
 		}

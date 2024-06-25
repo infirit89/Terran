@@ -88,7 +88,6 @@ namespace TerranEngine
 			glm::vec2 Point = { 0.0f, 0.0f };
 			glm::vec2 Normal = { 0.0f, 0.0f };
 			UUID RigidbodyEntityId;
-			//Coral::ManagedObject Rigidbody;
 		};
 
 		static bool Physics2D_RayCastICall(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask, RayCastHitInfo2D_Internal& outHitInfo);

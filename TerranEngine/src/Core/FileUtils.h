@@ -29,7 +29,7 @@ namespace TerranEngine
 	public:
 
 		static std::filesystem::path OpenFileDialog(const char* filter);
-		static std::filesystem::path SaveFile(const char* filter);
+		static std::filesystem::path SaveFileDialog(const char* filter);
 		static bool Rename(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
 
 		static std::filesystem::path GetEnvironmentVariable(const char* name);
