@@ -47,6 +47,7 @@ namespace TerranEngine
             s_SceneTransitionFn(s_CurrentScene, newScene);
 
         s_CurrentScene = newScene;
+        s_ActiveScenes[newScene->GetHandle()] = newScene;
 
         if (!id)
             return;

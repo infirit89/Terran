@@ -126,6 +126,9 @@ namespace TerranEngine
 		for (const auto& [sceneId, entityScriptMap] : s_Data->ScriptInstanceMap)
 		{
 			auto scene = SceneManager::GetScene(sceneId);
+			if (!scene)
+				continue;
+
 			for (const auto& [entityId, scriptInstance] : entityScriptMap) 
 			{
 				Entity entity = scene->FindEntityWithUUID(entityId);
@@ -164,7 +167,9 @@ namespace TerranEngine
 		if (!appAssemblyLoaded)
 			return;
 
-		for (const auto& [sceneId, scene] : SceneManager::GetActiveScenes())
+		auto& scenes = SceneManager::GetActiveScenes();
+
+		for (const auto& [sceneId, scene] : scenes)
 		{
 			auto scriptComponentView = scene->GetEntitiesWith<ScriptComponent>();
 			for (const auto e : scriptComponentView)

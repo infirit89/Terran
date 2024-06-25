@@ -5,8 +5,6 @@
 #include "Scene/Components.h"
 #include "SelectionManager.h"
 
-//#include "Scripting/ScriptCache.h"
-
 #include "Physics/PhysicsLayerManager.h"
 
 #include "Utils/Debug/OptickProfiler.h"
