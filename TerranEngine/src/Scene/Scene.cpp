@@ -381,32 +381,44 @@ namespace TerranEngine
 	}
 
 	template<typename Component>
-	static void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry) 
+	static void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
 	{
-		if (srcRegistry.all_of<Component>(srcHandle)) 
+		if (!srcRegistry.all_of<Component>(srcHandle))
+			return;
+
+		dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
+	}
+
+	template<>
+	static void CopyComponent<ScriptComponent>(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry) 
+	{
+		if (!srcRegistry.all_of<ScriptComponent>(srcHandle))
+			return;
+		
+		const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
+		const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
+		const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
+
+		Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
+		if (!srcScriptInstance)
 		{
-			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
-
-			if constexpr (std::same_as<Component, ScriptComponent>)
-			{
-				ScriptComponent& sc = dstRegistry.get<ScriptComponent>(dstHandle);
-
-				const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
-				const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
-
-				const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
-				const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
-
-				const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
-				const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
-
-				Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
-				TR_ASSERT(srcScriptInstance, "The script instance from the source scene was null");
-				Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
-				TR_ASSERT(srcScriptInstance, "The script instance from the destination scene was null");
-				dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
-			}
+			TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the source scene was null");
+			return;
 		}
+		dstRegistry.emplace_or_replace<ScriptComponent>(dstHandle, srcRegistry.get<ScriptComponent>(srcHandle));
+
+		const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
+		const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
+
+		const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
+
+		Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
+		if (!dstScriptInstance)
+		{
+			TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the destination scene was null");
+			return;
+		}
+		dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
 	}
 
 	template<typename Component>

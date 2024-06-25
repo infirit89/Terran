@@ -4,7 +4,7 @@ namespace ScriptAssembly
 {
     internal class SceneManagerTest : Scriptable
     {
-        private string ScenePath = "Scenes/Scripting/physics";
+        private string ScenePath = "Scenes/Physics/RayCastTest";
 
         protected override void Init()
         {
