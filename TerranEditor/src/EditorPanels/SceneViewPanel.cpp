@@ -53,7 +53,7 @@ namespace TerranEditor
 			{ ImGuiStyleVar_WindowPadding, {0.0f, 0.0f} }
 		});
 
-		ImGui::Begin(GetName(), &m_Open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin(GetName().data(), &m_Open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
 
 		bool isFocused = ImGui::IsWindowFocused();
 		bool isHovered = ImGui::IsWindowHovered();

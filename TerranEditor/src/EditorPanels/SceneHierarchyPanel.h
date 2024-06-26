@@ -27,7 +27,7 @@ namespace TerranEditor
 		virtual void OnEvent(Event& event) override;
         virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) override;
 		virtual void OnRender() override;
-		virtual const char* GetName() override { return "Hierarchy"; }
+		virtual std::string_view GetName() override { return "Hierarchy"; }
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);

@@ -37,7 +37,7 @@ namespace TerranEditor
 		TR_PROFILE_FUNCTION();
 		if(m_Open)
 		{
-			ImGui::Begin(GetName(), &m_Open, ImGuiWindowFlags_NoCollapse);
+			ImGui::Begin(GetName().data(), &m_Open, ImGuiWindowFlags_NoCollapse);
 			
 			if (ImGui::BeginChild("##sc_topbar", {0.0f, 30.0f}))
 			{

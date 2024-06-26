@@ -65,7 +65,7 @@ namespace TerranEditor
 
 		ImGuiWindowFlags contentBrowserFlags = ImGuiWindowFlags_NoScrollbar;
 
-		ImGui::Begin(GetName(), &m_Open, contentBrowserFlags);
+		ImGui::Begin(GetName().data(), &m_Open, contentBrowserFlags);
 
 		if (ImGui::BeginTable("content_browser_table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable)) 
 		{

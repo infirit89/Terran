@@ -4,14 +4,15 @@
 
 namespace TerranEngine 
 {
-	enum class EventType
+	enum class EventType : uint32_t
 	{
 		None = 0,
 		KeyPressed, KeyReleased,
 		MouseMoved, MouseScrolled,
 		MouseButtonPressed, MouseButtonReleased,
 		WindowClosed, WindowResized, WindowContentScaleChanged,
-		GamepadConnected, GamepadDisconnected
+		GamepadConnected, GamepadDisconnected,
+		CustomEvent
 	};
 
 	enum EventCategory

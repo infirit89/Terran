@@ -42,7 +42,7 @@ namespace TerranEditor
 		void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
 
 		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
-		virtual const char* GetName() override { return "Scene view"; }
+		virtual std::string_view GetName() override { return "Scene view"; }
 		
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);

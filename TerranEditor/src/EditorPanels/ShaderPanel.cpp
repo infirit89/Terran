@@ -17,7 +17,7 @@ namespace TerranEditor
 		if (!m_Open)
 			return;
 
-		ImGui::Begin(GetName(), &m_Open);
+		ImGui::Begin(GetName().data(), &m_Open);
 
 		if (UI::BeginPropertyGroup("shaders")) 
 		{

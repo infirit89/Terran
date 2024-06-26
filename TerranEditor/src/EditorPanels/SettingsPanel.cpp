@@ -25,7 +25,7 @@ namespace TerranEditor
         TR_PROFILE_FUNCTION();
         if(!m_Open) return;
 
-        ImGui::Begin(GetName(), &m_Open);
+        ImGui::Begin(GetName().data(), &m_Open);
 
         DrawPhysicsSettings();
         

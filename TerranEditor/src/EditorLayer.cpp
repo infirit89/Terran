@@ -1,5 +1,7 @@
 #include "EditorLayer.h"
 
+#include "Events/ScriptEngineEvent.h"
+
 #include "UI/UI.h"
 #include "EditorConsoleSink.h"
 
@@ -121,8 +123,6 @@ namespace TerranEditor
 		
 		m_EditorSceneRenderer = CreateShared<SceneRenderer>(editorFramebufferParams);
 		
-		ScriptEngine::SetLogCallback(std::bind_front(&EditorLayer::OnScriptEngineLog, this));
-
 		sceneViewPanel->SetSceneRenderer(m_EditorSceneRenderer);
 		ScriptEngine::LoadAppAssembly();
 
@@ -214,6 +214,7 @@ namespace TerranEditor
 		dispatcher.Dispatch<WindowCloseEvent>(TR_EVENT_BIND_FN(EditorLayer::OnWindowCloseEvent));
 		dispatcher.Dispatch<GamepadConnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadConnectedEvent));
 		dispatcher.Dispatch<GamepadDisconnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadDisconnectedEvent));
+		dispatcher.Dispatch<ScriptEngineLogEvent>(TR_EVENT_BIND_FN(EditorLayer::OnScriptEngineLog));
 	}
 	
 	bool EditorLayer::OnKeyPressedEvent(KeyPressedEvent& kEvent)
@@ -437,23 +438,25 @@ namespace TerranEditor
 		SceneManager::SetCurrentScene(m_EditorScene);
 	}
 
-	void EditorLayer::OnScriptEngineLog(std::string_view message, spdlog::level::level_enum level)
+	bool EditorLayer::OnScriptEngineLog(ScriptEngineLogEvent& event)
 	{
-		switch (level)
+		switch (event.GetLevel())
 		{
 		case spdlog::level::trace:
 		case spdlog::level::debug:
 		case spdlog::level::info:
-			TR_CLIENT_INFO(message);
+			TR_CLIENT_INFO(event.GetLogMessage());
 			break;
 		case spdlog::level::warn:
-			TR_CLIENT_WARN(message);
+			TR_CLIENT_WARN(event.GetLogMessage());
 			break;
 		case spdlog::level::err:
 		case spdlog::level::critical:
-			TR_CLIENT_ERROR(message);
+			TR_CLIENT_ERROR(event.GetLogMessage());
 			break;
 		}
+
+		return true;
 	}
 
 	void EditorLayer::OnViewportSizeChanged(glm::vec2 newViewportSize)

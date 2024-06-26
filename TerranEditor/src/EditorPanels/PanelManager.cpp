@@ -42,6 +42,6 @@ namespace TerranEditor
 
         auto& panel = m_Panels.at(hashedPanelName);
         panel->SetOpen(true);
-        ImGui::SetWindowFocus(panel->GetName());
+        ImGui::SetWindowFocus(panel->GetName().data());
     }
 }

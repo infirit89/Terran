@@ -19,7 +19,6 @@ namespace TerranEngine
 	class ScriptEngine
 	{
 	public:
-		using LogFN = std::function<void(std::string_view, spdlog::level::level_enum)>;
 		static void Initialize(const std::filesystem::path& scriptCoreAssemblyPath);
 		static void Shutdown();
 
@@ -27,8 +26,6 @@ namespace TerranEngine
 		
 		static bool ClassExists(const std::string& moduleName);
 
-		//static Shared<ScriptAssembly> GetAssembly(int assemblyIndex);
-		
 		static Shared<ScriptInstance> GetScriptInstance(Entity entity);
 		static Shared<ScriptInstance> GetScriptInstance(const UUID& sceneID, const UUID& entityID);
 		static Shared<ScriptInstance> CreateScriptInstance(Entity entity);
@@ -44,20 +41,12 @@ namespace TerranEngine
 		static const void* CreateEntityInstance(const UUID& id);
 		static int32_t GetEntityIDFieldHandle();
 
-		//static ManagedObject GetScriptInstanceScriptObject(const UUID& sceneUUID, const UUID& entityUUID);
-		//static GCHandle GetScriptInstanceGCHandle(const UUID& sceneUUID, const UUID& entityUUID);
-
 		static const void* CreateComponentInstance(int32_t componentTypeId, const UUID& entityId);
 
         static bool LoadAppAssembly();
 
-		static void SetLogCallback(LogFN logCallback);
-
 	private:
-		static bool LoadCoreAssembly();
-		
-		/*static void CreateAppDomain();
-		static void UnloadDomain();*/
+		static bool LoadCoreAssembly();		
 		static void InitializeTypeConverters();
 
 		friend class ScriptBindings;

@@ -18,6 +18,6 @@ namespace TerranEditor
 		virtual void OnRender() override;
 
 		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
-		virtual const char* GetName() override { return "ECS Debug"; }
+		virtual std::string_view GetName() override { return "ECS Debug"; }
 	};
 }

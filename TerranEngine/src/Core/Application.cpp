@@ -45,7 +45,7 @@ namespace TerranEngine
 		//ScriptingTest::Initialize();
         Physics2D::Initialize();
 
-		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::OnEvent));
+		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::DispatchEvent));
 
 		Input::Init();
 		
@@ -117,7 +117,7 @@ namespace TerranEngine
 		}
 	}
 
-	void Application::OnEvent(Event& event)
+	void Application::DispatchEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
 

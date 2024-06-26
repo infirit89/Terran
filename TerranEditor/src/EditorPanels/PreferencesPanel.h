@@ -12,7 +12,7 @@ namespace TerranEditor
 		virtual ~PreferencesPanel() override = default;
 
 		virtual void OnRender() override;
-		virtual const char* GetName() override { return "Preferences"; }
+		virtual std::string_view GetName() override { return "Preferences"; }
 
 	private:
 		ImGuiStyle* m_Style = nullptr;

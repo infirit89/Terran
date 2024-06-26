@@ -13,6 +13,7 @@
 #include <memory>
 #include <array>
 #include <filesystem>
+#include <queue>
 
 int main(int argc, char** argv);
 
@@ -32,13 +33,13 @@ namespace TerranEngine {
 		virtual ~Application();
 		void PushLayer(Layer* layer);
 		void Close();
-
+		void DispatchEvent(Event& event);
+		
 		inline static Application* Get() { return m_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 		inline ImGuiLayer& GetImGuiLayer() { return *m_ImGuiLayer; }
 	private:
 		void Run();
-		void OnEvent(Event& event);
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 	private:
@@ -49,7 +50,7 @@ namespace TerranEngine {
 		
 		bool m_Minimized = false;
 		bool m_Running = true;
-
+		
 		ImGuiLayer* m_ImGuiLayer;
 		friend int ::main(int argc, char** argv);
 		

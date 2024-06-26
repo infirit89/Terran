@@ -4,8 +4,12 @@
 #include "ScriptBindings.h"
 #include "ScriptTypes.h"
 
+#include "Core/Application.h"
 #include "Core/Log.h"
 #include "Core/FileUtils.h"
+
+#include "Events/ScriptEngineEvent.h"
+
 #include "Project/Project.h"
 
 #include "Scene/Components.h"
@@ -40,7 +44,6 @@ namespace TerranEngine
 
 		ScriptInstanceMap ScriptInstanceMap;
         std::filesystem::path ScriptCoreAssemblyPath;
-		ScriptEngine::LogFN LogCallback;
 		std::unordered_map<Coral::TypeId, ScriptType> TypeConverters;
 	};
 
@@ -48,8 +51,8 @@ namespace TerranEngine
 
 	static void Log(std::string_view message, spdlog::level::level_enum logLevel) 
 	{
-		if (s_Data->LogCallback)
-			s_Data->LogCallback(message, logLevel);
+		ScriptEngineLogEvent logEvent(message, logLevel);
+		Application::Get()->DispatchEvent(logEvent);
 	}
 
 	static void OnException(std::string_view message) 
@@ -435,10 +438,5 @@ namespace TerranEngine
 		}
 
 		return true;
-	}
-
-	void ScriptEngine::SetLogCallback(LogFN logCallback)
-	{
-		s_Data->LogCallback = logCallback;
 	}
 }

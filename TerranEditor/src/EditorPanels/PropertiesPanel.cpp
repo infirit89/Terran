@@ -104,7 +104,7 @@ namespace TerranEditor
 	{
 		if(m_Open)
 		{
-			ImGui::Begin(GetName(), &m_Open);
+			ImGui::Begin(GetName().data(), &m_Open);
 			DrawComponents();
 			ImGui::End();
 		}

@@ -52,7 +52,7 @@ namespace TerranEditor
 		void OnScenePlay();
 		void OnSceneStop();
 
-		void OnScriptEngineLog(std::string_view message, spdlog::level::level_enum level);
+		bool OnScriptEngineLog(ScriptEngineLogEvent& event);
 
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
 		void OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
@@ -64,13 +64,6 @@ namespace TerranEditor
 		OrthographicCamera m_Camera;
 
 		// ***** Panels *****
-		/*SceneHierarchyPanel m_SceneHierarchyPanel;
-		PropertiesPanel m_PropertiesPanel;
-		ContentPanel m_ContentPanel;
-		SceneViewPanel m_SceneViewPanel;
-		ECSPanel m_ECSPanel;
-		LogPanel m_LogPanel;*/
-		//GameView m_GameView;
 		Shared<PanelManager> m_PanelManager;
 		// ******************
 		
