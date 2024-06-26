@@ -38,6 +38,9 @@ AssetInfos:
   - Asset: 3487bd13-dfad-4818-8b3d-e5e605a051df
     Type: 4
     Path: Scenes\Scripting\entity.terran
+  - Asset: 3af0f207-4299-4e66-b13d-51908b64aa87
+    Type: 3
+    Path: Scripts\Test\StaticCounter.cs
   - Asset: 3f723d16-4e54-4eee-a2cb-881812915e57
     Type: 4
     Path: Scenes\Scripting\changing-text.terran
@@ -68,9 +71,15 @@ AssetInfos:
   - Asset: 7767beeb-6a29-4b74-af4e-2d42f44c5233
     Type: 4
     Path: Scenes\Scripting\physics_all.terran
+  - Asset: 82ce915f-678e-4384-8ab4-29c367866009
+    Type: 4
+    Path: Scenes\TestScene16.terran
   - Asset: 84c2646f-1b0e-4c8e-8592-f6b8268d9142
     Type: 4
     Path: Scenes\TestScene12.terran
+  - Asset: 863b42ed-dba3-445e-a0ab-026da7bd8b12
+    Type: 3
+    Path: Scripts\Test\Test12.cs
   - Asset: 86f2f271-c726-481b-bbcc-694d14b1e4fb
     Type: 3
     Path: Scripts\Test\SceneManagerTest.cs
@@ -86,6 +95,9 @@ AssetInfos:
   - Asset: 9a6a50bc-a51f-422e-a468-a76877b10c7c
     Type: 4
     Path: Pong.terran
+  - Asset: 9d68bc6d-3b8f-4639-bd06-22ba7d2434aa
+    Type: 4
+    Path: Scenes\TestScene15.terran
   - Asset: 9ef30086-7d58-44f6-bb8f-143e1d269b43
     Type: 4
     Path: Scenes\TestScene5.terran
@@ -134,6 +146,9 @@ AssetInfos:
   - Asset: cf5c9555-f2fe-42f9-ab05-83156be8d4f7
     Type: 3
     Path: Scripts\Test\Test7.cs
+  - Asset: dbc25c4f-b3a2-4a2d-8711-21ae56ae3b41
+    Type: 3
+    Path: Scripts\Test\Test11.cs
   - Asset: dc9aba55-e789-4f65-9137-2b02f7036c3f
     Type: 4
     Path: TestScene.terran
