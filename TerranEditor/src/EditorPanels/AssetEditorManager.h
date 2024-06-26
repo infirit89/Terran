@@ -4,6 +4,7 @@
 
 #include "Core/UUID.h"
 #include "Core/Base.h"
+#include "Core/Result.h"
 
 #include "Asset/Asset.h"
 
@@ -19,7 +20,7 @@ namespace TerranEditor
 
 		static void Init();
 		static void RenderEditors();
-		static void OpenAssetEditor(const TerranEngine::UUID& assetHandle);
+		static TerranEngine::Result OpenAssetEditor(const TerranEngine::UUID& assetHandle);
 
 	private:
 		static void RegisterAssetEditors();

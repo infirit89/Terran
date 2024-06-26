@@ -29,14 +29,18 @@ namespace TerranEditor
 			assetEditorPanel->OnRender();
 	}
 
-	void AssetEditorManager::OpenAssetEditor(const UUID& assetHandle)
+	Result AssetEditorManager::OpenAssetEditor(const UUID& assetHandle)
 	{
 		if (!assetHandle.IsValid())
-			return;
+			return Result::INVALID_HANDLE;
 
 		AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
-		if (s_Editors.find(assetInfo.Type) != s_Editors.end())
-			s_Editors.at(assetInfo.Type)->SetOpen(true, assetHandle);
+
+		if (s_Editors.find(assetInfo.Type) == s_Editors.end())
+			return Result::NOT_FOUND;
+
+		s_Editors.at(assetInfo.Type)->SetOpen(true, assetHandle);
+		return Result::OK;
 	}
 
 	void AssetEditorManager::RegisterAssetEditors()

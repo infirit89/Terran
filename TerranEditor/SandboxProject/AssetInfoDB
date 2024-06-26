@@ -86,6 +86,9 @@ AssetInfos:
   - Asset: 88070d6c-e6eb-4293-9f10-d9976df2d530
     Type: 1
     Path: test.png
+  - Asset: 892f8c38-8881-4526-bd1b-a68d1f01dad8
+    Type: 3
+    Path: Scripts\Test\BlankScriptTest.cs
   - Asset: 9741307d-9cdb-4e75-9777-b69bb42f7afe
     Type: 3
     Path: Scripts\Test\Test.cs

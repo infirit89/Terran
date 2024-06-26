@@ -6,6 +6,7 @@ namespace TerranEngine
 	{
 		OK = 0,
 		PARSE_ERROR,
-		NOT_FOUND
+		NOT_FOUND,
+		INVALID_HANDLE
 	};
 }

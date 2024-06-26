@@ -176,7 +176,8 @@ namespace TerranEditor
 					}
 					case ItemAction::Activate: 
 					{
-						AssetEditorManager::OpenAssetEditor(item->GetHandle());
+						if (m_OnItemClickedFn)
+							m_OnItemClickedFn(item);
 						break;
 					}
 					case ItemAction::Select: 

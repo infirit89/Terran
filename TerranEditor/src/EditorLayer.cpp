@@ -84,7 +84,8 @@ namespace TerranEditor
 		m_PanelManager = CreateShared<PanelManager>();
 		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
 		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
-		m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
+		Shared<ContentPanel> contentBrowserPanel = m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
+		contentBrowserPanel->SetOnItemClickCallback(std::bind_front(&EditorLayer::OnContentBrowserItemClicked, this));
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
 		sceneViewPanel->SetOpenSceneCallback([this](const AssetInfo& sceneAssetInfo, const glm::vec2& sceneViewport) { OpenScene(sceneAssetInfo, sceneViewport); });
 		sceneViewPanel->SetViewportSizeChangedCallback(TR_EVENT_BIND_FN(EditorLayer::OnViewportSizeChanged));
@@ -471,6 +472,21 @@ namespace TerranEditor
 	{
 		m_PanelManager->SetScene(newScene);
 		newScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+	}
+
+	void EditorLayer::OnContentBrowserItemClicked(const Shared<ContentBrowserItem>& item)
+	{
+		if (item->GetType() != ItemType::File)
+			return;
+
+		const AssetInfo& assetInfo = AssetManager::GetAssetInfo(item->GetHandle());
+		if (assetInfo.Type == AssetType::Scene) 
+		{
+			OpenScene(assetInfo, m_ViewportSize);
+			return;
+		}
+
+		AssetEditorManager::OpenAssetEditor(assetInfo.Handle);
 	}
 
 	void EditorLayer::ImGuiRender()

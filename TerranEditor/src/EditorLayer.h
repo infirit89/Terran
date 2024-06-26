@@ -2,6 +2,7 @@
 
 #include "Terran.h"
 #include "EditorPanels/PanelManager.h"
+#include "EditorPanels/ContentBrowserItem.h"
 
 #include "EditorCamera.h"
 
@@ -55,6 +56,7 @@ namespace TerranEditor
 
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
 		void OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
+		void OnContentBrowserItemClicked(const Shared<ContentBrowserItem>& item);
 
 	private:
 		EditorCamera m_EditorCamera;

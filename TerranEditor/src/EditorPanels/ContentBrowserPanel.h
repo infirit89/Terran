@@ -81,6 +81,7 @@ namespace TerranEditor
 	class ContentPanel : public EditorPanel
 	{
 	public:
+		using OnItemClickedFn = std::function<void(const Shared<ContentBrowserItem>&)>;
 		ContentPanel();
 		~ContentPanel() = default;
 
@@ -89,6 +90,8 @@ namespace TerranEditor
 
 		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
 		virtual const char* GetName() override { return "Content"; }
+
+		void SetOnItemClickCallback(const OnItemClickedFn& itemClickFn) { m_OnItemClickedFn = itemClickFn; }
 
 	private:
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
@@ -141,7 +144,7 @@ namespace TerranEditor
 
 		void ChangeForwardDirectory();
 		void ChangeBackwardDirectory();
-
+		
 	private:
 		Shared<DirectoryInfo> m_CurrentDirectory;
 		Shared<DirectoryInfo> m_PreviousDirectory;
@@ -152,6 +155,7 @@ namespace TerranEditor
 		ContentBrowserItemList m_CurrentItems;
 		std::function<void(const std::string&)> m_CreateAsset;
 		std::filesystem::path m_NewAssetName;
+		OnItemClickedFn m_OnItemClickedFn;
 
 		template<typename AssetType>
 		friend void DrawNewAssetMenu(ContentPanel* panel, const char* name, const char* fileName, bool& openRenamePopup);
