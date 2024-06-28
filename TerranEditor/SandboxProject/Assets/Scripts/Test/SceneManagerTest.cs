@@ -2,6 +2,7 @@
 
 namespace ScriptAssembly
 {
+    [SourceInfo]
     internal class SceneManagerTest : Scriptable
     {
         private string ScenePath = "Scenes/Physics/RayCastTest";

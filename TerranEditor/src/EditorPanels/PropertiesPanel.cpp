@@ -331,7 +331,7 @@ namespace TerranEditor
 				physicsBody->SetBodyType(rbComponent.BodyType);
 
 			ImGui::TableNextRow();
-			if (UI::PropertyAssetField<PhysicsMaterial2DAsset>("Material", AssetType::PhysicsMaterial2D, rbComponent.PhysicsMaterialHandle))
+			if (UI::PropertyAssetField<PhysicsMaterial2D>("Material", AssetType::PhysicsMaterial2D, rbComponent.PhysicsMaterialHandle))
 			{
 				// TODO: change in scene runtime
 			}

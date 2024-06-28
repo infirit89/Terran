@@ -1,13 +1,20 @@
-﻿namespace Terran
+﻿using System;
+using System.Runtime.CompilerServices;
+
+namespace Terran
 {
     // ---- Scriptable ----
     public class Scriptable : Component
     {
         public Scriptable() 
-            : base(default){ }
+            : base(default) 
+        {
+        }
 
         internal Scriptable(UUID id)
-            : base(id) { }
+            : base(id) 
+        {
+        }
 
         protected virtual void Init() { }
         protected virtual void Update(float deltaTime) { }

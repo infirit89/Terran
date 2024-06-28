@@ -64,17 +64,4 @@ namespace TerranEngine
 	private:
 		std::string m_Text;
 	};
-
-	class PhysicsMaterial2DAsset : public Asset 
-	{
-	public:
-		PhysicsMaterial2DAsset() = default;
-		virtual ~PhysicsMaterial2DAsset() override = default;
-
-		ASSET_CLASS_TYPE(PhysicsMaterial2D)
-
-		float Density = 1.0f;
-		float Friction = 0.5f;
-		float Restitution = 0.0f;
-	};
 }

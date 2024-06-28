@@ -1,6 +1,7 @@
 #include "PhysicsMaterialEditor.h"
 
 #include "Asset/AssetManager.h"
+#include "Physics/PhysicsMaterial.h"
 
 #include "UI/UI.h"
 
@@ -15,7 +16,7 @@ namespace TerranEditor
 		ImGui::Begin("Physics Material Editor", &m_Open);
 
 		bool changed = false;
-		Shared<PhysicsMaterial2DAsset> material = AssetManager::GetAsset<PhysicsMaterial2DAsset>(m_ID);
+		Shared<PhysicsMaterial2D> material = AssetManager::GetAsset<PhysicsMaterial2D>(m_ID);
 		if (material) 
 		{
 			UI::PropertyGroup("pm2d_properties", [material, &changed]()

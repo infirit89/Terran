@@ -7,12 +7,15 @@
 #include <Coral/Type.hpp>
 #include <Coral/ManagedArray.hpp>
 #include <Coral/String.hpp>
+#include <Coral/Attribute.hpp>
 
 namespace TerranEngine 
 {
 	ScriptInstance::ScriptInstance(Coral::Type& type, Entity entity)
 	{
 		m_Context = type.CreateInstance(entity.GetID()).GetHandle();
+
+		std::vector<Coral::Attribute> attributes = type.GetAttributes();
 
 		m_OnInitMethodHandle = type.GetMethod("Init").GetHandle();
 		m_OnUpdateMethodHandle = type.GetMethod<float>("Update").GetHandle();

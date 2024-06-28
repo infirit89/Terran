@@ -106,7 +106,7 @@ namespace TerranEditor
 
 						if (ImGui::BeginMenu("New"))
 						{
-							DrawNewAssetMenu<PhysicsMaterial2DAsset>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
+							DrawNewAssetMenu<PhysicsMaterial2D>(this, "Physics Material", "New Physics Material.trpm2d", openRenamePopup);
 							DrawNewAssetMenu<Scene>(this, "Scene", "New Scene.terran", openRenamePopup);
 							drawNewDirectoryMenu("Folder", "New Folder");
 							ImGui::EndMenu();

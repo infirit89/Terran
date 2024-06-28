@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "DGVhccaPvO95WgW839NPgJJ/sv74PR61YJi5KUeEk98mbUekBnu1STO91/mQhlhjWW4wgpDwWL7XM9bY3eDSjQ==",
+  "dgSpecHash": "rsl5iYWMA5nVvFw07ku5BbEuxJYH02PkAFuVpBhxDnXQLD402Ji/MBu1/wDFXRQsf711ABzS5RNhCS2WQd0LYw==",
   "success": true,
   "projectFilePath": "C:\\Projects\\terran\\terran-dev\\TerranScriptCore\\TerranScriptCore.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\georg\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.4\\microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",
+    "C:\\Users\\georg\\.nuget\\packages\\microsoft.codeanalysis.common\\4.10.0\\microsoft.codeanalysis.common.4.10.0.nupkg.sha512",
+    "C:\\Users\\georg\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.10.0\\microsoft.codeanalysis.csharp.4.10.0.nupkg.sha512",
+    "C:\\Users\\georg\\.nuget\\packages\\system.collections.immutable\\8.0.0\\system.collections.immutable.8.0.0.nupkg.sha512",
+    "C:\\Users\\georg\\.nuget\\packages\\system.reflection.metadata\\8.0.0\\system.reflection.metadata.8.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

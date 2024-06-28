@@ -8,6 +8,7 @@
 #include "Scene/Scene.h"
 
 #include "Asset/Asset.h"
+#include "PhysicsMaterial.h"
 
 class b2World;
 
@@ -49,7 +50,7 @@ namespace TerranEngine
 
 		static b2World* GetB2World();
 
-		static Shared<PhysicsMaterial2DAsset> GetDefaultMaterial();
+		static Shared<PhysicsMaterial2D> GetDefaultMaterial();
 
 		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
 		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);

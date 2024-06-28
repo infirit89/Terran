@@ -5,6 +5,7 @@
 #include "RayCastCallbacks.h"
 #include "PhysicsLayerManager.h"
 #include "PhysicsBody.h"
+#include "PhysicsMaterial.h"
 
 #include "Core/Settings.h"
 
@@ -32,7 +33,7 @@ namespace TerranEngine
 		ContactListener ContactListener;
 		Shared<PhysicsBody2D> EmptyPhysicsBody;
         PhysicsSettings Settings;
-		Shared<PhysicsMaterial2DAsset> DefaultMaterial;
+		Shared<PhysicsMaterial2D> DefaultMaterial;
 	};
 	
 
@@ -45,7 +46,7 @@ namespace TerranEngine
         PhysicsLayerManager::SetLayerName(0, "Default");
         PhysicsLayerManager::SetLayerName(1, "IgnoreRayCast");
         PhysicsLayerManager::SetLayerName(3, "Test");
-		s_State->DefaultMaterial = AssetManager::CreateMemoryAsset<PhysicsMaterial2DAsset>();
+		s_State->DefaultMaterial = AssetManager::CreateMemoryAsset<PhysicsMaterial2D>();
 
 		TR_CORE_INFO(TR_LOG_PHYSICS, "Initialized physics system");
 	}
@@ -100,7 +101,7 @@ namespace TerranEngine
 
 	b2World* Physics2D::GetB2World() { return s_State->PhysicsWorld; }
 
-	Shared<PhysicsMaterial2DAsset> Physics2D::GetDefaultMaterial() { return s_State->DefaultMaterial; }
+	Shared<PhysicsMaterial2D> Physics2D::GetDefaultMaterial() { return s_State->DefaultMaterial; }
 
 	Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
 	{

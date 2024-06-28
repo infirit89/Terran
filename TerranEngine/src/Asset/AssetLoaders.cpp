@@ -1,4 +1,5 @@
 #include "trpch.h"
+
 #include "AssetLoaders.h"
 
 #include "AssetManager.h"
@@ -6,6 +7,8 @@
 #include "Graphics/Texture.h"
 
 #include "Scene/SceneSerializer.h"
+
+#include "Physics/PhysicsMaterial.h"
 
 #include <yaml-cpp/yaml.h>
 #include <stb_image.h>
@@ -127,7 +130,7 @@ namespace TerranEngine
         try
         {
             auto physicsMaterial = node["PhysicsMaterial2D"];
-            Shared<PhysicsMaterial2DAsset> physicsMaterialAsset = CreateShared<PhysicsMaterial2DAsset>();
+            Shared<PhysicsMaterial2D> physicsMaterialAsset = CreateShared<PhysicsMaterial2D>();
             physicsMaterialAsset->Density = physicsMaterial["Density"].as<float>();
             physicsMaterialAsset->Friction = physicsMaterial["Friction"].as<float>();
             physicsMaterialAsset->Restitution = physicsMaterial["Restitution"].as<float>();
@@ -145,7 +148,7 @@ namespace TerranEngine
     {
         YAML::Emitter out;
 
-        Shared<PhysicsMaterial2DAsset> physicsMaterial = DynamicCast<PhysicsMaterial2DAsset>(asset);
+        Shared<PhysicsMaterial2D> physicsMaterial = DynamicCast<PhysicsMaterial2D>(asset);
         out << YAML::BeginMap;
         out << YAML::Key << "PhysicsMaterial2D" << YAML::Value << YAML::BeginMap;
         out << YAML::Key << "Density" << YAML::Value << physicsMaterial->Density;

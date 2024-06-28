@@ -13,6 +13,7 @@
 #include "Scene/Entity.h"
 
 #include "Asset/AssetManager.h"
+#include "PhysicsMaterial.h"
 
 #include "Math/Math.h"
 
@@ -253,7 +254,7 @@ namespace TerranEngine
 	static float s_DefaultRestitution = 0.0f;
 	static float s_DefaultRestitutionThreshold = 0.5f;
 
-	static void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2DAsset>& material) 
+	static void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2D>& material) 
 	{
 		fixtureDef.density = material->Density;
 		fixtureDef.friction = material->Friction;
@@ -269,7 +270,7 @@ namespace TerranEngine
 		BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
 		auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 		// NOTE: maybe change in the future, cause this intagles the systems a bit
-		Shared<PhysicsMaterial2DAsset> material = AssetManager::GetAsset<PhysicsMaterial2DAsset>(rigidbodyComponent.PhysicsMaterialHandle);
+		Shared<PhysicsMaterial2D> material = AssetManager::GetAsset<PhysicsMaterial2D>(rigidbodyComponent.PhysicsMaterialHandle);
 
 		TransformComponent& transform = entity.GetTransform();
 
