@@ -40,7 +40,7 @@ namespace Terran
                 unsafe
                 {
                     if (Entity != null)
-                        return Internal.Tag_GetNameICall(Entity.ID)!;
+                        return Internal.Tag_GetNameICall(Entity.Handle)!;
 
                     return "";
                 }
@@ -51,7 +51,7 @@ namespace Terran
                 unsafe
                 {
                     if (Entity != null)
-                        Internal.Tag_SetNameICall(Entity.ID, value);
+                        Internal.Tag_SetNameICall(Entity.Handle, value);
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Transform_GetPositionICall(Entity.ID);
+                    return Internal.Transform_GetPositionICall(Entity.Handle);
                 }
             }
 
@@ -80,7 +80,7 @@ namespace Terran
                 unsafe
                 {
                     if (Entity != null)
-                        Internal.Transform_SetPositionICall(Entity.ID, in value);
+                        Internal.Transform_SetPositionICall(Entity.Handle, in value);
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Transform_GetRotationICall(Entity.ID);
+                    return Internal.Transform_GetRotationICall(Entity.Handle);
                 }
             }
 
@@ -100,7 +100,7 @@ namespace Terran
                 unsafe
                 {
                     if (Entity != null)
-                        Internal.Transform_SetRotationICall(Entity.ID, in value);
+                        Internal.Transform_SetRotationICall(Entity.Handle, in value);
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Transform_GetScaleICall(Entity.ID);
+                    return Internal.Transform_GetScaleICall(Entity.Handle);
                 }
             }
 
@@ -120,7 +120,7 @@ namespace Terran
                 unsafe
                 {
                     if (Entity != null)
-                        Internal.Transform_SetScaleICall(Entity.ID, in value);
+                        Internal.Transform_SetScaleICall(Entity.Handle, in value);
                 }
             }
         }
@@ -131,7 +131,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Transform_IsDirtyICall(Entity.ID);
+                    return Internal.Transform_IsDirtyICall(Entity.Handle);
                 }
             }
         }
@@ -142,7 +142,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Transform_GetForwardICall(Entity.ID);
+                    return Internal.Transform_GetForwardICall(Entity.Handle);
                 }
             }
         }
@@ -152,7 +152,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    return Internal.Transform_GetUpICall(Entity.ID);
+                    return Internal.Transform_GetUpICall(Entity.Handle);
                 }
             }
         }
@@ -162,7 +162,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Transform_GetRightICall(Entity.ID);
+                    return Internal.Transform_GetRightICall(Entity.Handle);
                 }
             }
         }

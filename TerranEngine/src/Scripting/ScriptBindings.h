@@ -59,6 +59,7 @@ namespace TerranEngine
 		
 		static int Entity_GetChildrenCountICall(const UUID& id);
 		static UUID Entity_GetChildICall(const UUID& id, int index);
+		static UUID Entity_GetParentICall(const UUID& id);
 		#pragma endregion
 		// ----------------
 

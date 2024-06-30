@@ -11,14 +11,14 @@
             {
                 unsafe 
                 {
-                    return Internal.TextRenderer_GetColorICall(Entity.ID);
+                    return Internal.TextRenderer_GetColorICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.TextRenderer_SetColorICall(Entity.ID, in value);
+                    Internal.TextRenderer_SetColorICall(Entity.Handle, in value);
                 }
             }
         }
@@ -29,14 +29,14 @@
             {
                 unsafe 
                 {
-                    return Internal.TextRenderer_GetTextICall(Entity.ID)!;
+                    return Internal.TextRenderer_GetTextICall(Entity.Handle)!;
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.TextRenderer_SetTextICall(Entity.ID, value);
+                    Internal.TextRenderer_SetTextICall(Entity.Handle, value);
                 }
             }
         }
@@ -53,14 +53,14 @@
             {
                 unsafe
                 {
-                    return Internal.CircleRenderer_GetColorICall(Entity.ID);
+                    return Internal.CircleRenderer_GetColorICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.CircleRenderer_SetColorICall(Entity.ID, in value);
+                    Internal.CircleRenderer_SetColorICall(Entity.Handle, in value);
                 }
             }
         }
@@ -71,14 +71,14 @@
             {
                 unsafe
                 {
-                    return Internal.CircleRenderer_GetThicknessICall(Entity.ID);
+                    return Internal.CircleRenderer_GetThicknessICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.CircleRenderer_SetThicknessICall(Entity.ID, value);
+                    Internal.CircleRenderer_SetThicknessICall(Entity.Handle, value);
                 }
             }
         }
@@ -95,14 +95,14 @@
             {
                 unsafe 
                 {
-                    return Internal.Camera_IsPrimaryICall(Entity.ID);
+                    return Internal.Camera_IsPrimaryICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.Camera_SetPrimaryICall(Entity.ID, value);
+                    Internal.Camera_SetPrimaryICall(Entity.Handle, value);
                 }
             }
         }
@@ -113,14 +113,14 @@
             {
                 unsafe 
                 {
-                    return Internal.Camera_GetBackgroundColorICall(Entity.ID);
+                    return Internal.Camera_GetBackgroundColorICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.Camera_SetBackgroundColorICall(Entity.ID, in value);
+                    Internal.Camera_SetBackgroundColorICall(Entity.Handle, in value);
                 }
             }
         }
@@ -129,7 +129,7 @@
         {
             unsafe 
             {
-                return Internal.Camera_ScreenToWorldPointICall(Entity.ID, screenPoint);
+                return Internal.Camera_ScreenToWorldPointICall(Entity.Handle, screenPoint);
             }
         }
     }
@@ -145,14 +145,14 @@
             {
                 unsafe 
                 {
-                    return Internal.SpriteRenderer_GetColorICall(Entity.ID);
+                    return Internal.SpriteRenderer_GetColorICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.SpriteRenderer_SetColorICall(Entity.ID, in value);
+                    Internal.SpriteRenderer_SetColorICall(Entity.Handle, in value);
                 }
             }
         }

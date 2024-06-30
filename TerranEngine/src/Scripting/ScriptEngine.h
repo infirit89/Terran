@@ -19,17 +19,16 @@ namespace TerranEngine
 	class ScriptEngine
 	{
 	public:
+		using ScriptTypeFilterFn = std::function<bool()>;
 		static void Initialize(const std::filesystem::path& scriptCoreAssemblyPath);
 		static void Shutdown();
 
 		static void ReloadAppAssembly();
 		
-		static bool ClassExists(const std::string& moduleName);
-
 		static Shared<ScriptInstance> GetScriptInstance(Entity entity);
 		static Shared<ScriptInstance> GetScriptInstance(const UUID& sceneID, const UUID& entityID);
 		static Shared<ScriptInstance> CreateScriptInstance(Entity entity);
-		static void UninitalizeScriptable(Entity entity);
+		static void DestroyScriptInstance(Entity entity);
 
 		static void OnStart(Entity entity);
 		static void OnUpdate(Entity entity, float deltaTime);

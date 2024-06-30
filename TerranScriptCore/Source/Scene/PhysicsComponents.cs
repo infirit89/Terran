@@ -13,14 +13,14 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Rigidbody2D_IsFixedRotationICall(Entity.ID);
+                    return Internal.Rigidbody2D_IsFixedRotationICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe
                 {
-                    Internal.Rigidbody2D_SetFixedRotationICall(Entity.ID, value);
+                    Internal.Rigidbody2D_SetFixedRotationICall(Entity.Handle, value);
                 }
             }
         }
@@ -31,14 +31,14 @@ namespace Terran
             {
                 unsafe 
                 {
-                    return Internal.Rigidbody2D_GetSleepStateICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetSleepStateICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.Rigidbody2D_SetSleepStateICall(Entity.ID, value);
+                    Internal.Rigidbody2D_SetSleepStateICall(Entity.Handle, value);
                 }
             }
         }
@@ -49,14 +49,14 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Rigidbody2D_GetGravityScaleICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetGravityScaleICall(Entity.Handle);
                 }
             } 
             set
             {
                 unsafe 
                 {
-                    Internal.Rigidbody2D_SetGravityScaleICall(Entity.ID, value);
+                    Internal.Rigidbody2D_SetGravityScaleICall(Entity.Handle, value);
                 }
             }
         }
@@ -67,14 +67,14 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Rigidbody2D_GetTypeICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetTypeICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe
                 {
-                    Internal.Rigidbody2D_SetTypeICall(Entity.ID, value);
+                    Internal.Rigidbody2D_SetTypeICall(Entity.Handle, value);
                 }
             }
         }
@@ -85,7 +85,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Rigidbody2D_GetLinearVelocityICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetLinearVelocityICall(Entity.Handle);
                 }
             }
 
@@ -93,7 +93,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    Internal.Rigidbody2D_SetLinearVelocityICall(Entity.ID, in value);
+                    Internal.Rigidbody2D_SetLinearVelocityICall(Entity.Handle, in value);
                 }
             }
         }
@@ -104,14 +104,14 @@ namespace Terran
             {
                 unsafe 
                 {
-                    return Internal.Rigidbody2D_GetAngularVelocityICall(Entity.ID);
+                    return Internal.Rigidbody2D_GetAngularVelocityICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe
                 {
-                    Internal.Rigidbody2D_SetAngularVelocityICall(Entity.ID, value);
+                    Internal.Rigidbody2D_SetAngularVelocityICall(Entity.Handle, value);
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace Terran
         {
             unsafe
             {
-                Internal.Rigidbody2D_ApplyForceICall(Entity.ID, in force, in position, forceMode);
+                Internal.Rigidbody2D_ApplyForceICall(Entity.Handle, in force, in position, forceMode);
             }
         }
 
@@ -128,7 +128,7 @@ namespace Terran
         {
             unsafe
             {
-                Internal.Rigidbody2D_ApplyForceAtCenterICall(Entity.ID, in force, forceMode);
+                Internal.Rigidbody2D_ApplyForceAtCenterICall(Entity.Handle, in force, forceMode);
             }
         }
     }
@@ -158,7 +158,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    Internal.Collider2D_GetOffsetICall(Entity.ID, m_ColliderType, out var offset);
+                    Internal.Collider2D_GetOffsetICall(Entity.Handle, m_ColliderType, out var offset);
                     return offset;
                 }
             }
@@ -166,7 +166,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    Internal.Collider2D_SetOffsetICall(Entity.ID, m_ColliderType, in value);
+                    Internal.Collider2D_SetOffsetICall(Entity.Handle, m_ColliderType, in value);
                 }
             }
         }
@@ -177,7 +177,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    Internal.Collider2D_IsSensorICall(Entity.ID, m_ColliderType, out var sensor);
+                    Internal.Collider2D_IsSensorICall(Entity.Handle, m_ColliderType, out var sensor);
                     return sensor;
                 }
             }
@@ -185,7 +185,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    Internal.Collider2D_SetSensorICall(Entity.ID, m_ColliderType, value);
+                    Internal.Collider2D_SetSensorICall(Entity.Handle, m_ColliderType, value);
                 }
             }
         }
@@ -205,7 +205,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    Internal.BoxCollider2D_GetSizeICall(Entity.ID, out var size);
+                    Internal.BoxCollider2D_GetSizeICall(Entity.Handle, out var size);
                     return size;
                 }
             }
@@ -214,7 +214,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    Internal.BoxCollider2D_SetSizeICall(Entity.ID, in value);
+                    Internal.BoxCollider2D_SetSizeICall(Entity.Handle, in value);
                 }
             }
         }
@@ -230,14 +230,14 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.CircleCollider2D_GetRadiusICall(Entity.ID);
+                    return Internal.CircleCollider2D_GetRadiusICall(Entity.Handle);
                 }
             }
             set
             {
                 unsafe 
                 {
-                    Internal.CircleCollider2D_SetRadiusICall(Entity.ID, value);
+                    Internal.CircleCollider2D_SetRadiusICall(Entity.Handle, value);
                 }
             }
         }
@@ -253,7 +253,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    Internal.CapsuleCollider2D_GetSizeICall(Entity.ID, out var size);
+                    Internal.CapsuleCollider2D_GetSizeICall(Entity.Handle, out var size);
                     return size;
                 }
             }
@@ -262,7 +262,7 @@ namespace Terran
             {
                 unsafe 
                 {
-                    Internal.CapsuleCollider2D_SetSizeICall(Entity.ID, in value);
+                    Internal.CapsuleCollider2D_SetSizeICall(Entity.Handle, in value);
                 }
             }
         }

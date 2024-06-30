@@ -67,7 +67,7 @@ namespace TerranEngine
 		for (auto e : scriptbleComponentView)
 		{
 			Entity entity(e, this);
-			ScriptEngine::UninitalizeScriptable(entity);
+			ScriptEngine::DestroyScriptInstance(entity);
 		}
 
         m_Registry.clear();
@@ -107,7 +107,7 @@ namespace TerranEngine
 
 	void Scene::DestroyEntity(Entity entity, bool first)
 	{
-		ScriptEngine::UninitalizeScriptable(entity);
+		ScriptEngine::DestroyScriptInstance(entity);
 
 		if (entity.HasComponent<Rigidbody2DComponent>())
 			Physics2D::DestroyPhysicsBody(entity);
@@ -618,7 +618,7 @@ namespace TerranEngine
 	void Scene::OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
 	{
 		Entity entity(entityHandle, this);
-		ScriptEngine::UninitalizeScriptable(entity);
+		ScriptEngine::DestroyScriptInstance(entity);
 	}
 
 
@@ -643,14 +643,17 @@ namespace TerranEngine
 
     void Scene::OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
     {
-        if(m_IsPlaying)
-        {
-            Entity entity(entityHandle, this);
-            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+        Entity entity(entityHandle, this);
+		if (!entity.HasComponent<Rigidbody2DComponent>())
+			entity.AddComponent<Rigidbody2DComponent>();
 
-            if(physicsBody)
-                physicsBody->AddCollider<BoxCollider2DComponent>(entity);
-        }
+		if (!m_IsPlaying)
+			return;
+
+        Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+        if(physicsBody)
+            physicsBody->AddCollider<BoxCollider2DComponent>(entity);
     }
     void Scene::OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
     {
@@ -667,14 +670,18 @@ namespace TerranEngine
 
     void Scene::OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
     {
-        if(m_IsPlaying)
-        {
-            Entity entity(entityHandle, this);
-            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+		Entity entity(entityHandle, this);
+		if (!entity.HasComponent<Rigidbody2DComponent>())
+			entity.AddComponent<Rigidbody2DComponent>();
 
-            if(physicsBody)
-                physicsBody->AddCollider<CircleCollider2DComponent>(entity);
-        }
+
+		if (!m_IsPlaying)
+			return;
+
+        Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+        if(physicsBody)
+            physicsBody->AddCollider<CircleCollider2DComponent>(entity);
     }
     void Scene::OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
     {
@@ -691,14 +698,17 @@ namespace TerranEngine
 
     void Scene::OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
     {
-        if(m_IsPlaying)
-        {
-            Entity entity(entityHandle, this);
-            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+		Entity entity(entityHandle, this);
+		if (!entity.HasComponent<Rigidbody2DComponent>())
+			entity.AddComponent<Rigidbody2DComponent>();
 
-            if(physicsBody)
-                physicsBody->AddCollider<CapsuleCollider2DComponent>(entity);
-        }
+		if (!m_IsPlaying)
+			return;
+
+        Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
+
+        if(physicsBody)
+            physicsBody->AddCollider<CapsuleCollider2DComponent>(entity);
     }
     void Scene::OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
     {

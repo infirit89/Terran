@@ -2,7 +2,7 @@
 
 namespace TerranEngine 
 {
-	enum class ScriptType 
+	enum class ScriptFieldType
 	{
 		None = 0,
 

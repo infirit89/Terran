@@ -42,9 +42,10 @@ namespace TerranEngine
 		std::string CoralDirectory = "Resources/Scripts";
 		int32_t EntityIDFieldHandle = 0;
 
-		ScriptInstanceMap ScriptInstanceMap;
+		ScriptInstanceMap ScriptInstanceMap; 
         std::filesystem::path ScriptCoreAssemblyPath;
-		std::unordered_map<Coral::TypeId, ScriptType> TypeConverters;
+		std::unordered_map<Coral::TypeId, ScriptFieldType> TypeConverters;
+		std::unordered_map<std::string, Coral::Type> ScriptTypeMap;
 	};
 
 	static ScriptEngineData* s_Data;
@@ -104,7 +105,7 @@ namespace TerranEngine
 		TR_ASSERT(coreAssembly.GetLoadStatus() == Coral::AssemblyLoadStatus::Success, "Couldn't load the TerranScriptCore assembly");
 
 		ScriptTypes::Initialize();
-		s_Data->EntityIDFieldHandle = ScriptTypes::EntityType->GetField("m_ID");
+		s_Data->EntityIDFieldHandle = ScriptTypes::EntityType->GetField("m_Handle");
 		TR_ASSERT(s_Data->EntityIDFieldHandle > -1, "Failed to find Terran.Entity m_ID field");
 
 		InitializeTypeConverters();
@@ -230,25 +231,23 @@ namespace TerranEngine
 		Log("Reloaded assemblies", spdlog::level::info);
 	}
 
-	bool ScriptEngine::ClassExists(const std::string& moduleName) { return false;  }
-
-	static ScriptType GetScriptType(Coral::Type& type)
+	static ScriptFieldType GetScriptType(Coral::Type& type)
 	{
 		Coral::ManagedType managedType = type.GetManagedType();
 		if (managedType != Coral::ManagedType::Unknown && managedType != Coral::ManagedType::Pointer)
-			return (ScriptType)managedType;
+			return (ScriptFieldType)managedType;
 
 		if (s_Data->TypeConverters.find(type.GetTypeId()) != s_Data->TypeConverters.end())
 			return s_Data->TypeConverters.at(type.GetTypeId());
 
-		return ScriptType::None;
+		return ScriptFieldType::None;
 	}
 
 #define ADD_SYSTEM_TYPE(TypeName, Type)\
-	typeConverters.emplace(typeCache.GetTypeByName("System."#TypeName)->GetTypeId(), ScriptType::Type);
+	typeConverters.emplace(typeCache.GetTypeByName("System."#TypeName)->GetTypeId(), ScriptFieldType::Type);
 
 #define ADD_TERRAN_TYPE(TypeName)\
-	typeConverters.emplace(typeCache.GetTypeByName("Terran."#TypeName)->GetTypeId(), ScriptType::TypeName);
+	typeConverters.emplace(typeCache.GetTypeByName("Terran."#TypeName)->GetTypeId(), ScriptFieldType::TypeName);
 
 	void ScriptEngine::InitializeTypeConverters()
 	{
@@ -312,7 +311,7 @@ namespace TerranEngine
 		}
 
 		scriptComponent.ClassExists = true;
-
+		
 		if (s_Data->ScriptInstanceMap.find(entity.GetSceneId()) != s_Data->ScriptInstanceMap.end())
 		{
 			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneId()).find(entity.GetID());
@@ -328,7 +327,7 @@ namespace TerranEngine
 
 		Shared<ScriptInstance> instance =
 			s_Data->ScriptInstanceMap[entity.GetSceneId()][entity.GetID()] =
-			CreateShared<ScriptInstance>(type, entity);
+			CreateShared<ScriptInstance>(type, entity.GetID());
 
 		scriptComponent.FieldHandles.clear();
 		for (Coral::FieldInfo& fieldInfo : type.GetFields())
@@ -351,7 +350,7 @@ namespace TerranEngine
 		return s_Data->ScriptInstanceMap.at(entity.GetSceneId()).at(entity.GetID());
 	}
 
-	void ScriptEngine::UninitalizeScriptable(Entity entity) 
+	void ScriptEngine::DestroyScriptInstance(Entity entity) 
 	{
 		if (!entity || !entity.HasComponent<TagComponent>())
 			return;
@@ -435,6 +434,12 @@ namespace TerranEngine
 		{
 			TR_CORE_ERROR(TR_LOG_SCRIPT, "Couldn't load the ScriptAssembly assembly");
 			return false;
+		}
+
+		for (const auto type : appAssembly.GetTypes())
+		{
+			TR_CORE_TRACE(TR_LOG_SCRIPT, std::string(type->GetFullName()));
+			TR_CORE_TRACE(TR_LOG_SCRIPT, std::string(type->GetAssemblyQualifiedName()));
 		}
 
 		return true;

@@ -92,6 +92,7 @@ namespace TerranEngine
 		BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
 		BIND_INTERNAL_FUNC(Entity_GetChildrenCountICall);
 		BIND_INTERNAL_FUNC(Entity_GetChildICall);
+		BIND_INTERNAL_FUNC(Entity_GetParentICall);
 		#pragma endregion
 		// ----------------
 
@@ -440,6 +441,16 @@ namespace TerranEngine
 
 		return entity.GetChild(index).GetID();
 	}
+	UUID ScriptBindings::Entity_GetParentICall(const UUID& id)
+	{
+		TR_PROFILE_FUNCTION();
+		GET_ENTITY();
+		if (!entity)
+			return UUID::Invalid();
+
+		return entity.GetParentID();
+	}
+
 	#pragma endregion
 	// ----------------
 

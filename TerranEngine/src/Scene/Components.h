@@ -126,6 +126,8 @@ namespace TerranEngine
 
 		std::string ModuleName;
 		std::vector<int32_t> FieldHandles;
+
+		UUID ScriptSourceHandle = UUID::Invalid();
 		bool ClassExists = true;
 	};
 

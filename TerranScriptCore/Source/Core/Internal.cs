@@ -45,6 +45,7 @@ namespace Terran
 		internal static unsafe delegate* unmanaged<in UUID, void> Entity_DestroyEntityICall = default;
 		internal static unsafe delegate* unmanaged<in UUID, int> Entity_GetChildrenCountICall = default;
         internal static unsafe delegate* unmanaged<in UUID, int, UUID> Entity_GetChildICall = default;
+		internal static unsafe delegate* unmanaged<in UUID, UUID> Entity_GetParentICall = default;
         #endregion
 
         #region Physics 2D

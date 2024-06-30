@@ -1232,7 +1232,7 @@ namespace TerranEditor
 	}
 
 #define DRAW_FIELD_PROPERTY(FieldType, Type, DrawFunc, ...)				\
-	case ScriptType::FieldType:											\
+	case ScriptFieldType::FieldType:											\
 	{																	\
 		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,	\
 		[&__VA_ARGS__](const std::string& fieldName, auto& value)		\
@@ -1243,7 +1243,7 @@ namespace TerranEditor
 	break
 
 #define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)						\
-	case ScriptType::FieldType:											\
+	case ScriptFieldType::FieldType:											\
 	{																	\
 		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,	\
 		[](const std::string& fieldName, auto& value)					\
@@ -1512,7 +1512,7 @@ namespace TerranEditor
 	//}
 
 #define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)					\
-	case ScriptType::FieldType:											\
+	case ScriptFieldType::FieldType:											\
 	{																	\
 		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
 		if(UI::PropertyScalar<Type>(elementName, value))				\
@@ -1524,7 +1524,7 @@ namespace TerranEditor
 	break
 
 #define DRAW_FIELD_ARRAY_VALUE(FieldType, Type, DrawFunc, ...)			\
-	case ScriptType::FieldType:											\
+	case ScriptFieldType::FieldType:											\
 	{																	\
 		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
 		if(DrawFunc(elementName, value, __VA_ARGS__))					\

@@ -19,7 +19,7 @@ namespace TerranEngine
 {
 	struct ScriptField
 	{
-		ScriptType Type = ScriptType::None;
+		ScriptFieldType Type = ScriptFieldType::None;
 		std::string Name;
 		bool IsArray = false;
 	};
@@ -55,7 +55,7 @@ namespace TerranEngine
 	class ScriptInstance 
 	{
 	public:
-		ScriptInstance(Coral::Type& type, Entity entity);
+		ScriptInstance(const Coral::Type& type, const UUID& id);
 		~ScriptInstance();
 
 		template<typename TValue>

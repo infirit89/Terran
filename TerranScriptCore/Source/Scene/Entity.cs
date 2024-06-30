@@ -6,12 +6,12 @@ namespace Terran
 {
     public class Entity
     {
-        public UUID ID
+        internal UUID Handle
         {
-            get => m_ID;
+            get => m_Handle;
         }
 
-        private UUID m_ID;
+        private UUID m_Handle;
 
         public string Name
         {
@@ -22,12 +22,12 @@ namespace Terran
 
         public Entity()
         {
-            m_ID = new UUID();
+            m_Handle = new UUID();
         }
 
         internal Entity(UUID id)
         {
-            m_ID = id;
+            m_Handle = id;
             //m_ID = new UUID(uuidData);
         }
 
@@ -49,7 +49,7 @@ namespace Terran
             unsafe
             {
                 if (entity != null)
-                    Internal.Entity_DestroyEntityICall(entity.ID);
+                    Internal.Entity_DestroyEntityICall(entity.Handle);
             }
         }
 
@@ -63,7 +63,7 @@ namespace Terran
 
             unsafe
             {
-                Internal.Entity_AddComponentICall(ID, typeof(T).GetHashCode());
+                Internal.Entity_AddComponentICall(Handle, typeof(T).GetHashCode());
             }
         }
 
@@ -91,7 +91,7 @@ namespace Terran
         {
             unsafe
             {
-                return Internal.Entity_HasComponentICall(in m_ID, typeof(T).GetHashCode());
+                return Internal.Entity_HasComponentICall(in m_Handle, typeof(T).GetHashCode());
             }
         }
 
@@ -107,7 +107,7 @@ namespace Terran
 
                 unsafe
                 {
-                    Internal.Entity_RemoveComponentICall(ID, typeof(T).GetHashCode());
+                    Internal.Entity_RemoveComponentICall(Handle, typeof(T).GetHashCode());
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace Terran
                 {
                     unsafe
                     {
-                        IntPtr handle = Internal.Entity_GetScriptableComponentICall(ID);
+                        IntPtr handle = Internal.Entity_GetScriptableComponentICall(Handle);
                         if (handle == IntPtr.Zero)
                             throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 
@@ -133,7 +133,7 @@ namespace Terran
                     }
                 }
 
-                T? component = (T?)Activator.CreateInstance(typeof(T), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { ID }, null);
+                T? component = (T?)Activator.CreateInstance(typeof(T), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { Handle }, null);
 
                 if (component == null)
                     throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
@@ -150,7 +150,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    return Internal.Entity_GetChildrenCountICall(ID);
+                    return Internal.Entity_GetChildrenCountICall(Handle);
                 }
             }
         }
@@ -162,7 +162,18 @@ namespace Terran
                 if (index < 0 || index >= ChildrenCount)
                     throw new ArgumentOutOfRangeException("Index is out of range");
 
-                return new Entity(Internal.Entity_GetChildICall(ID, index));
+                return new Entity(Internal.Entity_GetChildICall(Handle, index));
+            }
+        }
+
+        public Entity Parent 
+        {
+            get
+            {
+                unsafe 
+                {
+                    return new Entity(Internal.Entity_GetParentICall(Handle));
+                }
             }
         }
 

@@ -27,12 +27,12 @@ namespace TerranEngine
 		: m_Scene(scene) { }
 
 #define WRITE_SCRIPT_FIELD(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case ScriptFieldType::FieldType:\
 	out << YAML::Key << field.Name << YAML::Value << scriptInstance->GetFieldValue<Type>(fieldID);\
 	break
 
 #define WRITE_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case ScriptFieldType::FieldType:\
 	{\
 	Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
 	out << value;\
@@ -347,7 +347,7 @@ namespace TerranEngine
 	}
 
 #define READ_SCRIPT_FIELD(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case ScriptFieldType::FieldType:\
 	{\
 	Type value = scriptFieldNode.as<Type>();\
 	scriptInstance->SetFieldValue(fieldID, value);\
@@ -355,7 +355,7 @@ namespace TerranEngine
 	break
 
 #define READ_SCRIPT_FIELD_ARRAY_ELEMENT(FieldType, Type)\
-	case ScriptType::FieldType:\
+	case ScriptFieldType::FieldType:\
 	{\
 	Type value = scriptFieldNode[i].as<Type>();\
 	scriptInstance->SetFieldArrayValue(array, value, i);\

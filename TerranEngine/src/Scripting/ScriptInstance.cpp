@@ -11,11 +11,9 @@
 
 namespace TerranEngine 
 {
-	ScriptInstance::ScriptInstance(Coral::Type& type, Entity entity)
+	ScriptInstance::ScriptInstance(const Coral::Type& type, const UUID& id)
 	{
-		m_Context = type.CreateInstance(entity.GetID()).GetHandle();
-
-		std::vector<Coral::Attribute> attributes = type.GetAttributes();
+		m_Context = type.CreateInstance(id).GetHandle();
 
 		m_OnInitMethodHandle = type.GetMethod("Init").GetHandle();
 		m_OnUpdateMethodHandle = type.GetMethod<float>("Update").GetHandle();
@@ -173,23 +171,23 @@ namespace TerranEngine
 		Coral::ManagedObject object = m_Context;
 		switch (m_Fields.at(fieldHandle).Type)
 		{
-		case ScriptType::Int8: return object.GetFieldValueByHandle<int8_t>(fieldHandle);
-		case ScriptType::UInt8: return object.GetFieldValueByHandle<uint8_t>(fieldHandle);
-		case ScriptType::Int16: return object.GetFieldValueByHandle<int16_t>(fieldHandle);
-		case ScriptType::UInt16: return object.GetFieldValueByHandle<uint16_t>(fieldHandle);
-		case ScriptType::Int32: return object.GetFieldValueByHandle<int32_t>(fieldHandle);
-		case ScriptType::UInt32: return object.GetFieldValueByHandle<uint32_t>(fieldHandle);
-		case ScriptType::Int64: return object.GetFieldValueByHandle<int64_t>(fieldHandle);
-		case ScriptType::UInt64: return object.GetFieldValueByHandle<uint64_t>(fieldHandle);
-		case ScriptType::Float: return object.GetFieldValueByHandle<float>(fieldHandle);
-		case ScriptType::Double: return object.GetFieldValueByHandle<double>(fieldHandle);
-		case ScriptType::Bool: return object.GetFieldValueByHandle<bool>(fieldHandle);
-		case ScriptType::Char: return object.GetFieldValueByHandle<char>(fieldHandle);
-		case ScriptType::Vector2: return object.GetFieldValueByHandle<glm::vec2>(fieldHandle);
-		case ScriptType::Vector3: return object.GetFieldValueByHandle<glm::vec3>(fieldHandle);
-		case ScriptType::Color: return object.GetFieldValueByHandle<glm::vec4>(fieldHandle);
-		case ScriptType::String: return GetFieldValue<std::string>(fieldHandle);
-		case ScriptType::Entity: return GetFieldValue<UUID>(fieldHandle);
+		case ScriptFieldType::Int8: return object.GetFieldValueByHandle<int8_t>(fieldHandle);
+		case ScriptFieldType::UInt8: return object.GetFieldValueByHandle<uint8_t>(fieldHandle);
+		case ScriptFieldType::Int16: return object.GetFieldValueByHandle<int16_t>(fieldHandle);
+		case ScriptFieldType::UInt16: return object.GetFieldValueByHandle<uint16_t>(fieldHandle);
+		case ScriptFieldType::Int32: return object.GetFieldValueByHandle<int32_t>(fieldHandle);
+		case ScriptFieldType::UInt32: return object.GetFieldValueByHandle<uint32_t>(fieldHandle);
+		case ScriptFieldType::Int64: return object.GetFieldValueByHandle<int64_t>(fieldHandle);
+		case ScriptFieldType::UInt64: return object.GetFieldValueByHandle<uint64_t>(fieldHandle);
+		case ScriptFieldType::Float: return object.GetFieldValueByHandle<float>(fieldHandle);
+		case ScriptFieldType::Double: return object.GetFieldValueByHandle<double>(fieldHandle);
+		case ScriptFieldType::Bool: return object.GetFieldValueByHandle<bool>(fieldHandle);
+		case ScriptFieldType::Char: return object.GetFieldValueByHandle<char>(fieldHandle);
+		case ScriptFieldType::Vector2: return object.GetFieldValueByHandle<glm::vec2>(fieldHandle);
+		case ScriptFieldType::Vector3: return object.GetFieldValueByHandle<glm::vec3>(fieldHandle);
+		case ScriptFieldType::Color: return object.GetFieldValueByHandle<glm::vec4>(fieldHandle);
+		case ScriptFieldType::String: return GetFieldValue<std::string>(fieldHandle);
+		case ScriptFieldType::Entity: return GetFieldValue<UUID>(fieldHandle);
 		}
 
 		TR_ASSERT(false, "Unknown script field type");
@@ -273,23 +271,23 @@ namespace TerranEngine
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		switch (m_Fields.at(array.FieldHandle).Type)
 		{
-		case ScriptType::Int8:		return managedArray.GetValue<int8_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::UInt8:		return managedArray.GetValue<uint8_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Int16:		return managedArray.GetValue<int16_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::UInt16:	return managedArray.GetValue<uint16_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Int32:		return managedArray.GetValue<int32_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::UInt32:	return managedArray.GetValue<uint32_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Int64:		return managedArray.GetValue<int64_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::UInt64:	return managedArray.GetValue<uint64_t>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Float:		return managedArray.GetValue<float>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Double:	return managedArray.GetValue<double>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Bool:		return managedArray.GetValue<bool>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Char:		return managedArray.GetValue<char>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Vector2:	return managedArray.GetValue<glm::vec2>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Vector3:	return managedArray.GetValue<glm::vec3>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Color:		return managedArray.GetValue<glm::vec4>(indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::String:	return GetFieldArrayValue<std::string>(array, indices, static_cast<int32_t>(indicesSize));
-		case ScriptType::Entity:	return GetFieldArrayValue<UUID>(array, indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Int8:		return managedArray.GetValue<int8_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::UInt8:		return managedArray.GetValue<uint8_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Int16:		return managedArray.GetValue<int16_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::UInt16:	return managedArray.GetValue<uint16_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Int32:		return managedArray.GetValue<int32_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::UInt32:	return managedArray.GetValue<uint32_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Int64:		return managedArray.GetValue<int64_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::UInt64:	return managedArray.GetValue<uint64_t>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Float:		return managedArray.GetValue<float>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Double:	return managedArray.GetValue<double>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Bool:		return managedArray.GetValue<bool>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Char:		return managedArray.GetValue<char>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Vector2:	return managedArray.GetValue<glm::vec2>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Vector3:	return managedArray.GetValue<glm::vec3>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Color:		return managedArray.GetValue<glm::vec4>(indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::String:	return GetFieldArrayValue<std::string>(array, indices, static_cast<int32_t>(indicesSize));
+		case ScriptFieldType::Entity:	return GetFieldArrayValue<UUID>(array, indices, static_cast<int32_t>(indicesSize));
 		}
 
 		TR_ASSERT(false, "Unknown script field type");
