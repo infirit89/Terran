@@ -279,9 +279,9 @@ namespace TerranEngine
 			auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 
 			BEGIN_COMPONENT_MAP("Rigidbody2DComponent");
-			WRITE_COMPONENT_PROPERY("BodyType", PhysicsBodyTypeToString(rigidbodyComponent.BodyType));
+			WRITE_COMPONENT_PROPERY("BodyType", PhysicsBodyTypeToString(rigidbodyComponent.BodyType).data());
 			WRITE_COMPONENT_PROPERY("FixedRotation", rigidbodyComponent.FixedRotation);
-			WRITE_COMPONENT_PROPERY("SleepState", PhysicsBodySleepStateToString(rigidbodyComponent.SleepState));
+			WRITE_COMPONENT_PROPERY("SleepState", PhysicsBodySleepStateToString(rigidbodyComponent.SleepState).data());
 			WRITE_COMPONENT_PROPERY("GravityScale", rigidbodyComponent.GravityScale);
 			WRITE_COMPONENT_PROPERY("Material", rigidbodyComponent.PhysicsMaterialHandle);
 			END_COMPONENT_MAP();

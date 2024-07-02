@@ -24,7 +24,7 @@ namespace TerranEngine
 
         static uint16_t GetLayerCategory(int index) { return 1 << index; }
 
-        static std::vector<const char*> GetLayerNames();
+        static std::vector<std::string_view> GetLayerNames();
         static std::string& GetLayerName(int index);
         
         static bool CanLayersCollide(int layer1, int layer2);

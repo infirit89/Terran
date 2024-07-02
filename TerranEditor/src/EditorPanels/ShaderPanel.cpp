@@ -19,12 +19,27 @@ namespace TerranEditor
 
 		ImGui::Begin(GetName().data(), &m_Open);
 
+		auto button = [](const std::string& label, std::string_view buttonLabel) -> bool 
+		{
+			ImGui::PushID(label.c_str());
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text(label.c_str());
+
+			ImGui::TableSetColumnIndex(1);
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			bool changed = ImGui::Button(buttonLabel.data());
+			ImGui::PopID();
+
+			return changed;
+		};
+
 		if (UI::BeginPropertyGroup("shaders")) 
 		{
 			for (const auto& [shaderName, shader] : ShaderLibrary::GetShaders()) 
 			{
 				ImGui::TableNextRow();
-				if (UI::Button(shaderName, "Reload"))
+				if (button(shaderName, "Reload"))
 					ShaderCompiler::Recompile(shader);
 			}
 			UI::EndPropertyGroup();

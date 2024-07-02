@@ -193,18 +193,15 @@ namespace TerranEditor
 				{
 					ImGui::TableNextRow();
 					constexpr size_t textureFilterNamesSize = 2;
-					const char* textureFilterNames[textureFilterNamesSize] = 
+					std::string_view textureFilterNames[textureFilterNamesSize] = 
 					{ 
 						"Linear",
 						"Nearest"
 					};
 
 					TextureFilter filter = texture->GetTextureParameters().Filter;
-					if (UI::PropertyDropdown("Filter", textureFilterNames, 
-											textureFilterNamesSize, filter)) 
-					{
+					if (UI::PropertyDropdown("Filter", textureFilterNames, filter))
 						texture->SetTextureFilter(filter);
-					}
 				}
 			});
 		});
@@ -316,8 +313,8 @@ namespace TerranEditor
 		{
 			bool isScenePlaying = EditorLayer::GetInstace()->GetSceneState() == SceneState::Play;
 
-			const char* bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
-			const char* sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
+			std::string_view bodyTypeNames[] = { "Static", "Dynamic", "Kinematic" };
+			std::string_view sleepStateNames[] = { "Sleep", "Awake", "Never Sleep" };
 
 			Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
 
@@ -326,7 +323,7 @@ namespace TerranEditor
 			UI::BeginPropertyGroup("rigidbody_properties");
 			// rigidbody body type selection
 			ImGui::TableNextRow();
-			if (UI::PropertyDropdown("Body Type", bodyTypeNames, 3, rbComponent.BodyType) &&
+			if (UI::PropertyDropdown("Body Type", bodyTypeNames, rbComponent.BodyType) &&
 				isScenePlaying)
 				physicsBody->SetBodyType(rbComponent.BodyType);
 
@@ -344,10 +341,10 @@ namespace TerranEditor
 
 			ImGui::TableNextRow();
 			// rigidbody awake state selection 
-			UI::PropertyDropdown("Sleep State", sleepStateNames, 3, rbComponent.SleepState);
+			UI::PropertyDropdown("Sleep State", sleepStateNames, rbComponent.SleepState);
 
 			// rigidbody layer selection
-			std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+			std::vector<std::string_view> layerNames = PhysicsLayerManager::GetLayerNames();
 			ImGui::TableNextRow();
 			UI::PropertyDropdown("Layer", layerNames.data(), layerNames.size(), rbComponent.LayerIndex);
 
@@ -377,7 +374,7 @@ namespace TerranEditor
 						UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
 
 						int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
-						ImGui::Text(sleepStateNames[sleepStateNamesIndex]);
+						ImGui::Text(sleepStateNames[sleepStateNamesIndex].data());
 					}
 
 					{

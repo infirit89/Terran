@@ -595,14 +595,14 @@ namespace TerranEditor
 		return modified;
 	}
 
-	void UI::Tooltip(const char* text)
+	void UI::Tooltip(std::string_view text)
 	{
 		ImGui::TextDisabled("(?)");
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
 		{
 			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-			ImGui::TextUnformatted(text);
+			ImGui::TextUnformatted(text.data());
 			ImGui::PopTextWrapPos();
 			ImGui::EndTooltip();
 		}
@@ -718,13 +718,13 @@ namespace TerranEditor
 		ImGui::EndTable();
 	}
 
-	bool UI::BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags)
+	bool UI::BeginPopupContextWindow(std::string_view name, ImGuiPopupFlags popupFlags)
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = g.CurrentWindow;
-		if (!name)
+		if (!name.data())
 			name = "window_context";
-		ImGuiID id = window->GetID(name);
+		ImGuiID id = window->GetID(name.data());
 		int mouse_button = (popupFlags & ImGuiPopupFlags_MouseButtonMask_);
 		if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
 			if (!(popupFlags& ImGuiPopupFlags_NoOpenOverItems) || !ImGui::IsAnyItemHovered())
@@ -737,13 +737,13 @@ namespace TerranEditor
 		return ImGui::BeginPopupEx(id, popupWindowFlags);
 	}
 
-	bool UI::BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags)
+	bool UI::BeginPopupContextItem(std::string_view name, ImGuiPopupFlags popupFlags)
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = g.CurrentWindow;
 		if (window->SkipItems)
 			return false;
-		ImGuiID id = name ? window->GetID(name) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+		ImGuiID id = name.data() ? window->GetID(name.data()) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
 		IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
 		int mouse_button = (popupFlags & ImGuiPopupFlags_MouseButtonMask_);
 		if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
@@ -783,13 +783,13 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::PropertyVec3(const std::string& label, glm::vec3& value)
+	bool UI::PropertyVec3(std::string_view label, glm::vec3& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 		const ImGuiIO io = ImGui::GetIO();
@@ -808,9 +808,9 @@ namespace TerranEditor
 			{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
 			});
 
-		auto drawControl = [&](const std::string& label, float& oValue)
+		auto drawControl = [&](std::string_view label, float& oValue)
 		{
-			ImGui::Button(label.c_str(), buttonSize);
+			ImGui::Button(label.data(), buttonSize);
 			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
 			{
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
@@ -819,7 +819,7 @@ namespace TerranEditor
 
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(inputItemWidth);
-			changed |= UI::DragScalar<float>(("##DR" + label).c_str(), &oValue, power, "%.2f");
+			changed |= UI::DragScalar<float>(fmt::format("##DR{0}", label).c_str(), &oValue, power, "%.2f");
 		};
 
 		drawControl("X", value.x);
@@ -834,13 +834,13 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::PropertyVec2(const std::string& label, glm::vec2& value)
+	bool UI::PropertyVec2(std::string_view label, glm::vec2& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -861,9 +861,9 @@ namespace TerranEditor
 			{ ImGuiCol_ButtonActive, { 0.0f, 0.0f, 0.0f, 0.0f } }
 		});
 
-		auto drawControl = [&](const std::string& label, float& oValue)
+		auto drawControl = [&](std::string_view label, float& oValue)
 		{
-			ImGui::Button(label.c_str(), buttonSize);
+			ImGui::Button(label.data(), buttonSize);
 			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
 			{
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
@@ -872,7 +872,7 @@ namespace TerranEditor
 
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(inputItemWidth);
-			changed |= UI::DragScalar<float>(("##DR" + label).c_str(), &oValue, power, "%.2f");
+			changed |= UI::DragScalar<float>(fmt::format("##DR{0}", label).c_str(), &oValue, power, "%.2f");
 		};
 
 		drawControl("X", value.x);
@@ -884,13 +884,13 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::PropertyEntity(const std::string& label, UUID& value, const Shared<Scene>& scene, float columnWidth)
+	bool UI::PropertyEntity(std::string_view label, UUID& value, const Shared<Scene>& scene, float columnWidth)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool modified = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -925,41 +925,41 @@ namespace TerranEditor
 		return modified;
 	}
 
-	bool UI::PropertyFloat(const std::string& label, float& value)
+	bool UI::PropertyFloat(std::string_view label, float& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		bool changed = UI::DragScalar<float>(("##DR" + label).c_str(), &value, power, "%.2f");
+		bool changed = UI::DragScalar<float>(fmt::format("##DR{0}", label).c_str(), &value, power, "%.2f");
 		ImGui::PopID();
 
 		return changed;
 	}
 
-	bool UI::PropertyInt(const std::string& label, int& value)
+	bool UI::PropertyInt(std::string_view label, int& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		bool changed = UI::DragScalar<int>(("##DR" + label).c_str(), &value, power, "%.2f");
+		bool changed = UI::DragScalar<int>(fmt::format("##DR{0}", label).c_str(), &value, power, "%.2f");
 		ImGui::PopID();
 
 		return changed;
 	}
 
-	bool UI::PropertyBool(const std::string& label, bool& value)
+	bool UI::PropertyBool(std::string_view label, bool& value)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -971,19 +971,19 @@ namespace TerranEditor
 	}
 
 	// TODO: support wide strings
-	bool UI::PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
+	bool UI::PropertyString(std::string_view label, std::string& value, ImGuiInputTextFlags flags, int maxBufSize, float columnWidth)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
 		char* buf = new char[maxBufSize];
 		memset(buf, 0, maxBufSize);
-		strcpy_s(buf, maxBufSize, value.c_str());
+		strcpy_s(buf, maxBufSize, value.data());
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		if (ImGui::InputText("##val", buf, maxBufSize, flags))
@@ -999,28 +999,13 @@ namespace TerranEditor
 	}
 
 	// TODO: support wide strings
-	bool UI::PropertyChar(const std::string& label, char& value)
+	bool UI::PropertyChar(std::string_view label, char& value)
 	{
 		std::string strVal; strVal += value;
 		bool changed = PropertyString(label, strVal, 0, 2);
 
 		if (strVal.empty()) return false;
 		value = strVal.at(0);
-
-		return changed;
-	}
-
-	bool UI::Button(const std::string& label, const char* buttonLabel)
-	{
-		ImGui::PushID(label.c_str());
-		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
-
-		ImGui::TableSetColumnIndex(1);
-
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		bool changed = ImGui::Button(buttonLabel);
-		ImGui::PopID();
 
 		return changed;
 	}
@@ -1232,7 +1217,7 @@ namespace TerranEditor
 	}
 
 #define DRAW_FIELD_PROPERTY(FieldType, Type, DrawFunc, ...)				\
-	case ScriptFieldType::FieldType:											\
+	case ScriptFieldType::FieldType:									\
 	{																	\
 		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,	\
 		[&__VA_ARGS__](const std::string& fieldName, auto& value)		\
@@ -1243,7 +1228,7 @@ namespace TerranEditor
 	break
 
 #define DRAW_FIELD_PROPERTY_SCALAR(FieldType, Type)						\
-	case ScriptFieldType::FieldType:											\
+	case ScriptFieldType::FieldType:									\
 	{																	\
 		DrawFieldValue<Type>(fieldHandle, field.Name, scriptInstance,	\
 		[](const std::string& fieldName, auto& value)					\
@@ -1558,7 +1543,7 @@ namespace TerranEditor
 		int32_t arrayLength = scriptInstance->GetFieldArrayLength(array);
 
 		std::string name = fmt::format("##{0}{1}", field.Name.c_str(), "array_size");
-		if (UI::DragScalar<int32_t>(name.c_str(), &arrayLength, 0.1f))
+		if (UI::DragScalar<int32_t>(name, &arrayLength, 0.1f))
 		{
 			// TODO: when array isn't initialized in c# code
 			/*if (array.Handle)

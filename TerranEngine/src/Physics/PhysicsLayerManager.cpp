@@ -10,10 +10,10 @@ namespace TerranEngine
         m_Layers[index].Name = layerName;
     }
 
-    std::vector<const char*> PhysicsLayerManager::GetLayerNames()
+    std::vector<std::string_view> PhysicsLayerManager::GetLayerNames()
     {
         // TODO: maybe cache?
-        std::vector<const char*> layerNames;
+        std::vector<std::string_view> layerNames;
 
         for (int i = 0; i < s_MaxLayerCount; i++)
         {

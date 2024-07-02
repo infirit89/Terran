@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace TerranEngine 
@@ -12,7 +12,7 @@ namespace TerranEngine
 		Kinematic
 	};
 
-	std::string PhysicsBodyTypeToString(PhysicsBodyType bodyType);
+	std::string_view PhysicsBodyTypeToString(PhysicsBodyType bodyType);
 	PhysicsBodyType PhysicsBodyTypeFromString(const std::string& bodyTypeString);
 
 	enum class PhysicsBodySleepState : uint8_t
@@ -22,7 +22,7 @@ namespace TerranEngine
 		NeverSleep
 	};
 
-	std::string PhysicsBodySleepStateToString(PhysicsBodySleepState sleepState);
+	std::string_view PhysicsBodySleepStateToString(PhysicsBodySleepState sleepState);
 	PhysicsBodySleepState PhysicsBodySleepStateFromString(const std::string& sleepStateString);
 
 	enum class ForceMode2D : uint8_t

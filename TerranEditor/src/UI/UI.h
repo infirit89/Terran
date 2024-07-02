@@ -131,7 +131,7 @@ namespace TerranEditor::UI
 
 	bool SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width = 200.0f);
 
-	void Tooltip(const char* text);
+	void Tooltip(std::string_view text);
 
 	bool BeginPropertyGroup(std::string_view propertyGroupName);
 	void EndPropertyGroup();
@@ -147,8 +147,8 @@ namespace TerranEditor::UI
 		EndPropertyGroup();
 	}
 
-	bool BeginPopupContextWindow(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
-	bool BeginPopupContextItem(const char* name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
+	bool BeginPopupContextWindow(std::string_view name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
+	bool BeginPopupContextItem(std::string_view name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
 
 	inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
 	{
@@ -165,20 +165,19 @@ namespace TerranEditor::UI
 	};
 
 	bool PropertyColor(std::string_view label, glm::vec4& value);
-	bool PropertyVec3(const std::string& label, glm::vec3& value);
-	bool PropertyVec2(const std::string& label, glm::vec2& value);
-	bool PropertyEntity(const std::string& label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
+	bool PropertyVec3(std::string_view label, glm::vec3& value);
+	bool PropertyVec2(std::string_view label, glm::vec2& value);
+	bool PropertyEntity(std::string_view label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
 	void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, int32_t fieldHandle, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance);
 	bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptArray& array, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance);
-	bool PropertyFloat(const std::string& label, float& value);
-	bool PropertyInt(const std::string& label, int& value);
-	bool PropertyBool(const std::string& label, bool& value);
-	bool PropertyString(const std::string& label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
-	bool PropertyChar(const std::string& label, char& value);
-	bool Button(const std::string& label, const char* buttonLabel);
-
+	bool PropertyFloat(std::string_view label, float& value);
+	bool PropertyInt(std::string_view label, int& value);
+	bool PropertyBool(std::string_view label, bool& value);
+	bool PropertyString(std::string_view label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+	bool PropertyChar(std::string_view label, char& value);
+	
 	template<typename T>
-	bool DragScalar(const char* label, T* value, float power = 0.1f, const char* format = nullptr, ImGuiSliderFlags flags = 0)
+	bool DragScalar(std::string_view label, T* value, float power = 0.1f, std::string_view format = nullptr, ImGuiSliderFlags flags = 0)
 	{
 		TR_ASSERT(ImGuiDataTypeMap.find(typeid(T)) != ImGuiDataTypeMap.end(), "Invalid data type");
 
@@ -197,11 +196,7 @@ namespace TerranEditor::UI
 
 		bool modified = false;
 				
-		modified = ImGui::DragScalar(label, dataType, value, power, nullptr, nullptr, format, flags);
-
-		/*if (ImGui::IsItemHovered())
-			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);*/
-
+		modified = ImGui::DragScalar(label.data(), dataType, value, power, nullptr, nullptr, format.data(), flags);
 		return modified;
 	}
 
@@ -228,32 +223,32 @@ namespace TerranEditor::UI
 	bool TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags);
 
 	template<typename TEnum>
-	bool PropertyDropdown(const std::string& label, const char** stateNames, size_t stateCount, TEnum& selected)
+	bool PropertyDropdown(const std::string& label, std::string_view* stateNames, size_t stateCount, TEnum& selected)
 	{
 		ImGui::PushID(label.c_str());
 		bool changed = false;
-		const char* currentState = stateNames[(int32_t)selected];
-	
+		std::string_view currentState = stateNames[(int32_t)selected];
+
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text(label.c_str());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if (ImGui::BeginCombo("##ComboBox", currentState))
+		if (ImGui::BeginCombo("##ComboBox", currentState.data()))
 		{
 			for (size_t i = 0; i < stateCount; i++)
 			{
-                if(strlen(stateNames[i]) == 0) continue;
+				if (stateNames[i].size() == 0) continue;
 
-				const bool is_selected = (int)selected == i;
-				if (ImGui::Selectable(stateNames[i], is_selected))
+				const bool isSelected = (int)selected == i;
+				if (ImGui::Selectable(stateNames[i].data(), isSelected))
 				{
 					selected = (TEnum)i;
 					changed = true;
 				}
 
-				if (is_selected)
+				if (isSelected)
 					ImGui::SetItemDefaultFocus();
 			}
 
@@ -263,6 +258,12 @@ namespace TerranEditor::UI
 		ImGui::PopID();
 
 		return changed;
+	}
+
+	template<typename TEnum, size_t TStateCount>
+	bool PropertyDropdown(const std::string& label, std::string_view (&stateNames)[TStateCount], TEnum& selected) 
+	{
+		return PropertyDropdown(label, stateNames, TStateCount, selected);
 	}
 
 	template<typename TAsset>

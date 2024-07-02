@@ -3,7 +3,7 @@
 
 namespace TerranEngine 
 {
-	std::string PhysicsBodyTypeToString(PhysicsBodyType bodyType)
+	std::string_view PhysicsBodyTypeToString(PhysicsBodyType bodyType)
 	{
 		switch (bodyType)
 		{
@@ -26,7 +26,7 @@ namespace TerranEngine
 		return PhysicsBodyType::Static;
 	}
 
-	std::string PhysicsBodySleepStateToString(PhysicsBodySleepState sleepState)
+	std::string_view PhysicsBodySleepStateToString(PhysicsBodySleepState sleepState)
 	{
 		switch (sleepState)
 		{

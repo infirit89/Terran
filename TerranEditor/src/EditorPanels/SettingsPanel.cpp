@@ -58,7 +58,7 @@ namespace TerranEditor
         settings.VelocityIterations = std::max(settings.VelocityIterations, 1);
 
         ImGui::TableNextColumn();
-        std::vector<const char*> layerNames = PhysicsLayerManager::GetLayerNames();
+        std::vector<std::string_view> layerNames = PhysicsLayerManager::GetLayerNames();
         serializeSettings |= UI::PropertyDropdown("Layer", layerNames.data(), layerNames.size(), m_LayerIndex);
         UI::EndPropertyGroup();
 
@@ -66,7 +66,7 @@ namespace TerranEditor
             ImGui::BeginTable("##LayerCollisionSelection", 1);
             for (int row = 0; row < layerNames.size(); row++)
             {
-                if (strlen(layerNames[row]) == 0) continue;
+                if (layerNames[row].size() == 0) continue;
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
@@ -75,7 +75,7 @@ namespace TerranEditor
 
                 bool canLayersCollide = PhysicsLayerManager::CanLayersCollide(m_LayerIndex, row);
 
-                if (UI::PropertyBool(layerNames[row], canLayersCollide)) 
+                if (UI::PropertyBool(layerNames[row].data(), canLayersCollide))
                 {
                     PhysicsLayerManager::SetLayerMask(m_LayerIndex, row, canLayersCollide);
                     serializeSettings |= true;
