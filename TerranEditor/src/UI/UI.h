@@ -33,7 +33,7 @@ namespace TerranEditor::UI
 			uint32_t ItemCount = 1;
 		};
 
-		ScopedVarTable(const std::string& name, TableInfo tableInfo);
+		ScopedVarTable(std::string_view name, TableInfo tableInfo);
 		~ScopedVarTable();
 
 	private:
@@ -129,7 +129,7 @@ namespace TerranEditor::UI
 
 	void Image(const TerranEngine::Shared<TerranEngine::Texture>& texture, const glm::vec2& size, const glm::vec2& uv0 = { 0, 1 }, const glm::vec2& uv1 = { 1, 0 }, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
 
-	bool SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width = 200.0f);
+	bool SearchInput(ImGuiTextFilter& filter, std::string_view hint, float width = 200.0f);
 
 	void Tooltip(std::string_view text);
 
@@ -201,17 +201,17 @@ namespace TerranEditor::UI
 	}
 
 	template<typename T>
-	bool PropertyScalar(const std::string& label, T& value, float power = 0.1f)
+	bool PropertyScalar(std::string_view label, T& value, float power = 0.1f)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		bool changed = UI::DragScalar<T>(("##DR" + label).c_str(), &value, power, "%.2f");
+		bool changed = UI::DragScalar<T>(fmt::format("##DR{0}", label).c_str(), &value, power, "%.2f");
 
 		ImGui::PopID();
 
@@ -219,18 +219,18 @@ namespace TerranEditor::UI
 	}
 
 	// this mostly same as imgui's but with some minor tweaks
-	bool TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end);
-	bool TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags);
+	bool TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, std::string_view label, std::string_view label_end);
+	bool TreeNodeEx(std::string_view label, ImGuiTreeNodeFlags flags);
 
 	template<typename TEnum>
-	bool PropertyDropdown(const std::string& label, std::string_view* stateNames, size_t stateCount, TEnum& selected)
+	bool PropertyDropdown(std::string_view label, std::string_view* stateNames, size_t stateCount, TEnum& selected)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 		std::string_view currentState = stateNames[(int32_t)selected];
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -261,19 +261,19 @@ namespace TerranEditor::UI
 	}
 
 	template<typename TEnum, size_t TStateCount>
-	bool PropertyDropdown(const std::string& label, std::string_view (&stateNames)[TStateCount], TEnum& selected) 
+	bool PropertyDropdown(std::string_view label, std::string_view (&stateNames)[TStateCount], TEnum& selected) 
 	{
 		return PropertyDropdown(label, stateNames, TStateCount, selected);
 	}
 
 	template<typename TAsset>
-	bool PropertyAssetField(const std::string& label, TerranEngine::AssetType type, TerranEngine::UUID& outHandle)
+	bool PropertyAssetField(std::string_view label, TerranEngine::AssetType type, TerranEngine::UUID& outHandle)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 			
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.c_str());
+		ImGui::Text(label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -309,5 +309,11 @@ namespace TerranEditor::UI
 		return changed;
 	}
 
-	bool PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements);
+	template<size_t TStateCount>
+	bool PropertyDropdownMultipleSelect(std::string_view label, std::string_view(&stateNames)[TStateCount], bool* selectedElements) 
+	{
+		return PropertyDropdownMultipleSelect(label, stateNames, TStateCount, selectedElements);
+	}
+
+	bool PropertyDropdownMultipleSelect(std::string_view label, std::string_view* stateNames, size_t stateCount, bool* selectedElements);
 }

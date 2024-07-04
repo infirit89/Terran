@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "Events/ScriptEngineEvent.h"
+#include "Events/SceneEvent.h"
 
 #include "UI/UI.h"
 #include "EditorConsoleSink.h"
@@ -72,14 +73,6 @@ namespace TerranEditor
 
 		Font::DefaultFont = CreateShared<Font>("Resources/Fonts/Roboto/Roboto-Regular.ttf");
 
-		m_EditorScene = SceneManager::CreateEmpyScene();
-		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
-		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
-
-		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
-		
-		SceneManager::SetCurrentScene(m_EditorScene);
-
 		AssetImporter::RegisterLoaders();
 
 		// ***** Panel Setup *****
@@ -87,13 +80,12 @@ namespace TerranEditor
 		m_PanelManager->AddPanel<LogPanel>(LOG_PANEL_NAME);
 		m_PanelManager->AddPanel<PropertiesPanel>(PROPERTIES_PANEL_NAME);
 		Shared<ContentPanel> contentBrowserPanel = m_PanelManager->AddPanel<ContentPanel>(CONTENT_PANEL_NAME);
-		contentBrowserPanel->SetOnItemClickCallback(std::bind_front(&EditorLayer::OnContentBrowserItemClicked, this));
+		contentBrowserPanel->SetOnItemClickCallback(TR_EVENT_BIND_FN(EditorLayer::OnContentBrowserItemClicked));
 		Shared<SceneViewPanel> sceneViewPanel = m_PanelManager->AddPanel<SceneViewPanel>(SCENE_VIEW_PANEL_NAME);
-		sceneViewPanel->SetOpenSceneCallback([this](const AssetInfo& sceneAssetInfo, const glm::vec2& sceneViewport) { OpenScene(sceneAssetInfo, sceneViewport); });
+		sceneViewPanel->SetOpenSceneCallback(TR_EVENT_BIND_FN(EditorLayer::OpenSceneFromAssetPath));
 		sceneViewPanel->SetViewportSizeChangedCallback(TR_EVENT_BIND_FN(EditorLayer::OnViewportSizeChanged));
 		m_PanelManager->AddPanel<SceneHierarchyPanel>(SCENE_HIERARCHY_PANEL_NAME);
 		m_PanelManager->AddPanel<ECSPanel>(ECS_PANEL_NAME);
-		m_PanelManager->SetScene(SceneManager::GetCurrentScene());
 		Shared<SettingsPanel> settingsPanel = m_PanelManager->AddPanel<SettingsPanel>(SETTINGS_PANEL_NAME);
 		settingsPanel->SetOpen(false);
 
@@ -129,7 +121,14 @@ namespace TerranEditor
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
 
-		SceneManager::SetOnSceneTransition(std::bind_front(&EditorLayer::OnSceneTransition, this));
+		m_EditorScene = SceneManager::CreateEmpyScene();
+		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
+		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
+
+		cameraComponent.Camera.SetViewport(m_ViewportSize.x, m_ViewportSize.y);
+
+		SceneManager::SetCurrentScene(m_EditorScene);
+
 	}
 
 	void EditorLayer::OnDettach()
@@ -215,6 +214,7 @@ namespace TerranEditor
 		dispatcher.Dispatch<GamepadConnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadConnectedEvent));
 		dispatcher.Dispatch<GamepadDisconnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadDisconnectedEvent));
 		dispatcher.Dispatch<ScriptEngineLogEvent>(TR_EVENT_BIND_FN(EditorLayer::OnScriptEngineLog));
+		dispatcher.Dispatch<SceneTransitionEvent>(TR_EVENT_BIND_FN(EditorLayer::OnSceneTransition));
 	}
 	
 	bool EditorLayer::OnKeyPressedEvent(KeyPressedEvent& kEvent)
@@ -471,10 +471,12 @@ namespace TerranEditor
 
 	}
 
-	void EditorLayer::OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene)
+	bool EditorLayer::OnSceneTransition(SceneTransitionEvent& sceneTransitionEvent)
 	{
-		m_PanelManager->SetScene(newScene);
-		newScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+		m_PanelManager->SetScene(sceneTransitionEvent.GetNewScene());
+		sceneTransitionEvent.GetNewScene()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+		return false;
 	}
 
 	void EditorLayer::OnContentBrowserItemClicked(const Shared<ContentBrowserItem>& item)
@@ -485,7 +487,7 @@ namespace TerranEditor
 		const AssetInfo& assetInfo = AssetManager::GetAssetInfo(item->GetHandle());
 		if (assetInfo.Type == AssetType::Scene) 
 		{
-			OpenScene(assetInfo, m_ViewportSize);
+			OpenSceneFromAssetPath(assetInfo, m_ViewportSize);
 			return;
 		}
 
@@ -591,7 +593,7 @@ namespace TerranEditor
 	{
 		std::filesystem::path scenePath = FileSystem::OpenFileDialog(SceneSerializer::SceneFilter);
 		AssetInfo assetInfo = AssetManager::GetAssetInfo(scenePath);
-		OpenScene(assetInfo, m_ViewportSize);
+		OpenSceneFromAssetPath(assetInfo, m_ViewportSize);
 	}
 
 	static bool IsValidAssetPath(const std::filesystem::path& path)
@@ -608,7 +610,7 @@ namespace TerranEditor
 		return false;    
 	}
 
-	void EditorLayer::OpenScene(const AssetInfo& sceneAssetInfo, const glm::vec2& viewportSize)
+	void EditorLayer::OpenSceneFromAssetPath(const AssetInfo& sceneAssetInfo, const glm::vec2& viewportSize)
 	{
 		if (sceneAssetInfo.Type != AssetType::Scene)
 		{

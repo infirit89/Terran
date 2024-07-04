@@ -43,7 +43,7 @@ namespace TerranEditor
 		void NewScene();
 
 		void OpenScene();
-		void OpenScene(const AssetInfo& assetInfo, const glm::vec2& viewportSize);
+		void OpenSceneFromAssetPath(const AssetInfo& assetInfo, const glm::vec2& viewportSize);
 		
 		void SaveScene();
 
@@ -55,7 +55,7 @@ namespace TerranEditor
 		bool OnScriptEngineLog(ScriptEngineLogEvent& event);
 
 		void OnViewportSizeChanged(glm::vec2 newViewportSize);
-		void OnSceneTransition(const Shared<Scene>& oldScene, const Shared<Scene>& newScene);
+		bool OnSceneTransition(SceneTransitionEvent& sceneTransitionEvent);
 		void OnContentBrowserItemClicked(const Shared<ContentBrowserItem>& item);
 
 	private:

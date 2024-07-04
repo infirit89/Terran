@@ -1,16 +1,14 @@
 #include "trpch.h"
 #include "SceneManager.h"
 
+#include "Core/Application.h"
+
+#include "Events/SceneEvent.h"
+
 namespace TerranEngine 
 {
     Shared<Scene> SceneManager::s_CurrentScene;
     std::unordered_map<UUID, Shared<Scene>> SceneManager::s_ActiveScenes;
-    SceneManager::OnSceneTransitionFn SceneManager::s_SceneTransitionFn;
-    
-    void SceneManager::SetOnSceneTransition(const OnSceneTransitionFn& sceneTransitionFn)
-    {
-        s_SceneTransitionFn = sceneTransitionFn;
-    }
 
     Shared<Scene> SceneManager::CreateEmpyScene()
     {
@@ -37,14 +35,14 @@ namespace TerranEngine
         return nullptr;
     }
 
-    void SceneManager::SetCurrentScene(const Shared<Scene>& newScene)
+    void SceneManager::SetCurrentScene(Shared<Scene> newScene)
     {
         UUID id({ 0 });
         if(s_CurrentScene)
             id = s_CurrentScene->GetHandle();
 
-        if (s_SceneTransitionFn)
-            s_SceneTransitionFn(s_CurrentScene, newScene);
+        SceneTransitionEvent sceneTransitionEvent(s_CurrentScene, newScene);
+        Application::Get()->DispatchEvent(sceneTransitionEvent);
 
         s_CurrentScene = newScene;
         s_ActiveScenes[newScene->GetHandle()] = newScene;

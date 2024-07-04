@@ -12,6 +12,7 @@
 
 /* ---- Events ---- */
 #include "Events/ScriptEngineEvent.h"
+#include "Events/SceneEvent.h"
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"

@@ -72,9 +72,9 @@ namespace TerranEditor
 		return layerMask;
 	}
 
-	bool UI::PropertyDropdownMultipleSelect(const std::string& label, const char** stateNames, size_t stateCount, bool* selectedElements)
+	bool UI::PropertyDropdownMultipleSelect(std::string_view label, std::string_view* stateNames, size_t stateCount, bool* selectedElements)
 	{
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(label.data());
 		bool changed = false;
 
 		uint32_t selectedCount = 0;
@@ -92,21 +92,21 @@ namespace TerranEditor
 		const char* currentState = "Nothing";
 
 		if (selectedCount == 1)
-			currentState = stateNames[lastSelectedIndex];
+			currentState = stateNames[lastSelectedIndex].data();
 		else if(selectedCount > 1)
 			currentState = "Mixed";
 
 		UI::ScopedVarTable::TableInfo tableInfo;
 		UI::ScopedVarTable comboBoxTable(label, tableInfo);
 
-		std::string comboHash = "##" + label;
+		std::string comboHash = fmt::format("##{0}", label);
 		if (ImGui::BeginCombo(comboHash.c_str(), currentState))
 		{
 			for (size_t i = 0; i < stateCount; i++)
 			{
-				if (strlen(stateNames[i]) == 0) continue;
+				if (stateNames[i].size() == 0) continue;
 
-				if (ImGui::Selectable(stateNames[i], selectedElements[i], ImGuiSelectableFlags_DontClosePopups))
+				if (ImGui::Selectable(stateNames[i].data(), selectedElements[i], ImGuiSelectableFlags_DontClosePopups))
 				{
 					selectedElements[i] = !(selectedElements[i]);
 					changed = true;
@@ -121,19 +121,19 @@ namespace TerranEditor
 		return changed;
 	}
 
-	UI::ScopedVarTable::ScopedVarTable(const std::string& name, TableInfo tableInfo)
+	UI::ScopedVarTable::ScopedVarTable(std::string_view name, TableInfo tableInfo)
 		: m_TableInfo(tableInfo)
 	{
 		// NOTE: this is a very fucking bad
 		char tableID[256];
 
 		tableID[0] = '#';
-		strcpy_s(tableID + 1, sizeof(tableID) - 1, name.c_str());
-		tableID[strlen(name.c_str()) + 1] = '\0';
+		strcpy_s(tableID + 1, sizeof(tableID) - 1, name.data());
+		tableID[strlen(name.data()) + 1] = '\0';
 
 		ImGui::Columns(tableInfo.ColumnCount, tableID, tableInfo.Border);
 		ImGui::SetColumnWidth(0, tableInfo.FirstColumnWidth);
-		ImGui::Text(name.c_str());
+		ImGui::Text(name.data());
 		ImGui::NextColumn();
 
 		if (tableInfo.ItemCount > 1)
@@ -510,7 +510,7 @@ namespace TerranEditor
 					{ color.r, color.g, color.b, color.a });
 	}
 
-	bool UI::SearchInput(ImGuiTextFilter& filter, const std::string& hint, float width)
+	bool UI::SearchInput(ImGuiTextFilter& filter, std::string_view hint, float width)
 	{
 		UI::PushID();
 		const float frameBorderSize = ImGui::GetStyle().FrameBorderSize;
@@ -559,7 +559,7 @@ namespace TerranEditor
 
 			UI::ScopedFont defaultFont("Roboto-Regular");
 			UI::ShiftCursorX(-1.0f);
-			ImGui::TextUnformatted(hint.c_str());
+			ImGui::TextUnformatted(hint.data());
 			UI::ShiftCursorX(1.0f);
 		}
 		else 
@@ -1010,7 +1010,7 @@ namespace TerranEditor
 		return changed;
 	}
 
-	bool UI::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end)
+	bool UI::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, std::string_view label, std::string_view label_end)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -1021,9 +1021,9 @@ namespace TerranEditor
 		const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
 		const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding)) ? style.FramePadding : ImVec2(style.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, style.FramePadding.y));
 
-		if (!label_end)
-			label_end = ImGui::FindRenderedTextEnd(label);
-		const ImVec2 label_size = ImGui::CalcTextSize(label, label_end, false);
+		if (label_end == "")
+			label_end = ImGui::FindRenderedTextEnd(label.data());
+		const ImVec2 label_size = ImGui::CalcTextSize(label.data(), label_end.data(), false);
 
 		// We vertically grow up to current line height up the typical widget height.
 		const float frame_height = ImMax(ImMin(window->DC.CurrLineSize.y, g.FontSize + style.FramePadding.y * 2), label_size.y + padding.y * 2);
@@ -1171,7 +1171,7 @@ namespace TerranEditor
 
 			if (g.LogEnabled)
 				ImGui::LogSetNextTextDecoration("###", "###");
-			ImGui::RenderTextClipped(text_pos, frame_bb.Max, label, label_end, &label_size);
+			ImGui::RenderTextClipped(text_pos, frame_bb.Max, label.data(), label_end.data(), &label_size);
 		}
 		else
 		{
@@ -1188,7 +1188,7 @@ namespace TerranEditor
 				ImGui::RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y + g.FontSize * 0.15f), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 0.70f);
 			if (g.LogEnabled)
 				ImGui::LogSetNextTextDecoration(">", NULL);
-			ImGui::RenderText(text_pos, label, label_end, false);
+			ImGui::RenderText(text_pos, label.data(), label_end.data(), false);
 		}
 
 		if (is_open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
@@ -1197,13 +1197,13 @@ namespace TerranEditor
 		return is_open;
 	}
 
-	bool UI::TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags)
+	bool UI::TreeNodeEx(std::string_view label, ImGuiTreeNodeFlags flags)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
 			return false;
 
-		return TreeNodeBehavior(window->GetID(label), flags, label, NULL);
+		return TreeNodeBehavior(window->GetID(label.data()), flags, label, "");
 	}
 
 	template<typename T>
@@ -1496,28 +1496,28 @@ namespace TerranEditor
 
 	//}
 
-#define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)					\
-	case ScriptFieldType::FieldType:											\
-	{																	\
-		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
-		if(UI::PropertyScalar<Type>(elementName, value))				\
-		{																\
-			scriptInstance->SetFieldArrayValue(array, value, i);		\
-			hasChanged = false;											\
-		}																\
-	}																	\
+#define DRAW_FIELD_ARRAY_VALUE_SCALAR(FieldType, Type)						\
+	case ScriptFieldType::FieldType:										\
+	{																		\
+		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);	\
+		if(UI::PropertyScalar<Type>(elementName, value))					\
+		{																	\
+			scriptInstance->SetFieldArrayValue(array, value, i);			\
+			hasChanged = false;												\
+		}																	\
+	}																		\
 	break
 
-#define DRAW_FIELD_ARRAY_VALUE(FieldType, Type, DrawFunc, ...)			\
-	case ScriptFieldType::FieldType:											\
-	{																	\
-		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);\
-		if(DrawFunc(elementName, value, __VA_ARGS__))					\
-		{																\
-			scriptInstance->SetFieldArrayValue(array, value, i);		\
-			hasChanged = false;											\
-		}																\
-	}																	\
+#define DRAW_FIELD_ARRAY_VALUE(FieldType, Type, DrawFunc, ...)				\
+	case ScriptFieldType::FieldType:										\
+	{																		\
+		Type value = scriptInstance->GetFieldArrayValue<Type>(array, i);	\
+		if(DrawFunc(elementName, value, __VA_ARGS__))						\
+		{																	\
+			scriptInstance->SetFieldArrayValue(array, value, i);			\
+			hasChanged = false;												\
+		}																	\
+	}																		\
 	break
 
 	bool UI::PropertyScriptArrayField(const Shared<Scene>& scene, ScriptArray& array, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance)

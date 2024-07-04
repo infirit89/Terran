@@ -12,6 +12,7 @@ namespace TerranEngine
 		MouseButtonPressed, MouseButtonReleased,
 		WindowClosed, WindowResized, WindowContentScaleChanged,
 		GamepadConnected, GamepadDisconnected,
+		SceneTransitionEvent,
 		CustomEvent
 	};
 

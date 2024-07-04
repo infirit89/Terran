@@ -376,7 +376,7 @@ namespace TerranEditor
 								0;
 
 		std::string id = fmt::format("##{0}", parent->Path.stem().string());
-		opened = UI::TreeNodeEx(id.c_str(), nodeFlags);
+		opened = UI::TreeNodeEx(id, nodeFlags);
 
 		ImGui::SameLine();
 		ImGui::BeginGroup();
