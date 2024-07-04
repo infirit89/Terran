@@ -1,3 +1,4 @@
+require "vendor/premake-vscode"
 --require "extensions/vscode"
 require "dependecies"
 
