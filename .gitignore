@@ -37,7 +37,7 @@
 #.vs
 .vs
 
-#output folder and obj output foler
+# Output folder and obj output foler
 bin/
 bin-int/
 Intermidiates/
@@ -47,21 +47,21 @@ net8.0/
 # Visual Studio Solution
 *.sln
 
-#Visual Studio Project files
+# Visual Studio Project files
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
 *.csproj
 *.csproj.user
 
-#Terran
+# Terran
 *.log
 premake/
 
 # Mono
 mono/
 
-#Python
+# Python
 __pycache__
 
 # Jetbrains IDEs
@@ -73,13 +73,16 @@ compile_commands.json
 .vim/
 *.plist
 
-#Shaderc
+# Shaderc
 shaderc/
 
 # Cached Shaders
 *.cached
 
-#VSCode
+# VSCode
 .vscode/
 *.code-workspace
 Tasks/
+
+# Terran Editor
+TerranEditor/Resources/Scripts/
