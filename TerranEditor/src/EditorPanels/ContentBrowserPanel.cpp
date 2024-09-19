@@ -602,7 +602,7 @@ namespace TerranEditor
 
 		for (const auto& assetHandle : directory->Assets)
 		{
-			AssetInfo info = AssetManager::GetAssetInfo(assetHandle);
+			AssetInfo info = AssetManager::GetAssetInfoByHandle(assetHandle);
 			m_CurrentItems.AddAsset(info, EditorResources::FileTexture);
 		}
 
@@ -642,7 +642,7 @@ namespace TerranEditor
 					{
 						parentDirectory->Assets.push_back(assetHandle);
 						if (m_CurrentDirectory == parentDirectory)
-							m_CurrentItems.AddAsset(AssetManager::GetAssetInfo(assetHandle), EditorResources::FileTexture);
+							m_CurrentItems.AddAsset(AssetManager::GetAssetInfoByHandle(assetHandle), EditorResources::FileTexture);
 					}
 				}
 				break;
@@ -652,7 +652,7 @@ namespace TerranEditor
 				std::filesystem::path path = AssetManager::GetFileSystemPath(event.FileName);
 				Shared<DirectoryInfo> parentDirectory = GetDirectory(path.parent_path());
 
-				UUID assetHandle = AssetManager::GetAssetInfo(event.FileName).Handle;
+				UUID assetHandle = AssetManager::GetAssetInfoByPath(event.FileName).Handle;
 
 				if (assetHandle)
 				{
@@ -681,7 +681,7 @@ namespace TerranEditor
 				}
 				else 
 				{
-					UUID assetHandle = AssetManager::GetAssetID(event.OldFileName);
+					UUID assetHandle = AssetManager::GetAssetHandleFromPath(event.OldFileName);
 					auto it = m_CurrentItems.Find(assetHandle);
 					if (it != m_CurrentItems.end())
 						(*(it))->m_Name = event.FileName.stem().string();

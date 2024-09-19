@@ -279,7 +279,7 @@ namespace TerranEditor::UI
 
 		char buf[256];
 		memset(buf, 0, sizeof(buf));
-		TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfo(outHandle);
+		TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfoByHandle(outHandle);
 		std::string assetName = assetInfo.Path.stem().string();
 		strcpy_s(buf, sizeof(buf), assetName == "" ? "None" : assetName.c_str());
 
@@ -293,7 +293,7 @@ namespace TerranEditor::UI
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
 			{
 				TerranEngine::UUID assetHandle = TerranEngine::UUID::CreateFromRaw((uint8_t*)payload->Data);
-				TerranEngine::AssetInfo info = TerranEngine::AssetManager::GetAssetInfo(assetHandle);
+				TerranEngine::AssetInfo info = TerranEngine::AssetManager::GetAssetInfoByHandle(assetHandle);
 
 				if (info.Type == type)
 				{

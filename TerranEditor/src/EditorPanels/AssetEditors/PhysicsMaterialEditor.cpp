@@ -16,7 +16,7 @@ namespace TerranEditor
 		ImGui::Begin("Physics Material Editor", &m_Open);
 
 		bool changed = false;
-		Shared<PhysicsMaterial2D> material = AssetManager::GetAsset<PhysicsMaterial2D>(m_ID);
+		Shared<PhysicsMaterial2D> material = AssetManager::GetAssetByHandle<PhysicsMaterial2D>(m_ID);
 		if (material) 
 		{
 			UI::PropertyGroup("pm2d_properties", [material, &changed]()
@@ -31,7 +31,7 @@ namespace TerranEditor
 		}
 
 		if (changed)
-			AssetImporter::Save(AssetManager::GetAssetInfo(m_ID), material);
+			AssetImporter::Save(AssetManager::GetAssetInfoByHandle(m_ID), material);
 
 		ImGui::End();
 	}

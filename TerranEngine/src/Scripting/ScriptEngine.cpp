@@ -276,12 +276,12 @@ namespace TerranEngine
 		ADD_TERRAN_TYPE(Entity);
 	}
 
-	inline Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity entity)
+	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity entity)
 	{
 		return GetScriptInstance(entity.GetSceneId(), entity.GetID());
 	}
 
-	inline Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID)
+	Shared<ScriptInstance> ScriptEngine::GetScriptInstance(const UUID& sceneID, const UUID& entityID)
 	{
 		try 
 		{

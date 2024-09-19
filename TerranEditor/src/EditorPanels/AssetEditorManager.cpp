@@ -34,7 +34,7 @@ namespace TerranEditor
 		if (!assetHandle.IsValid())
 			return Result::INVALID_HANDLE;
 
-		AssetInfo assetInfo = AssetManager::GetAssetInfo(assetHandle);
+		AssetInfo assetInfo = AssetManager::GetAssetInfoByHandle(assetHandle);
 
 		if (s_Editors.find(assetInfo.Type) == s_Editors.end())
 			return Result::NOT_FOUND;

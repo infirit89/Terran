@@ -28,7 +28,7 @@ namespace TerranEngine
 	class Renderer
 	{
 	public:
-		static void Init();
+		static void Initialize();
 		static void Shutdown();
 
 		static void ExecuteCommands();

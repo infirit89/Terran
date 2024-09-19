@@ -14,6 +14,8 @@ namespace TerranEngine
 		Scene,
 		PhysicsMaterial2D
 	};
+	
+	typedef UUID AssetHandle;
 
 	struct AssetInfo 
 	{
@@ -26,7 +28,7 @@ namespace TerranEngine
 
 		std::filesystem::path Path = "";
 		AssetType Type = AssetType::None;
-		UUID Handle = UUID::Invalid();
+		AssetHandle Handle = AssetHandle::Invalid();
 	};
 
 	class Asset
@@ -34,14 +36,14 @@ namespace TerranEngine
 	public:
 		Asset() = default;
 		virtual ~Asset() = default;
-		Asset(const UUID& handle) : m_Handle(handle) {}
+		Asset(const AssetHandle& handle) : m_Handle(handle) {}
 
 		bool IsValid() { return m_Handle.IsValid(); }
-		const UUID& GetHandle() { return m_Handle; }
+		const AssetHandle& GetHandle() { return m_Handle; }
 		virtual AssetType GetType() const = 0;
 
 	protected:
-		UUID m_Handle;
+		AssetHandle m_Handle;
 		friend class AssetManager;
 	};
 

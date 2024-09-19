@@ -10,13 +10,13 @@
 
 namespace TerranEngine 
 {
-	std::unordered_map<UUID, Shared<Asset>> AssetManager::s_LoadedAssets;
-	std::map<UUID, AssetInfo> AssetManager::s_AssetsInfos;
+	std::unordered_map<AssetHandle, Shared<Asset>> AssetManager::s_LoadedAssets;
+	std::map<AssetHandle, AssetInfo> AssetManager::s_AssetsInfos;
 	AssetManager::AssetChangeCallbackFn AssetManager::s_ChangeCallback;
 
 	static AssetInfo s_EmptyAssetInfo;
 
-	void AssetManager::Init()
+	void AssetManager::Initialize()
 	{
 		FileSystem::SetFileSystemChangeCallback(OnFileSystemChanged);
 
@@ -33,7 +33,7 @@ namespace TerranEngine
 		TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 	}
 
-	AssetInfo& AssetManager::GetAssetInfo_Internal(const UUID& assetID)
+	AssetInfo& AssetManager::GetAssetInfoByHandle_Internal(const AssetHandle& assetID)
 	{
 		if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
 			return s_AssetsInfos.at(assetID);
@@ -46,7 +46,7 @@ namespace TerranEngine
 		return std::filesystem::relative(path, Project::GetAssetPath());
 	}
 
-	const AssetInfo& AssetManager::GetAssetInfo(UUID assetID) 
+	const AssetInfo& AssetManager::GetAssetInfoByHandle(AssetHandle assetID) 
 	{
 		if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
 			return s_AssetsInfos[assetID];
@@ -54,7 +54,7 @@ namespace TerranEngine
 		return s_EmptyAssetInfo;
 	}
 
-	const AssetInfo& AssetManager::GetAssetInfo(const std::filesystem::path& assetPath)
+	const AssetInfo& AssetManager::GetAssetInfoByPath(const std::filesystem::path& assetPath)
 	{
 		for (const auto& [id, assetInfo] : s_AssetsInfos)
 		{
@@ -65,33 +65,33 @@ namespace TerranEngine
 		return s_EmptyAssetInfo;
 	}
 
-	UUID AssetManager::ImportAsset(const std::filesystem::path& assetPath)
+	AssetHandle AssetManager::ImportAsset(const std::filesystem::path& assetPath)
 	{
 		std::filesystem::path path = GetRelativePath(assetPath);
-		UUID assetID = GetAssetID(path);
+		AssetHandle assetHandle = GetAssetHandleFromPath(path);
 
-		if (assetID)
-			return assetID;
+		if (assetHandle)
+			return assetHandle;
 
-		assetID = UUID();
+		assetHandle = AssetHandle();
 
-		if (assetPath.empty()) return UUID::Invalid();
+		if (assetPath.empty()) return AssetHandle::Invalid();
 
 		AssetType type = AssetType::None;
 
 		type = AssetUtility::GetAssetTypeFromFileExtenstion(assetPath.extension());
 		
 		if (type == AssetType::None)
-			return UUID::Invalid();
+			return AssetHandle::Invalid();
 
 		AssetInfo assetInfo;
 		assetInfo.Path = path;
 		assetInfo.Type = type;
-		assetInfo.Handle = assetID;
+		assetInfo.Handle = assetHandle;
 
-		s_AssetsInfos[assetID] = assetInfo;
+		s_AssetsInfos[assetHandle] = assetInfo;
 
-		return assetID;
+		return assetHandle;
 	}
 
 	void AssetManager::WriteAssetInfosToFile()
@@ -142,15 +142,15 @@ namespace TerranEngine
 				{
 					AssetInfo info;
 
-					UUID id = UUID::FromString(assetInfo["Asset"].as<std::string>());
+					AssetHandle assetHandle = AssetHandle::FromString(assetInfo["Asset"].as<std::string>());
 
 					info.Type = (AssetType)assetInfo["Type"].as<uint32_t>();
 					info.Path = assetInfo["Path"].as<std::string>();
-					info.Handle = id;
+					info.Handle = assetHandle;
 
 					if (!FileExists(info.Path) || info.Path.empty()) continue;
 
-					s_AssetsInfos[id] = info;
+					s_AssetsInfos[assetHandle] = info;
 
 				}
 			}
@@ -162,9 +162,9 @@ namespace TerranEngine
 		}
 	}
 
-	void AssetManager::ReloadAsset(UUID assetID) 
+	void AssetManager::ReloadAssetByHandle(AssetHandle assetID) 
 	{
-		const AssetInfo& info = GetAssetInfo(assetID);
+		const AssetInfo& info = GetAssetInfoByHandle(assetID);
 		if (s_LoadedAssets.find(assetID) == s_LoadedAssets.end()) 
 		{
 			TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
@@ -189,7 +189,7 @@ namespace TerranEngine
 			{
 			case FileAction::Removed: 
 			{
-				OnAssetRemoved(GetAssetID(e.FileName));
+				OnAssetRemoved(GetAssetHandleFromPath(e.FileName));
 				break;
 			}
 			case FileAction::Renamed: 
@@ -201,15 +201,15 @@ namespace TerranEngine
 					(oldType != AssetType::None && newType != AssetType::None && newType != oldType))
 					ImportAsset(e.FileName);
 				else
-					OnAssetRenamed(GetAssetID(e.OldFileName), e.FileName);
+					OnAssetRenamed(GetAssetHandleFromPath(e.OldFileName), e.FileName);
 				break;
 			}
 			case FileAction::Modified: 
 			{
-				AssetInfo info = GetAssetInfo(e.FileName);
+				AssetInfo info = GetAssetInfoByPath(e.FileName);
 
 				if(info)
-					ReloadAsset(info.Handle);
+					ReloadAssetByHandle(info.Handle);
 
 				break;
 			}
@@ -217,7 +217,7 @@ namespace TerranEngine
 		}
 	}
 
-	UUID AssetManager::GetAssetID(const std::filesystem::path& assetPath)
+	AssetHandle AssetManager::GetAssetHandleFromPath(const std::filesystem::path& assetPath)
 	{
 		for (const auto& [assetID, assetInfo] : s_AssetsInfos)
 		{
@@ -225,7 +225,7 @@ namespace TerranEngine
 				return assetID;
 		}
 
-		return UUID::Invalid();
+		return AssetHandle::Invalid();
 	}
 
 	bool AssetManager::FileExists(const std::filesystem::path& path) 
@@ -238,7 +238,7 @@ namespace TerranEngine
 		return Project::GetAssetPath() / path;
 	}
 
-	void AssetManager::OnAssetRemoved(UUID assetID) 
+	void AssetManager::OnAssetRemoved(AssetHandle assetID)
 	{
 		if(s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
 			s_AssetsInfos.erase(assetID);
@@ -249,9 +249,9 @@ namespace TerranEngine
 		WriteAssetInfosToFile();
 	}
 
-	void AssetManager::OnAssetRenamed(UUID assetID, const std::filesystem::path& newFileName)
+	void AssetManager::OnAssetRenamed(AssetHandle assetID, const std::filesystem::path& newFileName)
 	{
-		AssetInfo& info = GetAssetInfo_Internal(assetID);
+		AssetInfo& info = GetAssetInfoByHandle_Internal(assetID);
 
 		if (info != s_EmptyAssetInfo)
 			info.Path = newFileName;

@@ -12,82 +12,85 @@
 
 namespace TerranEngine 
 {
-	struct NativeTexutreType
+	namespace 
 	{
-		uint32_t InternalFormat;
-		uint32_t DataFormat;
-	};
-
-	static NativeTexutreType GetNativeTextureType(TextureFormat type)
-	{
-		switch (type)
+		struct NativeTexutreType
 		{
-		case TextureFormat::Red:				return { GL_R8, GL_RED };
-		case TextureFormat::Red32I:				return { GL_R32I, GL_RED_INTEGER };
-		case TextureFormat::RGB:				return { GL_RGB8, GL_RGB };
-		case TextureFormat::RGBA:				return { GL_RGBA8, GL_RGBA };
-		case TextureFormat::Depth24Stencil8:	return { GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8 };
-		case TextureFormat::Grayscale:			return { GL_RG8, GL_RG };
-		default:
-			TR_CORE_WARN(TR_LOG_RENDERER, "The texture type isn't supported");
-			break;
+			uint32_t InternalFormat;
+			uint32_t DataFormat;
+		};
+
+		static NativeTexutreType GetNativeTextureType(TextureFormat type)
+		{
+			switch (type)
+			{
+			case TextureFormat::Red:				return { GL_R8, GL_RED };
+			case TextureFormat::Red32I:				return { GL_R32I, GL_RED_INTEGER };
+			case TextureFormat::RGB:				return { GL_RGB8, GL_RGB };
+			case TextureFormat::RGBA:				return { GL_RGBA8, GL_RGBA };
+			case TextureFormat::Depth24Stencil8:	return { GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8 };
+			case TextureFormat::Grayscale:			return { GL_RG8, GL_RG };
+			default:
+				TR_CORE_WARN(TR_LOG_RENDERER, "The texture type isn't supported");
+				break;
+			}
+
+			return { GL_RGBA8, GL_RGBA };
 		}
 
-		return { GL_RGBA8, GL_RGBA };
-	}
-
-	static uint32_t GetNativeTextureFilter(TextureFilter filter) 
-	{
-		uint32_t nativeFilter = GL_LINEAR;
-
-		switch (filter)
+		static uint32_t GetNativeTextureFilter(TextureFilter filter)
 		{
-		case TextureFilter::Linear:
-		case TextureFilter::Nearest:
-			nativeFilter = GL_LINEAR - (uint32_t)filter;
-			break;
-		default:
-			TR_CORE_WARN(TR_LOG_RENDERER, "The texture filter isn't supported");
-			break;
+			uint32_t nativeFilter = GL_LINEAR;
+
+			switch (filter)
+			{
+			case TextureFilter::Linear:
+			case TextureFilter::Nearest:
+				nativeFilter = GL_LINEAR - (uint32_t)filter;
+				break;
+			default:
+				TR_CORE_WARN(TR_LOG_RENDERER, "The texture filter isn't supported");
+				break;
+			}
+
+			return nativeFilter;
 		}
 
-		return nativeFilter;
-	}
-
-	const char* TextureFilterToString(TextureFilter filter)
-	{
-		switch (filter)
+		const char* TextureFilterToString(TextureFilter filter)
 		{
-		case TextureFilter::Linear:		return "Linear";
-		case TextureFilter::Nearest:	return "Nearest";
+			switch (filter)
+			{
+			case TextureFilter::Linear:		return "Linear";
+			case TextureFilter::Nearest:	return "Nearest";
+			}
+
+			TR_ASSERT(false, "Unknown texture filter");
+			return "";
+		}
+		TextureFilter TextureFilterFromString(const std::string& filterString)
+		{
+			if (filterString == "Linear")	return TextureFilter::Linear;
+			if (filterString == "Nearest")	return TextureFilter::Nearest;
+
+			TR_ASSERT(false, "Unknown texture filter");
+			return TextureFilter::Linear;
 		}
 
-		TR_ASSERT(false, "Unknown texture filter");
-		return "";
-	}
-	TextureFilter TextureFilterFromString(const std::string& filterString)
-	{
-		if (filterString == "Linear")	return TextureFilter::Linear;
-		if (filterString == "Nearest")	return TextureFilter::Nearest;
-
-		TR_ASSERT(false, "Unknown texture filter");
-		return TextureFilter::Linear;
-	}
-
-	static uint32_t GetNativeWrapMode(TextureWrapMode wrapMode) 
-	{
-		switch (wrapMode)
+		static uint32_t GetNativeWrapMode(TextureWrapMode wrapMode)
 		{
-		case TextureWrapMode::Repeat:			return GL_REPEAT;
-		case TextureWrapMode::Mirror:			return GL_MIRRORED_REPEAT;
-		case TextureWrapMode::MirrorOnce:		return GL_MIRROR_CLAMP_TO_EDGE;
-		case TextureWrapMode::ClampToEdge:		return GL_CLAMP_TO_EDGE;
-		default:
-			TR_CORE_WARN(TR_LOG_RENDERER, "The texture wrap mode isn't supported");
-			break;
-		}
+			switch (wrapMode)
+			{
+			case TextureWrapMode::Repeat:			return GL_REPEAT;
+			case TextureWrapMode::Mirror:			return GL_MIRRORED_REPEAT;
+			case TextureWrapMode::MirrorOnce:		return GL_MIRROR_CLAMP_TO_EDGE;
+			case TextureWrapMode::ClampToEdge:		return GL_CLAMP_TO_EDGE;
+			default:
+				TR_CORE_WARN(TR_LOG_RENDERER, "The texture wrap mode isn't supported");
+				break;
+			}
 
-		return { GL_CLAMP_TO_EDGE };
+			return { GL_CLAMP_TO_EDGE };
+		}
 	}
 
 	Texture2D::Texture2D(TextureParameters parameters, Buffer buffer)
@@ -122,11 +125,6 @@ namespace TerranEngine
 		});
 	}	 
 		 
-	//void Texture::Unbind() const
-	//{	 
-	//	glBindTexture(GL_TEXTURE_2D, 0);
-	//}	 
-
 	void Texture2D::SetData(const Buffer& data) 
 	{
 		m_LocalData = Buffer::Copy(data);

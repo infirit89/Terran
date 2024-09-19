@@ -10,17 +10,20 @@
 
 namespace TerranEngine 
 {
-	uint32_t GetNativeType(VertexBufferElementType type) 
+	namespace 
 	{
-		switch (type)
+		uint32_t GetNativeType(VertexBufferElementType type) 
 		{
-		case TerranEngine::VertexBufferElementType::Float: return GL_FLOAT;
-		case TerranEngine::VertexBufferElementType::Int: return GL_INT;
+			switch (type)
+			{
+			case TerranEngine::VertexBufferElementType::Float: return GL_FLOAT;
+			case TerranEngine::VertexBufferElementType::Int: return GL_INT;
+			}
+
+			TR_ASSERT(false, "Unrecognized vertex buffer element type");
+
+			return GL_FLOAT;
 		}
-
-		TR_ASSERT(false, "Unrecognized vertex buffer element type");
-
-		return GL_FLOAT;
 	}
 
 	VertexArray::VertexArray()

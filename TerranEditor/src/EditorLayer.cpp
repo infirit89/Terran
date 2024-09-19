@@ -161,7 +161,7 @@ namespace TerranEditor
 			}
 			case SceneState::Play:
 			{
-				const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfo(SceneManager::GetCurrentScene()->GetHandle());
+				const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfoByHandle(SceneManager::GetCurrentScene()->GetHandle());
 				SceneManager::GetCurrentScene()->Update(time);
 				SceneManager::GetCurrentScene()->OnRender(m_EditorSceneRenderer);
 
@@ -484,7 +484,7 @@ namespace TerranEditor
 		if (item->GetType() != ItemType::File)
 			return;
 
-		const AssetInfo& assetInfo = AssetManager::GetAssetInfo(item->GetHandle());
+		const AssetInfo& assetInfo = AssetManager::GetAssetInfoByHandle(item->GetHandle());
 		if (assetInfo.Type == AssetType::Scene) 
 		{
 			OpenSceneFromAssetPath(assetInfo, m_ViewportSize);
@@ -592,7 +592,7 @@ namespace TerranEditor
 	void EditorLayer::OpenScene()
 	{
 		std::filesystem::path scenePath = FileSystem::OpenFileDialog(SceneSerializer::SceneFilter);
-		AssetInfo assetInfo = AssetManager::GetAssetInfo(scenePath);
+		AssetInfo assetInfo = AssetManager::GetAssetInfoByPath(scenePath);
 		OpenSceneFromAssetPath(assetInfo, m_ViewportSize);
 	}
 
@@ -618,7 +618,7 @@ namespace TerranEditor
 			return;
 		}
 
-		Shared<Scene> loadedScene = AssetManager::GetAsset<Scene>(sceneAssetInfo);
+		Shared<Scene> loadedScene = AssetManager::GetAssetByAssetInfo<Scene>(sceneAssetInfo);
 		if (!loadedScene)
 			return;
 

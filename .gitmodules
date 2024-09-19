@@ -29,3 +29,6 @@
 [submodule "TerranEngine/vendor/Coral"]
 	path = TerranEngine/vendor/Coral
 	url = https://github.com/infirit89/Coral
+[submodule "vendor/premake-vscode"]
+	path = vendor/premake-vscode
+	url = https://github.com/peter1745/premake-vscode

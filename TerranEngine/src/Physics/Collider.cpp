@@ -25,6 +25,21 @@
 
 namespace TerranEngine 
 {
+	namespace 
+	{
+		static float s_DefaultDensity = 1.0f;
+		static float s_DefaultFriction = 0.5f;
+		static float s_DefaultRestitution = 0.0f;
+		static float s_DefaultRestitutionThreshold = 0.5f;
+
+		static void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2D>& material)
+		{
+			fixtureDef.density = material->Density;
+			fixtureDef.friction = material->Friction;
+			fixtureDef.restitution = material->Restitution;
+		}
+	}
+
 	/******************************
 	 * Base Values:               *
 	 * Density = 1.0              *
@@ -249,18 +264,6 @@ namespace TerranEngine
 
 	// ***********************
 
-	static float s_DefaultDensity = 1.0f;
-	static float s_DefaultFriction = 0.5f;
-	static float s_DefaultRestitution = 0.0f;
-	static float s_DefaultRestitutionThreshold = 0.5f;
-
-	static void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2D>& material) 
-	{
-		fixtureDef.density = material->Density;
-		fixtureDef.friction = material->Friction;
-		fixtureDef.restitution = material->Restitution;
-	}
-
 	// **** Box Collider ****
 	BoxCollider2D::BoxCollider2D(Entity entity) 
 		: Collider2D(ColliderType2D::Box)
@@ -270,7 +273,7 @@ namespace TerranEngine
 		BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
 		auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
 		// NOTE: maybe change in the future, cause this intagles the systems a bit
-		Shared<PhysicsMaterial2D> material = AssetManager::GetAsset<PhysicsMaterial2D>(rigidbodyComponent.PhysicsMaterialHandle);
+		Shared<PhysicsMaterial2D> material = AssetManager::GetAssetByHandle<PhysicsMaterial2D>(rigidbodyComponent.PhysicsMaterialHandle);
 
 		TransformComponent& transform = entity.GetTransform();
 

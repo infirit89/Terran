@@ -11,7 +11,7 @@ namespace TerranEngine
 {
 	RendererData* Renderer::s_RendererData;
 
-	void Renderer::Init()
+	void Renderer::Initialize()
 	{
 		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");

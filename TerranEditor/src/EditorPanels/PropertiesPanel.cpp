@@ -188,7 +188,7 @@ namespace TerranEditor
 				UI::PropertyAssetField<Texture2D>("Sprite", AssetType::Texture2D, component.TextureHandle);
 
 				Shared<Texture2D> texture = 
-								AssetManager::GetAsset<Texture2D>(component.TextureHandle);
+								AssetManager::GetAssetByHandle<Texture2D>(component.TextureHandle);
 				if (texture) 
 				{
 					ImGui::TableNextRow();

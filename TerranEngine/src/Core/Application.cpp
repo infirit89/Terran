@@ -35,12 +35,12 @@ namespace TerranEngine
 
 		m_Window = Window::Create(appData.Window);
 
-		Renderer::Init();
+		Renderer::Initialize();
 		BatchRenderer2D::Initialize(2000);
         
 		// TODO: this should NOT be initialized here; 
 		// it should be initialized on project load
-		AssetManager::Init();
+		AssetManager::Initialize();
         ScriptEngine::Initialize(appData.ScriptCorePath);
 		//ScriptingTest::Initialize();
         Physics2D::Initialize();

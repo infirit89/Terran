@@ -17,31 +17,31 @@ namespace TerranEngine
 	{
 		using AssetInfoMap = std::map<UUID, AssetInfo>;
 		using AssetChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;
+
 	public:
-		static void Init();
-		
+		static void Initialize();
 		static void Shutdown();
 
-		static const AssetInfo& GetAssetInfo(UUID assetID);
-		static const AssetInfo& GetAssetInfo(const std::filesystem::path& assetPath);
-		static UUID GetAssetID(const std::filesystem::path& assetPath);
+		static const AssetInfo& GetAssetInfoByHandle(AssetHandle assetHandle);
+		static const AssetInfo& GetAssetInfoByPath(const std::filesystem::path& assetPath);
+		static AssetHandle GetAssetHandleFromPath(const std::filesystem::path& assetPath);
 
 		static std::filesystem::path GetFileSystemPath(const std::filesystem::path& path);
 
 		static AssetInfoMap& GetAssetInfoMap() { return s_AssetsInfos; }
 
-		static UUID ImportAsset(const std::filesystem::path& assetPath);
-		static void ReloadAsset(UUID assetID);
+		static AssetHandle ImportAsset(const std::filesystem::path& assetPath);
+		static void ReloadAssetByHandle(AssetHandle assetHandle);
 
 		inline static void SetAssetChangedCallback(AssetChangeCallbackFn callback) { s_ChangeCallback = callback; }
 
 		template<typename T>
-		inline static Shared<T> GetAsset(const UUID& assetID) 
+		inline static Shared<T> GetAssetByHandle(const AssetHandle& assetHandle)
 		{
-			if (s_LoadedAssets.find(assetID) != s_LoadedAssets.end())
-				return DynamicCast<T>(s_LoadedAssets.at(assetID));
+			if (s_LoadedAssets.find(assetHandle) != s_LoadedAssets.end())
+				return DynamicCast<T>(s_LoadedAssets.at(assetHandle));
 
-			AssetInfo& info = GetAssetInfo_Internal(assetID);
+			AssetInfo& info = GetAssetInfoByHandle_Internal(assetHandle);
 
 			if (!info)
 				return nullptr;
@@ -56,13 +56,13 @@ namespace TerranEngine
 				return nullptr;
 			}
 
-			asset->m_Handle = assetID;
-			s_LoadedAssets[assetID] = asset;
-			return DynamicCast<T>(s_LoadedAssets[assetID]);
+			asset->m_Handle = assetHandle;
+			s_LoadedAssets[assetHandle] = asset;
+			return DynamicCast<T>(s_LoadedAssets[assetHandle]);
 		}
 
 		template<typename T>
-		inline static Shared<T> GetAsset(const AssetInfo& assetInfo) 
+		inline static Shared<T> GetAssetByAssetInfo(const AssetInfo& assetInfo) 
 		{
 			if (s_LoadedAssets.contains(assetInfo.Handle))
 				return DynamicCast<T>(s_LoadedAssets.at(assetInfo.Handle));
@@ -86,7 +86,7 @@ namespace TerranEngine
 		static Shared<T> CreateNewAsset(const std::filesystem::path& filePath) 
 		{
 			AssetInfo info;
-			info.Handle = UUID();
+			info.Handle = AssetHandle();
 			info.Path = filePath;
 			info.Type = T::GetStaticType();
 
@@ -98,7 +98,6 @@ namespace TerranEngine
 				info.Path = info.Path.string() +
 								" (" + std::to_string(currentFileNumber) + ")" +
 								filePath.extension().string();
-
 
 				currentFileNumber++;
 			}
@@ -116,7 +115,7 @@ namespace TerranEngine
 
 		
 		template <typename T>
-		static Shared<T> CreateMemoryAsset() 
+		static Shared<T> CreateMemoryAsset()
 		{
 			Shared<Asset> asset = CreateShared<T>();
 			s_LoadedAssets[asset->m_Handle] = asset;
@@ -131,13 +130,13 @@ namespace TerranEngine
 
 	private:
 		static void OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents);
-		static void OnAssetRemoved(UUID assetID);
-		static void OnAssetRenamed(UUID assetID, const std::filesystem::path& newFileName);
-		static AssetInfo& GetAssetInfo_Internal(const UUID& assetID);
+		static void OnAssetRemoved(AssetHandle assetID);
+		static void OnAssetRenamed(AssetHandle assetID, const std::filesystem::path& newFileName);
+		static AssetInfo& GetAssetInfoByHandle_Internal(const AssetHandle& assetID);
 		static std::filesystem::path GetRelativePath(const std::filesystem::path& path);
 
 	private:
-		static std::unordered_map<UUID, Shared<Asset>> s_LoadedAssets;
+		static std::unordered_map<AssetHandle, Shared<Asset>> s_LoadedAssets;
 		static AssetInfoMap s_AssetsInfos;
 		static AssetChangeCallbackFn s_ChangeCallback;
 	};

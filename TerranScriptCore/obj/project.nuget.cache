@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DGVhccaPvO95WgW839NPgJJ/sv74PR61YJi5KUeEk98mbUekBnu1STO91/mQhlhjWW4wgpDwWL7XM9bY3eDSjQ==",
+  "dgSpecHash": "tVUIwACylrT3YRAkbU80YlswilLKvQMSyojIMLPqn5ZGKJlBitZAgayuopuPBgB2/3ZIJWy7jzrhdIylP1sfoA==",
   "success": true,
-  "projectFilePath": "C:\\Projects\\terran\\terran-dev\\TerranScriptCore\\TerranScriptCore.csproj",
+  "projectFilePath": "D:\\Projects\\github\\terran\\terran-dev\\TerranScriptCore\\TerranScriptCore.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

@@ -703,8 +703,8 @@ namespace TerranEngine
 
 	bool ScriptBindings::SceneManager_LoadSceneICall(Coral::String scenePath)
 	{
-		const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfo(std::string(std::string(scenePath) + ".terran"));
-		Shared<Scene> loadedScene = AssetManager::GetAsset<Scene>(sceneAssetInfo);
+		const AssetInfo& sceneAssetInfo = AssetManager::GetAssetInfoByPath(std::string(std::string(scenePath) + ".terran"));
+		Shared<Scene> loadedScene = AssetManager::GetAssetByAssetInfo<Scene>(sceneAssetInfo);
 		if (!loadedScene)
 			return false;
 
