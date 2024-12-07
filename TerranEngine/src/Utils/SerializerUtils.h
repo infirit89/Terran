@@ -123,11 +123,11 @@ namespace YAML {
     struct convert<std::byte> {
         static Node encode(std::byte rhs) {
             Node node;
-            node.push_back((int)rhs);
+            node.push_back(static_cast<int>(rhs));
             return node;
         }
         static bool decode(const Node& node, std::byte& rhs) {
-            rhs = (std::byte)node.as<int32_t>();
+            rhs = static_cast<std::byte>(node.as<int32_t>());
             return true;
         }
     };

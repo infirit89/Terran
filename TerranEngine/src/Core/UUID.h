@@ -6,7 +6,7 @@
 
 namespace TerranEngine 
 {
-	class UUID 
+	class UUID
 	{
 	public:
 		UUID();
@@ -14,33 +14,33 @@ namespace TerranEngine
 		UUID(const UUID& other) = default;
 		static UUID Invalid() { return s_Empty; }
 
-		const inline std::array<uint8_t, 16> GetData() const { return m_Data; }
-		inline std::array<uint8_t, 16> GetData() { return m_Data; }
+		std::array<uint8_t, 16> GetData() const { return m_Data; }
+		std::array<uint8_t, 16> GetData() { return m_Data; }
 
-		inline void SetData(const std::array<uint8_t, 16>& idArray) { m_Data = idArray; }
+		void SetData(const std::array<uint8_t, 16>& idArray) { m_Data = idArray; }
 
-		const inline uint8_t* GetRaw() const { return m_Data.data(); }
-		static UUID CreateFromRaw(uint8_t* data);
+		const uint8_t* GetRaw() const { return m_Data.data(); }
+		static UUID CreateFromRaw(const uint8_t* data);
 		
-		const inline bool operator==(const UUID& other) const	{ return m_Data == other.m_Data; }
-		inline bool operator==(const UUID& other)				{ return m_Data == other.m_Data; }
+		bool operator==(const UUID& other) const	{ return m_Data == other.m_Data; }
+		bool operator==(const UUID& other)			{ return m_Data == other.m_Data; }
 
-		const inline bool operator!=(const UUID& other) const	{ return !(m_Data == other.m_Data); }
-		inline bool operator!=(const UUID& other)				{ return !(m_Data == other.m_Data); }
+		bool operator!=(const UUID& other) const	{ return m_Data != other.m_Data; }
+		bool operator!=(const UUID& other)			{ return m_Data != other.m_Data; }
 
-		const inline bool operator<(const UUID& other) const	{ return m_Data < other.m_Data; }
-		inline bool operator<(const UUID& other)				{ return m_Data < other.m_Data; }
+		bool operator<(const UUID& other) const	{ return m_Data < other.m_Data; }
+		bool operator<(const UUID& other)		{ return m_Data < other.m_Data; }
 
-		const inline bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
-		inline bool operator>(const UUID& other)				{ return m_Data > other.m_Data; }
+		bool operator>(const UUID& other) const	{ return m_Data > other.m_Data; }
+		bool operator>(const UUID& other)		{ return m_Data > other.m_Data; }
 		
-		inline operator bool() { return IsValid(); }
+		operator bool() const { return IsValid(); }
 
 		bool IsValid() const
 		{
 			std::array<uint8_t, 16> empty{ {0} };
 
-			return !(m_Data == empty);
+			return m_Data != empty;
 		}
 
 
@@ -78,7 +78,7 @@ namespace std
 	template<>
 	struct hash<TerranEngine::UUID> 
 	{
-		size_t operator()(const TerranEngine::UUID& uuid) const 
+		size_t operator()(const TerranEngine::UUID& uuid) const noexcept
 		{
 			std::hash<uint8_t> hash;
 

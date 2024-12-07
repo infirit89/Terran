@@ -5,8 +5,6 @@
 
 #include "Scripting/ScriptEngine.h"
 
-#include "Asset/AssetManager.h"
-
 #include "Utils/SerializerUtils.h"
 
 #include <yaml-cpp/yaml.h>
@@ -14,9 +12,6 @@
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
-
-#include <iostream>
-#include <cwchar>
 
 namespace TerranEngine 
 {
@@ -596,7 +591,7 @@ namespace TerranEngine
 		}
 	}
 
-	Result SceneSerializer::DesirializeEditor(const std::filesystem::path& scenePath)
+	Result SceneSerializer::DeserializeEditor(const std::filesystem::path& scenePath)
 	{
 		YAML::Node data;
 		try 

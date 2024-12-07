@@ -11,7 +11,7 @@
 
 namespace TerranEngine
 {
-	class Entity 
+	class Entity final
 	{
 	public:
 		Entity() = default;
@@ -22,7 +22,7 @@ namespace TerranEngine
 		~Entity() = default;
 
 		template<typename Component, typename... Args>
-		inline Component& AddComponent(Args&&... parameters)
+		Component& AddComponent(Args&&... parameters)
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
@@ -33,7 +33,7 @@ namespace TerranEngine
 		}
 
 		template<typename Component, typename... Args>
-		inline Component& AddOrReplaceComponent(Args&&... parameters)
+		Component& AddOrReplaceComponent(Args&&... parameters)
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 			Component& component = m_Scene->m_Registry.emplace_or_replace<Component>(m_Handle, std::forward<Args>(parameters)...);
@@ -41,7 +41,7 @@ namespace TerranEngine
 		}
 
 		template<typename Component>
-		inline Component& GetComponent() const
+		Component& GetComponent() const
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
@@ -50,7 +50,7 @@ namespace TerranEngine
 		}
 
 		template<typename Component>
-		inline void RemoveComponent()
+		void RemoveComponent()
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
@@ -60,7 +60,7 @@ namespace TerranEngine
 		}
 
 		template<typename Component>
-		inline Component& TryGetComponent() 
+		Component& TryGetComponent() const
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
@@ -68,7 +68,7 @@ namespace TerranEngine
 		}
 		
 		template<typename Component>
-		inline bool HasComponent() const
+		bool HasComponent() const
 		{
 			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 			
@@ -78,33 +78,33 @@ namespace TerranEngine
 		// visit all the components of an entity
 		// the signiture of Func should be void(const entt::type_info)
 		template<typename Func>
-		inline void Visit(Entity entity, Func func)  const
+		void Visit(Entity entity, Func func)  const
 		{
 			m_Scene->m_Registry.visit(entity, std::forward<Func>(func));
 		}
 
 		// base stuffs
-		inline const UUID& GetID() const							{ return GetComponent<TagComponent>().ID; }
-		inline TransformComponent& GetTransform()					{ return GetComponent<TransformComponent>(); }
-		inline bool Valid() const									{ return m_Scene->m_Registry.valid(m_Handle); }
-		inline const std::string& GetName() const					{ return GetComponent<TagComponent>().Name; }
+		const UUID& GetID() const					{ return GetComponent<TagComponent>().ID; }
+		TransformComponent& GetTransform() const	{ return GetComponent<TransformComponent>(); }
+		bool Valid() const							{ return m_Scene->m_Registry.valid(m_Handle); }
+		const std::string& GetName() const			{ return GetComponent<TagComponent>().Name; }
 
 		// operators
-		inline operator entt::entity() const						{ return m_Handle; }
-		inline bool operator!=(const Entity& other) const			{ return !(*this == other); }
-		inline operator uint32_t() const							{ return uint32_t(m_Handle); }
-		inline operator bool() const								{ return m_Handle != entt::null; }
-		inline bool operator==(const Entity& other) const			{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
+		operator entt::entity() const				{ return m_Handle; }
+		bool operator!=(const Entity& other) const	{ return !(*this == other); }
+		operator uint32_t() const					{ return static_cast<uint32_t>(m_Handle); }
+		operator bool() const						{ return m_Handle != entt::null; }
+		bool operator==(const Entity& other) const	{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 
 		// relationship component stuffs
-		inline std::vector<UUID>& GetChildren()	const				{ return GetComponent<RelationshipComponent>().Children; }
-		inline size_t GetChildCount() const							{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
-		inline UUID GetParentID() const								{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : UUID::Invalid(); }
-		inline bool HasParent()										{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
+		std::vector<UUID>& GetChildren() const	{ return GetComponent<RelationshipComponent>().Children; }
+		size_t GetChildCount() const			{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
+		UUID GetParentID() const				{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : UUID::Invalid(); }
+		bool HasParent() const					{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
 
-		inline const UUID& GetSceneId() const						{ return m_Scene->GetHandle(); }
+		const UUID& GetSceneId() const	{ return m_Scene->GetHandle(); }
 
-		inline Entity GetChild(uint32_t index) const		
+		Entity GetChild(uint32_t index) const		
 		{ 
 			if (!HasComponent<RelationshipComponent>())
 				return { };
@@ -112,7 +112,7 @@ namespace TerranEngine
 			return m_Scene->FindEntityWithUUID(GetChildren()[index]); 
 		}
 
-		inline void SetParentID(const UUID& id) 
+		void SetParentID(const UUID& id) 
 		{
 			if (!HasComponent<RelationshipComponent>())
 				return;
@@ -121,7 +121,7 @@ namespace TerranEngine
 			relComp.Parent = id;
 		}
 
-		inline Entity GetParent() const 
+		Entity GetParent() const 
 		{
 			if (!HasComponent<RelationshipComponent>())
 				return {};
@@ -129,7 +129,7 @@ namespace TerranEngine
 			return m_Scene->FindEntityWithUUID(GetParentID());
 		}
 
-		bool IsChildOf(Entity entity)
+		bool IsChildOf(Entity entity) const
 		{
 			if (!HasComponent<RelationshipComponent>())
 				return false;
@@ -174,7 +174,7 @@ namespace TerranEngine
 
 			m_Scene->ConvertToWorldSpace(*this);
 
-			const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), GetID());
+			const auto& it = std::ranges::find(parent.GetChildren(), GetID());
 
 			if (it != parent.GetChildren().end())
 				parent.GetChildren().erase(it);
@@ -206,7 +206,7 @@ namespace TerranEngine
 			}
 		}*/
 
-		void RemoveChild(Entity child, bool removeRelationship) 
+		void RemoveChild(Entity child, bool removeRelationship)
 		{
 			child.Unparent();
 		}

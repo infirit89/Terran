@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Assert.h"
 #include "Core/Buffer.h"
 
 #include <memory>
@@ -15,7 +14,7 @@ namespace TerranEngine
 		Int
 	};
 
-	struct VertexBufferElement
+	struct VertexBufferElement final
 	{
 		VertexBufferElementType Type;
 		bool Normalised;
@@ -25,10 +24,10 @@ namespace TerranEngine
 		VertexBufferElement(VertexBufferElementType type, uint8_t count, bool normalised = false)
 			: Type(type), Normalised(normalised), Count(count), Offset(0) {}
 
-		uint8_t GetSize();
+		uint8_t GetSize() const;
 	};
 
-	class VertexBufferLayout
+	class VertexBufferLayout final
 	{
 	public:
 		VertexBufferLayout()
@@ -40,8 +39,8 @@ namespace TerranEngine
 			CalculateStrideAndOffset();
 		}
 
-		inline uint32_t GetStride() const { return m_Stride; }
-		inline std::vector<VertexBufferElement> GetElements() const { return m_Elements; }
+		uint32_t GetStride() const { return m_Stride; }
+		std::vector<VertexBufferElement> GetElements() const { return m_Elements; }
 	private:
 		void CalculateStrideAndOffset()
 		{
@@ -58,7 +57,7 @@ namespace TerranEngine
 		uint32_t m_Stride;
 	};
 
-	class VertexBuffer
+	class VertexBuffer final
 	{
 	public:
 		VertexBuffer()

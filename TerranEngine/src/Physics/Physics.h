@@ -7,14 +7,13 @@
 
 #include "Scene/Scene.h"
 
-#include "Asset/Asset.h"
 #include "PhysicsMaterial.h"
 
 class b2World;
 
 namespace TerranEngine 
 {
-    struct PhysicsSettings
+    struct PhysicsSettings final
     {
         glm::vec2 Gravity = { 0.0f, -9.81f };
         int32_t VelocityIterations = 6;
@@ -22,16 +21,16 @@ namespace TerranEngine
         float PhysicsTimestep = 0.02f;
     };
 
-	struct RayCastHitInfo2D 
+	struct RayCastHitInfo2D final
 	{
 		glm::vec2 Point = { 0.0f, 0.0f };
 		glm::vec2 Normal = { 0.0f, 0.0f };
 		Shared<PhysicsBody2D> PhysicsBody;
 
-		bool operator<(const RayCastHitInfo2D& other) { return glm::all(glm::lessThan(Point, other.Point)); }
+		bool operator <(const RayCastHitInfo2D& other) const { return glm::all(glm::lessThan(Point, other.Point)); }
 	};
 
-	class Physics2D
+	class Physics2D final
 	{
 	public:
 		static void Initialize();

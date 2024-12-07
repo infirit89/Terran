@@ -5,7 +5,6 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "UniformBuffer.h"
-#include "Framebuffer.h"
 #include "Renderer.h"
 #include "ShaderLibrary.h"
 
@@ -13,12 +12,11 @@
 
 #include "Utils/Debug/OptickProfiler.h"
 
-#include <glad/glad.h>
 #include <msdf-atlas-gen/msdf-atlas-gen.h>
 
 namespace TerranEngine 
 {
-	struct QuadVertex
+	struct QuadVertex final
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
@@ -27,7 +25,7 @@ namespace TerranEngine
 		int EntityID;
 	};
 
-	struct CircleVertex
+	struct CircleVertex final
 	{
 		glm::vec3 Position;
 		float Thickness;
@@ -36,7 +34,7 @@ namespace TerranEngine
 		int EntityID;
 	};
 
-	struct LineVertex
+	struct LineVertex final
 	{
 		glm::vec3 Position;
 		glm::vec3 PositionA;
@@ -46,13 +44,13 @@ namespace TerranEngine
 		int EntityID;
 	};
 
-	struct DebugLineVertex
+	struct DebugLineVertex final
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
 	};
 
-	struct TextVertex
+	struct TextVertex final
 	{
 		glm::vec3 Position;
 		int TextureIndex;
@@ -61,13 +59,13 @@ namespace TerranEngine
 		int EntityID;
 	};
 
-	struct CameraData
+	struct CameraData final
 	{
 		glm::mat4 Projection;
 		glm::mat4 View;
 	};
 
-	struct BatchRenderer2DData 
+	struct BatchRenderer2DData final
 	{
 		// ******** Base stuffs ********
 		static BatchRenderer2D* Instance;
@@ -76,7 +74,7 @@ namespace TerranEngine
 		glm::vec4 LineVertexPositions[4] = {};
 		uint32_t MaxVertices = 0, MaxIndices = 0;
 
-		static const uint32_t MaxTextureSlots = 16;
+		static constexpr uint32_t MaxTextureSlots = 16;
 		// *****************************
 
 		Shared<IndexBuffer>  IndexBuffer;
@@ -184,9 +182,9 @@ namespace TerranEngine
 		// ************************************
 
 
-		int samplers[16];
-		for (size_t i = 0; i < s_Data->MaxTextureSlots; i++)
-			samplers[i] = static_cast<int>(i);
+		/*int samplers[16];
+		for (size_t i = 0; i < TerranEngine::BatchRenderer2DData::MaxTextureSlots; i++)
+			samplers[i] = static_cast<int>(i);*/
 
 		// ******** Quad ******** 
 		{

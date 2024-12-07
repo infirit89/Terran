@@ -8,7 +8,7 @@
 
 namespace TerranEngine 
 {
-	class ShaderLibrary
+	class ShaderLibrary final
 	{
 	public:
 		static void Initialize();
@@ -16,7 +16,7 @@ namespace TerranEngine
 		static Shared<Shader> Load(const std::filesystem::path& shaderPath);
 		static Shared<Shader> Get(const std::string& name);
 
-		static const std::unordered_map<std::string, Shared<Shader>>& GetShaders() 
+		static const std::unordered_map<std::string, Shared<Shader>>& GetShaders()
 		{ return s_Shaders; }
 
 	private:

@@ -11,7 +11,6 @@
 #include "Scene/Components.h"
 #include "Scene/SceneManager.h"
 #include "Scene/Systems/SceneRenderer.h"
-#include "Scene/SceneSerializer.h"
 
 #include "Physics/Physics.h"
 #include "Physics/PhysicsBody.h"
@@ -24,11 +23,10 @@
 
 #include <glm/glm.hpp>
 
-#include <box2d/box2d.h>
-
+#include <Coral/Assembly.hpp>
 #include <Coral/Type.hpp>
 #include <Coral/TypeCache.hpp>
-#include <Coral/Array.hpp>
+#include <Coral/ManagedArray.hpp>
 
 #include <functional>
 
@@ -254,6 +252,7 @@ namespace TerranEngine
 		case 1 << 0: TR_CLIENT_TRACE(messageStr); break;
 		case 1 << 1: TR_CLIENT_WARN(messageStr); break;
 		case 1 << 2: TR_CLIENT_ERROR(messageStr); break;
+		default: ;
 		}
 	}
 

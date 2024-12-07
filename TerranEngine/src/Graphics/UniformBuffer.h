@@ -6,7 +6,7 @@
 
 namespace TerranEngine 
 {
-	class UniformBuffer 
+	class UniformBuffer final
 	{
 	public:
 		UniformBuffer(uint32_t bufferSize, uint32_t bindingPoint);

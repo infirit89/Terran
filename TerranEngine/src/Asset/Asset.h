@@ -22,9 +22,9 @@ namespace TerranEngine
 		AssetInfo() = default;
 		~AssetInfo() = default;
 
-		bool operator==(const AssetInfo& other) { return Path == other.Path && Type == other.Type; }
-		bool operator!=(const AssetInfo& other) { return !((*this) == other); }
-		operator bool() { return Path != "" && Type != AssetType::None; }
+		bool operator==(const AssetInfo& other) const { return Path == other.Path && Type == other.Type; }
+		bool operator!=(const AssetInfo& other) const { return !((*this) == other); }
+		operator bool() const { return Path != "" && Type != AssetType::None; }
 
 		std::filesystem::path Path = "";
 		AssetType Type = AssetType::None;
@@ -51,13 +51,13 @@ namespace TerranEngine
 	static AssetType GetStaticType() { return AssetType::type; }\
 	virtual AssetType GetType() const override { return GetStaticType(); }
 
-	class TextAsset : public Asset 
+	class TextAsset final : public Asset 
 	{
 	public:
 		TextAsset(const std::string& text) 
 			: m_Text(text)
 		{}
-		virtual ~TextAsset() override = default;
+		~TextAsset() override = default;
 
 		const std::string& GetText() { return m_Text; }
 

@@ -11,14 +11,15 @@ namespace TerranEngine
 	public:
 		KeyboardEvent(const Key keyCode)
 			: m_KeyCode(keyCode) {}
-		inline Key GetKeyCode() const { return m_KeyCode; }
+
+		Key GetKeyCode() const { return m_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard)
 	private: 
 		Key m_KeyCode;
 	};
 
-	class KeyPressedEvent : public KeyboardEvent 
+	class KeyPressedEvent final : public KeyboardEvent
 	{
 	public:
 		KeyPressedEvent(const Key keyCode, const uint8_t repeatCount)
@@ -26,13 +27,13 @@ namespace TerranEngine
 		{
 		}
 
-		inline uint8_t GetRepeatCount() const { return m_RepeatCount; }
+		uint8_t GetRepeatCount() const { return m_RepeatCount; }
 		EVENT_CLASS_TYPE(KeyPressed)
 	private:
 		uint8_t m_RepeatCount;
 	};
 
-	class KeyReleasedEvent : public KeyboardEvent 
+	class KeyReleasedEvent final : public KeyboardEvent
 	{
 	public:
 		KeyReleasedEvent(const Key keyCode)

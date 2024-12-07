@@ -6,7 +6,7 @@
 
 namespace TerranEngine {
 
-	class LayerStack 
+	class LayerStack final
 	{
 	public:
 		~LayerStack();
@@ -15,7 +15,7 @@ namespace TerranEngine {
 		void RemoveLayer(Layer* layer);
 		void RemoveAllLayers();
 
-		inline std::vector<Layer*>& GetLayers() { return m_Layers; }
+		std::vector<Layer*>& GetLayers() { return m_Layers; }
 	private:
 		std::vector<Layer*> m_Layers;
 		int m_LastInsertIndex = 0;

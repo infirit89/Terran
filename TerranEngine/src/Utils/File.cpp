@@ -5,7 +5,7 @@ namespace TerranEngine
 {
 	FileData* File::OpenFile(const char* filePath)
 	{
-		FileData* data = (FileData*)malloc(sizeof(FileData));
+		FileData* data = new FileData;
 
 		memset(data, 0, sizeof(data));
 		
@@ -23,7 +23,7 @@ namespace TerranEngine
 			if (data->Length != -1)
 			{
 				rewind(filePtr);
-				data->Data = (char*)malloc(sizeof(char) * (data->Length + 1));
+				data->Data = new char[data->Length + 1];
 
 				size_t result = fread(data->Data, 1, data->Length, filePtr);
 
@@ -32,7 +32,7 @@ namespace TerranEngine
 					TR_CORE_ERROR(TR_LOG_CORE, "Reading error");
 
 					fclose(filePtr);
-					free(data->Data);
+					delete[] data->Data;
 					data->Data = nullptr;
 				}
 
@@ -54,18 +54,18 @@ namespace TerranEngine
 		{
 			if (data->Data) 
 			{
-				free(data->Data);
+				delete[] data->Data;
 				data->Data = nullptr;
 			}
 
-			free(data);
+			delete data;
 			data = nullptr;
 		}
 	}
 
-	FileData* File::WriteToFile(const char* filePath, char* text)
+	FileData* File::WriteToFile(const char* filePath, const char* text)
 	{
-		FileData* data = (FileData*)malloc(sizeof(FileData));
+		FileData* data = new FileData;
 
 		FILE* filePtr;
 
@@ -73,7 +73,7 @@ namespace TerranEngine
 
 		fopen_s(&filePtr, filePath, "w+b");
 
-		if (filePtr) 
+		if (filePtr)
 		{
 			 size_t result = fwrite(text, sizeof(char), sizeof(text), filePtr);     // TODO: check if it has been written to the file correctly
 			 fclose(filePtr);
@@ -86,7 +86,7 @@ namespace TerranEngine
 
 	FileData* File::AppendToFile(const char* filePath, char* text)
 	{
-		FileData* data = (FileData*)malloc(sizeof(FileData));
+		FileData* data = new FileData;
 		
 		data->Index = 0;
 

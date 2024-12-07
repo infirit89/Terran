@@ -32,24 +32,24 @@ namespace Terran
 
         }
 
-        public static Color White => new Color(1.0f, 1.0f, 1.0f, 1.0f);
-        public static Color Black => new Color(0.0f, 0.0f, 0.0f, 1.0f);
+        public static Color White => new(1.0f, 1.0f, 1.0f, 1.0f);
+        public static Color Black => new(0.0f, 0.0f, 0.0f, 1.0f);
         
-        public static Color Red => new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        public static Color Green => new Color(0.0f, 1.0f, 0.0f, 1.0f);
-        public static Color Blue => new Color(0.0f, 0.0f, 1.0f, 1.0f);
+        public static Color Red => new(1.0f, 0.0f, 0.0f, 1.0f);
+        public static Color Green => new(0.0f, 1.0f, 0.0f, 1.0f);
+        public static Color Blue => new(0.0f, 0.0f, 1.0f, 1.0f);
         
-        public static Color Yellow => new Color(1.0f, 1.0f, 0.0f, 1.0f);
-        public static Color Magenta => new Color(1.0f, 0.0f, 1.0f, 1.0f);
-        public static Color Cyan => new Color(0.0f, 1.0f, 1.0f, 1.0f);
+        public static Color Yellow => new(1.0f, 1.0f, 0.0f, 1.0f);
+        public static Color Magenta => new(1.0f, 0.0f, 1.0f, 1.0f);
+        public static Color Cyan => new(0.0f, 1.0f, 1.0f, 1.0f);
 
-        public static Color Gray => new Color(0.5f, 0.5f, 0.5f, 1.0f);
-        public static Color Add(Color a, Color b) => new Color(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
-        public static Color Subtract(Color a, Color b) => new Color(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
-        public static Color Multiply(Color a, Color b) => new Color(a.R * b.R, a.G * b.G, a.B * b.B, a.A * b.A);
-        public static Color Multiply(Color a, float b) => new Color(a.R * b, a.G * b, a.B * b, a.A * b);
-        public static Color Divide(Color a, Color b) => new Color(a.R / b.R, a.G / b.G, a.B / b.B, a.A / b.A);
-        public static Color Divide(Color a, float b) => new Color(a.R / b, a.G / b, a.B / b, a.A / b);
+        public static Color Gray => new(0.5f, 0.5f, 0.5f, 1.0f);
+        public static Color Add(Color a, Color b) => new(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
+        public static Color Subtract(Color a, Color b) => new(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
+        public static Color Multiply(Color a, Color b) => new(a.R * b.R, a.G * b.G, a.B * b.B, a.A * b.A);
+        public static Color Multiply(Color a, float b) => new(a.R * b, a.G * b, a.B * b, a.A * b);
+        public static Color Divide(Color a, Color b) => new(a.R / b.R, a.G / b.G, a.B / b.B, a.A / b.A);
+        public static Color Divide(Color a, float b) => new(a.R / b, a.G / b, a.B / b, a.A / b);
         
         public static Color operator +(Color a, Color b) => Add(a, b);
         public static Color operator -(Color a, Color b) => Subtract(a, b);
@@ -75,7 +75,7 @@ namespace Terran
             return Equals((Color)obj);
         }
 
-        public override string ToString() => string.Format("R: {0}, G: {1}, B: {2}, A: {3}", R, G, B, A);
+        public override string ToString() => $"R: {R}, G: {G}, B: {B}, A: {A}";
 
         public override int GetHashCode()
         {

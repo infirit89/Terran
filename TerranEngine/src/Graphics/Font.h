@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
 namespace msdf_atlas 
 {
@@ -22,14 +21,14 @@ namespace msdfgen
 
 namespace TerranEngine 
 {
-	struct GlyphData 
+	struct GlyphData final
 	{
 		glm::vec2 UVs[4];
 		glm::vec4 VertexPositions[4];
 		float Advance;
 	};
 
-	class Font 
+	class Font final
 	{
 	public:
 		Font(const std::string& fontPath);
@@ -37,14 +36,14 @@ namespace TerranEngine
 
 		Shared<Texture2D> GetTexture() const { return m_Texture; }
 
-		GlyphData GetGlyphData(char c);
+		GlyphData GetGlyphData(char c) const;
 		const msdfgen::FontMetrics& GetMetrics() const;
 
-		double GetKerning(char c1, char c2);
-		std::string GetPath() { return m_Path; }
+		double GetKerning(char c1, char c2) const;
+		const std::string& GetPath() const { return m_Path; }
 
 		// gets the advance between two characters with kerning
-		double GetAdvance(char c1, char c2);
+		double GetAdvance(char c1, char c2) const;
 
 		static Shared<Font> DefaultFont;
 

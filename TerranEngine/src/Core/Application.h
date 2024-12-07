@@ -2,24 +2,20 @@
 
 #include "LayerStack.h"
 #include "Window.h"
-#include "Log.h"
 
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 
 #include "ImGui/ImGuiLayer.h"
 
-#include <string>
 #include <memory>
-#include <array>
 #include <filesystem>
-#include <queue>
 
 int main(int argc, char** argv);
 
 namespace TerranEngine {
 
-    struct ApplicationData
+    struct ApplicationData final
     {
         WindowData Window;
         std::filesystem::path ScriptCorePath;
@@ -35,13 +31,15 @@ namespace TerranEngine {
 		void Close();
 		void DispatchEvent(Event& event);
 		
-		inline static Application* Get() { return m_Instance; }
-		inline Window& GetWindow() { return *m_Window; }
-		inline ImGuiLayer& GetImGuiLayer() { return *m_ImGuiLayer; }
+		static Application* Get() { return m_Instance; }
+		Window& GetWindow() const { return *m_Window; }
+		ImGuiLayer& GetImGuiLayer() const { return *m_ImGuiLayer; }
+
 	private:
 		void Run();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+
 	private:
 		static Application* m_Instance;
 		LayerStack m_Stack;

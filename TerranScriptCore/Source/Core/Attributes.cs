@@ -9,13 +9,8 @@ namespace Terran
     }
 
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public sealed class SourceInfoAttribute : Attribute
+    public sealed class SourceInfoAttribute([CallerFilePath] string callerFilePath = "") : Attribute
     {
-        public SourceInfoAttribute([CallerFilePath] string callerFilePath = "")
-        {
-            CallerFilePath = callerFilePath;
-        }
-
-        internal string CallerFilePath;
+        internal string CallerFilePath = callerFilePath;
     }
 }

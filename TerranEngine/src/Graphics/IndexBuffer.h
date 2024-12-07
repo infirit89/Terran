@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Core/Assert.h"
 #include "Core/Buffer.h"
 
 #include <memory>
-#include <vector>
-#include <initializer_list>
 
 namespace TerranEngine 
 {
@@ -20,7 +17,7 @@ namespace TerranEngine
 
 		static Shared<IndexBuffer> Create(const int* indices, uint32_t size);
 
-		inline uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
+		uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 	private:
 		void Release();
 

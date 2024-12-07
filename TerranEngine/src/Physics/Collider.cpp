@@ -27,12 +27,12 @@ namespace TerranEngine
 {
 	namespace 
 	{
-		static float s_DefaultDensity = 1.0f;
-		static float s_DefaultFriction = 0.5f;
-		static float s_DefaultRestitution = 0.0f;
-		static float s_DefaultRestitutionThreshold = 0.5f;
+		float s_DefaultDensity = 1.0f;
+		float s_DefaultFriction = 0.5f;
+		float s_DefaultRestitution = 0.0f;
+		float s_DefaultRestitutionThreshold = 0.5f;
 
-		static void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2D>& material)
+		void SetFixtureDefMaterial(b2FixtureDef& fixtureDef, const Shared<PhysicsMaterial2D>& material)
 		{
 			fixtureDef.density = material->Density;
 			fixtureDef.friction = material->Friction;
@@ -57,7 +57,7 @@ namespace TerranEngine
 	}
 
 	Collider2D::Collider2D(ColliderType2D colliderType)
-		: Collider2D::Collider2D(colliderType, 1)
+		: Collider2D(colliderType, 1)
 	{ }
 
 	Collider2D::~Collider2D()
@@ -272,7 +272,7 @@ namespace TerranEngine
 
 		BoxCollider2DComponent& colliderComponent = entity.GetComponent<BoxCollider2DComponent>();
 		auto& rigidbodyComponent = entity.GetComponent<Rigidbody2DComponent>();
-		// NOTE: maybe change in the future, cause this intagles the systems a bit
+		// NOTE: maybe change in the future, cause this entagles the systems a bit
 		Shared<PhysicsMaterial2D> material = AssetManager::GetAssetByHandle<PhysicsMaterial2D>(rigidbodyComponent.PhysicsMaterialHandle);
 
 		TransformComponent& transform = entity.GetTransform();
@@ -288,14 +288,14 @@ namespace TerranEngine
 
 		const UUID& id = entity.GetID();
 
-		p_FixtureDefs[0].userData.pointer = (uintptr_t)id.GetRaw();
+		p_FixtureDefs[0].userData.pointer = reinterpret_cast<uintptr_t>(id.GetRaw());
 		p_FixtureDefs[0].isSensor = colliderComponent.Sensor;
 
 		p_FixtureDefs[0].filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
 		PhysicsLayer physicsLayer = PhysicsLayerManager::GetLayer(rigidbodyComponent.LayerIndex);
 		p_FixtureDefs[0].filter.maskBits = physicsLayer.Mask;
 		
-		// box2d cant create colliders with an area less than the float machine epsilon
+		// Box2d cant create colliders with an area less than the float machine epsilon
 		if(colliderSize.x * colliderSize.y <= b2_epsilon)
 			return;
 		
@@ -433,7 +433,7 @@ namespace TerranEngine
 		p_FixtureDefs[0].restitution = 0.0f;
 		p_FixtureDefs[0].restitutionThreshold = 0.5f;
 
-		p_FixtureDefs[0].userData.pointer = (uintptr_t)id.GetRaw();
+		p_FixtureDefs[0].userData.pointer = reinterpret_cast<uintptr_t>(id.GetRaw());
 		p_FixtureDefs[0].isSensor = colliderComponent.Sensor;
 
 		p_FixtureDefs[0].filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;
@@ -516,7 +516,7 @@ namespace TerranEngine
 		p_FixtureDefs[0].restitution = 0.0f;
 		p_FixtureDefs[0].restitutionThreshold = 0.5f;
 
-		p_FixtureDefs[0].userData.pointer = (uintptr_t)id.GetRaw();
+		p_FixtureDefs[0].userData.pointer = reinterpret_cast<uintptr_t>(id.GetRaw());
 		p_FixtureDefs[0].isSensor = colliderComponent.Sensor;
 
 		p_FixtureDefs[0].filter.categoryBits =  1 << rigidbodyComponent.LayerIndex;

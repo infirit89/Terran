@@ -5,18 +5,16 @@
 #include "Core/Base.h"
 #include "Core/Result.h"
 
-#include <filesystem>
-
 namespace TerranEngine 
 {
-	class SceneSerializer 
+	class SceneSerializer final
 	{
 	public:
 		SceneSerializer() = default;
 		SceneSerializer(const Shared<Scene>& scene);
 
 		void SerializeEditor(const std::filesystem::path& scenePath);
-		Result DesirializeEditor(const std::filesystem::path& scenePath);
+		Result DeserializeEditor(const std::filesystem::path& scenePath);
 
 	public:
 		static const char* SceneFilter;

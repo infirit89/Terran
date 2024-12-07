@@ -13,12 +13,10 @@
 #include <spdlog/fmt/bundled/format.h>
 #pragma warning(pop)
 
-#include <unordered_map>
-
 template<glm::length_t L, typename T, glm::qualifier Q>
 struct fmt::formatter<glm::vec<L, T, Q>>
 {
-	constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) 
+	static constexpr auto parse(const format_parse_context& ctx) -> decltype(ctx.begin()) 
 	{
 		return ctx.end();
 	}
@@ -51,7 +49,7 @@ struct fmt::formatter<glm::vec<L, T, Q>>
 template<typename T, glm::qualifier Q>
 struct fmt::formatter<glm::qua<T, Q>> 
 {
-	constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+	static constexpr auto parse(const format_parse_context& ctx) -> decltype(ctx.begin())
 	{
 		return ctx.end();
 	}
@@ -71,7 +69,7 @@ struct fmt::formatter<glm::qua<T, Q>>
 #define TR_LOG_PHYSICS "Physics"
 #define TR_CORE_LOGGER_COUNT 6
 
-struct LogSettings
+struct LogSettings final
 {
 	std::string Name;
 	spdlog::level::level_enum Level;
@@ -79,7 +77,7 @@ struct LogSettings
 
 namespace TerranEngine 
 {
-	class Log 
+	class Log final
 	{
 	public:
 		static void Init();

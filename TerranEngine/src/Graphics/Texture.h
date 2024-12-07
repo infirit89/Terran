@@ -36,7 +36,7 @@ namespace TerranEngine
 		ClampToEdge
 	};
 
-	struct TextureParameters 
+	struct TextureParameters final
 	{
 		// TODO: put width and height into the texture parameters
 		TextureFormat Format = TextureFormat::RGBA;
@@ -50,8 +50,7 @@ namespace TerranEngine
 	class Texture : public Asset
 	{
 	public:
-		
-		virtual ~Texture() {};
+		~Texture() override {}
 
 		virtual void Bind(uint32_t textureSlot) = 0;
 		//void Unbind() const;
@@ -61,51 +60,51 @@ namespace TerranEngine
 
 		virtual const TextureParameters& GetTextureParameters() const = 0;
 		virtual int GetWidth() const = 0;
-		virtual const int GetHeight() const = 0;
-		virtual const uint32_t GetHandle() const = 0;
-		virtual const uint32_t GetSamples() const = 0;
+		virtual int GetHeight() const = 0;
+		virtual uint32_t GetHandle() const = 0;
+		virtual uint32_t GetSamples() const = 0;
 
 		virtual bool operator==(Texture& other) = 0;
 		virtual bool operator==(const Texture& other) = 0;
 	};
 
-	class Texture2D : public Texture
+	class Texture2D final : public Texture
 	{
 	public:
-		Texture2D(TextureParameters parameters = {}, Buffer buffer = Buffer());
+		Texture2D(const TextureParameters& parameters = {}, Buffer buffer = Buffer());
 		static Shared<Texture2D> Create(TextureParameters parameters = {}, Buffer buffer = Buffer());
 
-		virtual ~Texture2D() override;
+		~Texture2D() override;
 
-		virtual void Bind(uint32_t textureSlot) override;
+		void Bind(uint32_t textureSlot) override;
 		
-		virtual void SetData(const Buffer& data) override;
+		void SetData(const Buffer& data) override;
 
-		virtual void SetTextureFilter(TextureFilter filter) override;
+		void SetTextureFilter(TextureFilter filter) override;
 
-		virtual const TextureParameters& GetTextureParameters() const override 
+		const TextureParameters& GetTextureParameters() const override 
 		{
 			return m_TextureParameters;
 		}
 
-		virtual int GetWidth() const override 
+		int GetWidth() const override 
 		{
 			return m_TextureParameters.Width;
 		}
-		virtual const int GetHeight() const override 
+		int GetHeight() const override 
 		{
 			return m_TextureParameters.Height; 
 		}
 
-		virtual const uint32_t GetHandle() const override { return m_Handle; }
+		uint32_t GetHandle() const override { return m_Handle; }
 
-		virtual const uint32_t GetSamples() const override 
+		uint32_t GetSamples() const override 
 		{
 			return m_TextureParameters.Samples;
 		}
 
-		virtual bool operator==(Texture& other) override;
-		virtual bool operator==(const Texture& other) override;
+		bool operator==(Texture& other) override;
+		bool operator==(const Texture& other) override;
 
 		void Release();
 		ASSET_CLASS_TYPE(Texture2D)

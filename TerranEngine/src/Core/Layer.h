@@ -4,11 +4,13 @@
 
 #include "Events/Event.h"
 
+#include <string_view>
+
 namespace TerranEngine {
 
 	class Layer {
 	public:
-		Layer(const char* name)
+		Layer(std::string_view name)
 			: m_Name(name) {}
 
 		virtual ~Layer() = default;
@@ -17,9 +19,9 @@ namespace TerranEngine {
 		virtual void OnEvent(Event& event) {}
 		virtual void ImGuiRender() {}
 		virtual void OnAttach() {}
-		virtual void OnDettach() {}
+		virtual void OnDetach() {}
 
 	private:
-		const char* m_Name;
+		std::string_view m_Name;
 	};
 }

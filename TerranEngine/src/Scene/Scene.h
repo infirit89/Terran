@@ -22,17 +22,17 @@ namespace TerranEngine
 	class Entity;
 	class SceneRenderer;
 	
-	class Scene : public Asset
+	class Scene final : public Asset
 	{
 	public:
 		Scene();
 		Scene(const UUID& handle);
-		virtual ~Scene() override;
+		~Scene() override;
 
 		ASSET_CLASS_TYPE(Scene)
 
 		Entity CreateEntity(const std::string& name = std::string());
-		Entity CreateEntityWithUUID(const std::string name, const UUID& uuid);
+		Entity CreateEntityWithUUID(const std::string& name, const UUID& uuid);
 		Entity CreateEmptyEntity();
 
 		void DestroyEntity(Entity entity, bool first);
@@ -44,8 +44,8 @@ namespace TerranEngine
 		void UpdateEditor();
 		void OnResize(float width, float height);
 
-		void OnRender(Shared<SceneRenderer> sceneRenderer);
-		void OnRenderEditor(Shared<SceneRenderer> sceneRenderer, Camera& camera, glm::mat4& cameraView);
+		void OnRender(const Shared<SceneRenderer>& sceneRenderer);
+		void OnRenderEditor(const Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
 		Entity FindEntityWithUUID(UUID uuid);
 		Entity FindEntityWithName(const std::string& name);
@@ -59,7 +59,7 @@ namespace TerranEngine
 		std::vector<Entity> Filter(Predicate&& predicate) 
 		{
 			std::vector<Entity> entities;
-			auto view = m_Registry.template view<std::add_const_t<Components>...>();
+			auto view = m_Registry.view<std::add_const_t<Components>...>();
 			entities.reserve(view.size());
 
 			for (auto e : view) 
@@ -76,7 +76,7 @@ namespace TerranEngine
 		Entity DuplicateEntity(Entity srcEntity, Entity parent);
 		Entity DuplicateEntity(Entity srcEntity);
 
-		static Shared<Scene> CopyScene(Shared<Scene>& srcScene);
+		static Shared<Scene> CopyScene(const Shared<Scene>& srcScene);
 
 		bool IsPlaying() const { return m_IsPlaying; }
 
@@ -100,7 +100,7 @@ namespace TerranEngine
 		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
-        // phyiscs components
+        // physics components
 		void OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
 		void OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 		

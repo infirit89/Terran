@@ -3,36 +3,36 @@
 
 namespace TerranEngine 
 {
-	class GamepadEvent : public Event
+	class GamePadEvent : public Event
 	{
 	public:
-		GamepadEvent(const uint8_t gamepadId) 
-			: m_GamepadId(gamepadId)
+		GamePadEvent(const uint8_t gamePadId) 
+			: m_GamePadId(gamePadId)
 		{}
 
-		uint8_t GetGamepadID() const { return m_GamepadId; }
+		uint8_t GetGamePadId() const { return m_GamePadId; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryGamepad)
+		EVENT_CLASS_CATEGORY(EventCategoryGamePad)
 	private:
-		uint8_t m_GamepadId;
+		uint8_t m_GamePadId;
 	};
 
-	class GamepadConnectedEvent : public GamepadEvent
+	class GamePadConnectedEvent final : public GamePadEvent
 	{
 	public:
-		GamepadConnectedEvent(const uint8_t gamepadId) 
-			: GamepadEvent(gamepadId)
+		GamePadConnectedEvent(const uint8_t gamePadId) 
+			: GamePadEvent(gamePadId)
 		{}
-		EVENT_CLASS_TYPE(GamepadConnected)
+		EVENT_CLASS_TYPE(GamePadConnected)
 	};
 
-	class GamepadDisconnectedEvent : public GamepadEvent 
+	class GamePadDisconnectedEvent final : public GamePadEvent
 	{
 	public:
-		GamepadDisconnectedEvent(const uint8_t gamepadId) 
-			: GamepadEvent(gamepadId)
+		GamePadDisconnectedEvent(const uint8_t gamePadId)
+			: GamePadEvent(gamePadId)
 		{}
 
-		EVENT_CLASS_TYPE(GamepadDisconnected)
+		EVENT_CLASS_TYPE(GamePadDisconnected)
 	};
 }

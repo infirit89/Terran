@@ -7,7 +7,7 @@ namespace Coral
 
 namespace TerranEngine 
 {
-	class ScriptTypes 
+	class ScriptTypes final
 	{
 	public:
 		static void Initialize();

@@ -121,7 +121,7 @@ namespace TerranEditor
 		FileSystem::SetDirectoryToWatch(Project::GetAssetPath());
 		FileSystem::StartWatch();
 
-		m_EditorScene = SceneManager::CreateEmpyScene();
+		m_EditorScene = SceneManager::CreateEmptyScene();
 		Entity cameraEntity = m_EditorScene->CreateEntity("Camera");
 		CameraComponent& cameraComponent = cameraEntity.AddComponent<CameraComponent>();
 
@@ -131,7 +131,7 @@ namespace TerranEditor
 
 	}
 
-	void EditorLayer::OnDettach()
+	void EditorLayer::OnDetach()
 	{
 		FileSystem::StopWatch();
 		EditorResources::Shutdown();
@@ -200,7 +200,7 @@ namespace TerranEditor
 		}
 #endif
 
-		m_Frametime = time.GetDeltaTimeMS();
+		m_Frametime = time.GetDeltaTimeMilliseconds();
 	}
 
 	void EditorLayer::OnEvent(Event& event)
@@ -211,8 +211,8 @@ namespace TerranEditor
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnKeyPressedEvent));
 		dispatcher.Dispatch<WindowCloseEvent>(TR_EVENT_BIND_FN(EditorLayer::OnWindowCloseEvent));
-		dispatcher.Dispatch<GamepadConnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadConnectedEvent));
-		dispatcher.Dispatch<GamepadDisconnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadDisconnectedEvent));
+		dispatcher.Dispatch<GamePadConnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadConnectedEvent));
+		dispatcher.Dispatch<GamePadDisconnectedEvent>(TR_EVENT_BIND_FN(EditorLayer::OnGamepadDisconnectedEvent));
 		dispatcher.Dispatch<ScriptEngineLogEvent>(TR_EVENT_BIND_FN(EditorLayer::OnScriptEngineLog));
 		dispatcher.Dispatch<SceneTransitionEvent>(TR_EVENT_BIND_FN(EditorLayer::OnSceneTransition));
 	}
@@ -265,15 +265,15 @@ namespace TerranEditor
 		return false;
 	}
 
-	bool EditorLayer::OnGamepadConnectedEvent(GamepadConnectedEvent& gEvent)
+	bool EditorLayer::OnGamepadConnectedEvent(GamePadConnectedEvent& gEvent)
 	{
-		TR_CLIENT_INFO("Connected controller: {0}", Input::GetControllerName(gEvent.GetGamepadID()));
+		TR_CLIENT_INFO("Connected controller: {0}", Input::GetControllerName(gEvent.GetGamePadId()));
 		return false;
 	}
 
-	bool EditorLayer::OnGamepadDisconnectedEvent(GamepadDisconnectedEvent& gEvent)
+	bool EditorLayer::OnGamepadDisconnectedEvent(GamePadDisconnectedEvent& gEvent)
 	{
-		TR_CLIENT_INFO("Disconnected controller: {0}", Input::GetControllerName(gEvent.GetGamepadID()));
+		TR_CLIENT_INFO("Disconnected controller: {0}", Input::GetControllerName(gEvent.GetGamePadId()));
 		return false;
 	}
 	
@@ -580,7 +580,7 @@ namespace TerranEditor
 
 	void EditorLayer::NewScene()
 	{
-		m_EditorScene = SceneManager::CreateEmpyScene();
+		m_EditorScene = SceneManager::CreateEmptyScene();
 		CameraComponent& cameraComponent = m_EditorScene->CreateEntity("Camera").AddComponent<CameraComponent>();
 		cameraComponent.Primary = true;
 		m_EditorScene->OnResize(m_ViewportSize.x, m_ViewportSize.y);
@@ -654,7 +654,7 @@ namespace TerranEditor
 		Project::SetActive(project);
 
 		ProjectSerializer projectSerializer(project);
-		projectSerializer.Deserizlize();
+		projectSerializer.Deserialize();
 
 		AssetManager::LoadAssetInfos();
 

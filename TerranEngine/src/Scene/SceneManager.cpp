@@ -10,7 +10,7 @@ namespace TerranEngine
     Shared<Scene> SceneManager::s_CurrentScene;
     std::unordered_map<UUID, Shared<Scene>> SceneManager::s_ActiveScenes;
 
-    Shared<Scene> SceneManager::CreateEmpyScene()
+    Shared<Scene> SceneManager::CreateEmptyScene()
     {
         // TODO: create memory asset???
         Shared<Scene> scene = CreateShared<Scene>();
@@ -20,7 +20,7 @@ namespace TerranEngine
 
     void SceneManager::RemoveScene(const UUID& id) 
     {
-        if (s_ActiveScenes.find(id) != s_ActiveScenes.end())
+        if (s_ActiveScenes.contains(id))
             s_ActiveScenes.erase(id);
 
         if (s_CurrentScene->GetHandle() == id)
@@ -29,8 +29,8 @@ namespace TerranEngine
 
     Shared<Scene> SceneManager::GetScene(const UUID& id) 
     {
-        if (s_ActiveScenes.find(id) != s_ActiveScenes.end())
-            return s_ActiveScenes[id];
+        if (s_ActiveScenes.contains(id))
+            return s_ActiveScenes.at(id);
 
         return nullptr;
     }
@@ -50,7 +50,7 @@ namespace TerranEngine
         if (!id)
             return;
 
-        if (s_ActiveScenes.find(id) != s_ActiveScenes.end()) 
+        if (s_ActiveScenes.contains(id)) 
         {
             if (s_ActiveScenes[id].use_count() > 1)
                 return;

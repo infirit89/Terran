@@ -13,7 +13,7 @@ namespace TerranEngine
 
 	void Renderer::Initialize()
 	{
-		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		int gladSuccess = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 		TR_ASSERT(gladSuccess, "Couldn't initialize GLAD");
 
 		TR_CORE_TRACE(TR_LOG_RENDERER, "Graphics card: {0}", glGetString(GL_RENDERER));
@@ -134,14 +134,14 @@ namespace TerranEngine
 	{
 		switch (mode)
 		{
-		case TerranEngine::RenderMode::Points:
-		case TerranEngine::RenderMode::Lines:
-		case TerranEngine::RenderMode::LineLoop:
-		case TerranEngine::RenderMode::LineStrip:
-		case TerranEngine::RenderMode::Triangles:
-		case TerranEngine::RenderMode::TriangleStrip:
-		case TerranEngine::RenderMode::TriangleFan:
-			return GL_POINTS + (uint32_t)mode;
+		case RenderMode::Points:
+		case RenderMode::Lines:
+		case RenderMode::LineLoop:
+		case RenderMode::LineStrip:
+		case RenderMode::Triangles:
+		case RenderMode::TriangleStrip:
+		case RenderMode::TriangleFan:
+			return GL_POINTS + static_cast<uint32_t>(mode);
 		default:
 			TR_CORE_ERROR(TR_LOG_RENDERER, "Unsupported render mode");
 			break;

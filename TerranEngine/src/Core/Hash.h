@@ -5,7 +5,7 @@
 
 namespace TerranEngine 
 {
-	class Hash
+	class Hash final
 	{
 	public:
 		static uint32_t FNVHash(const std::string& str);

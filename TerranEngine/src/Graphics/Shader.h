@@ -25,7 +25,7 @@ namespace TerranEngine
 		void UploadMat4(const char* name, const glm::mat4& val);
 		void UploadIntArray(const char* name, uint32_t count, int val[]);
 
-		inline const std::string GetName() const { return m_Name; }
+		const std::string& GetName() const { return m_Name; }
 
 	private:
 		int GetUniformLocation(const char* name);

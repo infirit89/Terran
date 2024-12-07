@@ -16,7 +16,7 @@
 
 namespace TerranEngine 
 {
-	SceneRenderer::SceneRenderer(FramebufferParameters params)
+	SceneRenderer::SceneRenderer(const FramebufferParameters& params): m_Scene(nullptr)
 	{
 		m_Framebuffer = CreateShared<Framebuffer>(params);
 	}
@@ -26,14 +26,14 @@ namespace TerranEngine
 		m_Scene = scene;
 	}
 
-	void SceneRenderer::BeginScene(Camera& camera, glm::mat4& cameraTransform, bool invereTransform)
+	void SceneRenderer::BeginScene(Camera& camera, const glm::mat4& cameraTransform, bool inverseTransform)
 	{
 		m_Framebuffer->Bind();
 		
 		Renderer::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
 		Renderer::Clear();
 
-		BatchRenderer2D::BeginFrame(camera, cameraTransform, invereTransform);
+		BatchRenderer2D::BeginFrame(camera, cameraTransform, inverseTransform);
 		m_BegunScene = true;
 		
 		/* TODO: better sorting
@@ -44,25 +44,25 @@ namespace TerranEngine
 		{ return lEntity.ZIndex < rEntity.ZIndex; });
 	}
 
-	void SceneRenderer::SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
+	void SceneRenderer::SubmitSprite(const SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
 		Shared<Texture2D> texture = AssetManager::GetAssetByHandle<Texture2D>(spriteRenderer.TextureHandle);
 		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, texture, entityID);
 	}
 
-	void SceneRenderer::SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID)
+	void SceneRenderer::SubmitCircle(const CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID)
 	{
 		// TODO: frustum culling
 		BatchRenderer2D::AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
 	}
 
-	void SceneRenderer::SubmitLine(LineRendererComponent& lineRenderer, int entityID)
+	void SceneRenderer::SubmitLine(const LineRendererComponent& lineRenderer, int entityID)
 	{
 		BatchRenderer2D::AddLine(lineRenderer.StartPoint, lineRenderer.EndPoint, lineRenderer.Color, lineRenderer.Thickness, entityID);
 	}
 
-	void SceneRenderer::SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
+	void SceneRenderer::SubmitText(const TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
 	{
 		BatchRenderer2D::AddString(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
 										textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
@@ -100,16 +100,16 @@ namespace TerranEngine
 				BoxCollider2DComponent& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 				auto& transform = entity.GetTransform();
 
-				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				const float thickness = 0.05f;
+				constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				constexpr float thickness = 0.05f;
 
 				glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
 
-				glm::vec3 postition = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
+				glm::vec3 position = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
 
 				glm::mat4 worldTransformMatrix = transform.WorldSpaceTransformMatrix;
 				glm::mat4 transformMatrix = worldTransformMatrix *
-											glm::translate(glm::mat4(1.0f), postition) *
+											glm::translate(glm::mat4(1.0f), position) *
 											glm::scale(glm::mat4(1.0f), size);
 
 				/*const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
@@ -135,8 +135,8 @@ namespace TerranEngine
 				auto& circleCollider = entity.GetComponent<CircleCollider2DComponent>();
 				auto& transform = entity.GetTransform();
 
-				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				const float thickness = 0.02f;
+				constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				constexpr float thickness = 0.02f;
 
 				glm::vec3 position, rotation, scale;
 
@@ -168,8 +168,8 @@ namespace TerranEngine
 				auto& capsuleCollider = entity.GetComponent<CapsuleCollider2DComponent>();
 				auto& transform = entity.GetTransform();
 
-				const glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				const float thickness = 0.02f;
+				constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				constexpr float thickness = 0.02f;
 
 				float ySize = capsuleCollider.Size.x > capsuleCollider.Size.y ? capsuleCollider.Size.x : capsuleCollider.Size.y;
 				const glm::vec3 size = { capsuleCollider.Size.x, ySize, 1.0f };

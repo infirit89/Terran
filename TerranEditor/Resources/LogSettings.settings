@@ -1,0 +1,13 @@
+Loggers:
+  - Core:
+      Level: trace
+  - Renderer:
+      Level: trace
+  - Script:
+      Level: trace
+  - Asset:
+      Level: trace
+  - Physics:
+      Level: trace
+  - Client:
+      Level: trace

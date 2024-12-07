@@ -7,19 +7,19 @@
 #include <glm/glm.hpp>
 
 #include <string>
-#include <array>
 
-namespace TerranEngine {
+namespace TerranEngine
+{
 
-	struct WindowData
+	struct WindowData final
 	{
 		WindowData() = default;
 		~WindowData() = default;
 
-		const char* Name = "";
+		std::string_view Name = "";
 		uint32_t Width = 1280;
 		uint32_t Height = 960;
-		bool Fullscren = false;
+		bool Fullscreen = false;
 		bool Maximized = true;
 		bool VSync = true;
 		bool Debug = false;
@@ -41,7 +41,7 @@ namespace TerranEngine {
 
 		virtual void SwapBuffers() = 0;
 		virtual void PollEvents() = 0;
-		virtual void SetTitle(const char* title) = 0;
+		virtual void SetTitle(std::string_view) = 0;
 		virtual glm::vec2 GetContentScale() = 0;
 		
 		// NOTE: Using this, because I plan to be able to support other windowing libraries

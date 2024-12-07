@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-namespace Terran
+﻿namespace Terran
 {
     // ---- Scriptable ----
     public class Scriptable : Component
@@ -39,10 +36,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        return Internal.Tag_GetNameICall(Entity.Handle)!;
-
-                    return "";
+                    return Internal.Tag_GetNameICall(Entity.Handle)!;
                 }
             }
 
@@ -50,8 +44,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        Internal.Tag_SetNameICall(Entity.Handle, value);
+                    Internal.Tag_SetNameICall(Entity.Handle, value);
                 }
             }
         }
@@ -79,8 +72,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        Internal.Transform_SetPositionICall(Entity.Handle, in value);
+                    Internal.Transform_SetPositionICall(Entity.Handle, in value);
                 }
             }
         }
@@ -99,8 +91,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        Internal.Transform_SetRotationICall(Entity.Handle, in value);
+                    Internal.Transform_SetRotationICall(Entity.Handle, in value);
                 }
             }
         }
@@ -119,8 +110,7 @@ namespace Terran
             {
                 unsafe
                 {
-                    if (Entity != null)
-                        Internal.Transform_SetScaleICall(Entity.Handle, in value);
+                    Internal.Transform_SetScaleICall(Entity.Handle, in value);
                 }
             }
         }

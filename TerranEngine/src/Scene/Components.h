@@ -10,7 +10,6 @@
 #include "Physics/PhysicsStates.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
@@ -170,7 +169,7 @@ namespace TerranEngine
 
 	struct CapsuleCollider2DComponent 
 	{
-		CapsuleCollider2DComponent () = default;
+		CapsuleCollider2DComponent() = default;
 
 		glm::vec2 Offset = { 0.0f, 0.0f };
         glm::vec2 Size = { 0.5f,  1.0f };

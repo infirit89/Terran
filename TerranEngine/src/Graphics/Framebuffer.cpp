@@ -16,7 +16,7 @@ namespace TerranEngine
 		GL_COLOR_ATTACHMENT3
 	};
 
-	Framebuffer::Framebuffer(FramebufferParameters parameters)
+	Framebuffer::Framebuffer(const FramebufferParameters& parameters)
 		: m_Handle(0), m_Parameters(parameters)
 	{
 		Create();

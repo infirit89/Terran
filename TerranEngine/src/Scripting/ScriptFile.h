@@ -4,11 +4,11 @@
 
 namespace TerranEngine 
 {
-	class ScriptFile : public Asset 
+	class ScriptFile final : public Asset
 	{
 	public:
 		ScriptFile() = default;
-		virtual ~ScriptFile() override = default;
+		~ScriptFile() override = default;
 
 		ASSET_CLASS_TYPE(ScriptFile)
 	};

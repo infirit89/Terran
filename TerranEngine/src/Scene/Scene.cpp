@@ -29,10 +29,68 @@
 
 namespace TerranEngine 
 {
-	struct SceneComponent
+	struct SceneComponent final
 	{
 		UUID SceneID;
 	};
+
+	namespace
+	{
+		template<typename Component>
+		void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
+		{
+			if (!srcRegistry.all_of<Component>(srcHandle))
+				return;
+
+			dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
+		}
+
+		template<>
+		void CopyComponent<ScriptComponent>(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
+		{
+			if (!srcRegistry.all_of<ScriptComponent>(srcHandle))
+				return;
+
+			const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
+			const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
+			const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
+
+			Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
+			if (!srcScriptInstance)
+			{
+				TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the source scene was null");
+				return;
+			}
+			dstRegistry.emplace_or_replace<ScriptComponent>(dstHandle, srcRegistry.get<ScriptComponent>(srcHandle));
+
+			const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
+			const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
+
+			const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
+
+			Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
+			if (!dstScriptInstance)
+			{
+				TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the destination scene was null");
+				return;
+			}
+			dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
+		}
+
+		template<typename Component>
+		void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry)
+		{
+			CopyComponent<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
+		}
+
+		static glm::mat4 CalculateTransformMatrix(const TransformComponent& transform)
+		{
+			return glm::translate(glm::mat4(1.0f), transform.Position) *
+				glm::toMat4(glm::quat(transform.Rotation)) *
+				glm::scale(glm::mat4(1.0f), transform.Scale);
+		}
+
+	}
 	
 	Scene::Scene() : Scene(UUID()) {}
 
@@ -62,9 +120,9 @@ namespace TerranEngine
 
 	Scene::~Scene()
 	{
-		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
+		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 
-		for (auto e : scriptbleComponentView)
+		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
 			ScriptEngine::DestroyScriptInstance(entity);
@@ -84,7 +142,7 @@ namespace TerranEngine
 		return CreateEntityWithUUID(name, UUID());
 	}
 
-	Entity Scene::CreateEntityWithUUID(const std::string name, const UUID& uuid)
+	Entity Scene::CreateEntityWithUUID(const std::string& name, const UUID& uuid)
 	{
 		entt::entity e = m_Registry.create();
 
@@ -114,8 +172,6 @@ namespace TerranEngine
 
 		if (entity.HasComponent<RelationshipComponent>()) 
 		{
-			auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
-
 			if (first) 
 			{
 				if (entity.HasParent()) 
@@ -145,9 +201,9 @@ namespace TerranEngine
         Physics2D::CreatePhysicsWorld(Project::GetPhysicsSettings());
         Physics2D::CratePhysicsBodies(this);
 
-		auto scriptbleComponentView = m_Registry.view<ScriptComponent>();
+		auto scriptableComponentView = m_Registry.view<ScriptComponent>();
 
-		for (auto e : scriptbleComponentView)
+		for (auto e : scriptableComponentView)
 		{
 			Entity entity(e, this);
 			ScriptEngine::OnStart(entity);
@@ -205,16 +261,13 @@ namespace TerranEngine
 		}
 	}
 
-	void Scene::OnRender(Shared<SceneRenderer> sceneRenderer)
+	void Scene::OnRender(const Shared<SceneRenderer>& sceneRenderer)
 	{
 		TR_PROFILE_FUNCTION();
-		Entity primaryCamera = GetPrimaryCamera();
 
-		glm::vec4 backgroundColor = glm::vec4(0.0f);
-
-		if (primaryCamera) 
+		if (Entity primaryCamera = GetPrimaryCamera()) 
 		{
-			backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
+			glm::vec4 backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
 			sceneRenderer->SetScene(this);
 			sceneRenderer->SetClearColor(backgroundColor);
 
@@ -279,7 +332,7 @@ namespace TerranEngine
 		}
 	}
 	
-	void Scene::OnRenderEditor(Shared<SceneRenderer> sceneRenderer, Camera& camera, glm::mat4& cameraView)
+	void Scene::OnRenderEditor(const Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView)
 	{
 		TR_PROFILE_FUNCTION();
 		sceneRenderer->SetScene(this);
@@ -344,8 +397,8 @@ namespace TerranEngine
 	Entity Scene::FindEntityWithUUID(UUID uuid)
 	{
 		TR_PROFILE_FUNCTION();
-		if (m_EntityMap.find(uuid) != m_EntityMap.end()) 
-			return Entity(m_EntityMap[uuid], this);
+		if (m_EntityMap.contains(uuid)) 
+			return Entity(m_EntityMap.at(uuid), this);
 
 		return { };
 	}
@@ -378,53 +431,6 @@ namespace TerranEngine
 		}
 
 		return { };
-	}
-
-	template<typename Component>
-	static void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
-	{
-		if (!srcRegistry.all_of<Component>(srcHandle))
-			return;
-
-		dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
-	}
-
-	template<>
-	static void CopyComponent<ScriptComponent>(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry) 
-	{
-		if (!srcRegistry.all_of<ScriptComponent>(srcHandle))
-			return;
-		
-		const entt::entity srcSceneEntity = srcRegistry.view<SceneComponent>().front();
-		const UUID& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
-		const UUID& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
-
-		Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
-		if (!srcScriptInstance)
-		{
-			TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the source scene was null");
-			return;
-		}
-		dstRegistry.emplace_or_replace<ScriptComponent>(dstHandle, srcRegistry.get<ScriptComponent>(srcHandle));
-
-		const entt::entity dstSceneEntity = dstRegistry.view<SceneComponent>().front();
-		const UUID& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
-
-		const UUID& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
-
-		Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
-		if (!dstScriptInstance)
-		{
-			TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the destination scene was null");
-			return;
-		}
-		dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
-	}
-
-	template<typename Component>
-	static void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry)
-	{
-		CopyComponent<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
 	}
 
 	Entity Scene::DuplicateEntity(Entity srcEntity, Entity parent)
@@ -465,9 +471,9 @@ namespace TerranEngine
 		return DuplicateEntity(srcEntity, {});
 	}
 
-	Shared<Scene> Scene::CopyScene(Shared<Scene>& srcScene)
+	Shared<Scene> Scene::CopyScene(const Shared<Scene>& srcScene)
 	{
-		Shared<Scene> scene = SceneManager::CreateEmpyScene();
+		Shared<Scene> scene = SceneManager::CreateEmptyScene();
 
 		auto tagView = srcScene->GetEntitiesWith<TagComponent>();
 
@@ -500,13 +506,6 @@ namespace TerranEngine
 		return scene;
 	}
 
-	static glm::mat4 CalculateTransformMatrix(TransformComponent& transform)
-	{
-		return glm::translate(glm::mat4(1.0f), transform.Position) *
-			glm::toMat4(glm::quat(transform.Rotation)) *
-			glm::scale(glm::mat4(1.0f), transform.Scale);
-	}
-
 	void Scene::UpdateTransformHierarchy()
 	{
 		TR_PROFILE_FUNCN("Scene::UpdateTransformHierarchy");
@@ -530,8 +529,7 @@ namespace TerranEngine
 
 		if (tc.IsDirty) 
 		{
-			Entity parent = entity.GetParent();
-			if (parent)
+			if (Entity parent = entity.GetParent())
 			{
 				glm::mat4 parentTransform = parent.GetTransform().WorldSpaceTransformMatrix;
 				tc.WorldSpaceTransformMatrix = parentTransform * CalculateTransformMatrix(tc);
@@ -650,9 +648,7 @@ namespace TerranEngine
 		if (!m_IsPlaying)
 			return;
 
-        Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-        if(physicsBody)
+        if(Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
             physicsBody->AddCollider<BoxCollider2DComponent>(entity);
     }
     void Scene::OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
@@ -678,9 +674,7 @@ namespace TerranEngine
 		if (!m_IsPlaying)
 			return;
 
-        Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-        if(physicsBody)
+		if(Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
             physicsBody->AddCollider<CircleCollider2DComponent>(entity);
     }
     void Scene::OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
@@ -688,10 +682,9 @@ namespace TerranEngine
         if(m_IsPlaying)
         {
             Entity entity(entityHandle, this);
-            Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
             auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
 
-            if(physicsBody)
+            if(Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
                 physicsBody->RemoveCollider(ccComponent.ColliderIndex);
         }
     }
@@ -705,9 +698,7 @@ namespace TerranEngine
 		if (!m_IsPlaying)
 			return;
 
-        Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-
-        if(physicsBody)
+		if(Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
             physicsBody->AddCollider<CapsuleCollider2DComponent>(entity);
     }
     void Scene::OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)

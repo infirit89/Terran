@@ -5,7 +5,6 @@
 #include "Time.h"
 #include "Input.h"
 
-#include "Graphics/VertexArray.h"
 #include "Graphics/ShaderLibrary.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/BatchRenderer2D.h"
@@ -77,7 +76,7 @@ namespace TerranEngine
 
 	void Application::Run()
 	{
-		float frameTime = 0.0f; float lastFrameTime = 0.0f;
+		float lastFrameTime = 0.0f;
 
 		Renderer::SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -85,7 +84,7 @@ namespace TerranEngine
 		{
 			TR_PROFILE_FRAME("MainThread");
 			// NOTE: think about changing frametime to be a double
-			frameTime = glfwGetTime();
+			float frameTime = glfwGetTime();
 			Time time(frameTime - lastFrameTime);
 			lastFrameTime = frameTime;
 			

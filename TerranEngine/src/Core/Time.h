@@ -4,15 +4,15 @@
 
 namespace TerranEngine 
 {
-	class Time 
+	class Time final
 	{
 	public:
 		Time(float time) 
 			: m_Time(time)
 		{}
 
-		float GetDeltaTimeMS() { return m_Time * 1000.0f; }
-		float GetDeltaTime() { return m_Time; }
+		float GetDeltaTimeMilliseconds() const { return m_Time * 1000.0f; }
+		float GetDeltaTime() const { return m_Time; }
 		
 		static std::tm* GetCurrentTime() 
 		{

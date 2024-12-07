@@ -16,8 +16,8 @@ namespace TerranEngine
 		{
 			switch (type)
 			{
-			case TerranEngine::VertexBufferElementType::Float: return GL_FLOAT;
-			case TerranEngine::VertexBufferElementType::Int: return GL_INT;
+			case VertexBufferElementType::Float: return GL_FLOAT;
+			case VertexBufferElementType::Int: return GL_INT;
 			}
 
 			TR_ASSERT(false, "Unrecognized vertex buffer element type");
@@ -27,7 +27,7 @@ namespace TerranEngine
 	}
 
 	VertexArray::VertexArray()
-		: m_AttributeIndex(0), m_Handle(0)
+		: m_Handle(0), m_AttributeIndex(0)
 	{
 		Renderer::SubmitCreate([this]()
 		{

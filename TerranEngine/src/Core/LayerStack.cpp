@@ -15,9 +15,9 @@ namespace TerranEngine {
 
 	void LayerStack::RemoveLayer(Layer* layer)
 	{
-		auto iterator = std::find(m_Layers.begin(), m_Layers.end(), layer);
+		auto iterator = std::ranges::find(m_Layers, layer);
 
-		layer->OnDettach();
+		layer->OnDetach();
 		m_Layers.erase(iterator);
 		m_LastInsertIndex--;
 	}
@@ -27,7 +27,7 @@ namespace TerranEngine {
 		while (!m_Layers.empty()) 
 		{
 			Layer* layer = *(m_Layers.end() - 1);
-			layer->OnDettach();
+			layer->OnDetach();
 			delete layer;
 			m_Layers.erase(m_Layers.end() - 1);
 		}

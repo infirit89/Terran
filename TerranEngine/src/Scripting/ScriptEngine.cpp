@@ -6,7 +6,6 @@
 
 #include "Core/Application.h"
 #include "Core/Log.h"
-#include "Core/FileUtils.h"
 
 #include "Events/ScriptEngineEvent.h"
 
@@ -23,9 +22,7 @@
 
 #include <Coral/HostInstance.hpp>
 #include <Coral/GC.hpp>
-#include <Coral/Array.hpp>
 #include <Coral/TypeCache.hpp>
-#include <Coral/ManagedArray.hpp>
 
 #include <oaidl.h>
 
@@ -33,7 +30,7 @@ namespace TerranEngine
 {
 	using ScriptInstanceMap = std::unordered_map<UUID, std::unordered_map<UUID, Shared<ScriptInstance>>>;
 	
-	struct ScriptEngineData 
+	struct ScriptEngineData final
 	{
 		Coral::HostInstance HostInstance;
 		Coral::AssemblyLoadContext LoadContext;
@@ -70,6 +67,7 @@ namespace TerranEngine
 		case Coral::MessageLevel::Info:		TR_CORE_INFO(TR_LOG_SCRIPT, message); break;
 		case Coral::MessageLevel::Warning:	TR_CORE_WARN(TR_LOG_SCRIPT, message); break;
 		case Coral::MessageLevel::Error:	TR_CORE_ERROR(TR_LOG_SCRIPT, message); break;
+		default: ;
 		}
 	}
 
@@ -199,7 +197,7 @@ namespace TerranEngine
 							const std::vector<Utils::Variant>& cachedFieldArrayData = scriptFieldArraysStates.at(sceneId).at(entityId).at(scriptField.Name);
 
 							if (instance->GetFieldArrayLength(array) != cachedFieldArrayData.size())
-								instance->ResizeFieldArray(array, (int32_t)cachedFieldArrayData.size());
+								instance->ResizeFieldArray(array, static_cast<int32_t>(cachedFieldArrayData.size()));
 
 							for (size_t i = 0; i < cachedFieldArrayData.size(); i++)
 								instance->SetFieldArrayValue(array, cachedFieldArrayData.at(i), static_cast<int32_t>(i));
@@ -231,13 +229,13 @@ namespace TerranEngine
 		Log("Reloaded assemblies", spdlog::level::info);
 	}
 
-	static ScriptFieldType GetScriptType(Coral::Type& type)
+	static ScriptFieldType GetScriptType(const Coral::Type& type)
 	{
 		Coral::ManagedType managedType = type.GetManagedType();
 		if (managedType != Coral::ManagedType::Unknown && managedType != Coral::ManagedType::Pointer)
-			return (ScriptFieldType)managedType;
+			return static_cast<ScriptFieldType>(managedType);
 
-		if (s_Data->TypeConverters.find(type.GetTypeId()) != s_Data->TypeConverters.end())
+		if (s_Data->TypeConverters.contains(type.GetTypeId()))
 			return s_Data->TypeConverters.at(type.GetTypeId());
 
 		return ScriptFieldType::None;
@@ -312,7 +310,7 @@ namespace TerranEngine
 
 		scriptComponent.ClassExists = true;
 		
-		if (s_Data->ScriptInstanceMap.find(entity.GetSceneId()) != s_Data->ScriptInstanceMap.end())
+		if (s_Data->ScriptInstanceMap.contains(entity.GetSceneId()))
 		{
 			auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneId()).find(entity.GetID());
 			if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneId()).end())
@@ -383,17 +381,15 @@ namespace TerranEngine
 	void ScriptEngine::OnPhysicsBeginContact(Entity collider, Entity collidee) 
 	{
 		TR_PROFILE_FUNCTION();
-		Shared<ScriptInstance> instance = GetScriptInstance(collider);
-		if(instance)
+		if(Shared<ScriptInstance> instance = GetScriptInstance(collider))
 			instance->InvokeCollisionBegin(collidee);
 	}
 
 	void ScriptEngine::OnPhysicsEndContact(Entity collider, Entity collidee) 
 	{
 		TR_PROFILE_FUNCTION();
-		Shared<ScriptInstance> instance = GetScriptInstance(collider);
 
-		if(instance)
+		if(Shared<ScriptInstance> instance = GetScriptInstance(collider))
 			instance->InvokeCollisionEnd(collidee);
 	}
 

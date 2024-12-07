@@ -30,7 +30,7 @@ namespace TerranEngine
 		return "Resources/Shaders/Cache";
 	}
 
-	struct ShaderUnitInfo
+	struct ShaderUnitInfo final
 	{
 		ShaderStage Stage;
 		std::vector<uint32_t> Data;

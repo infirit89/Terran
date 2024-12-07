@@ -14,13 +14,13 @@ namespace TerranEngine
 {
 	namespace 
 	{
-		struct NativeTexutreType
+		struct NativeTextureType final
 		{
 			uint32_t InternalFormat;
 			uint32_t DataFormat;
 		};
 
-		static NativeTexutreType GetNativeTextureType(TextureFormat type)
+		NativeTextureType GetNativeTextureType(TextureFormat type)
 		{
 			switch (type)
 			{
@@ -38,7 +38,7 @@ namespace TerranEngine
 			return { GL_RGBA8, GL_RGBA };
 		}
 
-		static uint32_t GetNativeTextureFilter(TextureFilter filter)
+		uint32_t GetNativeTextureFilter(TextureFilter filter)
 		{
 			uint32_t nativeFilter = GL_LINEAR;
 
@@ -46,7 +46,7 @@ namespace TerranEngine
 			{
 			case TextureFilter::Linear:
 			case TextureFilter::Nearest:
-				nativeFilter = GL_LINEAR - (uint32_t)filter;
+				nativeFilter = GL_LINEAR - static_cast<uint32_t>(filter);
 				break;
 			default:
 				TR_CORE_WARN(TR_LOG_RENDERER, "The texture filter isn't supported");
@@ -56,27 +56,7 @@ namespace TerranEngine
 			return nativeFilter;
 		}
 
-		const char* TextureFilterToString(TextureFilter filter)
-		{
-			switch (filter)
-			{
-			case TextureFilter::Linear:		return "Linear";
-			case TextureFilter::Nearest:	return "Nearest";
-			}
-
-			TR_ASSERT(false, "Unknown texture filter");
-			return "";
-		}
-		TextureFilter TextureFilterFromString(const std::string& filterString)
-		{
-			if (filterString == "Linear")	return TextureFilter::Linear;
-			if (filterString == "Nearest")	return TextureFilter::Nearest;
-
-			TR_ASSERT(false, "Unknown texture filter");
-			return TextureFilter::Linear;
-		}
-
-		static uint32_t GetNativeWrapMode(TextureWrapMode wrapMode)
+		uint32_t GetNativeWrapMode(TextureWrapMode wrapMode)
 		{
 			switch (wrapMode)
 			{
@@ -93,8 +73,29 @@ namespace TerranEngine
 		}
 	}
 
-	Texture2D::Texture2D(TextureParameters parameters, Buffer buffer)
-		: m_TextureParameters(parameters), m_Handle(0)
+	const char* TextureFilterToString(TextureFilter filter)
+	{
+		switch (filter)
+		{
+		case TextureFilter::Linear:		return "Linear";
+		case TextureFilter::Nearest:	return "Nearest";
+		}
+
+		TR_ASSERT(false, "Unknown texture filter");
+		return "";
+	}
+
+	TextureFilter TextureFilterFromString(const std::string& filterString)
+	{
+		if (filterString == "Linear")	return TextureFilter::Linear;
+		if (filterString == "Nearest")	return TextureFilter::Nearest;
+
+		TR_ASSERT(false, "Unknown texture filter");
+		return TextureFilter::Linear;
+	}
+
+	Texture2D::Texture2D(const TextureParameters& parameters, Buffer buffer)
+		: m_Handle(0), m_TextureParameters(parameters)
 	{
 		TR_ASSERT(m_TextureParameters.Width >= 1 || m_TextureParameters.Height >= 1, "Width and Height can't be less than 1");
 		TR_ASSERT(m_TextureParameters.Samples > 0, "Samples cant be less than 1");
@@ -130,7 +131,7 @@ namespace TerranEngine
 		m_LocalData = Buffer::Copy(data);
 		Renderer::Submit([this]()
 		{
-			NativeTexutreType nativeType = GetNativeTextureType(m_TextureParameters.Format);
+			NativeTextureType nativeType = GetNativeTextureType(m_TextureParameters.Format);
 			glTextureSubImage2D(m_Handle, 0, 0, 0,
 								m_TextureParameters.Width, m_TextureParameters.Height,
 								nativeType.DataFormat, GL_UNSIGNED_BYTE, m_LocalData.GetData());
@@ -189,7 +190,7 @@ namespace TerranEngine
 				glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, wrapMode);
 			}
 
-			NativeTexutreType nativeType = GetNativeTextureType(textureParameters.Format);
+			NativeTextureType nativeType = GetNativeTextureType(textureParameters.Format);
 
 
 			if (textureParameters.Samples > 1)

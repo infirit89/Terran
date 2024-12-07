@@ -16,7 +16,7 @@
 
 namespace TerranEngine 
 {
-    // TODO: pass the b2World to the contrustor to create a b2Body
+    // TODO: pass the b2World to the constructor to create a b2Body
     PhysicsBody2D::PhysicsBody2D(Entity entity)
         : m_Entity(entity)
     {
@@ -29,11 +29,11 @@ namespace TerranEngine
 
         glm::vec3 position = transform.Position;
         glm::vec3 rotation = transform.Rotation;
-        glm::vec3 scale;
 
         if (entity.HasParent()) 
         {
-            glm::mat4 worldTransformMatrix = entity.GetTransform().WorldSpaceTransformMatrix;
+	        glm::vec3 scale;
+	        glm::mat4 worldTransformMatrix = entity.GetTransform().WorldSpaceTransformMatrix;
             Math::Decompose(worldTransformMatrix, position, rotation, scale);
         }
 
@@ -41,7 +41,7 @@ namespace TerranEngine
         bodyDef.angle = rotation.z;
         bodyDef.fixedRotation = rigidbody.FixedRotation;
         bodyDef.gravityScale = rigidbody.GravityScale;
-        bodyDef.userData.pointer = (uintptr_t)id.GetRaw();
+        bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(id.GetRaw());
         bodyDef.enabled = rigidbody.Enabled;
         
         m_Body = Physics2D::GetB2World()->CreateBody(&bodyDef);
@@ -200,12 +200,12 @@ namespace TerranEngine
 
         switch (sleepState)
         {
-        case TerranEngine::PhysicsBodySleepState::Sleep:
-        case TerranEngine::PhysicsBodySleepState::Awake:
-            m_Body->SetAwake((bool)sleepState);
+        case PhysicsBodySleepState::Sleep:
+        case PhysicsBodySleepState::Awake:
+            m_Body->SetAwake(static_cast<bool>(sleepState));
             m_Body->SetSleepingAllowed(true);
             break;
-        case TerranEngine::PhysicsBodySleepState::NeverSleep:
+        case PhysicsBodySleepState::NeverSleep:
             m_Body->SetSleepingAllowed(false);
             break;
         default:
@@ -219,10 +219,10 @@ namespace TerranEngine
 
         switch (forceMode)
         {
-        case TerranEngine::ForceMode2D::Force:
+        case ForceMode2D::Force:
             m_Body->ApplyForce({ force.x, force.y }, { point.x, point.y }, true);
             break;
-        case TerranEngine::ForceMode2D::Impulse:
+        case ForceMode2D::Impulse:
             m_Body->ApplyLinearImpulse({ force.x, force.y }, { point.x, point.y }, true);
             break;
         }
@@ -234,10 +234,10 @@ namespace TerranEngine
 
         switch (forceMode)
         {
-        case TerranEngine::ForceMode2D::Force:
+        case ForceMode2D::Force:
             m_Body->ApplyForceToCenter({ force.x, force.y }, true);
             break;
-        case TerranEngine::ForceMode2D::Impulse:
+        case ForceMode2D::Impulse:
             m_Body->ApplyLinearImpulseToCenter({ force.x, force.y }, true);
             break;
         }
@@ -262,7 +262,7 @@ namespace TerranEngine
         if (!m_Body->IsSleepingAllowed())
             return PhysicsBodySleepState::NeverSleep;
 
-        return (PhysicsBodySleepState)m_Body->IsAwake();
+        return static_cast<PhysicsBodySleepState>(m_Body->IsAwake());
     }
 
     PhysicsBodyType PhysicsBody2D::GetBodyType() const 

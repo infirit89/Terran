@@ -11,7 +11,7 @@ namespace TerranEngine
 {
 	namespace Utils 
 	{
-		class Variant
+		class Variant final
 		{
 		public:
 			enum class Type

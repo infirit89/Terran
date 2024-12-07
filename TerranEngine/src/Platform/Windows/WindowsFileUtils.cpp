@@ -25,7 +25,7 @@ namespace TerranEngine
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
 		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get()->GetWindow().GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window(static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow()));
 
 		ofn.lpstrFile = fileName;
 		ofn.nMaxFile = 260;
@@ -55,7 +55,7 @@ namespace TerranEngine
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
 		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get()->GetWindow().GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window(static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow()));
 
 		ofn.lpstrFile = fileName;
 		ofn.nMaxFile = sizeof(fileName);
@@ -84,13 +84,13 @@ namespace TerranEngine
 		SHELLEXECUTEINFOA shellInfo;
 		shellInfo.cbSize = sizeof(SHELLEXECUTEINFOA);
 		shellInfo.fMask = NULL;
-		shellInfo.hwnd = NULL;
+		shellInfo.hwnd = nullptr;
 		shellInfo.lpVerb = "explore";
 		shellInfo.lpDirectory = stringPath.c_str();
-		shellInfo.lpFile = NULL;
-		shellInfo.lpParameters = NULL;
+		shellInfo.lpFile = nullptr;
+		shellInfo.lpParameters = nullptr;
 		shellInfo.nShow = SW_NORMAL;
-		shellInfo.hInstApp = NULL;
+		shellInfo.hInstApp = nullptr;
 
 		ShellExecuteExA(&shellInfo);
 	}
@@ -101,7 +101,7 @@ namespace TerranEngine
 	void FileSystem::StartWatch()
 	{
 		s_Watching = true;
-		s_FileWatchThread = CreateThread(NULL, 0, Watch, 0, 0, NULL);
+		s_FileWatchThread = CreateThread(nullptr, 0, Watch, 0, 0, nullptr);
 		TR_ASSERT(s_FileWatchThread != NULL, "Couldn't create the watcher thread");
 	}
 
@@ -116,7 +116,7 @@ namespace TerranEngine
 		CloseHandle(s_FileWatchThread);
 	}
 
-	// this is the win32api thread proc signiture
+	// this is the win32api thread proc signature
 	unsigned long FileSystem::Watch(void* params)
 	{
 		// read directory changes; append them to a list of file change events
@@ -124,10 +124,10 @@ namespace TerranEngine
 		HANDLE hDir = CreateFile(dirStr.c_str(),
 			FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL,
+			nullptr,
 			OPEN_EXISTING,
 			FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
-			NULL);
+			nullptr);
 
 		TR_ASSERT(hDir != INVALID_HANDLE_VALUE, "Couldn't open directory");
 
@@ -135,7 +135,7 @@ namespace TerranEngine
 
 		constexpr size_t maxFileInformationBufferSize = 20;
 
-		overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+		overlap.hEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
 		FILE_NOTIFY_INFORMATION buf[maxFileInformationBufferSize];
 		DWORD bytesReturned;
@@ -156,7 +156,7 @@ namespace TerranEngine
 				FILE_NOTIFY_CHANGE_FILE_NAME,
 				&bytesReturned,
 				&overlap,
-				NULL);
+				nullptr);
 
 			WaitForSingleObject(overlap.hEvent, INFINITE);
 
@@ -168,7 +168,7 @@ namespace TerranEngine
 			{
 				FileSystemChangeEvent e;
 
-				pNotify = (FILE_NOTIFY_INFORMATION*)((char*)buf + offset);
+				pNotify = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<char*>(buf) + offset);
 
 				size_t fileNameLength = pNotify->FileNameLength / sizeof(wchar_t);
 				std::filesystem::path fileName = std::filesystem::path(std::wstring(pNotify->FileName, fileNameLength));
@@ -192,6 +192,7 @@ namespace TerranEngine
 					e.Action = FileAction::Renamed;
 					e.OldFileName = oldFileName;
 					break;
+				default: ;
 				}
 
 				offset += pNotify->NextEntryOffset;

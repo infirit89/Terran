@@ -9,7 +9,7 @@
 
 namespace TerranEngine 
 {
-	struct BatchRendererStats
+	struct BatchRendererStats final
 	{
 		uint32_t MaxVertices = 0;
 		uint32_t MaxIndices = 0;
@@ -20,7 +20,7 @@ namespace TerranEngine
 	};
 
 	// TODO: make it static; because every other system is static
-	class BatchRenderer2D
+	class BatchRenderer2D final
 	{
 	public:
 		static void Initialize(uint32_t batchSize);

@@ -8,7 +8,7 @@
 namespace TerranEngine 
 {
 	IndexBuffer::IndexBuffer(const int* indices, uint32_t size)
-		: m_Size(size), m_Handle(0)
+		: m_Handle(0), m_Size(size)
 	{
 		m_LocalData = Buffer::Copy(indices, size);
 		Renderer::SubmitCreate([this, size]() 

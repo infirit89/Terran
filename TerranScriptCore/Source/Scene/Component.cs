@@ -1,8 +1,4 @@
-﻿
-using System;
-using System.Runtime.InteropServices;
-
-namespace Terran
+﻿namespace Terran
 {
 	public class Component
 	{
@@ -11,6 +7,6 @@ namespace Terran
 			Entity = new Entity(id);
 		}
 
-		public Entity Entity { internal set; get; } = null!;
+		public Entity Entity { internal set; get; }
 	}
 }

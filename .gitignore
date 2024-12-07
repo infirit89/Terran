@@ -53,6 +53,7 @@ net8.0/
 *.vcxproj.user
 *.csproj
 *.csproj.user
+*.sln.DotSettings.user
 
 # Terran
 *.log

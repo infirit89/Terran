@@ -11,22 +11,22 @@
 
 namespace TerranEngine 
 {
-	class SceneRenderer 
+	class SceneRenderer final
 	{
 	public:
-		SceneRenderer(FramebufferParameters params);
+		SceneRenderer(const FramebufferParameters& params);
 
 		void SetClearColor(glm::vec4 color) { m_ClearColor = color; }
 
 		void SetScene(Scene* scene);
 
-		void BeginScene(Camera& camera, glm::mat4& cameraTransform, bool invereTransform);
+		void BeginScene(Camera& camera, const glm::mat4& cameraTransform, bool inverseTransform);
 
-		void SubmitSprite(SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID);
-		void SubmitCircle(CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID);
-		void SubmitLine(LineRendererComponent& lineRenderer, int entityID);
+		void SubmitSprite(const SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID);
+		void SubmitCircle(const CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID);
+		void SubmitLine(const LineRendererComponent& lineRenderer, int entityID);
 
-		void SubmitText(TextRendererComponent& textRenderer, glm::mat4& transform, int entityID);
+		void SubmitText(const TextRendererComponent& textRenderer, glm::mat4& transform, int entityID);
 
 		void EndScene();
 
@@ -35,7 +35,7 @@ namespace TerranEngine
 		void OnResize(uint32_t width, uint32_t height);
 
 		void SetShowColliders(bool show) { m_ShowColliders = show; }
-		bool AreCollidersShowing() { return m_ShowColliders; }
+		bool AreCollidersShowing() const { return m_ShowColliders; }
 
 	private:
 		void SubmitColliderBounds();

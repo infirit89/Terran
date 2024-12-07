@@ -4,7 +4,7 @@
 
 namespace TerranEngine 
 {
-	class CommandQueue 
+	class CommandQueue final
 	{
 	public:
 		CommandQueue(uint32_t capacity = 10_mb);
@@ -15,7 +15,7 @@ namespace TerranEngine
 		{
 			auto func = [](void* ptr)
 			{
-				auto f = (FuncT*)ptr;
+				auto f = static_cast<FuncT*>(ptr);
 				(*f)();
 			};
 
@@ -23,7 +23,7 @@ namespace TerranEngine
 			new (funcArgs) FuncT(std::forward<FuncT>(fn));
 		}
 
-		// exucte and clear
+		// execute and clear
 		void Execute();
 
 	private:

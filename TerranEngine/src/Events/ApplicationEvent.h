@@ -4,7 +4,7 @@
 
 namespace TerranEngine {
 
-	class WindowCloseEvent : public Event
+	class WindowCloseEvent final : public Event
 	{
 	public:
 		WindowCloseEvent() = default;
@@ -13,7 +13,7 @@ namespace TerranEngine {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class WindowResizeEvent : public Event 
+	class WindowResizeEvent final : public Event
 	{
 	public:
 		WindowResizeEvent(uint32_t width, uint32_t height) 
@@ -22,25 +22,25 @@ namespace TerranEngine {
 		EVENT_CLASS_TYPE(WindowResized)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-		inline uint32_t GetWidth() { return m_Width; }
-		inline uint32_t GetHeight() { return m_Height; }
+		uint32_t GetWidth() const { return m_Width; }
+		uint32_t GetHeight() const { return m_Height; }
 	private:
 		uint32_t m_Width; uint32_t m_Height;
 	};
 
-	class WindowContentScaleChangeEvent : public Event 
+	class WindowContentScaleChangeEvent final : public Event
 	{
 	public:
-		WindowContentScaleChangeEvent(float xscale, float yscale) 
-			: _XScale(xscale), _YScale(yscale) {}
+		WindowContentScaleChangeEvent(float xScale, float yScale) 
+			: m_XScale(xScale), m_YScale(yScale) {}
 
 		EVENT_CLASS_TYPE(WindowContentScaleChanged)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-		float GetXScale() { return _XScale; }
-		float GetYScale() { return _YScale; }
+		float GetXScale() const { return m_XScale; }
+		float GetYScale() const { return m_YScale; }
 
 	private:
-		float _XScale, _YScale;
+		float m_XScale, m_YScale;
 	};
 }

@@ -18,7 +18,7 @@ namespace TerranEditor
 		EditorLayer(const std::string& projectPath);
 
 		void OnAttach() override;
-		void OnDettach() override;
+		void OnDetach() override;
 
 		void Update(Time& time) override;
 
@@ -36,8 +36,8 @@ namespace TerranEditor
 
 		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
 		bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
-		bool OnGamepadConnectedEvent(GamepadConnectedEvent& gEvent);
-		bool OnGamepadDisconnectedEvent(GamepadDisconnectedEvent& gEvent);
+		bool OnGamepadConnectedEvent(GamePadConnectedEvent& gEvent);
+		bool OnGamepadDisconnectedEvent(GamePadDisconnectedEvent& gEvent);
 		
 		void SaveSceneAs();
 		void NewScene();

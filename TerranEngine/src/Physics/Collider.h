@@ -47,7 +47,7 @@ namespace TerranEngine
 				
 		Shared<PhysicsBody2D> GetPhysicsBody() const;
 
-		inline ColliderType2D GetType() const { return p_ColliderType; }
+		ColliderType2D GetType() const { return p_ColliderType; }
 
         void CreateFixture();
         void DestroyFixture();
@@ -61,7 +61,7 @@ namespace TerranEngine
         friend class PhysicsBody2D;
 	};
 
-	class BoxCollider2D : public Collider2D
+	class BoxCollider2D final : public Collider2D
 	{
 	public:
 		BoxCollider2D() = default;
@@ -71,14 +71,14 @@ namespace TerranEngine
 		void SetSize(const glm::vec2& size);
 		glm::vec2 GetSize() const;
 
-		virtual void SetOffset(const glm::vec2& offset) override;
-		virtual glm::vec2 GetOffset() const override;
+		void SetOffset(const glm::vec2& offset) override;
+		glm::vec2 GetOffset() const override;
 
 	private:
 		b2PolygonShape* m_PolygonShape = nullptr;
 	};
 
-	class CircleCollider2D : public Collider2D 
+	class CircleCollider2D final : public Collider2D
 	{
 	public:
 		CircleCollider2D() = default;
@@ -88,14 +88,14 @@ namespace TerranEngine
 		void SetRadius(float radius);
 		float GetRadius() const;
 
-		virtual void SetOffset(const glm::vec2& offset) override;
-		virtual glm::vec2 GetOffset() const override;
+		void SetOffset(const glm::vec2& offset) override;
+		glm::vec2 GetOffset() const override;
 
 	private:
 		b2CircleShape* m_CircleShape = nullptr;
 	};
 
-    class CapsuleCollider2D : public Collider2D
+    class CapsuleCollider2D final : public Collider2D
     {
     public:
         CapsuleCollider2D() = default;
@@ -105,8 +105,8 @@ namespace TerranEngine
 		void SetSize(const glm::vec2& size);
 		glm::vec2 GetSize() const;
 
-		virtual void SetOffset(const glm::vec2& offset) override;
-		virtual glm::vec2 GetOffset() const override;
+		void SetOffset(const glm::vec2& offset) override;
+		glm::vec2 GetOffset() const override;
 
     private:
         b2CircleShape* m_UpperCircleShape = nullptr, * m_LowerCircleShape = nullptr;

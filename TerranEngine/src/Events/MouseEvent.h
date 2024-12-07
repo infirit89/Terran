@@ -7,14 +7,14 @@
 namespace TerranEngine 
 {
 
-	class MouseMoveEvent : public Event 
+	class MouseMoveEvent final : public Event
 	{
 	public:
-		MouseMoveEvent(const float xpos, const float ypos) 
-			: m_XPos(xpos), m_YPos(ypos) {}
+		MouseMoveEvent(const float xPos, const float yPos) 
+			: m_XPos(xPos), m_YPos(yPos) {}
 
-		inline float GetX() const { return m_XPos; }
-		inline float GetY() const { return m_YPos; }
+		float GetX() const { return m_XPos; }
+		float GetY() const { return m_YPos; }
 
 		EVENT_CLASS_TYPE(MouseMoved)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
@@ -22,14 +22,14 @@ namespace TerranEngine
 		float m_XPos; float m_YPos;
 	};
 
-	class MouseScrollEvent : public Event 
+	class MouseScrollEvent final : public Event
 	{
 	public:
-		MouseScrollEvent(const float xoffset, const float yoffset) 
-			: m_XOffset(xoffset), m_YOffset(yoffset) {}
+		MouseScrollEvent(const float xOffset, const float yOffset) 
+			: m_XOffset(xOffset), m_YOffset(yOffset) {}
 
-		inline float GetXOffset() const { return m_XOffset; }
-		inline float GetYOffset() const { return m_YOffset; }
+		float GetXOffset() const { return m_XOffset; }
+		float GetYOffset() const { return m_YOffset; }
 
 		EVENT_CLASS_TYPE(MouseScrolled)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
@@ -38,20 +38,20 @@ namespace TerranEngine
 		float m_XOffset; float m_YOffset;
 	};
 
-	class MouseButtonEvent : public Event 
+	class MouseButtonEvent : public Event
 	{
 	public:
 		MouseButtonEvent(const MouseButton buttonCode)
 			: m_ButtonCode(buttonCode) {}
 
-		inline MouseButton GetButton() const { return m_ButtonCode; }
+		MouseButton GetButton() const { return m_ButtonCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse)
 	private:
 		MouseButton m_ButtonCode;
 	};
 
-	class MouseButtonPressedEvent : public MouseButtonEvent 
+	class MouseButtonPressedEvent final : public MouseButtonEvent
 	{
 	public:
 		MouseButtonPressedEvent(const MouseButton buttonCode)
@@ -60,7 +60,7 @@ namespace TerranEngine
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class MouseButtonReleasedEvent : public MouseButtonEvent
+	class MouseButtonReleasedEvent final : public MouseButtonEvent
 	{
 	public:
 		MouseButtonReleasedEvent(const MouseButton buttonCode)

@@ -4,17 +4,17 @@
 
 namespace TerranEngine
 {
-    class ProjectSerializer
+    class ProjectSerializer final
     {
     public:
         ProjectSerializer() = default;
-        ProjectSerializer(Shared<Project> project);
+        ProjectSerializer(const Shared<Project>& project);
 
         void Serialize();
-        bool Deserizlize();
+        bool Deserialize();
 
     private:
         Shared<Project> m_Project;
-        const std::filesystem::path m_ProjectSettingsPath = "ProjectSettings.tstg";
+        std::filesystem::path m_ProjectSettingsPath = "ProjectSettings.tstg";
     };
 }

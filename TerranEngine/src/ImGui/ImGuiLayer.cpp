@@ -13,7 +13,7 @@
 namespace TerranEngine
 {
 	ImGuiLayer::ImGuiLayer()
-		: Layer("Imgui Layer") { }
+		: Layer("ImGui Layer") { }
 
 	ImGuiLayer::~ImGuiLayer() { }
 
@@ -39,7 +39,7 @@ namespace TerranEngine
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
-	void ImGuiLayer::OnDettach()
+	void ImGuiLayer::OnDetach()
 	{
 		ImGui_ImplGlfw_Shutdown();
 		ImGui_ImplOpenGL3_Shutdown();

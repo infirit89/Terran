@@ -5,7 +5,7 @@
 
 namespace TerranEngine 
 {
-	class VertexArray 
+	class VertexArray final
 	{
 	public:
 		VertexArray();
@@ -15,10 +15,10 @@ namespace TerranEngine
 		void Unbind();
 
 		void AddVertexBuffer(const Shared<VertexBuffer>& buffer);
-		inline const Shared<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
+		const Shared<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
 
 		void AddIndexBuffer(const Shared<IndexBuffer>& buffer);
-		inline const Shared<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
+		const Shared<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 	private:
 		void Release();
 

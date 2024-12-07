@@ -6,7 +6,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
-#include "Events/GamepadEvent.h"
+#include "Events/GamePadEvent.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 
@@ -17,7 +17,7 @@ namespace TerranEngine
 	static int s_GlfwSuccess = glfwInit();
 	static GLFWWindow* s_CurrentWindow = nullptr;
 
-	GLFWWindow::GLFWWindow(WindowData data)
+	GLFWWindow::GLFWWindow(const WindowData& data)
 	{
 		TR_ASSERT(s_GlfwSuccess, "GFLW couldn't initialze!");
 
@@ -52,9 +52,9 @@ namespace TerranEngine
 		m_WindowDataPtr.EventCallback = eventCallbackFN;
 	}
 
-	void GLFWWindow::SetTitle(const char* title)
+	void GLFWWindow::SetTitle(std::string_view title)
 	{
-		glfwSetWindowTitle(m_Window, title);
+		glfwSetWindowTitle(m_Window, title.data());
 	}
 
 	void GLFWWindow::InitWindow(WindowData data)
@@ -75,7 +75,7 @@ namespace TerranEngine
 
 		m_WindowDataPtr.VideoMode = vidMode;
 
-		m_Window = glfwCreateWindow(data.Width, data.Height, data.Name, NULL, NULL);
+		m_Window = glfwCreateWindow(data.Width, data.Height, data.Name.data(), nullptr, nullptr);
 		TR_ASSERT(m_Window, "Couldn't create a GLFW window!");
 
 		glfwSetWindowUserPointer(m_Window, &m_WindowDataPtr);
@@ -95,7 +95,7 @@ namespace TerranEngine
 		// setup event callbacks
 		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int maximize)
 		{
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *static_cast<WindowDataPtr*>(glfwGetWindowUserPointer(window));
 
 			if (maximize == 0)
 			{
@@ -108,7 +108,7 @@ namespace TerranEngine
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
 		{
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *static_cast<WindowDataPtr*>(glfwGetWindowUserPointer(window));
 
 			WindowCloseEvent e;
 			data.EventCallback(e);
@@ -116,7 +116,7 @@ namespace TerranEngine
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
 		{
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *static_cast<WindowDataPtr*>(glfwGetWindowUserPointer(window));
 
 			data.Width = width;
 			data.Height = height;
@@ -127,25 +127,25 @@ namespace TerranEngine
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
 		{
-			WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
+			WindowDataPtr& data = *static_cast<WindowDataPtr*>(glfwGetWindowUserPointer(window));
 
 			switch (action)
 			{
 			case GLFW_PRESS:
 			{
-				KeyPressedEvent e((Key)key, 0);
+				KeyPressedEvent e(static_cast<Key>(key), 0);
 				data.EventCallback(e);
 				break;
 			}
 			case GLFW_REPEAT:
 			{
-				KeyPressedEvent e((Key)key, 1);
+				KeyPressedEvent e(static_cast<Key>(key), 1);
 				data.EventCallback(e);
 				break;
 			}
 			case GLFW_RELEASE:
 			{
-				KeyReleasedEvent e((Key)key);
+				KeyReleasedEvent e(static_cast<Key>(key));
 				data.EventCallback(e);
 				break;
 			}
@@ -197,13 +197,13 @@ namespace TerranEngine
 			{
 			case GLFW_CONNECTED:
 			{
-				GamepadConnectedEvent e(joystickID);
+				GamePadConnectedEvent e(joystickID);
 				data.EventCallback(e);
 				break;
 			}
 			case GLFW_DISCONNECTED:
 			{
-				GamepadDisconnectedEvent e(joystickID);
+				GamePadDisconnectedEvent e(joystickID);
 				data.EventCallback(e);
 				break;
 			}

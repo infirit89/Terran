@@ -15,22 +15,22 @@ namespace Coral
 	class FieldInfo;
 }
 
-namespace TerranEngine 
+namespace TerranEngine
 {
-	struct ScriptField
+	struct ScriptField final
 	{
 		ScriptFieldType Type = ScriptFieldType::None;
 		std::string Name;
 		bool IsArray = false;
 	};
 
-	struct ScriptObject 
+	struct ScriptObject final
 	{
 		const void* Handle;
 		int32_t Padding[2];
 	};
 
-	struct ScriptArray
+	struct ScriptArray final
 	{
 		const void* Handle;
 		int32_t Rank;
@@ -52,7 +52,7 @@ namespace TerranEngine
 	template<typename... TIndices>
 	concept indices_concept = sizeof...(TIndices) > 0;
 
-	class ScriptInstance 
+	class ScriptInstance final
 	{
 	public:
 		ScriptInstance(const Coral::Type& type, const UUID& id);
@@ -61,7 +61,7 @@ namespace TerranEngine
 		template<typename TValue>
 		void SetFieldValue(int32_t fieldHandle, const TValue& value) const
 		{
-			SetFieldValueInternal(fieldHandle, (void*)&value);
+			SetFieldValueInternal(fieldHandle, (void*)(&value));
 		}
 
 		template<>
@@ -103,7 +103,7 @@ namespace TerranEngine
 		template<typename TValue>
 		void SetFieldArrayValue(const ScriptArray& array, const TValue& value, const int32_t* indices, size_t indicesSize) 
 		{
-			SetFieldArrayValueInternal(array, (void*)&value, indices, indicesSize);
+			SetFieldArrayValueInternal(array, (void*)(&value), indices, indicesSize);
 		}
 
 		template<>
@@ -161,22 +161,22 @@ namespace TerranEngine
 		const ScriptField& GetScriptField(int32_t fieldHandle) const { return m_Fields.at(fieldHandle); }
 		ScriptArray GetScriptArray(int32_t fieldHandle);
 
-		void InvokeInit();
-		void InvokeUpdate(float deltaTime);
-		void InvokePhysicsUpdate();
-		void InvokeCollisionBegin(Entity other);
-		void InvokeCollisionEnd(Entity other);
+		void InvokeInit() const;
+		void InvokeUpdate(float deltaTime) const;
+		void InvokePhysicsUpdate() const;
+		void InvokeCollisionBegin(Entity other) const;
+		void InvokeCollisionEnd(Entity other) const;
 
-		void CopyFieldFrom(int32_t fieldHandle, Shared<ScriptInstance> source);
-		void CopyAllFieldsFrom(Shared<ScriptInstance> source);
+		void CopyFieldFrom(int32_t fieldHandle, const Shared<ScriptInstance>& source);
+		void CopyAllFieldsFrom(const Shared<ScriptInstance>& source);
 
 		const void* GetHandle() const { return m_Context; }
 
 	private:
 		void SetFieldValueInternal(int32_t fieldHandle, void* value) const;
 		void GetFieldValueInternal(int32_t fieldHandle, void* value) const;
-		void SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const;
-		void GetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const;
+		static void SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize);
+		static void GetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize);
 		void ResizeFieldArrayInternal(ScriptArray& array, int32_t length);
 		void ResizeFieldArrayInternal(ScriptArray& array, const int32_t* lengths, size_t lengthsSize);
 

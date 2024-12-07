@@ -6,7 +6,7 @@
 
 namespace TerranEngine 
 {
-	class AssetImporter 
+	class AssetImporter final
 	{
 	public:
 		static void RegisterLoaders();

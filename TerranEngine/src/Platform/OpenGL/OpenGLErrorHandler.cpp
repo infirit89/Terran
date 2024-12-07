@@ -13,6 +13,7 @@ namespace TerranEngine
 		case GL_DEBUG_SEVERITY_MEDIUM:       return spdlog::level::level_enum::warn;
 		case GL_DEBUG_SEVERITY_LOW:          return spdlog::level::level_enum::trace;
 		case GL_DEBUG_SEVERITY_NOTIFICATION: return spdlog::level::level_enum::info;
+		default: ;
 		}
 
 		return spdlog::level::level_enum::info;
@@ -36,6 +37,7 @@ namespace TerranEngine
 			case GL_DEBUG_SOURCE_THIRD_PARTY:		Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Third Party"); break;
 			case GL_DEBUG_SOURCE_APPLICATION:		Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Application"); break;
 			case GL_DEBUG_SOURCE_OTHER:				Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Source: Other"); break;
+			default: ;
 			}
 
 			switch (type)
@@ -49,6 +51,7 @@ namespace TerranEngine
 			case GL_DEBUG_TYPE_PUSH_GROUP:          Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Push Group"); break;
 			case GL_DEBUG_TYPE_POP_GROUP:           Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Pop Group"); break;
 			case GL_DEBUG_TYPE_OTHER:               Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Type: Other"); break;
+			default: ;
 			}
 
 			switch (severity)
@@ -57,6 +60,7 @@ namespace TerranEngine
 			case GL_DEBUG_SEVERITY_MEDIUM:			Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: medium"); break;
 			case GL_DEBUG_SEVERITY_LOW:				Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: low"); break;
 			case GL_DEBUG_SEVERITY_NOTIFICATION:	Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Severity: notification"); break;
+			default: ;
 			}
 
 			Log::GetLogger(TR_LOG_RENDERER)->log(logLevel, "Debug message (" + std::to_string(id) + "): " + message);

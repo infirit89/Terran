@@ -38,7 +38,7 @@ namespace TerranEngine
 
     YAML::Emitter& operator<<(YAML::Emitter& out, std::byte v)
     {
-        out << (int)v;
+        out << static_cast<int>(v);
         return out;
     }
 }

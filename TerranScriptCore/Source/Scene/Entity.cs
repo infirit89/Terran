@@ -6,19 +6,16 @@ namespace Terran
 {
     public class Entity
     {
-        internal UUID Handle
-        {
-            get => m_Handle;
-        }
+        internal UUID Handle => m_Handle;
 
-        private UUID m_Handle;
+        private readonly UUID m_Handle;
 
         public string Name
         {
-            get => GetComponent<Tag>()!.Name;
-            set => GetComponent<Tag>()!.Name = value;
+            get => GetComponent<Tag>().Name;
+            set => GetComponent<Tag>().Name = value;
         }
-        public Transform Transform => GetComponent<Transform>()!;
+        public Transform Transform => GetComponent<Transform>();
 
         public Entity()
         {
@@ -48,8 +45,7 @@ namespace Terran
         {
             unsafe
             {
-                if (entity != null)
-                    Internal.Entity_DestroyEntityICall(entity.Handle);
+                Internal.Entity_DestroyEntityICall(entity.Handle);
             }
         }
 
@@ -126,10 +122,10 @@ namespace Terran
 
                         GCHandle gcHandle = GCHandle.FromIntPtr(handle);
 
-                        if (!(gcHandle.Target is T))
+                        if (!(gcHandle.Target is T target))
                             throw new NullReferenceException($"The entity doesn't have {typeof(T).FullName}");
 
-                        return (T)gcHandle.Target;
+                        return target;
                     }
                 }
 
@@ -160,7 +156,7 @@ namespace Terran
             unsafe
             {
                 if (index < 0 || index >= ChildrenCount)
-                    throw new ArgumentOutOfRangeException("Index is out of range");
+                    throw new IndexOutOfRangeException();
 
                 return new Entity(Internal.Entity_GetChildICall(Handle, index));
             }

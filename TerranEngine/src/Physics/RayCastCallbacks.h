@@ -1,24 +1,20 @@
 #pragma once
 
-#include "Scene/Entity.h"
-#include "PhysicsLayerManager.h"
 #include "Physics.h"
 
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_world_callbacks.h>
 
-#include <glm/glm.hpp>
-
 #include <vector>
 
 namespace TerranEngine 
 {
-	class RayCastClosestCallback : public b2RayCastCallback
+	class RayCastClosestCallback final : public b2RayCastCallback
 	{
 	public:
 		RayCastClosestCallback(uint16_t layerMask);
 
-		virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
+		float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
 
 		/*Entity GetHitEntity() const;*/
 		bool HasHit() const { return m_Hit; }
@@ -37,12 +33,12 @@ namespace TerranEngine
 		bool m_Hit;
 	};
 
-	class RayCastMultipleCallback : public b2RayCastCallback 
+	class RayCastMultipleCallback final : public b2RayCastCallback
 	{
 	public:
 		RayCastMultipleCallback(uint16_t layerMask);
 
-		virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
+		float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
 
 		size_t GetHitCount() const { return m_HitInfos->size(); }
 		//Entity GetHitEntity(int index) const;

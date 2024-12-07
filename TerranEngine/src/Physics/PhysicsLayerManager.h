@@ -6,13 +6,13 @@
 
 namespace TerranEngine 
 {
-    struct PhysicsLayer
+    struct PhysicsLayer final
     {
         uint16_t Mask = 0xFFFF;
         std::string Name;
     };
 
-    class PhysicsLayerManager
+    class PhysicsLayerManager final
     {
         static constexpr size_t s_MaxLayerCount = 16;
         using Layers = std::array<PhysicsLayer, s_MaxLayerCount>;

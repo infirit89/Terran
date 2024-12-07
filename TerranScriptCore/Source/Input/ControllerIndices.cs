@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Terran
+﻿namespace Terran
 {
 	public enum ControllerButton : byte
 	{

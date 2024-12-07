@@ -13,7 +13,7 @@
 
 namespace TerranEngine 
 {
-	class AssetManager 
+	class AssetManager final
 	{
 		using AssetInfoMap = std::map<UUID, AssetInfo>;
 		using AssetChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;
@@ -33,10 +33,10 @@ namespace TerranEngine
 		static AssetHandle ImportAsset(const std::filesystem::path& assetPath);
 		static void ReloadAssetByHandle(AssetHandle assetHandle);
 
-		inline static void SetAssetChangedCallback(AssetChangeCallbackFn callback) { s_ChangeCallback = callback; }
+		static void SetAssetChangedCallback(const AssetChangeCallbackFn& callback) { s_ChangeCallback = callback; }
 
 		template<typename T>
-		inline static Shared<T> GetAssetByHandle(const AssetHandle& assetHandle)
+		static Shared<T> GetAssetByHandle(const AssetHandle& assetHandle)
 		{
 			if (s_LoadedAssets.find(assetHandle) != s_LoadedAssets.end())
 				return DynamicCast<T>(s_LoadedAssets.at(assetHandle));
@@ -62,7 +62,7 @@ namespace TerranEngine
 		}
 
 		template<typename T>
-		inline static Shared<T> GetAssetByAssetInfo(const AssetInfo& assetInfo) 
+		static Shared<T> GetAssetByAssetInfo(const AssetInfo& assetInfo) 
 		{
 			if (s_LoadedAssets.contains(assetInfo.Handle))
 				return DynamicCast<T>(s_LoadedAssets.at(assetInfo.Handle));

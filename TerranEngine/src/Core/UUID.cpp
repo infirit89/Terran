@@ -3,10 +3,10 @@
 
 namespace TerranEngine
 {
-	UUID UUID::s_Empty({ 0 });
+	UUID UUID::s_Empty({});
 
 	UUID::UUID()
-		: m_Data({ 0 })
+		: m_Data({})
 	{
 		Generate();
 	}
@@ -16,9 +16,9 @@ namespace TerranEngine
 	{
 	}
 
-	UUID UUID::CreateFromRaw(uint8_t* data)
+	UUID UUID::CreateFromRaw(const uint8_t* data)
 	{
-		std::array<uint8_t, 16> idData = { 0 };
+		std::array<uint8_t, 16> idData = {};
 		constexpr uint32_t uuidArrayLength = 16 * sizeof(uint8_t);
 
 		memcpy(&idData, data, uuidArrayLength);
@@ -42,7 +42,7 @@ namespace TerranEngine
 	{
 		size_t index = 0;
 
-		std::array<uint8_t, 16> data{ {0} };
+		std::array<uint8_t, 16> data{ {} };
 
 		if (str.empty())
 			return UUID({ 0 });
@@ -57,14 +57,14 @@ namespace TerranEngine
 				return UUID({ 0 });
 			}
 
-			data[index] = (uint8_t)(CharToHex(str[i]) << 4);
+			data[index] = static_cast<uint8_t>(CharToHex(str[i]) << 4);
 			data[index] |= (uint8_t)(CharToHex(str[++i]));
 
 			index++;
 		}
 
 		if (index < 16)
-			return UUID({ 0 });
+			return UUID({});
 
 		return UUID{ data };
 	}

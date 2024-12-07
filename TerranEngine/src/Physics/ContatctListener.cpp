@@ -2,10 +2,6 @@
 #include "ContatctListener.h"
 #include "PhysicsUtils.h"
 
-#include "Core/Log.h"
-#include "Core/UUID.h"
-
-#include "Scene/Scene.h"
 #include "Scene/Entity.h"
 
 #include "Scripting/ScriptEngine.h"

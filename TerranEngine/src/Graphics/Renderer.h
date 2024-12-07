@@ -18,14 +18,14 @@ namespace TerranEngine
 		TriangleFan,
 	};
 
-	struct RendererData
+	struct RendererData final
 	{
 		Shared<CommandQueue> CreateResourceQueue;
 		Shared<CommandQueue> RenderQueue;
 		Shared<CommandQueue> FreeResourceQueue;
 	};
 
-	class Renderer
+	class Renderer final
 	{
 	public:
 		static void Initialize();

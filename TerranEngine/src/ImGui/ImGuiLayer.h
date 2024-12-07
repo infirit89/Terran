@@ -6,14 +6,14 @@
 
 namespace TerranEngine 
 {
-	class ImGuiLayer : public Layer
+	class ImGuiLayer final : public Layer
 	{
 	public:
 		ImGuiLayer();
-		~ImGuiLayer();
+		~ImGuiLayer() override;
 
 		void OnAttach() override;
-		void OnDettach() override;
+		void OnDetach() override;
 
 		void OnEvent(Event& event) override;
 

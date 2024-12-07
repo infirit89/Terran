@@ -25,18 +25,18 @@ namespace TerranEngine
 		std::array<uint8_t, 16> data =
 		{ {
 			  // extract the long
-			  (uint8_t)((uuid.Data1 >> 24) & 0xFF),
-			  (uint8_t)((uuid.Data1 >> 16) & 0xFF),
-			  (uint8_t)((uuid.Data1 >> 8) & 0xFF),
-			  (uint8_t)((uuid.Data1) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data1 >> 24) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data1 >> 16) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data1 >> 8) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data1) & 0xFF),
 
 			  // extract the first short
-			  (uint8_t)((uuid.Data2 >> 8) & 0xFF),
-			  (uint8_t)((uuid.Data2) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data2 >> 8) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data2) & 0xFF),
 
 			  // extract the second short
-			  (uint8_t)((uuid.Data3 >> 8) & 0xFF),
-			  (uint8_t)((uuid.Data3) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data3 >> 8) & 0xFF),
+			  static_cast<uint8_t>((uuid.Data3) & 0xFF),
 
 			  // the char array
 			  (uint8_t)uuid.Data4[0],

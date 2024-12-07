@@ -9,14 +9,13 @@
 #include <yaml-cpp/yaml.h>
 
 #include <fstream>
-#include <iomanip>
 
 namespace TerranEngine
 {
-    ProjectSerializer::ProjectSerializer(Shared<Project> project)
+    ProjectSerializer::ProjectSerializer(const Shared<Project>& project)
         : m_Project(project) {}
 
-    void ProjectSerializer::Serialize() 
+    void ProjectSerializer::Serialize()
     {
         YAML::Emitter out;
 
@@ -52,7 +51,7 @@ namespace TerranEngine
         ofs << out.c_str();
     }
 
-    bool ProjectSerializer::Deserizlize()
+    bool ProjectSerializer::Deserialize()
     {
         YAML::Node node;
 

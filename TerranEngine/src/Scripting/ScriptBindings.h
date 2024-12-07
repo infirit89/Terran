@@ -8,14 +8,12 @@
 #include "Physics/Collider.h"
 
 #include <Coral/String.hpp>
-#include <Coral/Assembly.hpp>
 #include <Coral/ManagedObject.hpp>
-#include <Coral/ManagedArray.hpp>
 #include <glm/glm.hpp>
 
 namespace TerranEngine 
 {
-	class ScriptBindings
+	class ScriptBindings final
 	{
 	public:
 		static void Bind(Coral::ManagedAssembly& assembly);

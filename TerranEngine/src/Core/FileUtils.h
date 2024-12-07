@@ -14,14 +14,14 @@ namespace TerranEngine
 		Renamed
 	};
 
-	struct FileSystemChangeEvent
+	struct FileSystemChangeEvent final
 	{
 		FileAction Action;
 		std::filesystem::path FileName;
 		std::filesystem::path OldFileName;
 	};
 
-	class FileSystem 
+	class FileSystem final
 	{
 	private:
 		using FileSystemChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;

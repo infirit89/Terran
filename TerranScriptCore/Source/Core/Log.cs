@@ -11,16 +11,14 @@ namespace Terran
 			Error   = 1 << 2
 		}
 
-		public static void Trace(string message)
-		{
-			using (NativeString nativeStr = message != null ? message : "")
-			{
-				unsafe 
-				{
-					Internal.Log_LogICall((byte)LogLevel.Trace, nativeStr);
-				}
-			}
-		}
+		public static void Trace(string? message)
+        {
+            using NativeString nativeStr = message ?? "";
+            unsafe 
+            {
+                Internal.Log_LogICall((byte)LogLevel.Trace, nativeStr);
+            }
+        }
 		public static void Trace(string format, params object[] args) => Trace(string.Format(format, args));
 		public static void Trace(bool message) => Trace(message.ToString());
 		public static void Trace(int message) => Trace(message.ToString());
@@ -29,14 +27,12 @@ namespace Terran
 		public static void Trace(Vector3 message) => Trace(message.ToString());
 		public static void Trace(object message) => Trace(message.ToString() ?? "");
 
-		public static void Warn(string message)
-		{
-            using (NativeString nativeStr = message != null ? message : "")
+		public static void Warn(string? message)
+        {
+            using NativeString nativeStr = message ?? "";
+            unsafe
             {
-                unsafe
-                {
-                    Internal.Log_LogICall((byte)LogLevel.Warn, nativeStr);
-                }
+                Internal.Log_LogICall((byte)LogLevel.Warn, nativeStr);
             }
         }
 		public static void Warn(string format, params object[] args) => Warn(string.Format(format, args));
@@ -47,14 +43,12 @@ namespace Terran
 		public static void Warn(Vector3 message) => Warn(message.ToString());
 		public static void Warn(object message) => Warn(message.ToString() ?? "");
 
-		public static void Error(string message) 
-		{
-            using (NativeString nativeStr = message != null ? message : "")
+		public static void Error(string message)
+        {
+            using NativeString nativeStr = message ?? "";
+            unsafe
             {
-                unsafe
-                {
-                    Internal.Log_LogICall((byte)LogLevel.Error, nativeStr);
-                }
+                Internal.Log_LogICall((byte)LogLevel.Error, nativeStr);
             }
         }
 		public static void Error(string format, params object[] args) => Error(string.Format(format, args));

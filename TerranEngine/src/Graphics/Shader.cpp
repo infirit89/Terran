@@ -17,6 +17,7 @@ namespace TerranEngine
 			{
 			case ShaderStage::Vertex:	return GL_VERTEX_SHADER;
 			case ShaderStage::Fragment:	return GL_FRAGMENT_SHADER;
+			default: ;
 			}
 
 			TR_ASSERT(false, "Invalid shader stage");

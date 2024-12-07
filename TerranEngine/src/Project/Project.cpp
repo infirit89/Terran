@@ -16,7 +16,7 @@ namespace TerranEngine
         return s_ActiveProject;
     }
 
-    void Project::SetActive(Shared<Project>& project)
+    void Project::SetActive(const Shared<Project>& project)
     {
         s_ActiveProject = project;
     }

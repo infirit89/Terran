@@ -8,13 +8,13 @@
 namespace TerranEngine 
 {
 	/* ---- Vertex Buffer Element --- */
-	uint8_t VertexBufferElement::GetSize()
+	uint8_t VertexBufferElement::GetSize() const
 	{
 		switch (Type)
 		{
 		case VertexBufferElementType::Float:
 		case VertexBufferElementType::Int:		return 4;
-		default:			TR_ASSERT(false, "No other type supported!");
+		default:	TR_ASSERT(false, "No other type supported!");
 		}
 
 		return 0;

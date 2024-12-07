@@ -57,8 +57,8 @@ namespace Terran
 		{
 			unsafe 
 			{
-				Internal.Input_GetMousePositionICall(out Vector2 mousePostion);
-				return mousePostion;
+				Internal.Input_GetMousePositionICall(out Vector2 mousePosition);
+				return mousePosition;
 			}
 		}
 

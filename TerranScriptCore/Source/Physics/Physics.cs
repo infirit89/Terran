@@ -1,6 +1,4 @@
-﻿using Coral.Managed.Interop;
-using System;
-using System.Runtime.CompilerServices;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Terran
@@ -32,7 +30,7 @@ namespace Terran
 		public Vector2 Normal;
 		private UUID m_RigidbodyEntityId;
 
-		public Rigidbody2D Rigidbody => new Rigidbody2D(m_RigidbodyEntityId);
+		public Rigidbody2D Rigidbody => new(m_RigidbodyEntityId);
 		
         public static implicit operator bool(RayCastHitInfo2D hit) => !hit.Equals(default(RayCastHitInfo2D));
 	}
@@ -43,8 +41,7 @@ namespace Terran
 		{
 			unsafe
 			{
-				RayCastHitInfo2D hitInfo;
-				bool hasHit = Internal.Physics2D_RayCastICall(in origin, in direction, length, layerMask, out hitInfo);
+                bool hasHit = Internal.Physics2D_RayCastICall(in origin, in direction, length, layerMask, out var hitInfo);
 
 				if(!hasHit)
 					return default;

@@ -8,10 +8,10 @@
 
 namespace TerranEngine
 {
-	class SceneTransitionEvent : public Event 
+	class SceneTransitionEvent final : public Event
 	{
 	public:
-		SceneTransitionEvent(Weak<Scene> oldScene, Shared<Scene> newScene)
+		SceneTransitionEvent(const Weak<Scene>& oldScene, const Shared<Scene>& newScene)
 			: m_OldScene(oldScene), m_NewScene(newScene) { }
 
 		EVENT_CLASS_TYPE(SceneTransitionEvent)

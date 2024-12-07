@@ -11,7 +11,7 @@ namespace TerranEngine
 		MouseMoved, MouseScrolled,
 		MouseButtonPressed, MouseButtonReleased,
 		WindowClosed, WindowResized, WindowContentScaleChanged,
-		GamepadConnected, GamepadDisconnected,
+		GamePadConnected, GamePadDisconnected,
 		SceneTransitionEvent,
 		CustomEvent
 	};
@@ -22,18 +22,18 @@ namespace TerranEngine
 		EventCategoryApplication = 1 << 0,
 		EventCategoryKeyboard = 1 << 1,
 		EventCategoryMouse = 1 << 2,
-		EventCategoryGamepad = 1 << 3
+		EventCategoryGamePad = 1 << 3
 	};
 
 	class Event 
 	{
 	public:
-		~Event() = default;
+		virtual ~Event() = default;
 
 		virtual EventType GetType() const = 0;
 		virtual EventCategory GetCategory() const = 0;
 
-		inline bool IsInCategory(EventCategory category) { return GetCategory() & category; }
+		bool IsInCategory(EventCategory category) const { return GetCategory() & category; }
 
 		bool IsHandled = false;
 	};
@@ -43,7 +43,7 @@ virtual EventType GetType() const override { return GetStaticType(); }
 
 #define EVENT_CLASS_CATEGORY(category) virtual EventCategory GetCategory() const override { return category; }
 
-	class EventDispatcher 
+	class EventDispatcher final
 	{
 		template<typename T>
 		using EventFN = std::function<bool(T&)>;
@@ -53,13 +53,13 @@ virtual EventType GetType() const override { return GetStaticType(); }
 		{}
 
 		template<typename T>
-		inline bool Dispatch(const EventFN<T>& func) 
+		bool Dispatch(const EventFN<T>& func) 
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{
 				if (!m_Event.IsHandled) 
 				{
-					m_Event.IsHandled |= func((T&)m_Event);
+					m_Event.IsHandled |= func(static_cast<T&>(m_Event));
 					return true;
 				}
 

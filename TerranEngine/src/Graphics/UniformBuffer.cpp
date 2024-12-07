@@ -8,7 +8,7 @@
 namespace TerranEngine 
 {
 	UniformBuffer::UniformBuffer(uint32_t bufferSize, uint32_t bindingPoint)
-		: m_Handle(0), m_LocalData(bufferSize)
+		: m_LocalData(bufferSize), m_Handle(0)
 	{
 		Renderer::SubmitCreate([this, bufferSize, bindingPoint]()
 		{

@@ -7,13 +7,13 @@
 
 namespace TerranEngine 
 {
-	struct ProfileResult 
+	struct ProfileResult final 
 	{
 		std::string Name;
 		double ElapsedTime;
 	};
 
-	class Profiler 
+	class Profiler final
 	{
 	public:
 
@@ -40,7 +40,7 @@ namespace TerranEngine
 		friend class ProfileTimer;
 	};
 
-	class ProfileTimer 
+	class ProfileTimer final
 	{
 	public:
 		ProfileTimer(const char* name)
@@ -55,12 +55,12 @@ namespace TerranEngine
 		}
 
 	private:
-		void Stop() 
+		void Stop() const
 		{
-			auto m_EndPoint = std::chrono::high_resolution_clock::now();
+			auto endPoint = std::chrono::high_resolution_clock::now();
 
 			auto start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartPoint).time_since_epoch().count();
-			auto end = std::chrono::time_point_cast<std::chrono::microseconds>(m_EndPoint).time_since_epoch().count();
+			auto end = std::chrono::time_point_cast<std::chrono::microseconds>(endPoint).time_since_epoch().count();
 
 			double millis = (end - start) * 0.001;
 

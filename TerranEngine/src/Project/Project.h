@@ -8,7 +8,7 @@
 
 namespace TerranEngine
 {
-    class Project
+    class Project final
     {
     public:
         Project(const std::filesystem::path& projectPath);
@@ -16,7 +16,7 @@ namespace TerranEngine
 
         static Shared<Project> New(const std::filesystem::path& projectPath);
 
-        static void SetActive(Shared<Project>& project);
+        static void SetActive(const Shared<Project>& project);
         static Shared<Project> GetActive() { return s_ActiveProject; } 
 
         static std::filesystem::path GetProjectPath() 

@@ -11,7 +11,7 @@ namespace TerranEngine
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
-		int state = glfwGetKey(window, (uint32_t)key);
+		int state = glfwGetKey(window, static_cast<uint32_t>(key));
 
 		return state == GLFW_PRESS;
 	}
@@ -20,7 +20,7 @@ namespace TerranEngine
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
-		int state = glfwGetMouseButton(window, (uint16_t)button);
+		int state = glfwGetMouseButton(window, static_cast<uint16_t>(button));
 
 		return state == GLFW_PRESS;
 	}
@@ -38,17 +38,17 @@ namespace TerranEngine
 	void Input::SetCursorState(CursorMode cursorMode) 
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
-		glfwSetInputMode(window, GLFW_CURSOR, (int)cursorMode);
+		glfwSetInputMode(window, GLFW_CURSOR, static_cast<int>(cursorMode));
 	}
 
 	bool Input::IsControllerConnected(uint8_t controllerIndex)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
-		int pressent = glfwJoystickPresent((int)controllerIndex);
-		bool isGamepad = glfwJoystickIsGamepad((int)controllerIndex);
+		const int present = glfwJoystickPresent(controllerIndex);
+		bool isGamePad = glfwJoystickIsGamepad(controllerIndex);
 
-		return pressent && isGamepad;
+		return present && isGamePad;
 	}
 
 	const char* Input::GetControllerName(uint8_t controllerIndex)
@@ -66,8 +66,8 @@ namespace TerranEngine
 	{
 		GLFWgamepadstate gamepadState;
 
-		if (glfwGetGamepadState((int)controllerIndex, &gamepadState)) 
-			return gamepadState.buttons[(int)controllerButton];
+		if (glfwGetGamepadState(controllerIndex, &gamepadState)) 
+			return gamepadState.buttons[static_cast<int>(controllerButton)];
 
 		return false;
 	}
@@ -76,8 +76,8 @@ namespace TerranEngine
 	{
 		GLFWgamepadstate gamepadState;
 
-		if (glfwGetGamepadState((int)controllerIndex, &gamepadState)) 
-			return gamepadState.axes[(int)controllerAxis];
+		if (glfwGetGamepadState(controllerIndex, &gamepadState)) 
+			return gamepadState.axes[static_cast<int>(controllerAxis)];
 
 		return 0.0f;
 	}

@@ -5,8 +5,6 @@
 #include "Scene/Entity.h"
 #include "Scene/SceneManager.h"
 
-#include <glm/glm.hpp>
-
 #include <box2d/box2d.h>
 
 // NOTE: to be included only in .cpp files
@@ -20,7 +18,7 @@ namespace TerranEngine
             TR_ASSERT(userData.pointer, "User data is null");
 
 			std::array<uint8_t, 16> uuidArr;
-			memcpy(uuidArr._Elems, (uint8_t*)userData.pointer, 16 * sizeof(uint8_t));
+			memcpy(uuidArr._Elems, reinterpret_cast<uint8_t*>(userData.pointer), 16 * sizeof(uint8_t));
 			
 			return { uuidArr };
 		}

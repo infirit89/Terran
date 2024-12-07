@@ -83,8 +83,8 @@ namespace TerranEditor
 
 	void EditorCamera::PanCamera(glm::vec2 delta, Time& time)
 	{
-		m_FocalPoint.x += -delta.x * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMS();
-		m_FocalPoint.y += delta.y * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMS();
+		m_FocalPoint.x += -delta.x * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMilliseconds();
+		m_FocalPoint.y += delta.y * 0.03f * m_OrthoGraphicSize * time.GetDeltaTimeMilliseconds();
 		m_ViewDirty = true;
 	}
 

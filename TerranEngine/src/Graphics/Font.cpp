@@ -22,7 +22,7 @@ namespace TerranEngine
 			delete m_FontGeometry;
 	}
 
-	GlyphData Font::GetGlyphData(char c)
+	GlyphData Font::GetGlyphData(char c) const
 	{
 		const msdf_atlas::GlyphGeometry* glyph = m_FontGeometry->getGlyph(c);
 
@@ -55,7 +55,7 @@ namespace TerranEngine
 		glyphData.VertexPositions[2] = { vertR, vertT, 0.0f, 1.0f };
 		glyphData.VertexPositions[3] = { vertL, vertT, 0.0f, 1.0f };
 			
-		glyphData.Advance = (float)glyph->getAdvance();
+		glyphData.Advance = static_cast<float>(glyph->getAdvance());
 
 		return glyphData;
 	}
@@ -65,25 +65,24 @@ namespace TerranEngine
 		return m_FontGeometry->getMetrics();
 	}
 
-	double Font::GetKerning(char c1, char c2)
+	double Font::GetKerning(char c1, char c2) const
 	{
 		const std::map<std::pair<int, int>, double>& kerningMap = m_FontGeometry->getKerning();
-		const msdf_atlas::GlyphGeometry* glyph1,* glyph2;
-		glyph1 = m_FontGeometry->getGlyph(c1);
-		glyph2 = m_FontGeometry->getGlyph(c2);
+		const msdf_atlas::GlyphGeometry* glyph1 = m_FontGeometry->getGlyph(c1);
+		const msdf_atlas::GlyphGeometry* glyph2 = m_FontGeometry->getGlyph(c2);
 
 		if (glyph1 && glyph2) 
 		{
 			std::pair<int, int> glyphIndicesPair = std::make_pair<int, int>(glyph1->getIndex(), glyph2->getIndex());
 
-			if (kerningMap.find(glyphIndicesPair) != kerningMap.end()) 
+			if (kerningMap.contains(glyphIndicesPair)) 
 				return kerningMap.at(glyphIndicesPair);
 		}
 
 		return 0.0;
 	}
 
-	double Font::GetAdvance(char c1, char c2)
+	double Font::GetAdvance(char c1, char c2) const
 	{
 		double advance;
 		bool success = m_FontGeometry->getAdvance(advance, c1, c2);
@@ -109,9 +108,8 @@ namespace TerranEngine
 		m_FontGeometry = new msdf_atlas::FontGeometry(m_Glyphs);
 
 		{
-			int glyphsLoaded = -1;
 			// the font size is ignored unless there are two or more different font sizes in a single atlas
-			glyphsLoaded = m_FontGeometry->loadCharset(fontHandle, 1.0, charset);
+			int glyphsLoaded = m_FontGeometry->loadCharset(fontHandle, 1.0, charset);
 
 			if (glyphsLoaded < 0)
 			{
@@ -134,16 +132,16 @@ namespace TerranEngine
 		msdf_atlas::TightAtlasPacker atlasPacker;
 
 		// TODO: make it editable?
-		constexpr msdf_atlas::TightAtlasPacker::DimensionsConstraint dimensionConstraint = msdf_atlas::TightAtlasPacker::DimensionsConstraint::MULTIPLE_OF_FOUR_SQUARE;
+		//constexpr msdf_atlas::TightAtlasPacker::DimensionsConstraint dimensionConstraint = msdf_atlas::TightAtlasPacker::DimensionsConstraint::MULTIPLE_OF_FOUR_SQUARE;
 		//atlasPacker.setDimensionsConstraint(dimensionConstraint);
 		atlasPacker.setPadding(0);
 		atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
 		//atlasPacker.setScale(40.0);
 
-		const double defaultPixelRange = 2.0;
+		constexpr double defaultPixelRange = 2.0;
 		atlasPacker.setPixelRange(defaultPixelRange);
 
-		const double defaultMiterLimit = 1.0;
+		constexpr double defaultMiterLimit = 1.0;
 		atlasPacker.setMiterLimit(defaultMiterLimit);
 
 		atlasPacker.pack(m_Glyphs->data(), static_cast<int>(m_Glyphs->size()));
@@ -151,10 +149,10 @@ namespace TerranEngine
 		atlasPacker.getDimensions(m_AtlasWidth, m_AtlasHeight);
 		TR_CORE_TRACE(TR_LOG_CORE, "Atlas width: {0}; Atlas height: {1}", m_AtlasWidth, m_AtlasHeight);
 
-		const double maxCornerAngle = 3.0;
+		constexpr double maxCornerAngle = 3.0;
 		
-		for (size_t i = 0; i < m_Glyphs->size(); i++)
-			(*m_Glyphs)[i].edgeColoring(msdfgen::edgeColoringInkTrap, maxCornerAngle, 0);
+		for (auto& m_Glyph : *m_Glyphs)
+			m_Glyph.edgeColoring(msdfgen::edgeColoringInkTrap, maxCornerAngle, 0);
 
 		msdf_atlas::ImmediateAtlasGenerator<float, 3, msdf_atlas::msdfGenerator, msdf_atlas::BitmapAtlasStorage<uint8_t, 3>> generator(m_AtlasWidth, m_AtlasHeight);
 		msdf_atlas::GeneratorAttributes generatorAttributes;
@@ -162,7 +160,7 @@ namespace TerranEngine
 		generatorAttributes.config.overlapSupport = true;
 
 		generator.setAttributes(generatorAttributes);
-		generator.setThreadCount(std::max((int)std::thread::hardware_concurrency() / 4, 1));
+		generator.setThreadCount(std::max(static_cast<int>(std::thread::hardware_concurrency()) / 4, 1));
 		generator.generate(m_Glyphs->data(), static_cast<int>(m_Glyphs->size()));
 
 		msdfgen::BitmapConstRef<uint8_t, 3> bitmap = generator.atlasStorage();
@@ -176,7 +174,7 @@ namespace TerranEngine
 		// TODO: cache texture to disk?
 		texture = Texture2D::Create(textureParameters, data);
 
-		m_FontGeometry->getKerning();
+		//m_FontGeometry->getKerning();
 
 		msdfgen::destroyFont(fontHandle);
 		

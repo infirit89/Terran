@@ -3,10 +3,9 @@
 #include "Event.h"
 
 #include <spdlog/common.h>
-#include <string_view>
 namespace TerranEngine 
 {
-	class ScriptEngineLogEvent : public Event
+	class ScriptEngineLogEvent final : public Event
 	{
 	public:
 		ScriptEngineLogEvent(std::string_view message, spdlog::level::level_enum level)

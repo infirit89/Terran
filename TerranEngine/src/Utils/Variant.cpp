@@ -93,8 +93,8 @@ namespace TerranEngine
             m_Type = Type::String;
             const size_t strLen = str.size();
             m_Data.ptr = new char[strLen + 1];
-            strcpy((char*)m_Data.ptr, str.c_str());
-            ((char*)m_Data.ptr)[strLen] = '\0';
+            strcpy(static_cast<char*>(m_Data.ptr), str.c_str());
+            static_cast<char*>(m_Data.ptr)[strLen] = '\0';
         }
 
         Variant::Variant(const char* str)
@@ -102,42 +102,42 @@ namespace TerranEngine
             m_Type = Type::String;
             const size_t strLen = strlen(str);
             m_Data.ptr = new char[strLen + 1];
-            strcpy((char*)m_Data.ptr, str);
-            ((char*)m_Data.ptr)[strLen] = '\0';
+            strcpy(static_cast<char*>(m_Data.ptr), str);
+            static_cast<char*>(m_Data.ptr)[strLen] = '\0';
         }
 
         Variant::Variant(const glm::vec2& vec2)
         {
             m_Type = Type::Vector2;
             m_Data.ptr = new glm::vec2;
-            ((glm::vec2*)m_Data.ptr)->x = vec2.x;
-            ((glm::vec2*)m_Data.ptr)->y = vec2.y;
+            static_cast<glm::vec2*>(m_Data.ptr)->x = vec2.x;
+            static_cast<glm::vec2*>(m_Data.ptr)->y = vec2.y;
         }
 
         Variant::Variant(const glm::vec3& vec3)
         {
             m_Type = Type::Vector3;
             m_Data.ptr = new glm::vec3;
-            ((glm::vec3*)m_Data.ptr)->x = vec3.x;
-            ((glm::vec3*)m_Data.ptr)->y = vec3.y;
-            ((glm::vec3*)m_Data.ptr)->z = vec3.z;
+            static_cast<glm::vec3*>(m_Data.ptr)->x = vec3.x;
+            static_cast<glm::vec3*>(m_Data.ptr)->y = vec3.y;
+            static_cast<glm::vec3*>(m_Data.ptr)->z = vec3.z;
         }
 
         Variant::Variant(const glm::vec4& vec4)
         {
             m_Type = Type::Vector4;
             m_Data.ptr = new glm::vec4;
-            ((glm::vec4*)m_Data.ptr)->x = vec4.x;
-            ((glm::vec4*)m_Data.ptr)->y = vec4.y;
-            ((glm::vec4*)m_Data.ptr)->z = vec4.z;
-            ((glm::vec4*)m_Data.ptr)->w = vec4.w;
+            static_cast<glm::vec4*>(m_Data.ptr)->x = vec4.x;
+            static_cast<glm::vec4*>(m_Data.ptr)->y = vec4.y;
+            static_cast<glm::vec4*>(m_Data.ptr)->z = vec4.z;
+            static_cast<glm::vec4*>(m_Data.ptr)->w = vec4.w;
         }
 
         Variant::Variant(const UUID& id)
         {
             m_Type = Type::UUID;
             m_Data.ptr = new UUID();
-            ((UUID*)m_Data.ptr)->SetData(id.GetData());
+            static_cast<UUID*>(m_Data.ptr)->SetData(id.GetData());
         }
 
         Variant::Variant(Entity entity)
@@ -146,55 +146,55 @@ namespace TerranEngine
         Variant::Variant(char* data, const Type& type)
         {
             m_Type = type;
-            size_t copySize = 0;
             switch (type)
             {
-            case Type::Bool:    m_Data.bValue = *(bool*)data; break;
+            case Type::Bool:    m_Data.bValue = *reinterpret_cast<bool*>(data); break;
             case Type::Char:    m_Data.iValue = *data; break;
-            case Type::Int8:    m_Data.iValue = *(int8_t*)data; break;
-            case Type::Int16:   m_Data.iValue = *(int16_t*)data; break;
-            case Type::Int32:   m_Data.iValue = *(int32_t*)data; break;
-            case Type::Int64:   m_Data.iValue = *(int64_t*)data; break;
-            case Type::UInt8:   m_Data.iValue = *(uint8_t*)data; break;
-            case Type::UInt16:  m_Data.iValue = *(uint16_t*)data; break;
-            case Type::UInt32:  m_Data.iValue = *(uint32_t*)data; break;
-            case Type::UInt64:  m_Data.iValue = *(uint64_t*)data; break;
-            case Type::Float:   m_Data.dValue = *(float*)data; break;
-            case Type::Double:  m_Data.dValue = *(double*)data; break;
+            case Type::Int8:    m_Data.iValue = *reinterpret_cast<int8_t*>(data); break;
+            case Type::Int16:   m_Data.iValue = *reinterpret_cast<int16_t*>(data); break;
+            case Type::Int32:   m_Data.iValue = *reinterpret_cast<int32_t*>(data); break;
+            case Type::Int64:   m_Data.iValue = *reinterpret_cast<int64_t*>(data); break;
+            case Type::UInt8:   m_Data.iValue = *reinterpret_cast<uint8_t*>(data); break;
+            case Type::UInt16:  m_Data.iValue = *reinterpret_cast<uint16_t*>(data); break;
+            case Type::UInt32:  m_Data.iValue = *reinterpret_cast<uint32_t*>(data); break;
+            case Type::UInt64:  m_Data.iValue = *reinterpret_cast<uint64_t*>(data); break;
+            case Type::Float:   m_Data.dValue = *reinterpret_cast<float*>(data); break;
+            case Type::Double:  m_Data.dValue = *reinterpret_cast<double*>(data); break;
             case Type::Vector2:
             {
-                glm::vec2 v2Data = *(glm::vec2*)data;
+                glm::vec2 v2Data = *reinterpret_cast<glm::vec2*>(data);
                 m_Data.ptr = new glm::vec2;
-                ((glm::vec2*)m_Data.ptr)->x = v2Data.x;
-                ((glm::vec2*)m_Data.ptr)->y = v2Data.y;
+                static_cast<glm::vec2*>(m_Data.ptr)->x = v2Data.x;
+                static_cast<glm::vec2*>(m_Data.ptr)->y = v2Data.y;
                 break;
             }
             case Type::Vector3:
             {
-                glm::vec3 v3Data = *(glm::vec3*)data;
+                glm::vec3 v3Data = *reinterpret_cast<glm::vec3*>(data);
                 m_Data.ptr = new glm::vec3;
-                ((glm::vec3*)m_Data.ptr)->x = v3Data.x;
-                ((glm::vec3*)m_Data.ptr)->y = v3Data.y;
-                ((glm::vec3*)m_Data.ptr)->z = v3Data.z;
+                static_cast<glm::vec3*>(m_Data.ptr)->x = v3Data.x;
+                static_cast<glm::vec3*>(m_Data.ptr)->y = v3Data.y;
+                static_cast<glm::vec3*>(m_Data.ptr)->z = v3Data.z;
                 break;
             }
             case Type::Vector4:
             {
-                glm::vec4 v4Data = *(glm::vec4*)data;
+                glm::vec4 v4Data = *reinterpret_cast<glm::vec4*>(data);
                 m_Data.ptr = new glm::vec4;
-                ((glm::vec4*)m_Data.ptr)->x = v4Data.x;
-                ((glm::vec4*)m_Data.ptr)->y = v4Data.y;
-                ((glm::vec4*)m_Data.ptr)->z = v4Data.z;
-                ((glm::vec4*)m_Data.ptr)->w = v4Data.w;
+                static_cast<glm::vec4*>(m_Data.ptr)->x = v4Data.x;
+                static_cast<glm::vec4*>(m_Data.ptr)->y = v4Data.y;
+                static_cast<glm::vec4*>(m_Data.ptr)->z = v4Data.z;
+                static_cast<glm::vec4*>(m_Data.ptr)->w = v4Data.w;
                 break;
             }
             case Type::UUID:
             {
-                UUID id = *(UUID*)data;
+                UUID id = *reinterpret_cast<UUID*>(data);
                 m_Data.ptr = new UUID();
-                ((UUID*)m_Data.ptr)->SetData(id.GetData());
+                static_cast<UUID*>(m_Data.ptr)->SetData(id.GetData());
                 break;
             }
+            default: ;
             }
         }
 
@@ -208,7 +208,7 @@ namespace TerranEngine
             {
                 if(m_Data.ptr)
                 { 
-                    delete[] (char*)m_Data.ptr;
+                    delete[] static_cast<char*>(m_Data.ptr);
                     m_Data.ptr = nullptr;
                 }
                 break;
@@ -217,7 +217,7 @@ namespace TerranEngine
             {
                 if(m_Data.ptr)
                 {
-                    delete (glm::vec2*)m_Data.ptr;
+                    delete static_cast<glm::vec2*>(m_Data.ptr);
                     m_Data.ptr = nullptr;
                 }
                 break;
@@ -226,7 +226,7 @@ namespace TerranEngine
             {
                 if(m_Data.ptr)
                 {
-                    delete (glm::vec3*)m_Data.ptr;
+                    delete static_cast<glm::vec3*>(m_Data.ptr);
                     m_Data.ptr = nullptr;
                 }
                 break;
@@ -235,7 +235,7 @@ namespace TerranEngine
             {
                 if(m_Data.ptr)
                 {
-                    delete (glm::vec4*)m_Data.ptr;
+                    delete static_cast<glm::vec4*>(m_Data.ptr);
                     m_Data.ptr = nullptr;
                 }
                 break;
@@ -244,12 +244,13 @@ namespace TerranEngine
             {
                 if(m_Data.ptr)
                 {
-                    delete (UUID*)m_Data.ptr;
+                    delete static_cast<UUID*>(m_Data.ptr);
                     m_Data.ptr = nullptr;
                 }
 
                 break;
             }
+            default: ;
             }
         }
 
@@ -290,44 +291,45 @@ namespace TerranEngine
                 const char* str = in;
                 const size_t strLen = strlen(str);
                 result.m_Data.ptr = new char[strLen + 1];
-                strcpy((char*)result.m_Data.ptr, str);
-                ((char*)result.m_Data.ptr)[strLen] = '\0';
+                strcpy(static_cast<char*>(result.m_Data.ptr), str);
+                static_cast<char*>(result.m_Data.ptr)[strLen] = '\0';
                 break;
             }
             case Type::Vector2:
             {
                 glm::vec2 vec2 = in;
                 result.m_Data.ptr = new glm::vec2;
-                ((glm::vec2*)result.m_Data.ptr)->x = vec2.x;
-                ((glm::vec2*)result.m_Data.ptr)->y = vec2.y;
+                static_cast<glm::vec2*>(result.m_Data.ptr)->x = vec2.x;
+                static_cast<glm::vec2*>(result.m_Data.ptr)->y = vec2.y;
                 break;
             }
             case Type::Vector3:
             {
                 glm::vec3 vec3 = in;
                 result.m_Data.ptr = new glm::vec3;
-                ((glm::vec3*)result.m_Data.ptr)->x = vec3.x;
-                ((glm::vec3*)result.m_Data.ptr)->y = vec3.y;
-                ((glm::vec3*)result.m_Data.ptr)->z = vec3.z;
+                static_cast<glm::vec3*>(result.m_Data.ptr)->x = vec3.x;
+                static_cast<glm::vec3*>(result.m_Data.ptr)->y = vec3.y;
+                static_cast<glm::vec3*>(result.m_Data.ptr)->z = vec3.z;
                 break;
             }
             case Type::Vector4:
             {
                 glm::vec4 vec4 = in;
                 result.m_Data.ptr = new glm::vec4;
-                ((glm::vec4*)result.m_Data.ptr)->x = vec4.x;
-                ((glm::vec4*)result.m_Data.ptr)->y = vec4.y;
-                ((glm::vec4*)result.m_Data.ptr)->z = vec4.z;
-                ((glm::vec4*)result.m_Data.ptr)->w = vec4.w;
+                static_cast<glm::vec4*>(result.m_Data.ptr)->x = vec4.x;
+                static_cast<glm::vec4*>(result.m_Data.ptr)->y = vec4.y;
+                static_cast<glm::vec4*>(result.m_Data.ptr)->z = vec4.z;
+                static_cast<glm::vec4*>(result.m_Data.ptr)->w = vec4.w;
                 break;
             }
             case Type::UUID:
             {
                 UUID id = in;
                 result.m_Data.ptr = new UUID();
-                ((UUID*)result.m_Data.ptr)->SetData(id.GetData());
+                static_cast<UUID*>(result.m_Data.ptr)->SetData(id.GetData());
                 break;
             }
+            default: ;
             }
         }
             

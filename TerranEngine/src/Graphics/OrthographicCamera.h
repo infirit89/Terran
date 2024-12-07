@@ -4,21 +4,21 @@
 
 namespace TerranEngine 
 {
-	class OrthographicCamera : public Camera
+	class OrthographicCamera final : public Camera
 	{
 	public: 
 		OrthographicCamera();
 
 		void SetViewport(float width, float height);
 
-		inline float GetOrthographicNear() const { return m_OrthographicNear; }
-		inline void SetOrthographicNear(float nearClip) { m_OrthographicNear = nearClip; AdjustProjection(); }
+		float GetOrthographicNear() const { return m_OrthographicNear; }
+		void SetOrthographicNear(float nearClip) { m_OrthographicNear = nearClip; AdjustProjection(); }
 
-		inline float GetOrthographicFar() const { return m_OrthographicFar; }
-		inline void SetOrthographicFar(float farClip) { m_OrthographicFar = farClip; AdjustProjection(); }
+		float GetOrthographicFar() const { return m_OrthographicFar; }
+		void SetOrthographicFar(float farClip) { m_OrthographicFar = farClip; AdjustProjection(); }
 
-		inline void SetOrthographicSize(float size) { m_OrthographicSize = size; AdjustProjection(); }
-		inline float GetOrthographicSize() const { return m_OrthographicSize; }
+		void SetOrthographicSize(float size) { m_OrthographicSize = size; AdjustProjection(); }
+		float GetOrthographicSize() const { return m_OrthographicSize; }
 
 	private:
 		void AdjustProjection();

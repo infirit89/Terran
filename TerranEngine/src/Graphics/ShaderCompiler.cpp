@@ -1,6 +1,8 @@
 #include "trpch.h"
 #include "ShaderCompiler.h"
 
+#include <ranges>
+
 #include "Utils/Utils.h"
 
 #include <shaderc/shaderc.hpp>
@@ -13,8 +15,9 @@ namespace TerranEngine
         {
             switch (stage)
             {
-            case TerranEngine::ShaderStage::Vertex:     return ".vert.cached";
-            case TerranEngine::ShaderStage::Fragment:   return ".frag.cached";
+            case ShaderStage::Vertex:     return ".vert.cached";
+            case ShaderStage::Fragment:   return ".frag.cached";
+            default: ;
             }
 
             TR_ASSERT(false, "Invalid shader stage");
@@ -25,8 +28,9 @@ namespace TerranEngine
         {
             switch (stage)
             {
-            case TerranEngine::ShaderStage::Vertex:     return shaderc_vertex_shader;
-            case TerranEngine::ShaderStage::Fragment:   return shaderc_fragment_shader;
+            case ShaderStage::Vertex:     return shaderc_vertex_shader;
+            case ShaderStage::Fragment:   return shaderc_fragment_shader;
+            default: ;
             }
 
             TR_ASSERT(false, "Invalid shader stage");
@@ -54,14 +58,14 @@ namespace TerranEngine
         return shader;
     }
 
-    void ShaderCompiler::Recompile(Shared<Shader> shader)
+    void ShaderCompiler::Recompile(const Shared<Shader>& shader)
     {
         Shared<ShaderCompiler> compiler = CreateShared<ShaderCompiler>(shader->m_Path);
         std::string shaderSource = compiler->ReadShader();
 
         TR_CORE_INFO(TR_LOG_RENDERER, "Recompiling shader: {0}", shader->GetName());
         ShaderSourcesMap sources = compiler->Preprocess(shaderSource);
-        for (const auto& [stage, shaderSources] : sources)
+        for (const auto& stage : sources | std::views::keys)
         {
             std::filesystem::path cachedShaderPath = GetCachedShaderPath() / (shader->GetName() + Utilities::GetCachedShaderExtension(stage));
             if (std::filesystem::exists(cachedShaderPath))
@@ -76,8 +80,7 @@ namespace TerranEngine
 
     std::vector<ShaderUnitInfo> ShaderCompiler::Compile_Internal(const ShaderSourcesMap& shaderSources, const std::string& shaderName)
     {
-        shaderc::Compiler compiler;
-        shaderc::CompileOptions options;
+	    shaderc::CompileOptions options;
         options.SetTargetEnvironment(shaderc_target_env_opengl, 0);
         options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
 
@@ -98,12 +101,13 @@ namespace TerranEngine
                 unitInfo.Stage = stage;
                 unitInfo.Data.resize(shaderFileSize / sizeof(uint32_t));
 
-                inputFileStream.read((char*)unitInfo.Data.data(), shaderFileSize);
+                inputFileStream.read(reinterpret_cast<char*>(unitInfo.Data.data()), shaderFileSize);
                 compiledShaders.emplace_back(unitInfo);
             }
             else
             {
-                shaderc::SpvCompilationResult compilationResult =
+	            shaderc::Compiler compiler;
+	            shaderc::SpvCompilationResult compilationResult =
                     compiler.CompileGlslToSpv(
                         shaderSource,
                         Utilities::GetShadercShaderKind(stage),
@@ -113,11 +117,11 @@ namespace TerranEngine
 
                 ShaderUnitInfo unitInfo;
                 unitInfo.Stage = stage;
-                unitInfo.Data = std::vector<uint32_t>(compilationResult.begin(), compilationResult.end());
+                unitInfo.Data = std::vector(compilationResult.begin(), compilationResult.end());
                 compiledShaders.emplace_back(unitInfo);
 
-                std::ofstream ouputFileStream(cachedShaderPath, std::ios::out | std::ios::binary);
-                ouputFileStream.write((char*)unitInfo.Data.data(), unitInfo.Data.size() * sizeof(uint32_t));
+                std::ofstream outputFileStream(cachedShaderPath, std::ios::out | std::ios::binary);
+                outputFileStream.write(reinterpret_cast<char*>(unitInfo.Data.data()), unitInfo.Data.size() * sizeof(uint32_t));
             }
         }
 
@@ -166,7 +170,7 @@ namespace TerranEngine
         return shaderSources;
     }
 
-    std::string ShaderCompiler::ReadShader()
+    std::string ShaderCompiler::ReadShader() const
     {
         std::ifstream ifs(m_ShaderPath, std::ios::in | std::ios::binary);
         TR_ASSERT(ifs, "Couldn't open shader file");

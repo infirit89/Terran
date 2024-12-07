@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-namespace Terran
+﻿namespace Terran
 {
     public class Rigidbody2D : Component
     {

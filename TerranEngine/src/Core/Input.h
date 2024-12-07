@@ -11,13 +11,13 @@
 
 namespace TerranEngine {
 
-	struct InputState
+	struct InputState final
 	{
 		bool CurrentState = false;
 		bool PreviousState = false;
 	};
 
-	class Input 
+	class Input final
 	{
 	public:
 		static void Init();

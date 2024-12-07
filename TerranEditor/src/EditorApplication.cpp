@@ -33,7 +33,7 @@ TerranEngine::Application* TerranEngine::CreateApplication(int argc, char** argv
     applicationData.Window.Height = 790;
     applicationData.Window.VSync = false;
     applicationData.Window.Maximized = true;
-    applicationData.Window.Fullscren = false;
+    applicationData.Window.Fullscreen = false;
     applicationData.Window.Debug = true;
 
     applicationData.ScriptCorePath = "Resources/Scripts/TerranScriptCore.dll";

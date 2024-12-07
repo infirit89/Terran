@@ -7,7 +7,7 @@ namespace TerranEngine
 
     void PhysicsLayerManager::SetLayerName(int index, const std::string& layerName)
     {
-        m_Layers[index].Name = layerName;
+        m_Layers.at(index).Name = layerName;
     }
 
     std::vector<std::string_view> PhysicsLayerManager::GetLayerNames()

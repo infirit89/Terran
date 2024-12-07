@@ -1,5 +1,8 @@
 #include "trpch.h"
 #include "ScriptInstance.h"
+
+#include <ranges>
+
 #include "ScriptEngine.h"
 
 #include "Utils/Debug/OptickProfiler.h"
@@ -31,7 +34,7 @@ namespace TerranEngine
 			const ScriptField& field = GetScriptField(fieldHandle);
 			if (field.IsArray) 
 			{
-				const ScriptArray& scriptArray = (const ScriptArray&)value;
+				const ScriptArray& scriptArray = reinterpret_cast<const ScriptArray&>(value);
 				Coral::ManagedArray array(scriptArray.Handle, scriptArray.Rank);
 				array.Destroy();
 			}
@@ -63,13 +66,13 @@ namespace TerranEngine
 	else																						\
 		array = Coral::ManagedArray(it->second.Handle, it->second.Rank)
 
-	void ScriptInstance::SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const
+	void ScriptInstance::SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize)
 	{
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		managedArray.SetValueRaw(indices, indicesSize, value);
 	}
 
-	void ScriptInstance::GetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize) const
+	void ScriptInstance::GetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize)
 	{
 		Coral::ManagedArray managedArray(array.Handle, array.Rank);
 		managedArray.GetValueRaw(indices, indicesSize, value);
@@ -125,6 +128,7 @@ namespace TerranEngine
 		case Utils::Variant::Type::Vector4: object.SetFieldValueByHandle<glm::vec4>(fieldHandle, value); return;
 		case Utils::Variant::Type::String: SetFieldValue<std::string>(fieldHandle, value); return;
 		case Utils::Variant::Type::UUID: SetFieldValue<UUID>(fieldHandle, value); return;
+		default: ;
 		}
 
 		TR_ASSERT(false, "Unknown variant type");
@@ -188,6 +192,7 @@ namespace TerranEngine
 		case ScriptFieldType::Color: return object.GetFieldValueByHandle<glm::vec4>(fieldHandle);
 		case ScriptFieldType::String: return GetFieldValue<std::string>(fieldHandle);
 		case ScriptFieldType::Entity: return GetFieldValue<UUID>(fieldHandle);
+		default: ;
 		}
 
 		TR_ASSERT(false, "Unknown script field type");
@@ -233,6 +238,7 @@ namespace TerranEngine
 		case Utils::Variant::Type::Vector4: managedArray.SetValue<glm::vec4>(indices, static_cast<int32_t>(indicesSize), value); return;
 		case Utils::Variant::Type::String:	SetFieldArrayValue<std::string>(array, value, indices, static_cast<int32_t>(indicesSize)); return;
 		case Utils::Variant::Type::UUID:	SetFieldArrayValue<UUID>(array, value, indices, static_cast<int32_t>(indicesSize)); return;
+		default: ;
 		}
 
 		TR_ASSERT(false, "Unknown variant type");
@@ -288,6 +294,7 @@ namespace TerranEngine
 		case ScriptFieldType::Color:		return managedArray.GetValue<glm::vec4>(indices, static_cast<int32_t>(indicesSize));
 		case ScriptFieldType::String:	return GetFieldArrayValue<std::string>(array, indices, static_cast<int32_t>(indicesSize));
 		case ScriptFieldType::Entity:	return GetFieldArrayValue<UUID>(array, indices, static_cast<int32_t>(indicesSize));
+		default: ;
 		}
 
 		TR_ASSERT(false, "Unknown script field type");
@@ -340,28 +347,28 @@ namespace TerranEngine
 		return ScriptArray{ array.GetHandle(), array.GetRank(), fieldHandle };
 	}
 
-	void ScriptInstance::InvokeInit()
+	void ScriptInstance::InvokeInit() const
 	{
 		Coral::ManagedObject object = m_Context;
 		if(m_OnInitMethodHandle)
 			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnInitMethodHandle);
 	}
 
-	void ScriptInstance::InvokeUpdate(float deltaTime)
+	void ScriptInstance::InvokeUpdate(float deltaTime) const
 	{
 		Coral::ManagedObject object = m_Context;
 		if(m_OnUpdateMethodHandle)
 			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnUpdateMethodHandle, deltaTime);
 	}
 
-	void ScriptInstance::InvokePhysicsUpdate()
+	void ScriptInstance::InvokePhysicsUpdate() const
 	{
 		Coral::ManagedObject object = m_Context;
 		if (m_OnPhysicsUpdateMethodHandle)
 			object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnPhysicsUpdateMethodHandle);
 	}
 
-	void ScriptInstance::InvokeCollisionBegin(Entity other)
+	void ScriptInstance::InvokeCollisionBegin(Entity other) const
 	{
 		Coral::ManagedObject object = m_Context;
 		if (m_OnCollisionBeginMethodHandle) 
@@ -372,7 +379,7 @@ namespace TerranEngine
 		}
 	}
 
-	void ScriptInstance::InvokeCollisionEnd(Entity other)
+	void ScriptInstance::InvokeCollisionEnd(Entity other) const
 	{
 		Coral::ManagedObject object = m_Context;
 		if (m_OnCollisionEndMethodHandle)
@@ -383,7 +390,7 @@ namespace TerranEngine
 		}
 	}
 
-	void ScriptInstance::CopyFieldFrom(int32_t fieldHandle, Shared<ScriptInstance> source)
+	void ScriptInstance::CopyFieldFrom(int32_t fieldHandle, const Shared<ScriptInstance>& source)
 	{
 		const ScriptField& field = GetScriptField(fieldHandle);
 
@@ -415,9 +422,9 @@ namespace TerranEngine
 		SetFieldValue(fieldHandle, value);
 	}
 
-	void ScriptInstance::CopyAllFieldsFrom(Shared<ScriptInstance> source)
+	void ScriptInstance::CopyAllFieldsFrom(const Shared<ScriptInstance>& source)
 	{
-		for (const auto& [fieldHandle, field] : m_Fields)
+		for (const auto& fieldHandle : m_Fields | std::views::keys)
 			CopyFieldFrom(fieldHandle, source);
 	}
 

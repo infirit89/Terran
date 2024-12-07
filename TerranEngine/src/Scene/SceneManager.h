@@ -7,10 +7,10 @@
 
 namespace TerranEngine 
 {
-	class SceneManager 
+	class SceneManager final
 	{
 	public:
-		static Shared<Scene> CreateEmpyScene();
+		static Shared<Scene> CreateEmptyScene();
 		static void RemoveScene(const UUID& id);
 
 		static Shared<Scene> GetScene(const UUID& id);

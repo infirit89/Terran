@@ -7,16 +7,13 @@
 
 #include "Scene/Scene.h"
 
-#include <filesystem>
-#include <spdlog/spdlog.h>
-
 namespace TerranEngine 
 {
 #define TR_CORE_ASSEMBLY_INDEX 0
 #define TR_APP_ASSEMBLY_INDEX 1
 #define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
 	
-	class ScriptEngine
+	class ScriptEngine final
 	{
 	public:
 		using ScriptTypeFilterFn = std::function<bool()>;

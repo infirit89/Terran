@@ -4,16 +4,16 @@
 
 namespace TerranEngine 
 {
-	class Camera 
+	class Camera
 	{
 	public:
 		Camera() 
 			: m_ProjectionMatrix(glm::mat4(1.0f))
 		{}
-		Camera(glm::mat4 projectionMatrix) 
+		Camera(const glm::mat4& projectionMatrix) 
 			: m_ProjectionMatrix(projectionMatrix) {}
 
-		inline const glm::mat4& GetProjection() const { return m_ProjectionMatrix; }
+		const glm::mat4& GetProjection() const { return m_ProjectionMatrix; }
 
 		glm::vec3 ScreenToWorld(const glm::mat4& viewMatrix, glm::vec3 screenPoint);
 

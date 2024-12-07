@@ -11,12 +11,13 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <concepts>
 
 class b2Body;
 
 namespace TerranEngine 
 {
-	class PhysicsBody2D
+	class PhysicsBody2D final
 	{
 	public:
 		PhysicsBody2D() = default;
@@ -44,16 +45,16 @@ namespace TerranEngine
 		float GetGravityScale() const;
 		void SetGravityScale(float gravityScale);
 
-		inline bool IsStatic() const { return m_BodyState == PhysicsBodyType::Static; }
-		inline bool IsDynamic() const { return m_BodyState == PhysicsBodyType::Dynamic; }
-		inline bool IsKinematic() const { return m_BodyState == PhysicsBodyType::Kinematic; }
+		bool IsStatic() const { return m_BodyState == PhysicsBodyType::Static; }
+		bool IsDynamic() const { return m_BodyState == PhysicsBodyType::Dynamic; }
+		bool IsKinematic() const { return m_BodyState == PhysicsBodyType::Kinematic; }
 
 		void SetBodyType(PhysicsBodyType bodyType);
 		PhysicsBodyType GetBodyType() const;
 
-		inline bool IsAwake() const { return m_SleepState == PhysicsBodySleepState::Awake; }
-		inline bool IsSleeping() const { return m_SleepState == PhysicsBodySleepState::Sleep; }
-		inline bool CanSleep() const { return m_SleepState != PhysicsBodySleepState::NeverSleep; }
+		bool IsAwake() const { return m_SleepState == PhysicsBodySleepState::Awake; }
+		bool IsSleeping() const { return m_SleepState == PhysicsBodySleepState::Sleep; }
+		bool CanSleep() const { return m_SleepState != PhysicsBodySleepState::NeverSleep; }
 
 		void SetSleepState(PhysicsBodySleepState sleepState);
 		PhysicsBodySleepState GetSleepState() const;
@@ -70,11 +71,11 @@ namespace TerranEngine
             Shared<Collider2D> collider; 
             T& colliderComponent = entity.GetComponent<T>();
 
-            if constexpr(std::is_same<T, CircleCollider2DComponent>::value)
+            if constexpr(std::same_as<T, CircleCollider2DComponent>)
                 collider = CreateShared<CircleCollider2D>(entity);
-            else if constexpr(std::is_same<T, BoxCollider2DComponent>::value)
+            else if constexpr(std::same_as<T, BoxCollider2DComponent>)
                 collider = CreateShared<BoxCollider2D>(entity);
-            else if constexpr(std::is_same<T, CapsuleCollider2DComponent>::value)
+            else if constexpr(std::same_as<T, CapsuleCollider2DComponent>)
                 collider = CreateShared<CapsuleCollider2D>(entity);
 
             m_Colliders.push_back(collider);
@@ -85,9 +86,9 @@ namespace TerranEngine
 
 		b2Body* GetB2Body() const { return m_Body; }
 		
-		inline operator bool() const { return m_Body != nullptr; }
+		operator bool() const { return m_Body != nullptr; }
 
-		inline std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
+		std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
 		Shared<Collider2D> GetCollider(int index) { return m_Colliders.at(index); }
 
         void AttachColliders();

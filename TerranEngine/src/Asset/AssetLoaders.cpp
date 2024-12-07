@@ -100,7 +100,7 @@ namespace TerranEngine
         // generates another random handle which conflicts with the script engine
         Shared<Scene> scene = CreateShared<Scene>(assetInfo.Handle);
         SceneSerializer serializer(scene);
-        if (serializer.DesirializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path)) != Result::OK)
+        if (serializer.DeserializeEditor(AssetManager::GetFileSystemPath(assetInfo.Path)) != Result::OK)
             return;
 
         asset = scene;
@@ -140,7 +140,6 @@ namespace TerranEngine
         catch (const YAML::BadSubscript& e)
         {
             TR_CORE_ERROR(TR_LOG_ASSET, e.what());
-            return;
         }
     }
 

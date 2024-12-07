@@ -43,37 +43,36 @@ namespace Terran
 			Z = 0.0f;
 		}
 
-		public Vector3 Normalized => new Vector3(X / Magnitude, Y / Magnitude, Z / Magnitude);
+		public Vector3 Normalized => new(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
-		public static Vector3 Zero => new Vector3(0.0f, 0.0f, 0.0f);
-		public static Vector3 One => new Vector3(1.0f, 1.0f, 1.0f);
+		public static Vector3 Zero => new(0.0f, 0.0f, 0.0f);
+		public static Vector3 One => new(1.0f, 1.0f, 1.0f);
 
-		public static Vector3 Right => new Vector3(1.0f, 0.0f, 0.0f);
-		public static Vector3 Up => new Vector3(0.0f, 1.0f, 0.0f);
-		public static Vector3 Forward => new Vector3(0.0f, 0.0f, 1.0f);
+		public static Vector3 Right => new(1.0f, 0.0f, 0.0f);
+		public static Vector3 Up => new(0.0f, 1.0f, 0.0f);
+		public static Vector3 Forward => new(0.0f, 0.0f, 1.0f);
 
-		public static Vector3 Negate(Vector3 vec) => new Vector3(-vec.X, -vec.Y, -vec.Z);
+		public static Vector3 Negate(Vector3 vec) => new(-vec.X, -vec.Y, -vec.Z);
 		
-		public static Vector3 Add(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X + vec2.X, vec1.Y + vec2.Y, vec1.Z + vec2.Z);
+		public static Vector3 Add(Vector3 vec1, Vector3 vec2) => new(vec1.X + vec2.X, vec1.Y + vec2.Y, vec1.Z + vec2.Z);
 		
-		public static Vector3 Subtract(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X - vec2.X, vec1.Y - vec2.Y, vec1.Z - vec2.Z);
+		public static Vector3 Subtract(Vector3 vec1, Vector3 vec2) => new(vec1.X - vec2.X, vec1.Y - vec2.Y, vec1.Z - vec2.Z);
 
-		public static Vector3 Multiply(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X * vec2.X, vec1.Y * vec2.Y, vec1.Z * vec2.Z);
-		public static Vector3 Multiply(Vector3 vec1, float scalar) => new Vector3(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
-		public static Vector3 Multiply(Vector3 vec1, int scalar) => new Vector3(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
+		public static Vector3 Multiply(Vector3 vec1, Vector3 vec2) => new(vec1.X * vec2.X, vec1.Y * vec2.Y, vec1.Z * vec2.Z);
+		public static Vector3 Multiply(Vector3 vec1, float scalar) => new(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
+		public static Vector3 Multiply(Vector3 vec1, int scalar) => new(vec1.X * scalar, vec1.Y * scalar, vec1.Z * scalar);
 
-		public static Vector3 Divide(Vector3 vec1, Vector3 vec2) => new Vector3(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
-		public static Vector3 Divide(Vector3 vec1, float scalar) => new Vector3(vec1.X / scalar, vec1.Y / scalar, vec1.Z / scalar);
-		public static Vector3 Divide(Vector3 vec1, int scalar) => new Vector3(vec1.X / scalar, vec1.Y / scalar, vec1.Z / scalar);
+		public static Vector3 Divide(Vector3 vec1, Vector3 vec2) => new(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
+		public static Vector3 Divide(Vector3 vec1, float scalar) => new(vec1.X / scalar, vec1.Y / scalar, vec1.Z / scalar);
+		public static Vector3 Divide(Vector3 vec1, int scalar) => new(vec1.X / scalar, vec1.Y / scalar, vec1.Z / scalar);
 
 		public static float Dot(in Vector3 a, in Vector3 b) => (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
 		
 		public static Vector3 Cross(in Vector3 a, in Vector3 b)
 		{
-			float x, y, z;
-			x = a.Y * b.Z - b.Y * a.Z;
-			y = (a.X * b.Z - b.X * a.Z) * -1;
-			z = a.X * b.Y - b.X * a.Y;
+            float x = a.Y * b.Z - b.Y * a.Z;
+			float y = (a.X * b.Z - b.X * a.Z) * -1;
+			float z = a.X * b.Y - b.X * a.Y;
 			return new Vector3(x, y, z);
 		}
 
@@ -96,8 +95,6 @@ namespace Terran
 
 		public bool Equals(Vector3 other)
 		{
-			if (other == null)
-				return false;
 			return this == other;
 		}
 
@@ -114,6 +111,6 @@ namespace Terran
 		// override object.GetHashCode
 		public override int GetHashCode() => ((int)X ^ (int)Y ^ (int)Z);
 
-		public override string ToString() => string.Format("X: {0}, Y: {1}, Z: {2}", X, Y, Z);
+		public override string ToString() => $"X: {X}, Y: {Y}, Z: {Z}";
 	}
 }
