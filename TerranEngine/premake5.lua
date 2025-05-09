@@ -59,7 +59,7 @@ project "TerranEngine"
         "%{Libraries.shaderc}"
     }
 
-    pchheader "trpch.h"
+    pchheader "src/trpch.h"
     pchsource "src/trpch.cpp"
 
     linkoptions

@@ -22,8 +22,7 @@ if __name__ == "__main__":
     # TODO: install dotnet8 if not installed 
     InstallPackages()
     from SetupPremake import PremakeSetup
-    # from SetupMono import MonoSetup
     from SetupShaderc import ShadercSetup
+    
     PremakeSetup.Setup()
-    # MonoSetup.Setup()
     ShadercSetup.Setup()

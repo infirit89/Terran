@@ -22,9 +22,9 @@ namespace TerranEngine
 
 		bool operator==(const AssetInfo& other) { return Path == other.Path && Type == other.Type; }
 		bool operator!=(const AssetInfo& other) { return !((*this) == other); }
-		operator bool() { return Path != "" && Type != AssetType::None; }
+		operator bool() { return Path.empty() && Type != AssetType::None; }
 
-		std::filesystem::path Path = "";
+        std::filesystem::path Path;
 		AssetType Type = AssetType::None;
 		UUID Handle = UUID::Invalid();
 	};

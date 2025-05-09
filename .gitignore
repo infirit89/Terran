@@ -82,3 +82,7 @@ shaderc/
 #VSCode
 .vscode/
 *.code-workspace
+
+# XCode
+*.xcworkspace
+*.xcodeproj
