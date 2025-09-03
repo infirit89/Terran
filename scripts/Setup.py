@@ -19,20 +19,9 @@ if __name__ == "__main__":
     UpdateSubmodules()
     os.chdir("../")
 
-    # maybe for future????
-    # from git import Repo
-    # from GitUpdateProgress import GitUpdateProgress
-
-    # repo = Repo("./")
-    # for submodule in repo.submodules:
-    #     print(submodule.name)
-    #     submodule.update(recursive=True, init=True, progress=GitUpdateProgress())
-
     # TODO: install dotnet8 if not installed 
     InstallPackages()
     from SetupPremake import PremakeSetup
-    # from SetupMono import MonoSetup
     from SetupShaderc import ShadercSetup
     PremakeSetup.Setup()
-    # MonoSetup.Setup()
     ShadercSetup.Setup()

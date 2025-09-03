@@ -3,9 +3,6 @@ import os
 import sys
 import zipfile
 
-# Note: winreg should only be imported if the os is windows
-import winreg
-
 TerranRoot = "."
 TerranEnginePath = f"{TerranRoot}/TerranEngine"
 TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
@@ -15,8 +12,7 @@ def DownloadFile(url, filepath):
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
-        headers = {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-        response = requests.get(url, headers=headers, stream = True)
+        response = requests.get(url, stream = True)
 
         totalFileSize = response.headers.get("Content-Length")
         
@@ -62,36 +58,4 @@ def UnzipFile(zipPath, deleteZip : bool = True):
 
     if(deleteZip):
         os.remove(zipPath)
-
-def OpenKey(key: int, subkey: str):
-    try:
-        return winreg.OpenKey(key, subkey)
-    except:
-        sys.stderr.write("Couldn't open the specified key!\n")
-        return None
-
-def QueryValue(subkey: str, valueName: str):
-    try:
-        with OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey) as hKey:
-            return winreg.QueryValueEx(hKey, valueName)[0]
-    except:
-        sys.stderr.write("\rCouldn't find the value with name: {}\n".format(valueName))
-        return None
-
-def GetMonoRootDir():
-    rootDir = QueryValue("SOFTWARE\\Mono", "SdkInstallRoot")
-    
-    if rootDir is not None:
-        return str(rootDir)
-
-    return None
-
-def GetMonoVersion():
-    version = QueryValue("SOFTWARE\\Mono", "Version")
-
-    if version is not None:
-        return str(version)
-
-    return None
-
 
