@@ -1,31 +1,67 @@
 import Utils
 import os
+import sys
+import platform
 
 class PremakeSetup:
 
-    premakeVersion = "5.0.0-beta2"
-    premakeDir = "./premake"
-    premakeURL = f"https://github.com/premake/premake-core/releases/download/v{premakeVersion}/premake-{premakeVersion}-windows.zip" 
-    premakeLicenseURL = "https://raw.githubusercontent.com/premake/premake-core/master/LICENSE.txt"
+    SUPPORTED_VERSIONS = ["5.0.0-beta7"]
+    SUPPORTED_PLATFORMS = {
+        "windows": "windows",
+        "darwin": "macosx"
+    }
+    PREMAKE_DIRECTORY = "./premake"
+    PREMAKE_URL_TEMPLATE = "https://github.com/premake/premake-core/releases/download/v{premake_version}/premake-{premake_version}-{premake_platform}.{extension}" 
+    PREMAKE_LICENSE_URL = "https://raw.githubusercontent.com/premake/premake-core/master/LICENSE.txt"
 
     @classmethod
-    def Setup(self):
-        if not os.path.exists(f"{self.premakeDir}/premake5.exe"):
-            self.InstallPremake()
+    def setup(cls):
+        premake_extension = ".exe" if platform.system().lower() == "windows" else ""
+        if not os.path.exists(f"{cls.PREMAKE_DIRECTORY}/premake5{premake_extension}"):
+
+            premake_platform = ""
+            try:
+                premake_platform = cls.SUPPORTED_PLATFORMS[platform.system().lower()]
+            except KeyError:
+                print("Unsupported platform")
+
+            chosen_premake_version = ""
+            while True:
+                try:
+                    print("Select a premake version:")
+                    version_index = 0
+                    for supported_premake_version in cls.SUPPORTED_VERSIONS:
+                        sys.stdout.write("\t{index}. {version}\n"
+                                         .format(index = version_index, version = supported_premake_version))
+                        version_index += 1
+                    
+                    chosen_premake_version_index = int(input())
+                    chosen_premake_version = cls.SUPPORTED_VERSIONS[chosen_premake_version_index]
+                    break
+                except (ValueError, IndexError):
+                    version_index = 0
+                    print("Error while selecting version, please try again")
+                except KeyboardInterrupt:
+                    sys.exit("Exiting...")
+
+            cls.__install_premake(chosen_premake_version, premake_platform)
         else:
             print("Correct version of premake already exists!")
 
     @classmethod
-    def InstallPremake(self):
+    def __install_premake(cls, version, platform):
         
-        os.makedirs(self.premakeDir)
-        premakePath = f"{self.premakeDir}/premake.zip"
-        Utils.DownloadFile(self.premakeURL, premakePath)
-        Utils.UnzipFile(premakePath)
-        print(f"Premake {self.premakeVersion} has been downloaded!")
+        print(f"Starting download for premake {version} for {platform}.")
+        os.makedirs(cls.PREMAKE_DIRECTORY)
+        premake_extension = "zip" if platform == "windows" else "tar.gz"
+        premake_url = cls.PREMAKE_URL_TEMPLATE.format(premake_version = version, premake_platform = platform, extension = premake_extension)
+        premake_path = f"{cls.PREMAKE_DIRECTORY}/premake.{premake_extension}"
+        Utils.download_file(premake_url, premake_path)
+        Utils.unzip_file(premake_path)
+        print(f"Premake {version} has been downloaded!")
 
-        premakeLicensePath = f"{self.premakeDir}/LICENSE.txt"
-        Utils.DownloadFile(self.premakeLicenseURL, premakeLicensePath)
+        premake_license_path = f"{cls.PREMAKE_DIRECTORY}/LICENSE.txt"
+        Utils.download_file(cls.PREMAKE_LICENSE_URL, premake_license_path)
         print("Premake License has been downloaded!")
-        print("Premake setup complete")
+        print("Premake setup complete.")
 

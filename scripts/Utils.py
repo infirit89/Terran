@@ -2,60 +2,94 @@ import requests
 import os
 import sys
 import zipfile
+import tarfile
+import platform
 
-TerranRoot = "."
-TerranEnginePath = f"{TerranRoot}/TerranEngine"
-TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
-TerranEditorPath = f"{TerranRoot}/TerranEditor"
+TERRAN_ROOT = "."
+TERRAN_ENGINE_PATH = f"{TERRAN_ROOT}/TerranEngine"
+TERRAN_ENGINE_VENDOR_PATH = f"{TERRAN_ENGINE_PATH}/vendor"
+TERRAN_EDITOR_PATH = f"{TERRAN_ROOT}/TerranEditor"
 
-def DownloadFile(url, filepath):
+def download_file(url, filepath):
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
         response = requests.get(url, stream = True)
 
-        totalFileSize = response.headers.get("Content-Length")
+        total_file_size = response.headers.get("Content-Length")
         
-        if totalFileSize is None:
+        if total_file_size is None:
             f.write(response.content)
             return
 
-        totalFileSize = int(totalFileSize)
+        total_file_size = int(total_file_size)
         
         donwloaded = 0
-        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024 * 1024))):
+        for chunk in response.iter_content(chunk_size=int(max(total_file_size / 1000, 1024 * 1024))):
             donwloaded += len(chunk)
             f.write(chunk)
 
-            percentage = (donwloaded / totalFileSize) * 100 if donwloaded < totalFileSize else 100
+            percentage = (donwloaded / total_file_size) * 100 if donwloaded < total_file_size else 100
 
             sys.stdout.write("\rDownloading {:s} {:.2f}%".format(os.path.basename(url), percentage))
             sys.stdout.flush()
         sys.stdout.write('\n')
 
+def unzip_file(zip_path, delete_zip : bool = True):
+    if( platform.system().lower() == "windows"):
+        __unzip_file_windows(zip_path, delete_zip)
+    else:
+        __unzip_file_unix(zip_path, delete_zip)
 
-def UnzipFile(zipPath, deleteZip : bool = True):
-    zipPath = os.path.abspath(zipPath)
-    zipFileLocation = os.path.dirname(zipPath)
-    zipFileName = os.path.basename(zipPath)
+def __unzip_file_windows(zip_path, delete_zip : bool = True):
+    zip_path = os.path.abspath(zip_path)
+    zip_file_location = os.path.dirname(zip_path)
+    zip_file_name = os.path.basename(zip_path)
 
-    with zipfile.ZipFile(zipPath, 'r') as z:
-        totalZipSize = 0
-        for zippedFileName in z.namelist():
-            totalZipSize += z.getinfo(zippedFileName).file_size
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        total_zip_size = 0
+        for zipped_file_name in z.namelist():
+            total_zip_size += z.getinfo(zipped_file_name).file_size
         
         extracted = 0
-        for zippedFileName in z.namelist():
-            z.extract(zippedFileName, zipFileLocation)
-            extracted += z.getinfo(zippedFileName).file_size
+        for zipped_file_name in z.namelist():
+            z.extract(zipped_file_name, zip_file_location)
+            extracted += z.getinfo(zipped_file_name).file_size
 
-            percentage = (extracted / totalZipSize) * 100
+            percentage = (extracted / total_zip_size) * 100
 
-            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zipFileName, percentage))
+            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zip_file_name, percentage))
             sys.stdout.flush()
 
         sys.stdout.write('\n')
 
-    if(deleteZip):
-        os.remove(zipPath)
+    if(delete_zip):
+        os.remove(zip_path)
+
+def __unzip_file_unix(zip_path, delete_zip : bool = True):
+    zip_path = os.path.abspath(zip_path)
+    zip_file_location = os.path.dirname(zip_path)
+    zip_file_name = os.path.basename(zip_path)
+
+    with tarfile.open(zip_path, 'r') as z:
+        total_zip_size = 0
+        tar_member_names = z.getnames()
+
+        for zipped_file_name in tar_member_names:
+            total_zip_size += z.getmember(zipped_file_name).size
+        
+        extracted = 0
+        for zipped_file_name in tar_member_names:
+            z.extract(zipped_file_name, zip_file_location)
+            extracted += z.getmember(zipped_file_name).size
+
+            percentage = (extracted / total_zip_size) * 100
+
+            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zip_file_name, percentage))
+            sys.stdout.flush()
+
+        sys.stdout.write('\n')
+
+    if(delete_zip):
+        os.remove(zip_path)
 
