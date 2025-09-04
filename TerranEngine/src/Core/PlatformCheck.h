@@ -10,8 +10,13 @@
 	#define TR_LINUX
 	#error "Terran doesn't support linux platforms yet"
 #elif defined(__APPLE__)
-	#define TR_APPLE	// TODO: Split into apple's different platforms
-	#error "Terran doesn't support apple platforms yet"
+	#include <TargetConditionals.h>
+	#define TR_APPLE
+	#if TARGET_OS_OSX == 1
+		#define TR_MACOSX
+	#else
+		#error "Unsupported Apple platform"
+	#endif
 #else
 	#error "Unknown platform"
 #endif

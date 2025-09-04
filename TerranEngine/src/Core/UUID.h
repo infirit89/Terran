@@ -2,7 +2,6 @@
 
 #include <string>
 #include <array>
-#include <functional>
 
 namespace TerranEngine 
 {
