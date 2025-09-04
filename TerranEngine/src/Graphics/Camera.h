@@ -17,7 +17,10 @@ namespace TerranEngine
 
 		glm::vec3 ScreenToWorld(const glm::mat4& viewMatrix, glm::vec3 screenPoint);
 
-		glm::vec3 WorldToScreen(const glm::mat4& viewMatrix, glm::vec3 worldPoint) {}
+		glm::vec3 WorldToScreen(const glm::mat4& viewMatrix, glm::vec3 worldPoint) 
+		{
+			return {0.0f, 0.0f, 0.0f};
+		}
 	protected:
 		glm::mat4 m_ProjectionMatrix;
 	};
