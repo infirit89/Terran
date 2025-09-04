@@ -91,3 +91,4 @@ TerranEditor/Resources/LogSettings/
 
 # MacOS
 .DS_Store
+Makefile
