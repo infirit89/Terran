@@ -4,8 +4,6 @@ project "TerranEngine"
     cppdialect "C++20"
     staticruntime "Off"
 
-    architecture "x86_64"
-
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
 
@@ -39,7 +37,6 @@ project "TerranEngine"
         "%{IncludeDirectories.msdfgen}",
         "%{IncludeDirectories.msdf_atlas_gen}",
         "%{IncludeDirectories.box2d}",
-        "%{IncludeDirectories.optick}",
         "%{IncludeDirectories.yaml}",
         "%{IncludeDirectories.shaderc}",
         "%{IncludeDirectories.coral}",
@@ -50,10 +47,8 @@ project "TerranEngine"
         "GLFW",
         "ImGui",
         "GLAD",
-        "opengl32.lib",
         "msdf-atlas-gen",
         "Box2D",
-        "OptickCore",
         "yaml-cpp",
         "Coral.Native",
         "%{Libraries.shaderc}"
@@ -74,11 +69,30 @@ project "TerranEngine"
         "YAML_CPP_STATIC_DEFINE"
     }
 
+	filter "system:macosx"
+		architecture "ARM64"
+		pic "On"
+
+		libdirs { "/usr/local/lib" }
+		links
+		{
+			"CoreFoundation.framework",                 -- no path needed for system frameworks
+			"OpenGL.framework",
+		}
+
     filter "system:windows"
+		architecture "x86_64"
         systemversion "latest"
+
+		includedirs
+		{
+			"%{IncludeDirectories.optick}",
+		}
 
         links
         {
+			"OptickCore",
+			"opengl32.lib",
             "%{Libraries.imm32}",
             "%{Libraries.rpcrt4}"
         }

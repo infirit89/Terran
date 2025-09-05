@@ -1,38 +1,30 @@
+from shutil import Error
 import sys
 import subprocess
 import os
 
-packages = [ "requests", "numpy", "GitPython" ]
+packages = [ "requests", "numpy" ]
 
 def InstallPackages():
     for package in packages:
-        sys.stdout.write("\rInstalling package: {}\n".format(package))
+        sys.stdout.write("Installing package: {}\r\n".format(package))
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-        sys.stdout.write('\n')
+        sys.stdout.write('\r\n')
 
 def UpdateSubmodules():
-    sys.stdout.write("\rUpdating submodules")
+    sys.stdout.write("Updating submodules\r\n")
     subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
-    sys.stdout.write('\n')
+    sys.stdout.write('\r\n')
 
 if __name__ == "__main__":
     UpdateSubmodules()
     os.chdir("../")
 
-    # maybe for future????
-    # from git import Repo
-    # from GitUpdateProgress import GitUpdateProgress
-
-    # repo = Repo("./")
-    # for submodule in repo.submodules:
-    #     print(submodule.name)
-    #     submodule.update(recursive=True, init=True, progress=GitUpdateProgress())
-
     # TODO: install dotnet8 if not installed 
     InstallPackages()
+
     from SetupPremake import PremakeSetup
-    # from SetupMono import MonoSetup
     from SetupShaderc import ShadercSetup
-    PremakeSetup.Setup()
-    # MonoSetup.Setup()
-    ShadercSetup.Setup()
+
+    PremakeSetup.setup()
+    ShadercSetup.setup()

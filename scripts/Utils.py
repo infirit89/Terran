@@ -2,96 +2,94 @@ import requests
 import os
 import sys
 import zipfile
+import tarfile
+import platform
 
-# Note: winreg should only be imported if the os is windows
-import winreg
+TERRAN_ROOT = "."
+TERRAN_ENGINE_PATH = f"{TERRAN_ROOT}/TerranEngine"
+TERRAN_ENGINE_VENDOR_PATH = f"{TERRAN_ENGINE_PATH}/vendor"
+TERRAN_EDITOR_PATH = f"{TERRAN_ROOT}/TerranEditor"
 
-TerranRoot = "."
-TerranEnginePath = f"{TerranRoot}/TerranEngine"
-TerranEngineVendorPath = f"{TerranEnginePath}/vendor"
-TerranEditorPath = f"{TerranRoot}/TerranEditor"
-
-def DownloadFile(url, filepath):
+def download_file(url, filepath):
     filepath = os.path.abspath(filepath)
 
     with open(filepath, "wb") as f:
-        headers = {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-        response = requests.get(url, headers=headers, stream = True)
+        response = requests.get(url, stream = True)
 
-        totalFileSize = response.headers.get("Content-Length")
+        total_file_size = response.headers.get("Content-Length")
         
-        if totalFileSize is None:
+        if total_file_size is None:
             f.write(response.content)
             return
 
-        totalFileSize = int(totalFileSize)
+        total_file_size = int(total_file_size)
         
         donwloaded = 0
-        for chunk in response.iter_content(chunk_size=int(max(totalFileSize / 1000, 1024 * 1024))):
+        for chunk in response.iter_content(chunk_size=int(max(total_file_size / 1000, 1024 * 1024))):
             donwloaded += len(chunk)
             f.write(chunk)
 
-            percentage = (donwloaded / totalFileSize) * 100 if donwloaded < totalFileSize else 100
+            percentage = (donwloaded / total_file_size) * 100 if donwloaded < total_file_size else 100
 
             sys.stdout.write("\rDownloading {:s} {:.2f}%".format(os.path.basename(url), percentage))
             sys.stdout.flush()
         sys.stdout.write('\n')
 
+def unzip_file(zip_path, delete_zip : bool = True):
+    if( platform.system().lower() == "windows"):
+        __unzip_file_windows(zip_path, delete_zip)
+    else:
+        __unzip_file_unix(zip_path, delete_zip)
 
-def UnzipFile(zipPath, deleteZip : bool = True):
-    zipPath = os.path.abspath(zipPath)
-    zipFileLocation = os.path.dirname(zipPath)
-    zipFileName = os.path.basename(zipPath)
+def __unzip_file_windows(zip_path, delete_zip : bool = True):
+    zip_path = os.path.abspath(zip_path)
+    zip_file_location = os.path.dirname(zip_path)
+    zip_file_name = os.path.basename(zip_path)
 
-    with zipfile.ZipFile(zipPath, 'r') as z:
-        totalZipSize = 0
-        for zippedFileName in z.namelist():
-            totalZipSize += z.getinfo(zippedFileName).file_size
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        total_zip_size = 0
+        for zipped_file_name in z.namelist():
+            total_zip_size += z.getinfo(zipped_file_name).file_size
         
         extracted = 0
-        for zippedFileName in z.namelist():
-            z.extract(zippedFileName, zipFileLocation)
-            extracted += z.getinfo(zippedFileName).file_size
+        for zipped_file_name in z.namelist():
+            z.extract(zipped_file_name, zip_file_location)
+            extracted += z.getinfo(zipped_file_name).file_size
 
-            percentage = (extracted / totalZipSize) * 100
+            percentage = (extracted / total_zip_size) * 100
 
-            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zipFileName, percentage))
+            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zip_file_name, percentage))
             sys.stdout.flush()
 
         sys.stdout.write('\n')
 
-    if(deleteZip):
-        os.remove(zipPath)
+    if(delete_zip):
+        os.remove(zip_path)
 
-def OpenKey(key: int, subkey: str):
-    try:
-        return winreg.OpenKey(key, subkey)
-    except:
-        sys.stderr.write("Couldn't open the specified key!\n")
-        return None
+def __unzip_file_unix(zip_path, delete_zip : bool = True):
+    zip_path = os.path.abspath(zip_path)
+    zip_file_location = os.path.dirname(zip_path)
+    zip_file_name = os.path.basename(zip_path)
 
-def QueryValue(subkey: str, valueName: str):
-    try:
-        with OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey) as hKey:
-            return winreg.QueryValueEx(hKey, valueName)[0]
-    except:
-        sys.stderr.write("\rCouldn't find the value with name: {}\n".format(valueName))
-        return None
+    with tarfile.open(zip_path, 'r') as z:
+        total_zip_size = 0
+        tar_member_names = z.getnames()
 
-def GetMonoRootDir():
-    rootDir = QueryValue("SOFTWARE\\Mono", "SdkInstallRoot")
-    
-    if rootDir is not None:
-        return str(rootDir)
+        for zipped_file_name in tar_member_names:
+            total_zip_size += z.getmember(zipped_file_name).size
+        
+        extracted = 0
+        for zipped_file_name in tar_member_names:
+            z.extract(zipped_file_name, zip_file_location)
+            extracted += z.getmember(zipped_file_name).size
 
-    return None
+            percentage = (extracted / total_zip_size) * 100
 
-def GetMonoVersion():
-    version = QueryValue("SOFTWARE\\Mono", "Version")
+            sys.stdout.write("\rExtracting {:s} {:.2f}%".format(zip_file_name, percentage))
+            sys.stdout.flush()
 
-    if version is not None:
-        return str(version)
+        sys.stdout.write('\n')
 
-    return None
-
+    if(delete_zip):
+        os.remove(zip_path)
 
