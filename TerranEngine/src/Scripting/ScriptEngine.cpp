@@ -24,7 +24,6 @@
 #include <Coral/GC.hpp>
 #include <Coral/TypeCache.hpp>
 
-#include <oaidl.h>
 
 namespace TerranEngine
 {

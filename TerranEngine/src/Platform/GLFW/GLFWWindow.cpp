@@ -6,7 +6,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyboardEvent.h"
 #include "Events/MouseEvent.h"
-#include "Events/GamePadEvent.h"
+#include "Events/GamepadEvent.h"
 
 #include "Utils/Debug/OptickProfiler.h"
 

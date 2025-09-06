@@ -211,7 +211,7 @@ namespace TerranEngine
 		}
 
 		TR_ASSERT(true, "No fixtures exist");
-		return NULL;
+		return static_cast<uintptr_t>(NULL);
 	}
 
 	Shared<PhysicsBody2D> Collider2D::GetPhysicsBody() const
