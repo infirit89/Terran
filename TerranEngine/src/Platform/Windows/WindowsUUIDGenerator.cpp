@@ -1,10 +1,11 @@
+#ifdef TR_WINDOWS_64
+
 #include "trpch.h"
 #include "Core/UUID.h"
 
 #pragma comment(lib, "rpcrt4.lib")
 #include <rpc.h>
 
-#ifdef TR_WINDOWS_64
 
 namespace TerranEngine 
 {
