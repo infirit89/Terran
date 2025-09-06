@@ -43,11 +43,18 @@ namespace TerranEngine
 	{
 		switch (logLevel)
 		{
-		case spdlog::level::trace: return "trace";
+		case spdlog::level::trace: 
+		case spdlog::level::debug:
+			return "trace";
 		case spdlog::level::info: return "info";
 		case spdlog::level::warn: return "warn";
-		case spdlog::level::err: return "err";
-		case spdlog::level::off: return "off";
+		case spdlog::level::err: 
+		case spdlog::level::critical:
+			return "err";
+		case spdlog::level::off: 
+			return "off";
+		default:
+			return "trace";
 		}
 
 		TR_CORE_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");

@@ -3,7 +3,7 @@
 
 namespace TerranEngine
 {
-	UUID UUID::s_Empty({});
+	UUID UUID::s_Empty;
 
 	UUID::UUID()
 		: m_Data({})
@@ -64,7 +64,7 @@ namespace TerranEngine
 		}
 
 		if (index < 16)
-			return UUID({});
+			return UUID();
 
 		return UUID{ data };
 	}

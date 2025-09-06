@@ -66,7 +66,9 @@ project "TerranEngine"
     {
         "_CRT_SECURE_NO_WARNINGS",
         "GLFW_INCLUDE_NONE",
-        "YAML_CPP_STATIC_DEFINE"
+        "YAML_CPP_STATIC_DEFINE",
+        "MSDF_ATLAS_NO_ARTERY_FONT",
+        "MSDFGEN_PUBLIC=",
     }
 
 	filter "system:macosx"
@@ -79,6 +81,8 @@ project "TerranEngine"
 			"CoreFoundation.framework",                 -- no path needed for system frameworks
 			"OpenGL.framework",
 		}
+
+        defines { "__STDC_WANT_LIB_EXT1__" }
 
     filter "system:windows"
 		architecture "x86_64"

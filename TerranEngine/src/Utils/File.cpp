@@ -1,4 +1,5 @@
 #include "trpch.h"
+#include <cstdio>
 #include "File.h"
 
 namespace TerranEngine 
@@ -7,10 +8,7 @@ namespace TerranEngine
 	{
 		FileData* data = new FileData;
 
-		memset(data, 0, sizeof(data));
-		
-		FILE* filePtr;
-		fopen_s(&filePtr, filePath, "rb");
+		FILE* filePtr = fopen(filePath, "rb");
 
 		data->Index = 0;
 
@@ -67,11 +65,10 @@ namespace TerranEngine
 	{
 		FileData* data = new FileData;
 
-		FILE* filePtr;
+		FILE* filePtr = fopen(filePath, "w+b");
 
 		data->Index = 0;
 
-		fopen_s(&filePtr, filePath, "w+b");
 
 		if (filePtr)
 		{
@@ -90,14 +87,12 @@ namespace TerranEngine
 		
 		data->Index = 0;
 
-		FILE* filePtr;
-
-		fopen_s(&filePtr, filePath, "a+b");
+		FILE* filePtr = fopen(filePath, "a+b");
 
 		if (filePtr) 
 		{
 			while (fgets(text, sizeof(text), filePtr))
-				fprintf(filePtr, text);
+				fprintf(filePtr, "%s", text);
 
 			fclose(filePtr);
 		}
@@ -136,9 +131,7 @@ namespace TerranEngine
 
 	void File::CreateFile(const char* filePath)
 	{
-		FILE* filePtr;
-
-		fopen_s(&filePtr, filePath, "w");
+		FILE* filePtr = fopen(filePath, "w");
 
 		if (filePtr == nullptr)
 			TR_CORE_ERROR(TR_LOG_CORE, "Couldn't create file {0}", filePath);

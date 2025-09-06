@@ -3,6 +3,8 @@
 
 #include <msdf-atlas-gen/msdf-atlas-gen.h>
 
+#define MSDF_ATLAS_DEFAULT_EM_SIZE 32.0
+
 namespace TerranEngine 
 {
 	Shared<Font> Font::DefaultFont;
@@ -134,7 +136,7 @@ namespace TerranEngine
 		// TODO: make it editable?
 		//constexpr msdf_atlas::TightAtlasPacker::DimensionsConstraint dimensionConstraint = msdf_atlas::TightAtlasPacker::DimensionsConstraint::MULTIPLE_OF_FOUR_SQUARE;
 		//atlasPacker.setDimensionsConstraint(dimensionConstraint);
-		atlasPacker.setPadding(0);
+		atlasPacker.setSpacing(0);
 		atlasPacker.setMinimumScale(MSDF_ATLAS_DEFAULT_EM_SIZE);
 		//atlasPacker.setScale(40.0);
 
