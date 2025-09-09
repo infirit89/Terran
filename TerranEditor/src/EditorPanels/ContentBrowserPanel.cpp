@@ -393,7 +393,7 @@ namespace TerranEditor
 			ImGui::Text("Assets");
 		}
 		else
-			ImGui::Text(parent->Path.stem().string().c_str());
+			ImGui::Text("%s", parent->Path.stem().string().c_str());
 
 		ImGui::EndHorizontal();
 		ImGui::EndVertical();
