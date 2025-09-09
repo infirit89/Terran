@@ -36,10 +36,10 @@ namespace TerranEditor
 
 				const bool selected = (s_Selected == entity);
 				
-				ImGui::Text(entity.GetName().c_str());
+				ImGui::Text("%s", entity.GetName().c_str());
 				ImGui::NextColumn();
 
-				ImGui::Text(std::to_string(entity.GetID()).c_str());
+				ImGui::Text("%s", std::to_string(entity.GetID()).c_str());
 				ImGui::NextColumn();
 
 				ImGui::Text("%i", (uint32_t)entity);

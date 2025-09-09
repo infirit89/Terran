@@ -136,7 +136,10 @@ namespace TerranEditor
 			auto& tagComp = entity.GetComponent<TagComponent>();
 			char buf[256];
 			memset(buf, 0, sizeof(buf));
-			strcpy_s(buf, sizeof(buf), tagComp.Name.c_str());
+			// NOTE: massive potential problem, used to be strcpy_s
+			// during macos porting changed to strcpy, as a quick fix
+			// to be able to build, this can cause overflow!!!!!
+			strcpy(buf, tagComp.Name.c_str());
 
 			if (ImGui::InputText("##Tag", buf, sizeof(buf)) && ImGui::IsKeyPressed((ImGuiKey)Key::Enter))
 				tagComp.Name = buf;
@@ -374,7 +377,7 @@ namespace TerranEditor
 						UI::ScopedVarTable currentSleepStateTable("Sleep State", tableInfo);
 
 						int sleepStateNamesIndex = isScenePlaying ? (int)physicsBody->GetSleepState() : (int)PhysicsBodySleepState::Awake;
-						ImGui::Text(sleepStateNames[sleepStateNamesIndex].data());
+						ImGui::Text("%s", sleepStateNames[sleepStateNamesIndex].data());
 					}
 
 					{
@@ -382,7 +385,7 @@ namespace TerranEditor
 
 						glm::vec2 velocity = isScenePlaying ? physicsBody->GetLinearVelocity() : glm::vec2(0.0f, 0.0f);
 						std::string velocityText = fmt::format("X: {0}, Y: {1}", velocity.x, velocity.y);
-						ImGui::Text(velocityText.c_str());
+						ImGui::Text("%s", velocityText.c_str());
 					}
 
 					ImGui::TreePop();
@@ -526,7 +529,10 @@ namespace TerranEditor
 
 				char buf[256];
 				memset(buf, 0, sizeof(buf));
-				strcpy_s(buf, textRenderer.Text.c_str());
+				// NOTE: massive potential problem, used to be strcpy_s
+				// during macos porting changed to strcpy, as a quick fix
+				// to be able to build, this can cause overflow!!!!!
+				strcpy(buf, textRenderer.Text.c_str());
 
 				if (ImGui::InputTextMultiline("##text", buf, sizeof(buf), { 0.0f, 0.0f }, ImGuiInputTextFlags_AllowTabInput))
 					textRenderer.Text = buf;

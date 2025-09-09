@@ -73,16 +73,16 @@ project "TerranEngine"
 
 	filter "system:macosx"
 		architecture "ARM64"
-		pic "On"
 
 		libdirs { "/usr/local/lib" }
 		links
 		{
 			"CoreFoundation.framework",                 -- no path needed for system frameworks
 			"OpenGL.framework",
+            "Cocoa.framework",
+            "IOKit.framework",
+            "QuartzCore.framework"
 		}
-
-        defines { "__STDC_WANT_LIB_EXT1__" }
 
     filter "system:windows"
 		architecture "x86_64"

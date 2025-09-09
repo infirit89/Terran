@@ -29,12 +29,10 @@ group "Dependencies"
     include "TerranEngine/vendor/Box2D"
     -- include "TerranEngine/vendor/Optick" Think about replacing with Tracy
     include "TerranEngine/vendor/yaml-cpp"
-    include "TerranEngine/vendor/Coral/Coral.Managed"
     include "TerranEngine/vendor/Coral/Coral.Native"
 
 group "Core"
     include "TerranEngine"
-    include "TerranScriptCore"
 
 group "Tools"
     include "TerranEditor"

@@ -94,7 +94,7 @@ namespace TerranEditor
 						formattedName = formattedName.replace(maxFileNameLength, formattedName.size() - 1, "...");
 					const float textWidth = std::min(ImGui::CalcTextSize(formattedName.c_str()).x, cellSize);
 					ImGui::SetNextItemWidth(textWidth);
-					ImGui::Text(formattedName.c_str());
+					ImGui::Text("%s", formattedName.c_str());
 				}
 				ImGui::PopTextWrapPos();
 				ImGui::Spring();
@@ -135,7 +135,7 @@ namespace TerranEditor
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			ImGui::SetDragDropPayload("ASSET", m_Handle.GetRaw(), sizeof(UUID));
-			ImGui::Text("% s", m_Name.c_str());
+			ImGui::Text("%s", m_Name.c_str());
 			action = ItemAction::Select;
 			ImGui::EndDragDropSource();
 		}

@@ -128,12 +128,15 @@ namespace TerranEditor
 		char tableID[256];
 
 		tableID[0] = '#';
-		strcpy_s(tableID + 1, sizeof(tableID) - 1, name.data());
+		// NOTE: massive potential problem, used to be strcpy_s
+		// during macos porting changed to strcpy, as a quick fix
+		// to be able to build, this can cause overflow!!!!!
+		strcpy(tableID + 1, name.data());
 		tableID[strlen(name.data()) + 1] = '\0';
 
 		ImGui::Columns(tableInfo.ColumnCount, tableID, tableInfo.Border);
 		ImGui::SetColumnWidth(0, tableInfo.FirstColumnWidth);
-		ImGui::Text(name.data());
+		ImGui::Text("%s", name.data());
 		ImGui::NextColumn();
 
 		if (tableInfo.ItemCount > 1)
@@ -764,7 +767,7 @@ namespace TerranEditor
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
@@ -789,7 +792,7 @@ namespace TerranEditor
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 		const ImGuiIO io = ImGui::GetIO();
@@ -840,7 +843,7 @@ namespace TerranEditor
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -890,7 +893,7 @@ namespace TerranEditor
 		bool modified = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -898,7 +901,10 @@ namespace TerranEditor
 
 		char buf[256];
 		memset(buf, 0, sizeof(buf));
-		strcpy_s(buf, sizeof(buf), !entity ? "None" : entity.GetName().c_str());
+		// NOTE: massive potential problem, used to be strcpy_s
+		// during macos porting changed to strcpy, as a quick fix
+		// to be able to build, this can cause overflow!!!!!
+		strcpy(buf, !entity ? "None" : entity.GetName().c_str());
 
 		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
 		ImGui::InputText("##EntityField", buf, sizeof(buf), inputTextFlags);
@@ -929,7 +935,7 @@ namespace TerranEditor
 	{
 		ImGui::PushID(label.data());
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -944,7 +950,7 @@ namespace TerranEditor
 	{
 		ImGui::PushID(label.data());
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -959,7 +965,7 @@ namespace TerranEditor
 	{
 		ImGui::PushID(label.data());
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -977,13 +983,16 @@ namespace TerranEditor
 		bool changed = false;
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
 		char* buf = new char[maxBufSize];
 		memset(buf, 0, maxBufSize);
-		strcpy_s(buf, maxBufSize, value.data());
+		// NOTE: massive potential problem, used to be strcpy_s
+		// during macos porting changed to strcpy, as a quick fix
+		// to be able to build, this can cause overflow!!!!!
+		strcpy(buf, value.data());
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		if (ImGui::InputText("##val", buf, maxBufSize, flags))
@@ -1259,12 +1268,12 @@ namespace TerranEditor
 		DRAW_FIELD_PROPERTY_SCALAR(UInt64, uint64_t);
 		DRAW_FIELD_PROPERTY_SCALAR(Float, float);
 		DRAW_FIELD_PROPERTY_SCALAR(Double, double);
-		DRAW_FIELD_PROPERTY(Bool, bool, PropertyBool);
-		DRAW_FIELD_PROPERTY(Char, char, PropertyChar);
-		DRAW_FIELD_PROPERTY(String, std::string, PropertyString);
-		DRAW_FIELD_PROPERTY(Vector2, glm::vec2, PropertyVec2);
-		DRAW_FIELD_PROPERTY(Vector3, glm::vec3, PropertyVec3);
-		DRAW_FIELD_PROPERTY(Color, glm::vec4, PropertyColor);
+		// DRAW_FIELD_PROPERTY(Bool, bool, PropertyBool);
+		// DRAW_FIELD_PROPERTY(Char, char, PropertyChar);
+		// DRAW_FIELD_PROPERTY(String, std::string, PropertyString);
+		// DRAW_FIELD_PROPERTY(Vector2, glm::vec2, PropertyVec2);
+		// DRAW_FIELD_PROPERTY(Vector3, glm::vec3, PropertyVec3);
+		// DRAW_FIELD_PROPERTY(Color, glm::vec4, PropertyColor);
 		DRAW_FIELD_PROPERTY(Entity, UUID, PropertyEntity, scene);
 		}
 	}
@@ -1571,8 +1580,8 @@ namespace TerranEditor
 				std::string elementName = std::to_string(i);
 				switch (field.Type)
 				{
-				DRAW_FIELD_ARRAY_VALUE(Bool, bool, PropertyBool);
-				DRAW_FIELD_ARRAY_VALUE(Char, char, PropertyChar);
+				// DRAW_FIELD_ARRAY_VALUE(Bool, bool, PropertyBool);
+				// DRAW_FIELD_ARRAY_VALUE(Char, char, PropertyChar);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int8, int8_t);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int16, int16_t);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Int32, int32_t);
@@ -1583,10 +1592,10 @@ namespace TerranEditor
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(UInt64, uint64_t);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Float, float);
 				DRAW_FIELD_ARRAY_VALUE_SCALAR(Double, double);
-				DRAW_FIELD_ARRAY_VALUE(String, std::string, UI::PropertyString);
-				DRAW_FIELD_ARRAY_VALUE(Vector2, glm::vec2, UI::PropertyVec2);
-				DRAW_FIELD_ARRAY_VALUE(Vector3, glm::vec3, UI::PropertyVec3);
-				DRAW_FIELD_ARRAY_VALUE(Color, glm::vec4, UI::PropertyColor);
+				// DRAW_FIELD_ARRAY_VALUE(String, std::string, UI::PropertyString);
+				// DRAW_FIELD_ARRAY_VALUE(Vector2, glm::vec2, UI::PropertyVec2);
+				// DRAW_FIELD_ARRAY_VALUE(Vector3, glm::vec3, UI::PropertyVec3);
+				// DRAW_FIELD_ARRAY_VALUE(Color, glm::vec4, UI::PropertyColor);
 				DRAW_FIELD_ARRAY_VALUE(Entity, UUID, PropertyEntity, scene);
 				}
 			}
