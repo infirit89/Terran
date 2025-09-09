@@ -23,7 +23,7 @@ namespace TerranEditor
 		{
 			ImGui::PushID(label.c_str());
 			ImGui::TableSetColumnIndex(0);
-			ImGui::Text(label.c_str());
+			ImGui::Text("%s", label.c_str());
 
 			ImGui::TableSetColumnIndex(1);
 

@@ -4,8 +4,6 @@ project "TerranEditor"
     cppdialect "C++20"
     staticruntime "Off"
 
-    architecture "x86_64"
-
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
 
@@ -42,18 +40,48 @@ project "TerranEditor"
     }
 
     CopyCommands = {}
-    CopyCommands["mono"] = "{COPY} %{Libraries.mono_shared} %{prj.location}/bin/%{outputdir}"
     CopyCommands["optick"] = "{COPY} %{Libraries.optick} %{prj.location}/bin/%{outputdir}"
     CopyCommands["shaderc"] = "{COPY} %{Libraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
     CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
 
     filter "system:windows"
+        architecture "x86_64"
         systemversion "latest"
         
-         postbuildcommands  
+         postbuildcommands
          {
              -- todo: copy the pdb
-             "%{CopyCommands.mono}",
+             "%{CopyCommands.optick}",
+             "%{CopyCommands.shaderc}",
+             "%{CopyCommands.coral}",
+         }
+
+    filter "system:macosx"
+		architecture "ARM64"
+
+        links
+		{
+			"CoreFoundation.framework",                 -- no path needed for system frameworks
+			"OpenGL.framework",
+            "Cocoa.framework",
+            "IOKit.framework",
+            "QuartzCore.framework",
+            "GLFW",
+            "ImGui",
+            "GLAD",
+            "msdf-atlas-gen",
+            "Box2D",
+            "yaml-cpp",
+            "Coral.Native",
+            "msdfgen",
+            "freetype"
+		}
+
+		libdirs { "/usr/local/lib" }
+
+        postbuildcommands
+         {
+             -- todo: copy the pdb
              "%{CopyCommands.optick}",
              "%{CopyCommands.shaderc}",
              "%{CopyCommands.coral}",

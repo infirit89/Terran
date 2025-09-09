@@ -206,7 +206,7 @@ namespace TerranEditor::UI
 		ImGui::PushID(label.data());
 		
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -230,7 +230,7 @@ namespace TerranEditor::UI
 		std::string_view currentState = stateNames[(int32_t)selected];
 
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -273,7 +273,7 @@ namespace TerranEditor::UI
 		bool changed = false;
 			
 		ImGui::TableSetColumnIndex(0);
-		ImGui::Text(label.data());
+		ImGui::Text("%s", label.data());
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -281,7 +281,11 @@ namespace TerranEditor::UI
 		memset(buf, 0, sizeof(buf));
 		TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfoByHandle(outHandle);
 		std::string assetName = assetInfo.Path.stem().string();
-		strcpy_s(buf, sizeof(buf), assetName == "" ? "None" : assetName.c_str());
+
+		// NOTE: massive potential problem, used to be strcpy_s
+		// during macos porting changed to strcpy, as a quick fix
+		// to be able to build, this can cause overflow!!!!!
+		strcpy(buf, assetName == "" ? "None" : assetName.c_str());
 
 		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
 

@@ -60,13 +60,15 @@ namespace TerranEditor
 	void SceneHierarchyPanel::DrawScene()
 	{
 		TR_PROFILE_FUNCTION();
-		auto entities = m_Scene->Filter<TagComponent>([this](const TagComponent tag)
+		// auto entities = m_Scene->Filter<TagComponent>([this](const TagComponent tag)
+		// {
+		// 	return m_Filter.PassFilter(tag.Name.c_str());
+		// });
+		//
+		auto tagView = m_Scene->GetEntitiesWith<TagComponent>();
+		for (auto e : tagView)
 		{
-			return m_Filter.PassFilter(tag.Name.c_str());
-		});
-
-		for (auto entity : entities)
-		{
+			Entity entity(e, m_Scene->GetRaw());
 			if (!entity.HasParent())
 				DrawEntityNode(entity);
 		}
@@ -94,7 +96,7 @@ namespace TerranEditor
 				TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
 
 				std::array<uint8_t, 16> idArr;
-				memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+				memcpy(idArr.data(), payload->Data, 16 * sizeof(uint8_t));
 				UUID id(idArr);
 				Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
 				receivedEntity.Unparent();
@@ -170,14 +172,14 @@ namespace TerranEditor
 				{ ImGuiStyleVar_FramePadding, { framePaddingX, 1.5f } }
 			});
 			uint32_t entityID = entity;
-			opened = ImGui::TreeNodeEx((void*)entityID, flags, tagComp.Name.c_str());
+			opened = ImGui::TreeNodeEx((void*)entityID, flags, "%s", tagComp.Name.c_str());
 
 			if (ImGui::BeginDragDropSource())
 			{
 				const UUID& id = entity.GetID();
 				ImGui::SetDragDropPayload("ENTITY_UUID", id.GetRaw(), 16 * sizeof(uint8_t));
 				const char* entityName = entity.GetName().c_str();
-				ImGui::Text(entityName);
+				ImGui::Text("%s", entityName);
 				ImGui::EndDragDropSource();
 			}
 
@@ -188,7 +190,7 @@ namespace TerranEditor
 					TR_ASSERT(payload->DataSize == 16 * sizeof(uint8_t), "The Drag/Drop Payload data's size doesn't match the required size");
 
 					std::array<uint8_t, 16> idArr;
-					memcpy(idArr._Elems, payload->Data, 16 * sizeof(uint8_t));
+					memcpy(idArr.data(), payload->Data, 16 * sizeof(uint8_t));
 					UUID id(idArr);
 					Entity receivedEntity = m_Scene->FindEntityWithUUID(id);
 
