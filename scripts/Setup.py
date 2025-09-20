@@ -1,4 +1,3 @@
-from shutil import Error
 import sys
 import subprocess
 import os
