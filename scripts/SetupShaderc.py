@@ -2,26 +2,47 @@ import Utils
 import os
 import shutil
 import sys
+import platform
 
 class ShadercSetup:
 
+    SUPPORTED_PLATFORMS = {
+        "windows": "windows",
+        "darwin": "macos"
+    }
     SHADERC_INSTALL_DIRECTORY = f"{Utils.TERRAN_ENGINE_VENDOR_PATH}/shaderc"
-    SHADERC_URL = f"https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_release_2017/438/20230810-123700/install.zip"
+    SHADERC_URL_TEMPLATE = "https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/{shaderc_platform}/{shaderc_configuration}/{shaderc_version}/install.{shaderc_extension}"
     SHADERC_LICENSE_URL = f"https://raw.githubusercontent.com/google/shaderc/main/LICENSE"
 
     @classmethod
     def setup(cls):
         if not os.path.exists(cls.SHADERC_INSTALL_DIRECTORY):
-            cls.__install_shaderc()
+            shaderc_platform = ""
+            try:
+                shaderc_platform = cls.SUPPORTED_PLATFORMS[platform.system().lower()]
+            except KeyError:
+                print("Unsupported platform")
+
+            shaderc_configuration = "continuous_clang_release" if platform.system().lower() == "darwin" else "vs2022_amd64_release_continuous"
+
+            shaderc_version = "512/20250905-100502" if platform.system().lower() == "darwin" else "22/20250905-100500"
+            cls.__install_shaderc(shaderc_platform, shaderc_configuration, shaderc_version)
         else:
             print("Shaderc already installed!")
 
     @classmethod
-    def __install_shaderc(cls):
+    def __install_shaderc(cls, platform, configuration, version):
 
         os.makedirs(cls.SHADERC_INSTALL_DIRECTORY)
-        shaderc_zip_path = f"{cls.SHADERC_INSTALL_DIRECTORY}/shaderc.zip"
-        Utils.download_file(cls.SHADERC_URL, shaderc_zip_path)
+        shaderc_extension = "zip" if platform == "windows" else "tgz"
+        shaderc_zip_path = f"{cls.SHADERC_INSTALL_DIRECTORY}/shaderc.{shaderc_extension}"
+        shaderc_url = cls.SHADERC_URL_TEMPLATE.format(
+            shaderc_platform = platform,
+            shaderc_configuration = configuration,
+            shaderc_version = version,
+            shaderc_extension = shaderc_extension)
+
+        Utils.download_file(shaderc_url, shaderc_zip_path)
         Utils.unzip_file(shaderc_zip_path)
         cls.__move_from_temporary_directory()
         

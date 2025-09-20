@@ -24,6 +24,7 @@ class PremakeSetup:
                 premake_platform = cls.SUPPORTED_PLATFORMS[platform.system().lower()]
             except KeyError:
                 print("Unsupported platform")
+                sys.exit()
 
             chosen_premake_version = ""
             while True:
@@ -46,7 +47,7 @@ class PremakeSetup:
 
             cls.__install_premake(chosen_premake_version, premake_platform)
         else:
-            print("Correct version of premake already exists!")
+            print("Premake already installed!")
 
     @classmethod
     def __install_premake(cls, version, platform):
