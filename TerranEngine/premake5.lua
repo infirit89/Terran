@@ -1,4 +1,5 @@
 project "TerranEngine"
+    pic "On"
     kind "StaticLib"
     language "C++"
     cppdialect "C++20"
@@ -6,6 +7,8 @@ project "TerranEngine"
 
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
+
+    debuggertype "NativeWithManagedCore"
 
     files 
     {
@@ -50,8 +53,7 @@ project "TerranEngine"
         "msdf-atlas-gen",
         "Box2D",
         "yaml-cpp",
-        "Coral.Native",
-        "%{Libraries.shaderc}"
+        "Coral.Native"
     }
 
     pchheader "trpch.h"
@@ -97,8 +99,9 @@ project "TerranEngine"
         {
 			"OptickCore",
 			"opengl32.lib",
-            "%{Libraries.imm32}",
-            "%{Libraries.rpcrt4}"
+            "%{ExternalLibraries.imm32}",
+            "%{ExternalLibraries.rpcrt4}",
+            "%{ExternalLibraries.shaderc}",
         }
 
     filter "configurations:Debug"

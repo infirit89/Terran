@@ -1,4 +1,8 @@
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+print("VULKAN_SDK = " .. VULKAN_SDK)
+
 project "TerranEditor"
+    pic "On"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
@@ -7,7 +11,9 @@ project "TerranEditor"
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
 
-    files 
+    debuggertype "NativeWithManagedCore"
+
+    files
     {
         "src/**.h",
         "src/**.cpp",
@@ -29,19 +35,19 @@ project "TerranEditor"
         "%{wks.location}/TerranEditor/vendor/FontAwesome/",
     } 
     
-    links 
+    links
     {
         "TerranEngine"
     }
 
-    defines 
+    defines
     {
         "_CRT_SECURE_NO_WARNINGS"
     }
 
     CopyCommands = {}
-    CopyCommands["optick"] = "{COPY} %{Libraries.optick} %{prj.location}/bin/%{outputdir}"
-    CopyCommands["shaderc"] = "{COPY} %{Libraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
+    CopyCommands["optick"] = "{COPY} %{ExternalLibraries.optick} %{prj.location}/bin/%{outputdir}"
+    CopyCommands["shaderc"] = "{COPY} %{ExternalLibraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
     CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
 
     filter "system:windows"
@@ -59,6 +65,13 @@ project "TerranEditor"
     filter "system:macosx"
 		architecture "ARM64"
 
+        libdirs
+        {
+            "/usr/local/lib",
+            "%{VULKAN_SDK}/lib",
+            -- "%{wks.location}/TerranEngine/vendor/shaderc/lib"
+        }
+
         links
 		{
 			"CoreFoundation.framework",                 -- no path needed for system frameworks
@@ -74,18 +87,15 @@ project "TerranEditor"
             "yaml-cpp",
             "Coral.Native",
             "msdfgen",
-            "freetype"
+            "freetype",
+            "shaderc_shared"
 		}
 
-		libdirs { "/usr/local/lib" }
-
         postbuildcommands
-         {
-             -- todo: copy the pdb
-             "%{CopyCommands.optick}",
-             "%{CopyCommands.shaderc}",
-             "%{CopyCommands.coral}",
-         }
+        {
+            -- todo: copy the pdb
+            "%{CopyCommands.coral}",
+        }
 
     defines "TR_EDITOR"
 
