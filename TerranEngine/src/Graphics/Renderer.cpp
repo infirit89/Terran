@@ -19,7 +19,9 @@ namespace TerranEngine
 		TR_CORE_TRACE(TR_LOG_RENDERER, "Graphics card: {0}", glGetString(GL_RENDERER));
 		TR_CORE_TRACE(TR_LOG_RENDERER, "OpenGL version: {0}", glGetString(GL_VERSION));
 
-		TR_ASSERT(GLVersion.major >= 4 && GLVersion.minor > 5, "Terran doesn't support opengl versions older than 4.5.0");
+		TR_CORE_TRACE(TR_LOG_RENDERER, "Version {}.{}", GLVersion.major, GLVersion.minor);
+		// NOTE: this is a check for 2.1 due to current macos porting, should be changed in the future
+		TR_ASSERT(GLVersion.major >= 2 && GLVersion.minor >= 1, "Terran doesn't support opengl versions older than 4.5.0");
 
 #ifdef TR_DEBUG
 		int flags;
