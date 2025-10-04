@@ -92,3 +92,8 @@ TerranEditor/Resources/LogSettings/
 # MacOS
 .DS_Store
 Makefile
+
+# XCode
+*.xcworkspacedata
+*.xcworkspace/
+*.xcodeproj/
