@@ -43,7 +43,7 @@ namespace TerranEngine
         ScriptEngine::Initialize(appData.ScriptCorePath);
 		//ScriptingTest::Initialize();
         Physics2D::Initialize();
-
+        
 		m_Window->SetEventCallbackFN(TR_EVENT_BIND_FN(Application::DispatchEvent));
 
 		Input::Init();
