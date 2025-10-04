@@ -62,7 +62,9 @@ namespace TerranEngine
 		m_WindowDataPtr.Width = data.Width;
 		m_WindowDataPtr.Height = data.Height;
 
-
+		  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
 		if(data.Debug)
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
