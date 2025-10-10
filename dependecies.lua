@@ -1,4 +1,4 @@
-VULKAN_SDK = os.getenv("VULKAN_SDK")
+VULKAN_SDK = os.getenv "VULKAN_SDK"
 
 IncludeDirectories = {}
 
@@ -29,4 +29,5 @@ ExternalLibraries["rpcrt4"] = "Rpcrt4.lib"
 External = {}
 External["coral"] = "%{wks.location}/TerranEngine/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json"
 
-
+InternalLibraries = {}
+InternalLibraries["script_core"] = "%{wks.location}/TerranScriptCore/Build/%{cfg.buildcfg}"

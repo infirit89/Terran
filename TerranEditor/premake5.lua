@@ -1,113 +1,107 @@
-VULKAN_SDK = os.getenv("VULKAN_SDK")
+VULKAN_SDK = os.getenv "VULKAN_SDK"
 print("VULKAN_SDK = " .. VULKAN_SDK)
 
 project "TerranEditor"
-    pic "On"
-    kind "ConsoleApp"
-    language "C++"
-    cppdialect "C++20"
-    staticruntime "Off"
+pic "On"
+kind "ConsoleApp"
+language "C++"
+cppdialect "C++20"
+staticruntime "Off"
 
-    targetdir ("%{prj.location}/bin/" .. outputdir)
-    objdir ("%{prj.location}/bin-int/" .. outputdir)
+targetdir("%{prj.location}/bin/" .. outputdir)
+objdir("%{prj.location}/bin-int/" .. outputdir)
 
-    debuggertype "NativeWithManagedCore"
+debuggertype "NativeWithManagedCore"
 
-    files
-    {
-        "src/**.h",
-        "src/**.cpp",
+files {
+    "src/**.h",
+    "src/**.cpp",
 
-        "vendor/ImGuizmo/ImGuizmo.h",
-        "vendor/ImGuizmo/ImGuizmo.cpp"
-    }
+    "vendor/ImGuizmo/ImGuizmo.h",
+    "vendor/ImGuizmo/ImGuizmo.cpp",
+}
 
-    includedirs
-    {
-        "src",
-        "%{wks.location}/TerranEngine/src/",
-        "%{IncludeDirectories.spdlog}",
-        "%{IncludeDirectories.imgui}",
-        "%{IncludeDirectories.glm}",
-        "%{IncludeDirectories.entt}",
-        "%{IncludeDirectories.imguizmo}",
-        "%{IncludeDirectories.optick}",
-        "%{wks.location}/TerranEditor/vendor/FontAwesome/",
-    } 
-    
-    links
-    {
-        "TerranEngine"
-    }
+includedirs {
+    "src",
+    "%{wks.location}/TerranEngine/src/",
+    "%{IncludeDirectories.spdlog}",
+    "%{IncludeDirectories.imgui}",
+    "%{IncludeDirectories.glm}",
+    "%{IncludeDirectories.entt}",
+    "%{IncludeDirectories.imguizmo}",
+    "%{IncludeDirectories.optick}",
+    "%{wks.location}/TerranEditor/vendor/FontAwesome/",
+}
 
-    defines
-    {
-        "_CRT_SECURE_NO_WARNINGS"
-    }
+links {
+    "TerranEngine",
+}
 
-    CopyCommands = {}
-    CopyCommands["optick"] = "{COPY} %{ExternalLibraries.optick} %{prj.location}/bin/%{outputdir}"
-    CopyCommands["shaderc"] = "{COPY} %{ExternalLibraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
-    CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
+defines {
+    "_CRT_SECURE_NO_WARNINGS",
+}
 
-    filter "system:windows"
-        architecture "x86_64"
-        systemversion "latest"
-        
-         postbuildcommands
-         {
-             -- todo: copy the pdb
-             "%{CopyCommands.optick}",
-             "%{CopyCommands.shaderc}",
-             "%{CopyCommands.coral}",
-         }
+CopyCommands = {}
+CopyCommands["optick"] = "{COPY} %{ExternalLibraries.optick} %{prj.location}/bin/%{outputdir}"
+CopyCommands["shaderc"] = "{COPY} %{ExternalLibraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
+CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
+CopyCommands["script_core"] = "{COPY} %{InternalLibraries.script_core} %{prj.location}/Resources/Scripts"
 
-    filter "system:macosx"
-		architecture "ARM64"
+filter "system:windows"
+architecture "x86_64"
+systemversion "latest"
 
-        libdirs
-        {
-            "/usr/local/lib",
-            "%{VULKAN_SDK}/lib",
-            -- "%{wks.location}/TerranEngine/vendor/shaderc/lib"
-        }
+postbuildcommands {
+    -- todo: copy the pdb
+    "%{CopyCommands.optick}",
+    "%{CopyCommands.shaderc}",
+    "%{CopyCommands.coral}",
+    "%{CopyCommands.script_core}",
+}
 
-        links
-		{
-			"CoreFoundation.framework",                 -- no path needed for system frameworks
-			"OpenGL.framework",
-            "Cocoa.framework",
-            "IOKit.framework",
-            "QuartzCore.framework",
-            "GLFW",
-            "ImGui",
-            "GLAD",
-            "msdf-atlas-gen",
-            "Box2D",
-            "yaml-cpp",
-            "Coral.Native",
-            "msdfgen",
-            "freetype",
-            "shaderc_shared"
-		}
+filter "system:macosx"
+architecture "ARM64"
 
-        postbuildcommands
-        {
-            -- todo: copy the pdb
-            "%{CopyCommands.coral}",
-        }
+libdirs {
+    "/usr/local/lib",
+    "%{VULKAN_SDK}/lib",
+    -- "%{wks.location}/TerranEngine/vendor/shaderc/lib"
+}
 
-    defines "TR_EDITOR"
+links {
+    "CoreFoundation.framework", -- no path needed for system frameworks
+    "OpenGL.framework",
+    "Cocoa.framework",
+    "IOKit.framework",
+    "QuartzCore.framework",
+    "GLFW",
+    "ImGui",
+    "GLAD",
+    "msdf-atlas-gen",
+    "Box2D",
+    "yaml-cpp",
+    "Coral.Native",
+    "msdfgen",
+    "freetype",
+    "shaderc_shared",
+}
 
-    filter "configurations:Debug"
-        defines "TR_DEBUG"
-        runtime "Debug"
-        symbols "on"
+postbuildcommands {
+    -- todo: copy the pdb
+    "%{CopyCommands.coral}",
+    "%{CopyCommands.script_core}",
+}
 
+defines "TR_EDITOR"
 
-    filter "configurations:Release"
-        defines "TR_RELEASE"
-        runtime "Release"
-        optimize "on"
+filter "configurations:Debug"
+defines "TR_DEBUG"
+runtime "Debug"
+symbols "on"
 
-        -- todo: copy in release mode
+filter "configurations:Release"
+defines "TR_RELEASE"
+runtime "Release"
+optimize "on"
+
+-- todo: copy in release mode
