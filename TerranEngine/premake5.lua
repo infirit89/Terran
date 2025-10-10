@@ -1,115 +1,106 @@
 project "TerranEngine"
-    pic "On"
-    kind "StaticLib"
-    language "C++"
-    cppdialect "C++20"
-    staticruntime "Off"
+pic "On"
+kind "StaticLib"
+language "C++"
+cppdialect "C++20"
+staticruntime "Off"
 
-    targetdir ("%{prj.location}/bin/" .. outputdir)
-    objdir ("%{prj.location}/bin-int/" .. outputdir)
+targetdir("%{prj.location}/bin/" .. outputdir)
+objdir("%{prj.location}/bin-int/" .. outputdir)
 
-    debuggertype "NativeWithManagedCore"
+debuggertype "NativeWithManagedCore"
 
-    files 
-    {
-        "src/**.h",
-        "src/**.cpp",
-        
-        "vendor/stb/**.h",
-        "vendor/stb/**.cpp",
+files {
+    "src/**.h",
+    "src/**.cpp",
 
-        "vendor/glm/**.hpp",
-        "vendor/glm/**.inl"
-    }
+    "vendor/stb/**.h",
+    "vendor/stb/**.cpp",
 
-    dependson 
-    {
-        "TerranScriptCore"
-    }
+    "vendor/glm/**.hpp",
+    "vendor/glm/**.inl",
+}
 
-    includedirs
-    {
-        "src",
-        "%{IncludeDirectories.spdlog}",
-        "%{IncludeDirectories.glfw}",
-        "%{IncludeDirectories.imgui}",
-        "%{IncludeDirectories.glad}",
-        "%{IncludeDirectories.stb}",
-        "%{IncludeDirectories.glm}",
-        "%{IncludeDirectories.entt}",
-        "%{IncludeDirectories.msdfgen}",
-        "%{IncludeDirectories.msdf_atlas_gen}",
-        "%{IncludeDirectories.box2d}",
-        "%{IncludeDirectories.yaml}",
-        "%{IncludeDirectories.shaderc}",
-        "%{IncludeDirectories.coral}",
-    }
+dependson {
+    "TerranScriptCore",
+}
 
-    links
-    {
-        "GLFW",
-        "ImGui",
-        "GLAD",
-        "msdf-atlas-gen",
-        "Box2D",
-        "yaml-cpp",
-        "Coral.Native"
-    }
+includedirs {
+    "src",
+    "%{IncludeDirectories.spdlog}",
+    "%{IncludeDirectories.glfw}",
+    "%{IncludeDirectories.imgui}",
+    "%{IncludeDirectories.glad}",
+    "%{IncludeDirectories.stb}",
+    "%{IncludeDirectories.glm}",
+    "%{IncludeDirectories.entt}",
+    "%{IncludeDirectories.msdfgen}",
+    "%{IncludeDirectories.msdf_atlas_gen}",
+    "%{IncludeDirectories.box2d}",
+    "%{IncludeDirectories.yaml}",
+    "%{IncludeDirectories.shaderc}",
+    "%{IncludeDirectories.coral}",
+}
 
-    pchheader "trpch.h"
-    pchsource "src/trpch.cpp"
+links {
+    "GLFW",
+    "ImGui",
+    "GLAD",
+    "msdf-atlas-gen",
+    "Box2D",
+    "yaml-cpp",
+    "Coral.Native",
+}
 
-    linkoptions
-    {
-        "-IGNORE:4006"
-    }
+pchheader "trpch.h"
+pchsource "src/trpch.cpp"
 
-    defines 
-    {
-        "_CRT_SECURE_NO_WARNINGS",
-        "GLFW_INCLUDE_NONE",
-        "YAML_CPP_STATIC_DEFINE",
-        "MSDF_ATLAS_NO_ARTERY_FONT",
-        "MSDFGEN_PUBLIC=",
-    }
+linkoptions {
+    "-IGNORE:4006",
+}
 
-	filter "system:macosx"
-		architecture "ARM64"
+defines {
+    "_CRT_SECURE_NO_WARNINGS",
+    "GLFW_INCLUDE_NONE",
+    "YAML_CPP_STATIC_DEFINE",
+    "MSDF_ATLAS_NO_ARTERY_FONT",
+    "MSDFGEN_PUBLIC=",
+}
 
-		libdirs { "/usr/local/lib" }
-		links
-		{
-			"CoreFoundation.framework",                 -- no path needed for system frameworks
-			"OpenGL.framework",
-            "Cocoa.framework",
-            "IOKit.framework",
-            "QuartzCore.framework"
-		}
+filter "system:macosx"
+architecture "ARM64"
 
-    filter "system:windows"
-		architecture "x86_64"
-        systemversion "latest"
+libdirs { "/usr/local/lib" }
+links {
+    "CoreFoundation.framework", -- no path needed for system frameworks
+    "OpenGL.framework",
+    "Cocoa.framework",
+    "IOKit.framework",
+    "QuartzCore.framework",
+}
 
-		includedirs
-		{
-			"%{IncludeDirectories.optick}",
-		}
+filter "system:windows"
+architecture "x86_64"
+systemversion "latest"
 
-        links
-        {
-			"OptickCore",
-			"opengl32.lib",
-            "%{ExternalLibraries.imm32}",
-            "%{ExternalLibraries.rpcrt4}",
-            "%{ExternalLibraries.shaderc}",
-        }
+includedirs {
+    "%{IncludeDirectories.optick}",
+}
 
-    filter "configurations:Debug"
-        defines "TR_DEBUG"
-        runtime "Debug"
-        symbols "on"
+links {
+    "OptickCore",
+    "opengl32.lib",
+    "%{ExternalLibraries.imm32}",
+    "%{ExternalLibraries.rpcrt4}",
+    "%{ExternalLibraries.shaderc}",
+}
 
-    filter "configurations:Release"
-        defines "TR_RELEASE"
-        runtime "Release"
-        optimize "on"
+filter "configurations:Debug"
+defines "TR_DEBUG"
+runtime "Debug"
+symbols "on"
+
+filter "configurations:Release"
+defines "TR_RELEASE"
+runtime "Release"
+optimize "on"
