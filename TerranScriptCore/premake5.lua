@@ -1,43 +1,38 @@
 project "TerranScriptCore"
-    kind "SharedLib"
-    language "C#"
-    dotnetframework "net8.0"
-    clr "Unsafe"
+kind "SharedLib"
+language "C#"
+dotnetframework "net8.0"
+clr "Unsafe"
 
-    propertytags
-    {
-        { "AppendTargetFrameworkToOutputPath", "false" },
-        { "Nullable", "enable" }
-    }
+propertytags {
+    { "AppendTargetFrameworkToOutputPath", "false" },
+    { "Nullable", "enable" },
+}
 
-    targetdir ("../TerranEditor/Resources/Scripts")
-    objdir ("../TerranEditor//Resources/Scripts/Intermidiates")
+targetdir "Build/%{cfg.buildcfg}"
+objdir "Intermidiates/%{cfg.buildcfg}"
 
-    files 
-    {
-        "Source/**.cs"
-    }
+files {
+    "Source/**.cs",
+}
 
-    includedirs 
-    {
-        "Source"
-    }
+includedirs {
+    "Source",
+}
 
-    links 
-    {
-        "Coral.Managed"
-    }
+links {
+    "Coral.Managed",
+}
 
-    filter "system:windows"
-        systemversion "latest"
+filter "system:windows"
+systemversion "latest"
 
-    filter "configurations:Debug"
-        defines "DEBUG"
-        runtime "Debug"
-        symbols "on"
+filter "configurations:Debug"
+defines "DEBUG"
+runtime "Debug"
+symbols "on"
 
-    filter "configurations:Release"
-        defines "RELEASE"
-        runtime "Release"
-        optimize "on"
-        
+filter "configurations:Release"
+defines "RELEASE"
+runtime "Release"
+optimize "on"
