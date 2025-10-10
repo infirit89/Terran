@@ -59,7 +59,7 @@ void main()
 {
 	int index = i_TextureIndex;
 
-	o_Color = i_InputData.Color * texture(u_Samplers[index], i_InputData.TexCoords);
-
+	o_Color = texture(u_Samplers[i_TextureIndex], i_InputData.TexCoords) * i_InputData.Color;
+	
 	o_EntityID = i_EntityID;
 }

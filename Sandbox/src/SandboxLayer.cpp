@@ -1,4 +1,4 @@
-﻿#include "glm/gtx/projection.hpp"
+#include "glm/gtx/projection.hpp"
 
 #include "SandboxLayer.h"
 
@@ -16,11 +16,11 @@ namespace TerranEngine
 	static void TestFunc() 
 	{
 		for (size_t i = 0; i < 100; i++)
-			TR_TRACE(i * (i + i));
+			TR_CLIENT_TRACE(i * (i + i));
 
-		TR_ERROR("Error: something");
+		TR_CLIENT_ERROR("Error: something");
 
-		TR_WARN("Some warning");
+		TR_CLIENT_WARN("Some warning");
 	}
 
 	SandboxLayer::SandboxLayer()
@@ -31,34 +31,34 @@ namespace TerranEngine
 		int test = 0;
 		commandQueue->Submit([test]() 
 		{
-			TR_TRACE("test {0}", test);
+			TR_CLIENT_TRACE("test {0}", test);
 		});
 
 		test++;
 		commandQueue->Submit([test]()
 		{
-			TR_TRACE("test {0}", test);
+			TR_CLIENT_TRACE("test {0}", test);
 		});
 
 		test += 10;
 		commandQueue->Submit([test]()
 		{
-			TR_TRACE("test {0}", test);
+			TR_CLIENT_TRACE("test {0}", test);
 		});
 
 		test--;
 		auto fn = [](int test)
 		{
 			while (test <= 100)
-				TR_TRACE(test++);
+				TR_CLIENT_TRACE(test++);
 
 			while (test >= 0)
-				TR_INFO(test--);
+				TR_CLIENT_INFO(test--);
 		};
 
 		commandQueue->Submit([test]()
 		{
-			TR_TRACE("test {0}", test);
+			TR_CLIENT_TRACE("test {0}", test);
 
 			for (size_t i = 0; i < 1000; i++)
 				TestFunc();
@@ -67,7 +67,7 @@ namespace TerranEngine
 		test += 40;
 		commandQueue->Submit([test, fn]()
 		{
-			TR_TRACE("test {0}", test);
+			TR_CLIENT_TRACE("test {0}", test);
 			fn(test);
 		});
 
@@ -155,7 +155,7 @@ namespace TerranEngine
 		//ScriptEngine::Initialize();
 	}
 
-	void SandboxLayer::OnDettach()
+	void SandboxLayer::OnDetach()
 	{
 		/*Project::Uninitialize();
 		ScriptEngine::Shutdown();*/

@@ -13,7 +13,7 @@ namespace TerranEngine {
 		SandboxLayer();
 
 		void OnAttach() override;
-		void OnDettach() override;
+		void OnDetach() override;
 
 		void Update(Time& time) override;
 
