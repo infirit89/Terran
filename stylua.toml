@@ -1,0 +1,28 @@
+# StyLua configuration for Premake5 projects
+
+# Premake uses 4-space indentation by convention
+indent_type = "Spaces"
+indent_width = 4
+
+# Use tabs if your project uses tabs
+# indent_type = "Tabs"
+
+# Column width
+column_width = 120
+
+# Line endings
+line_endings = "Unix"
+
+# Quote style
+quote_style = "AutoPreferDouble"
+
+# CRITICAL: Keep call parentheses - don't force them
+# This preserves Premake's style of: project "Name" instead of project("Name")
+call_parentheses = "None"
+
+# Collapse simple statements
+collapse_simple_statement = "Never"
+
+# Don't collapse simple functions
+[sort_requires]
+enabled = false
