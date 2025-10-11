@@ -26,10 +26,11 @@ include "TerranEngine/vendor/msdf-atlas-gen/msdfgen"
 include "TerranEngine/vendor/msdf-atlas-gen/msdfgen/Freetype"
 include "TerranEngine/vendor/Box2D"
 -- include "TerranEngine/vendor/Optick" Think about replacing with Tracy
-include "TerranEngine/vendor/yaml-cpp"
+include "vendor/yaml-cpp"
 include "TerranEngine/vendor/Coral/Coral.Native"
 
 group "Core"
+include "Libraries/LibCore"
 include "TerranEngine"
 
 group "Tools"
