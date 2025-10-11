@@ -24,9 +24,9 @@ files {
 includedirs {
     "src",
     "%{wks.location}/TerranEngine/src/",
-    "%{IncludeDirectories.spdlog}",
+    "%{Dependencies.spdlog.include}",
     "%{IncludeDirectories.imgui}",
-    "%{IncludeDirectories.glm}",
+    "%{Dependencies.glm.include}",
     "%{IncludeDirectories.entt}",
     "%{IncludeDirectories.imguizmo}",
     "%{IncludeDirectories.optick}",

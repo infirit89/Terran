@@ -27,29 +27,19 @@ dependson {
 
 includedirs {
     "src",
-    "%{IncludeDirectories.spdlog}",
+    "%{Dependencies.spdlog.include}",
+    "%{Dependencies.yaml.include}",
+    "%{Dependencies.glm.include}",
     "%{IncludeDirectories.glfw}",
     "%{IncludeDirectories.imgui}",
     "%{IncludeDirectories.glad}",
     "%{IncludeDirectories.stb}",
-    "%{IncludeDirectories.glm}",
     "%{IncludeDirectories.entt}",
     "%{IncludeDirectories.msdfgen}",
     "%{IncludeDirectories.msdf_atlas_gen}",
     "%{IncludeDirectories.box2d}",
-    "%{IncludeDirectories.yaml}",
     "%{IncludeDirectories.shaderc}",
     "%{IncludeDirectories.coral}",
-}
-
-links {
-    "GLFW",
-    "ImGui",
-    "GLAD",
-    "msdf-atlas-gen",
-    "Box2D",
-    "yaml-cpp",
-    "Coral.Native",
 }
 
 pchheader "trpch.h"

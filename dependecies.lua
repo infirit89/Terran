@@ -1,13 +1,23 @@
 VULKAN_SDK = os.getenv "VULKAN_SDK"
 
+Dependencies = {
+    spdlog = {
+        include = "%{wks.location}/vendor/spdlog/include/",
+    },
+    glm = {
+        include = "%{wks.location}/vendor/glm/",
+    },
+    yaml = {
+        include = "%{wks.location}/vendor/yaml-cpp/include/",
+        link = "yaml-cpp",
+    },
+}
 IncludeDirectories = {}
 
-IncludeDirectories["spdlog"] = "%{wks.location}/TerranEngine/vendor/spdlog/include/"
 IncludeDirectories["glfw"] = "%{wks.location}/TerranEngine/vendor/GLFW/include/"
 IncludeDirectories["imgui"] = "%{wks.location}/TerranEngine/vendor/ImGui/"
 IncludeDirectories["glad"] = "%{wks.location}/TerranEngine/vendor/GLAD/include/"
 IncludeDirectories["stb"] = "%{wks.location}/TerranEngine/vendor/stb/"
-IncludeDirectories["glm"] = "%{wks.location}/TerranEngine/vendor/glm/"
 IncludeDirectories["entt"] = "%{wks.location}/TerranEngine/vendor/entt/include/"
 IncludeDirectories["msdfgen"] = "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/msdfgen/"
 IncludeDirectories["msdf_atlas_gen"] = "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/"
