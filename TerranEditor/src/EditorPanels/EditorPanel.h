@@ -1,30 +1,31 @@
 #pragma once
 
-#include "Core/Base.h"
-#include "Events/Event.h"
+#include "LibCore/Base.h"
+#include "LibCore/Event.h"
 
 #include "Scene/Scene.h"
 
 #include <filesystem>
+#include <string_view>
 
-namespace TerranEditor 
-{
-	class EditorPanel 
-	{
-	public:
-		EditorPanel() = default;
-		virtual ~EditorPanel() = default;
+namespace TerranEditor {
 
-		virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) { m_Scene = scene; }
-		virtual void OnRender() = 0;
-		virtual void OnEvent(TerranEngine::Event& event) {  }
-		virtual void OnProjectChanged(const std::filesystem::path& projectPath) { }
-		virtual std::string_view GetName() = 0;
+class EditorPanel {
+public:
+    EditorPanel() = default;
+    virtual ~EditorPanel() = default;
 
-		void SetOpen(bool open) { m_Open = open; }
+    virtual void SetSceneContext(Terran::Core::Shared<TerranEngine::Scene> const& scene) { m_Scene = scene; }
+    virtual void OnRender() = 0;
+    virtual void OnEvent(Terran::Core::Event& event) { }
+    virtual void OnProjectChanged(std::filesystem::path const& projectPath) { }
+    virtual std::string_view GetName() = 0;
 
-	protected:
-		bool m_Open = true;    
-		TerranEngine::Shared<TerranEngine::Scene> m_Scene;
-	};
+    void SetOpen(bool open) { m_Open = open; }
+
+protected:
+    bool m_Open = true;
+    Terran::Core::Shared<TerranEngine::Scene> m_Scene;
+};
+
 }

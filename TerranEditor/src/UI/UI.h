@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Assert.h"
+#include "LibCore/Assert.h"
 
 #include "Scripting/ScriptEngine.h"
 #include "Scripting/ScriptInstance.h"
@@ -16,308 +16,290 @@
 
 #include <string.h>
 #include <string>
-#include <unordered_map>
 #include <typeindex>
+#include <unordered_map>
 
-namespace TerranEditor::UI
+namespace TerranEditor::UI {
+
+// TODO: needs rework
+class ScopedVarTable {
+public:
+    struct TableInfo {
+        uint32_t ColumnCount = 2;
+        float FirstColumnWidth = 100.0f;
+        bool Border = false;
+        uint32_t ItemCount = 1;
+    };
+
+    ScopedVarTable(std::string_view name, TableInfo tableInfo);
+    ~ScopedVarTable();
+
+private:
+    TableInfo m_TableInfo;
+};
+
+class ScopedStyleColor {
+public:
+    struct StyleColor {
+        int ColorVarIdx;
+        ImVec4 Color;
+    };
+
+    ScopedStyleColor(std::initializer_list<StyleColor> styleColorList);
+    ~ScopedStyleColor();
+
+private:
+    size_t m_StyleColorListSize = 0;
+};
+
+class ScopedStyleVar {
+public:
+    struct StyleVar {
+        StyleVar(int styleVarIndex, float fval)
+        {
+            StyleVarIdx = styleVarIndex;
+            Val.FVal = fval;
+        }
+
+        StyleVar(int styleVarIndex, ImVec2 vecVal)
+        {
+            StyleVarIdx = styleVarIndex;
+            Val.VecVal = vecVal;
+        }
+
+        ~StyleVar() = default;
+
+        int StyleVarIdx;
+
+        union {
+            ImVec2 VecVal;
+            float FVal;
+        } Val {};
+
+        operator ImVec2() const { return Val.VecVal; }
+        operator float() const { return Val.FVal; }
+    };
+
+    ScopedStyleVar(std::initializer_list<StyleVar> styleVarList);
+    ~ScopedStyleVar();
+
+private:
+    size_t m_StyleVarListSize = 0;
+};
+
+class ScopedFont {
+public:
+    ScopedFont(std::string const& fontName)
+    {
+        FontManager::PushFont(fontName);
+    }
+
+    ScopedFont(ImFont* font)
+    {
+        ImGui::PushFont(font);
+    }
+
+    ~ScopedFont()
+    {
+        FontManager::PopFont();
+    }
+};
+
+void PushID();
+void PopID();
+int GenerateID();
+void PushFontSize(float fontSize);
+void PopFontSize();
+
+void ShiftCursor(float x, float y);
+void ShiftCursorX(float x);
+void ShiftCursorY(float y);
+
+void SetupUIStyle();
+void SetupUIStyle2();
+void SetupUIStyle3();
+void SetupUIStyle4();
+
+void Image(Terran::Core::Shared<TerranEngine::Texture> const& texture, glm::vec2 const& size, glm::vec2 const& uv0 = { 0, 1 }, glm::vec2 const& uv1 = { 1, 0 }, glm::vec4 const& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+
+bool SearchInput(ImGuiTextFilter& filter, std::string_view hint, float width = 200.0f);
+
+void Tooltip(std::string_view text);
+
+bool BeginPropertyGroup(std::string_view propertyGroupName);
+void EndPropertyGroup();
+
+template<typename Func>
+void PropertyGroup(std::string_view propertyGroupName, Func&& func)
 {
-	// TODO: needs rework
-	class ScopedVarTable 
-	{
-	public:
-		struct TableInfo 
-		{
-			uint32_t ColumnCount = 2;
-			float FirstColumnWidth = 100.0f;
-			bool Border = false;
-			uint32_t ItemCount = 1;
-		};
+    if (!BeginPropertyGroup(propertyGroupName))
+        return;
 
-		ScopedVarTable(std::string_view name, TableInfo tableInfo);
-		~ScopedVarTable();
+    func();
 
-	private:
-		TableInfo m_TableInfo;
-	};
+    EndPropertyGroup();
+}
 
-	class ScopedStyleColor 
-	{
-	public:
-		struct StyleColor
-		{
-			int ColorVarIdx;
-			ImVec4 Color;
-		};
+bool BeginPopupContextWindow(std::string_view name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
+bool BeginPopupContextItem(std::string_view name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
 
-		ScopedStyleColor(std::initializer_list<StyleColor> styleColorList);
-		~ScopedStyleColor();
-	private:
-		size_t m_StyleColorListSize = 0;
-	};
+inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap = {
+    { typeid(int8_t), ImGuiDataType_S8 },
+    { typeid(int16_t), ImGuiDataType_S16 },
+    { typeid(int32_t), ImGuiDataType_S32 },
+    { typeid(int64_t), ImGuiDataType_S64 },
+    { typeid(uint8_t), ImGuiDataType_U8 },
+    { typeid(uint16_t), ImGuiDataType_U16 },
+    { typeid(uint32_t), ImGuiDataType_U32 },
+    { typeid(uint64_t), ImGuiDataType_U64 },
+    { typeid(float), ImGuiDataType_Float },
+    { typeid(double), ImGuiDataType_Double }
+};
 
-	class ScopedStyleVar 
-	{
-	public:
-		struct StyleVar 
-		{
-			StyleVar(int styleVarIndex, float fval) 
-			{
-				StyleVarIdx = styleVarIndex;
-				Val.FVal = fval;
-			}
+bool PropertyColor(std::string_view label, glm::vec4& value);
+bool PropertyVec3(std::string_view label, glm::vec3& value);
+bool PropertyVec2(std::string_view label, glm::vec2& value);
+bool PropertyEntity(std::string_view label, Terran::Core::UUID& value, Terran::Core::Shared<TerranEngine::Scene> const& scene, float columnWidth = 100.0f);
+void PropertyScriptField(Terran::Core::Shared<TerranEngine::Scene> const& scene, int32_t fieldHandle, Terran::Core::Shared<TerranEngine::ScriptInstance> const& scriptInstance);
+bool PropertyScriptArrayField(Terran::Core::Shared<TerranEngine::Scene> const& scene, TerranEngine::ScriptArray& array, Terran::Core::Shared<TerranEngine::ScriptInstance> const& scriptInstance);
+bool PropertyFloat(std::string_view label, float& value);
+bool PropertyInt(std::string_view label, int& value);
+bool PropertyBool(std::string_view label, bool& value);
+bool PropertyString(std::string_view label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
+bool PropertyChar(std::string_view label, char& value);
 
-			StyleVar(int styleVarIndex, ImVec2 vecVal) 
-			{
-				StyleVarIdx = styleVarIndex;
-				Val.VecVal = vecVal;
-			}
+template<typename T>
+bool DragScalar(std::string_view label, T* value, float power = 0.1f, std::string_view format = nullptr, ImGuiSliderFlags flags = 0)
+{
+    TR_ASSERT(ImGuiDataTypeMap.find(typeid(T)) != ImGuiDataTypeMap.end(), "Invalid data type");
 
-			~StyleVar() = default;
+    ImGuiDataType dataType = ImGuiDataTypeMap[typeid(T)];
 
-			int StyleVarIdx;
+    if constexpr (std::is_same_v<T, int8_t> || std::is_same_v<T, int16_t> || std::is_same_v<T, int32_t> || std::is_same_v<T, int64_t>)
+        format = "%d";
+    else if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, uint64_t>)
+        format = "%u";
 
-			union
-			{
-				ImVec2 VecVal;
-				float FVal;
-			} Val{};
+    bool modified = false;
 
-			operator ImVec2() const { return Val.VecVal; }
-			operator float() const { return Val.FVal; }
-		};
+    modified = ImGui::DragScalar(label.data(), dataType, value, power, nullptr, nullptr, format.data(), flags);
+    return modified;
+}
 
-		ScopedStyleVar(std::initializer_list<StyleVar> styleVarList);
-		~ScopedStyleVar();
+template<typename T>
+bool PropertyScalar(std::string_view label, T& value, float power = 0.1f)
+{
+    ImGui::PushID(label.data());
 
-	private:
-		size_t m_StyleVarListSize = 0;
-	};
+    ImGui::TableSetColumnIndex(0);
+    ImGui::Text("%s", label.data());
 
-	class ScopedFont
-	{
-	public:
-		ScopedFont(const std::string& fontName) 
-		{
-			FontManager::PushFont(fontName);
-		}
+    ImGui::TableSetColumnIndex(1);
 
-		ScopedFont(ImFont* font)
-		{
-			ImGui::PushFont(font);
-		}
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+    bool changed = UI::DragScalar<T>(fmt::format("##DR{0}", label).c_str(), &value, power, "%.2f");
 
-		~ScopedFont()
-		{
-			FontManager::PopFont();
-		}
-	};
-		
-	void PushID();
-	void PopID();
-	int GenerateID();
-	void PushFontSize(float fontSize);
-	void PopFontSize();
+    ImGui::PopID();
 
-	void ShiftCursor(float x, float y);
-	void ShiftCursorX(float x);
-	void ShiftCursorY(float y);
-		
-	void SetupUIStyle();
-	void SetupUIStyle2();
-	void SetupUIStyle3();
-	void SetupUIStyle4();
+    return changed;
+}
 
-	void Image(const TerranEngine::Shared<TerranEngine::Texture>& texture, const glm::vec2& size, const glm::vec2& uv0 = { 0, 1 }, const glm::vec2& uv1 = { 1, 0 }, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
+// this mostly same as imgui's but with some minor tweaks
+bool TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, std::string_view label, std::string_view label_end);
+bool TreeNodeEx(std::string_view label, ImGuiTreeNodeFlags flags);
 
-	bool SearchInput(ImGuiTextFilter& filter, std::string_view hint, float width = 200.0f);
+template<typename TEnum>
+bool PropertyDropdown(std::string_view label, std::string_view* stateNames, size_t stateCount, TEnum& selected)
+{
+    ImGui::PushID(label.data());
+    bool changed = false;
+    std::string_view currentState = stateNames[(int32_t)selected];
 
-	void Tooltip(std::string_view text);
+    ImGui::TableSetColumnIndex(0);
+    ImGui::Text("%s", label.data());
 
-	bool BeginPropertyGroup(std::string_view propertyGroupName);
-	void EndPropertyGroup();
+    ImGui::TableSetColumnIndex(1);
 
-	template<typename Func>
-	void PropertyGroup(std::string_view propertyGroupName, Func&& func) 
-	{
-		if (!BeginPropertyGroup(propertyGroupName))
-			return;
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+    if (ImGui::BeginCombo("##ComboBox", currentState.data())) {
+        for (size_t i = 0; i < stateCount; i++) {
+            if (stateNames[i].size() == 0)
+                continue;
 
-		func();
+            bool const isSelected = (int)selected == i;
+            if (ImGui::Selectable(stateNames[i].data(), isSelected)) {
+                selected = (TEnum)i;
+                changed = true;
+            }
 
-		EndPropertyGroup();
-	}
+            if (isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
 
-	bool BeginPopupContextWindow(std::string_view name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
-	bool BeginPopupContextItem(std::string_view name, ImGuiPopupFlags popupFlags = ImGuiPopupFlags_MouseButtonRight);
+        ImGui::EndCombo();
+    }
 
-	inline std::unordered_map<std::type_index, ImGuiDataType> ImGuiDataTypeMap =
-	{
-		{ typeid(int8_t), ImGuiDataType_S8 },
-		{ typeid(int16_t), ImGuiDataType_S16 },
-		{ typeid(int32_t), ImGuiDataType_S32 },
-		{ typeid(int64_t), ImGuiDataType_S64 },
-		{ typeid(uint8_t), ImGuiDataType_U8 },
-		{ typeid(uint16_t), ImGuiDataType_U16 },
-		{ typeid(uint32_t), ImGuiDataType_U32 },
-		{ typeid(uint64_t), ImGuiDataType_U64 },
-		{ typeid(float), ImGuiDataType_Float },
-		{ typeid(double), ImGuiDataType_Double }
-	};
+    ImGui::PopID();
 
-	bool PropertyColor(std::string_view label, glm::vec4& value);
-	bool PropertyVec3(std::string_view label, glm::vec3& value);
-	bool PropertyVec2(std::string_view label, glm::vec2& value);
-	bool PropertyEntity(std::string_view label, TerranEngine::UUID& value, const TerranEngine::Shared<TerranEngine::Scene>& scene, float columnWidth = 100.0f);
-	void PropertyScriptField(const TerranEngine::Shared<TerranEngine::Scene>& scene, int32_t fieldHandle, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance);
-	bool PropertyScriptArrayField(const TerranEngine::Shared<TerranEngine::Scene>& scene, TerranEngine::ScriptArray& array, const TerranEngine::Shared<TerranEngine::ScriptInstance>& scriptInstance);
-	bool PropertyFloat(std::string_view label, float& value);
-	bool PropertyInt(std::string_view label, int& value);
-	bool PropertyBool(std::string_view label, bool& value);
-	bool PropertyString(std::string_view label, std::string& value, ImGuiInputTextFlags flags = 0, int maxBufSize = 256, float columnWidth = 100.0f);
-	bool PropertyChar(std::string_view label, char& value);
-	
-	template<typename T>
-	bool DragScalar(std::string_view label, T* value, float power = 0.1f, std::string_view format = nullptr, ImGuiSliderFlags flags = 0)
-	{
-		TR_ASSERT(ImGuiDataTypeMap.find(typeid(T)) != ImGuiDataTypeMap.end(), "Invalid data type");
+    return changed;
+}
 
-		ImGuiDataType dataType = ImGuiDataTypeMap[typeid(T)];
+template<typename TEnum, size_t TStateCount>
+bool PropertyDropdown(std::string_view label, std::string_view (&stateNames)[TStateCount], TEnum& selected)
+{
+    return PropertyDropdown(label, stateNames, TStateCount, selected);
+}
 
-		if constexpr (std::is_same_v<T, int8_t> ||
-						std::is_same_v<T, int16_t> || 
-						std::is_same_v<T, int32_t> || 
-						std::is_same_v<T, int64_t>)
-			format = "%d";
-		else if constexpr (std::is_same_v<T, uint8_t> || 
-							std::is_same_v<T, uint16_t> || 
-							std::is_same_v<T, uint32_t> || 
-							std::is_same_v<T, uint64_t>)
-			format = "%u";
+template<typename TAsset>
+bool PropertyAssetField(std::string_view label, TerranEngine::AssetType type, Terran::Core::UUID& outHandle)
+{
+    ImGui::PushID(label.data());
+    bool changed = false;
 
-		bool modified = false;
-				
-		modified = ImGui::DragScalar(label.data(), dataType, value, power, nullptr, nullptr, format.data(), flags);
-		return modified;
-	}
+    ImGui::TableSetColumnIndex(0);
+    ImGui::Text("%s", label.data());
 
-	template<typename T>
-	bool PropertyScalar(std::string_view label, T& value, float power = 0.1f)
-	{
-		ImGui::PushID(label.data());
-		
-		ImGui::TableSetColumnIndex(0);
-		ImGui::Text("%s", label.data());
+    ImGui::TableSetColumnIndex(1);
 
-		ImGui::TableSetColumnIndex(1);
+    char buf[256];
+    memset(buf, 0, sizeof(buf));
+    TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfoByHandle(outHandle);
+    std::string assetName = assetInfo.Path.stem().string();
 
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		bool changed = UI::DragScalar<T>(fmt::format("##DR{0}", label).c_str(), &value, power, "%.2f");
+    // NOTE: massive potential problem, used to be strcpy_s
+    // during macos porting changed to strcpy, as a quick fix
+    // to be able to build, this can cause overflow!!!!!
+    strcpy(buf, assetName == "" ? "None" : assetName.c_str());
 
-		ImGui::PopID();
+    ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
 
-		return changed;
-	}
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+    ImGui::InputText("##AssetField", buf, sizeof(buf), inputTextFlags);
 
-	// this mostly same as imgui's but with some minor tweaks
-	bool TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, std::string_view label, std::string_view label_end);
-	bool TreeNodeEx(std::string_view label, ImGuiTreeNodeFlags flags);
+    if (ImGui::BeginDragDropTarget()) {
+        if (ImGuiPayload const* payload = ImGui::AcceptDragDropPayload("ASSET")) {
+            Terran::Core::UUID assetHandle = Terran::Core::UUID::CreateFromRaw((uint8_t*)payload->Data);
+            TerranEngine::AssetInfo info = TerranEngine::AssetManager::GetAssetInfoByHandle(assetHandle);
 
-	template<typename TEnum>
-	bool PropertyDropdown(std::string_view label, std::string_view* stateNames, size_t stateCount, TEnum& selected)
-	{
-		ImGui::PushID(label.data());
-		bool changed = false;
-		std::string_view currentState = stateNames[(int32_t)selected];
+            if (info.Type == type) {
+                outHandle = assetHandle;
+                changed = true;
+            }
+        }
 
-		ImGui::TableSetColumnIndex(0);
-		ImGui::Text("%s", label.data());
+        ImGui::EndDragDropTarget();
+    }
+    ImGui::PopID();
 
-		ImGui::TableSetColumnIndex(1);
+    return changed;
+}
 
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if (ImGui::BeginCombo("##ComboBox", currentState.data()))
-		{
-			for (size_t i = 0; i < stateCount; i++)
-			{
-				if (stateNames[i].size() == 0) continue;
+template<size_t TStateCount>
+bool PropertyDropdownMultipleSelect(std::string_view label, std::string_view (&stateNames)[TStateCount], bool* selectedElements)
+{
+    return PropertyDropdownMultipleSelect(label, stateNames, TStateCount, selectedElements);
+}
 
-				const bool isSelected = (int)selected == i;
-				if (ImGui::Selectable(stateNames[i].data(), isSelected))
-				{
-					selected = (TEnum)i;
-					changed = true;
-				}
+bool PropertyDropdownMultipleSelect(std::string_view label, std::string_view* stateNames, size_t stateCount, bool* selectedElements);
 
-				if (isSelected)
-					ImGui::SetItemDefaultFocus();
-			}
-
-			ImGui::EndCombo();
-		}
-
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	template<typename TEnum, size_t TStateCount>
-	bool PropertyDropdown(std::string_view label, std::string_view (&stateNames)[TStateCount], TEnum& selected) 
-	{
-		return PropertyDropdown(label, stateNames, TStateCount, selected);
-	}
-
-	template<typename TAsset>
-	bool PropertyAssetField(std::string_view label, TerranEngine::AssetType type, TerranEngine::UUID& outHandle)
-	{
-		ImGui::PushID(label.data());
-		bool changed = false;
-			
-		ImGui::TableSetColumnIndex(0);
-		ImGui::Text("%s", label.data());
-
-		ImGui::TableSetColumnIndex(1);
-
-		char buf[256];
-		memset(buf, 0, sizeof(buf));
-		TerranEngine::AssetInfo assetInfo = TerranEngine::AssetManager::GetAssetInfoByHandle(outHandle);
-		std::string assetName = assetInfo.Path.stem().string();
-
-		// NOTE: massive potential problem, used to be strcpy_s
-		// during macos porting changed to strcpy, as a quick fix
-		// to be able to build, this can cause overflow!!!!!
-		strcpy(buf, assetName == "" ? "None" : assetName.c_str());
-
-		ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly;
-
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		ImGui::InputText("##AssetField", buf, sizeof(buf), inputTextFlags);
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET"))
-			{
-				TerranEngine::UUID assetHandle = TerranEngine::UUID::CreateFromRaw((uint8_t*)payload->Data);
-				TerranEngine::AssetInfo info = TerranEngine::AssetManager::GetAssetInfoByHandle(assetHandle);
-
-				if (info.Type == type)
-				{
-					outHandle = assetHandle;
-					changed = true;
-				}
-			}
-
-			ImGui::EndDragDropTarget();
-		}
-		ImGui::PopID();
-
-		return changed;
-	}
-
-	template<size_t TStateCount>
-	bool PropertyDropdownMultipleSelect(std::string_view label, std::string_view(&stateNames)[TStateCount], bool* selectedElements) 
-	{
-		return PropertyDropdownMultipleSelect(label, stateNames, TStateCount, selectedElements);
-	}
-
-	bool PropertyDropdownMultipleSelect(std::string_view label, std::string_view* stateNames, size_t stateCount, bool* selectedElements);
 }

@@ -2,22 +2,22 @@
 
 #include "EditorPanel.h"
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 #include "Scene/Scene.h"
 
-namespace TerranEditor 
-{
-	using namespace TerranEngine;
+namespace TerranEditor {
 
-	class ECSPanel : public EditorPanel
-	{
-	public:
-		ECSPanel() = default;
-		~ECSPanel() = default;
+using namespace TerranEngine;
 
-		virtual void OnRender() override;
+class ECSPanel : public EditorPanel {
+public:
+    ECSPanel() = default;
+    ~ECSPanel() = default;
 
-		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
-		virtual std::string_view GetName() override { return "ECS Debug"; }
-	};
+    virtual void OnRender() override;
+
+    virtual void SetSceneContext(Terran::Core::Shared<Scene> const& context) override { m_Scene = context; }
+    virtual std::string_view GetName() override { return "ECS Debug"; }
+};
+
 }

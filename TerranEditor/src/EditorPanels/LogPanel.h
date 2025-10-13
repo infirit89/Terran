@@ -2,7 +2,7 @@
 
 #include "EditorPanel.h"
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 #include "Graphics/Texture.h"
 
 #include <string>
