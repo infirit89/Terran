@@ -1,113 +1,112 @@
 #include "trpch.h"
 
-#include "ImGuiLayer.h"
 #include "ImGuiBackEnds.h"
+#include "ImGuiLayer.h"
 
 #include "Core/Application.h"
 
-#include "Utils/Debug/OptickProfiler.h"
 #include "Graphics/Renderer.h"
+#include "Utils/Debug/OptickProfiler.h"
 
 #include <imgui.h>
 
-namespace TerranEngine
+namespace TerranEngine {
+
+ImGuiLayer::ImGuiLayer()
+    : Layer("ImGui Layer")
 {
-	ImGuiLayer::ImGuiLayer()
-		: Layer("ImGui Layer") { }
+}
 
-	ImGuiLayer::~ImGuiLayer() { }
+ImGuiLayer::~ImGuiLayer() { }
 
-	void ImGuiLayer::OnAttach()
-	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+void ImGuiLayer::OnAttach()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
 
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-		auto& app = *Application::Get();
-		ImGuiStyle& style = ImGui::GetStyle();
-		style.DisplayResizeGrip = false;
-		style.AntiAliasedFill = true;
-		style.AntiAliasedLines = true;
-		style.AntiAliasedLinesUseTex = true;
-		
-		ImGui::StyleColorsDark();
+    auto& app = *Application::Get();
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.DisplayResizeGrip = false;
+    style.AntiAliasedFill = true;
+    style.AntiAliasedLines = true;
+    style.AntiAliasedLinesUseTex = true;
 
-		ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow()), true);
-		ImGui_ImplOpenGL3_Init("#version 410");
-	}
+    ImGui::StyleColorsDark();
 
-	void ImGuiLayer::OnDetach()
-	{
-		ImGui_ImplGlfw_Shutdown();
-		ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow()), true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+}
 
-		ImGui::DestroyContext();
-	}
+void ImGuiLayer::OnDetach()
+{
+    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
 
-	void ImGuiLayer::OnEvent(Event& event)
-	{
-		if (m_BlockInput) 
-		{
-			ImGuiIO io = ImGui::GetIO();
-			event.IsHandled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-			event.IsHandled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
-		}
+    ImGui::DestroyContext();
+}
 
-		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<WindowContentScaleChangeEvent>(TR_EVENT_BIND_FN(ImGuiLayer::OnWindowContentScaleChangedEvent));
-	}
+void ImGuiLayer::OnEvent(Terran::Core::Event& event)
+{
+    if (m_BlockInput) {
+        ImGuiIO io = ImGui::GetIO();
+        event.IsHandled |= event.IsInCategory(Terran::Core::EventCategoryMouse) & io.WantCaptureMouse;
+        event.IsHandled |= event.IsInCategory(Terran::Core::EventCategoryKeyboard) & io.WantCaptureKeyboard;
+    }
 
-	void ImGuiLayer::BeginFrame()
-	{
-		TR_PROFILE_FUNCTION();
+    Terran::Core::EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowContentScaleChangeEvent>(TR_EVENT_BIND_FN(ImGuiLayer::OnWindowContentScaleChangedEvent));
+}
 
-		Renderer::SubmitCreate([]() 
-		{
-			ImGui_ImplOpenGL3_NewFrame();
-		});
+void ImGuiLayer::BeginFrame()
+{
+    TR_PROFILE_FUNCTION();
 
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-	}
+    Renderer::SubmitCreate([]() {
+        ImGui_ImplOpenGL3_NewFrame();
+    });
 
-	void ImGuiLayer::EndFrame()
-	{
-		TR_PROFILE_FUNCTION();
-		{
-			TR_PROFILE_SCOPE("ImGui::Render");
-			ImGui::Render();
-		}
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
 
-		{
-			TR_PROFILE_SCOPE("ImGui_ImplOpenGL3_RenderDrawData")
-			Renderer::Submit([]()
-			{
-				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-			});
-		}
+void ImGuiLayer::EndFrame()
+{
+    TR_PROFILE_FUNCTION();
+    {
+        TR_PROFILE_SCOPE("ImGui::Render");
+        ImGui::Render();
+    }
 
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			TR_PROFILE_SCOPE("UpdateImGUIViewports");
-			GLFWwindow* context = glfwGetCurrentContext();
+    {
+        TR_PROFILE_SCOPE("ImGui_ImplOpenGL3_RenderDrawData")
+        Renderer::Submit([]() {
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        });
+    }
 
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        TR_PROFILE_SCOPE("UpdateImGUIViewports");
+        GLFWwindow* context = glfwGetCurrentContext();
 
-			glfwMakeContextCurrent(context);
-		}
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
 
-	}
+        glfwMakeContextCurrent(context);
+    }
+}
 
-	bool ImGuiLayer::OnWindowContentScaleChangedEvent(WindowContentScaleChangeEvent& cscEvent)
-	{
-		auto& app = *Application::Get();
-		ImGuiStyle& style = ImGui::GetStyle();
-		style.ScaleAllSizes(app.GetWindow().GetContentScale().x);
+bool ImGuiLayer::OnWindowContentScaleChangedEvent(WindowContentScaleChangeEvent& cscEvent)
+{
+    auto& app = *Application::Get();
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.ScaleAllSizes(app.GetWindow().GetContentScale().x);
 
-		return false;
-	}
+    return false;
+}
+
 }

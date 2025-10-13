@@ -1,31 +1,36 @@
 #pragma once
 
-#include "Core/Buffer.h"
+#include "LibCore/Base.h"
+#include "LibCore/Buffer.h"
 
-#include <memory>
+#include <cstdint>
 
-namespace TerranEngine 
-{
-	class IndexBuffer 
-	{
-	public:
-		IndexBuffer() 
-			: m_Handle(0), m_Size(0) {}
+namespace TerranEngine {
 
-		IndexBuffer(const int* indices, uint32_t size);
-		~IndexBuffer();
+class IndexBuffer {
+public:
+    IndexBuffer()
+        : m_Handle(0)
+        , m_Size(0)
+    {
+    }
 
-		static Shared<IndexBuffer> Create(const int* indices, uint32_t size);
+    IndexBuffer(int const* indices, uint32_t size);
+    ~IndexBuffer();
 
-		uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
-	private:
-		void Release();
+    static Terran::Core::Shared<IndexBuffer> Create(int const* indices, uint32_t size);
 
-	private:
-		uint32_t m_Handle;
-		int m_Size;
-		Buffer m_LocalData;
+    uint32_t GetCount() const { return m_Size / sizeof(uint32_t); }
 
-		friend class VertexArray;
-	};
+private:
+    void Release();
+
+private:
+    uint32_t m_Handle;
+    int m_Size;
+    Terran::Core::Buffer m_LocalData;
+
+    friend class VertexArray;
+};
+
 }

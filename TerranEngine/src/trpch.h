@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Core/Log.h"
-#include "Core/Assert.h"
+#include "LibCore/Log.h"
+#include "LibCore/Assert.h"
 #include "Utils/File.h"
-#include "Core/Base.h"
-#include "Core/PlatformCheck.h"
+#include "LibCore/Base.h"
+#include "LibCore/PlatformCheck.h"
 
 #include <iostream>
 #include <string>

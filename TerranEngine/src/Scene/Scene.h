@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/UUID.h"
-#include "Core/Time.h"
-#include "Core/Base.h"
+#include "LibCore/Base.h"
+#include "LibCore/Time.h"
+#include "LibCore/UUID.h"
 
 #include "Asset/Asset.h"
 
@@ -13,122 +13,123 @@
 #include <entt.hpp>
 #pragma warning(pop)
 
+#include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include <type_traits>
 
-namespace TerranEngine 
-{
-	class Entity;
-	class SceneRenderer;
-	
-	class Scene final : public Asset
-	{
-	public:
-		Scene();
-		Scene(const UUID& handle);
-		~Scene() override;
+namespace TerranEngine {
 
-		ASSET_CLASS_TYPE(Scene)
+class Entity;
+class SceneRenderer;
 
-		Entity CreateEntity(const std::string& name = std::string());
-		Entity CreateEntityWithUUID(const std::string& name, const UUID& uuid);
-		Entity CreateEmptyEntity();
+class Scene final : public Asset {
+public:
+    Scene();
+    Scene(Terran::Core::UUID const& handle);
+    ~Scene() override;
 
-		void DestroyEntity(Entity entity, bool first);
+    ASSET_CLASS_TYPE(Scene)
 
-		void StartRuntime();
-		void StopRuntime();
+    Entity CreateEntity(std::string const& name = std::string());
+    Entity CreateEntityWithUUID(std::string const& name, Terran::Core::UUID const& uuid);
+    Entity CreateEmptyEntity();
 
-		void Update(Time time);
-		void UpdateEditor();
-		void OnResize(float width, float height);
+    void DestroyEntity(Entity entity, bool first);
 
-		void OnRender(const Shared<SceneRenderer>& sceneRenderer);
-		void OnRenderEditor(const Shared<SceneRenderer>& sceneRenderer, Camera& camera, glm::mat4& cameraView);
+    void StartRuntime();
+    void StopRuntime();
 
-		Entity FindEntityWithUUID(UUID uuid);
-		Entity FindEntityWithName(const std::string& name);
+    void Update(Terran::Core::Time time);
+    void UpdateEditor();
+    void OnResize(float width, float height);
 
-		template <typename... Args, typename... Exclude>
-		auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
-		
-		std::unordered_map<UUID, entt::entity>& GetEntityMap() { return m_EntityMap; }
+    void OnRender(Terran::Core::Shared<SceneRenderer> const& sceneRenderer);
+    void OnRenderEditor(Terran::Core::Shared<SceneRenderer> const& sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
-		// template<typename... Components, typename Predicate>
-		// std::vector<Entity> Filter(Predicate&& predicate) 
-		// {
-		// 	std::vector<Entity> entities;
-		// 	auto view = m_Registry.view<std::add_const_t<Components>...>();
-		// 	entities.reserve(view.size());
-		//
-		// 	for (auto e : view) 
-		// 	{
-		// 		if (predicate(view.template get<std::add_const_t<Components>>(e)...))
-		// 			entities.push_back({ e, this });
-		// 	}
-		//
-		// 	return entities;
-		// }
+    Entity FindEntityWithUUID(Terran::Core::UUID uuid);
+    Entity FindEntityWithName(std::string const& name);
 
-		Entity GetPrimaryCamera();
+    template<typename... Args, typename... Exclude>
+    auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
 
-		Entity DuplicateEntity(Entity srcEntity, Entity parent);
-		Entity DuplicateEntity(Entity srcEntity);
+    std::unordered_map<Terran::Core::UUID, entt::entity>& GetEntityMap() { return m_EntityMap; }
 
-		static Shared<Scene> CopyScene(const Shared<Scene>& srcScene);
+    // template<typename... Components, typename Predicate>
+    // std::vector<Entity> Filter(Predicate&& predicate)
+    // {
+    // 	std::vector<Entity> entities;
+    // 	auto view = m_Registry.view<std::add_const_t<Components>...>();
+    // 	entities.reserve(view.size());
+    //
+    // 	for (auto e : view)
+    // 	{
+    // 		if (predicate(view.template get<std::add_const_t<Components>>(e)...))
+    // 			entities.push_back({ e, this });
+    // 	}
+    //
+    // 	return entities;
+    // }
 
-		bool IsPlaying() const { return m_IsPlaying; }
+    Entity GetPrimaryCamera();
 
-		Scene* GetRaw() { return this; }
+    Entity DuplicateEntity(Entity srcEntity, Entity parent);
+    Entity DuplicateEntity(Entity srcEntity);
 
-		void UpdateTransformHierarchy();
-		void UpdateEntityTransform(Entity entity);
+    static Terran::Core::Shared<Scene> CopyScene(Terran::Core::Shared<Scene> const& srcScene);
 
-		void ConvertToLocalSpace(Entity entity);
-		void ConvertToWorldSpace(Entity entity);
-	
-		void SortEntities();
-		const glm::vec2& GetViewportPosition() const { return m_ViewportPosition; }
-		void SetViewportPosition(const glm::vec2& viewportPosition) { m_ViewportPosition = viewportPosition; }
+    bool IsPlaying() const { return m_IsPlaying; }
 
-		float GetViewportWidth() const { return m_ViewportWidth; }
-		float GetViewportHeight() const { return m_ViewportHeight; }
+    Scene* GetRaw() { return this; }
 
-	private:
-        // scripting components
-		void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
-		void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+    void UpdateTransformHierarchy();
+    void UpdateEntityTransform(Entity entity);
 
-        // physics components
-		void OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
-		void OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
-		
-		void OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
-		void OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+    void ConvertToLocalSpace(Entity entity);
+    void ConvertToWorldSpace(Entity entity);
 
-		void OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
-		void OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+    void SortEntities();
+    glm::vec2 const& GetViewportPosition() const { return m_ViewportPosition; }
+    void SetViewportPosition(glm::vec2 const& viewportPosition) { m_ViewportPosition = viewportPosition; }
 
-		void OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
-		void OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+    float GetViewportWidth() const { return m_ViewportWidth; }
+    float GetViewportHeight() const { return m_ViewportHeight; }
 
-		// text component
-		void OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle);
-		void OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+private:
+    // scripting components
+    void OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+    void OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
-	private:
-		bool m_IsPlaying = false;
+    // physics components
+    void OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+    void OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
-		std::unordered_map<UUID, entt::entity> m_EntityMap;
+    void OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+    void OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
-		entt::registry m_Registry;
-		glm::vec2 m_ViewportPosition = { 0.0f, 0.0f };
-		float m_ViewportWidth = 1080, m_ViewportHeight = 720;
+    void OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+    void OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
 
-		friend class SceneRenderer;
-		friend class Entity;
-		friend class SceneSerializer;
-		friend class SceneAssetLoader;
-	};
+    void OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+    void OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
+    // text component
+    void OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle);
+    void OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle);
+
+private:
+    bool m_IsPlaying = false;
+
+    std::unordered_map<Terran::Core::UUID, entt::entity> m_EntityMap;
+
+    entt::registry m_Registry;
+    glm::vec2 m_ViewportPosition = { 0.0f, 0.0f };
+    float m_ViewportWidth = 1080, m_ViewportHeight = 720;
+
+    friend class SceneRenderer;
+    friend class Entity;
+    friend class SceneSerializer;
+    friend class SceneAssetLoader;
+};
+
 }

@@ -27,6 +27,7 @@ dependson {
 
 includedirs {
     "src",
+    "%{wks.location}/Libraries",
     "%{Dependencies.spdlog.include}",
     "%{Dependencies.yaml.include}",
     "%{Dependencies.glm.include}",

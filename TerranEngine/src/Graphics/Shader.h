@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LibCore/Base.h"
 #include "ShaderDefs.h"
 
 #include <glm/mat4x4.hpp>
@@ -15,7 +16,7 @@ namespace TerranEngine
 		Shader(const std::vector<ShaderUnitInfo>& shaderUnits);
 		~Shader();
 
-		static Shared<Shader> Create(const std::vector<ShaderUnitInfo>& shaderUnits);
+		static Terran::Core::Shared<Shader> Create(const std::vector<ShaderUnitInfo>& shaderUnits);
 
 		void Bind();
 		void Unbind();

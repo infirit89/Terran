@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Core/Base.h"
-#include "Core/UUID.h"
+#include "LibCore/Base.h"
+#include "LibCore/UUID.h"
 
-#include "Graphics/Texture.h"
-#include "Graphics/OrthographicCamera.h"
 #include "Graphics/Font.h"
+#include "Graphics/OrthographicCamera.h"
 
 #include "Physics/PhysicsStates.h"
 
@@ -14,167 +13,165 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <vector>
+#include <string>
+#include <cstdint>
 
-namespace TerranEngine 
-{
-	struct TagComponent 
-	{
-		TagComponent() = default;
+namespace TerranEngine {
 
-		TagComponent(const std::string& name, const UUID& id)
-			: Name(name), ID(id) {}
+struct TagComponent {
+    TagComponent() = default;
 
-		TagComponent(const std::string& name)
-			: Name(name) {}
+    TagComponent(std::string const& name, Terran::Core::UUID const& id)
+        : Name(name)
+        , ID(id)
+    {
+    }
 
-		std::string Name;
-		UUID ID;
-	};
+    TagComponent(std::string const& name)
+        : Name(name)
+    {
+    }
 
-	struct TransformComponent 
-	{
-		TransformComponent() = default;
+    std::string Name;
+    Terran::Core::UUID ID;
+};
 
-		glm::vec3 Position =	{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 Rotation =	{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 Scale =		{ 1.0f, 1.0f, 1.0f };
+struct TransformComponent {
+    TransformComponent() = default;
 
-		glm::vec3 Forward =		{ 0.0f, 0.0f, 1.0f };
-		glm::vec3 Up =			{ 0.0f, 1.0f, 0.0f };
-		glm::vec3 Right =		{ 1.0f, 0.0f, 0.0f };
+    glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
 
-		// dirty flag used for optimization
-		bool IsDirty = true;
+    glm::vec3 Forward = { 0.0f, 0.0f, 1.0f };
+    glm::vec3 Up = { 0.0f, 1.0f, 0.0f };
+    glm::vec3 Right = { 1.0f, 0.0f, 0.0f };
 
-		// cached transform matrices
-		glm::mat4 WorldSpaceTransformMatrix = glm::mat4(1.0f);
-		glm::mat4 LocalSpaceTransformMatrix = glm::mat4(1.0f);
-	};
+    // dirty flag used for optimization
+    bool IsDirty = true;
 
-	struct CameraComponent 
-	{
-		CameraComponent() = default;
+    // cached transform matrices
+    glm::mat4 WorldSpaceTransformMatrix = glm::mat4(1.0f);
+    glm::mat4 LocalSpaceTransformMatrix = glm::mat4(1.0f);
+};
 
-		OrthographicCamera Camera;
-		bool Primary = true;
+struct CameraComponent {
+    CameraComponent() = default;
 
-		glm::vec4 BackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-	};
+    OrthographicCamera Camera;
+    bool Primary = true;
 
-	struct SpriteRendererComponent 
-	{
-		SpriteRendererComponent() = default;
+    glm::vec4 BackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+};
 
-		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		UUID TextureHandle = UUID::Invalid();
+struct SpriteRendererComponent {
+    SpriteRendererComponent() = default;
 
-		int ZIndex = 0;
-	};
+    glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Terran::Core::UUID TextureHandle = Terran::Core::UUID::Invalid();
 
-	struct CircleRendererComponent 
-	{
-		CircleRendererComponent() = default;
+    int ZIndex = 0;
+};
 
-		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		float Thickness = 1.0f;
-	};
+struct CircleRendererComponent {
+    CircleRendererComponent() = default;
 
-	// bullshit; fix
-	struct LineRendererComponent 
-	{
-		LineRendererComponent() = default;
+    glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float Thickness = 1.0f;
+};
 
-		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		float Thickness = 1.0f;
+// bullshit; fix
+struct LineRendererComponent {
+    LineRendererComponent() = default;
 
-		glm::vec3 StartPoint = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 EndPoint = { 0.0f, 0.0f, 1.0f };
+    glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float Thickness = 1.0f;
 
-	};
+    glm::vec3 StartPoint = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 EndPoint = { 0.0f, 0.0f, 1.0f };
+};
 
-	struct TextRendererComponent 
-	{
-		TextRendererComponent() = default;
-		~TextRendererComponent() = default;
+struct TextRendererComponent {
+    TextRendererComponent() = default;
+    ~TextRendererComponent() = default;
 
-		Shared<Font> FontAtlas;
-		glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		std::string Text = "";
-		float LineSpacing = 1.0f;
-		float LineWidth = 10.0f;
-	};
+    Terran::Core::Shared<Font> FontAtlas;
+    glm::vec4 TextColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    std::string Text = "";
+    float LineSpacing = 1.0f;
+    float LineWidth = 10.0f;
+};
 
-	struct RelationshipComponent 
-	{
-		RelationshipComponent()
-			: Parent({ 0 }) { }
-		
-		UUID Parent;
-		std::vector<UUID> Children;
-	};
+struct RelationshipComponent {
+    RelationshipComponent()
+        : Parent({ 0 })
+    {
+    }
 
-	struct ScriptComponent 
-	{
-		ScriptComponent() = default;
+    Terran::Core::UUID Parent;
+    std::vector<Terran::Core::UUID> Children;
+};
 
-		ScriptComponent(const std::string& moduleName) 
-			: ModuleName(moduleName) { }
-		
-		// NOTE: think about having an array of scripts so that one entity
-		// "can" have more than one script (because of the 1 component of a type per entity)
+struct ScriptComponent {
+    ScriptComponent() = default;
 
-		std::string ModuleName;
-		std::vector<int32_t> FieldHandles;
+    ScriptComponent(std::string const& moduleName)
+        : ModuleName(moduleName)
+    {
+    }
 
-		UUID ScriptSourceHandle = UUID::Invalid();
-		bool ClassExists = true;
-	};
+    // NOTE: think about having an array of scripts so that one entity
+    // "can" have more than one script (because of the 1 component of a type per entity)
 
-	struct Rigidbody2DComponent 
-	{
-		Rigidbody2DComponent() = default;
+    std::string ModuleName;
+    std::vector<int32_t> FieldHandles;
 
-		PhysicsBodyType BodyType = PhysicsBodyType::Dynamic;
-		PhysicsBodySleepState SleepState = PhysicsBodySleepState::Awake;
+    Terran::Core::UUID ScriptSourceHandle = Terran::Core::UUID::Invalid();
+    bool ClassExists = true;
+};
 
-		bool FixedRotation = false;
-		float GravityScale = 1.0f;
-		bool Enabled = true;
-        int LayerIndex = 0;
+struct Rigidbody2DComponent {
+    Rigidbody2DComponent() = default;
 
-		UUID PhysicsMaterialHandle = UUID::Invalid();
-	};
+    PhysicsBodyType BodyType = PhysicsBodyType::Dynamic;
+    PhysicsBodySleepState SleepState = PhysicsBodySleepState::Awake;
 
-	struct BoxCollider2DComponent 
-	{
-		BoxCollider2DComponent() = default;
+    bool FixedRotation = false;
+    float GravityScale = 1.0f;
+    bool Enabled = true;
+    int LayerIndex = 0;
 
-		glm::vec2 Offset = { 0.0f, 0.0f };
-		glm::vec2 Size = { 1.0f, 1.0f };
-		bool Sensor = false;
+    Terran::Core::UUID PhysicsMaterialHandle = Terran::Core::UUID::Invalid();
+};
 
-		uint32_t ColliderIndex = 0;
-	};
+struct BoxCollider2DComponent {
+    BoxCollider2DComponent() = default;
 
-	struct CircleCollider2DComponent 
-	{
-		CircleCollider2DComponent() = default;
+    glm::vec2 Offset = { 0.0f, 0.0f };
+    glm::vec2 Size = { 1.0f, 1.0f };
+    bool Sensor = false;
 
-		glm::vec2 Offset = { 0.0f, 0.0f };
-		float Radius = 0.5f;
-		bool Sensor = false;
+    uint32_t ColliderIndex = 0;
+};
 
-		uint32_t ColliderIndex = 0;
-	};
+struct CircleCollider2DComponent {
+    CircleCollider2DComponent() = default;
 
-	struct CapsuleCollider2DComponent 
-	{
-		CapsuleCollider2DComponent() = default;
+    glm::vec2 Offset = { 0.0f, 0.0f };
+    float Radius = 0.5f;
+    bool Sensor = false;
 
-		glm::vec2 Offset = { 0.0f, 0.0f };
-        glm::vec2 Size = { 0.5f,  1.0f };
-		bool Sensor = false;
+    uint32_t ColliderIndex = 0;
+};
 
-		uint32_t ColliderIndex = 0;
-	};
+struct CapsuleCollider2DComponent {
+    CapsuleCollider2DComponent() = default;
+
+    glm::vec2 Offset = { 0.0f, 0.0f };
+    glm::vec2 Size = { 0.5f, 1.0f };
+    bool Sensor = false;
+
+    uint32_t ColliderIndex = 0;
+};
+
 }

@@ -2,24 +2,26 @@
 
 #include "Scene.h"
 
-#include "Core/Base.h"
 #include "Core/Result.h"
+#include "LibCore/Base.h"
 
-namespace TerranEngine 
-{
-	class SceneSerializer final
-	{
-	public:
-		SceneSerializer() = default;
-		SceneSerializer(const Shared<Scene>& scene);
+#include <filesystem>
 
-		void SerializeEditor(const std::filesystem::path& scenePath);
-		Result DeserializeEditor(const std::filesystem::path& scenePath);
+namespace TerranEngine {
 
-	public:
-		static const char* SceneFilter;
+class SceneSerializer final {
+public:
+    SceneSerializer() = default;
+    SceneSerializer(Terran::Core::Shared<Scene> const& scene);
 
-	private:
-		Shared<Scene> m_Scene;
-	};
+    void SerializeEditor(std::filesystem::path const& scenePath);
+    Result DeserializeEditor(std::filesystem::path const& scenePath);
+
+public:
+    static char const* SceneFilter;
+
+private:
+    Terran::Core::Shared<Scene> m_Scene;
+};
+
 }

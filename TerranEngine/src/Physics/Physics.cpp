@@ -1,5 +1,7 @@
 #include "trpch.h"
 
+#include "LibCore/Base.h"
+#include "LibCore/UUID.h"
 #include "ContatctListener.h"
 #include "Physics.h"
 #include "PhysicsBody.h"
@@ -27,12 +29,12 @@ namespace TerranEngine {
 
 struct PhysicsEngineState {
     b2World* PhysicsWorld = nullptr;
-    std::unordered_map<UUID, Shared<PhysicsBody2D>> PhysicsBodies;
+    std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<PhysicsBody2D>> PhysicsBodies;
     float PhysicsDeltaTime = 0.0f;
     ContactListener ContactListener;
-    Shared<PhysicsBody2D> EmptyPhysicsBody;
+    Terran::Core::Shared<PhysicsBody2D> EmptyPhysicsBody;
     PhysicsSettings Settings;
-    Shared<PhysicsMaterial2D> DefaultMaterial;
+    Terran::Core::Shared<PhysicsMaterial2D> DefaultMaterial;
 };
 
 static PhysicsEngineState* s_State;
@@ -89,19 +91,19 @@ void Physics2D::CratePhysicsBodies(Scene* scene)
 
     for (auto e : rigidbodyView) {
         Entity entity(e, scene);
-        Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
+        Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
         physicsBody->AttachColliders();
     }
 }
 
 b2World* Physics2D::GetB2World() { return s_State->PhysicsWorld; }
 
-Shared<PhysicsMaterial2D> Physics2D::GetDefaultMaterial() { return s_State->DefaultMaterial; }
+Terran::Core::Shared<PhysicsMaterial2D> Physics2D::GetDefaultMaterial() { return s_State->DefaultMaterial; }
 
-Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
+Terran::Core::Shared<PhysicsBody2D> Physics2D::CreatePhysicsBody(Entity entity)
 {
     TR_PROFILE_FUNCTION();
-    Shared<PhysicsBody2D> physicsBody = CreateShared<PhysicsBody2D>(entity);
+    Terran::Core::Shared<PhysicsBody2D> physicsBody = Terran::Core::CreateShared<PhysicsBody2D>(entity);
     s_State->PhysicsBodies.emplace(entity.GetID(), physicsBody);
     return physicsBody;
 }
@@ -110,7 +112,7 @@ void Physics2D::DestroyPhysicsBody(Entity entity)
 {
     TR_PROFILE_FUNCTION();
     if (s_State->PhysicsWorld) {
-        UUID id = entity.GetID();
+        Terran::Core::UUID id = entity.GetID();
         if (s_State->PhysicsBodies.find(id) != s_State->PhysicsBodies.end()) {
             auto& physicsBody = s_State->PhysicsBodies.at(id);
 
@@ -120,7 +122,7 @@ void Physics2D::DestroyPhysicsBody(Entity entity)
     }
 }
 
-void Physics2D::Update(Time time)
+void Physics2D::Update(Terran::Core::Time time)
 {
     TR_PROFILE_FUNCTION();
     s_State->PhysicsWorld->Step(s_State->Settings.PhysicsTimestep, s_State->Settings.VelocityIterations, s_State->Settings.PositionIterations);
@@ -152,14 +154,14 @@ void Physics2D::SyncTransforms()
         auto& rigidbody = entity.GetComponent<Rigidbody2DComponent>();
         auto& transform = entity.GetTransform();
 
-        Shared<PhysicsBody2D>& physicsBody = s_State->PhysicsBodies.at(entity.GetID());
+        Terran::Core::Shared<PhysicsBody2D>& physicsBody = s_State->PhysicsBodies.at(entity.GetID());
 
         if (physicsBody->GetSleepState() == PhysicsBodySleepState::Sleep)
             continue;
 
         if (entity.HasParent()) {
             Entity parent = entity.GetParent();
-            Shared<PhysicsBody2D> parentBody = GetPhysicsBody(parent);
+            Terran::Core::Shared<PhysicsBody2D> parentBody = GetPhysicsBody(parent);
 
             b2Transform localTransform = b2MulT(parentBody->GetB2Body()->GetTransform(),
                 physicsBody->GetB2Body()->GetTransform());
@@ -179,7 +181,7 @@ void Physics2D::SyncTransforms()
     }
 }
 
-Shared<PhysicsBody2D> Physics2D::GetPhysicsBody(Entity entity)
+Terran::Core::Shared<PhysicsBody2D> Physics2D::GetPhysicsBody(Entity entity)
 {
     if (entity && s_State->PhysicsBodies.find(entity.GetID()) != s_State->PhysicsBodies.end())
         return s_State->PhysicsBodies.at(entity.GetID());
@@ -203,7 +205,7 @@ bool Physics2D::RayCast(glm::vec2 const& origin, glm::vec2 const& direction, flo
     return raycastCallback.HasHit();
 }
 
-Shared<std::vector<RayCastHitInfo2D>> Physics2D::RayCastAll(glm::vec2 const& origin, glm::vec2 const& direction, float length, uint16_t layerMask)
+Terran::Core::Shared<std::vector<RayCastHitInfo2D>> Physics2D::RayCastAll(glm::vec2 const& origin, glm::vec2 const& direction, float length, uint16_t layerMask)
 {
     TR_PROFILE_FUNCTION();
     b2Vec2 const point1 = { origin.x, origin.y };
