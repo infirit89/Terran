@@ -2,36 +2,36 @@
 
 #include "Terran.h"
 
-#include <memory>
 #include "Transform.h"
+#include <memory>
 
 namespace TerranEngine {
 
-	class SandboxLayer : public Layer
-	{
-	public: 
-		SandboxLayer();
+class SandboxLayer : public Terran::Core::Layer {
+public:
+    SandboxLayer();
 
-		void OnAttach() override;
-		void OnDetach() override;
+    void OnAttach() override;
+    void OnDetach() override;
 
-		void Update(Time& time) override;
+    void Update(Terran::Core::Time& time) override;
 
-		void OnEvent(Event& event) override;
-		void ImGuiRender() override;
+    void OnEvent(Terran::Core::Event& event) override;
+    void ImGuiRender() override;
 
-		bool KeyPressed(KeyPressedEvent& event);
-		bool OnWindowResize(WindowResizeEvent& event);
-		bool OnMouseScroll(MouseScrollEvent& event);
+    bool KeyPressed(KeyPressedEvent& event);
+    bool OnWindowResize(WindowResizeEvent& event);
+    bool OnMouseScroll(MouseScrollEvent& event);
 
-	private:
-		OrthographicCamera m_Camera;
-		Transform m_CameraTransform;
-		Transform m_Transform;
+private:
+    OrthographicCamera m_Camera;
+    Transform m_CameraTransform;
+    Transform m_Transform;
 
-		float m_ZoomLevel = 0.1f;
-		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
+    float m_ZoomLevel = 0.1f;
+    glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
 
-		Shared<Framebuffer> m_Framebuffer;
-	};
+    Terran::Core::Shared<Framebuffer> m_Framebuffer;
+};
+
 }
