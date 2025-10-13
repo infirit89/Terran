@@ -23,6 +23,7 @@ files {
 
 includedirs {
     "src",
+    "%{wks.location}/Libraries",
     "%{wks.location}/TerranEngine/src/",
     "%{Dependencies.spdlog.include}",
     "%{IncludeDirectories.imgui}",
@@ -35,6 +36,7 @@ includedirs {
 
 links {
     "TerranEngine",
+    "LibCore",
 }
 
 defines {

@@ -1,40 +1,40 @@
 #pragma once
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 
-#include "Events/Event.h"
 #include "Events/KeyboardEvent.h"
+#include "LibCore/Event.h"
 
-#include "Scene/Scene.h"
 #include "Scene/Entity.h"
+#include "Scene/Scene.h"
 
 #include "EditorPanel.h"
 
-#include <functional>
 #include <imgui.h>
+#include <string_view>
 
-namespace TerranEditor 
-{
-	using namespace TerranEngine;
-	class SceneHierarchyPanel : public EditorPanel
-	{
-	public:
-		SceneHierarchyPanel() = default;
-		SceneHierarchyPanel(const Shared<Scene>& scene);
+namespace TerranEditor {
 
-		~SceneHierarchyPanel() = default;
+using namespace TerranEngine;
+class SceneHierarchyPanel : public EditorPanel {
+public:
+    SceneHierarchyPanel() = default;
+    SceneHierarchyPanel(Terran::Core::Shared<Scene> const& scene);
 
-		virtual void OnEvent(Event& event) override;
-        virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& scene) override;
-		virtual void OnRender() override;
-		virtual std::string_view GetName() override { return "Hierarchy"; }
+    ~SceneHierarchyPanel() = default;
 
-	private:
-		bool OnKeyPressed(KeyPressedEvent& e);
-		void DrawEntityNode(Entity entity);
-		void DrawScene();
+    virtual void OnEvent(Terran::Core::Event& event) override;
+    virtual void SetSceneContext(Terran::Core::Shared<TerranEngine::Scene> const& scene) override;
+    virtual void OnRender() override;
+    virtual std::string_view GetName() override { return "Hierarchy"; }
 
-	private:
-		ImGuiTextFilter m_Filter;
-	};
+private:
+    bool OnKeyPressed(KeyPressedEvent& e);
+    void DrawEntityNode(Entity entity);
+    void DrawScene();
+
+private:
+    ImGuiTextFilter m_Filter;
+};
+
 }

@@ -1,49 +1,52 @@
 #pragma once
 
-#include "Core/Base.h"
-#include "Core/Hash.h"
+#include "LibCore/Base.h"
+#include "LibCore/Hash.h"
 
 #include "Scene/Scene.h"
 
 #include "EditorPanel.h"
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
+#include <cstdint>
+#include <string_view>
+#include <filesystem>
 
-namespace TerranEditor
-{
-    class PanelManager 
+namespace TerranEditor {
+
+class PanelManager {
+public:
+    PanelManager() = default;
+    ~PanelManager() = default;
+
+    template<typename T>
+    Terran::Core::Shared<T> AddPanel(std::string_view panelName)
     {
-    public:
-        PanelManager() = default;
-        ~PanelManager() = default;
+        Terran::Core::Shared<T> panel = Terran::Core::CreateShared<T>();
+        uint32_t hashedPanelName = Terran::Core::Hash::FNVHash(panelName);
+        m_Panels.emplace(hashedPanelName, panel);
+        return panel;
+    }
 
-        template<typename T>
-        TerranEngine::Shared<T> AddPanel(std::string_view panelName)
-        {
-            TerranEngine::Shared<T> panel = TerranEngine::CreateShared<T>();
-            uint32_t hashedPanelName = TerranEngine::Hash::FNVHash(panelName);
-            m_Panels.emplace(hashedPanelName, panel);
-            return panel;
-        }
+    template<typename T>
+    Terran::Core::Shared<T> GetPanel(std::string const& panelName)
+    {
+        uint32_t hashedPanelName = Terran::Core::Hash::FNVHash(panelName);
+        return Terran::Core::DynamicCast<T>(m_Panels[hashedPanelName]);
+    }
 
-        template<typename T>
-        TerranEngine::Shared<T> GetPanel(const std::string& panelName)
-        {
-            uint32_t hashedPanelName = TerranEngine::Hash::FNVHash(panelName);
-            return TerranEngine::DynamicCast<T>(m_Panels[hashedPanelName]);
-        }
+    void SetScene(Terran::Core::Shared<TerranEngine::Scene> const& scene);
 
-        void SetScene(const TerranEngine::Shared<TerranEngine::Scene>& scene);
+    void OnEvent(Terran::Core::Event& event);
+    void OnProjectChanged(std::filesystem::path const& projectPath);
 
-        void OnEvent(TerranEngine::Event& event);
-        void OnProjectChanged(const std::filesystem::path& projectPath);
+    void ImGuiRender();
 
-        void ImGuiRender();
+    void SetPanelOpen(std::string_view panelName, bool open);
 
-        void SetPanelOpen(std::string_view panelName, bool open);
+private:
+    std::unordered_map<uint32_t, Terran::Core::Shared<EditorPanel>> m_Panels;
+};
 
-    private:
-        std::unordered_map<uint32_t, TerranEngine::Shared<EditorPanel>> m_Panels;
-    };
 }
