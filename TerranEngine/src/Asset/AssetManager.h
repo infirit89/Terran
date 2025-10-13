@@ -3,141 +3,138 @@
 #include "Asset.h"
 #include "AssetImporter.h"
 
-#include "Core/Base.h"
-#include "Core/FileUtils.h"
-#include "Core/Log.h"
+#include "LibCore/Base.h"
+#include "LibCore/FileUtils.h"
+#include "LibCore/Log.h"
+#include "LibCore/UUID.h"
 
-#include <unordered_map>
-#include <map>
 #include <filesystem>
+#include <functional>
+#include <map>
+#include <unordered_map>
+#include <vector>
 
-namespace TerranEngine 
-{
-	class AssetManager final
-	{
-		using AssetInfoMap = std::map<UUID, AssetInfo>;
-		using AssetChangeCallbackFn = std::function<void(const std::vector<FileSystemChangeEvent>&)>;
+namespace TerranEngine {
 
-	public:
-		static void Initialize();
-		static void Shutdown();
+class AssetManager final {
+    using AssetInfoMap = std::map<Terran::Core::UUID, AssetInfo>;
+    using AssetChangeCallbackFn = std::function<void(std::vector<Terran::Core::FileSystemChangeEvent> const&)>;
 
-		static const AssetInfo& GetAssetInfoByHandle(AssetHandle assetHandle);
-		static const AssetInfo& GetAssetInfoByPath(const std::filesystem::path& assetPath);
-		static AssetHandle GetAssetHandleFromPath(const std::filesystem::path& assetPath);
+public:
+    static void Initialize();
+    static void Shutdown();
 
-		static std::filesystem::path GetFileSystemPath(const std::filesystem::path& path);
+    static AssetInfo const& GetAssetInfoByHandle(AssetHandle assetHandle);
+    static AssetInfo const& GetAssetInfoByPath(std::filesystem::path const& assetPath);
+    static AssetHandle GetAssetHandleFromPath(std::filesystem::path const& assetPath);
 
-		static AssetInfoMap& GetAssetInfoMap() { return s_AssetsInfos; }
+    static std::filesystem::path GetFileSystemPath(std::filesystem::path const& path);
 
-		static AssetHandle ImportAsset(const std::filesystem::path& assetPath);
-		static void ReloadAssetByHandle(AssetHandle assetHandle);
+    static AssetInfoMap& GetAssetInfoMap() { return s_AssetsInfos; }
 
-		static void SetAssetChangedCallback(const AssetChangeCallbackFn& callback) { s_ChangeCallback = callback; }
+    static AssetHandle ImportAsset(std::filesystem::path const& assetPath);
+    static void ReloadAssetByHandle(AssetHandle assetHandle);
 
-		template<typename T>
-		static Shared<T> GetAssetByHandle(const AssetHandle& assetHandle)
-		{
-			if (s_LoadedAssets.find(assetHandle) != s_LoadedAssets.end())
-				return DynamicCast<T>(s_LoadedAssets.at(assetHandle));
+    static void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { s_ChangeCallback = callback; }
 
-			AssetInfo& info = GetAssetInfoByHandle_Internal(assetHandle);
+    template<typename T>
+    static Terran::Core::Shared<T> GetAssetByHandle(AssetHandle const& assetHandle)
+    {
+        if (s_LoadedAssets.find(assetHandle) != s_LoadedAssets.end())
+            return Terran::Core::DynamicCast<T>(s_LoadedAssets.at(assetHandle));
 
-			if (!info)
-				return nullptr;
+        AssetInfo& info = GetAssetInfoByHandle_Internal(assetHandle);
 
-			// NOTE: poc code
-			Shared<Asset> asset = nullptr;
-			AssetImporter::Load(info, asset);
-				
-			if (!asset)
-			{
-				TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
-				return nullptr;
-			}
+        if (!info)
+            return nullptr;
 
-			asset->m_Handle = assetHandle;
-			s_LoadedAssets[assetHandle] = asset;
-			return DynamicCast<T>(s_LoadedAssets[assetHandle]);
-		}
+        // NOTE: poc code
+        Terran::Core::Shared<Asset> asset = nullptr;
+        AssetImporter::Load(info, asset);
 
-		template<typename T>
-		static Shared<T> GetAssetByAssetInfo(const AssetInfo& assetInfo) 
-		{
-			if (s_LoadedAssets.contains(assetInfo.Handle))
-				return DynamicCast<T>(s_LoadedAssets.at(assetInfo.Handle));
+        if (!asset) {
+            TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
+            return nullptr;
+        }
 
-			// NOTE: poc code
-			Shared<Asset> asset = nullptr;
-			AssetImporter::Load(assetInfo, asset);
+        asset->m_Handle = assetHandle;
+        s_LoadedAssets[assetHandle] = asset;
+        return Terran::Core::DynamicCast<T>(s_LoadedAssets[assetHandle]);
+    }
 
-			if (!asset)
-			{
-				TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetInfo.Path);
-				return nullptr;
-			}
+    template<typename T>
+    static Terran::Core::Shared<T> GetAssetByAssetInfo(AssetInfo const& assetInfo)
+    {
+        if (s_LoadedAssets.contains(assetInfo.Handle))
+            return Terran::Core::DynamicCast<T>(s_LoadedAssets.at(assetInfo.Handle));
 
-			asset->m_Handle = assetInfo.Handle;
-			s_LoadedAssets[assetInfo.Handle] = asset;
-			return DynamicCast<T>(s_LoadedAssets[assetInfo.Handle]);
-		}
+        // NOTE: poc code
+        Terran::Core::Shared<Asset> asset = nullptr;
+        AssetImporter::Load(assetInfo, asset);
 
-		template<typename T>
-		static Shared<T> CreateNewAsset(const std::filesystem::path& filePath) 
-		{
-			AssetInfo info;
-			info.Handle = AssetHandle();
-			info.Path = filePath;
-			info.Type = T::GetStaticType();
+        if (!asset) {
+            TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetInfo.Path);
+            return nullptr;
+        }
 
-			int currentFileNumber = 2;
-			while (FileExists(info.Path)) 
-			{
-				info.Path = filePath.parent_path() / filePath.stem();
-					
-				info.Path = info.Path.string() +
-								" (" + std::to_string(currentFileNumber) + ")" +
-								filePath.extension().string();
+        asset->m_Handle = assetInfo.Handle;
+        s_LoadedAssets[assetInfo.Handle] = asset;
+        return Terran::Core::DynamicCast<T>(s_LoadedAssets[assetInfo.Handle]);
+    }
 
-				currentFileNumber++;
-			}
+    template<typename T>
+    static Terran::Core::Shared<T> CreateNewAsset(std::filesystem::path const& filePath)
+    {
+        AssetInfo info;
+        info.Handle = AssetHandle();
+        info.Path = filePath;
+        info.Type = T::GetStaticType();
 
-			s_AssetsInfos[info.Handle] = info;
+        int currentFileNumber = 2;
+        while (FileExists(info.Path)) {
+            info.Path = filePath.parent_path() / filePath.stem();
 
-			// TODO: add parameter options
-			Shared<T> asset = CreateShared<T>();
+            info.Path = info.Path.string() + " (" + std::to_string(currentFileNumber) + ")" + filePath.extension().string();
 
-			s_LoadedAssets[info.Handle] = asset;
-			AssetImporter::Save(info, asset);
-			
-			return DynamicCast<T>(s_LoadedAssets[info.Handle]);
-		}
+            currentFileNumber++;
+        }
 
-		
-		template <typename T>
-		static Shared<T> CreateMemoryAsset()
-		{
-			Shared<Asset> asset = CreateShared<T>();
-			s_LoadedAssets[asset->m_Handle] = asset;
+        s_AssetsInfos[info.Handle] = info;
 
-			return DynamicCast<T>(s_LoadedAssets[asset->m_Handle]);
-		}
+        // TODO: add parameter options
+        Terran::Core::Shared<T> asset = Terran::Core::CreateShared<T>();
 
-		static void LoadAssetInfos();
-		static void WriteAssetInfosToFile();
+        s_LoadedAssets[info.Handle] = asset;
+        AssetImporter::Save(info, asset);
 
-		static bool FileExists(const std::filesystem::path& path);
+        return Terran::Core::DynamicCast<T>(s_LoadedAssets[info.Handle]);
+    }
 
-	private:
-		static void OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents);
-		static void OnAssetRemoved(AssetHandle assetID);
-		static void OnAssetRenamed(AssetHandle assetID, const std::filesystem::path& newFileName);
-		static AssetInfo& GetAssetInfoByHandle_Internal(const AssetHandle& assetID);
-		static std::filesystem::path GetRelativePath(const std::filesystem::path& path);
+    template<typename T>
+    static Terran::Core::Shared<T> CreateMemoryAsset()
+    {
+        Terran::Core::Shared<Asset> asset = Terran::Core::CreateShared<T>();
+        s_LoadedAssets[asset->m_Handle] = asset;
 
-	private:
-		static std::unordered_map<AssetHandle, Shared<Asset>> s_LoadedAssets;
-		static AssetInfoMap s_AssetsInfos;
-		static AssetChangeCallbackFn s_ChangeCallback;
-	};
+        return Terran::Core::DynamicCast<T>(s_LoadedAssets[asset->m_Handle]);
+    }
+
+    static void LoadAssetInfos();
+    static void WriteAssetInfosToFile();
+
+    static bool FileExists(std::filesystem::path const& path);
+
+private:
+    static void OnFileSystemChanged(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents);
+    static void OnAssetRemoved(AssetHandle assetID);
+    static void OnAssetRenamed(AssetHandle assetID, std::filesystem::path const& newFileName);
+    static AssetInfo& GetAssetInfoByHandle_Internal(AssetHandle const& assetID);
+    static std::filesystem::path GetRelativePath(std::filesystem::path const& path);
+
+private:
+    static std::unordered_map<AssetHandle, Terran::Core::Shared<Asset>> s_LoadedAssets;
+    static AssetInfoMap s_AssetsInfos;
+    static AssetChangeCallbackFn s_ChangeCallback;
+};
+
 }

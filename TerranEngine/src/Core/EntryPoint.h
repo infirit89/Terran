@@ -1,18 +1,18 @@
 #pragma once
 
 #include "Application.h"
-#include "Log.h"
+#include "LibCore/Log.h"
 #include "Utils/Utils.h"
 
 int main(int argc, char** argv) 
 {
-	TerranEngine::Log::Init();
+    Terran::Core::Log::Init();
 
 	auto application = TerranEngine::CreateApplication(argc, argv);
 	application->Run();
 	delete application;
 
-	TerranEngine::Log::Shutdown();
+    Terran::Core::Log::Shutdown();
 
 	return 0;
 }

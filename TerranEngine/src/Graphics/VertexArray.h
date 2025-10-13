@@ -1,32 +1,36 @@
 #pragma once
 
-#include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "LibCore/Base.h"
+#include "VertexBuffer.h"
 
-namespace TerranEngine 
-{
-	class VertexArray final
-	{
-	public:
-		VertexArray();
-		~VertexArray();
+#include <cstdint>
 
-		void Bind();
-		void Unbind();
+namespace TerranEngine {
 
-		void AddVertexBuffer(const Shared<VertexBuffer>& buffer);
-		const Shared<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
+class VertexArray final {
+public:
+    VertexArray();
+    ~VertexArray();
 
-		void AddIndexBuffer(const Shared<IndexBuffer>& buffer);
-		const Shared<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
-	private:
-		void Release();
+    void Bind();
+    void Unbind();
 
-		uint32_t m_Handle;
+    void AddVertexBuffer(Terran::Core::Shared<VertexBuffer> const& buffer);
+    Terran::Core::Shared<VertexBuffer> const& GetVertexBuffer() const { return m_VertexBuffer; }
 
-		Shared<VertexBuffer> m_VertexBuffer;
-		Shared<IndexBuffer> m_IndexBuffer;
+    void AddIndexBuffer(Terran::Core::Shared<IndexBuffer> const& buffer);
+    Terran::Core::Shared<IndexBuffer> const& GetIndexBuffer() const { return m_IndexBuffer; }
 
-		uint32_t m_AttributeIndex;
-	};
+private:
+    void Release();
+
+    uint32_t m_Handle;
+
+    Terran::Core::Shared<VertexBuffer> m_VertexBuffer;
+    Terran::Core::Shared<IndexBuffer> m_IndexBuffer;
+
+    uint32_t m_AttributeIndex;
+};
+
 }

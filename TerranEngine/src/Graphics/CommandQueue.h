@@ -1,9 +1,13 @@
 #pragma once
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 
+#include <cstdint>
+
+using namespace Terran::Literals;
 namespace TerranEngine 
 {
+
 	class CommandQueue final
 	{
 	public:

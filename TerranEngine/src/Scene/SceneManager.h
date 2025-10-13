@@ -1,27 +1,28 @@
 #pragma once
 
+#include "LibCore/Base.h"
+#include "LibCore/UUID.h"
 #include "Scene.h"
-#include "Core/Base.h"
 
 #include <unordered_map>
 
-namespace TerranEngine 
-{
-	class SceneManager final
-	{
-	public:
-		static Shared<Scene> CreateEmptyScene();
-		static void RemoveScene(const UUID& id);
+namespace TerranEngine {
 
-		static Shared<Scene> GetScene(const UUID& id);
+class SceneManager final {
+public:
+    static Terran::Core::Shared<Scene> CreateEmptyScene();
+    static void RemoveScene(Terran::Core::UUID const& id);
 
-		static const Shared<Scene>& GetCurrentScene() { return s_CurrentScene; }
-		static void SetCurrentScene(Shared<Scene> newScene);
+    static Terran::Core::Shared<Scene> GetScene(Terran::Core::UUID const& id);
 
-		static std::unordered_map<UUID, Shared<Scene>>& GetActiveScenes() { return s_ActiveScenes; }
+    static Terran::Core::Shared<Scene> const& GetCurrentScene() { return s_CurrentScene; }
+    static void SetCurrentScene(Terran::Core::Shared<Scene> newScene);
 
-	private:
-		static std::unordered_map<UUID, Shared<Scene>> s_ActiveScenes;
-		static Shared<Scene> s_CurrentScene;
-	};
+    static std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>>& GetActiveScenes() { return s_ActiveScenes; }
+
+private:
+    static std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>> s_ActiveScenes;
+    static Terran::Core::Shared<Scene> s_CurrentScene;
+};
+
 }

@@ -1,12 +1,14 @@
-#include "trpch.h"
 #include "Window.h"
+#include "trpch.h"
 
 #include "Platform/GLFW/GLFWWindow.h"
 
-namespace TerranEngine 
+namespace TerranEngine {
+
+Terran::Core::Unique<Window> Window::Create(WindowData const& data)
 {
-	Unique<Window> Window::Create(const WindowData& data)
-	{
-		return CreateUnique<GLFWWindow>(data);
-	}
+    return Terran::Core::CreateUnique<GLFWWindow>(data);
 }
+
+}
+

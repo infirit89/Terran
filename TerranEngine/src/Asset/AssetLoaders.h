@@ -1,47 +1,45 @@
 #pragma once
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 
 #include "Asset.h"
 
 #include "Graphics/Texture.h"
+#include <filesystem>
 
-namespace TerranEngine 
-{
-	class AssetLoader
-	{
-	public:
-		virtual ~AssetLoader() = default;
-		virtual void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) = 0;
-		virtual bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) = 0;
-	};
+namespace TerranEngine {
 
-	class TextureAssetLoader final : public AssetLoader
-	{
-	public:
-		void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;
-		bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) override;
-		static Shared<Texture2D> CreateTextureFromFile(const std::filesystem::path& textureSourcePath);
-	};
+class AssetLoader {
+public:
+    virtual ~AssetLoader() = default;
+    virtual void Load(AssetInfo const& assetInfo, Terran::Core::Shared<Asset>& asset) = 0;
+    virtual bool Save(AssetInfo const& assetInfo, Terran::Core::Shared<Asset> const& asset) = 0;
+};
 
-	class TextAssetLoader final : public AssetLoader
-	{
-	public:
-		void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;
-		bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) override;
-	};
+class TextureAssetLoader final : public AssetLoader {
+public:
+    void Load(AssetInfo const& assetInfo, Terran::Core::Shared<Asset>& asset) override;
+    bool Save(AssetInfo const& assetInfo, Terran::Core::Shared<Asset> const& asset) override;
+    static Terran::Core::Shared<Texture2D> CreateTextureFromFile(std::filesystem::path const& textureSourcePath);
+};
 
-	class SceneAssetLoader final : public AssetLoader
-	{
-	public:
-		void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;
-		bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) override;
-	};
+class TextAssetLoader final : public AssetLoader {
+public:
+    void Load(AssetInfo const& assetInfo, Terran::Core::Shared<Asset>& asset) override;
+    bool Save(AssetInfo const& assetInfo, Terran::Core::Shared<Asset> const& asset) override;
+};
 
-	class PhysicsMaterial2DAssetLoader final : public AssetLoader
-	{
-	public:
-		void Load(const AssetInfo& assetInfo, Shared<Asset>& asset) override;
-		bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset) override;
-	};
+class SceneAssetLoader final : public AssetLoader {
+public:
+    void Load(AssetInfo const& assetInfo, Terran::Core::Shared<Asset>& asset) override;
+    bool Save(AssetInfo const& assetInfo, Terran::Core::Shared<Asset> const& asset) override;
+};
+
+class PhysicsMaterial2DAssetLoader final : public AssetLoader {
+public:
+    void Load(AssetInfo const& assetInfo, Terran::Core::Shared<Asset>& asset) override;
+    bool Save(AssetInfo const& assetInfo, Terran::Core::Shared<Asset> const& asset) override;
+};
+
 }
+

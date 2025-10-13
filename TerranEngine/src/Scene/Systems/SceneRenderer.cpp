@@ -1,5 +1,5 @@
-#include "trpch.h"
 #include "SceneRenderer.h"
+#include "trpch.h"
 
 #include "Scene/Entity.h"
 
@@ -14,173 +14,165 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace TerranEngine 
+namespace TerranEngine {
+
+SceneRenderer::SceneRenderer(FramebufferParameters const& params)
+    : m_Scene(nullptr)
 {
-	SceneRenderer::SceneRenderer(const FramebufferParameters& params): m_Scene(nullptr)
-	{
-		m_Framebuffer = CreateShared<Framebuffer>(params);
-	}
+    m_Framebuffer = Terran::Core::CreateShared<Framebuffer>(params);
+}
 
-	void SceneRenderer::SetScene(Scene* scene)
-	{
-		m_Scene = scene;
-	}
+void SceneRenderer::SetScene(Scene* scene)
+{
+    m_Scene = scene;
+}
 
-	void SceneRenderer::BeginScene(Camera& camera, const glm::mat4& cameraTransform, bool inverseTransform)
-	{
-		m_Framebuffer->Bind();
-		
-		Renderer::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
-		Renderer::Clear();
+void SceneRenderer::BeginScene(Camera& camera, glm::mat4 const& cameraTransform, bool inverseTransform)
+{
+    m_Framebuffer->Bind();
 
-		BatchRenderer2D::BeginFrame(camera, cameraTransform, inverseTransform);
-		m_BegunScene = true;
-		
-		/* TODO: better sorting
-		*  also add circle sorting
-		*/
+    Renderer::SetClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, 1.0f);
+    Renderer::Clear();
 
-		m_Scene->m_Registry.sort<SpriteRendererComponent>([](const auto& lEntity, const auto& rEntity) 
-		{ return lEntity.ZIndex < rEntity.ZIndex; });
-	}
+    BatchRenderer2D::BeginFrame(camera, cameraTransform, inverseTransform);
+    m_BegunScene = true;
 
-	void SceneRenderer::SubmitSprite(const SpriteRendererComponent& spriteRenderer, glm::mat4& transform, int entityID)
-	{
-		// TODO: frustum culling
-		Shared<Texture2D> texture = AssetManager::GetAssetByHandle<Texture2D>(spriteRenderer.TextureHandle);
-		BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, texture, entityID);
-	}
+    /* TODO: better sorting
+     *  also add circle sorting
+     */
 
-	void SceneRenderer::SubmitCircle(const CircleRendererComponent& circleRenderer, glm::mat4& transform, int entityID)
-	{
-		// TODO: frustum culling
-		BatchRenderer2D::AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
-	}
+    m_Scene->m_Registry.sort<SpriteRendererComponent>([](auto const& lEntity, auto const& rEntity) { return lEntity.ZIndex < rEntity.ZIndex; });
+}
 
-	void SceneRenderer::SubmitLine(const LineRendererComponent& lineRenderer, int entityID)
-	{
-		BatchRenderer2D::AddLine(lineRenderer.StartPoint, lineRenderer.EndPoint, lineRenderer.Color, lineRenderer.Thickness, entityID);
-	}
+void SceneRenderer::SubmitSprite(SpriteRendererComponent const& spriteRenderer, glm::mat4& transform, int entityID)
+{
+    // TODO: frustum culling
+    Terran::Core::Shared<Texture2D> texture = AssetManager::GetAssetByHandle<Texture2D>(spriteRenderer.TextureHandle);
+    BatchRenderer2D::AddQuad(transform, spriteRenderer.Color, texture, entityID);
+}
 
-	void SceneRenderer::SubmitText(const TextRendererComponent& textRenderer, glm::mat4& transform, int entityID)
-	{
-		BatchRenderer2D::AddString(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas, 
-										textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
-	}
+void SceneRenderer::SubmitCircle(CircleRendererComponent const& circleRenderer, glm::mat4& transform, int entityID)
+{
+    // TODO: frustum culling
+    BatchRenderer2D::AddCircle(transform, circleRenderer.Color, circleRenderer.Thickness, entityID);
+}
 
-	void SceneRenderer::EndScene()
-	{
-		// TODO: draw grid
-		if (m_ShowColliders)
-			SubmitColliderBounds();
+void SceneRenderer::SubmitLine(LineRendererComponent const& lineRenderer, int entityID)
+{
+    BatchRenderer2D::AddLine(lineRenderer.StartPoint, lineRenderer.EndPoint, lineRenderer.Color, lineRenderer.Thickness, entityID);
+}
 
-		TR_ASSERT(m_BegunScene, "BeginScene has to be called before EndScene!");
+void SceneRenderer::SubmitText(TextRendererComponent const& textRenderer, glm::mat4& transform, int entityID)
+{
+    BatchRenderer2D::AddString(transform, textRenderer.Text, textRenderer.TextColor, textRenderer.FontAtlas,
+        textRenderer.LineSpacing, textRenderer.LineWidth, entityID);
+}
 
-		BatchRenderer2D::EndFrame();
-		m_Framebuffer->Unbind();
+void SceneRenderer::EndScene()
+{
+    // TODO: draw grid
+    if (m_ShowColliders)
+        SubmitColliderBounds();
 
-		m_BegunScene = false;
-	}
+    TR_ASSERT(m_BegunScene, "BeginScene has to be called before EndScene!");
 
-	void SceneRenderer::OnResize(uint32_t width, uint32_t height)
-	{
-		if(m_Framebuffer->GetWidth() != width || m_Framebuffer->GetHeight() != height)
-			m_Framebuffer->Resize(width, height);
-	}
+    BatchRenderer2D::EndFrame();
+    m_Framebuffer->Unbind();
 
-	void SceneRenderer::SubmitColliderBounds()
-	{
-		// submit box collider bounds
-		{
-			auto boxColliderView = m_Scene->GetEntitiesWith<BoxCollider2DComponent>();
-			for (auto e: boxColliderView)
-			{
-				Entity entity(e, m_Scene);
+    m_BegunScene = false;
+}
 
-				BoxCollider2DComponent& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
-				auto& transform = entity.GetTransform();
+void SceneRenderer::OnResize(uint32_t width, uint32_t height)
+{
+    if (m_Framebuffer->GetWidth() != width || m_Framebuffer->GetHeight() != height)
+        m_Framebuffer->Resize(width, height);
+}
 
-				constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				constexpr float thickness = 0.05f;
+void SceneRenderer::SubmitColliderBounds()
+{
+    // submit box collider bounds
+    {
+        auto boxColliderView = m_Scene->GetEntitiesWith<BoxCollider2DComponent>();
+        for (auto e : boxColliderView) {
+            Entity entity(e, m_Scene);
 
-				glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
+            BoxCollider2DComponent& boxCollider = entity.GetComponent<BoxCollider2DComponent>();
+            auto& transform = entity.GetTransform();
 
-				glm::vec3 position = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
+            constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+            constexpr float thickness = 0.05f;
 
-				glm::mat4 worldTransformMatrix = transform.WorldSpaceTransformMatrix;
-				glm::mat4 transformMatrix = worldTransformMatrix *
-											glm::translate(glm::mat4(1.0f), position) *
-											glm::scale(glm::mat4(1.0f), size);
+            glm::vec3 size = { boxCollider.Size.x, boxCollider.Size.y, 1.0f };
 
-				/*const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
+            glm::vec3 position = { boxCollider.Offset.x, boxCollider.Offset.y, 1.0f };
 
-				const glm::vec3 postition = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
+            glm::mat4 worldTransformMatrix = transform.WorldSpaceTransformMatrix;
+            glm::mat4 transformMatrix = worldTransformMatrix * glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), size);
 
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), postition) *
-					glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
-					glm::scale(glm::mat4(1.0f), size);*/
+            /*const glm::vec3 size = { transform.Scale.x * boxCollider.Size.x, transform.Scale.y * boxCollider.Size.y, 1.0f };
 
-				BatchRenderer2D::AddDebugRect(transformMatrix, color);
-			}
-		}
+            const glm::vec3 postition = { transform.Position.x + boxCollider.Offset.x, transform.Position.y + boxCollider.Offset.y, 1.0f };
 
-		// submit circle collider bounds
-		{
-			auto circleColliderView = m_Scene->GetEntitiesWith<CircleCollider2DComponent>();
+            glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), postition) *
+                    glm::rotate(glm::mat4(1.0f), transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
+                    glm::scale(glm::mat4(1.0f), size);*/
 
-			for (auto e : circleColliderView)
-			{
-				Entity entity(e, m_Scene);
+            BatchRenderer2D::AddDebugRect(transformMatrix, color);
+        }
+    }
 
-				auto& circleCollider = entity.GetComponent<CircleCollider2DComponent>();
-				auto& transform = entity.GetTransform();
+    // submit circle collider bounds
+    {
+        auto circleColliderView = m_Scene->GetEntitiesWith<CircleCollider2DComponent>();
 
-				constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				constexpr float thickness = 0.02f;
+        for (auto e : circleColliderView) {
+            Entity entity(e, m_Scene);
 
-				glm::vec3 position, rotation, scale;
+            auto& circleCollider = entity.GetComponent<CircleCollider2DComponent>();
+            auto& transform = entity.GetTransform();
 
-				Math::Decompose(transform.WorldSpaceTransformMatrix, position, rotation, scale);
+            constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+            constexpr float thickness = 0.02f;
 
-				// choose which component of the scale to apply
-				float scalingFactor = scale.x > scale.y ? scale.x : scale.y;
+            glm::vec3 position, rotation, scale;
 
-				glm::vec3 colliderSize = scalingFactor * glm::vec3(circleCollider.Radius * 2.0f);
-				glm::vec3 colliderPosition = { position.x + circleCollider.Offset.x, 
-												position.y + circleCollider.Offset.y, 1.0f };
+            Math::Decompose(transform.WorldSpaceTransformMatrix, position, rotation, scale);
 
-				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), colliderPosition) * 
-											glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * 
-											glm::scale(glm::mat4(1.0f), colliderSize);
+            // choose which component of the scale to apply
+            float scalingFactor = scale.x > scale.y ? scale.x : scale.y;
 
-				BatchRenderer2D::AddCircle(transformMatrix, color, thickness, -1);
-			}
-		}
+            glm::vec3 colliderSize = scalingFactor * glm::vec3(circleCollider.Radius * 2.0f);
+            glm::vec3 colliderPosition = { position.x + circleCollider.Offset.x,
+                position.y + circleCollider.Offset.y, 1.0f };
 
-		// submit capsule collider bounds
-		{
-			auto capsuleColliderView = m_Scene->GetEntitiesWith<CapsuleCollider2DComponent>();
+            glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), colliderPosition) * glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)) * glm::scale(glm::mat4(1.0f), colliderSize);
 
-			for (auto e : capsuleColliderView)
-			{
-				Entity entity(e, m_Scene);
+            BatchRenderer2D::AddCircle(transformMatrix, color, thickness, -1);
+        }
+    }
 
-				auto& capsuleCollider = entity.GetComponent<CapsuleCollider2DComponent>();
-				auto& transform = entity.GetTransform();
+    // submit capsule collider bounds
+    {
+        auto capsuleColliderView = m_Scene->GetEntitiesWith<CapsuleCollider2DComponent>();
 
-				constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
-				constexpr float thickness = 0.02f;
+        for (auto e : capsuleColliderView) {
+            Entity entity(e, m_Scene);
 
-				float ySize = capsuleCollider.Size.x > capsuleCollider.Size.y ? capsuleCollider.Size.x : capsuleCollider.Size.y;
-				const glm::vec3 size = { capsuleCollider.Size.x, ySize, 1.0f };
-				const glm::vec3 position = { capsuleCollider.Offset.x, capsuleCollider.Offset.y, 1.0f };
+            auto& capsuleCollider = entity.GetComponent<CapsuleCollider2DComponent>();
+            auto& transform = entity.GetTransform();
 
-				glm::mat4 transformMatrix = transform.WorldSpaceTransformMatrix * 
-											glm::translate(glm::mat4(1.0f), position) *
-											glm::scale(glm::mat4(1.0f), size);
+            constexpr glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
+            constexpr float thickness = 0.02f;
 
-				BatchRenderer2D::AddCircle(transformMatrix, color, thickness, -1);
-			}
-		}
-	}
+            float ySize = capsuleCollider.Size.x > capsuleCollider.Size.y ? capsuleCollider.Size.x : capsuleCollider.Size.y;
+            glm::vec3 const size = { capsuleCollider.Size.x, ySize, 1.0f };
+            glm::vec3 const position = { capsuleCollider.Offset.x, capsuleCollider.Offset.y, 1.0f };
+
+            glm::mat4 transformMatrix = transform.WorldSpaceTransformMatrix * glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), size);
+
+            BatchRenderer2D::AddCircle(transformMatrix, color, thickness, -1);
+        }
+    }
+}
+
 }

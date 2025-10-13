@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Core/Layer.h"
+#include "LibCore/Layer.h"
+#include "LibCore/Event.h"
 
 #include "Events/ApplicationEvent.h"
 
 namespace TerranEngine 
 {
-	class ImGuiLayer final : public Layer
+	class ImGuiLayer final : public Terran::Core::Layer
 	{
 	public:
 		ImGuiLayer();
@@ -15,7 +16,7 @@ namespace TerranEngine
 		void OnAttach() override;
 		void OnDetach() override;
 
-		void OnEvent(Event& event) override;
+		void OnEvent(Terran::Core::Event& event) override;
 
 		void BeginFrame();
 		void EndFrame();

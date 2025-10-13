@@ -1,261 +1,258 @@
- #include "trpch.h"
+#include "trpch.h"
 #include "AssetManager.h"
+#include "Asset.h"
+#include "LibCore/Base.h"
+#include "LibCore/FileUtils.h"
+#include "LibCore/Log.h"
 
+#include "AssetImporter.h"
 #include "AssetUtils.h"
-#include "AssetLoaders.h"
 
 #include "Project/Project.h"
 
 #include <yaml-cpp/yaml.h>
 
-namespace TerranEngine 
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+namespace TerranEngine {
+
+std::unordered_map<AssetHandle, Terran::Core::Shared<Asset>> AssetManager::s_LoadedAssets;
+std::map<AssetHandle, AssetInfo> AssetManager::s_AssetsInfos;
+AssetManager::AssetChangeCallbackFn AssetManager::s_ChangeCallback;
+
+static AssetInfo s_EmptyAssetInfo;
+
+void AssetManager::Initialize()
 {
-	std::unordered_map<AssetHandle, Shared<Asset>> AssetManager::s_LoadedAssets;
-	std::map<AssetHandle, AssetInfo> AssetManager::s_AssetsInfos;
-	AssetManager::AssetChangeCallbackFn AssetManager::s_ChangeCallback;
+    Terran::Core::FileSystem::SetFileSystemChangeCallback(OnFileSystemChanged);
 
-	static AssetInfo s_EmptyAssetInfo;
+    s_LoadedAssets.clear();
+    s_AssetsInfos.clear();
+    TR_CORE_INFO(TR_LOG_ASSET, "Initialized asset manager");
+}
 
-	void AssetManager::Initialize()
-	{
-		FileSystem::SetFileSystemChangeCallback(OnFileSystemChanged);
+void AssetManager::Shutdown()
+{
+    s_LoadedAssets.clear();
+    s_AssetsInfos.clear();
 
-		s_LoadedAssets.clear();
-		s_AssetsInfos.clear();
-		TR_CORE_INFO(TR_LOG_ASSET, "Initialized asset manager");
-	}
+    TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
+}
 
-	void AssetManager::Shutdown()
-	{
-		s_LoadedAssets.clear();
-		s_AssetsInfos.clear();
+AssetInfo& AssetManager::GetAssetInfoByHandle_Internal(AssetHandle const& assetID)
+{
+    if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
+        return s_AssetsInfos.at(assetID);
 
-		TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
-	}
+    return s_EmptyAssetInfo;
+}
 
-	AssetInfo& AssetManager::GetAssetInfoByHandle_Internal(const AssetHandle& assetID)
-	{
-		if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
-			return s_AssetsInfos.at(assetID);
+std::filesystem::path AssetManager::GetRelativePath(std::filesystem::path const& path)
+{
+    return std::filesystem::relative(path, Project::GetAssetPath());
+}
 
-		return s_EmptyAssetInfo;
-	}
+AssetInfo const& AssetManager::GetAssetInfoByHandle(AssetHandle assetID)
+{
+    if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
+        return s_AssetsInfos[assetID];
 
-	std::filesystem::path AssetManager::GetRelativePath(const std::filesystem::path& path)
-	{
-		return std::filesystem::relative(path, Project::GetAssetPath());
-	}
+    return s_EmptyAssetInfo;
+}
 
-	const AssetInfo& AssetManager::GetAssetInfoByHandle(AssetHandle assetID) 
-	{
-		if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
-			return s_AssetsInfos[assetID];
+AssetInfo const& AssetManager::GetAssetInfoByPath(std::filesystem::path const& assetPath)
+{
+    for (auto const& [id, assetInfo] : s_AssetsInfos) {
+        if (assetInfo.Path == assetPath)
+            return assetInfo;
+    }
 
-		return s_EmptyAssetInfo;
-	}
+    return s_EmptyAssetInfo;
+}
 
-	const AssetInfo& AssetManager::GetAssetInfoByPath(const std::filesystem::path& assetPath)
-	{
-		for (const auto& [id, assetInfo] : s_AssetsInfos)
-		{
-			if (assetInfo.Path == assetPath)
-				return assetInfo;
-		}
+AssetHandle AssetManager::ImportAsset(std::filesystem::path const& assetPath)
+{
+    std::filesystem::path path = GetRelativePath(assetPath);
+    AssetHandle assetHandle = GetAssetHandleFromPath(path);
 
-		return s_EmptyAssetInfo;
-	}
+    if (assetHandle)
+        return assetHandle;
 
-	AssetHandle AssetManager::ImportAsset(const std::filesystem::path& assetPath)
-	{
-		std::filesystem::path path = GetRelativePath(assetPath);
-		AssetHandle assetHandle = GetAssetHandleFromPath(path);
+    assetHandle = AssetHandle();
 
-		if (assetHandle)
-			return assetHandle;
+    if (assetPath.empty())
+        return AssetHandle::Invalid();
 
-		assetHandle = AssetHandle();
+    AssetType type = AssetType::None;
 
-		if (assetPath.empty()) return AssetHandle::Invalid();
+    type = AssetUtility::GetAssetTypeFromFileExtenstion(assetPath.extension());
 
-		AssetType type = AssetType::None;
+    if (type == AssetType::None)
+        return AssetHandle::Invalid();
 
-		type = AssetUtility::GetAssetTypeFromFileExtenstion(assetPath.extension());
-		
-		if (type == AssetType::None)
-			return AssetHandle::Invalid();
+    AssetInfo assetInfo;
+    assetInfo.Path = path;
+    assetInfo.Type = type;
+    assetInfo.Handle = assetHandle;
 
-		AssetInfo assetInfo;
-		assetInfo.Path = path;
-		assetInfo.Type = type;
-		assetInfo.Handle = assetHandle;
+    s_AssetsInfos[assetHandle] = assetInfo;
 
-		s_AssetsInfos[assetHandle] = assetInfo;
+    return assetHandle;
+}
 
-		return assetHandle;
-	}
+void AssetManager::WriteAssetInfosToFile()
+{
+    YAML::Emitter out;
 
-	void AssetManager::WriteAssetInfosToFile()
-	{
-		YAML::Emitter out;
+    out << YAML::BeginMap;
+    out << YAML::Key << "AssetInfos" << YAML::Value << YAML::BeginSeq;
 
-		out << YAML::BeginMap;
-		out << YAML::Key << "AssetInfos" << YAML::Value << YAML::BeginSeq;
+    for (auto const& [assetID, assetInfo] : s_AssetsInfos) {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.Handle);
+        out << YAML::Key << "Type" << YAML::Value << (uint32_t)assetInfo.Type;
+        out << YAML::Key << "Path" << YAML::Value << assetInfo.Path.string();
+        out << YAML::EndMap;
+    }
 
-		for (const auto& [assetID, assetInfo] : s_AssetsInfos) 
-		{
-			out << YAML::BeginMap;
-			out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.Handle);
-			out << YAML::Key << "Type" << YAML::Value << (uint32_t)assetInfo.Type;
-			out << YAML::Key << "Path" << YAML::Value << assetInfo.Path.string();
-			out << YAML::EndMap;
-		}
+    out << YAML::EndSeq;
 
-		out << YAML::EndSeq;
+    out << YAML::EndMap;
 
-		out << YAML::EndMap;
+    std::ofstream ofs(Project::GetAssetInfoDBPath());
+    ofs << out.c_str();
+}
 
-		std::ofstream ofs(Project::GetAssetInfoDBPath());
-		ofs << out.c_str();
-	}
+void AssetManager::LoadAssetInfos()
+{
+    YAML::Node node;
 
-	void AssetManager::LoadAssetInfos()
-	{
-		YAML::Node node;
+    try {
+        std::filesystem::path assetInfoPath = Project::GetAssetInfoDBPath();
+        node = YAML::LoadFile(assetInfoPath.string());
+    } catch (YAML::Exception const& e) {
+        TR_CORE_ERROR(TR_LOG_ASSET, e.what());
+        return;
+    }
 
-		try 
-		{
-			std::filesystem::path assetInfoPath = Project::GetAssetInfoDBPath();
-			node = YAML::LoadFile(assetInfoPath.string());
-		}
-		catch (const YAML::Exception& e) 
-		{
-			TR_CORE_ERROR(TR_LOG_ASSET, e.what());
-			return;
-		}
-		
-		try 
-		{
-			auto assetInfos = node["AssetInfos"];
-			if (assetInfos)
-			{
-				for (const auto& assetInfo : assetInfos)
-				{
-					AssetInfo info;
+    try {
+        auto assetInfos = node["AssetInfos"];
+        if (assetInfos) {
+            for (auto const& assetInfo : assetInfos) {
+                AssetInfo info;
 
-					AssetHandle assetHandle = AssetHandle::FromString(assetInfo["Asset"].as<std::string>());
+                AssetHandle assetHandle = AssetHandle::FromString(assetInfo["Asset"].as<std::string>());
 
-					info.Type = (AssetType)assetInfo["Type"].as<uint32_t>();
-					info.Path = assetInfo["Path"].as<std::string>();
-					info.Handle = assetHandle;
+                info.Type = (AssetType)assetInfo["Type"].as<uint32_t>();
+                info.Path = assetInfo["Path"].as<std::string>();
+                info.Handle = assetHandle;
 
-					if (!FileExists(info.Path) || info.Path.empty()) continue;
+                if (!FileExists(info.Path) || info.Path.empty())
+                    continue;
 
-					s_AssetsInfos[assetHandle] = info;
+                s_AssetsInfos[assetHandle] = info;
+            }
+        }
+    } catch (YAML::BadSubscript const& e) {
+        TR_CORE_ERROR(TR_LOG_ASSET, e.what());
+        return;
+    }
+}
 
-				}
-			}
-		}
-		catch (const YAML::BadSubscript& e)
-		{
-			TR_CORE_ERROR(TR_LOG_ASSET, e.what());
-			return;
-		}
-	}
+void AssetManager::ReloadAssetByHandle(AssetHandle assetID)
+{
+    AssetInfo const& info = GetAssetInfoByHandle(assetID);
+    if (s_LoadedAssets.find(assetID) == s_LoadedAssets.end()) {
+        TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
+        Terran::Core::Shared<Asset> asset;
+        AssetImporter::Load(info, asset);
+        return;
+    }
+    Terran::Core::Shared<Asset>& asset = s_LoadedAssets.at(assetID);
+    AssetImporter::Load(info, asset);
+}
 
-	void AssetManager::ReloadAssetByHandle(AssetHandle assetID) 
-	{
-		const AssetInfo& info = GetAssetInfoByHandle(assetID);
-		if (s_LoadedAssets.find(assetID) == s_LoadedAssets.end()) 
-		{
-			TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
-			Shared<Asset> asset;
-			AssetImporter::Load(info, asset);
-			return;
-		}
-		Shared<Asset>& asset = s_LoadedAssets.at(assetID);
-		AssetImporter::Load(info, asset);
-	}
+void AssetManager::OnFileSystemChanged(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents)
+{
+    if (s_ChangeCallback)
+        s_ChangeCallback(fileSystemEvents);
 
-	void AssetManager::OnFileSystemChanged(const std::vector<FileSystemChangeEvent>& fileSystemEvents)
-	{
-		if (s_ChangeCallback)
-			s_ChangeCallback(fileSystemEvents);
+    for (auto e : fileSystemEvents) {
+        if (std::filesystem::is_directory(e.FileName))
+            continue;
 
-		for (auto e : fileSystemEvents)
-		{
-			if (std::filesystem::is_directory(e.FileName)) continue;
+        switch (e.Action) {
+        case Terran::Core::FileAction::Removed: {
+            OnAssetRemoved(GetAssetHandleFromPath(e.FileName));
+            break;
+        }
+        case Terran::Core::FileAction::Renamed: {
+            AssetType oldType = AssetUtility::GetAssetTypeFromFileExtenstion(e.OldFileName.extension());
+            AssetType newType = AssetUtility::GetAssetTypeFromFileExtenstion(e.FileName.extension());
 
-			switch (e.Action)
-			{
-			case FileAction::Removed: 
-			{
-				OnAssetRemoved(GetAssetHandleFromPath(e.FileName));
-				break;
-			}
-			case FileAction::Renamed: 
-			{
-				AssetType oldType = AssetUtility::GetAssetTypeFromFileExtenstion(e.OldFileName.extension());
-				AssetType newType = AssetUtility::GetAssetTypeFromFileExtenstion(e.FileName.extension());
+            if ((oldType == AssetType::None && newType != AssetType::None) || (oldType != AssetType::None && newType != AssetType::None && newType != oldType))
+                ImportAsset(e.FileName);
+            else
+                OnAssetRenamed(GetAssetHandleFromPath(e.OldFileName), e.FileName);
+            break;
+        }
+        case Terran::Core::FileAction::Modified: {
+            AssetInfo info = GetAssetInfoByPath(e.FileName);
 
-				if ((oldType == AssetType::None && newType != AssetType::None) ||
-					(oldType != AssetType::None && newType != AssetType::None && newType != oldType))
-					ImportAsset(e.FileName);
-				else
-					OnAssetRenamed(GetAssetHandleFromPath(e.OldFileName), e.FileName);
-				break;
-			}
-			case FileAction::Modified: 
-			{
-				AssetInfo info = GetAssetInfoByPath(e.FileName);
+            if (info)
+                ReloadAssetByHandle(info.Handle);
 
-				if(info)
-					ReloadAssetByHandle(info.Handle);
+            break;
+        }
+        }
+    }
+}
 
-				break;
-			}
-			}
-		}
-	}
+AssetHandle AssetManager::GetAssetHandleFromPath(std::filesystem::path const& assetPath)
+{
+    for (auto const& [assetID, assetInfo] : s_AssetsInfos) {
+        if (assetInfo.Path == assetPath)
+            return assetID;
+    }
 
-	AssetHandle AssetManager::GetAssetHandleFromPath(const std::filesystem::path& assetPath)
-	{
-		for (const auto& [assetID, assetInfo] : s_AssetsInfos)
-		{
-			if (assetInfo.Path == assetPath)
-				return assetID;
-		}
+    return AssetHandle::Invalid();
+}
 
-		return AssetHandle::Invalid();
-	}
+bool AssetManager::FileExists(std::filesystem::path const& path)
+{
+    return std::filesystem::exists(GetFileSystemPath(path));
+}
 
-	bool AssetManager::FileExists(const std::filesystem::path& path) 
-	{
-		return std::filesystem::exists(GetFileSystemPath(path));
-	}
+std::filesystem::path AssetManager::GetFileSystemPath(std::filesystem::path const& path)
+{
+    return Project::GetAssetPath() / path;
+}
 
-	std::filesystem::path AssetManager::GetFileSystemPath(const std::filesystem::path& path)
-	{
-		return Project::GetAssetPath() / path;
-	}
+void AssetManager::OnAssetRemoved(AssetHandle assetID)
+{
+    if (s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
+        s_AssetsInfos.erase(assetID);
 
-	void AssetManager::OnAssetRemoved(AssetHandle assetID)
-	{
-		if(s_AssetsInfos.find(assetID) != s_AssetsInfos.end())
-			s_AssetsInfos.erase(assetID);
+    if (s_LoadedAssets.find(assetID) != s_LoadedAssets.end())
+        s_LoadedAssets.erase(assetID);
 
-		if (s_LoadedAssets.find(assetID) != s_LoadedAssets.end())
-			s_LoadedAssets.erase(assetID);
+    WriteAssetInfosToFile();
+}
 
-		WriteAssetInfosToFile();
-	}
+void AssetManager::OnAssetRenamed(AssetHandle assetID, std::filesystem::path const& newFileName)
+{
+    AssetInfo& info = GetAssetInfoByHandle_Internal(assetID);
 
-	void AssetManager::OnAssetRenamed(AssetHandle assetID, const std::filesystem::path& newFileName)
-	{
-		AssetInfo& info = GetAssetInfoByHandle_Internal(assetID);
+    if (info != s_EmptyAssetInfo)
+        info.Path = newFileName;
 
-		if (info != s_EmptyAssetInfo)
-			info.Path = newFileName;
+    WriteAssetInfosToFile();
+}
 
-		WriteAssetInfosToFile();
-	}
 }
