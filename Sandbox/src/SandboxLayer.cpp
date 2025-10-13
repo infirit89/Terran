@@ -3,81 +3,75 @@
 
 #include "SandboxLayer.h"
 
-#include <imgui.h>
-#include <glm/mat4x4.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/mat4x4.hpp>
+#include <imgui.h>
 
 #include <math.h>
 
 #include "Graphics/CommandQueue.h"
 
-namespace TerranEngine 
+namespace TerranEngine {
+
+static void TestFunc()
 {
-	static void TestFunc() 
-	{
-		for (size_t i = 0; i < 100; i++)
-			TR_CLIENT_TRACE(i * (i + i));
+    for (size_t i = 0; i < 100; i++)
+        TR_CLIENT_TRACE(i * (i + i));
 
-		TR_CLIENT_ERROR("Error: something");
+    TR_CLIENT_ERROR("Error: something");
 
-		TR_CLIENT_WARN("Some warning");
-	}
+    TR_CLIENT_WARN("Some warning");
+}
 
-	SandboxLayer::SandboxLayer()
-		: Layer("Sandbox Layer")
-	{
-		Shared<CommandQueue> commandQueue = CreateShared<CommandQueue>();
+SandboxLayer::SandboxLayer()
+    : Layer("Sandbox Layer")
+{
+    Terran::Core::Shared<CommandQueue> commandQueue = Terran::Core::CreateShared<CommandQueue>();
 
-		int test = 0;
-		commandQueue->Submit([test]() 
-		{
-			TR_CLIENT_TRACE("test {0}", test);
-		});
+    int test = 0;
+    commandQueue->Submit([test]() {
+        TR_CLIENT_TRACE("test {0}", test);
+    });
 
-		test++;
-		commandQueue->Submit([test]()
-		{
-			TR_CLIENT_TRACE("test {0}", test);
-		});
+    test++;
+    commandQueue->Submit([test]() {
+        TR_CLIENT_TRACE("test {0}", test);
+    });
 
-		test += 10;
-		commandQueue->Submit([test]()
-		{
-			TR_CLIENT_TRACE("test {0}", test);
-		});
+    test += 10;
+    commandQueue->Submit([test]() {
+        TR_CLIENT_TRACE("test {0}", test);
+    });
 
-		test--;
-		auto fn = [](int test)
-		{
-			while (test <= 100)
-				TR_CLIENT_TRACE(test++);
+    test--;
+    auto fn = [](int test) {
+        while (test <= 100)
+            TR_CLIENT_TRACE(test++);
 
-			while (test >= 0)
-				TR_CLIENT_INFO(test--);
-		};
+        while (test >= 0)
+            TR_CLIENT_INFO(test--);
+    };
 
-		commandQueue->Submit([test]()
-		{
-			TR_CLIENT_TRACE("test {0}", test);
+    commandQueue->Submit([test]() {
+        TR_CLIENT_TRACE("test {0}", test);
 
-			for (size_t i = 0; i < 1000; i++)
-				TestFunc();
-		});
+        for (size_t i = 0; i < 1000; i++)
+            TestFunc();
+    });
 
-		test += 40;
-		commandQueue->Submit([test, fn]()
-		{
-			TR_CLIENT_TRACE("test {0}", test);
-			fn(test);
-		});
+    test += 40;
+    commandQueue->Submit([test, fn]() {
+        TR_CLIENT_TRACE("test {0}", test);
+        fn(test);
+    });
 
-		commandQueue->Execute();
+    commandQueue->Execute();
 
-		//Shared<Shader> shader = CreateShared<Shader>("Resources/Shaders/TestShader.glsl");
+    // Shared<Shader> shader = CreateShared<Shader>("Resources/Shaders/TestShader.glsl");
 
-		//m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
-		//m_Framebuffer = CreateShared<Framebuffer>();
+    // m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+    // m_Framebuffer = CreateShared<Framebuffer>();
 #if 0
 		// id test code
 		for (int i = 0; i < 9000; i++)
@@ -94,11 +88,11 @@ namespace TerranEngine
 		}
 #endif
 
-		/*SceneManager::SetCurrentScene(CreateShared<Scene>());
+    /*SceneManager::SetCurrentScene(CreateShared<Scene>());
 
-		Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test");
+    Entity entity = SceneManager::GetCurrentScene()->FindEntityWithName("Test");
 
-		entity.GetComponent<TransformComponent>();*/
+    entity.GetComponent<TransformComponent>();*/
 
 #if 0
 		m_Renderer = CreateUnique<BatchRenderer2D>(20000);
@@ -140,36 +134,36 @@ namespace TerranEngine
 		m_SSerializer = SceneSerializer(m_Scene);
 		m_Font = CreateShared<Font>("res/OpenSans-Bold.ttf", 40);
 #endif
-		//Shared<Scene> newScene = CreateShared<Scene>();
+    // Shared<Scene> newScene = CreateShared<Scene>();
 
-		//SceneSerializer serializer(newScene);
-		//serializer.DesirializeJson("");
+    // SceneSerializer serializer(newScene);
+    // serializer.DesirializeJson("");
 
-		//m_Scene = newScene;
+    // m_Scene = newScene;
 
-		//TR_TRACE("{0}, {1}, {2}", m_Transform.Scale.x, m_Transform.Scale.y, m_Transform.Scale.z);
-	}
+    // TR_TRACE("{0}, {1}, {2}", m_Transform.Scale.x, m_Transform.Scale.y, m_Transform.Scale.z);
+}
 
-	void SandboxLayer::OnAttach()
-	{
-		//Project::Init("", "");
-		//ScriptEngine::Initialize();
-	}
+void SandboxLayer::OnAttach()
+{
+    // Project::Init("", "");
+    // ScriptEngine::Initialize();
+}
 
-	void SandboxLayer::OnDetach()
-	{
-		/*Project::Uninitialize();
-		ScriptEngine::Shutdown();*/
-	}
+void SandboxLayer::OnDetach()
+{
+    /*Project::Uninitialize();
+    ScriptEngine::Shutdown();*/
+}
 
-	void SandboxLayer::Update(Time& time)
-	{
+void SandboxLayer::Update(Terran::Core::Time& time)
+{
 
-		/* Bit fat fucking note
-		* a lot here is test code
-		* the framebuffer object doesn't work goddamn properly
-		* 1. blending is just fucking gone
-		*/ 
+    /* Bit fat fucking note
+     * a lot here is test code
+     * the framebuffer object doesn't work goddamn properly
+     * 1. blending is just fucking gone
+     */
 
 #if 0
 		if (m_ViewportSize.x != m_Renderer->GetFramebuffer()->Width ||
@@ -229,18 +223,18 @@ namespace TerranEngine
 
 		BatchRenderer2D::Get()->EndFrame();
 #endif
-	}
+}
 
-	void SandboxLayer::OnEvent(Event& event)
-	{
-		EventDispatcher dispather(event);
-		dispather.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SandboxLayer::KeyPressed));
-		dispather.Dispatch<WindowResizeEvent>(TR_EVENT_BIND_FN(SandboxLayer::OnWindowResize));
-		dispather.Dispatch<MouseScrollEvent>(TR_EVENT_BIND_FN(SandboxLayer::OnMouseScroll));
-	}
+void SandboxLayer::OnEvent(Terran::Core::Event& event)
+{
+    Terran::Core::EventDispatcher dispather(event);
+    dispather.Dispatch<KeyPressedEvent>(TR_EVENT_BIND_FN(SandboxLayer::KeyPressed));
+    dispather.Dispatch<WindowResizeEvent>(TR_EVENT_BIND_FN(SandboxLayer::OnWindowResize));
+    dispather.Dispatch<MouseScrollEvent>(TR_EVENT_BIND_FN(SandboxLayer::OnMouseScroll));
+}
 
-	void SandboxLayer::ImGuiRender()
-	{
+void SandboxLayer::ImGuiRender()
+{
 #if 0
 		static bool rendererStatsOpen = true;
 		static bool viewPortOpen = true;
@@ -300,11 +294,10 @@ namespace TerranEngine
 			ImGui::End();
 		}
 #endif
+}
 
-	}
-
-	bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
-	{
+bool SandboxLayer::KeyPressed(KeyPressedEvent& event)
+{
 #if 0
 
 		if (event.GetKeyCode() == Key::R)
@@ -344,27 +337,27 @@ namespace TerranEngine
 			break;
 		}
 
-
 #endif
-		return false;
-	}
+    return false;
+}
 
-	bool SandboxLayer::OnWindowResize(WindowResizeEvent& event) 
-	{
-		return false;
-	}
+bool SandboxLayer::OnWindowResize(WindowResizeEvent& event)
+{
+    return false;
+}
 
-	bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
-	{
-		m_ZoomLevel += event.GetYOffset() * 0.005f;
-		
-		m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
+bool SandboxLayer::OnMouseScroll(MouseScrollEvent& event)
+{
+    m_ZoomLevel += event.GetYOffset() * 0.005f;
+
+    m_Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 
 #if 0
 		auto& camComp = m_Scene->GetPrimaryCamera().GetComponent<CameraComponent>();
 		camComp.Camera.SetViewport(m_ViewportSize.x * m_ZoomLevel, m_ViewportSize.y * m_ZoomLevel);
 #endif
 
-		return false;
-	}
+    return false;
+}
+
 }
