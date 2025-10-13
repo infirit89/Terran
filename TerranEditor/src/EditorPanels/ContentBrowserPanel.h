@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/Base.h"
-#include "Core/FileUtils.h"
 #include "Events/KeyboardEvent.h"
+#include "LibCore/Base.h"
+#include "LibCore/FileUtils.h"
 
 #include "Graphics/Texture.h"
 
@@ -14,150 +14,146 @@
 #include <queue>
 #include <stack>
 
-namespace TerranEditor 
-{
-	using namespace TerranEngine;
+namespace TerranEditor {
 
-	struct DirectoryInfo 
-	{
-		UUID Handle;
-		std::filesystem::path Path;
-		std::unordered_map<UUID, Shared<DirectoryInfo>> Subdirectories;
-		Shared<DirectoryInfo> Parent;
+using namespace TerranEngine;
 
-		// TODO: change assets to be a hash set
-		std::vector<UUID> Assets;
-	};
+struct DirectoryInfo {
+    Terran::Core::UUID Handle;
+    std::filesystem::path Path;
+    std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<DirectoryInfo>> Subdirectories;
+    Terran::Core::Shared<DirectoryInfo> Parent;
 
-	class ContentBrowserItemList 
-	{
-	using Iterator = std::vector<TerranEngine::Shared<ContentBrowserItem>>::iterator;
-	public:
-		Iterator Find(const UUID& handle) 
-		{
-			return std::find_if(Items.begin(), Items.end(), [&handle](Shared<ContentBrowserItem> item)
-			{
-				return item->GetHandle() == handle;
-			});
-		}
+    // TODO: change assets to be a hash set
+    std::vector<Terran::Core::UUID> Assets;
+};
 
-		Iterator Find(TerranEngine::Shared<ContentBrowserItem> item) 
-		{ 
-			return std::find(Items.begin(), Items.end(), item);
-		}
+class ContentBrowserItemList {
+    using Iterator = std::vector<Terran::Core::Shared<ContentBrowserItem>>::iterator;
 
-		void Erase(TerranEngine::Shared<ContentBrowserItem> item)
-		{
-			auto itemIt = Find(item);
-			if (itemIt != Items.end())
-				Items.erase(itemIt);
-		}
+public:
+    Iterator Find(Terran::Core::UUID const& handle)
+    {
+        return std::find_if(Items.begin(), Items.end(), [&handle](Terran::Core::Shared<ContentBrowserItem> item) {
+            return item->GetHandle() == handle;
+        });
+    }
 
-		void Erase(const UUID& id) 
-		{
-			auto itemIt = Find(id);
-			if (itemIt != Items.end())
-				Items.erase(itemIt);
-		}
+    Iterator Find(Terran::Core::Shared<ContentBrowserItem> item)
+    {
+        return std::find(Items.begin(), Items.end(), item);
+    }
 
-		void AddDirectory(Shared<DirectoryInfo> directory) 
-		{
-			if(Find(directory->Handle) == Items.end())
-				Items.push_back(CreateShared<ContentBrowserDirectory>(directory));
-		}
+    void Erase(Terran::Core::Shared<ContentBrowserItem> item)
+    {
+        auto itemIt = Find(item);
+        if (itemIt != Items.end())
+            Items.erase(itemIt);
+    }
 
-		void AddAsset(const AssetInfo& assetInfo, Shared<Texture> texture) 
-		{
-			if (Find(assetInfo.Handle) == Items.end())
-				Items.push_back(CreateShared<ContentBrowserAsset>(assetInfo, texture));
-		}
+    void Erase(Terran::Core::UUID const& id)
+    {
+        auto itemIt = Find(id);
+        if (itemIt != Items.end())
+            Items.erase(itemIt);
+    }
 
-		Iterator begin() { return Items.begin(); }
-		Iterator end() { return Items.end(); }
+    void AddDirectory(Terran::Core::Shared<DirectoryInfo> directory)
+    {
+        if (Find(directory->Handle) == Items.end())
+            Items.push_back(Terran::Core::CreateShared<ContentBrowserDirectory>(directory));
+    }
 
-		std::vector<TerranEngine::Shared<ContentBrowserItem>> Items;
-	};
+    void AddAsset(AssetInfo const& assetInfo, Terran::Core::Shared<Texture> texture)
+    {
+        if (Find(assetInfo.Handle) == Items.end())
+            Items.push_back(Terran::Core::CreateShared<ContentBrowserAsset>(assetInfo, texture));
+    }
 
-	class ContentPanel : public EditorPanel
-	{
-	public:
-		using OnItemClickedFn = std::function<void(const Shared<ContentBrowserItem>&)>;
-		ContentPanel();
-		~ContentPanel() = default;
+    Iterator begin() { return Items.begin(); }
+    Iterator end() { return Items.end(); }
 
-		virtual void OnRender() override;
-		virtual void OnEvent(TerranEngine::Event& event) override;
+    std::vector<Terran::Core::Shared<ContentBrowserItem>> Items;
+};
 
-		virtual void OnProjectChanged(const std::filesystem::path& projectPath) override;
-		virtual std::string_view GetName() override { return "Content"; }
+class ContentPanel : public EditorPanel {
+public:
+    using OnItemClickedFn = std::function<void(Terran::Core::Shared<ContentBrowserItem> const&)>;
+    ContentPanel();
+    ~ContentPanel() = default;
 
-		void SetOnItemClickCallback(const OnItemClickedFn& itemClickFn) { m_OnItemClickedFn = itemClickFn; }
+    virtual void OnRender() override;
+    virtual void OnEvent(Terran::Core::Event& event) override;
 
-	private:
-		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
-		bool DirectoryExists(const Shared<DirectoryInfo>& directory);
-		
-		void RenderTopBar();
-		void RenderSideBar();
-		void RenderDirectoryTree(Shared<DirectoryInfo> parent);
+    virtual void OnProjectChanged(std::filesystem::path const& projectPath) override;
+    virtual std::string_view GetName() override { return "Content"; }
 
-		template<typename T>
-		Shared<T> CreateAsset(const std::string& name) 
-		{
-			return CreateAssetInDirectory<T>(name, m_CurrentDirectory->Path);
-		}
+    void SetOnItemClickCallback(OnItemClickedFn const& itemClickFn) { m_OnItemClickedFn = itemClickFn; }
 
-		template<typename T>
-		Shared<T> CreateAssetInDirectory(const std::string& name, const std::filesystem::path& directory)
-		{
-			std::filesystem::path filepath = directory / name;
-			return AssetManager::CreateNewAsset<T>(filepath);
-		}
+private:
+    bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
+    bool DirectoryExists(Terran::Core::Shared<DirectoryInfo> const& directory);
 
-		void CreateNewDirectory(const std::string& name, const std::filesystem::path parent)
-		{
-			std::filesystem::path directoryPath = parent / name;
-			
-			int currentFileNumber = 2;
-			while (AssetManager::FileExists(directoryPath)) 
-			{
-				directoryPath = (parent / name).string() +
-										" (" + std::to_string(currentFileNumber) + ")";
-				currentFileNumber++;
-			}
+    void RenderTopBar();
+    void RenderSideBar();
+    void RenderDirectoryTree(Terran::Core::Shared<DirectoryInfo> parent);
 
-			std::filesystem::create_directory(AssetManager::GetFileSystemPath(directoryPath));
-		}
+    template<typename T>
+    Terran::Core::Shared<T> CreateAsset(std::string const& name)
+    {
+        return CreateAssetInDirectory<T>(name, m_CurrentDirectory->Path);
+    }
 
-		void Refresh();
-		UUID ProcessDirectory(const std::filesystem::path& directoryPath, Shared<DirectoryInfo> parent = nullptr);
-		Shared<DirectoryInfo> GetDirectory(const std::filesystem::path& directoryPath);
-		Shared<DirectoryInfo> GetDirectory(const UUID& handle);
-		void MoveSelectedItemsToDirectory(const Shared<DirectoryInfo>& directory);
-		void ChangeDirectory(const Shared<DirectoryInfo>& directory);
-		void OnFileSystemChanged(const std::vector<TerranEngine::FileSystemChangeEvent>& events);
-		void FillBreadCrumbs();
+    template<typename T>
+    Terran::Core::Shared<T> CreateAssetInDirectory(std::string const& name, std::filesystem::path const& directory)
+    {
+        std::filesystem::path filepath = directory / name;
+        return AssetManager::CreateNewAsset<T>(filepath);
+    }
 
-		// returns the id of the directory it removed
-		UUID RemoveDirectoryInfo(Shared<DirectoryInfo> directory);
-		void SortItems();
+    void CreateNewDirectory(std::string const& name, std::filesystem::path const parent)
+    {
+        std::filesystem::path directoryPath = parent / name;
 
-		void ChangeForwardDirectory();
-		void ChangeBackwardDirectory();
-		
-	private:
-		Shared<DirectoryInfo> m_CurrentDirectory;
-		Shared<DirectoryInfo> m_PreviousDirectory;
-		Shared<DirectoryInfo> m_RootDirectory;
-		std::stack<Shared<DirectoryInfo>> m_NextDirectoryStack;
-		std::vector<Shared<DirectoryInfo>> m_BreadCrumbs;
-		std::unordered_map<UUID, Shared<DirectoryInfo>> m_Directories;
-		ContentBrowserItemList m_CurrentItems;
-		std::function<void(const std::string&)> m_CreateAsset;
-		std::filesystem::path m_NewAssetName;
-		OnItemClickedFn m_OnItemClickedFn;
+        int currentFileNumber = 2;
+        while (AssetManager::FileExists(directoryPath)) {
+            directoryPath = (parent / name).string() + " (" + std::to_string(currentFileNumber) + ")";
+            currentFileNumber++;
+        }
 
-		template<typename AssetType>
-		friend void DrawNewAssetMenu(ContentPanel* panel, const char* name, const char* fileName, bool& openRenamePopup);
-	};
+        std::filesystem::create_directory(AssetManager::GetFileSystemPath(directoryPath));
+    }
+
+    void Refresh();
+    Terran::Core::UUID ProcessDirectory(std::filesystem::path const& directoryPath, Terran::Core::Shared<DirectoryInfo> parent = nullptr);
+    Terran::Core::Shared<DirectoryInfo> GetDirectory(std::filesystem::path const& directoryPath);
+    Terran::Core::Shared<DirectoryInfo> GetDirectory(Terran::Core::UUID const& handle);
+    void MoveSelectedItemsToDirectory(Terran::Core::Shared<DirectoryInfo> const& directory);
+    void ChangeDirectory(Terran::Core::Shared<DirectoryInfo> const& directory);
+    void OnFileSystemChanged(std::vector<Terran::Core::FileSystemChangeEvent> const& events);
+    void FillBreadCrumbs();
+
+    // returns the id of the directory it removed
+    Terran::Core::UUID RemoveDirectoryInfo(Terran::Core::Shared<DirectoryInfo> directory);
+    void SortItems();
+
+    void ChangeForwardDirectory();
+    void ChangeBackwardDirectory();
+
+private:
+    Terran::Core::Shared<DirectoryInfo> m_CurrentDirectory;
+    Terran::Core::Shared<DirectoryInfo> m_PreviousDirectory;
+    Terran::Core::Shared<DirectoryInfo> m_RootDirectory;
+    std::stack<Terran::Core::Shared<DirectoryInfo>> m_NextDirectoryStack;
+    std::vector<Terran::Core::Shared<DirectoryInfo>> m_BreadCrumbs;
+    std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<DirectoryInfo>> m_Directories;
+    ContentBrowserItemList m_CurrentItems;
+    std::function<void(std::string const&)> m_CreateAsset;
+    std::filesystem::path m_NewAssetName;
+    OnItemClickedFn m_OnItemClickedFn;
+
+    template<typename AssetType>
+    friend void DrawNewAssetMenu(ContentPanel* panel, char const* name, char const* fileName, bool& openRenamePopup);
+};
+
 }

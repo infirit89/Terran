@@ -1,98 +1,94 @@
 #pragma once
 
-#include "Core/Base.h"
-#include "Core/UUID.h"
+#include "LibCore/Base.h"
+#include "LibCore/UUID.h"
 
 #include "Graphics/Texture.h"
 
 #include "Asset/AssetManager.h"
 
-#include <string>
 #include <filesystem>
+#include <string>
 
-namespace TerranEditor 
-{
-	enum class ItemAction
-	{
-		None = 0,
-		NavigateTo,
-		Activate,
-		Select,
-		StartRename,
-		Renamed,
-		MoveTo
-	};
+namespace TerranEditor {
 
-	enum class ItemType
-	{
-		Directory = 0,
-		File
-	};
+enum class ItemAction {
+    None = 0,
+    NavigateTo,
+    Activate,
+    Select,
+    StartRename,
+    Renamed,
+    MoveTo
+};
 
-	class ContentBrowserItem
-	{
-	public:
-		ContentBrowserItem(const std::string& name, const TerranEngine::UUID& handle, TerranEngine::Shared<TerranEngine::Texture> icon, ItemType type);
-		virtual ~ContentBrowserItem() = default;
+enum class ItemType {
+    Directory = 0,
+    File
+};
 
-		void BeginRender();
-		void EndRender();
-		ItemAction OnRender();
-		virtual void Move(const std::filesystem::path& newPath) = 0;
+class ContentBrowserItem {
+public:
+    ContentBrowserItem(std::string const& name, Terran::Core::UUID const& handle, Terran::Core::Shared<TerranEngine::Texture> icon, ItemType type);
+    virtual ~ContentBrowserItem() = default;
 
-		TerranEngine::UUID GetHandle() { return m_Handle; }
-		const std::string& GetName() { return m_Name; }
-		ItemType GetType() { return m_Type; }
+    void BeginRender();
+    void EndRender();
+    ItemAction OnRender();
+    virtual void Move(std::filesystem::path const& newPath) = 0;
 
-		void StartRename();
-		void StopRename();
+    Terran::Core::UUID GetHandle() { return m_Handle; }
+    std::string const& GetName() { return m_Name; }
+    ItemType GetType() { return m_Type; }
 
-	private:
-		virtual ItemAction OnActivate() = 0;
-		virtual ItemAction OnRename(const std::string& newName) = 0;
+    void StartRename();
+    void StopRename();
 
-	private:
-		std::string m_Name;
-		TerranEngine::Shared<TerranEngine::Texture> m_Icon;
-		TerranEngine::UUID m_Handle;
-		ItemType m_Type;
-		bool m_IsRenaming = false;
+private:
+    virtual ItemAction OnActivate() = 0;
+    virtual ItemAction OnRename(std::string const& newName) = 0;
 
-		friend class ContentPanel;
-	};
+private:
+    std::string m_Name;
+    Terran::Core::Shared<TerranEngine::Texture> m_Icon;
+    Terran::Core::UUID m_Handle;
+    ItemType m_Type;
+    bool m_IsRenaming = false;
 
-	struct DirectoryInfo;
-	class ContentBrowserDirectory : public ContentBrowserItem
-	{
-	public:
-		ContentBrowserDirectory(const TerranEngine::Shared<DirectoryInfo>& directoryInfo);
-		virtual ~ContentBrowserDirectory() override = default;
+    friend class ContentPanel;
+};
 
-		virtual void Move(const std::filesystem::path& newPath) override;
-		const TerranEngine::Shared<DirectoryInfo>& GetDirectoryInfo() { return m_DirectoryInfo; }
+struct DirectoryInfo;
+class ContentBrowserDirectory : public ContentBrowserItem {
+public:
+    ContentBrowserDirectory(Terran::Core::Shared<DirectoryInfo> const& directoryInfo);
+    virtual ~ContentBrowserDirectory() override = default;
 
-	private:
-		virtual ItemAction OnActivate() override;
-		virtual ItemAction OnRename(const std::string& newName) override;
+    virtual void Move(std::filesystem::path const& newPath) override;
+    Terran::Core::Shared<DirectoryInfo> const& GetDirectoryInfo() { return m_DirectoryInfo; }
 
-	private:
-		TerranEngine::Shared<DirectoryInfo> m_DirectoryInfo;
-	};
+private:
+    virtual ItemAction OnActivate() override;
+    virtual ItemAction OnRename(std::string const& newName) override;
 
-	class ContentBrowserAsset : public ContentBrowserItem
-	{
-	public:
-		ContentBrowserAsset(const TerranEngine::AssetInfo& assetInfo, const TerranEngine::Shared<TerranEngine::Texture>& icon);
-		virtual ~ContentBrowserAsset() override = default;
+private:
+    Terran::Core::Shared<DirectoryInfo> m_DirectoryInfo;
+};
 
-		virtual void Move(const std::filesystem::path& newPath) override;
-		const TerranEngine::AssetInfo& GetAssetInfo() { return m_AssetInfo; }
+class ContentBrowserAsset : public ContentBrowserItem {
+public:
+    ContentBrowserAsset(TerranEngine::AssetInfo const& assetInfo, Terran::Core::Shared<TerranEngine::Texture> const& icon);
+    virtual ~ContentBrowserAsset() override = default;
 
-	private:
-		virtual ItemAction OnActivate() override;
-		virtual ItemAction OnRename(const std::string& newName) override;
+    virtual void Move(std::filesystem::path const& newPath) override;
+    TerranEngine::AssetInfo const& GetAssetInfo() { return m_AssetInfo; }
 
-	private:
-		TerranEngine::AssetInfo m_AssetInfo;
-	};
+private:
+    virtual ItemAction OnActivate() override;
+    virtual ItemAction OnRename(std::string const& newName) override;
+
+private:
+    TerranEngine::AssetInfo m_AssetInfo;
+};
+
 }

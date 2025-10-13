@@ -1,95 +1,99 @@
 #pragma once
 
-#include "Terran.h"
-#include "EditorPanels/PanelManager.h"
 #include "EditorPanels/ContentBrowserItem.h"
+#include "EditorPanels/PanelManager.h"
+#include "LibCore/Layer.h"
+#include "Terran.h"
 
 #include "EditorCamera.h"
 
 #include "SceneState.h"
 
-namespace TerranEditor
-{
-	using namespace TerranEngine;
+#include <string>
+#include <filesystem>
 
-	class EditorLayer : public Layer 
-	{
-	public:
-		EditorLayer(const std::string& projectPath);
+namespace TerranEditor {
 
-		void OnAttach() override;
-		void OnDetach() override;
+using namespace TerranEngine;
 
-		void Update(Time& time) override;
+class EditorLayer : public Terran::Core::Layer {
+public:
+    EditorLayer(std::string const& projectPath);
 
-		void OnEvent(Event& event) override;
-		void ImGuiRender() override;
+    void OnAttach() override;
+    void OnDetach() override;
 
-		SceneState GetSceneState() { return m_SceneState; }
+    void Update(Terran::Core::Time& time) override;
 
-		static EditorLayer* GetInstace() { return s_Instance; }
-		EditorCamera& GetEditorCamera() { return m_EditorCamera; }
+    void OnEvent(Terran::Core::Event& event) override;
+    void ImGuiRender() override;
 
-		Shared<PanelManager> GetPanelManager() { return m_PanelManager; }
-	private:
-        void OpenProject(const std::filesystem::path& projectPath);
+    SceneState GetSceneState() { return m_SceneState; }
 
-		bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
-		bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
-		bool OnGamepadConnectedEvent(GamePadConnectedEvent& gEvent);
-		bool OnGamepadDisconnectedEvent(GamePadDisconnectedEvent& gEvent);
-		
-		void SaveSceneAs();
-		void NewScene();
+    static EditorLayer* GetInstace() { return s_Instance; }
+    EditorCamera& GetEditorCamera() { return m_EditorCamera; }
 
-		void OpenScene();
-		void OpenSceneFromAssetPath(const AssetInfo& assetInfo, const glm::vec2& viewportSize);
-		
-		void SaveScene();
+    Terran::Core::Shared<PanelManager> GetPanelManager() { return m_PanelManager; }
 
-		void RenderDockspace();
+private:
+    void OpenProject(std::filesystem::path const& projectPath);
 
-		void OnScenePlay();
-		void OnSceneStop();
+    bool OnKeyPressedEvent(KeyPressedEvent& kEvent);
+    bool OnWindowCloseEvent(WindowCloseEvent& wEvent);
+    bool OnGamepadConnectedEvent(GamePadConnectedEvent& gEvent);
+    bool OnGamepadDisconnectedEvent(GamePadDisconnectedEvent& gEvent);
 
-		bool OnScriptEngineLog(ScriptEngineLogEvent& event);
+    void SaveSceneAs();
+    void NewScene();
 
-		void OnViewportSizeChanged(glm::vec2 newViewportSize);
-		bool OnSceneTransition(SceneTransitionEvent& sceneTransitionEvent);
-		void OnContentBrowserItemClicked(const Shared<ContentBrowserItem>& item);
+    void OpenScene();
+    void OpenSceneFromAssetPath(AssetInfo const& assetInfo, glm::vec2 const& viewportSize);
 
-	private:
-		EditorCamera m_EditorCamera;
+    void SaveScene();
 
-		OrthographicCamera m_Camera;
+    void RenderDockspace();
 
-		// ***** Panels *****
-		Shared<PanelManager> m_PanelManager;
-		// ******************
-		
-		Shared<Scene> m_EditorScene;
-		//Shared<Scene> m_ActiveScene;
+    void OnScenePlay();
+    void OnSceneStop();
 
-		//Shared<SceneRenderer> m_RuntimeSceneRenderer;
-		Shared<SceneRenderer> m_EditorSceneRenderer;
+    bool OnScriptEngineLog(ScriptEngineLogEvent& event);
 
-		bool m_PerformancePanelOpen = true;
-		bool m_RendererStatsPanelOpen = true;
-		bool m_PhysicsMaterial2DAssetEditorOpen = false;
+    void OnViewportSizeChanged(glm::vec2 newViewportSize);
+    bool OnSceneTransition(SceneTransitionEvent& sceneTransitionEvent);
+    void OnContentBrowserItemClicked(Terran::Core::Shared<ContentBrowserItem> const& item);
 
-		bool m_ShowColliders = false;
+private:
+    EditorCamera m_EditorCamera;
 
-		float m_Frametime = 0.0f;
-		SceneState m_SceneState = SceneState::Edit;
+    OrthographicCamera m_Camera;
 
-		std::filesystem::path m_CurrentScenePath;
-		const std::filesystem::path m_ResPath = "Resources";
-		std::filesystem::path m_ScriptAssemblyPath;
-        std::filesystem::path m_ProjectPath;
+    // ***** Panels *****
+    Terran::Core::Shared<PanelManager> m_PanelManager;
+    // ******************
 
-		glm::vec2 m_ViewportSize = { 1280.0f, 780.0f };
+    Terran::Core::Shared<Scene> m_EditorScene;
+    // Terran::Core::Shared<Scene> m_ActiveScene;
 
-		static EditorLayer* s_Instance;
-	};
+    // Terran::Core::Shared<SceneRenderer> m_RuntimeSceneRenderer;
+    Terran::Core::Shared<SceneRenderer> m_EditorSceneRenderer;
+
+    bool m_PerformancePanelOpen = true;
+    bool m_RendererStatsPanelOpen = true;
+    bool m_PhysicsMaterial2DAssetEditorOpen = false;
+
+    bool m_ShowColliders = false;
+
+    float m_Frametime = 0.0f;
+    SceneState m_SceneState = SceneState::Edit;
+
+    std::filesystem::path m_CurrentScenePath;
+    std::filesystem::path const m_ResPath = "Resources";
+    std::filesystem::path m_ScriptAssemblyPath;
+    std::filesystem::path m_ProjectPath;
+
+    glm::vec2 m_ViewportSize = { 1280.0f, 780.0f };
+
+    static EditorLayer* s_Instance;
+};
+
 }
-
