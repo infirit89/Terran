@@ -2,19 +2,19 @@
 
 #include "Project.h"
 
-namespace TerranEngine
-{
-    class ProjectSerializer final
-    {
-    public:
-        ProjectSerializer() = default;
-        ProjectSerializer(const Shared<Project>& project);
+namespace TerranEngine {
 
-        void Serialize();
-        bool Deserialize();
+class ProjectSerializer final {
+public:
+    ProjectSerializer() = default;
+    ProjectSerializer(Terran::Core::Shared<Project> const& project);
 
-    private:
-        Shared<Project> m_Project;
-        std::filesystem::path m_ProjectSettingsPath = "ProjectSettings.tstg";
-    };
+    void Serialize();
+    bool Deserialize();
+
+private:
+    Terran::Core::Shared<Project> m_Project;
+    std::filesystem::path m_ProjectSettingsPath = "ProjectSettings.tstg";
+};
+
 }

@@ -1,20 +1,23 @@
 #pragma once
 
+#include "Asset.h"
 #include "AssetLoaders.h"
+#include "LibCore/Base.h"
 
 #include <unordered_map>
 
-namespace TerranEngine 
-{
-	class AssetImporter final
-	{
-	public:
-		static void RegisterLoaders();
+namespace TerranEngine {
 
-		static void Load(const AssetInfo& assetInfo, Shared<Asset>& asset);
-		static bool Save(const AssetInfo& assetInfo, const Shared<Asset>& asset);
+class AssetImporter final {
+public:
+    static void RegisterLoaders();
 
-	private:
-		static std::unordered_map<AssetType, Shared<AssetLoader>> s_Loaders;
-	};
+    static void Load(AssetInfo const& assetInfo, Terran::Core::Shared<Asset>& asset);
+    static bool Save(AssetInfo const& assetInfo, Terran::Core::Shared<Asset> const& asset);
+
+private:
+    static std::unordered_map<AssetType, Terran::Core::Shared<AssetLoader>> s_Loaders;
+};
+
 }
+

@@ -1,69 +1,70 @@
 #pragma once
-#include "Core/UUID.h"
+#include "LibCore/UUID.h"
 
 #include <filesystem>
 
-namespace TerranEngine 
-{
-	enum class AssetType 
-	{
-		None = 0,
-		Texture2D,
-		Text,
-		ScriptFile,
-		Scene,
-		PhysicsMaterial2D
-	};
-	
-	typedef UUID AssetHandle;
+namespace TerranEngine {
 
-	struct AssetInfo 
-	{
-		AssetInfo() = default;
-		~AssetInfo() = default;
+enum class AssetType {
+    None = 0,
+    Texture2D,
+    Text,
+    ScriptFile,
+    Scene,
+    PhysicsMaterial2D
+};
 
-		bool operator==(const AssetInfo& other) const { return Path == other.Path && Type == other.Type; }
-		bool operator!=(const AssetInfo& other) const { return !((*this) == other); }
-		operator bool() const { return Path != "" && Type != AssetType::None; }
+typedef Terran::Core::UUID AssetHandle;
 
-		std::filesystem::path Path = "";
-		AssetType Type = AssetType::None;
-		AssetHandle Handle = AssetHandle::Invalid();
-	};
+struct AssetInfo {
+    AssetInfo() = default;
+    ~AssetInfo() = default;
 
-	class Asset
-	{
-	public:
-		Asset() = default;
-		virtual ~Asset() = default;
-		Asset(const AssetHandle& handle) : m_Handle(handle) {}
+    bool operator==(AssetInfo const& other) const { return Path == other.Path && Type == other.Type; }
+    bool operator!=(AssetInfo const& other) const { return !((*this) == other); }
+    operator bool() const { return Path != "" && Type != AssetType::None; }
 
-		bool IsValid() { return m_Handle.IsValid(); }
-		const AssetHandle& GetHandle() { return m_Handle; }
-		virtual AssetType GetType() const = 0;
+    std::filesystem::path Path = "";
+    AssetType Type = AssetType::None;
+    AssetHandle Handle = AssetHandle::Invalid();
+};
 
-	protected:
-		AssetHandle m_Handle;
-		friend class AssetManager;
-	};
+class Asset {
+public:
+    Asset() = default;
+    virtual ~Asset() = default;
+    Asset(AssetHandle const& handle)
+        : m_Handle(handle)
+    {
+    }
 
-#define ASSET_CLASS_TYPE(type)\
-	static AssetType GetStaticType() { return AssetType::type; }\
-	virtual AssetType GetType() const override { return GetStaticType(); }
+    bool IsValid() { return m_Handle.IsValid(); }
+    AssetHandle const& GetHandle() { return m_Handle; }
+    virtual AssetType GetType() const = 0;
 
-	class TextAsset final : public Asset 
-	{
-	public:
-		TextAsset(const std::string& text) 
-			: m_Text(text)
-		{}
-		~TextAsset() override = default;
+protected:
+    AssetHandle m_Handle;
+    friend class AssetManager;
+};
 
-		const std::string& GetText() { return m_Text; }
+#define ASSET_CLASS_TYPE(type)                                   \
+    static AssetType GetStaticType() { return AssetType::type; } \
+    virtual AssetType GetType() const override { return GetStaticType(); }
 
-		ASSET_CLASS_TYPE(Text)
+class TextAsset final : public Asset {
+public:
+    TextAsset(std::string const& text)
+        : m_Text(text)
+    {
+    }
+    ~TextAsset() override = default;
 
-	private:
-		std::string m_Text;
-	};
+    std::string const& GetText() { return m_Text; }
+
+    ASSET_CLASS_TYPE(Text)
+
+private:
+    std::string m_Text;
+};
+
 }

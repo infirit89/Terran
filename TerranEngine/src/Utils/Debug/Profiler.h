@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Core/Log.h"
-
 #include <chrono>
 #include <vector>
+#include <string>
 
 namespace TerranEngine 
 {

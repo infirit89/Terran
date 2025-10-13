@@ -1,105 +1,105 @@
 #pragma once
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 
-#include "PhysicsStates.h"
 #include "Collider.h"
+#include "PhysicsStates.h"
 
 #include "Scene/Entity.h"
 
 #include <Scene/Components.h>
 #include <glm/glm.hpp>
 
-#include <vector>
 #include <concepts>
+#include <vector>
 
 class b2Body;
 
-namespace TerranEngine 
-{
-	class PhysicsBody2D final
-	{
-	public:
-		PhysicsBody2D() = default;
-		PhysicsBody2D(Entity entity);
-		PhysicsBody2D(b2Body* body);
-		~PhysicsBody2D();
+namespace TerranEngine {
 
-		Entity GetEntity() const { return m_Entity; }
+class PhysicsBody2D final {
+public:
+    PhysicsBody2D() = default;
+    PhysicsBody2D(Entity entity);
+    PhysicsBody2D(b2Body* body);
+    ~PhysicsBody2D();
 
-		bool GetFixedRotation() const;
-		void SetFixedRotation(bool fixedRotation);
+    Entity GetEntity() const { return m_Entity; }
 
-		glm::vec2 GetPosition() const;
-		void SetPosition(const glm::vec2& position);
+    bool GetFixedRotation() const;
+    void SetFixedRotation(bool fixedRotation);
 
-		float GetRotation() const;
-		void SetRotation(float rotation);
+    glm::vec2 GetPosition() const;
+    void SetPosition(glm::vec2 const& position);
 
-		glm::vec2 GetLinearVelocity() const;
-		void SetLinearVelocity(const glm::vec2& linearVelocity);
+    float GetRotation() const;
+    void SetRotation(float rotation);
 
-		float GetAngularVelocity() const;
-		void SetAngularVelocity(float angularVelocity);
+    glm::vec2 GetLinearVelocity() const;
+    void SetLinearVelocity(glm::vec2 const& linearVelocity);
 
-		float GetGravityScale() const;
-		void SetGravityScale(float gravityScale);
+    float GetAngularVelocity() const;
+    void SetAngularVelocity(float angularVelocity);
 
-		bool IsStatic() const { return m_BodyState == PhysicsBodyType::Static; }
-		bool IsDynamic() const { return m_BodyState == PhysicsBodyType::Dynamic; }
-		bool IsKinematic() const { return m_BodyState == PhysicsBodyType::Kinematic; }
+    float GetGravityScale() const;
+    void SetGravityScale(float gravityScale);
 
-		void SetBodyType(PhysicsBodyType bodyType);
-		PhysicsBodyType GetBodyType() const;
+    bool IsStatic() const { return m_BodyState == PhysicsBodyType::Static; }
+    bool IsDynamic() const { return m_BodyState == PhysicsBodyType::Dynamic; }
+    bool IsKinematic() const { return m_BodyState == PhysicsBodyType::Kinematic; }
 
-		bool IsAwake() const { return m_SleepState == PhysicsBodySleepState::Awake; }
-		bool IsSleeping() const { return m_SleepState == PhysicsBodySleepState::Sleep; }
-		bool CanSleep() const { return m_SleepState != PhysicsBodySleepState::NeverSleep; }
+    void SetBodyType(PhysicsBodyType bodyType);
+    PhysicsBodyType GetBodyType() const;
 
-		void SetSleepState(PhysicsBodySleepState sleepState);
-		PhysicsBodySleepState GetSleepState() const;
+    bool IsAwake() const { return m_SleepState == PhysicsBodySleepState::Awake; }
+    bool IsSleeping() const { return m_SleepState == PhysicsBodySleepState::Sleep; }
+    bool CanSleep() const { return m_SleepState != PhysicsBodySleepState::NeverSleep; }
 
-		void ApplyForce(const glm::vec2& force, const glm::vec2& point, ForceMode2D forceMode);
-		void ApplyForceAtCenter(const glm::vec2& force, ForceMode2D forceMode);
+    void SetSleepState(PhysicsBodySleepState sleepState);
+    PhysicsBodySleepState GetSleepState() const;
 
-		// NOTE: make a templated function?
-        template<typename T>
-        void AddCollider(Entity entity)
-        {
-            TR_ASSERT(m_Body, "Physics Body is null");
+    void ApplyForce(glm::vec2 const& force, glm::vec2 const& point, ForceMode2D forceMode);
+    void ApplyForceAtCenter(glm::vec2 const& force, ForceMode2D forceMode);
 
-            Shared<Collider2D> collider; 
-            T& colliderComponent = entity.GetComponent<T>();
+    // NOTE: make a templated function?
+    template<typename T>
+    void AddCollider(Entity entity)
+    {
+        TR_ASSERT(m_Body, "Physics Body is null");
 
-            if constexpr(std::same_as<T, CircleCollider2DComponent>)
-                collider = CreateShared<CircleCollider2D>(entity);
-            else if constexpr(std::same_as<T, BoxCollider2DComponent>)
-                collider = CreateShared<BoxCollider2D>(entity);
-            else if constexpr(std::same_as<T, CapsuleCollider2DComponent>)
-                collider = CreateShared<CapsuleCollider2D>(entity);
+        Terran::Core::Shared<Collider2D> collider;
+        T& colliderComponent = entity.GetComponent<T>();
 
-            m_Colliders.push_back(collider);
-            colliderComponent.ColliderIndex = static_cast<uint32_t>(m_Colliders.size() - 1);
-        }
+        if constexpr (std::same_as<T, CircleCollider2DComponent>)
+            collider = Terran::Core::CreateShared<CircleCollider2D>(entity);
+        else if constexpr (std::same_as<T, BoxCollider2DComponent>)
+            collider = Terran::Core::CreateShared<BoxCollider2D>(entity);
+        else if constexpr (std::same_as<T, CapsuleCollider2DComponent>)
+            collider = Terran::Core::CreateShared<CapsuleCollider2D>(entity);
 
-        void RemoveCollider(int index);
+        m_Colliders.push_back(collider);
+        colliderComponent.ColliderIndex = static_cast<uint32_t>(m_Colliders.size() - 1);
+    }
 
-		b2Body* GetB2Body() const { return m_Body; }
-		
-		operator bool() const { return m_Body != nullptr; }
+    void RemoveCollider(int index);
 
-		std::vector<Shared<Collider2D>>& GetColliders() { return m_Colliders; }
-		Shared<Collider2D> GetCollider(int index) { return m_Colliders.at(index); }
+    b2Body* GetB2Body() const { return m_Body; }
 
-        void AttachColliders();
+    operator bool() const { return m_Body != nullptr; }
 
-	private:
-        void CreateColliders(Entity entity);
+    std::vector<Terran::Core::Shared<Collider2D>>& GetColliders() { return m_Colliders; }
+    Terran::Core::Shared<Collider2D> GetCollider(int index) { return m_Colliders.at(index); }
 
-		b2Body* m_Body = nullptr;
-		PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
-		PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;
-		Entity m_Entity = {};
-		std::vector<Shared<Collider2D>> m_Colliders;
-	};
+    void AttachColliders();
+
+private:
+    void CreateColliders(Entity entity);
+
+    b2Body* m_Body = nullptr;
+    PhysicsBodyType m_BodyState = PhysicsBodyType::Dynamic;
+    PhysicsBodySleepState m_SleepState = PhysicsBodySleepState::Awake;
+    Entity m_Entity = {};
+    std::vector<Terran::Core::Shared<Collider2D>> m_Colliders;
+};
+
 }

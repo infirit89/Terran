@@ -1,44 +1,50 @@
 #pragma once
 
-#include "Event.h"
+#include "LibCore/Event.h"
 
 #include "Core/KeyCodes.h"
 
-namespace TerranEngine 
-{
-	class KeyboardEvent : public Event 
-	{
-	public:
-		KeyboardEvent(const Key keyCode)
-			: m_KeyCode(keyCode) {}
+#include <cstdint>
 
-		Key GetKeyCode() const { return m_KeyCode; }
+namespace TerranEngine {
 
-		EVENT_CLASS_CATEGORY(EventCategoryKeyboard)
-	private: 
-		Key m_KeyCode;
-	};
+class KeyboardEvent : public Terran::Core::Event {
+public:
+    KeyboardEvent(Key const keyCode)
+        : m_KeyCode(keyCode)
+    {
+    }
 
-	class KeyPressedEvent final : public KeyboardEvent
-	{
-	public:
-		KeyPressedEvent(const Key keyCode, const uint8_t repeatCount)
-			: KeyboardEvent(keyCode), m_RepeatCount(repeatCount) 
-		{
-		}
+    Key GetKeyCode() const { return m_KeyCode; }
 
-		uint8_t GetRepeatCount() const { return m_RepeatCount; }
-		EVENT_CLASS_TYPE(KeyPressed)
-	private:
-		uint8_t m_RepeatCount;
-	};
+    EVENT_CLASS_CATEGORY(EventCategoryKeyboard)
+private:
+    Key m_KeyCode;
+};
 
-	class KeyReleasedEvent final : public KeyboardEvent
-	{
-	public:
-		KeyReleasedEvent(const Key keyCode)
-			: KeyboardEvent(keyCode) {}
+class KeyPressedEvent final : public KeyboardEvent {
+public:
+    KeyPressedEvent(Key const keyCode, uint8_t const repeatCount)
+        : KeyboardEvent(keyCode)
+        , m_RepeatCount(repeatCount)
+    {
+    }
 
-		EVENT_CLASS_TYPE(KeyReleased)
-	};
+    uint8_t GetRepeatCount() const { return m_RepeatCount; }
+    EVENT_CLASS_TYPE(KeyPressed)
+private:
+    uint8_t m_RepeatCount;
+};
+
+class KeyReleasedEvent final : public KeyboardEvent {
+public:
+    KeyReleasedEvent(Key const keyCode)
+        : KeyboardEvent(keyCode)
+    {
+    }
+
+    EVENT_CLASS_TYPE(KeyReleased)
+};
+
 }
+
