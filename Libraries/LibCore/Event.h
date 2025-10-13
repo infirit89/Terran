@@ -44,11 +44,11 @@ public:
 };
 
 #define EVENT_CLASS_TYPE(type)                                   \
-    static EventType GetStaticType() { return EventType::type; } \
-    virtual EventType GetType() const override { return GetStaticType(); }
+    static Terran::Core::EventType GetStaticType() { return Terran::Core::EventType::type; } \
+    virtual Terran::Core::EventType GetType() const override { return GetStaticType(); }
 
 #define EVENT_CLASS_CATEGORY(category) \
-    virtual EventCategory GetCategory() const override { return category; }
+    virtual Terran::Core::EventCategory GetCategory() const override { return Terran::Core::category; }
 
 class EventDispatcher final {
     template<typename T>

@@ -51,11 +51,11 @@ links {
 }
 
 filter "configurations:Debug"
-defines "TR_CORE_DEBUG"
+defines "TR_DEBUG"
 runtime "Debug"
 symbols "on"
 
 filter "configurations:Release"
-defines "TR_CORE_RELEASE"
+defines "TR_RELEASE"
 runtime "Release"
 optimize "on"
