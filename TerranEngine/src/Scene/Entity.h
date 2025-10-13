@@ -1,225 +1,236 @@
 #pragma once
 
-#include "Scene.h"
 #include "Components.h"
+#include "Scene.h"
 
-#include "Core/Log.h"
-#include "Core/Assert.h"
+#include "LibCore/Assert.h"
+#include "LibCore/UUID.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4834)
 
-namespace TerranEngine
-{
-	class Entity final
-	{
-	public:
-		Entity() = default;
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <vector>
 
-		Entity(const entt::entity& handle, Scene* scene) 
-			: m_Handle(handle), m_Scene(scene) { }
+namespace TerranEngine {
 
-		~Entity() = default;
+class Entity final {
+public:
+    Entity() = default;
 
-		template<typename Component, typename... Args>
-		Component& AddComponent(Args&&... parameters)
-		{
-			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    Entity(entt::entity const& handle, Scene* scene)
+        : m_Handle(handle)
+        , m_Scene(scene)
+    {
+    }
 
-			TR_ASSERT(!HasComponent<Component>(), "Entity already has component");
+    ~Entity() = default;
 
-			Component& component = m_Scene->m_Registry.emplace<Component>(m_Handle, std::forward<Args>(parameters)...);
-			return component;
-		}
+    template<typename Component, typename... Args>
+    Component& AddComponent(Args&&... parameters)
+    {
+        TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
-		template<typename Component, typename... Args>
-		Component& AddOrReplaceComponent(Args&&... parameters)
-		{
-			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
-			Component& component = m_Scene->m_Registry.emplace_or_replace<Component>(m_Handle, std::forward<Args>(parameters)...);
-			return component;
-		}
+        TR_ASSERT(!HasComponent<Component>(), "Entity already has component");
 
-		template<typename Component>
-		Component& GetComponent() const
-		{
-			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+        Component& component = m_Scene->m_Registry.emplace<Component>(m_Handle, std::forward<Args>(parameters)...);
+        return component;
+    }
 
-			TR_ASSERT(HasComponent<Component>(), "Entity doesn't have the component");
-			return m_Scene->m_Registry.get<Component>(m_Handle);
-		}
+    template<typename Component, typename... Args>
+    Component& AddOrReplaceComponent(Args&&... parameters)
+    {
+        TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+        Component& component = m_Scene->m_Registry.emplace_or_replace<Component>(m_Handle, std::forward<Args>(parameters)...);
+        return component;
+    }
 
-		template<typename Component>
-		void RemoveComponent()
-		{
-			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    template<typename Component>
+    Component& GetComponent() const
+    {
+        TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
-			TR_ASSERT(HasComponent<Component>(), "Entity doesn't have component");
+        TR_ASSERT(HasComponent<Component>(), "Entity doesn't have the component");
+        return m_Scene->m_Registry.get<Component>(m_Handle);
+    }
 
-			m_Scene->m_Registry.remove<Component>(m_Handle);
-		}
+    template<typename Component>
+    void RemoveComponent()
+    {
+        TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
-		template<typename Component>
-		Component& TryGetComponent() const
-		{
-			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+        TR_ASSERT(HasComponent<Component>(), "Entity doesn't have component");
 
-			return m_Scene->m_Registry.try_get<Component>(m_Handle);
-		}
-		
-		template<typename Component>
-		bool HasComponent() const
-		{
-			TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
-			
-			return m_Scene->m_Registry.all_of<Component>(m_Handle);
-		}
+        m_Scene->m_Registry.remove<Component>(m_Handle);
+    }
 
-		// visit all the components of an entity
-		// the signiture of Func should be void(const entt::type_info)
-		template<typename Func>
-		void Visit(Entity entity, Func func)  const
-		{
-			m_Scene->m_Registry.visit(entity, std::forward<Func>(func));
-		}
+    template<typename Component>
+    Component& TryGetComponent() const
+    {
+        TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
-		// base stuffs
-		const UUID& GetID() const					{ return GetComponent<TagComponent>().ID; }
-		TransformComponent& GetTransform() const	{ return GetComponent<TransformComponent>(); }
-		bool Valid() const							{ return m_Scene->m_Registry.valid(m_Handle); }
-		const std::string& GetName() const			{ return GetComponent<TagComponent>().Name; }
+        return m_Scene->m_Registry.try_get<Component>(m_Handle);
+    }
 
-		// operators
-		operator entt::entity() const				{ return m_Handle; }
-		bool operator!=(const Entity& other) const	{ return !(*this == other); }
-		operator uint32_t() const					{ return static_cast<uint32_t>(m_Handle); }
-		operator bool() const						{ return m_Handle != entt::null; }
-		bool operator==(const Entity& other) const	{ return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
+    template<typename Component>
+    bool HasComponent() const
+    {
+        TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
 
-		// relationship component stuffs
-		std::vector<UUID>& GetChildren() const	{ return GetComponent<RelationshipComponent>().Children; }
-		size_t GetChildCount() const			{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
-		UUID GetParentID() const				{ return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : UUID::Invalid(); }
-		bool HasParent() const					{ return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
+        return m_Scene->m_Registry.all_of<Component>(m_Handle);
+    }
 
-		const UUID& GetSceneId() const	{ return m_Scene->GetHandle(); }
+    // visit all the components of an entity
+    // the signiture of Func should be void(const entt::type_info)
+    template<typename Func>
+    void Visit(Entity entity, Func func) const
+    {
+        m_Scene->m_Registry.visit(entity, std::forward<Func>(func));
+    }
 
-		Entity GetChild(uint32_t index) const		
-		{ 
-			if (!HasComponent<RelationshipComponent>())
-				return { };
+    // base stuffs
+    Terran::Core::UUID const& GetID() const { return GetComponent<TagComponent>().ID; }
+    TransformComponent& GetTransform() const { return GetComponent<TransformComponent>(); }
+    bool Valid() const { return m_Scene->m_Registry.valid(m_Handle); }
+    std::string const& GetName() const { return GetComponent<TagComponent>().Name; }
 
-			return m_Scene->FindEntityWithUUID(GetChildren()[index]); 
-		}
+    // operators
+    operator entt::entity() const { return m_Handle; }
+    bool operator!=(Entity const& other) const { return !(*this == other); }
+    operator uint32_t() const { return static_cast<uint32_t>(m_Handle); }
+    operator bool() const { return m_Handle != entt::null; }
+    bool operator==(Entity const& other) const { return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 
-		void SetParentID(const UUID& id) 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				return;
+    // relationship component stuffs
+    std::vector<Terran::Core::UUID>& GetChildren() const { return GetComponent<RelationshipComponent>().Children; }
+    size_t GetChildCount() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
+    Terran::Core::UUID GetParentID() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : Terran::Core::UUID::Invalid(); }
+    bool HasParent() const { return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
 
-			auto& relComp = GetComponent<RelationshipComponent>();
-			relComp.Parent = id;
-		}
+    Terran::Core::UUID const& GetSceneId() const { return m_Scene->GetHandle(); }
 
-		Entity GetParent() const 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				return {};
+    Entity GetChild(uint32_t index) const
+    {
+        if (!HasComponent<RelationshipComponent>())
+            return {};
 
-			return m_Scene->FindEntityWithUUID(GetParentID());
-		}
+        return m_Scene->FindEntityWithUUID(GetChildren()[index]);
+    }
 
-		bool IsChildOf(Entity entity) const
-		{
-			if (!HasComponent<RelationshipComponent>())
-				return false;
+    void SetParentID(Terran::Core::UUID const& id)
+    {
+        if (!HasComponent<RelationshipComponent>())
+            return;
 
-			if (!entity.HasComponent<RelationshipComponent>())
-				return false;
+        auto& relComp = GetComponent<RelationshipComponent>();
+        relComp.Parent = id;
+    }
 
-			return GetParentID() == entity.GetID();
-		}
+    Entity GetParent() const
+    {
+        if (!HasComponent<RelationshipComponent>())
+            return {};
 
-		void SetParent(Entity parent, bool forceTransformUpdate = false) 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				 AddComponent<RelationshipComponent>();
+        return m_Scene->FindEntityWithUUID(GetParentID());
+    }
 
-			if (!parent.HasComponent<RelationshipComponent>())
-				parent.AddComponent<RelationshipComponent>();
+    bool IsChildOf(Entity entity) const
+    {
+        if (!HasComponent<RelationshipComponent>())
+            return false;
 
-			if (IsChildOf(parent)) return;
-			if (parent.IsChildOf(*this)) return;
+        if (!entity.HasComponent<RelationshipComponent>())
+            return false;
 
-			if (HasParent())
-				Unparent();
+        return GetParentID() == entity.GetID();
+    }
 
-			auto& relComp = GetComponent<RelationshipComponent>();
-			relComp.Parent = parent.GetID();
-			parent.GetChildren().emplace_back(GetID());
+    void SetParent(Entity parent, bool forceTransformUpdate = false)
+    {
+        if (!HasComponent<RelationshipComponent>())
+            AddComponent<RelationshipComponent>();
 
-			m_Scene->ConvertToLocalSpace(*this);
-		}
+        if (!parent.HasComponent<RelationshipComponent>())
+            parent.AddComponent<RelationshipComponent>();
 
-		void Unparent() 
-		{
-			if (!HasComponent<RelationshipComponent>())
-				return;
+        if (IsChildOf(parent))
+            return;
+        if (parent.IsChildOf(*this))
+            return;
 
-			UUID parentID = GetComponent<RelationshipComponent>().Parent;
-			Entity parent = m_Scene->FindEntityWithUUID(parentID);
+        if (HasParent())
+            Unparent();
 
-			if (!parent)
-				return;
+        auto& relComp = GetComponent<RelationshipComponent>();
+        relComp.Parent = parent.GetID();
+        parent.GetChildren().emplace_back(GetID());
 
-			m_Scene->ConvertToWorldSpace(*this);
+        m_Scene->ConvertToLocalSpace(*this);
+    }
 
-			const auto& it = std::ranges::find(parent.GetChildren(), GetID());
+    void Unparent()
+    {
+        if (!HasComponent<RelationshipComponent>())
+            return;
 
-			if (it != parent.GetChildren().end())
-				parent.GetChildren().erase(it);
+        Terran::Core::UUID parentID = GetComponent<RelationshipComponent>().Parent;
+        Entity parent = m_Scene->FindEntityWithUUID(parentID);
 
-			SetParentID(UUID({ 0 }));
+        if (!parent)
+            return;
 
-			// TODO: if the relationship component is no longer necessary than remove it
-		}
+        m_Scene->ConvertToWorldSpace(*this);
 
-		/*void Unparent(Entity parent, Entity child, bool removeRelationship) 
-		{
-			if (!parent.HasComponent<RelationshipComponent>())
-				return;
+        auto const& it = std::ranges::find(parent.GetChildren(), GetID());
 
-			if (!child.HasComponent<RelationshipComponent>())
-				return;
+        if (it != parent.GetChildren().end())
+            parent.GetChildren().erase(it);
 
-			const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), child.GetID());
+        SetParentID(Terran::Core::UUID({ 0 }));
 
-			if (it != parent.GetChildren().end())
-				parent.GetChildren().erase(it);
+        // TODO: if the relationship component is no longer necessary than remove it
+    }
 
-			if (removeRelationship)
-				child.RemoveComponent<RelationshipComponent>();
-			else 
-			{
-				RelationshipComponent& rc = child.GetComponent<RelationshipComponent>();
-				rc.ParentID = UUID({ 0 });
-			}
-		}*/
+    /*void Unparent(Entity parent, Entity child, bool removeRelationship)
+    {
+            if (!parent.HasComponent<RelationshipComponent>())
+                    return;
 
-		void RemoveChild(Entity child, bool removeRelationship)
-		{
-			child.Unparent();
-		}
+            if (!child.HasComponent<RelationshipComponent>())
+                    return;
 
-		void Reparent(Entity previousParent, Entity newParent) 
-		{
-			Unparent();
-			SetParent(newParent);
-		}
+            const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), child.GetID());
 
-	private:
-		entt::entity m_Handle { entt::null };
-		Scene* m_Scene = nullptr;
-	};
+            if (it != parent.GetChildren().end())
+                    parent.GetChildren().erase(it);
+
+            if (removeRelationship)
+                    child.RemoveComponent<RelationshipComponent>();
+            else
+            {
+                    RelationshipComponent& rc = child.GetComponent<RelationshipComponent>();
+                    rc.ParentID = UUID({ 0 });
+            }
+    }*/
+
+    void RemoveChild(Entity child, bool removeRelationship)
+    {
+        child.Unparent();
+    }
+
+    void Reparent(Entity previousParent, Entity newParent)
+    {
+        Unparent();
+        SetParent(newParent);
+    }
+
+private:
+    entt::entity m_Handle { entt::null };
+    Scene* m_Scene = nullptr;
+};
+
 }
 #pragma warning(pop)

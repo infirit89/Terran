@@ -1,23 +1,24 @@
-﻿#include "trpch.h"
 #include "Project.h"
+#include "trpch.h"
 
-namespace TerranEngine
+namespace TerranEngine {
+
+Terran::Core::Shared<Project> Project::s_ActiveProject;
+
+Project::Project(std::filesystem::path const& projectPath)
 {
-    Shared<Project> Project::s_ActiveProject;
+    m_ProjectPath = projectPath;
+}
 
-    Project::Project(const std::filesystem::path& projectPath)
-    {
-        m_ProjectPath = projectPath;
-    }
+Terran::Core::Shared<Project> Project::New(std::filesystem::path const& projectPath)
+{
+    s_ActiveProject = Terran::Core::CreateShared<Project>(projectPath);
+    return s_ActiveProject;
+}
 
-    Shared<Project> Project::New(const std::filesystem::path& projectPath)
-    {
-        s_ActiveProject = CreateShared<Project>(projectPath);
-        return s_ActiveProject;
-    }
+void Project::SetActive(Terran::Core::Shared<Project> const& project)
+{
+    s_ActiveProject = project;
+}
 
-    void Project::SetActive(const Shared<Project>& project)
-    {
-        s_ActiveProject = project;
-    }
 }

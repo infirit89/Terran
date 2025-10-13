@@ -2,7 +2,7 @@
 
 #include "VertexArray.h"
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 #include "CommandQueue.h"
 
 namespace TerranEngine 
@@ -20,9 +20,9 @@ namespace TerranEngine
 
 	struct RendererData final
 	{
-		Shared<CommandQueue> CreateResourceQueue;
-		Shared<CommandQueue> RenderQueue;
-		Shared<CommandQueue> FreeResourceQueue;
+		Terran::Core::Shared<CommandQueue> CreateResourceQueue;
+		Terran::Core::Shared<CommandQueue> RenderQueue;
+		Terran::Core::Shared<CommandQueue> FreeResourceQueue;
 	};
 
 	class Renderer final
@@ -61,9 +61,9 @@ namespace TerranEngine
 
 		static void EnableDepthTesting(bool state);
 
-		static void DrawIndexed(RenderMode mode, const Shared<VertexArray>& vertexArray, int numIndices);
-		static void DrawArrays(RenderMode mode, const Shared<VertexArray>& vertexArray, int numVertices);
-		static void DrawInstanced(RenderMode mode, const Shared<VertexArray>& vertexArray, int instanceCount);
+		static void DrawIndexed(RenderMode mode, const Terran::Core::Shared<VertexArray>& vertexArray, int numIndices);
+		static void DrawArrays(RenderMode mode, const Terran::Core::Shared<VertexArray>& vertexArray, int numVertices);
+		static void DrawInstanced(RenderMode mode, const Terran::Core::Shared<VertexArray>& vertexArray, int instanceCount);
 		static void SetLineWidth(float lineWidth);
 
 		static uint32_t GetAPIVersion();

@@ -1,59 +1,57 @@
 #pragma once
 
-#include "Core/Time.h"
-#include "Core/Base.h"
+#include "LibCore/Base.h"
+#include "LibCore/Time.h"
 
 #include "PhysicsBody.h"
 
 #include "Scene/Scene.h"
 
 #include "PhysicsMaterial.h"
+#include <cstdint>
 
 class b2World;
 
-namespace TerranEngine 
-{
-    struct PhysicsSettings final
-    {
-        glm::vec2 Gravity = { 0.0f, -9.81f };
-        int32_t VelocityIterations = 6;
-        int32_t PositionIterations = 2;
-        float PhysicsTimestep = 0.02f;
-    };
+namespace TerranEngine {
 
-	struct RayCastHitInfo2D final
-	{
-		glm::vec2 Point = { 0.0f, 0.0f };
-		glm::vec2 Normal = { 0.0f, 0.0f };
-		Shared<PhysicsBody2D> PhysicsBody;
+struct PhysicsSettings final {
+    glm::vec2 Gravity = { 0.0f, -9.81f };
+    int32_t VelocityIterations = 6;
+    int32_t PositionIterations = 2;
+    float PhysicsTimestep = 0.02f;
+};
 
-		bool operator <(const RayCastHitInfo2D& other) const { return glm::all(glm::lessThan(Point, other.Point)); }
-	};
+struct RayCastHitInfo2D final {
+    glm::vec2 Point = { 0.0f, 0.0f };
+    glm::vec2 Normal = { 0.0f, 0.0f };
+    Terran::Core::Shared<PhysicsBody2D> PhysicsBody;
 
-	class Physics2D final
-	{
-	public:
-		static void Initialize();
-		static void Shutdown();
+    bool operator<(RayCastHitInfo2D const& other) const { return glm::all(glm::lessThan(Point, other.Point)); }
+};
 
-		static void CreatePhysicsWorld(const PhysicsSettings& settings);
-		static void CleanUpPhysicsWorld();
+class Physics2D final {
+public:
+    static void Initialize();
+    static void Shutdown();
 
-        static void CratePhysicsBodies(Scene* scene);
+    static void CreatePhysicsWorld(PhysicsSettings const& settings);
+    static void CleanUpPhysicsWorld();
 
-		static Shared<PhysicsBody2D> CreatePhysicsBody(Entity entity);
-		static void DestroyPhysicsBody(Entity entity);
+    static void CratePhysicsBodies(Scene* scene);
 
-		static void Update(Time time);
-		static void SyncTransforms();
+    static Terran::Core::Shared<PhysicsBody2D> CreatePhysicsBody(Entity entity);
+    static void DestroyPhysicsBody(Entity entity);
 
-		static b2World* GetB2World();
+    static void Update(Terran::Core::Time time);
+    static void SyncTransforms();
 
-		static Shared<PhysicsMaterial2D> GetDefaultMaterial();
+    static b2World* GetB2World();
 
-		static Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
-		static bool RayCast(const glm::vec2& origin, const glm::vec2& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);
-		static Shared<std::vector<RayCastHitInfo2D>> RayCastAll(const glm::vec2& origin, const glm::vec2& direction, float length, uint16_t layerMask);
-	};
+    static Terran::Core::Shared<PhysicsMaterial2D> GetDefaultMaterial();
+
+    static Terran::Core::Shared<PhysicsBody2D> GetPhysicsBody(Entity entity);
+    static bool RayCast(glm::vec2 const& origin, glm::vec2 const& direction, float length, RayCastHitInfo2D& hitInfo, uint16_t layerMask);
+    static Terran::Core::Shared<std::vector<RayCastHitInfo2D>> RayCastAll(glm::vec2 const& origin, glm::vec2 const& direction, float length, uint16_t layerMask);
+};
+
 }
-

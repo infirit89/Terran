@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Asset/Asset.h"
-#include "Core/Buffer.h"
+#include "LibCore/Buffer.h"
+#include "LibCore/Base.h"
 
 #include <string>
 #include <filesystem>
@@ -55,7 +56,7 @@ namespace TerranEngine
 		virtual void Bind(uint32_t textureSlot) = 0;
 		//void Unbind() const;
 
-		virtual void SetData(const Buffer& data) = 0;
+		virtual void SetData(const Terran::Core::Buffer& data) = 0;
 		virtual void SetTextureFilter(TextureFilter filter) = 0;
 
 		virtual const TextureParameters& GetTextureParameters() const = 0;
@@ -71,14 +72,14 @@ namespace TerranEngine
 	class Texture2D final : public Texture
 	{
 	public:
-		Texture2D(const TextureParameters& parameters = {}, Buffer buffer = Buffer());
-		static Shared<Texture2D> Create(TextureParameters parameters = {}, Buffer buffer = Buffer());
+		Texture2D(const TextureParameters& parameters = {}, Terran::Core::Buffer buffer = Terran::Core::Buffer());
+		static Terran::Core::Shared<Texture2D> Create(TextureParameters parameters = {}, Terran::Core::Buffer buffer = Terran::Core::Buffer());
 
 		~Texture2D() override;
 
 		void Bind(uint32_t textureSlot) override;
 		
-		void SetData(const Buffer& data) override;
+		void SetData(const Terran::Core::Buffer& data) override;
 
 		void SetTextureFilter(TextureFilter filter) override;
 
@@ -112,7 +113,7 @@ namespace TerranEngine
 		void CreateTexture();
 
 		//void LoadTexture(const std::filesystem::path& filePath);
-		Buffer m_LocalData;
+		Terran::Core::Buffer m_LocalData;
 		uint32_t m_Handle;
 		TextureParameters m_TextureParameters;
 		friend class TextureAssetLoader;

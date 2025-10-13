@@ -4,21 +4,21 @@
 
 #include <filesystem>
 
-namespace TerranEngine 
-{
-	class ShaderCompiler final
-	{
-	public:
-		ShaderCompiler(const std::filesystem::path& shaderPath);
-		Shared<Shader> Compile();
-		static void Recompile(const Shared<Shader>& shader);
+namespace TerranEngine {
 
-	private:
-		using ShaderSourcesMap = std::unordered_map<ShaderStage, std::string>;
-		std::vector<ShaderUnitInfo> Compile_Internal(const ShaderSourcesMap& shaderSources, const std::string& shaderName);
-		ShaderSourcesMap Preprocess(const std::string& shaderSource);
-		std::string ReadShader() const;
+class ShaderCompiler final {
+public:
+    ShaderCompiler(std::filesystem::path const& shaderPath);
+    Terran::Core::Shared<Shader> Compile();
+    static void Recompile(Terran::Core::Shared<Shader> const& shader);
 
-		std::filesystem::path m_ShaderPath;
-	};
+private:
+    using ShaderSourcesMap = std::unordered_map<ShaderStage, std::string>;
+    std::vector<ShaderUnitInfo> Compile_Internal(ShaderSourcesMap const& shaderSources, std::string const& shaderName);
+    ShaderSourcesMap Preprocess(std::string const& shaderSource);
+    std::string ReadShader() const;
+
+    std::filesystem::path m_ShaderPath;
+};
+
 }

@@ -1,31 +1,33 @@
 #include "trpch.h"
+
 #include "ShaderLibrary.h"
 
 #include "ShaderCompiler.h"
 
-namespace TerranEngine 
+namespace TerranEngine {
+
+std::unordered_map<std::string, Terran::Core::Shared<Shader>> ShaderLibrary::s_Shaders;
+
+void ShaderLibrary::Initialize()
 {
-    std::unordered_map<std::string, Shared<Shader>> ShaderLibrary::s_Shaders;
+    if (!std::filesystem::exists(GetCachedShaderPath()))
+        std::filesystem::create_directory(GetCachedShaderPath());
+}
 
-    void ShaderLibrary::Initialize()
-    {
-        if (!std::filesystem::exists(GetCachedShaderPath()))
-            std::filesystem::create_directory(GetCachedShaderPath());
-    }
+Terran::Core::Shared<Shader> ShaderLibrary::Load(std::filesystem::path const& shaderPath)
+{
+    Terran::Core::Shared<ShaderCompiler> compiler = Terran::Core::CreateShared<ShaderCompiler>(shaderPath);
+    Terran::Core::Shared<Shader> shader = compiler->Compile();
+    s_Shaders[shader->GetName()] = shader;
+    return shader;
+}
 
-    Shared<Shader> ShaderLibrary::Load(const std::filesystem::path& shaderPath)
-    {
-        Shared<ShaderCompiler> compiler = CreateShared<ShaderCompiler>(shaderPath);
-        Shared<Shader> shader = compiler->Compile();
-        s_Shaders[shader->GetName()] = shader;
-        return shader;
-    }
+Terran::Core::Shared<Shader> ShaderLibrary::Get(std::string const& name)
+{
+    if (s_Shaders.contains(name))
+        return s_Shaders.at(name);
 
-    Shared<Shader> ShaderLibrary::Get(const std::string& name)
-    {
-        if (s_Shaders.contains(name))
-            return s_Shaders.at(name);
+    return nullptr;
+}
 
-        return nullptr;
-    }
 }
