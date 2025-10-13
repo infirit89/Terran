@@ -2,22 +2,24 @@
 
 #include "EditorPanel.h"
 
-namespace TerranEditor
-{
-    class SettingsPanel : public EditorPanel
-    {
-    public:
-        SettingsPanel() = default;
-        ~SettingsPanel() = default;
+#include <string_view>
 
-        virtual void OnRender() override;
-		virtual void SetSceneContext(const TerranEngine::Shared<TerranEngine::Scene>& context) override { m_Scene = context; }
-        virtual std::string_view GetName() override { return "Settings"; }
+namespace TerranEditor {
 
-    private:
-        void DrawPhysicsSettings();
+class SettingsPanel : public EditorPanel {
+public:
+    SettingsPanel() = default;
+    ~SettingsPanel() = default;
 
-    private:
-        int m_LayerIndex = 0;
-    };
+    virtual void OnRender() override;
+    virtual void SetSceneContext(Terran::Core::Shared<TerranEngine::Scene> const& context) override { m_Scene = context; }
+    virtual std::string_view GetName() override { return "Settings"; }
+
+private:
+    void DrawPhysicsSettings();
+
+private:
+    int m_LayerIndex = 0;
+};
+
 }

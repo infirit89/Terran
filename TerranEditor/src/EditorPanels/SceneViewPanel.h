@@ -3,67 +3,68 @@
 #include "EditorCamera.h"
 #include "EditorPanel.h"
 
-#include "Core/Base.h"
+#include "LibCore/Base.h"
 
 #include "Events/KeyboardEvent.h"
 
 #include "Scene/Entity.h"
 #include "Scene/Systems/SceneRenderer.h"
 
-namespace TerranEditor 
-{
-	using namespace TerranEngine;
+namespace TerranEditor {
 
-	enum class GizmoType 
-	{
-		None = 0,
-		Translaste,
-		Rotate,
-		Scale
-	};
+using namespace TerranEngine;
 
-	class SceneViewPanel : public EditorPanel
-	{
-		// void OpenScene(const AssetInfo& sceneAssetInfo, glm::vec2 viewportSize);
-		using OpenSceneFN = std::function<void(const AssetInfo&, const glm::vec2&)>;
-	public:
-		SceneViewPanel() = default;
-		~SceneViewPanel() = default;
+enum class GizmoType {
+    None = 0,
+    Translaste,
+    Rotate,
+    Scale
+};
 
-		virtual void OnRender() override;
+class SceneViewPanel : public EditorPanel {
+    // void OpenScene(const AssetInfo& sceneAssetInfo, glm::vec2 viewportSize);
+    using OpenSceneFN = std::function<void(AssetInfo const&, glm::vec2 const&)>;
 
-		void SetSceneRenderer(const Shared<SceneRenderer>& sceneRenderer) { m_SceneRenderer = sceneRenderer; }
+public:
+    SceneViewPanel() = default;
+    ~SceneViewPanel() = default;
 
-		//bool IsVisible() { return m_Visible; }
+    virtual void OnRender() override;
 
-		virtual void OnEvent(Event& event) override;
+    void SetSceneRenderer(Terran::Core::Shared<SceneRenderer> const& sceneRenderer) { m_SceneRenderer = sceneRenderer; }
 
-		void SetOpenSceneCallback(const OpenSceneFN& openSceneCallback) { m_OpenSceneCallback = openSceneCallback; }
-		void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
+    // bool IsVisible() { return m_Visible; }
 
-		virtual void SetSceneContext(const Shared<Scene>& context) override { m_Scene = context; }
-		virtual std::string_view GetName() override { return "Scene view"; }
-		
-	private:
-		bool OnKeyPressed(KeyPressedEvent& e);
-		void DrawGizmos(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+    virtual void OnEvent(Terran::Core::Event& event) override;
 
-	private:
-		glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
-		Shared<SceneRenderer> m_SceneRenderer;
+    void SetOpenSceneCallback(OpenSceneFN const& openSceneCallback) { m_OpenSceneCallback = openSceneCallback; }
+    void SetViewportSizeChangedCallback(std::function<void(glm::vec2)> callback) { m_ViewportSizeChangedCallback = callback; }
 
-		GizmoType m_GizmoType = GizmoType::None;
-		int m_GizmoMode = 1;
+    virtual void SetSceneContext(Terran::Core::Shared<Scene> const& context) override { m_Scene = context; }
+    virtual std::string_view GetName() override { return "Scene view"; }
 
-		glm::vec2 m_Position = { 0.0f, 0.0f };
+private:
+    bool OnKeyPressed(KeyPressedEvent& e);
+    void DrawGizmos(glm::mat4 const& projectionMatrix, glm::mat4 const& viewMatrix);
 
-		bool m_WindowMoved = false;
-		bool m_Visible = false;
+private:
+    glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
+    Terran::Core::Shared<SceneRenderer> m_SceneRenderer;
 
-		bool m_UseSnapping = false;
-		glm::vec3 m_Snap = { 2.0f, 2.0f, 2.0f };
+    GizmoType m_GizmoType = GizmoType::None;
+    int m_GizmoMode = 1;
 
-		OpenSceneFN m_OpenSceneCallback;
-		std::function<void(glm::vec2)> m_ViewportSizeChangedCallback;
-	};
+    glm::vec2 m_Position = { 0.0f, 0.0f };
+
+    bool m_WindowMoved = false;
+    bool m_Visible = false;
+
+    bool m_UseSnapping = false;
+    glm::vec3 m_Snap = { 2.0f, 2.0f, 2.0f };
+
+    OpenSceneFN m_OpenSceneCallback;
+    std::function<void(glm::vec2)> m_ViewportSizeChangedCallback;
+};
+
 }
+
