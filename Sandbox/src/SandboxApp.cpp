@@ -1,17 +1,15 @@
-#include "Core/EntryPoint.h"
-#include "Terran.h"
-
+#include "LibMain/Application.h"
 #include "SandboxLayer.h"
+#include <string_view>
 
 namespace TerranEngine {
 
-class SandboxApp : public Application {
+class SandboxApp : public Terran::Main::Application {
 public:
-    SandboxApp(ApplicationData const& appData)
-        : Application(appData)
+    SandboxApp()
     {
 
-        PushLayer(new SandboxLayer());
+        push_layer(new SandboxLayer());
     }
 
     ~SandboxApp()
@@ -19,11 +17,9 @@ public:
     }
 };
 
-Application* CreateApplication(int argc, char** argv)
+}
+
+Terran::Main::Application* create_application(std::span<std::string_view> arguments)
 {
-    ApplicationData appData;
-    return new SandboxApp(appData);
+    return new TerranEngine::SandboxApp();
 }
-
-}
-

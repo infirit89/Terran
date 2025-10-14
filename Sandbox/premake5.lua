@@ -34,6 +34,7 @@ includedirs {
 links {
     "TerranEngine",
     "LibCore",
+    "LibMain",
 }
 
 defines {
