@@ -58,6 +58,7 @@ postbuildcommands {
     "%{CopyCommands.optick}",
     "%{CopyCommands.shaderc}",
     "%{CopyCommands.coral}",
+    "{MKDIR} %{prj.location}/Resources/Scripts",
     "%{CopyCommands.script_core}",
 }
 
@@ -90,6 +91,7 @@ links {
 
 postbuildcommands {
     -- todo: copy the pdb
+    "{MKDIR} %{prj.location}/Resources/Scripts",
     "%{CopyCommands.coral}",
     "%{CopyCommands.script_core}",
 }

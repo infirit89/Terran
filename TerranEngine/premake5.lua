@@ -21,6 +21,35 @@ files {
     "vendor/glm/**.inl",
 }
 
+removefiles {
+    "src/Asset/**.h",
+    "src/Asset/**.cpp",
+
+    "src/Graphics/**.h",
+    "src/Graphics/**.cpp",
+
+    "src/Physics/**.h",
+    "src/Physics/**.cpp",
+
+    "src/Project/**.h",
+    "src/Project/**.cpp",
+
+    "src/Scripting/**.h",
+    "src/Scripting/**.cpp",
+
+    "src/Scene/**.h",
+    "src/Scene/**.cpp",
+
+    "src/Platform/**.h",
+    "src/Platform/**.cpp",
+
+    "src/ImGui/**.h",
+    "src/ImGui/**.cpp",
+
+    "src/Core/Window.h",
+    "src/Core/Window.cpp",
+}
+
 dependson {
     "TerranScriptCore",
 }
