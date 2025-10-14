@@ -18,9 +18,6 @@ int main(int argc, char** argv);
 namespace TerranEngine {
 
 struct ApplicationData final {
-    WindowData Window;
-    std::filesystem::path ScriptCorePath;
-    std::filesystem::path ProjectPath;
 };
 
 class Application {
@@ -32,8 +29,6 @@ public:
     void DispatchEvent(Terran::Core::Event& event);
 
     static Application* Get() { return m_Instance; }
-    Window& GetWindow() const { return *m_Window; }
-    ImGuiLayer& GetImGuiLayer() const { return *m_ImGuiLayer; }
 
 private:
     void Run();
@@ -43,12 +38,9 @@ private:
     static Application* m_Instance;
     Terran::Core::LayerStack m_Stack;
 
-    std::unique_ptr<Window> m_Window;
-
     bool m_Minimized = false;
     bool m_Running = true;
 
-    ImGuiLayer* m_ImGuiLayer;
     friend int ::main(int argc, char** argv);
 };
 

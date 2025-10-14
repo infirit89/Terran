@@ -4,7 +4,8 @@ require "dependecies"
 
 workspace "Terran"
 
-startproject "TerranEditor"
+--  NOTE: for now setting the startproj to be Sandbox only for the rework
+startproject "Sandbox"
 
 configurations {
     "Debug",
@@ -34,7 +35,9 @@ include "Libraries/LibCore"
 include "TerranEngine"
 
 group "Tools"
-include "TerranEditor"
+-- NOTE: removing the terran editor during the rework as it will cause
+-- a lot of build errors and it can be dealt with separately
+--include "TerranEditor"
 
 group "Runtime"
 include "Sandbox"
