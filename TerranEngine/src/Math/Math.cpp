@@ -1,9 +1,9 @@
 #include "trpch.h"
 #include "Math.h"
 
-#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 namespace TerranEngine 
