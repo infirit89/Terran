@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DefaultDelete.h"
+#include "Macros.h"
 #include <utility>
 namespace Terran {
 namespace Core {
@@ -9,6 +10,8 @@ namespace Core {
 template<typename T, typename TDeleter = DefaultDelete<T>>
 class Unique {
 public:
+    MAKE_NONCOPYABLE(Unique);
+
     constexpr Unique() noexcept = default;
 
     ~Unique() noexcept
@@ -21,10 +24,6 @@ public:
         : m_data(data)
     {
     }
-
-    // Make non copyable
-    Unique(Unique const& other) = delete;
-    Unique& operator=(Unique const& other) = delete;
 
     constexpr Unique(Unique&& other) noexcept
     {

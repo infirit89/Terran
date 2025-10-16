@@ -20,13 +20,13 @@ Application::Application() noexcept
 
 Application::~Application()
 {
-    m_Stack.RemoveAllLayers();
+    m_Stack.clear();
 }
 
 void Application::push_layer(Terran::Core::Layer* layer)
 {
-    m_Stack.PushLayer(layer);
-    layer->OnAttach();
+    m_Stack.push(layer);
+    layer->on_attach();
 }
 
 void Application::close()
@@ -62,8 +62,8 @@ void Application::run()
             {
                 // TODO: Re-enable profiling scope
                 // TR_PROFILE_SCOPE("Layer::OnUpdate");
-                for (Terran::Core::Layer* layer : m_Stack.GetLayers())
-                    layer->Update(time);
+                for (Terran::Core::Layer* layer : m_Stack.layers())
+                    layer->update(time);
             }
 
             // TODO: Re-enable ImGui rendering when ImGui layer is restored

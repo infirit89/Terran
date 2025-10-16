@@ -29,24 +29,24 @@ SandboxLayer::SandboxLayer()
 {
 }
 
-void SandboxLayer::OnAttach()
+void SandboxLayer::on_attach()
 {
 }
 
-void SandboxLayer::OnDetach()
+void SandboxLayer::on_dettach()
 {
 }
 
-void SandboxLayer::Update(Terran::Core::Time& time)
+void SandboxLayer::update(Terran::Core::Time& time)
 {
 }
 
-void SandboxLayer::OnEvent(Terran::Core::Event& event)
+void SandboxLayer::on_event(Terran::Core::Event& event)
 {
     Terran::Core::EventDispatcher dispather(event);
 }
 
-void SandboxLayer::ImGuiRender()
+void SandboxLayer::imgui_render()
 {
 }
 
