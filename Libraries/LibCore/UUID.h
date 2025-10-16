@@ -2,12 +2,13 @@
 
 #include <array>
 #include <cstdint>
+#include <ios>
 #include <string>
 
 namespace Terran {
 namespace Core {
 
-class UUID {
+class UUID final {
 public:
     using type = std::array<uint8_t, 16>;
     UUID()
@@ -112,6 +113,28 @@ private:
 
 }
 
+}
+
+template<typename OStream>
+OStream& operator<<(OStream& os, Terran::Core::UUID const& uuid)
+{
+    std::array<uint8_t, 16> idArr = uuid.data();
+
+    int ind = 0;
+    for (int i = 0; i < 20; i++) {
+        if (i == 4 || i == 7 || i == 10 || i == 13) {
+            os << '-';
+            continue;
+        }
+
+        os << std::hex
+           << (idArr[ind] >> 4 & 0x0f)
+           << (int)(idArr[ind] & 0x0f);
+
+        ind++;
+    }
+
+    return os;
 }
 
 #include <cstddef>
