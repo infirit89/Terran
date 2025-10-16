@@ -107,7 +107,7 @@ public:
     // relationship component stuffs
     std::vector<Terran::Core::UUID>& GetChildren() const { return GetComponent<RelationshipComponent>().Children; }
     size_t GetChildCount() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
-    Terran::Core::UUID GetParentID() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : Terran::Core::UUID::Invalid(); }
+    Terran::Core::UUID GetParentID() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : Terran::Core::UUID::invalid(); }
     bool HasParent() const { return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
 
     Terran::Core::UUID const& GetSceneId() const { return m_Scene->GetHandle(); }

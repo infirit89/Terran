@@ -136,7 +136,7 @@ Variant::Variant(Terran::Core::UUID const& id)
 {
     m_Type = Type::UUID;
     m_Data.ptr = new Terran::Core::UUID();
-    static_cast<Terran::Core::UUID*>(m_Data.ptr)->SetData(id.GetData());
+    static_cast<Terran::Core::UUID*>(m_Data.ptr)->set_data(id.GetData());
 }
 
 Variant::Variant(Entity entity)
@@ -211,7 +211,7 @@ Variant::Variant(char* data, Type const& type)
     case Type::UUID: {
         Terran::Core::UUID id = *reinterpret_cast<Terran::Core::UUID*>(data);
         m_Data.ptr = new Terran::Core::UUID();
-        static_cast<Terran::Core::UUID*>(m_Data.ptr)->SetData(id.GetData());
+        static_cast<Terran::Core::UUID*>(m_Data.ptr)->set_data(id.GetData());
         break;
     }
     default:;
@@ -326,7 +326,7 @@ void Variant::Copy(Variant& result, Variant const& in)
     case Type::UUID: {
         Terran::Core::UUID id = in;
         result.m_Data.ptr = new Terran::Core::UUID();
-        static_cast<Terran::Core::UUID*>(result.m_Data.ptr)->SetData(id.GetData());
+        static_cast<Terran::Core::UUID*>(result.m_Data.ptr)->set_data(id.GetData());
         break;
     }
     default:;

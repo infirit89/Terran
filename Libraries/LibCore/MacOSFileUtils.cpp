@@ -1,5 +1,5 @@
-#include "trpch.h"
-#include "LibCore/FileUtils.h"
+#include "Assert.h"
+#include "FileUtils.h"
 
 #include <filesystem>
 

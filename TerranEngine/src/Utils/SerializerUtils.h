@@ -108,7 +108,7 @@ struct convert<Terran::Core::UUID> {
     static bool decode(Node const& node, Terran::Core::UUID& rhs)
     {
 
-        rhs = Terran::Core::UUID::FromString(node.as<std::string>());
+        rhs = Terran::Core::UUID::from_string(node.as<std::string>());
         return true;
     }
 };

@@ -48,6 +48,9 @@ removefiles {
 
     "src/Core/Window.h",
     "src/Core/Window.cpp",
+
+    "src/Utils/**.h",
+    "src/Utils/**.cpp",
 }
 
 dependson {

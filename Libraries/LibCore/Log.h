@@ -100,7 +100,7 @@ public:
 template<typename OStream>
 OStream& operator<<(OStream& os, const UUID& uuid)
 {
-    std::array<uint8_t, 16> idArr = uuid.GetData();
+    std::array<uint8_t, 16> idArr = uuid.data();
 
     int ind = 0;
     for (int i = 0; i < 20; i++) {

@@ -68,7 +68,7 @@ struct SpriteRendererComponent {
     SpriteRendererComponent() = default;
 
     glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-    Terran::Core::UUID TextureHandle = Terran::Core::UUID::Invalid();
+    Terran::Core::UUID TextureHandle = Terran::Core::UUID::invalid();
 
     int ZIndex = 0;
 };
@@ -126,7 +126,7 @@ struct ScriptComponent {
     std::string ModuleName;
     std::vector<int32_t> FieldHandles;
 
-    Terran::Core::UUID ScriptSourceHandle = Terran::Core::UUID::Invalid();
+    Terran::Core::UUID ScriptSourceHandle = Terran::Core::UUID::invalid();
     bool ClassExists = true;
 };
 
@@ -141,7 +141,7 @@ struct Rigidbody2DComponent {
     bool Enabled = true;
     int LayerIndex = 0;
 
-    Terran::Core::UUID PhysicsMaterialHandle = Terran::Core::UUID::Invalid();
+    Terran::Core::UUID PhysicsMaterialHandle = Terran::Core::UUID::invalid();
 };
 
 struct BoxCollider2DComponent {

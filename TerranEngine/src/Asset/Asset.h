@@ -26,7 +26,7 @@ struct AssetInfo {
 
     std::filesystem::path Path = "";
     AssetType Type = AssetType::None;
-    AssetHandle Handle = AssetHandle::Invalid();
+    AssetHandle Handle = AssetHandle::invalid();
 };
 
 class Asset {
