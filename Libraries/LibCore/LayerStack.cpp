@@ -8,30 +8,30 @@ namespace Core {
 
 LayerStack::~LayerStack()
 {
-    RemoveAllLayers();
+    clear();
 }
 
-void LayerStack::PushLayer(Layer* layer)
+void LayerStack::push(Layer* layer)
 {
-    m_Layers.emplace_back(layer);
+    m_layers.emplace_back(layer);
 }
 
-void LayerStack::RemoveLayer(Layer* layer)
+void LayerStack::remove(Layer* layer)
 {
-    auto iterator = std::ranges::find(m_Layers, layer);
+    auto iterator = std::ranges::find(m_layers, layer);
 
-    layer->OnDetach();
-    m_Layers.erase(iterator);
-    m_LastInsertIndex--;
+    layer->on_dettach();
+    m_layers.erase(iterator);
+    m_lastInsertIndex--;
 }
 
-void LayerStack::RemoveAllLayers()
+void LayerStack::clear()
 {
-    while (!m_Layers.empty()) {
-        Layer* layer = *(m_Layers.end() - 1);
-        layer->OnDetach();
+    while (!m_layers.empty()) {
+        Layer* layer = *(m_layers.end() - 1);
+        layer->on_dettach();
         delete layer;
-        m_Layers.erase(m_Layers.end() - 1);
+        m_layers.erase(m_layers.end() - 1);
     }
 }
 

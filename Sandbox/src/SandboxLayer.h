@@ -11,13 +11,13 @@ class SandboxLayer : public Terran::Core::Layer {
 public:
     SandboxLayer();
 
-    void OnAttach() override;
-    void OnDetach() override;
+    void on_attach() override;
+    void on_dettach() override;
 
-    void Update(Terran::Core::Time& time) override;
+    void update(Terran::Core::Time& time) override;
 
-    void OnEvent(Terran::Core::Event& event) override;
-    void ImGuiRender() override;
+    void on_event(Terran::Core::Event& event) override;
+    void imgui_render() override;
 
 private:
     Transform m_CameraTransform;
