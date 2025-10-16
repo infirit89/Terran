@@ -9,44 +9,87 @@ namespace Core {
 
 class UUID {
 public:
-    UUID();
-    UUID(std::array<uint8_t, 16> const& data);
-    UUID(const UUID& other) = default;
-    static UUID Invalid() { return s_Empty; }
-
-    std::array<uint8_t, 16> GetData() const { return m_Data; }
-    std::array<uint8_t, 16> GetData() { return m_Data; }
-
-    void SetData(std::array<uint8_t, 16> const& idArray) { m_Data = idArray; }
-
-    uint8_t const* GetRaw() const { return m_Data.data(); }
-    static UUID CreateFromRaw(uint8_t const* data);
-
-    bool operator==(const UUID& other) const { return m_Data == other.m_Data; }
-    bool operator==(const UUID& other) { return m_Data == other.m_Data; }
-
-    bool operator!=(const UUID& other) const { return m_Data != other.m_Data; }
-    bool operator!=(const UUID& other) { return m_Data != other.m_Data; }
-
-    bool operator<(const UUID& other) const { return m_Data < other.m_Data; }
-    bool operator<(const UUID& other) { return m_Data < other.m_Data; }
-
-    bool operator>(const UUID& other) const { return m_Data > other.m_Data; }
-    bool operator>(const UUID& other) { return m_Data > other.m_Data; }
-
-    operator bool() const { return IsValid(); }
-
-    bool IsValid() const
+    using type = std::array<uint8_t, 16>;
+    UUID()
+        : m_data(generate())
     {
-        std::array<uint8_t, 16> empty { { 0 } };
-
-        return m_Data != empty;
     }
 
-    static UUID FromString(std::string const& str);
+    constexpr UUID(type const& data) noexcept
+        : m_data(data)
+    {
+    }
+
+    constexpr UUID(const UUID& other) noexcept
+        : m_data(other.m_data)
+    {
+    }
+
+    constexpr UUID(UUID&& other) noexcept
+    {
+        m_data = other.m_data;
+        other.m_data = {};
+    }
+
+    ~UUID() = default;
+
+    static constexpr const UUID& invalid() noexcept { return s_empty; }
+
+    type constexpr data() const noexcept { return m_data; }
+
+    void set_data(type const& data) { m_data = data; }
+
+    constexpr type::value_type const* data_raw() const noexcept
+    {
+        return m_data.data();
+    }
+
+    static UUID from_string(std::string const& str);
+
+    constexpr UUID& operator=(const UUID& other) noexcept
+    {
+        return *this = UUID(other);
+    }
+
+    constexpr UUID& operator=(UUID&& other) noexcept
+    {
+        m_data = other.m_data;
+        other.m_data = {};
+        return *this;
+    }
+
+    constexpr bool operator==(const UUID& other) const noexcept
+    {
+        return m_data == other.m_data;
+    }
+
+    constexpr bool operator!=(const UUID& other) const noexcept
+    {
+        return m_data != other.m_data;
+    }
+
+    constexpr bool operator<(const UUID& other) const noexcept
+    {
+        return m_data < other.m_data;
+    }
+
+    constexpr bool operator>(const UUID& other) const noexcept
+    {
+        return m_data > other.m_data;
+    }
+
+    constexpr operator bool() const noexcept
+    {
+        return is_valid();
+    }
+
+    constexpr bool is_valid() const noexcept
+    {
+        return m_data != s_empty.m_data;
+    }
 
 private:
-    void Generate();
+    [[nodiscard]] static type generate();
     /*
      * empty UUID:
      * 1	 2  3  4    5  6    7  8    9  10   11 12 13 14 15 16
@@ -63,8 +106,8 @@ private:
      *
      * 11-16: node
      */
-    std::array<uint8_t, 16> m_Data;
-    static UUID s_Empty;
+    type m_data;
+    static const UUID s_empty;
 };
 
 }
@@ -85,7 +128,7 @@ struct hash<Terran::Core::UUID> {
 
         size_t result = 0;
 
-        std::array<uint8_t, 16> idArr = uuid.GetData();
+        std::array<uint8_t, 16> idArr = uuid.data();
 
         for (size_t i = 0; i < idArr.size(); i++)
             result = (result << 1) ^ hash(idArr[i]);
@@ -99,7 +142,7 @@ template<class CharT = char,
     class Allocator = std::allocator<CharT>>
 std::basic_string<CharT, Traits, Allocator> to_string(Terran::Core::UUID const& id)
 {
-    std::array<uint8_t, 16> idArr = id.GetData();
+    std::array<uint8_t, 16> idArr = id.data();
 
     std::basic_stringstream<CharT, Traits, Allocator> sstr;
 

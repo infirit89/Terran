@@ -1,9 +1,4 @@
-#include "trpch.h"
-#include "LibCore/FileUtils.h"
-
-#include "Core/Application.h"
-
-#include "Project/Project.h"
+#include "FileUtils.h"
 
 #ifdef TR_WINDOWS_64
 #include "GLFW/glfw3.h"
