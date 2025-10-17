@@ -3,7 +3,7 @@
 	path = Terran/TerranEngine/vendor/spdlog
 	url = https://github.com/gabime/spdlog
 [submodule "TerranEngine/vendor/GLFW"]
-	path = TerranEngine/vendor/GLFW
+	path = vendor/glfw
 	url = https://github.com/OKAY808/glfw
 [submodule "TerranEngine/vendor/glm"]
 	path = vendor/glm
