@@ -6,27 +6,49 @@
 namespace Terran {
 namespace Core {
 
-class Buffer final {
+// NOTE: this is an owning byte buffer
+class ByteBuffer final {
 public:
-    Buffer();
-    Buffer(size_t size);
-    Buffer(void const* data, size_t size);
+    constexpr ByteBuffer() noexcept;
+    constexpr ~ByteBuffer() noexcept
+    {
+        free();
+    }
 
-    void Allocate(size_t size);
-    void Free();
+    ByteBuffer(size_t size);
+    ByteBuffer(void const* data, size_t size);
 
-    static Buffer Copy(Buffer const& other);
-    static Buffer Copy(void const* data, size_t size);
-    uint8_t const* GetData() const { return m_Data; }
-    size_t GetSize() const { return m_Size; }
-    void Write(void const* data, uint32_t offset, size_t size);
-    uint8_t* Read(uint32_t offset) const { return m_Data + offset; }
+    void allocate(size_t size);
+    void free();
 
-    operator bool() const { return m_Data != nullptr && m_Size != 0; }
+    static ByteBuffer Copy(ByteBuffer const& other);
+    static ByteBuffer Copy(void const* data, size_t size);
+
+    constexpr uint8_t const* data() const noexcept
+    {
+        return m_data;
+    }
+
+    constexpr size_t size() const noexcept
+    {
+        return m_size;
+    }
+
+    void write(void const* data, uint32_t offset, size_t size);
+
+    constexpr uint8_t* read(uint32_t offset) const noexcept
+    {
+        return m_data + offset;
+    }
+
+    constexpr operator bool() const noexcept
+    {
+        return m_data != nullptr && m_size != 0;
+    }
 
 private:
-    uint8_t* m_Data = nullptr;
-    size_t m_Size;
+    uint8_t* m_data = nullptr;
+    size_t m_size;
 };
 
 }

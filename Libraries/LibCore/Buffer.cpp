@@ -9,60 +9,63 @@
 namespace Terran {
 namespace Core {
 
-Buffer::Buffer()
-    : m_Data(nullptr)
-    , m_Size(0)
+constexpr ByteBuffer::ByteBuffer() noexcept
+    : m_data(nullptr)
+    , m_size(0)
 {
 }
 
-Buffer::Buffer(size_t size)
+ByteBuffer::ByteBuffer(size_t size)
 {
-    Allocate(size);
+    allocate(size);
 }
 
-Buffer::Buffer(void const* data, size_t size)
-    : m_Data((uint8_t*)data)
-    , m_Size(size)
+ByteBuffer::ByteBuffer(void const* data, size_t size)
+    : m_data((uint8_t*)data)
+    , m_size(size)
 {
 }
 
-void Buffer::Allocate(size_t size)
+void ByteBuffer::allocate(size_t size)
 {
-    if (m_Data)
-        Free();
+    if (m_data)
+        free();
 
-    m_Data = new uint8_t[size];
-    m_Size = size;
+    m_data = new uint8_t[size];
+    m_size = size;
 }
 
-void Buffer::Free()
+void ByteBuffer::free()
 {
-    delete[] m_Data;
-    m_Data = nullptr;
-    m_Size = 0;
+    if(!m_data)
+        return;
+
+    delete[] m_data;
+    m_data = nullptr;
+    m_size = 0;
 }
 
-Buffer Buffer::Copy(Buffer const& other)
+ByteBuffer ByteBuffer::Copy(ByteBuffer const& other)
 {
-    Buffer buffer;
-    buffer.Allocate(other.m_Size);
-    memcpy(buffer.m_Data, other.m_Data, other.m_Size);
+    ByteBuffer buffer;
+    buffer.allocate(other.m_size);
+    memcpy(buffer.m_data, other.m_data, other.m_size);
     return buffer;
 }
 
-Buffer Buffer::Copy(void const* data, size_t size)
+ByteBuffer ByteBuffer::Copy(void const* data, size_t size)
 {
-    Buffer buffer;
-    buffer.Allocate(size);
-    memcpy(buffer.m_Data, data, size);
+    ByteBuffer buffer;
+    buffer.allocate(size);
+    memcpy(buffer.m_data, data, size);
     return buffer;
 }
 
-void Buffer::Write(void const* data, uint32_t offset, size_t size)
+void ByteBuffer::write(void const* data, uint32_t offset, size_t size)
 {
-    uint8_t* writeLocation = m_Data + offset;
-    size_t dataSize = (size_t)((writeLocation + size) - m_Data);
-    TR_ASSERT(dataSize <= m_Size, "Data size is too big");
+    uint8_t* writeLocation = m_data + offset;
+    size_t dataSize = (size_t)((writeLocation + size) - m_data);
+    TR_ASSERT(dataSize <= m_size, "Data size is too big");
 
     memcpy(writeLocation, data, size);
 }
