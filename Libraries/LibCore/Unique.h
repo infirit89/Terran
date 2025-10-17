@@ -49,7 +49,7 @@ public:
     }
 
     template<typename... Args>
-    static Unique Create(Args&&... args)
+    static Unique create(Args&&... args)
     {
         return Unique(new T(std::forward<Args>(args)...));
     }
