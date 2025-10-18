@@ -19,7 +19,7 @@ flags {
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
-include "TerranEngine/vendor/GLFW"
+include "vendor/GLFW"
 include "TerranEngine/vendor/ImGui"
 include "TerranEngine/vendor/GLAD"
 include "TerranEngine/vendor/msdf-atlas-gen"
@@ -34,6 +34,9 @@ group "Core"
 include "Libraries/LibMain"
 include "Libraries/LibCore"
 include "TerranEngine"
+
+group "Graphics"
+include "Libraries/LibWindow"
 
 group "Tools"
 -- NOTE: removing the terran editor during the rework as it will cause
