@@ -18,10 +18,13 @@ int main(int argc, char** argv)
     if (!application)
         return 1;
 
-    application->run();
+    auto result = application->run();
     delete application;
 
     Terran::Core::Log::Shutdown();
+
+    if(!result.is_ok())
+        return 1;
 
     return 0;
 }
