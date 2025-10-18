@@ -17,7 +17,6 @@ def UpdateSubmodules():
 
 if __name__ == "__main__":
     UpdateSubmodules()
-    os.chdir("../")
 
     # TODO: install dotnet8 if not installed 
     InstallPackages()

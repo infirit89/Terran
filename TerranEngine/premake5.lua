@@ -71,7 +71,7 @@ includedirs {
     "%{IncludeDirectories.msdfgen}",
     "%{IncludeDirectories.msdf_atlas_gen}",
     "%{IncludeDirectories.box2d}",
-    "%{IncludeDirectories.shaderc}",
+    -- "%{IncludeDirectories.shaderc}",
     "%{IncludeDirectories.coral}",
 }
 

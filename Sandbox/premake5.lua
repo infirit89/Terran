@@ -65,7 +65,7 @@ architecture "ARM64"
 
 libdirs {
     "/usr/local/lib",
-    "%{VULKAN_SDK}/lib",
+    -- "%{VULKAN_SDK}/lib",
     -- "%{wks.location}/TerranEngine/vendor/shaderc/lib"
 }
 
@@ -84,14 +84,14 @@ links {
     "Coral.Native",
     "msdfgen",
     "freetype",
-    "shaderc_shared",
+    -- "shaderc_shared",
 }
 
 postbuildcommands {
     -- todo: copy the pdb
-    "{MKDIR} %{prj.location}/Resources/Scripts",
-    "%{CopyCommands.coral}",
-    "%{CopyCommands.script_core}",
+    -- "{MKDIR} %{prj.location}/Resources/Scripts",
+    -- "%{CopyCommands.coral}",
+    -- "%{CopyCommands.script_core}",
 }
 
 defines "TR_SANDBOX"
