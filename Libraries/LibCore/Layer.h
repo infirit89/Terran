@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Macros.h"
-#include "Time.h"
 #include "Event.h"
+#include "Macros.h"
+#include "Result.h"
+#include "Time.h"
 
 #include <string_view>
 
@@ -15,11 +16,6 @@ public:
     MAKE_NONCOPYABLE(Layer);
     MAKE_NONMOVEABLE(Layer);
 
-    constexpr Layer(std::string_view name) noexcept
-        : m_name(name)
-    {
-    }
-
     virtual ~Layer() = default;
 
     // delete the default constructor as a layer should always have a name
@@ -30,8 +26,25 @@ public:
     virtual void imgui_render() { }
 
     // NOTE: maybe make on attach and on dettach to just be the constructor and destructor??
-    virtual void on_attach() { }
-    virtual void on_dettach() { }
+    virtual Result<void> on_attach()
+    {
+        return {};
+    }
+    virtual Result<void> on_dettach()
+    {
+        return {};
+    }
+
+    constexpr std::string_view name() const noexcept
+    {
+        return m_name;
+    }
+
+protected:
+    constexpr Layer(std::string_view name) noexcept
+        : m_name(name)
+    {
+    }
 
 private:
     std::string_view m_name;
