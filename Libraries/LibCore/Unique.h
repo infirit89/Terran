@@ -43,9 +43,9 @@ public:
         return m_data;
     }
 
-    constexpr T& operator->() noexcept
+    constexpr T* operator->() noexcept
     {
-        return &m_data;
+        return m_data;
     }
 
     template<typename... Args>
