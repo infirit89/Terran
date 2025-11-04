@@ -1,58 +1,124 @@
 #pragma once
 
-#include "ControllerIndices.h"
 #include "CursorStates.h"
 #include "KeyCodes.h"
 #include "MouseButtons.h"
+#include "InputState.h"
 
+#include <LibCore/Log.h>
+#include <LibCore/Macros.h>
+
+#include <array>
 #include <glm/glm.hpp>
 
-#include <vector>
+#include <cstdint>
+#include <map>
+#include <cstddef>
 
 namespace Terran {
 namespace Window {
 
-struct InputState final {
-    bool CurrentState = false;
-    bool PreviousState = false;
-};
 
+class Input;
+
+class Window;
 class Input final {
 public:
-    static void Init();
+    using key_state_map = std::map<Key, InputState>;
+    using mouse_button_state_container = std::array<InputState, InputUtils::MouseButtonsSize>;
 
-    static bool IsKeyPressed(Key key);
-    static bool IsKeyDown(Key key);
-    static bool IsKeyReleased(Key key);
+    MAKE_NONCOPYABLE(Input);
+    MAKE_NONMOVEABLE(Input);
 
-    static bool GetKeyState(Key key);
-    static bool GetMouseButtonState(MouseButton button);
+    ~Input() = default;
 
-    static bool IsMouseButtonPressed(MouseButton button);
-    static bool IsMouseButtonDown(MouseButton button);
-    static bool IsMouseButtonReleased(MouseButton button);
+    constexpr bool key_pressed(Key key) const noexcept
+    {
+        auto const& inputState = m_keyStates.at(key);
+        return !inputState.PreviousState
+            && inputState.CurrentState;
+    }
 
-    static void SetCursorState(CursorMode cursorMode);
+    constexpr bool key_down(Key key) const noexcept
+    {
+        return m_keyStates.at(key).CurrentState;
+    }
 
-    static glm::vec2 GetMousePos();
+    constexpr bool key_released(Key key) const noexcept
+    {
+        auto const& inputState = m_keyStates.at(key);
+        return inputState.PreviousState
+            && !inputState.CurrentState;
+    }
 
-    static bool IsControllerConnected(uint8_t controllerIndex);
-    static char const* GetControllerName(uint8_t controllerIndex);
+    constexpr bool mouse_button_pressed(MouseButton button) const noexcept
+    {
+        auto const& inputState = m_mouseButtonStates.at(static_cast<size_t>(button));
+        return !inputState.PreviousState
+            && inputState.CurrentState;
+    }
 
-    static bool IsControllerButtonPressed(ControllerButton controllerButton, uint8_t controllerIndex);
-    static float GetControllerAxis(ControllerAxis controllerAxis, uint8_t controllerIndex);
+    constexpr bool mouse_button_down(MouseButton button) const noexcept
+    {
+        return m_mouseButtonStates.at(static_cast<size_t>(button)).CurrentState;
+    }
 
-    static glm::vec2 GetControllerRightStick(uint8_t controllerIndex);
-    static glm::vec2 GetControllerLeftStick(uint8_t controllerIndex);
+    constexpr bool mouse_button_released(MouseButton button) const noexcept
+    {
+        auto const& inputState = m_mouseButtonStates.at(static_cast<size_t>(button));
+        return inputState.PreviousState
+            && !inputState.CurrentState;
+    }
 
-    static std::vector<uint8_t> GetConnectedControllers();
-    static float GetMouseX() { return GetMousePos().x; }
-    static float GetMouseY() { return GetMousePos().y; }
+    // ------ Defined by windowing implementation ------
+    bool key_state(Key key);
+    bool mouse_button_state(MouseButton button);
 
-    static void Update();
+    void set_cursor_state(CursorMode cursorMode);
 
-    static std::unordered_map<Key, InputState> GetKeyStates();
-    static std::unordered_map<MouseButton, InputState> GetMouseButtonStates();
+    glm::vec2 mouse_position();
+    // -------------------------------------------------
+
+    void update()
+    {
+        for (auto& [key, keyState] : m_keyStates) {
+            keyState.PreviousState = keyState.CurrentState;
+            keyState.CurrentState = key_state(key);
+        }
+
+        for (uint8_t mouseButton = 0; mouseButton < InputUtils::MouseButtonsSize; mouseButton++) {
+            auto& mouseButtonState = m_mouseButtonStates.at(mouseButton);
+            mouseButtonState.PreviousState = mouseButtonState.CurrentState;
+            mouseButtonState.CurrentState = mouse_button_state(static_cast<MouseButton>(mouseButton));
+        }
+    }
+
+    constexpr key_state_map const& key_states() const& noexcept
+    {
+        return m_keyStates;
+    }
+
+    constexpr mouse_button_state_container const& mouse_button_states() const& noexcept
+    {
+        return m_mouseButtonStates;
+    }
+
+
+private:
+    Input(Window const* window)
+        : m_window(window)
+    {
+        for (auto const& key : InputUtils::Keys)
+            m_keyStates.emplace(key);
+
+        TR_CORE_INFO(TR_LOG_CORE, "Initialized input system");
+    }
+
+    key_state_map m_keyStates;
+    mouse_button_state_container m_mouseButtonStates;
+    Window const* m_window;
+
+    friend class Window;
 };
 
 }

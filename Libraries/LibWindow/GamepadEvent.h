@@ -1,9 +1,10 @@
 #pragma once
-#include "LibCore/Event.h"
+#include <LibCore/Event.h>
 
 #include <cstdint>
 
-namespace TerranEngine {
+namespace Terran {
+namespace Window {
 
 class GamePadEvent : public Terran::Core::Event {
 public:
@@ -37,5 +38,7 @@ public:
 
     EVENT_CLASS_TYPE(GamePadDisconnected)
 };
+
+}
 
 }

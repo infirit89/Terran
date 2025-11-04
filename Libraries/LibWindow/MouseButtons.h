@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace Terran {
@@ -23,7 +25,8 @@ enum class MouseButton : uint8_t {
 
 namespace InputUtils {
 
-inline MouseButton MouseButtons[] = {
+constexpr inline size_t MouseButtonsSize = 8;
+constexpr inline std::array<MouseButton, MouseButtonsSize> MouseButtons = {
     MouseButton::Button1,
     MouseButton::Button2,
     MouseButton::Button3,
@@ -38,4 +41,3 @@ inline MouseButton MouseButtons[] = {
 }
 
 }
-

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "LibCore/Event.h"
+#include "KeyCodes.h"
 
-#include "Core/KeyCodes.h"
+#include <LibCore/Event.h>
 
 #include <cstdint>
 
-namespace TerranEngine {
+namespace Terran {
+namespace Window {
 
 class KeyboardEvent : public Terran::Core::Event {
 public:
@@ -48,3 +49,4 @@ public:
 
 }
 
+}
