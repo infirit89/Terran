@@ -16,11 +16,12 @@ files {
     "vendor/glm/glm/**.inl",
 }
 
-includedirs {
+externalincludedirs {
     "%{wks.location}/Libraries",
     "%{Dependencies.spdlog.include}",
     "%{Dependencies.glm.include}",
     "%{Dependencies.yaml.include}",
+    "%{Dependencies.glfw.include}",
 }
 
 linkoptions {

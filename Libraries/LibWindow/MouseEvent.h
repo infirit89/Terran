@@ -1,10 +1,11 @@
 #pragma once
 
-#include "LibCore/Event.h"
+#include "MouseButtons.h"
 
-#include "Core/MouseButtons.h"
+#include <LibCore/Event.h>
 
-namespace TerranEngine {
+namespace Terran {
+namespace Window {
 
 class MouseMoveEvent final : public Terran::Core::Event {
 public:
@@ -79,3 +80,4 @@ public:
 
 }
 
+}

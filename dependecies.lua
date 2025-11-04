@@ -12,7 +12,7 @@ Dependencies = {
         link = "yaml-cpp",
     },
     glfw = {
-        include = "%{wks.location}/TerranEngine/vendor/GLFW/include",
+        include = "%{wks.location}/vendor/GLFW/include",
         link = "glfw",
     },
 }

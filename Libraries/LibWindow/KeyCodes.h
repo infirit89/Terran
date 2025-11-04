@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace Terran {
@@ -132,7 +134,8 @@ enum class Key : uint16_t {
 
 namespace InputUtils {
 
-inline Key Keys[] = {
+constexpr inline size_t KeysSize = 120;
+constexpr inline std::array<Key, KeysSize> Keys = {
     Key::Space,
     Key::Apostrophe,
     Key::Comma,

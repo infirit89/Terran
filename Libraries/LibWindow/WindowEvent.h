@@ -1,10 +1,11 @@
 #pragma once
 
-#include "LibCore/Event.h"
+#include <LibCore/Event.h>
 
 #include <cstdint>
 
-namespace TerranEngine {
+namespace Terran {
+namespace Window {
 
 class WindowCloseEvent final : public Terran::Core::Event {
 public:
@@ -53,3 +54,4 @@ private:
 
 }
 
+}
