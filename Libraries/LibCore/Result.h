@@ -1,9 +1,7 @@
 #pragma once
 
-#include "LibCore/Assert.h"
-#include <LibCore/Macros.h>
+#include "Assert.h"
 #include <type_traits>
-#include <utility>
 namespace Terran {
 namespace Core {
 
@@ -29,8 +27,6 @@ class Result {
 public:
     using result_type = TValue;
     using error_type = TError;
-
-    MAKE_NONCOPYABLE(Result);
 
     constexpr Result()
     requires(std::is_default_constructible_v<TValue>)
