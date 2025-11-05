@@ -24,12 +24,6 @@ Application::~Application()
     m_Stack.clear();
 }
 
-void Application::push_layer(Terran::Core::Layer* layer)
-{
-    m_Stack.push(layer);
-    layer->on_attach();
-}
-
 void Application::close()
 {
     m_Running = false;
@@ -68,7 +62,7 @@ Terran::Core::Result<void> Application::run()
             {
                 // TODO: Re-enable profiling scope
                 // TR_PROFILE_SCOPE("Layer::OnUpdate");
-                for (Terran::Core::Layer* layer : m_Stack.layers())
+                for (auto& layer : m_Stack)
                     layer->update(time);
             }
 
