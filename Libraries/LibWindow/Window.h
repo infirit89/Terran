@@ -34,6 +34,7 @@ public:
     MAKE_NONCOPYABLE(Window);
     MAKE_NONMOVEABLE(Window);
 
+    Window() = default;
     virtual ~Window() = default;
 
     virtual constexpr uint32_t width() const noexcept = 0;
