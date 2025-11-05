@@ -109,7 +109,7 @@ private:
         : m_window(window)
     {
         for (auto const& key : InputUtils::Keys)
-            m_keyStates.emplace(key);
+            m_keyStates.emplace(key, InputState());
 
         TR_CORE_INFO(TR_LOG_CORE, "Initialized input system");
     }
