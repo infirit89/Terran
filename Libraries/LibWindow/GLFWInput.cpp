@@ -45,41 +45,6 @@ void Input::set_cursor_state(CursorMode cursorMode)
     glfwSetInputMode(window, GLFW_CURSOR, static_cast<int>(cursorMode));
 }
 
-bool Input::controller_button_pressed(uint8_t controllerIndex, ControllerButton controllerButton)
-{
-    GLFWgamepadstate gamepadState;
-
-    if (glfwGetGamepadState(controllerIndex, &gamepadState))
-        return gamepadState.buttons[static_cast<int>(controllerButton)];
-
-    return false;
-}
-
-float Input::controller_axis(uint8_t controllerIndex, ControllerAxis controllerAxis)
-{
-    GLFWgamepadstate gamepadState;
-
-    if (glfwGetGamepadState(controllerIndex, &gamepadState))
-        return gamepadState.axes[static_cast<int>(controllerAxis)];
-
-    return 0.0f;
-}
-
-glm::vec2 Input::controller_right_stick(uint8_t controllerIndex)
-{
-    float rightX = controller_axis(controllerIndex, ControllerAxis::RightX);
-    float rightY = controller_axis(controllerIndex, ControllerAxis::RightY);
-
-    return { rightX, rightY };
-}
-
-glm::vec2 Input::controller_left_stick(uint8_t controllerIndex)
-{
-    float leftX = controller_axis(controllerIndex, ControllerAxis::LeftX);
-    float leftY = controller_axis(controllerIndex, ControllerAxis::LeftY);
-
-    return { leftX, leftY };
-}
 
 }
 }
