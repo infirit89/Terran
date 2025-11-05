@@ -2,8 +2,8 @@
 
 #include "InputState.h"
 
-#include <LibCore/Log.h>
 #include <LibCore/Assert.h>
+#include <LibCore/Log.h>
 #include <LibCore/Macros.h>
 
 #include <glm/vec2.hpp>
@@ -133,6 +133,25 @@ public:
             && inputState.CurrentState;
     }
 
+    // a little utility enum, based on the fact that only 15 controllers are supported
+    enum : uint8_t {
+        One = 0,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven,
+        Eight,
+        Nine,
+        Ten,
+        Eleven,
+        Twelve,
+        Thirteen,
+        Fourteen,
+        Fifteen,
+    };
+
 private:
     uint32_t m_id;
     std::string m_name;
@@ -163,8 +182,33 @@ public:
         return m_controllers.at(id);
     }
 
+    controller_state_container::iterator begin() noexcept {
+        return m_controllers.begin();
+    }
+
+    controller_state_container::const_iterator begin() const noexcept {
+        return m_controllers.begin();
+    }
+
+    controller_state_container::const_iterator cbegin() const noexcept {
+        return m_controllers.cbegin();
+    }
+
+    controller_state_container::iterator end() noexcept {
+        return m_controllers.end();
+    }
+
+    controller_state_container::const_iterator end() const noexcept {
+        return m_controllers.end();
+    }
+
+    controller_state_container::const_iterator cend() const noexcept {
+        return m_controllers.cend();
+    }
+
     void init_controller(uint8_t id);
     void shutdown_controller(uint8_t id);
+
 private:
     controller_state_container m_controllers;
 };

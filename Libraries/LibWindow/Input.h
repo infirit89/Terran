@@ -1,9 +1,9 @@
 #pragma once
 
 #include "CursorStates.h"
+#include "InputState.h"
 #include "KeyCodes.h"
 #include "MouseButtons.h"
-#include "InputState.h"
 
 #include <LibCore/Log.h>
 #include <LibCore/Macros.h>
@@ -11,13 +11,12 @@
 #include <array>
 #include <glm/glm.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <map>
-#include <cstddef>
 
 namespace Terran {
 namespace Window {
-
 
 class Input;
 
@@ -102,7 +101,6 @@ public:
     {
         return m_mouseButtonStates;
     }
-
 
 private:
     Input(Window const* window)
