@@ -2,6 +2,7 @@
 
 #include "DefaultDelete.h"
 #include "Macros.h"
+#include <type_traits>
 #include <utility>
 namespace Terran {
 namespace Core {
@@ -10,14 +11,14 @@ namespace Core {
 template<typename T, typename TDeleter = DefaultDelete<T>>
 class Unique {
 public:
+    using deleter_type = TDeleter;
     MAKE_NONCOPYABLE(Unique);
 
     constexpr Unique() noexcept = default;
 
     ~Unique() noexcept
     {
-        TDeleter m_data;
-        m_data = nullptr;
+        reset();
     }
 
     constexpr Unique(T* data) noexcept
@@ -38,6 +39,13 @@ public:
         return *this;
     }
 
+    template<typename U>
+    constexpr Unique(Unique<U>&& other) noexcept
+    requires(std::is_convertible_v<U*, T*>)
+        : m_data(other.release())
+    {
+    }
+
     constexpr T* data() noexcept
     {
         return m_data;
@@ -48,6 +56,23 @@ public:
         return m_data;
     }
 
+    [[nodiscard]] constexpr T* release() noexcept
+    {
+        T* released_data = m_data;
+        m_data = nullptr;
+        return released_data;
+    }
+
+    constexpr void reset() noexcept
+    {
+        auto* data = std::exchange(m_data, nullptr);
+        m_deleter (data);
+    }
+
+    [[nodiscard]] constexpr deleter_type deleter() noexcept {
+        return m_deleter;
+    }
+
     template<typename... Args>
     constexpr static Unique create(Args&&... args)
     {
@@ -56,6 +81,7 @@ public:
 
 private:
     T* m_data = nullptr;
+    deleter_type m_deleter {};
 };
 
 }
