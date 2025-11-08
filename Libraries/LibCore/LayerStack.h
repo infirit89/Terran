@@ -6,6 +6,7 @@
 #include "Result.h"
 
 #include <cstddef>
+#include <type_traits>
 #include <vector>
 #include <utility>
 
@@ -25,10 +26,11 @@ public:
         clear();
     }
 
-    template<typename... Args>
+    template<typename TLayer, typename... Args>
+    requires(std::is_base_of_v<Layer, TLayer>)
     Result<void> push(Args... args)
     {
-        Unique<Layer> layer = Unique<Layer>::create(std::forward<Args>(args)...);
+        Unique<Layer> layer = Unique<TLayer>::create(std::forward<Args>(args)...);
         auto result = layer->on_attach();
 
         if(!result.is_ok())
