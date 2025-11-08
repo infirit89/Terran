@@ -125,6 +125,11 @@ public:
      */
     static Application* get() { return m_Instance; }
 
+    constexpr Core::LayerStack& layer_stack() noexcept
+    {
+        return m_LayerStack;
+    }
+
 protected:
     /**
      * @brief Constructs the application and sets up the singleton instance
@@ -159,7 +164,7 @@ private:
     [[nodiscard]] Terran::Core::Result<void> run();
 
     static Application* m_Instance;
-    Terran::Core::LayerStack m_Stack;
+    Terran::Core::LayerStack m_LayerStack;
 
     bool m_Minimized = false;
     bool m_Running = false;

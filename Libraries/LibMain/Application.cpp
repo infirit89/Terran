@@ -21,7 +21,7 @@ Application::Application() noexcept
 
 Application::~Application()
 {
-    m_Stack.clear();
+    m_LayerStack.clear();
 }
 
 void Application::close()
@@ -62,7 +62,7 @@ Terran::Core::Result<void> Application::run()
             {
                 // TODO: Re-enable profiling scope
                 // TR_PROFILE_SCOPE("Layer::OnUpdate");
-                for (auto& layer : m_Stack)
+                for (auto& layer : m_LayerStack)
                     layer->update(time);
             }
 
