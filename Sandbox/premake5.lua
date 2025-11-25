@@ -18,23 +18,21 @@ files {
     "src/**.cpp",
 }
 
-includedirs {
-    "src",
-    "%{wks.location}/TerranEngine/src/",
-    "%{wks.location}/Libraries/",
+externalincludedirs {
+    "%{wks.location}/Libraries",
     "%{Dependencies.spdlog.include}",
     "%{IncludeDirectories.imgui}",
     "%{Dependencies.glm.include}",
     "%{IncludeDirectories.entt}",
     "%{IncludeDirectories.imguizmo}",
     "%{IncludeDirectories.optick}",
-    "%{wks.location}/TerranEditor/vendor/FontAwesome/",
+    "%{wks.location}/TerranEditor/vendor/FontAwesome",
 }
 
 links {
-    "TerranEngine",
     "LibCore",
     "LibMain",
+    "LibWindow",
 }
 
 defines {
