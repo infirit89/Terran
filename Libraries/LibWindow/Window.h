@@ -14,9 +14,6 @@ namespace Terran {
 namespace Window {
 
 struct WindowData final {
-    WindowData() = default;
-    ~WindowData() = default;
-
     std::string_view Name;
     uint32_t Width = 1280;
     uint32_t Height = 960;
