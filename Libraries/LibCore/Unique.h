@@ -50,7 +50,7 @@ public:
         return m_data;
     }
 
-    constexpr T* operator->() noexcept
+    constexpr T* operator->() const noexcept
     {
         return m_data;
     }
