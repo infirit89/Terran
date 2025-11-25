@@ -46,8 +46,7 @@ public:
     {
     }
 
-    constexpr T* data() noexcept
-    {
+    constexpr T* data() const noexcept {
         return m_data;
     }
 
