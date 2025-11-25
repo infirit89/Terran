@@ -1,3 +1,4 @@
+#include <LibWindow/Window.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/projection.hpp"
 
@@ -10,8 +11,13 @@
 
 #include <math.h>
 
-#include "LibCore/Log.h"
+#include <LibCore/Base.h>
+#include <LibCore/Log.h>
+#include <LibCore/Layer.h>
 
+#include <LibWindow/WindowSystem.h>
+
+using namespace Terran;
 namespace TerranEngine {
 
 static void TestFunc()
@@ -24,17 +30,25 @@ static void TestFunc()
     TR_CLIENT_WARN("Some warning");
 }
 
-SandboxLayer::SandboxLayer()
+SandboxLayer::SandboxLayer(Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem)
     : Layer("Sandbox Layer")
+, m_windowSystem(windowSystem)
 {
+    Window::WindowData windowData {
+        .Name = "Test Window",
+    };
+
+    m_windowSystem->create(windowData);
 }
 
-void SandboxLayer::on_attach()
+Core::Result<void> SandboxLayer::on_attach()
 {
+    return {};
 }
 
-void SandboxLayer::on_dettach()
+Core::Result<void> SandboxLayer::on_dettach()
 {
+    return {};
 }
 
 void SandboxLayer::update(Terran::Core::Time& time)
