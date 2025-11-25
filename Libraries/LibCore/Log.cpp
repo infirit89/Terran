@@ -180,7 +180,7 @@ void Log::SetLogFormat(std::string const& loggerName, std::string const& format)
 {
     s_Loggers.at(loggerName)->set_pattern(format);
 }
-}
 
+}
 
 }
