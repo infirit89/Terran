@@ -28,7 +28,7 @@ public:
     using result_type = TValue;
     using error_type = TError;
 
-    constexpr Result()
+    constexpr Result() noexcept
     requires(std::is_default_constructible_v<TValue>)
     = default;
 
