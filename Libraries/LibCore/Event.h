@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <type_traits>
 
 namespace Terran {
 namespace Core {
@@ -51,8 +52,8 @@ public:
     virtual Terran::Core::EventCategory GetCategory() const override { return Terran::Core::category; }
 
 class EventDispatcher final {
-    template<typename T>
-    using EventFN = std::function<bool(T&)>;
+    template<typename TEvent>
+    using EventFN = std::function<bool(TEvent&)>;
 
 public:
     EventDispatcher(Event& event)
@@ -60,12 +61,13 @@ public:
     {
     }
 
-    template<typename T>
-    bool Dispatch(EventFN<T> const& func)
+    template<typename TEvent>
+    requires(std::is_base_of_v<Event, TEvent>)
+    bool Dispatch(EventFN<TEvent> const& func)
     {
-        if (m_Event.GetType() == T::GetStaticType()) {
+        if (m_Event.GetType() == TEvent::GetStaticType()) {
             if (!m_Event.IsHandled) {
-                m_Event.IsHandled |= func(static_cast<T&>(m_Event));
+                m_Event.IsHandled |= func(static_cast<TEvent&>(m_Event));
                 return true;
             }
 
