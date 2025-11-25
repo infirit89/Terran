@@ -5,7 +5,10 @@
 #include "Unique.h"
 #include "Result.h"
 
+#include <LibCore/Assert.h>
+#include <LibCore/Base.h>
 #include <cstddef>
+#include <memory>
 #include <type_traits>
 #include <vector>
 #include <utility>
@@ -37,6 +40,7 @@ public:
             return result;
 
         m_layers.emplace_back(std::move(layer));
+        return {};
     }
 
     // TODO: error handling for on dettach
@@ -45,6 +49,19 @@ public:
         auto& layer = m_layers.at(index);
         layer->on_dettach();
         m_layers.erase(m_layers.begin() + index);
+    }
+
+    template<typename TLayer>
+    requires(std::is_base_of_v<Layer, TLayer>)
+    RawPtr<TLayer> get()
+    {
+        for(const auto& layer : m_layers) {
+            if(auto casted_layer = dynamic_cast<RawPtr<TLayer>>(layer.data())) {
+                return casted_layer;
+            }
+        }
+
+        return nullptr;
     }
 
     // TODO: error handling for on dettach

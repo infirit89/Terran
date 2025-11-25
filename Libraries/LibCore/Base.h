@@ -27,6 +27,10 @@ Shared<T1> DynamicCast(Shared<T2> const& ptr)
     return std::dynamic_pointer_cast<T1, T2>(ptr);
 }
 
+// Used to indicate a view into a smart pointer
+template<typename T>
+using RawPtr = T*;
+
 }
 
 namespace Literals {
