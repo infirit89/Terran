@@ -7,6 +7,7 @@
 #include <LibCore/Layer.h>
 #include <LibCore/Time.h>
 
+#include <LibWindow/WindowEvent.h>
 #include <LibWindow/WindowSystem.h>
 
 namespace TerranEngine {
@@ -21,6 +22,7 @@ public:
     void update(Terran::Core::Time& time) override;
 
     void on_event(Terran::Core::Event& event) override;
+    bool on_window_close(Terran::Window::WindowCloseEvent& event);
     void imgui_render() override;
 
 private:
