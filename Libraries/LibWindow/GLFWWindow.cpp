@@ -105,7 +105,7 @@ void GLFWWindow::setup_callbacks()
         WindowDataPtr& data = *static_cast<WindowDataPtr*>(glfwGetWindowUserPointer(window));
 
         WindowCloseEvent e;
-        data.EventCallback(e);
+        invokeEventCallback(data.EventCallback, e);
     });
 
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -115,7 +115,7 @@ void GLFWWindow::setup_callbacks()
         data.Height = height;
 
         WindowResizeEvent e(width, height);
-        data.EventCallback(e);
+        invokeEventCallback(data.EventCallback, e);
     });
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -124,17 +124,17 @@ void GLFWWindow::setup_callbacks()
         switch (action) {
         case GLFW_PRESS: {
             KeyPressedEvent e(static_cast<Key>(key), 0);
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         case GLFW_REPEAT: {
             KeyPressedEvent e(static_cast<Key>(key), 1);
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         case GLFW_RELEASE: {
             KeyReleasedEvent e(static_cast<Key>(key));
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         }
@@ -145,14 +145,14 @@ void GLFWWindow::setup_callbacks()
 
         MouseMoveEvent e(static_cast<float>(xpos), static_cast<float>(ypos));
 
-        data.EventCallback(e);
+        invokeEventCallback(data.EventCallback, e);
     });
 
     glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
         WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
 
         MouseScrollEvent e(static_cast<float>(xoffset), static_cast<float>(yoffset));
-        data.EventCallback(e);
+        invokeEventCallback(data.EventCallback, e);
     });
 
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
@@ -161,12 +161,12 @@ void GLFWWindow::setup_callbacks()
         switch (action) {
         case GLFW_PRESS: {
             MouseButtonPressedEvent e((MouseButton)button);
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         case GLFW_RELEASE: {
             MouseButtonReleasedEvent e((MouseButton)button);
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         }
@@ -178,12 +178,12 @@ void GLFWWindow::setup_callbacks()
         switch (event) {
         case GLFW_CONNECTED: {
             GamePadConnectedEvent e(joystickID);
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         case GLFW_DISCONNECTED: {
             GamePadDisconnectedEvent e(joystickID);
-            data.EventCallback(e);
+            invokeEventCallback(data.EventCallback, e);
             break;
         }
         }
@@ -192,7 +192,7 @@ void GLFWWindow::setup_callbacks()
     glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale) {
         WindowDataPtr& data = *(WindowDataPtr*)glfwGetWindowUserPointer(window);
         WindowContentScaleChangeEvent e(xscale, yscale);
-        data.EventCallback(e);
+        invokeEventCallback(data.EventCallback, e);
         data.XScale = xscale;
         data.YScale = yscale;
     });

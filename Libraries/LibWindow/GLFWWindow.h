@@ -2,8 +2,11 @@
 
 #include "Window.h"
 
+#include <LibCore/Event.h>
+
 #include <GLFW/glfw3.h>
 #include <cstdint>
+#include <type_traits>
 
 namespace Terran {
 namespace Window {
@@ -50,6 +53,12 @@ private:
     void init(WindowData data);
     void setup_callbacks();
     void destroy();
+    template<typename TEvent>
+    requires(std::is_base_of_v<Terran::Core::Event, TEvent>)
+    static void invokeEventCallback(EventCallbackFn const& eventCallbackFn, TEvent& event) {
+        if(eventCallbackFn)
+            eventCallbackFn(event);
+    }
 
 private:
     struct WindowDataPtr final {
