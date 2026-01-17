@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Asset.h"
-#include "AssetImporter.h"
+#include "AssetImporterRegistry.h"
 #include "AssetMetadata.h"
 #include "AssetTypes.h"
 
@@ -16,8 +16,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Terran {
-namespace Asset {
+namespace Terran::Asset {
 
 class AssetManager final {
     using AssetChangeCallbackFn = std::function<void(std::vector<Terran::Core::FileSystemChangeEvent> const&)>;
@@ -47,7 +46,7 @@ public:
 
         // NOTE: poc code
         Terran::Core::Shared<Asset> asset = nullptr;
-        AssetImporter::load(info, asset);
+        AssetImporterRegistry::load(info, asset);
 
         if (!asset) {
             TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
@@ -68,7 +67,7 @@ public:
 
         // NOTE: poc code
         Terran::Core::Shared<Asset> asset = nullptr;
-        AssetImporter::load(assetMetadata, asset);
+        AssetImporterRegistry::load(assetMetadata, asset);
 
         if (!asset) {
             TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetMetadata.Path);
@@ -106,7 +105,7 @@ public:
         Terran::Core::Shared<TAsset> asset = Terran::Core::CreateShared<TAsset>();
 
         s_loaded_assets[metadata.Handle] = asset;
-        AssetImporter::save(metadata, asset);
+        AssetImporterRegistry::save(metadata, asset);
 
         return Terran::Core::DynamicCast<TAsset>(s_loaded_assets[metadata.Handle]);
     }
@@ -133,7 +132,5 @@ private:
     static std::unordered_map<AssetHandle, Terran::Core::Shared<Asset>> s_loaded_assets;
     static AssetChangeCallbackFn s_asset_change_callback;
 };
-
-}
 
 }

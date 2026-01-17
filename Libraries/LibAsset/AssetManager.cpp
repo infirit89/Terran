@@ -1,6 +1,6 @@
 #include "AssetManager.h"
 #include "Asset.h"
-#include "AssetImporter.h"
+#include "AssetImporterRegistry.h"
 #include "AssetMetadata.h"
 #include "AssetMetadataRegistry.h"
 #include "AssetTypes.h"
@@ -13,8 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Terran {
-namespace Asset {
+namespace Terran::Asset {
 
 std::unordered_map<AssetHandle, Terran::Core::Shared<Asset>> AssetManager::s_loaded_assets;
 AssetManager::AssetChangeCallbackFn AssetManager::s_asset_change_callback;
@@ -44,7 +43,7 @@ AssetHandle AssetManager::import_asset(std::filesystem::path const& assetPath)
     if (assetPath.empty())
         return AssetHandle::invalid();
 
-    auto const assetLoader = AssetImporter::find_for_path(assetPath);
+    auto const assetLoader = AssetImporterRegistry::find_for_path(assetPath);
     if (assetLoader)
         return AssetHandle::invalid();
 
@@ -64,11 +63,11 @@ void AssetManager::reload_asset_by_handle(AssetHandle const& handle)
     if (!s_loaded_assets.contains(handle)) {
         TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
         Terran::Core::Shared<Asset> asset;
-        AssetImporter::load(info, asset);
+        AssetImporterRegistry::load(info, asset);
         return;
     }
     Terran::Core::Shared<Asset>& asset = s_loaded_assets.at(handle);
-    AssetImporter::load(info, asset);
+    AssetImporterRegistry::load(info, asset);
 }
 
 void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents)
@@ -86,8 +85,8 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
             break;
         }
         case Terran::Core::FileAction::Renamed: {
-            bool was_asset = AssetImporter::exists_for_path(e.OldFileName);
-            bool is_asset = AssetImporter::exists_for_path(e.FileName);
+            bool was_asset = AssetImporterRegistry::exists_for_path(e.OldFileName);
+            bool is_asset = AssetImporterRegistry::exists_for_path(e.FileName);
 
             if (!was_asset && is_asset) {
                 import_asset(e.FileName);
@@ -133,8 +132,6 @@ void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::
 
     // TODO: Notify for asset metadata change
     // WriteAssetInfosToFile();
-}
-
 }
 
 }
