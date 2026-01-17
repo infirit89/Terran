@@ -5,6 +5,7 @@
 #include <LibCore/Log.h>
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
+#include <LibCore/Delegate.h>
 
 #include <LibMain/Application.h>
 #include <LibWindow/Window.h>
@@ -33,6 +34,18 @@ static void TestFunc()
 
     TR_CLIENT_WARN("Some warning");
 }
+
+struct TestStruct {
+    virtual void test() {
+        TR_CLIENT_INFO("It works!");
+    }
+};
+
+struct TestStruct2 : public TestStruct {
+    virtual void test() override {
+        TR_CLIENT_WARN("It doesn't work!!!!!");
+    }
+};
 
 SandboxLayer::SandboxLayer(Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem)
     : Layer("Sandbox Layer")
@@ -69,6 +82,7 @@ void SandboxLayer::on_event(Terran::Core::Event& event)
 
 void SandboxLayer::imgui_render()
 {
+    TR_CLIENT_TRACE("Render imgui");
 }
 
 bool SandboxLayer::on_window_close(Terran::Window::WindowCloseEvent& event)
