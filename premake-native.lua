@@ -33,6 +33,7 @@ include "TerranEngine/vendor/Coral/Coral.Native"
 group "Core"
 include "Libraries/LibMain"
 include "Libraries/LibCore"
+include "Libraries/LibAsset"
 include "TerranEngine"
 
 group "Graphics"
