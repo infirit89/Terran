@@ -1,57 +1,21 @@
 #pragma once
 
-#include "Asset.h"
-#include "AssetLoader.h"
 #include "AssetMetadata.h"
-#include "AssetTypes.h"
+#include "Asset.h"
 
+#include <LibAsset/AssetTypes.h>
 #include <LibCore/Base.h>
-
 #include <filesystem>
-#include <type_traits>
-#include <unordered_map>
 
-namespace Terran {
-namespace Asset {
+namespace Terran::Asset {
 
-class AssetImporter final {
+class AssetImporter {
 public:
-    template<typename TAsset>
-    requires(
-        std::is_base_of_v<Asset, TAsset>,
-        HasStaticType<TAsset>)
-    static void register_asset(Terran::Core::Shared<AssetLoader> loader)
-    {
-        s_loaders[TAsset::static_type()] = loader;
-    }
-
-    static void load(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset>& asset);
-    static bool save(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset> const& asset);
-
-    static bool exists_for_path(std::filesystem::path const& path)
-    {
-        for (auto const& [type, loader] : s_loaders) {
-            if (loader->can_handle(path))
-                return true;
-        }
-
-        return false;
-    }
-
-    static Terran::Core::Shared<AssetLoader> find_for_path(std::filesystem::path const& path)
-    {
-        for (auto const& [type, loader] : s_loaders) {
-            if (loader->can_handle(path))
-                return loader;
-        }
-
-        return nullptr;
-    }
-
-private:
-    static std::unordered_map<AssetTypeId, Terran::Core::Shared<AssetLoader>> s_loaders;
+    virtual ~AssetImporter() = default;
+    virtual void load(AssetMetadata const& assetInfo, Terran::Core::Shared<Asset>& asset) = 0;
+    virtual bool save(AssetMetadata const& assetInfo, Terran::Core::Shared<Asset> const& asset) = 0;
+    virtual bool can_handle(std::filesystem::path const& assetPath) = 0;
+    virtual AssetTypeId asset_type() = 0;
 };
-
-}
 
 }
