@@ -4,6 +4,7 @@
 
 #define TR_EVENT_BIND_FN(event) std::bind_front(&event, this)
 #define TR_STRINGIFY(a) #a
+#define TR_NAMEOF(a) #a
 #define TR_DEPRICATED(message) [[deprecated(message)]]
 
 namespace Terran {
