@@ -7,7 +7,7 @@
 namespace Terran {
 namespace Window {
 
-class MouseMoveEvent final : public Terran::Core::Event {
+class MouseMoveEvent final {
 public:
     MouseMoveEvent(float const xPos, float const yPos)
         : m_XPos(xPos)
@@ -18,14 +18,12 @@ public:
     float GetX() const { return m_XPos; }
     float GetY() const { return m_YPos; }
 
-    EVENT_CLASS_TYPE(MouseMoved)
-    EVENT_CLASS_CATEGORY(EventCategoryMouse)
 private:
     float m_XPos;
     float m_YPos;
 };
 
-class MouseScrollEvent final : public Terran::Core::Event {
+class MouseScrollEvent final {
 public:
     MouseScrollEvent(float const xOffset, float const yOffset)
         : m_XOffset(xOffset)
@@ -36,15 +34,12 @@ public:
     float GetXOffset() const { return m_XOffset; }
     float GetYOffset() const { return m_YOffset; }
 
-    EVENT_CLASS_TYPE(MouseScrolled)
-    EVENT_CLASS_CATEGORY(EventCategoryMouse)
-
 private:
     float m_XOffset;
     float m_YOffset;
 };
 
-class MouseButtonEvent : public Terran::Core::Event {
+class MouseButtonEvent {
 public:
     MouseButtonEvent(MouseButton const buttonCode)
         : m_ButtonCode(buttonCode)
@@ -53,7 +48,6 @@ public:
 
     MouseButton GetButton() const { return m_ButtonCode; }
 
-    EVENT_CLASS_CATEGORY(EventCategoryMouse)
 private:
     MouseButton m_ButtonCode;
 };
@@ -64,8 +58,6 @@ public:
         : MouseButtonEvent(buttonCode)
     {
     }
-
-    EVENT_CLASS_TYPE(MouseButtonPressed)
 };
 
 class MouseButtonReleasedEvent final : public MouseButtonEvent {
@@ -74,8 +66,6 @@ public:
         : MouseButtonEvent(buttonCode)
     {
     }
-
-    EVENT_CLASS_TYPE(MouseButtonReleased)
 };
 
 }

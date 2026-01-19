@@ -7,8 +7,8 @@
 #include <glm/glm.hpp>
 
 #include <cstdint>
-#include <string_view>
 #include <functional>
+#include <string_view>
 
 namespace Terran {
 namespace Window {
@@ -25,13 +25,14 @@ struct WindowData final {
 
 class Window {
 public:
-    using EventCallbackFn = std::function<void(Terran::Core::Event&)>;
-
     // NOTE: i dont see a reason currently why the window should be copyable or movable
     MAKE_NONCOPYABLE(Window);
     MAKE_NONMOVEABLE(Window);
 
-    Window() = default;
+    Window(Core::EventDispatcher& event_dispatcher)
+        : event_dispatcher(event_dispatcher)
+    {
+    }
     virtual ~Window() = default;
 
     virtual constexpr uint32_t width() const noexcept = 0;
@@ -48,9 +49,10 @@ public:
     virtual constexpr glm::vec2 content_scale() const noexcept = 0;
 
     // NOTE: Using this, because I plan to be able to support other windowing libraries
-    static Terran::Core::Unique<Window> create(WindowData const& data = WindowData());
+    static Terran::Core::Unique<Window> create(Core::EventDispatcher& event_dispatcher, WindowData const& data = WindowData());
 
-    virtual void set_event_callback(EventCallbackFn const& eventCallbackFN) = 0;
+protected:
+    Core::EventDispatcher& event_dispatcher;
 };
 
 }

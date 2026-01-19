@@ -2,6 +2,7 @@
 
 #include "Window.h"
 
+#include <LibCore/Event.h>
 #include <LibCore/Layer.h>
 #include <LibCore/Result.h>
 #include <LibCore/Time.h>
@@ -17,7 +18,7 @@ namespace Window {
 class WindowSystem : public Core::Layer {
 
 public:
-    WindowSystem();
+    WindowSystem(Core::EventDispatcher& dispatcher);
     virtual ~WindowSystem() override;
 
     virtual Core::Result<void> on_attach() override;
@@ -27,7 +28,7 @@ public:
     Core::UUID create(WindowData const& data)
     {
         Core::UUID id;
-        m_windows.emplace(id, Window::create(data));
+        m_windows.emplace(id, Window::create(event_dispatcher, data));
         return id;
     }
 

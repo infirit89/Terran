@@ -1,18 +1,17 @@
 #include "SandboxLayer.h"
 
 #include <LibCore/Base.h>
+#include <LibCore/Event.h>
 #include <LibCore/Layer.h>
-#include <LibCore/Log.h>
-#include <LibCore/Result.h>
 #include <LibCore/UUID.h>
 #include <LibCore/Delegate.h>
 
 #include <LibMain/Application.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <LibWindow/Window.h>
 #include <LibWindow/WindowSystem.h>
 #include <LibWindow/WindowEvent.h>
-
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
 
 #include <glm/glm.hpp>
@@ -47,17 +46,19 @@ struct TestStruct2 : public TestStruct {
     }
 };
 
-SandboxLayer::SandboxLayer(Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem)
-    : Layer("Sandbox Layer")
+SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem)
+    : Layer("Sandbox Layer", event_dispatcher)
     , m_windowSystem(windowSystem)
 {
+    Terran::Core::EventDispatcher dispatcher;
     Window::WindowData windowData {
         .Name = "Test Window",
     };
 
     Core::UUID windowId = m_windowSystem->create(windowData);
     auto const& window = m_windowSystem->window(windowId);
-    window->set_event_callback(TR_EVENT_BIND_FN(SandboxLayer::on_event));
+
+    event_dispatcher.handlers<Terran::Window::WindowCloseEvent>().connect<&SandboxLayer::on_window_close>(this);
 }
 
 Core::Result<void> SandboxLayer::on_attach()
@@ -74,21 +75,14 @@ void SandboxLayer::update(Terran::Core::Time& time)
 {
 }
 
-void SandboxLayer::on_event(Terran::Core::Event& event)
-{
-    Terran::Core::EventDispatcher dispather(event);
-    dispather.Dispatch<Terran::Window::WindowCloseEvent>(TR_EVENT_BIND_FN(SandboxLayer::on_window_close));
-}
-
 void SandboxLayer::imgui_render()
 {
     TR_CLIENT_TRACE("Render imgui");
 }
 
-bool SandboxLayer::on_window_close(Terran::Window::WindowCloseEvent& event)
+void SandboxLayer::on_window_close(Terran::Window::WindowCloseEvent& event)
 {
     Terran::Main::Application::get()->close();
-    return false;
 }
 
 }

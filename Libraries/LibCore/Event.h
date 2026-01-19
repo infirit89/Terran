@@ -1,86 +1,106 @@
 #pragma once
 
-#include <cstdint>
+#include <LibCore/Base.h>
+#include <LibCore/Delegate.h>
+#include <LibCore/Log.h>
+#include <deque>
 #include <functional>
+#include <memory>
+#include <queue>
 #include <type_traits>
+#include <typeindex>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
-enum class EventType : std::uint8_t {
-    None = 0,
-    KeyPressed,
-    KeyReleased,
-    MouseMoved,
-    MouseScrolled,
-    MouseButtonPressed,
-    MouseButtonReleased,
-    WindowClosed,
-    WindowResized,
-    WindowContentScaleChanged,
-    GamePadConnected,
-    GamePadDisconnected,
-    SceneTransitionEvent,
-    CustomEvent
-};
+template<typename T>
+concept Event = std::is_trivially_destructible_v<T> && std::is_trivially_copyable_v<T>;
 
-enum EventCategory : std::uint8_t {
-    None = 0,
-    EventCategoryApplication = 1 << 0,
-    EventCategoryKeyboard = 1 << 1,
-    EventCategoryMouse = 1 << 2,
-    EventCategoryGamePad = 1 << 3
-};
-
-class Event {
+class EventHandlerBase {
 public:
-    virtual ~Event() = default;
-
-    virtual EventType GetType() const = 0;
-    virtual EventCategory GetCategory() const = 0;
-
-    bool IsInCategory(EventCategory category) const { return GetCategory() & category; }
-
-    bool IsHandled = false;
+    virtual void publish() = 0;
+    virtual void clear() = 0;
 };
 
-#define EVENT_CLASS_TYPE(type)                                   \
-    static Terran::Core::EventType GetStaticType() { return Terran::Core::EventType::type; } \
-    virtual Terran::Core::EventType GetType() const override { return GetStaticType(); }
-
-#define EVENT_CLASS_CATEGORY(category) \
-    virtual Terran::Core::EventCategory GetCategory() const override { return Terran::Core::category; }
-
-class EventDispatcher final {
-    template<typename TEvent>
-    using EventFN = std::function<bool(TEvent&)>;
+template<Event TEvent>
+class EventHandler final : public EventHandlerBase {
+    using event_listener_type = Delegate<void(TEvent&)>;
+    using event_listener_container = std::vector<event_listener_type>;
+    using event_container = std::deque<TEvent>;
 
 public:
-    EventDispatcher(Event& event)
-        : m_Event(event)
+    template<auto TFunction>
+    void connect()
     {
+        event_listener_type listener;
+        listener.template connect<TFunction>();
+        m_listeners.push_back(std::move(listener));
     }
 
-    template<typename TEvent>
-    requires(std::is_base_of_v<Event, TEvent>)
-    bool Dispatch(EventFN<TEvent> const& func)
+    template<auto TFunction, typename Type>
+    void connect(Type instance)
     {
-        if (m_Event.GetType() == TEvent::GetStaticType()) {
-            if (!m_Event.IsHandled) {
-                m_Event.IsHandled |= func(static_cast<TEvent&>(m_Event));
-                return true;
-            }
+        event_listener_type listener;
+        listener.template connect<TFunction, Type>(instance);
+        m_listeners.push_back(std::move(listener));
+    }
 
-            return false;
+    void enqueue(TEvent const& event)
+    {
+        m_event_queue.push_back(event);
+    }
+
+    void trigger(TEvent& event)
+    {
+        for (auto const& listener : m_listeners) {
+            listener(event);
         }
+    }
 
-        return false;
+    void publish()
+    {
+        while (!m_event_queue.empty()) {
+            TEvent& event = m_event_queue.front();
+            trigger(event);
+            m_event_queue.pop_front();
+        }
+    }
+
+    void clear()
+    {
+        m_event_queue.clear();
     }
 
 private:
-    Event& m_Event;
+    event_container m_event_queue;
+    event_listener_container m_listeners;
 };
+class EventDispatcher final {
 
-}
+    template<Event TEvent>
+    using handler_type = EventHandler<TEvent>;
+
+public:
+    template<Event TEvent>
+    [[nodiscard]] handler_type<TEvent>& handlers()
+    {
+        auto& event_handler_base = m_handlers[typeid(TEvent)];
+        if (!event_handler_base) {
+            event_handler_base = CreateShared<EventHandler<TEvent>>();
+        }
+        return static_cast<EventHandler<TEvent>&>(*event_handler_base);
+    }
+
+    template<Event TEvent>
+    void trigger(TEvent& event) {
+       handler_type<TEvent>& handler = handlers<TEvent>();
+        handler.trigger(event);
+    }
+
+private:
+    std::unordered_map<std::type_index, Shared<EventHandlerBase>> m_handlers;
+};
 
 }
