@@ -6,8 +6,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
 constexpr ByteBuffer::ByteBuffer() noexcept
     : m_data(nullptr)
@@ -37,7 +36,7 @@ void ByteBuffer::allocate(size_t size)
 
 void ByteBuffer::free()
 {
-    if(!m_data)
+    if (!m_data)
         return;
 
     delete[] m_data;
@@ -68,8 +67,6 @@ void ByteBuffer::write(void const* data, uint32_t offset, size_t size)
     TR_ASSERT(dataSize <= m_size, "Data size is too big");
 
     memcpy(writeLocation, data, size);
-}
-
 }
 
 }

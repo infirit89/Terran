@@ -1,15 +1,12 @@
 /**
- * @file Application.h
- * @author George Dautov (georgedautov808@gmail.com)
- * @brief Core application class providing the main entry point and lifecycle management
- * @ingroup LibMain
- *
+ * Application.h
+ * George Dautov (georgedautov808@gmail.com)
  * This file contains the Application class which serves as the base class for all client
  * applications using the Terran engine. It manages the application lifecycle, layer stack,
  * and event system integration.
  *
- * @version 2.0
- * @date 2025-10-14
+ * version 2.0
+ * date 2025-10-14
  */
 #pragma once
 
@@ -102,16 +99,6 @@ public:
      *       this call before actually terminating.
      */
     void close();
-
-    // /**
-    //  * @brief Dispatches an event to all layers in the layer stack
-    //  *
-    //  * @param event The event to dispatch to layers
-    //  * @warning This method is currently not implemented and may be subject
-    //  *          to changes during the ongoing refactoring.
-    //  * @todo Implement event dispatching system
-    //  */
-    // void dispatch_event(Terran::Core::Event& event);
 
     /**
      * @brief Gets the singleton instance of the application
