@@ -1,30 +1,11 @@
 /**
- * @file DoxygenGroups.h
- * @brief Doxygen group definitions for organizing the Terran engine documentation
- * 
+ * George Dautov (georgedautov808@gmail.com)
+ * version 2.0
+ * date 2025-10-14
  * This file contains all the main group definitions used to organize the Terran engine
  * documentation into logical modules and packages. Include this file in your Doxygen
  * configuration to ensure proper group hierarchy.
  *
- * @author George Dautov (georgedautov808@gmail.com)
- * @version 2.0
- * @date 2025-10-14
- */
-
-/**
- * @defgroup LibMain Application Framework
- * @brief Core application lifecycle and entry point management
- * 
- * The LibMain module provides the fundamental application framework for Terran engine
- * applications, including the main application class, entry point management, and
- * core lifecycle functionality. This module serves as the bridge between client
- * applications and the engine core.
- * 
- * Key components:
- * - Application class for lifecycle management
- * - Entry point handling and initialization
- * - Command line argument processing
- * - Application factory pattern implementation
  */
 
 /**
@@ -43,6 +24,23 @@
  * - Core data structures and algorithms
  * - Assertion and debugging utilities
  */
+
+/**
+ * @defgroup LibMain Application Framework
+ * @brief Core application lifecycle and entry point management
+ * 
+ * The LibMain module provides the fundamental application framework for Terran engine
+ * applications, including the main application class, entry point management, and
+ * core lifecycle functionality. This module serves as the bridge between client
+ * applications and the engine core.
+ * 
+ * Key components:
+ * - Application class for lifecycle management
+ * - Entry point handling and initialization
+ * - Command line argument processing
+ * - Application factory pattern implementation
+ */
+
 
 /**
  * @defgroup TerranEngine Engine Systems

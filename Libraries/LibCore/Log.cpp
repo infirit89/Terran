@@ -20,10 +20,10 @@ namespace Core {
 static std::unordered_map<std::string, Shared<spdlog::logger>> s_Loggers;
 static std::array<std::string, TR_CORE_LOGGER_COUNT> s_LoggersNames {
     TR_LOG_CORE,
-    TR_LOG_RENDERER,
-    TR_LOG_SCRIPT,
-    TR_LOG_ASSET,
-    TR_LOG_PHYSICS,
+    // TR_LOG_RENDERER,
+    // TR_LOG_SCRIPT,
+    // TR_LOG_ASSET,
+    // TR_LOG_PHYSICS,
     TR_LOG_CLIENT
 };
 
@@ -69,7 +69,7 @@ static std::string LogLevelToString(spdlog::level::level_enum logLevel)
     return "trace";
 }
 
-static void LoadLogSettings()
+static void load_log_settings()
 {
     YAML::Node node;
 
@@ -89,6 +89,10 @@ static void LoadLogSettings()
         size_t index = 0;
         for (auto const& logName : s_LoggersNames) {
             auto logSettings = loggersSettings[index];
+            auto& logger = s_Loggers[logName];
+            if (!logger) {
+                Log::add_logger(logName);
+            }
             s_Loggers.at(logName)->set_level(GetLogLevel(logSettings[logName]["Level"].as<std::string>("")));
             index++;
         }
@@ -98,7 +102,7 @@ static void LoadLogSettings()
     }
 }
 
-static void WriteLogSettings()
+static void write_log_settings()
 {
     YAML::Emitter out;
 
@@ -122,32 +126,37 @@ static void WriteLogSettings()
     ofs << out.c_str();
 }
 
-void Log::Init()
+void Log::init()
 {
     for (auto const& name : s_LoggersNames) {
-        std::vector<spdlog::sink_ptr> sinks {
-            CreateShared<spdlog::sinks::stdout_color_sink_mt>(),
-            CreateShared<spdlog::sinks::basic_file_sink_mt>(GetFormattedFileLoggerName(name), true)
-        };
-
-        std::string pattern = "%^[%T] TERRAN [%n]: %v%$";
-        sinks[0]->set_pattern(pattern);
-        sinks[1]->set_pattern(pattern);
-
-        Shared<spdlog::logger> logger = CreateShared<spdlog::logger>(name, sinks.begin(), sinks.end());
-        logger->set_level(spdlog::level::trace);
-        s_Loggers.emplace(name, logger);
+        add_logger(name);
     }
 
-    LoadLogSettings();
+    load_log_settings();
 }
 
-void Log::Shutdown()
+void Log::shutdown()
 {
-    WriteLogSettings();
+    write_log_settings();
 }
 
-std::string Log::GetFormattedFileLoggerName(std::string_view loggerName)
+void Log::add_logger(std::string const& logger_name)
+{
+    std::vector<spdlog::sink_ptr> sinks {
+        CreateShared<spdlog::sinks::stdout_color_sink_mt>(),
+        CreateShared<spdlog::sinks::basic_file_sink_mt>(logger_file_name(logger_name), true)
+    };
+
+    std::string pattern = "%^[%T] TERRAN [%n]: %v%$";
+    sinks[0]->set_pattern(pattern);
+    sinks[1]->set_pattern(pattern);
+
+    Shared<spdlog::logger> logger = CreateShared<spdlog::logger>(logger_name, sinks.begin(), sinks.end());
+    logger->set_level(spdlog::level::trace);
+    s_Loggers.emplace(logger_name, logger);
+}
+
+std::string Log::logger_file_name(std::string_view loggerName)
 {
     std::stringstream timeSS;
     std::tm* time = Time::GetCurrentTime();
@@ -161,22 +170,22 @@ std::string Log::GetFormattedFileLoggerName(std::string_view loggerName)
         s_Loggers.emplace(TR_LOG_CLIENT, logger);
 }*/
 
-bool Log::Contains(std::string const& loggerName)
+bool Log::contains(std::string const& loggerName)
 {
     return s_Loggers.contains(loggerName);
 }
 
-Shared<spdlog::logger> Log::GetLogger(std::string const& loggerName)
+Shared<spdlog::logger> Log::logger(std::string const& loggerName)
 {
     return s_Loggers.at(loggerName);
 }
 
-void Log::SetLoggerSink(std::string const& loggerName, spdlog::sink_ptr sink, size_t sinkIndex)
+void Log::set_logger_sink(std::string const& loggerName, spdlog::sink_ptr sink, size_t sinkIndex)
 {
     s_Loggers.at(loggerName)->sinks().at(sinkIndex) = sink;
 }
 
-void Log::SetLogFormat(std::string const& loggerName, std::string const& format)
+void Log::set_log_format(std::string const& loggerName, std::string const& format)
 {
     s_Loggers.at(loggerName)->set_pattern(format);
 }

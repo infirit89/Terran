@@ -7,7 +7,7 @@
 
 int main(int argc, char** argv)
 {
-    Terran::Core::Log::Init();
+    Terran::Core::Log::init();
 
     std::vector<std::string_view> arguments;
     arguments.reserve(argc);
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     auto result = application->run();
     delete application;
 
-    Terran::Core::Log::Shutdown();
+    Terran::Core::Log::shutdown();
 
     if(!result.is_ok())
         return 1;
