@@ -2,16 +2,16 @@
 
 #include "Layer.h"
 #include "Macros.h"
-#include "Unique.h"
 #include "Result.h"
+#include "Unique.h"
 
 #include <LibCore/Assert.h>
 #include <LibCore/Base.h>
+#include <LibCore/Event.h>
 #include <cstddef>
-#include <memory>
 #include <type_traits>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace Terran {
 
@@ -23,7 +23,10 @@ public:
     // i dont currently see a reason why layerstack should be copyable or moveable
     MAKE_NONCOPYABLE(LayerStack);
     MAKE_NONMOVEABLE(LayerStack);
-    LayerStack() = default;
+    LayerStack(RawPtr<EventDispatcher> dispatcher)
+        : m_dispatcher(dispatcher)
+    {
+    }
     ~LayerStack()
     {
         clear();
@@ -33,10 +36,10 @@ public:
     requires(std::is_base_of_v<Layer, TLayer>)
     Result<void> push(Args... args)
     {
-        Unique<Layer> layer = Unique<TLayer>::create(std::forward<Args>(args)...);
+        Unique<Layer> layer = Unique<TLayer>::create(*m_dispatcher, std::forward<Args>(args)...);
         auto result = layer->on_attach();
 
-        if(!result.is_ok())
+        if (!result.is_ok())
             return result;
 
         m_layers.emplace_back(std::move(layer));
@@ -55,8 +58,8 @@ public:
     requires(std::is_base_of_v<Layer, TLayer>)
     RawPtr<TLayer> get()
     {
-        for(const auto& layer : m_layers) {
-            if(auto casted_layer = dynamic_cast<RawPtr<TLayer>>(layer.data())) {
+        for (auto const& layer : m_layers) {
+            if (auto casted_layer = dynamic_cast<RawPtr<TLayer>>(layer.data())) {
                 return casted_layer;
             }
         }
@@ -79,32 +82,39 @@ public:
         return m_layers;
     }
 
-    constexpr layer_container::iterator begin() noexcept {
+    constexpr layer_container::iterator begin() noexcept
+    {
         return m_layers.begin();
     }
 
-    constexpr layer_container::const_iterator begin() const noexcept {
+    constexpr layer_container::const_iterator begin() const noexcept
+    {
         return m_layers.begin();
     }
 
-    constexpr layer_container::const_iterator cbegin() const noexcept {
+    constexpr layer_container::const_iterator cbegin() const noexcept
+    {
         return m_layers.cbegin();
     }
 
-    constexpr layer_container::iterator end() noexcept {
+    constexpr layer_container::iterator end() noexcept
+    {
         return m_layers.end();
     }
 
-    constexpr layer_container::const_iterator end() const noexcept {
+    constexpr layer_container::const_iterator end() const noexcept
+    {
         return m_layers.end();
     }
 
-    constexpr layer_container::const_iterator cend() const noexcept {
+    constexpr layer_container::const_iterator cend() const noexcept
+    {
         return m_layers.cend();
     }
 
 private:
     layer_container m_layers;
+    RawPtr<EventDispatcher> m_dispatcher;
 };
 
 }

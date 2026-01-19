@@ -14,15 +14,16 @@ namespace TerranEngine {
 
 class SandboxLayer : public Terran::Core::Layer {
 public:
-    SandboxLayer(Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem);
+    SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher,
+        Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem);
 
     Terran::Core::Result<void> on_attach() override;
     Terran::Core::Result<void> on_dettach() override;
 
     void update(Terran::Core::Time& time) override;
 
-    void on_event(Terran::Core::Event& event) override;
-    bool on_window_close(Terran::Window::WindowCloseEvent& event);
+    // void on_event(Terran::Core::Event& event) override;
+    void on_window_close(Terran::Window::WindowCloseEvent& event);
     void imgui_render() override;
 
 private:

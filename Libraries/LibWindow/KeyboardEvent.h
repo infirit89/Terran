@@ -9,7 +9,7 @@
 namespace Terran {
 namespace Window {
 
-class KeyboardEvent : public Terran::Core::Event {
+class KeyboardEvent {
 public:
     KeyboardEvent(Key const keyCode)
         : m_KeyCode(keyCode)
@@ -18,7 +18,6 @@ public:
 
     Key GetKeyCode() const { return m_KeyCode; }
 
-    EVENT_CLASS_CATEGORY(EventCategoryKeyboard)
 private:
     Key m_KeyCode;
 };
@@ -32,7 +31,6 @@ public:
     }
 
     uint8_t GetRepeatCount() const { return m_RepeatCount; }
-    EVENT_CLASS_TYPE(KeyPressed)
 private:
     uint8_t m_RepeatCount;
 };
@@ -44,7 +42,6 @@ public:
     {
     }
 
-    EVENT_CLASS_TYPE(KeyReleased)
 };
 
 }

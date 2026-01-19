@@ -14,6 +14,7 @@ namespace Main {
 Application* Application::m_Instance = nullptr;
 
 Application::Application() noexcept
+    : m_LayerStack(&m_event_dispatcher)
 {
     TR_ASSERT(!m_Instance, "There is already another instance of the application");
     m_Instance = this;
@@ -29,10 +30,10 @@ void Application::close()
     m_Running = false;
 }
 
-void Application::dispatch_event(Terran::Core::Event& event)
-{
-    // TODO: Implement event dispatching system
-}
+// void Application::dispatch_event(Terran::Core::Event& event)
+// {
+//     // TODO: Implement event dispatching system
+// }
 
 Terran::Core::Result<void> Application::run()
 {

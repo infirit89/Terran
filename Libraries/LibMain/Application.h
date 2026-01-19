@@ -103,15 +103,15 @@ public:
      */
     void close();
 
-    /**
-     * @brief Dispatches an event to all layers in the layer stack
-     *
-     * @param event The event to dispatch to layers
-     * @warning This method is currently not implemented and may be subject
-     *          to changes during the ongoing refactoring.
-     * @todo Implement event dispatching system
-     */
-    void dispatch_event(Terran::Core::Event& event);
+    // /**
+    //  * @brief Dispatches an event to all layers in the layer stack
+    //  *
+    //  * @param event The event to dispatch to layers
+    //  * @warning This method is currently not implemented and may be subject
+    //  *          to changes during the ongoing refactoring.
+    //  * @todo Implement event dispatching system
+    //  */
+    // void dispatch_event(Terran::Core::Event& event);
 
     /**
      * @brief Gets the singleton instance of the application
@@ -164,7 +164,7 @@ private:
     [[nodiscard]] Terran::Core::Result<void> run();
 
     static Application* m_Instance;
-    Terran::Core::LayerStack m_LayerStack;
+    Core::LayerStack m_LayerStack;
 
     bool m_Minimized = false;
     bool m_Running = false;
@@ -172,6 +172,7 @@ private:
     friend int ::main(int argc, char** argv);
     std::vector<LifeCycleHook> m_startupHooks;
     std::vector<LifeCycleHook> m_shutdownHooks;
+    Core::EventDispatcher m_event_dispatcher;
 };
 
 } // namespace Main

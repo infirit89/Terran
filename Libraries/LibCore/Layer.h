@@ -22,7 +22,7 @@ public:
     Layer() = delete;
 
     virtual void update(Time& time) { }
-    virtual void on_event(Event& event) { }
+    // virtual void on_event(Event& event) { }
     virtual void imgui_render() { }
 
     // NOTE: maybe make on attach and on dettach to just be the constructor and destructor??
@@ -41,10 +41,12 @@ public:
     }
 
 protected:
-    constexpr Layer(std::string_view name) noexcept
-        : m_name(name)
+    constexpr Layer(std::string_view name, EventDispatcher& dispatcher) noexcept
+        : m_name(name), event_dispatcher(dispatcher)
     {
     }
+
+    EventDispatcher& event_dispatcher;
 
 private:
     std::string_view m_name;
