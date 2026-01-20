@@ -22,7 +22,6 @@ jobs:
           dotnet-version: "8.0.x" # adjust if needed
 
       - name: Check compiler version
-        run: clang --version
         run: clang++ --version
 
       # Cache premake + shaderc to avoid re-downloading
