@@ -1,6 +1,3 @@
-VULKAN_SDK = os.getenv "VULKAN_SDK"
-print("VULKAN_SDK = " .. VULKAN_SDK)
-
 project "Sandbox"
 pic "On"
 kind "ConsoleApp"
