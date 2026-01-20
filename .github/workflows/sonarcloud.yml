@@ -53,3 +53,4 @@ jobs:
             -Dsonar.projectKey=infirit89_Terran
             -Dsonar.organization=terran
             -Dsonar.cfamily.compile-commands=compile_commands.json
+            -Dsonar.exclusions=vendor/**/*
