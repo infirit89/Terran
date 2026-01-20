@@ -1,0 +1,53 @@
+name: macOS Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # macOS already has Python, but we ensure it's usable
+      - name: Verify Python
+        run: python3 --version
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x" # adjust if needed
+
+      # Cache premake + shaderc to avoid re-downloading
+      - name: Cache premake and shaderc
+        uses: actions/cache@v4
+        with:
+          path: |
+            premake
+            shaderc
+          key: ${{ runner.os }}-tools-v1
+
+      - name: Run Setup.py
+        run: |
+          python3 Setup.py --premake-version=5.0.0-beta
+
+      # ---- NATIVE BUILD ----
+      - name: Generate native Makefiles
+        run: |
+          premake/premake5 gmake --file=premake-native.lua
+
+      - name: Build native projects
+        run: |
+          make -j$(sysctl -n hw.ncpu)
+
+      # ---- MANAGED BUILD ----
+      - name: Generate managed solution
+        run: |
+          premake/premake5 vs2022 --file=premake-managed.lua
+
+      - name: Build managed projects
+        run: |
+          dotnet build Terran-Managed.sln --configuration Release
