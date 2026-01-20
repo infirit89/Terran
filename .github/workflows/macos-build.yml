@@ -30,9 +30,16 @@ jobs:
             shaderc
           key: ${{ runner.os }}-tools-v1
 
+      - name: Set up Python venv
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install requests numpy
+
       - name: Run Setup.py
         run: |
-          python3 scripts/Setup.py --premake-version=5.0.0-beta
+          python3 scripts/Setup.py --premake-version=5.0.0-beta --skip-python-packages
 
       # ---- NATIVE BUILD ----
       - name: Generate native Makefiles

@@ -23,19 +23,24 @@ def parse_args():
         help="Premake version to install (e.g. 5.0.0-beta7)"
     )
 
+    parser.add_argument(
+        "--skip-python-packages",
+        help="Skip installation of Python dependencies"
+    )
+
     return parser.parse_args()
 
 if __name__ == "__main__":
     
+    args = parse_args()
     UpdateSubmodules()
 
     # TODO: install dotnet8 if not installed 
-    InstallPackages()
+    if (not args.skip_python_packages):
+        InstallPackages()
 
     from SetupPremake import PremakeSetup
     from SetupShaderc import ShadercSetup
-
-    args = parse_args()
 
     PremakeSetup.setup(premake_version=args.premake_version)
     ShadercSetup.setup()
