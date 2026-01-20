@@ -32,7 +32,7 @@ jobs:
 
       - name: Run Setup.py
         run: |
-          python3 Setup.py --premake-version=5.0.0-beta
+          python3 scripts/Setup.py --premake-version=5.0.0-beta
 
       # ---- NATIVE BUILD ----
       - name: Generate native Makefiles
