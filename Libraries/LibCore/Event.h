@@ -4,9 +4,7 @@
 #include <LibCore/Delegate.h>
 #include <LibCore/Log.h>
 #include <deque>
-#include <functional>
 #include <memory>
-#include <queue>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
@@ -16,7 +14,7 @@
 namespace Terran::Core {
 
 template<typename T>
-concept Event = std::is_trivially_destructible_v<T> && std::is_trivially_copyable_v<T>;
+concept Event = std::is_destructible_v<T>;
 
 class EventHandlerBase {
 public:

@@ -7,6 +7,7 @@
 
 #include <LibAsset/AssetMetadataRegistry.h>
 #include <LibCore/Base.h>
+#include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
 #include <LibCore/Log.h>
 
@@ -22,22 +23,22 @@ class AssetManager final {
     using AssetChangeCallbackFn = std::function<void(std::vector<Terran::Core::FileSystemChangeEvent> const&)>;
 
 public:
-    static void initialize();
-    static void shutdown();
+    AssetManager(Core::EventDispatcher& event_dispatcher);
+    ~AssetManager();
 
-    static std::filesystem::path filesystem_path(std::filesystem::path const& path);
+     std::filesystem::path filesystem_path(std::filesystem::path const& path);
 
-    static AssetHandle import_asset(std::filesystem::path const& assetPath);
-    static void reload_asset_by_handle(AssetHandle const& handle);
+     AssetHandle import_asset(std::filesystem::path const& assetPath);
+     void reload_asset_by_handle(AssetHandle const& handle);
 
-    static void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { s_asset_change_callback = callback; }
+     void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { m_asset_change_callback = callback; }
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    static Terran::Core::Shared<TAsset> asset_by_handle(AssetHandle const& assetHandle)
+    Terran::Core::Shared<TAsset> asset_by_handle(AssetHandle const& assetHandle)
     {
-        if (s_loaded_assets.contains(assetHandle))
-            return Terran::Core::DynamicCast<TAsset>(s_loaded_assets.at(assetHandle));
+        if (m_loaded_assets.contains(assetHandle))
+            return Terran::Core::DynamicCast<TAsset>(m_loaded_assets.at(assetHandle));
 
         AssetMetadata& info = AssetMetadataRegistry::asset_metadata_by_handle__internal(assetHandle);
 
@@ -54,16 +55,16 @@ public:
         }
 
         asset->m_handle = assetHandle;
-        s_loaded_assets[assetHandle] = asset;
-        return Terran::Core::DynamicCast<TAsset>(s_loaded_assets[assetHandle]);
+        m_loaded_assets[assetHandle] = asset;
+        return Terran::Core::DynamicCast<TAsset>(m_loaded_assets[assetHandle]);
     }
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    static Terran::Core::Shared<TAsset> asset_by_metadata(AssetMetadata const& assetMetadata)
+    Terran::Core::Shared<TAsset> asset_by_metadata(AssetMetadata const& assetMetadata)
     {
-        if (s_loaded_assets.contains(assetMetadata.Handle))
-            return Terran::Core::DynamicCast<TAsset>(s_loaded_assets.at(assetMetadata.Handle));
+        if (m_loaded_assets.contains(assetMetadata.Handle))
+            return Terran::Core::DynamicCast<TAsset>(m_loaded_assets.at(assetMetadata.Handle));
 
         // NOTE: poc code
         Terran::Core::Shared<Asset> asset = nullptr;
@@ -75,15 +76,15 @@ public:
         }
 
         asset->m_handle = assetMetadata.Handle;
-        s_loaded_assets[assetMetadata.Handle] = asset;
-        return Terran::Core::DynamicCast<TAsset>(s_loaded_assets[assetMetadata.Handle]);
+        m_loaded_assets[assetMetadata.Handle] = asset;
+        return Terran::Core::DynamicCast<TAsset>(m_loaded_assets[assetMetadata.Handle]);
     }
 
     template<typename TAsset>
     requires(
         std::is_base_of_v<Asset, TAsset>,
         HasStaticType<TAsset>)
-    static Terran::Core::Shared<TAsset> create_asset(std::filesystem::path const& filePath)
+    Terran::Core::Shared<TAsset> create_asset(std::filesystem::path const& filePath)
     {
         AssetMetadata metadata;
         metadata.Handle = AssetHandle();
@@ -104,33 +105,34 @@ public:
         // TODO: add parameter options
         Terran::Core::Shared<TAsset> asset = Terran::Core::CreateShared<TAsset>();
 
-        s_loaded_assets[metadata.Handle] = asset;
+        m_loaded_assets[metadata.Handle] = asset;
         AssetImporterRegistry::save(metadata, asset);
 
-        return Terran::Core::DynamicCast<TAsset>(s_loaded_assets[metadata.Handle]);
+        return Terran::Core::DynamicCast<TAsset>(m_loaded_assets[metadata.Handle]);
     }
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    static Terran::Core::Shared<TAsset> create_memory_asset()
+    Terran::Core::Shared<TAsset> create_memory_asset()
     {
         Terran::Core::Shared<Asset> asset = Terran::Core::CreateShared<TAsset>();
-        s_loaded_assets[asset->m_handle] = asset;
+        m_loaded_assets[asset->m_handle] = asset;
 
-        return Terran::Core::DynamicCast<TAsset>(s_loaded_assets[asset->m_handle]);
+        return Terran::Core::DynamicCast<TAsset>(m_loaded_assets[asset->m_handle]);
     }
 
     static bool file_exists(std::filesystem::path const& path);
 
 private:
-    static void on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents);
-    static void on_asset_removed(AssetHandle const& handle);
-    static void on_asset_renamed(AssetHandle const& handle, std::filesystem::path const& newFileName);
-    static std::filesystem::path relative_path(std::filesystem::path const& path);
+    void on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents);
+    void on_asset_removed(AssetHandle const& handle);
+    void on_asset_renamed(AssetHandle const& handle, std::filesystem::path const& newFileName);
+    std::filesystem::path relative_path(std::filesystem::path const& path);
 
 private:
-    static std::unordered_map<AssetHandle, Terran::Core::Shared<Asset>> s_loaded_assets;
-    static AssetChangeCallbackFn s_asset_change_callback;
+    std::unordered_map<AssetHandle, Terran::Core::Shared<Asset>> m_loaded_assets;
+    AssetChangeCallbackFn m_asset_change_callback;
+    Core::EventDispatcher& m_event_dispatcher;
 };
 
 }
