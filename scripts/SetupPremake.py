@@ -15,7 +15,7 @@ class PremakeSetup:
     PREMAKE_LICENSE_URL = "https://raw.githubusercontent.com/premake/premake-core/master/LICENSE.txt"
 
     @classmethod
-    def setup(cls):
+    def setup(cls, premake_version = ""):
         premake_extension = ".exe" if platform.system().lower() == "windows" else ""
         if not os.path.exists(f"{cls.PREMAKE_DIRECTORY}/premake5{premake_extension}"):
 
@@ -27,23 +27,26 @@ class PremakeSetup:
                 sys.exit()
 
             chosen_premake_version = ""
-            while True:
-                try:
-                    print("Select a premake version:")
-                    version_index = 0
-                    for supported_premake_version in cls.SUPPORTED_VERSIONS:
-                        sys.stdout.write("\t{index}. {version}\n"
-                                         .format(index = version_index, version = supported_premake_version))
-                        version_index += 1
-                    
-                    chosen_premake_version_index = int(input())
-                    chosen_premake_version = cls.SUPPORTED_VERSIONS[chosen_premake_version_index]
-                    break
-                except (ValueError, IndexError):
-                    version_index = 0
-                    print("Error while selecting version, please try again")
-                except KeyboardInterrupt:
-                    sys.exit("Exiting...")
+            if(premake_version != "" and premake_version in cls.SUPPORTED_VERSIONS):
+                chosen_premake_version = premake_version
+            else:
+                while True:
+                    try:
+                        print("Select a premake version:")
+                        version_index = 0
+                        for supported_premake_version in cls.SUPPORTED_VERSIONS:
+                            sys.stdout.write("\t{index}. {version}\n"
+                                             .format(index = version_index, version = supported_premake_version))
+                            version_index += 1
+                        
+                        chosen_premake_version_index = int(input())
+                        chosen_premake_version = cls.SUPPORTED_VERSIONS[chosen_premake_version_index]
+                        break
+                    except (ValueError, IndexError):
+                        version_index = 0
+                        print("Error while selecting version, please try again")
+                    except KeyboardInterrupt:
+                        sys.exit("Exiting...")
 
             cls.__install_premake(chosen_premake_version, premake_platform)
         else:
