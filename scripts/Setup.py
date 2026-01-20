@@ -25,6 +25,7 @@ def parse_args():
 
     parser.add_argument(
         "--skip-python-packages",
+        action="store_true",
         help="Skip installation of Python dependencies"
     )
 
