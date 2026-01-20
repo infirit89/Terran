@@ -1,6 +1,6 @@
 import sys
 import subprocess
-import os
+import argparse
 
 packages = [ "requests", "numpy" ]
 
@@ -15,7 +15,18 @@ def UpdateSubmodules():
     subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
     sys.stdout.write('\r\n')
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Project setup script")
+
+    parser.add_argument(
+        "--premake-version",
+        help="Premake version to install (e.g. 5.0.0-beta7)"
+    )
+
+    return parser.parse_args()
+
 if __name__ == "__main__":
+    
     UpdateSubmodules()
 
     # TODO: install dotnet8 if not installed 
@@ -24,5 +35,7 @@ if __name__ == "__main__":
     from SetupPremake import PremakeSetup
     from SetupShaderc import ShadercSetup
 
-    PremakeSetup.setup()
+    args = parse_args()
+
+    PremakeSetup.setup(premake_version=args.premake_version)
     ShadercSetup.setup()
