@@ -21,6 +21,10 @@ jobs:
         with:
           dotnet-version: "8.0.x" # adjust if needed
 
+      - name: Install Xcode 17
+        run: |
+          sudo xcode-select -s /Applications/Xcode_17.app
+
       # Cache premake + shaderc to avoid re-downloading
       - name: Cache premake and shaderc
         uses: actions/cache@v4
