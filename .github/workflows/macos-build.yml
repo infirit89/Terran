@@ -40,7 +40,7 @@ jobs:
       - name: Run Setup.py
         run: |
           source .venv/bin/activate
-          python3 scripts/Setup.py --premake-version=5.0.0-beta --skip-python-packages
+          python3 scripts/Setup.py --premake-version=5.0.0-beta7 --skip-python-packages
 
       # ---- NATIVE BUILD ----
       - name: Generate native Makefiles
