@@ -1,3 +1,8 @@
+/**
+ * @file Base.h
+ * @brief Base utilities.
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include <memory>
@@ -33,7 +38,6 @@
  */
 #define TR_NAMEOF(a) #a
 
-
 /**
  * @ingroup LibCore
  * @brief Marks a declaration as deprecated with a custom message.
@@ -42,10 +46,15 @@
  */
 #define TR_DEPRICATED(message) [[deprecated(message)]]
 
+/**
+ * @namespace Terran::Core
+ * @ingroup LibCore
+ *
+ * @brief Core utilities and foundational systems
+ */
 namespace Terran::Core {
 
 /**
- * @ingroup LibCore
  * @brief Shared ownership smart pointer alias.
  *
  * @tparam T Managed type
@@ -53,7 +62,6 @@ namespace Terran::Core {
 template<typename T>
 using Shared = std::shared_ptr<T>;
 /**
- * @ingroup LibCore
  * @brief Creates a Shared pointer using forwarding.
  *
  * @tparam T    Type to construct
@@ -69,7 +77,6 @@ Shared<T> CreateShared(Args&&... args)
 }
 
 /**
- * @ingroup LibCore
  * @brief Weak (non-owning) smart pointer alias.
  *
  * @tparam T Referenced type
@@ -78,7 +85,6 @@ template<typename T>
 using Weak = std::weak_ptr<T>;
 
 /**
- * @ingroup LibCore
  * @brief Performs a dynamic cast on a Shared pointer.
  *
  * @tparam T1 Target type
@@ -94,7 +100,6 @@ Shared<T1> DynamicCast(Shared<T2> const& ptr)
 }
 
 /**
- * @ingroup LibCore
  * @brief Non-owning raw pointer view into an object.
  *
  * @details
@@ -106,12 +111,26 @@ Shared<T1> DynamicCast(Shared<T2> const& ptr)
 template<typename T>
 using RawPtr = T*;
 
+/**
+ * @brief Convert a character to a hex value
+ */
+static constexpr unsigned char char_to_hex(char const& ch) noexcept
+{
+    if (ch >= '0' && ch <= '9')
+        return ch - '0';
+    if (ch >= 'a' && ch <= 'f')
+        return 10 + ch - 'a';
+    if (ch >= 'A' && ch <= 'F')
+        return 10 + ch - 'A';
+
+    return 0;
+}
+
 }
 
 namespace Literals {
 
 /**
- * @ingroup LibCore
  * @brief Literal for kilobytes.
  *
  * @param x Value in kilobytes
@@ -123,7 +142,6 @@ inline unsigned long long operator""_kb(unsigned long long const x)
 }
 
 /**
- * @ingroup LibCore
  * @brief User-defined literal for megabytes.
  *
  * @param x Value in megabytes

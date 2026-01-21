@@ -1,22 +1,28 @@
+/**
+ * @file LayerStack.h
+ * @brief Layer container.
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include "Layer.h"
 #include "Macros.h"
 #include "Result.h"
 #include "Unique.h"
+#include "Base.h"
+#include "Event.h"
 
-#include <LibCore/Assert.h>
-#include <LibCore/Base.h>
-#include <LibCore/Event.h>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
-namespace Terran {
+namespace Terran::Core {
 
-namespace Core {
-
+/**
+ * @class LayerStack
+ * @brief Layer container that handles the creation and deletion of layers
+ */
 class LayerStack final {
 public:
     using layer_container = std::vector<Unique<Layer>>;
@@ -32,6 +38,13 @@ public:
         clear();
     }
 
+    /**
+     * @brief Create a layer with the given arguments
+     *
+     * @details Additinally this includes the even dispatcher as a first argument, thus layer implementations should always take an @see EventDispatcher as a first argument in their constructors
+     *
+     * @param args The arguments passed to the constructor of the layer
+     */
     template<typename TLayer, typename... Args>
     requires(std::is_base_of_v<Layer, TLayer>)
     Result<void> push(Args... args)
@@ -47,6 +60,11 @@ public:
     }
 
     // TODO: error handling for on dettach
+    /**
+     * @brief Removes a layer and calls its on_detach method
+     *
+     * @param index The index at which to remove a layer
+     */
     void remove_at(size_t index)
     {
         auto& layer = m_layers.at(index);
@@ -56,6 +74,10 @@ public:
 
     template<typename TLayer>
     requires(std::is_base_of_v<Layer, TLayer>)
+    /**
+     * @brief Get a layer based on its type
+     * @retuns View into a unique pointer, DO NOT DELETE
+     */
     RawPtr<TLayer> get()
     {
         for (auto const& layer : m_layers) {
@@ -68,6 +90,9 @@ public:
     }
 
     // TODO: error handling for on dettach
+    /**
+     * @brief Clears all the layers and calls their on_detach method
+     */
     void clear()
     {
         while (!m_layers.empty()) {
@@ -119,4 +144,3 @@ private:
 
 }
 
-}

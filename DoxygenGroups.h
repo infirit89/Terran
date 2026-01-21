@@ -41,7 +41,6 @@
  * - Application factory pattern implementation
  */
 
-
 /**
  * @defgroup TerranEngine Engine Systems
  * @brief Core engine functionality and rendering systems
@@ -56,33 +55,6 @@
  * - Asset management and loading
  * - Platform abstraction layer
  * - Input handling and window management
- */
-
-/**
- * @defgroup LibCore_Events Event System
- * @ingroup LibCore
- * @brief Event handling and dispatching system
- * 
- * The event system provides a flexible way to handle user input, system events,
- * and inter-component communication throughout the engine.
- */
-
-/**
- * @defgroup LibCore_Layers Layer Management
- * @ingroup LibCore
- * @brief Layer stack and layer lifecycle management
- * 
- * The layer system allows organizing application logic into discrete, manageable
- * layers that can be updated and rendered independently.
- */
-
-/**
- * @defgroup LibCore_Time Time and Timing
- * @ingroup LibCore
- * @brief Time utilities and frame timing management
- * 
- * Time utilities for managing frame timing, delta time calculations, and
- * time-based operations throughout the engine.
  */
 
 /**

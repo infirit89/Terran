@@ -4,8 +4,7 @@
 #include <string>
 #include <string_view>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
 uint32_t Hash::fnv1a(std::string const& str)
 {
@@ -27,7 +26,8 @@ uint32_t Hash::fnv1a(std::string_view str)
     return hash;
 }
 
-uint64_t Hash::fnv1a_64(std::string_view str) {
+uint64_t Hash::fnv1a_64(std::string_view str)
+{
     constexpr uint64_t const FNV64Prime = 0x00000100000001b3;
     constexpr uint64_t const FNV64Offset = 0xcbf29ce484222325;
 
@@ -39,8 +39,6 @@ uint64_t Hash::fnv1a_64(std::string_view str) {
     }
 
     return hash;
-}
-
 }
 
 }

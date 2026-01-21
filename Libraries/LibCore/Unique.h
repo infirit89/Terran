@@ -1,13 +1,23 @@
+/**
+ * @file Unique.h
+ * @brief Unique pointer.
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include "DefaultDelete.h"
 #include "Macros.h"
+
 #include <type_traits>
 #include <utility>
-namespace Terran {
-namespace Core {
+
+namespace Terran::Core {
 
 // An owning pointer
+/**
+ * @class Unique
+ * @brief Noncopyable owning smart pointer, used for memory management
+ */
 template<typename T, typename TDeleter = DefaultDelete<T>>
 class Unique {
 public:
@@ -46,7 +56,8 @@ public:
     {
     }
 
-    constexpr T* data() const noexcept {
+    constexpr T* data() const noexcept
+    {
         return m_data;
     }
 
@@ -65,10 +76,11 @@ public:
     constexpr void reset() noexcept
     {
         auto* data = std::exchange(m_data, nullptr);
-        m_deleter (data);
+        m_deleter(data);
     }
 
-    [[nodiscard]] constexpr deleter_type deleter() noexcept {
+    [[nodiscard]] constexpr deleter_type deleter() noexcept
+    {
         return m_deleter;
     }
 
@@ -83,5 +95,4 @@ private:
     deleter_type m_deleter {};
 };
 
-}
 }
