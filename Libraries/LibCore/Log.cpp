@@ -14,8 +14,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
 static std::unordered_map<std::string, Shared<spdlog::logger>> s_Loggers;
 static std::array<std::string, TR_CORE_LOGGER_COUNT> s_LoggersNames {
@@ -159,7 +158,7 @@ void Log::add_logger(std::string const& logger_name)
 std::string Log::logger_file_name(std::string_view loggerName)
 {
     std::stringstream timeSS;
-    std::tm* time = Time::GetCurrentTime();
+    std::tm* time = Time::current_time();
     timeSS << "logs/" << std::put_time(time, "%m-%d-%G") << "/"
            << std::put_time(time, "%H_%M") << "/" << loggerName << ".log";
     return timeSS.str();
@@ -188,8 +187,6 @@ void Log::set_logger_sink(std::string const& loggerName, spdlog::sink_ptr sink, 
 void Log::set_log_format(std::string const& loggerName, std::string const& format)
 {
     s_Loggers.at(loggerName)->set_pattern(format);
-}
-
 }
 
 }

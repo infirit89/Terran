@@ -1,3 +1,8 @@
+/**
+ * @file Layer.h
+ * @brief Base for engine and user-defined systems
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include "Event.h"
@@ -7,9 +12,12 @@
 
 #include <string_view>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
+/**
+ * @class Layer
+ * @brief Base class for every engine and user-defined system
+ */
 class Layer {
 public:
     // i dont see a reason currently why a layer should be copyable and/or moveable
@@ -21,15 +29,27 @@ public:
     // delete the default constructor as a layer should always have a name
     Layer() = delete;
 
+    /**
+     * @brief Called every update cycle
+     *
+     * @param time The timestep from the previous update
+     */
     virtual void update(Time& time) { }
-    // virtual void on_event(Event& event) { }
+
     virtual void imgui_render() { }
 
     // NOTE: maybe make on attach and on dettach to just be the constructor and destructor??
+    /**
+     * @brief Called when the layer is constructed
+     */
     virtual Result<void> on_attach()
     {
         return {};
     }
+
+    /**
+     * @brief Called when the layer is destructed
+     */
     virtual Result<void> on_dettach()
     {
         return {};
@@ -51,7 +71,5 @@ protected:
 private:
     std::string_view m_name;
 };
-
-}
 
 }

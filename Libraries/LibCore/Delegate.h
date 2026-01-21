@@ -1,3 +1,8 @@
+/**
+ * @file Delegate.h
+ * @brief Lightweight, non-owning function wrapper.
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include <type_traits>
@@ -8,7 +13,7 @@ template<typename T>
 class Delegate final {};
 
 /**
- * @ingroup LibCore
+ * @class Delegate
  * @brief Type-erased callable wrapper for free and member functions.
  *
  * @details

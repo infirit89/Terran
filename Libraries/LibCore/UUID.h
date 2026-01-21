@@ -1,3 +1,8 @@
+/**
+ * @file UUID.h
+ * @brief Identifier for all engine resources
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include <array>
@@ -5,12 +10,18 @@
 #include <ios>
 #include <string>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
+/**
+ * @class UUID
+ * @brief Universally unique identifier, used for all engine resources
+ */
 class UUID final {
 public:
     using type = std::array<uint8_t, 16>;
+    /**
+     * @brief Generate a new UUID
+     */
     UUID()
         : m_data(generate())
     {
@@ -34,6 +45,9 @@ public:
 
     ~UUID() = default;
 
+    /**
+     * @returns Invalid id
+     */
     static constexpr const UUID& invalid() noexcept { return s_empty; }
 
     type constexpr data() const noexcept { return m_data; }
@@ -45,6 +59,10 @@ public:
         return m_data.data();
     }
 
+    /**
+     * @brief Convert a string to an UUID
+     * @retuns The converted id from the string
+     */
     static UUID from_string(std::string const& str);
 
     constexpr UUID& operator=(const UUID& other) noexcept
@@ -110,8 +128,6 @@ private:
     type m_data;
     static const UUID s_empty;
 };
-
-}
 
 }
 

@@ -8,8 +8,7 @@
 #include <cstring>
 #include <string>
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
 const UUID UUID::s_empty = UUID(UUID::type { { 0 } });
 
@@ -116,7 +115,5 @@ UUID::type UUID::generate()
     m_Data = data;
 }
 #endif
-
-}
 
 }

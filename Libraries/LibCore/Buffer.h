@@ -1,3 +1,8 @@
+/**
+ * @file Buffer.h
+ * @brief Byte buffer.
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include <cstddef>
@@ -6,7 +11,7 @@
 namespace Terran::Core {
 
 /**
- * @ingroup LibCore
+ * @class ByteBuffer
  * @brief Owning, contiguous byte buffer.
  *
  * @details

@@ -1,3 +1,8 @@
+/**
+ * @file Log.h
+ * @brief Provides logging functionality.
+ * @ingroup LibCore
+ */
 #pragma once
 
 #include "Base.h"
@@ -22,8 +27,7 @@
 // #define TR_LOG_PHYSICS "Physics"
 #define TR_CORE_LOGGER_COUNT 2
 
-namespace Terran {
-namespace Core {
+namespace Terran::Core {
 
 struct LogSettings final {
     std::string name;
@@ -77,4 +81,3 @@ public:
 
 }
 
-}
