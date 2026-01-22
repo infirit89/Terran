@@ -10,12 +10,15 @@ on:
 jobs:
   build:
     runs-on: macos-15
+    env:
+      COVERAGE_DIR: coverage
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install Bear
-        run: brew install bear  # or use apt on Linux
+        run: brew install bear llvm lcov # or use apt on Linux
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -35,7 +38,32 @@ jobs:
           premake/premake5 gmake --file=premake-native.lua
       - name: Generate compile_commands.json
         run: |
-          bear -- make                        # build project and capture compile commands
+          export CFLAGS="-fprofile-instr-generate -fcoverage-mapping -ftest-coverage -O0 -g"
+          export CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping -ftest-coverage -O0 -g"
+          export LDFLAGS="-fprofile-instr-generate -fcoverage-mapping -ftest-coverage"
+          bear -- make -j$(sysctl -n hw.ncpu) # build project and capture compile commands
+      # --- Run GoogleTest binaries to generate coverage data ---
+      - name: Run native tests
+        run: |
+          mkdir -p $COVERAGE_DIR
+          for test_bin in Tests/**/bin/**/Test.*; do
+            echo "Running $test_bin"
+            LLVM_PROFILE_FILE="coverage/%p.profraw" "$test_bin"
+          done
+
+      - name: Generate coverage report
+        run: |
+            /opt/homebrew/opt/llvm/bin/llvm-profdata merge -sparse coverage/*.profraw -o coverage/coverage.profdata
+            for test_bin in Tests/**/bin/**/Test.*; do
+              echo "Collecting coverage from $test_bin"
+              /opt/homebrew/opt/llvm/bin/llvm-cov show "$test_bin" \
+                --show-branches=count \
+                -instr-profile=coverage/coverage.profdata \
+                -compilation-dir="$GITHUB_WORKSPACE" \
+                > coverage/coverage.txt
+            done
+
+
       # ---- MANAGED BUILD ----
       - name: Generate managed solution
         run: |
@@ -54,3 +82,8 @@ jobs:
             -Dsonar.organization=terran
             -Dsonar.cfamily.compile-commands=compile_commands.json
             -Dsonar.exclusions=vendor/**/*
+            -Dsonar.sources=Libraries,Sandbox
+            -Dsonar.tests=Tests
+            -Dsonar.test.inclusions=Tests/**/*Test.h
+            -Dsonar.coverage.exclusions=Tests/**/*
+            -Dsonar.cfamily.llvm-cov.reportPath=coverage/coverage.txt
