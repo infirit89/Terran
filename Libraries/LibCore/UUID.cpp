@@ -1,6 +1,6 @@
 #include "UUID.h"
 #include "PlatformCheck.h"
-#include "Utility.h"
+#include "Base.h"
 
 #include <array>
 #include <cctype>

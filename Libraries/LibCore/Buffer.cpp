@@ -1,6 +1,5 @@
 #include "Buffer.h"
-
-#include "Assert.h"
+#include "Result.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -60,13 +59,15 @@ ByteBuffer ByteBuffer::Copy(void const* data, size_t size)
     return buffer;
 }
 
-void ByteBuffer::write(void const* data, uint32_t offset, size_t size)
+Result<void, ByteBufferError> ByteBuffer::write(void const* data, size_t offset, size_t size)
 {
     uint8_t* writeLocation = m_data + offset;
-    size_t dataSize = (size_t)((writeLocation + size) - m_data);
-    TR_ASSERT(dataSize <= m_size, "Data size is too big");
+    if(offset + size > m_size)
+        return { ByteBufferError::Overflow };
 
     memcpy(writeLocation, data, size);
+
+    return {};
 }
 
 }
