@@ -16,5 +16,5 @@
             TR_DEBUGBREAK();                         \
         }
 #elif defined(TR_RELEASE)
-#    define TR_ASSERT
+#    define TR_ASSERT(condition, ...)
 #endif

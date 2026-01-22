@@ -28,6 +28,7 @@ include "TerranEngine/vendor/msdf-atlas-gen/msdfgen/Freetype"
 include "TerranEngine/vendor/Box2D"
 -- include "TerranEngine/vendor/Optick" Think about replacing with Tracy
 include "vendor/yaml-cpp"
+include "vendor/gtest/googletest"
 include "TerranEngine/vendor/Coral/Coral.Native"
 
 group "Core"
@@ -46,3 +47,6 @@ group "Tools"
 
 group "Runtime"
 include "Sandbox"
+
+group "Tests"
+include "Tests/LibCore"

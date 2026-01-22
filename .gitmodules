@@ -32,3 +32,6 @@
 [submodule "vendor/premake-vscode"]
 	path = vendor/premake-vscode
 	url = https://github.com/peter1745/premake-vscode
+[submodule "vendor/gtest"]
+	path = vendor/gtest
+	url = https://github.com/infirit89/googletest.git

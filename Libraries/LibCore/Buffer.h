@@ -5,6 +5,8 @@
  */
 #pragma once
 
+#include "Result.h"
+
 #include <cstddef>
 #include <cstdint>
 
@@ -28,6 +30,11 @@ namespace Terran::Core {
  * This class performs no bounds checking. The caller is responsible
  * for ensuring valid offsets and sizes when reading or writing.
  */
+enum class ByteBufferError : uint8_t {
+    OutOfBounds = 0,
+    Overflow
+};
+
 class ByteBuffer final {
 public:
     /**
@@ -51,7 +58,7 @@ public:
     ByteBuffer(size_t size);
 
     /**
-     * @brief Constructs a buffer by copying raw data.
+     * @brief Constructs a buffer from raw data, DOES NOT COPY.
      *
      * @param data Source data to copy from
      * @param size Number of bytes to copy
@@ -106,7 +113,7 @@ public:
     /**
      * @brief Returns the size of the buffer in bytes.
      *
-     * @return Buffer size in bytes
+     * @return Buffer size in bytes.
      */
     constexpr size_t size() const noexcept
     {
@@ -116,31 +123,34 @@ public:
     /**
      * @brief Writes data into the buffer at the specified offset.
      *
-     * @param data   Source data to write
-     * @param offset Offset into the buffer
-     * @param size   Number of bytes to write
+     * @param data   Source data to write.
+     * @param offset Offset into the buffer.
+     * @param size   Number of bytes to write.
      *
+     * @retval ByteBuffer::Overflow If the write would result in an overflow.
+     * @return Empty result on success.
      */
-    void write(void const* data, uint32_t offset, size_t size);
+    Result<void, ByteBufferError> write(void const* data, size_t offset, size_t size);
 
     /**
      * @brief Returns a pointer to the buffer at the given offset.
      *
-     * @param offset Offset into the buffer
-     * @return Pointer to the requested position in the buffer
-     *
-     * @warning
-     * No bounds checking is performed.
+     * @param offset Offset into the buffer.
+     * @retval uint8_t* Pointer to the buffer at @p offset on success.
+     * @retval ByteBufferError::OutOfBounds when the read would result in an access violation.
      */
-    constexpr uint8_t* read(uint32_t offset) const noexcept
+    Result<uint8_t*, ByteBufferError> read(size_t offset) const noexcept
     {
-        return m_data + offset;
+        if (offset >= m_size)
+            return { ByteBufferError::OutOfBounds };
+
+        return { m_data + offset };
     }
 
     /**
      * @brief Checks whether the buffer contains valid data.
      *
-     * @return `true` if the buffer is allocated and non-empty
+     * @return `true` if the buffer is allocated and non-empty.
      */
     constexpr operator bool() const noexcept
     {
