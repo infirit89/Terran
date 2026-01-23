@@ -84,6 +84,4 @@ jobs:
             -Dsonar.exclusions=vendor/**/*
             -Dsonar.sources=Libraries,Sandbox
             -Dsonar.tests=Tests
-            -Dsonar.test.inclusions=Tests/**/*Test.h
-            -Dsonar.coverage.exclusions=Tests/**/*
             -Dsonar.cfamily.llvm-cov.reportPath=coverage/coverage.txt
