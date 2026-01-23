@@ -59,7 +59,6 @@ jobs:
               /opt/homebrew/opt/llvm/bin/llvm-cov show "$test_bin" \
                 --show-branches=count \
                 -instr-profile=coverage/coverage.profdata \
-                -compilation-dir="$GITHUB_WORKSPACE" \
                 > coverage/coverage.txt
             done
 
