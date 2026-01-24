@@ -61,7 +61,7 @@ jobs:
             /opt/homebrew/opt/llvm/bin/llvm-cov show $TEST_BINS \
             --show-branches=count \
             -instr-profile=coverage/coverage.profdata \
-            $SOURCE_FILES \
+            --ignore-filename-regex='.*(/usr/|/opt/|/Library/|\.h$)' \
             > coverage/coverage.txt
             
       # ---- MANAGED BUILD ----
@@ -81,6 +81,7 @@ jobs:
             -Dsonar.projectKey=infirit89_Terran
             -Dsonar.organization=terran
             -Dsonar.cfamily.compile-commands=compile_commands.json
+            -Dsonar.coverage.exclusions=**/*.h,**/*.hpp
             -Dsonar.exclusions=vendor/**/*
             -Dsonar.sources=Libraries,Sandbox
             -Dsonar.tests=Tests
