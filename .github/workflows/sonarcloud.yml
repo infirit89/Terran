@@ -54,15 +54,16 @@ jobs:
       - name: Generate coverage report
         run: |
             /opt/homebrew/opt/llvm/bin/llvm-profdata merge -sparse coverage/*.profraw -o coverage/coverage.profdata
-            for test_bin in Tests/**/bin/**/Test.*; do
-              echo "Collecting coverage from $test_bin"
-              /opt/homebrew/opt/llvm/bin/llvm-cov show "$test_bin" \
-                --show-branches=count \
-                -instr-profile=coverage/coverage.profdata \
-                > coverage/coverage.txt
-            done
 
+            SOURCE_FILES=$(find Libraries Sandbox -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) | tr '\n' ' ')
+            TEST_BINS=$(find Tests -type f -name "Test.*" -perm +111 | tr '\n' ' ')
 
+            /opt/homebrew/opt/llvm/bin/llvm-cov show $TEST_BINS \
+            --show-branches=count \
+            -instr-profile=coverage/coverage.profdata \
+            $SOURCE_FILES \
+            > coverage/coverage.txt
+            
       # ---- MANAGED BUILD ----
       - name: Generate managed solution
         run: |
