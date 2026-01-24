@@ -12,6 +12,10 @@
 
 namespace Terran::Core {
 
+enum class UUIDError : uint8_t {
+    WrongFormat,
+};
+
 /**
  * @class UUID
  * @brief Universally unique identifier, used for all engine resources
