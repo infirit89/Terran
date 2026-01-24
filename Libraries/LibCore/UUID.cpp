@@ -11,6 +11,10 @@
 namespace Terran::Core {
 
 const UUID UUID::s_empty = UUID(UUID::type { { 0 } });
+// 00 00 00 00 - 00 00 - 00 00 - 00 00 - 00 00 00 00 00 00
+// 16 bytes = 32 characters (for values)
+// 32 characters + 4 (dashes) = 36 (total characters)
+constexpr size_t s_uuid_string_size = 36;
 
 UUID UUID::from_string(std::string const& str)
 {
@@ -18,14 +22,14 @@ UUID UUID::from_string(std::string const& str)
 
     std::array<uint8_t, 16> data { {} };
 
-    if (str.empty())
+    if (str.size() != s_uuid_string_size)
         return UUID({ 0 });
 
     for (size_t i = 0; i < str.size(); ++i) {
         if (str[i] == '-')
             continue;
 
-        if (index >= 16 || !isxdigit(str[i])) {
+        if (!isxdigit(str[i]) || !isxdigit(str[i + 1])) {
             // TODO: return not in hex format error
             return UUID({ 0 });
         }
@@ -36,8 +40,6 @@ UUID UUID::from_string(std::string const& str)
         index++;
     }
 
-    if (index < 16)
-        return s_empty;
 
     return UUID { data };
 }
