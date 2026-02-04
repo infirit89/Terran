@@ -2,12 +2,18 @@
 
 #include "Scene.h"
 
-#include "Core/Result.h"
-#include "LibCore/Base.h"
+// #include "Core/Result.h"
+#include <LibCore/Base.h>
+#include <LibCore/Result.h>
 
 #include <filesystem>
 
-namespace TerranEngine {
+namespace Terran::World {
+
+enum class SceneSerializationError {
+    InvalidFormat,
+    NotFound,
+};
 
 class SceneSerializer final {
 public:
@@ -15,7 +21,7 @@ public:
     SceneSerializer(Terran::Core::Shared<Scene> const& scene);
 
     void SerializeEditor(std::filesystem::path const& scenePath);
-    Result DeserializeEditor(std::filesystem::path const& scenePath);
+    Core::Result<void, SceneSerializationError> DeserializeEditor(std::filesystem::path const& scenePath);
 
 public:
     static char const* SceneFilter;

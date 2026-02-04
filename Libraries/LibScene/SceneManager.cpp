@@ -1,11 +1,8 @@
-#include "trpch.h"
 #include "SceneManager.h"
 
-#include "Core/Application.h"
+// #include "Events/SceneEvent.h"
 
-#include "Events/SceneEvent.h"
-
-namespace TerranEngine {
+namespace Terran::World {
 
 Terran::Core::Shared<Scene> SceneManager::s_CurrentScene;
 std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>> SceneManager::s_ActiveScenes;
@@ -14,7 +11,7 @@ Terran::Core::Shared<Scene> SceneManager::CreateEmptyScene()
 {
     // TODO: create memory asset???
     Terran::Core::Shared<Scene> scene = Terran::Core::CreateShared<Scene>();
-    s_ActiveScenes[scene->GetHandle()] = scene;
+    s_ActiveScenes[scene->handle()] = scene;
     return scene;
 }
 
@@ -23,7 +20,7 @@ void SceneManager::RemoveScene(const Terran::Core::UUID& id)
     if (s_ActiveScenes.contains(id))
         s_ActiveScenes.erase(id);
 
-    if (s_CurrentScene->GetHandle() == id)
+    if (s_CurrentScene->handle() == id)
         s_CurrentScene = nullptr;
 }
 
@@ -39,13 +36,15 @@ void SceneManager::SetCurrentScene(Terran::Core::Shared<Scene> newScene)
 {
     Terran::Core::UUID id({ 0 });
     if (s_CurrentScene)
-        id = s_CurrentScene->GetHandle();
+        id = s_CurrentScene->handle();
 
-    SceneTransitionEvent sceneTransitionEvent(s_CurrentScene, newScene);
-    Application::Get()->DispatchEvent(sceneTransitionEvent);
+    // SceneTransitionEvent sceneTransitionEvent(s_CurrentScene, newScene);
+    
+    // TODO: dispatch events properly once this becomes a layer
+    // Application::Get()->DispatchEvent(sceneTransitionEvent);
 
     s_CurrentScene = newScene;
-    s_ActiveScenes[newScene->GetHandle()] = newScene;
+    s_ActiveScenes[newScene->handle()] = newScene;
 
     if (!id)
         return;

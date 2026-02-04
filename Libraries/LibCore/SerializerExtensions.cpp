@@ -1,7 +1,6 @@
-#include "trpch.h"
-#include "SerializerUtils.h"
+#include "SerializerExtensions.h"
 
-namespace TerranEngine {
+namespace Terran::Core {
 
 YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec2 const& v)
 {
@@ -27,12 +26,6 @@ YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec4 const& v)
 YAML::Emitter& operator<<(YAML::Emitter& out, Terran::Core::UUID const& v)
 {
     out << std::to_string(v);
-    return out;
-}
-
-YAML::Emitter& operator<<(YAML::Emitter& out, TextureFilter const& v)
-{
-    out << TextureFilterToString(v);
     return out;
 }
 

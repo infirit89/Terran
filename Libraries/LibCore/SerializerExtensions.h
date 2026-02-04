@@ -1,20 +1,17 @@
 #pragma once
 
-#include "LibCore/UUID.h"
-
-#include "Graphics/Texture.h"
+#include "UUID.h"
 
 #include <glm/glm.hpp>
 
 #include <yaml-cpp/yaml.h>
 
-namespace TerranEngine {
+namespace Terran::Core {
 
 YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec2 const& v);
 YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec3 const& v);
 YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec4 const& v);
 YAML::Emitter& operator<<(YAML::Emitter& out, Terran::Core::UUID const& v);
-YAML::Emitter& operator<<(YAML::Emitter& out, TextureFilter const& v);
 YAML::Emitter& operator<<(YAML::Emitter& out, std::byte v);
 
 }
@@ -109,23 +106,6 @@ struct convert<Terran::Core::UUID> {
     {
 
         rhs = Terran::Core::UUID::from_string(node.as<std::string>());
-        return true;
-    }
-};
-
-template<>
-struct convert<TerranEngine::TextureFilter> {
-    static Node encode(TerranEngine::TextureFilter const& rhs)
-    {
-        Node node;
-        node.push_back(TerranEngine::TextureFilterToString(rhs));
-        return node;
-    }
-
-    static bool decode(Node const& node, TerranEngine::TextureFilter& rhs)
-    {
-
-        rhs = TerranEngine::TextureFilterFromString(node.as<std::string>());
         return true;
     }
 };

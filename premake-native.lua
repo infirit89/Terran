@@ -35,6 +35,7 @@ group "Core"
 include "Libraries/LibMain"
 include "Libraries/LibCore"
 include "Libraries/LibAsset"
+include "Libraries/LibScene"
 include "TerranEngine"
 
 group "Graphics"
