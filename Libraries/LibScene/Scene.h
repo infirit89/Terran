@@ -1,35 +1,35 @@
 #pragma once
 
-#include "LibCore/Base.h"
-#include "LibCore/Time.h"
-#include "LibCore/UUID.h"
+#include <LibCore/Base.h>
+#include <LibCore/Time.h>
+#include <LibCore/UUID.h>
 
-#include "Asset/Asset.h"
+#include <LibAsset/Asset.h>
 
-#include "Graphics/Camera.h"
+#include "Entity.h"
+
+// #include "Graphics/Camera.h"
 
 #pragma warning(push)
 #pragma warning(disable : 26439)
 #include <entt.hpp>
 #pragma warning(pop)
+#include <glm/glm.hpp>
 
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
 
-namespace TerranEngine {
+namespace Terran::World {
 
-class Entity;
-class SceneRenderer;
-
-class Scene final : public Asset {
+class Scene final : public Asset::Asset {
 public:
     Scene();
     Scene(Terran::Core::UUID const& handle);
     ~Scene() override;
 
-    ASSET_CLASS_TYPE(Scene)
+    TR_DECLARE_ASSET_TYPE(Scene)
 
     Entity CreateEntity(std::string const& name = std::string());
     Entity CreateEntityWithUUID(std::string const& name, Terran::Core::UUID const& uuid);
@@ -41,11 +41,11 @@ public:
     void StopRuntime();
 
     void Update(Terran::Core::Time time);
-    void UpdateEditor();
-    void OnResize(float width, float height);
+    // void UpdateEditor();
+    // void OnResize(float width, float height);
 
-    void OnRender(Terran::Core::Shared<SceneRenderer> const& sceneRenderer);
-    void OnRenderEditor(Terran::Core::Shared<SceneRenderer> const& sceneRenderer, Camera& camera, glm::mat4& cameraView);
+    // void OnRender(Terran::Core::Shared<SceneRenderer> const& sceneRenderer);
+    // void OnRenderEditor(Terran::Core::Shared<SceneRenderer> const& sceneRenderer, Camera& camera, glm::mat4& cameraView);
 
     Entity FindEntityWithUUID(Terran::Core::UUID uuid);
     Entity FindEntityWithName(std::string const& name);
@@ -126,10 +126,10 @@ private:
     glm::vec2 m_ViewportPosition = { 0.0f, 0.0f };
     float m_ViewportWidth = 1080, m_ViewportHeight = 720;
 
-    friend class SceneRenderer;
     friend class Entity;
     friend class SceneSerializer;
     friend class SceneAssetLoader;
 };
 
 }
+#include "Entity.inl"

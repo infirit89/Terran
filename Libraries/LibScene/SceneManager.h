@@ -6,7 +6,7 @@
 
 #include <unordered_map>
 
-namespace TerranEngine {
+namespace Terran::World {
 
 class SceneManager final {
 public:

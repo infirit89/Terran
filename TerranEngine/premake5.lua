@@ -67,7 +67,7 @@ includedirs {
     "%{IncludeDirectories.imgui}",
     "%{IncludeDirectories.glad}",
     "%{IncludeDirectories.stb}",
-    "%{IncludeDirectories.entt}",
+    "%{Dependencies.entt.include}",
     "%{IncludeDirectories.msdfgen}",
     "%{IncludeDirectories.msdf_atlas_gen}",
     "%{IncludeDirectories.box2d}",
