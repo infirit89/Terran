@@ -48,36 +48,36 @@ public:
 };
 
 #define TR_CORE_TRACE(LoggerName, ...)           \
-    if (Terran::Core::Log::contains(LoggerName)) \
-    Terran::Core::Log::logger(LoggerName)->trace(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(LoggerName)) \
+    ::Terran::Core::Log::logger(LoggerName)->trace(__VA_ARGS__)
 
 #define TR_CORE_INFO(LoggerName, ...)            \
-    if (Terran::Core::Log::contains(LoggerName)) \
-    Terran::Core::Log::logger(LoggerName)->info(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(LoggerName)) \
+    ::Terran::Core::Log::logger(LoggerName)->info(__VA_ARGS__)
 
 #define TR_CORE_WARN(LoggerName, ...)            \
-    if (Terran::Core::Log::contains(LoggerName)) \
-    Terran::Core::Log::logger(LoggerName)->warn(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(LoggerName)) \
+    ::Terran::Core::Log::logger(LoggerName)->warn(__VA_ARGS__)
 
 #define TR_CORE_ERROR(LoggerName, ...)           \
-    if (Terran::Core::Log::contains(LoggerName)) \
-    Terran::Core::Log::logger(LoggerName)->error(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(LoggerName)) \
+    ::Terran::Core::Log::logger(LoggerName)->error(__VA_ARGS__)
 
 #define TR_CLIENT_TRACE(...)                        \
-    if (Terran::Core::Log::contains(TR_LOG_CLIENT)) \
-    Terran::Core::Log::logger(TR_LOG_CLIENT)->trace(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(TR_LOG_CLIENT)) \
+    ::Terran::Core::Log::logger(TR_LOG_CLIENT)->trace(__VA_ARGS__)
 
 #define TR_CLIENT_INFO(...)                         \
-    if (Terran::Core::Log::contains(TR_LOG_CLIENT)) \
-    Terran::Core::Log::logger(TR_LOG_CLIENT)->info(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(TR_LOG_CLIENT)) \
+    ::Terran::Core::Log::logger(TR_LOG_CLIENT)->info(__VA_ARGS__)
 
 #define TR_CLIENT_WARN(...)                         \
-    if (Terran::Core::Log::contains(TR_LOG_CLIENT)) \
-    Terran::Core::Log::logger(TR_LOG_CLIENT)->warn(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(TR_LOG_CLIENT)) \
+    ::Terran::Core::Log::logger(TR_LOG_CLIENT)->warn(__VA_ARGS__)
 
 #define TR_CLIENT_ERROR(...)                        \
-    if (Terran::Core::Log::contains(TR_LOG_CLIENT)) \
-    Terran::Core::Log::logger(TR_LOG_CLIENT)->error(__VA_ARGS__)
+    if (::Terran::Core::Log::contains(TR_LOG_CLIENT)) \
+    ::Terran::Core::Log::logger(TR_LOG_CLIENT)->error(__VA_ARGS__)
 
 }
 
