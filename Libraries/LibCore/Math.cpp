@@ -1,4 +1,3 @@
-#include "trpch.h"
 #include "Math.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,9 +5,9 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-namespace TerranEngine 
+namespace Terran::Core 
 {
-	bool Math::Decompose(const glm::mat4& modelMatrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
+	bool Math::decompose_transform_matrix(const glm::mat4& modelMatrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
 	{
 		glm::mat4 LocalMatrix(modelMatrix);
 
@@ -75,7 +74,7 @@ namespace TerranEngine
 		return true;
 	}
 
-	glm::mat4 Math::ComposeTransformationMatrix(const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
+	glm::mat4 Math::compose_transform_matrix(const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
 	{
 		return glm::translate(glm::mat4(1.0f), translation) *
 			glm::toMat4(glm::quat(rotation)) *
