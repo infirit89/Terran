@@ -43,8 +43,8 @@ concept HasStaticType = requires(T) {
 }; 
 
 #define TR_DECLARE_ASSET_TYPE(type_name)                                                  \
-    static AssetTypeId static_type() { return Terran::Core::Hash::fnv1a_64(#type_name); } \
-    virtual AssetTypeId type() const override { return static_type(); }
+    static Terran::Asset::AssetTypeId static_type() { return Terran::Core::Hash::fnv1a_64(#type_name); } \
+    virtual Terran::Asset::AssetTypeId type() const override { return static_type(); }
 
 class TextAsset final : public Asset {
 public:
