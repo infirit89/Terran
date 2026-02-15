@@ -22,7 +22,7 @@ AssetLoadResult AssetImporterRegistry::load(AssetMetadata const& assetMetadata)
     }
 
     TR_CORE_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetMetadata.Path);
-    return { Core::CreateShared<AssetImporterError>(AssetImporterError::ImporterNotFound) };
+    return { Core::CreateShared<AssetImporterError>(AssetImporterError::Code::ImporterNotFound) };
 }
 
 bool AssetImporterRegistry::save(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset> const& asset)
