@@ -31,36 +31,6 @@ void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registr
     dstRegistry.emplace_or_replace<Component>(dstHandle, srcRegistry.get<Component>(srcHandle));
 }
 
-// template<>
-// void CopyComponent<ScriptComponent>(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
-// {
-//     if (!srcRegistry.all_of<ScriptComponent>(srcHandle))
-//         return;
-//
-//     entt::entity const srcSceneEntity = srcRegistry.view<SceneComponent>().front();
-//     Terran::Core::UUID const& srcSceneID = srcRegistry.get<SceneComponent>(srcSceneEntity).SceneID;
-//     Terran::Core::UUID const& srcEntityID = srcRegistry.get<TagComponent>(srcHandle).ID;
-//
-//     Terran::Core::Shared<ScriptInstance> srcScriptInstance = ScriptEngine::GetScriptInstance(srcSceneID, srcEntityID);
-//     if (!srcScriptInstance) {
-//         TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the source scene was null");
-//         return;
-//     }
-//     dstRegistry.emplace_or_replace<ScriptComponent>(dstHandle, srcRegistry.get<ScriptComponent>(srcHandle));
-//
-//     entt::entity const dstSceneEntity = dstRegistry.view<SceneComponent>().front();
-//     Terran::Core::UUID const& dstSceneID = dstRegistry.get<SceneComponent>(dstSceneEntity).SceneID;
-//
-//     Terran::Core::UUID const& dstEntityID = dstRegistry.get<TagComponent>(dstHandle).ID;
-//
-//     Terran::Core::Shared<ScriptInstance> dstScriptInstance = ScriptEngine::GetScriptInstance(dstSceneID, dstEntityID);
-//     if (!dstScriptInstance) {
-//         TR_CORE_ERROR(TR_LOG_SCRIPT, "The script instance from the destination scene was null");
-//         return;
-//     }
-//     dstScriptInstance->CopyAllFieldsFrom(srcScriptInstance);
-// }
-
 template<typename Component>
 void CopyComponent(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry)
 {
@@ -84,41 +54,11 @@ Scene::Scene(Terran::Core::UUID const& handle)
 {
     auto const sceneEntity = m_Registry.create();
     m_Registry.emplace<SceneComponent>(sceneEntity, m_handle);
-
-    // m_Registry.on_construct<ScriptComponent>().connect<&Scene::OnScriptComponentConstructed>(this);
-    // m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroyed>(this);
-    //
-    // m_Registry.on_construct<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentConstructed>(this);
-    // m_Registry.on_destroy<Rigidbody2DComponent>().connect<&Scene::OnRigidbody2DComponentDestroyed>(this);
-    //
-    // m_Registry.on_construct<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentConstructed>(this);
-    // m_Registry.on_destroy<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentDestroyed>(this);
-    //
-    // m_Registry.on_construct<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentConstructed>(this);
-    // m_Registry.on_destroy<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentDestroyed>(this);
-    //
-    // m_Registry.on_construct<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentConstructed>(this);
-    // m_Registry.on_destroy<CapsuleCollider2DComponent>().connect<&Scene::OnCapsuleCollider2DComponentDestroyed>(this);
-    //
-    // m_Registry.on_construct<TextRendererComponent>().connect<&Scene::OnTextComponentConstructed>(this);
 }
 
 Scene::~Scene()
 {
-    // auto scriptableComponentView = m_Registry.view<ScriptComponent>();
-    //
-    // for (auto e : scriptableComponentView) {
-    //     Entity entity(e, this);
-    //     ScriptEngine::DestroyScriptInstance(entity);
-    // }
-
     m_Registry.clear();
-
-    // m_Registry.on_construct<ScriptComponent>().disconnect<&Scene::OnScriptComponentConstructed>(this);
-    // m_Registry.on_destroy<ScriptComponent>().disconnect<&Scene::OnScriptComponentDestroyed>(this);
-    //
-    // m_Registry.on_construct<Rigidbody2DComponent>().disconnect<&Scene::OnRigidbody2DComponentConstructed>(this);
-    // m_Registry.on_destroy<Rigidbody2DComponent>().disconnect<&Scene::OnRigidbody2DComponentDestroyed>(this);
 }
 
 Entity Scene::CreateEntity(std::string const& name)
@@ -202,169 +142,12 @@ void Scene::StopRuntime()
 
 void Scene::Update(Terran::Core::Time time)
 {
-    // TR_PROFILE_FUNCN("Scene::Update");
-    // TR_PROFILE_FUNCTION();
-
     UpdateTransformHierarchy();
-
-    // Physics2D::Update(time);
-    //
-    // auto scriptableComponentView = m_Registry.view<ScriptComponent>();
-    // for (auto e : scriptableComponentView) {
-    //     Entity entity(e, this);
-    //     ScriptEngine::OnUpdate(entity, time.GetDeltaTime());
 }
 
-// void Scene::UpdateEditor()
-// {
-//     // TR_PROFILE_FUNCTION();
-//     UpdateTransformHierarchy();
-// }
-
-// void Scene::OnResize(float width, float height)
-// {
-//     if (m_ViewportWidth != width || m_ViewportHeight != height) {
-//         m_ViewportWidth = width;
-//         m_ViewportHeight = height;
-//
-//         auto cameraView = m_Registry.view<CameraComponent>();
-//
-//         for (auto e : cameraView) {
-//             Entity entity(e, this);
-//             auto& cameraComponent = entity.GetComponent<CameraComponent>();
-//
-//             cameraComponent.Camera.SetViewport(width, height);
-//         }
-//     }
-// }
-
-// void Scene::OnRender(Terran::Core::Shared<SceneRenderer> const& sceneRenderer)
-// {
-//     // TR_PROFILE_FUNCTION();
-//
-//     if (Entity primaryCamera = GetPrimaryCamera()) {
-//         glm::vec4 backgroundColor = primaryCamera.GetComponent<CameraComponent>().BackgroundColor;
-//         sceneRenderer->SetScene(this);
-//         sceneRenderer->SetClearColor(backgroundColor);
-//
-//         Camera& camera = primaryCamera.GetComponent<CameraComponent>().Camera;
-//         glm::mat4& cameraTransform = primaryCamera.GetTransform().WorldSpaceTransformMatrix;
-//
-//         sceneRenderer->BeginScene(camera, cameraTransform, true);
-//
-//         // submit sprites
-//         {
-//             auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
-//             for (auto e : spriteRendererView) {
-//                 Entity entity(e, this);
-//                 auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
-//                 auto& transform = entity.GetTransform();
-//
-//                 sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
-//             }
-//         }
-//
-//         // submit circles
-//         {
-//             auto circleRendererView = m_Registry.view<CircleRendererComponent>();
-//             for (auto e : circleRendererView) {
-//                 Entity entity(e, this);
-//                 auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
-//                 auto& transform = entity.GetTransform();
-//
-//                 sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)(entity));
-//             }
-//         }
-//
-//         // submit text
-//         {
-//             auto textRendererView = m_Registry.view<TextRendererComponent>();
-//             for (auto e : textRendererView) {
-//                 Entity entity(e, this);
-//                 auto& textRenderer = entity.GetComponent<TextRendererComponent>();
-//                 auto& transform = entity.GetTransform();
-//
-//                 sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix, entity);
-//             }
-//         }
-//
-//         // submit lines
-//         {
-//             auto lineRendererView = m_Registry.view<LineRendererComponent>();
-//
-//             for (auto e : lineRendererView) {
-//                 Entity entity(e, this);
-//                 auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
-//
-//                 sceneRenderer->SubmitLine(lineRenderer, (uint32_t)entity);
-//             }
-//         }
-//
-//         sceneRenderer->EndScene();
-//     }
-// }
-
-// void Scene::OnRenderEditor(Terran::Core::Shared<SceneRenderer> const& sceneRenderer, Camera& camera, glm::mat4& cameraView)
-// {
-//     // TR_PROFILE_FUNCTION();
-//     sceneRenderer->SetScene(this);
-//     sceneRenderer->BeginScene(camera, cameraView, false);
-//
-//     sceneRenderer->GetFramebuffer()->SetColorAttachmentValue(1, -1);
-//
-//     // submit sprites
-//     {
-//         auto spriteRendererView = m_Registry.view<SpriteRendererComponent>();
-//         for (auto e : spriteRendererView) {
-//             Entity entity(e, this);
-//             auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
-//             auto& transform = entity.GetTransform();
-//
-//             sceneRenderer->SubmitSprite(spriteRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
-//         }
-//     }
-//
-//     // submit circles
-//     {
-//         auto circleRendererView = m_Registry.view<CircleRendererComponent>();
-//         for (auto e : circleRendererView) {
-//             Entity entity(e, this);
-//             auto& circleRenderer = entity.GetComponent<CircleRendererComponent>();
-//             auto& transform = entity.GetTransform();
-//
-//             sceneRenderer->SubmitCircle(circleRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
-//         }
-//     }
-//
-//     // submit text
-//     {
-//         auto textRendererView = m_Registry.view<TextRendererComponent>();
-//         for (auto e : textRendererView) {
-//             Entity entity(e, this);
-//             auto& textRenderer = entity.GetComponent<TextRendererComponent>();
-//             auto& transform = entity.GetTransform();
-//
-//             sceneRenderer->SubmitText(textRenderer, transform.WorldSpaceTransformMatrix, (uint32_t)entity);
-//         }
-//     }
-//
-//     // submit lines
-//     {
-//         auto lineRendererView = m_Registry.view<LineRendererComponent>();
-//         for (auto e : lineRendererView) {
-//             Entity entity(e, this);
-//             auto& lineRenderer = entity.GetComponent<LineRendererComponent>();
-//
-//             sceneRenderer->SubmitLine(lineRenderer, (uint32_t)entity);
-//         }
-//     }
-//
-//     sceneRenderer->EndScene();
-// }
 
 Entity Scene::FindEntityWithUUID(Terran::Core::UUID uuid)
 {
-    // TR_PROFILE_FUNCTION();
     if (m_EntityMap.contains(uuid))
         return Entity(m_EntityMap.at(uuid), this);
 
@@ -373,7 +156,6 @@ Entity Scene::FindEntityWithUUID(Terran::Core::UUID uuid)
 
 Entity Scene::FindEntityWithName(std::string const& name)
 {
-    // TR_PROFILE_FUNCTION();
     auto const tagView = m_Registry.view<TagComponent>();
 
     for (auto e : tagView) {
@@ -385,34 +167,11 @@ Entity Scene::FindEntityWithName(std::string const& name)
     return {};
 }
 
-Entity Scene::GetPrimaryCamera()
-{
-    // auto const cameraView = m_Registry.view<CameraComponent>();
-    // for (auto e : cameraView) {
-    //     Entity entity(e, this);
-    //     auto& cameraComponent = entity.GetComponent<CameraComponent>();
-    //
-    //     if (cameraComponent.Primary)
-    //         return entity;
-    // }
-
-    return {};
-}
-
 Entity Scene::DuplicateEntity(Entity srcEntity, Entity parent)
 {
     Entity dstEntity = CreateEntity(srcEntity.GetName() + " Copy");
 
     CopyComponent<TransformComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<CameraComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<TextRendererComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<ScriptComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
-    // CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, m_Registry);
 
     if (srcEntity.HasComponent<RelationshipComponent>()) {
         for (int i = 0; i < srcEntity.GetChildCount(); i++) {
@@ -451,16 +210,7 @@ Terran::Core::Shared<Scene> Scene::CopyScene(Terran::Core::Shared<Scene> const& 
         Entity dstEntity = scene->FindEntityWithUUID(srcEntity.GetID());
 
         CopyComponent<TransformComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<CameraComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<SpriteRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<CircleRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<TextRendererComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<ScriptComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<Rigidbody2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<BoxCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<CircleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
-        // CopyComponent<CapsuleCollider2DComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
+        CopyComponent<RelationshipComponent>(srcEntity, dstEntity, srcScene->m_Registry, scene->m_Registry);
     }
 
     scene->SortEntities();
@@ -470,9 +220,6 @@ Terran::Core::Shared<Scene> Scene::CopyScene(Terran::Core::Shared<Scene> const& 
 
 void Scene::UpdateTransformHierarchy()
 {
-    // TR_PROFILE_FUNCN("Scene::UpdateTransformHierarchy");
-    // TR_PROFILE_FUNCTION();
-
     auto transformView = GetEntitiesWith<TransformComponent>();
 
     for (auto e : transformView) {
@@ -560,118 +307,4 @@ void Scene::SortEntities()
     m_Registry.sort<TagComponent>([](entt::entity const& lEntity, entt::entity const& rEntity) { return lEntity < rEntity; });
 }
 
-// void Scene::OnScriptComponentConstructed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     Entity entity(entityHandle, this);
-//     ScriptEngine::CreateScriptInstance(entity);
-//
-//     if (m_IsPlaying)
-//         ScriptEngine::OnStart(entity);
-// }
-//
-// void Scene::OnScriptComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     Entity entity(entityHandle, this);
-//     ScriptEngine::DestroyScriptInstance(entity);
-// }
-//
-// void Scene::OnRigidbody2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     if (m_IsPlaying) {
-//         Entity entity(entityHandle, this);
-//         Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::CreatePhysicsBody(entity);
-//         physicsBody->AttachColliders();
-//     }
-// }
-//
-// void Scene::OnRigidbody2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     if (m_IsPlaying) {
-//         Entity entity(entityHandle, this);
-//         Physics2D::DestroyPhysicsBody(entity);
-//     }
-// }
-//
-// void Scene::OnBoxCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     Entity entity(entityHandle, this);
-//     if (!entity.HasComponent<Rigidbody2DComponent>())
-//         entity.AddComponent<Rigidbody2DComponent>();
-//
-//     if (!m_IsPlaying)
-//         return;
-//
-//     if (Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
-//         physicsBody->AddCollider<BoxCollider2DComponent>(entity);
-// }
-// void Scene::OnBoxCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     if (m_IsPlaying) {
-//         Entity entity(entityHandle, this);
-//         Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-//         auto& bcComponent = entity.GetComponent<BoxCollider2DComponent>();
-//
-//         if (physicsBody)
-//             physicsBody->RemoveCollider(bcComponent.ColliderIndex);
-//     }
-// }
-//
-// void Scene::OnCircleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     Entity entity(entityHandle, this);
-//     if (!entity.HasComponent<Rigidbody2DComponent>())
-//         entity.AddComponent<Rigidbody2DComponent>();
-//
-//     if (!m_IsPlaying)
-//         return;
-//
-//     if (Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
-//         physicsBody->AddCollider<CircleCollider2DComponent>(entity);
-// }
-// void Scene::OnCircleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     if (m_IsPlaying) {
-//         Entity entity(entityHandle, this);
-//         auto& ccComponent = entity.GetComponent<CircleCollider2DComponent>();
-//
-//         if (Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
-//             physicsBody->RemoveCollider(ccComponent.ColliderIndex);
-//     }
-// }
-//
-// void Scene::OnCapsuleCollider2DComponentConstructed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     Entity entity(entityHandle, this);
-//     if (!entity.HasComponent<Rigidbody2DComponent>())
-//         entity.AddComponent<Rigidbody2DComponent>();
-//
-//     if (!m_IsPlaying)
-//         return;
-//
-//     if (Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity))
-//         physicsBody->AddCollider<CapsuleCollider2DComponent>(entity);
-// }
-// void Scene::OnCapsuleCollider2DComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     if (m_IsPlaying) {
-//         Entity entity(entityHandle, this);
-//         Terran::Core::Shared<PhysicsBody2D> physicsBody = Physics2D::GetPhysicsBody(entity);
-//         auto& ccComponent = entity.GetComponent<CapsuleCollider2DComponent>();
-//
-//         if (physicsBody)
-//             physicsBody->RemoveCollider(ccComponent.ColliderIndex);
-//     }
-// }
-//
-// void Scene::OnTextComponentConstructed(entt::registry& registry, entt::entity entityHandle)
-// {
-//     Entity entity(entityHandle, this);
-//     auto& trc = entity.GetComponent<TextRendererComponent>();
-//     if (!trc.FontAtlas)
-//         trc.FontAtlas = Font::DefaultFont;
-// }
-//
-// void Scene::OnTextComponentDestroyed(entt::registry& registry, entt::entity entityHandle)
-// {
-// }
 }
