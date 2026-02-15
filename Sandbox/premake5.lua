@@ -20,8 +20,8 @@ externalincludedirs {
     "%{Dependencies.spdlog.include}",
     "%{IncludeDirectories.imgui}",
     "%{Dependencies.glm.include}",
-    "%{IncludeDirectories.entt}",
     "%{IncludeDirectories.imguizmo}",
+    "%{Dependencies.entt.include}",
     "%{IncludeDirectories.optick}",
     "%{wks.location}/TerranEditor/vendor/FontAwesome",
 }
@@ -30,6 +30,8 @@ links {
     "LibCore",
     "LibMain",
     "LibWindow",
+    "LibScene",
+    "LibAsset",
 }
 
 defines {
