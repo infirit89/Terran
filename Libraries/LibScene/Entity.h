@@ -54,22 +54,57 @@ public:
     void visit(Entity entity, Func func) const;
 
     // base stuffs
-    Terran::Core::UUID const& id() const { return get_component<TagComponent>().ID; }
-    TransformComponent& transform() const { return get_component<TransformComponent>(); }
+    Terran::Core::UUID const& id() const
+    {
+        return get_component<TagComponent>().ID;
+    }
+
+    TransformComponent& transform() const
+    {
+        return get_component<TransformComponent>();
+    }
+
     bool valid() const;
-    std::string const& name() const { return get_component<TagComponent>().Name; }
+
+    std::string const& name() const
+    {
+        return get_component<TagComponent>().Name;
+    }
 
     // operators
-    operator entt::entity() const { return m_handle; }
-    bool operator!=(Entity const& other) const { return !(*this == other); }
-    operator uint32_t() const { return static_cast<uint32_t>(m_handle); }
-    operator bool() const { return m_handle != entt::null; }
+    operator entt::entity() const
+    {
+        return m_handle;
+    }
+
+    operator uint32_t() const
+    {
+        return static_cast<uint32_t>(m_handle);
+    }
+
+    operator bool() const
+    {
+        return m_handle != entt::null;
+    }
+
     bool operator==(Entity const& other) const;
 
     // relationship component stuffs
-    std::vector<Terran::Core::UUID>& children() const { return get_component<RelationshipComponent>().Children; }
-    size_t children_count() const { return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Children.size() : 0; }
-    Terran::Core::UUID parent_id() const { return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Parent : Terran::Core::UUID::invalid(); }
+    std::vector<Terran::Core::UUID>& children() const
+    {
+        return get_component<RelationshipComponent>().Children;
+    }
+
+    size_t children_count() const
+    {
+        return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Children.size() : 0;
+    }
+
+    Terran::Core::UUID parent_id() const
+    {
+        return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Parent : Terran::Core::UUID::invalid();
+    }
+
     bool has_parent() const;
 
     Terran::Core::UUID const& scene_id() const;
@@ -98,38 +133,16 @@ public:
         return parent_id() == entity.id();
     }
 
-    void set_parent(Entity parent, bool forceTransformUpdate = false);
+    void set_parent(Entity parent);
 
     void unparent();
 
-    /*void Unparent(Entity parent, Entity child, bool removeRelationship)
-    {
-            if (!parent.HasComponent<RelationshipComponent>())
-                    return;
-
-            if (!child.HasComponent<RelationshipComponent>())
-                    return;
-
-            const auto& it = std::find(parent.GetChildren().begin(), parent.GetChildren().end(), child.GetID());
-
-            if (it != parent.GetChildren().end())
-                    parent.GetChildren().erase(it);
-
-            if (removeRelationship)
-                    child.RemoveComponent<RelationshipComponent>();
-            else
-            {
-                    RelationshipComponent& rc = child.GetComponent<RelationshipComponent>();
-                    rc.ParentID = UUID({ 0 });
-            }
-    }*/
-
-    void remove_child(Entity child, bool removeRelationship)
+    void remove_child(Entity child)
     {
         child.unparent();
     }
 
-    void reparent(Entity previousParent, Entity newParent)
+    void reparent(Entity newParent)
     {
         unparent();
         set_parent(newParent);
