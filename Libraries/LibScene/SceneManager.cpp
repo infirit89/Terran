@@ -1,33 +1,33 @@
 #include "SceneManager.h"
+#include "SceneEvent.h"
+#include "Scene.h"
 
-// #include "Events/SceneEvent.h"
+#include <LibCore/UUID.h>
+#include <LibCore/Base.h>
 
 namespace Terran::World {
 
-Terran::Core::Shared<Scene> SceneManager::s_CurrentScene;
-std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>> SceneManager::s_ActiveScenes;
-
-Terran::Core::Shared<Scene> SceneManager::create_empty_scene()
+Core::Shared<Scene> SceneManager::create_empty_scene()
 {
     // TODO: create memory asset???
     Terran::Core::Shared<Scene> scene = Terran::Core::CreateShared<Scene>();
-    s_ActiveScenes[scene->handle()] = scene;
+    m_active_scenes[scene->handle()] = scene;
     return scene;
 }
 
 void SceneManager::remove_scene(const Terran::Core::UUID& id)
 {
-    if (s_ActiveScenes.contains(id))
-        s_ActiveScenes.erase(id);
+    if (m_active_scenes.contains(id))
+        m_active_scenes.erase(id);
 
-    if (s_CurrentScene->handle() == id)
-        s_CurrentScene = nullptr;
+    if (m_current_scene->handle() == id)
+        m_current_scene = nullptr;
 }
 
 Terran::Core::Shared<Scene> SceneManager::scene(const Terran::Core::UUID& id)
 {
-    if (s_ActiveScenes.contains(id))
-        return s_ActiveScenes.at(id);
+    if (m_active_scenes.contains(id))
+        return m_active_scenes.at(id);
 
     return nullptr;
 }
@@ -35,25 +35,23 @@ Terran::Core::Shared<Scene> SceneManager::scene(const Terran::Core::UUID& id)
 void SceneManager::set_current_scene(Terran::Core::Shared<Scene> newScene)
 {
     Terran::Core::UUID id({ 0 });
-    if (s_CurrentScene)
-        id = s_CurrentScene->handle();
+    if (m_current_scene)
+        id = m_current_scene->handle();
 
-    // SceneTransitionEvent sceneTransitionEvent(s_CurrentScene, newScene);
-    
-    // TODO: dispatch events properly once this becomes a layer
-    // Application::Get()->DispatchEvent(sceneTransitionEvent);
+    SceneTransitionEvent sceneTransitionEvent(m_current_scene, newScene);
+    event_dispatcher.trigger(sceneTransitionEvent);
 
-    s_CurrentScene = newScene;
-    s_ActiveScenes[newScene->handle()] = newScene;
+    m_current_scene = newScene;
+    m_active_scenes[newScene->handle()] = newScene;
 
     if (!id)
         return;
 
-    if (s_ActiveScenes.contains(id)) {
-        if (s_ActiveScenes[id].use_count() > 1)
+    if (m_active_scenes.contains(id)) {
+        if (m_active_scenes[id].use_count() > 1)
             return;
 
-        s_ActiveScenes.erase(id);
+        m_active_scenes.erase(id);
     }
 }
 
