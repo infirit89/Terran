@@ -18,51 +18,49 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include <filesystem>
 #include <fstream>
 
 using namespace Terran::Core;
 namespace Terran::World {
 
-static char const* SerializerVersion = "tr-0.1";
+static char const* const SerializerVersion = "tr-0.1";
 
-static void SerializeEntity(YAML::Emitter& out, Entity entity)
+static void serialize_entity(YAML::Emitter& out, Entity entity)
 {
-    // TODO: convert to a verify assert
-    TR_ASSERT(entity.HasComponent<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
+    TR_ASSERT(entity.has_component<TagComponent>(), "Can't serialize an entity that doesn't have a tag component");
 
     out << YAML::BeginMap;
-    out << YAML::Key << "Entity" << YAML::Value << entity.GetID();
-    auto& tagComponent = entity.GetComponent<TagComponent>();
+    out << YAML::Key << "Entity" << YAML::Value << entity.id();
+    auto const& tag_component = entity.get_component<TagComponent>();
     out << YAML::Key << "TagComponent";
     out << YAML::BeginMap;
-    out << YAML::Key << "Tag" << YAML::Value << tagComponent.Name;
+    out << YAML::Key << "Tag" << YAML::Value << tag_component.Name;
     out << YAML::EndMap;
 
-    if (entity.HasComponent<TransformComponent>()) {
-        auto& transformComponent = entity.GetTransform();
+    if (entity.has_component<TransformComponent>()) {
+        auto const& transform_component = entity.transform();
         out << YAML::Key << "TransformComponent";
         out << YAML::BeginMap;
-        out << YAML::Key << "Position" << YAML::Value << transformComponent.Position;
-        out << YAML::Key << "Scale" << YAML::Value << transformComponent.Scale;
-        out << YAML::Key << "Rotation" << YAML::Value << transformComponent.Rotation;
+        out << YAML::Key << "Position" << YAML::Value << transform_component.Position;
+        out << YAML::Key << "Scale" << YAML::Value << transform_component.Scale;
+        out << YAML::Key << "Rotation" << YAML::Value << transform_component.Rotation;
         out << YAML::EndMap;
     }
 
-    if (entity.HasComponent<RelationshipComponent>()) {
-        auto& relationshipComponent = entity.GetComponent<RelationshipComponent>();
+    if (entity.has_component<RelationshipComponent>()) {
+        auto const& relationship_component = entity.get_component<RelationshipComponent>();
 
         out << YAML::Key << "RelationshipComponent";
         out << YAML::BeginMap;
 
         out << YAML::Key << "Children" << YAML::Value << YAML::BeginSeq;
-        for (auto child : relationshipComponent.Children)
+        for (auto child : relationship_component.Children)
             out << child;
         out << YAML::EndSeq;
 
         out << YAML::Key << "Parent";
-        if (relationshipComponent.Parent)
-            out << YAML::Value << relationshipComponent.Parent;
+        if (relationship_component.Parent)
+            out << YAML::Value << relationship_component.Parent;
         else
             out << YAML::Null;
 
@@ -85,10 +83,10 @@ bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::Shar
     out << YAML::Key << "Entities";
     out << YAML::BeginSeq;
 
-    auto const tagComponentView = scene->GetEntitiesWith<TagComponent>();
+    auto const tagComponentView = scene->entities_with<TagComponent>();
     for (auto e : tagComponentView) {
         Entity entity(e, scene.get());
-        SerializeEntity(out, entity);
+        serialize_entity(out, entity);
     }
 
     out << YAML::EndSeq;
@@ -99,7 +97,7 @@ bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::Shar
     return true;
 }
 
-static YAML::Node FindEntity(YAML::Node const& scene, Terran::Core::UUID const& entityID)
+static YAML::Node find_entity(YAML::Node const& scene, Terran::Core::UUID const& entityID)
 {
     for (auto entity : scene) {
         TR_CORE_TRACE(TR_LOG_CORE, entity);
@@ -111,7 +109,7 @@ static YAML::Node FindEntity(YAML::Node const& scene, Terran::Core::UUID const& 
     return {};
 }
 
-static Entity DeserializeEntity(YAML::Node data, YAML::Node scene, Core::Shared<Scene> deserializedScene)
+static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene, Core::Shared<Scene> deserializedScene)
 {
     try {
         Core::UUID id = data["Entity"].as<Core::UUID>();
@@ -120,7 +118,7 @@ static Entity DeserializeEntity(YAML::Node data, YAML::Node scene, Core::Shared<
             return {};
         }
 
-        Entity entity = deserializedScene->FindEntityWithUUID(id);
+        Entity entity = deserializedScene->find_entity(id);
         if (entity)
             return entity;
 
@@ -131,29 +129,27 @@ static Entity DeserializeEntity(YAML::Node data, YAML::Node scene, Core::Shared<
         }
 
         std::string name = tagComponent["Tag"].as<std::string>();
-        Entity deserializedEntity = deserializedScene->CreateEntityWithUUID(name, id);
+        Entity deserializedEntity = deserializedScene->create_entity(name, id);
 
-        auto transformComponent = data["TransformComponent"];
-        if (transformComponent) {
-            auto& tc = deserializedEntity.GetTransform();
-            tc.Position = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
-            tc.Rotation = transformComponent["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
-            tc.Scale = transformComponent["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
+        if (auto transform_component_node = data["TransformComponent"]; transform_component_node) {
+            auto& transform_component = deserializedEntity.transform();
+            transform_component.Position = transform_component_node["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+            transform_component.Rotation = transform_component_node["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
+            transform_component.Scale = transform_component_node["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
         }
 
-        auto relationshipComponent = data["RelationshipComponent"];
-        if (relationshipComponent) {
-            auto& rc = deserializedEntity.AddComponent<RelationshipComponent>();
-            for (auto childID : relationshipComponent["Children"]) {
+        if (auto relationship_component_node = data["RelationshipComponent"]; relationship_component_node) {
+            deserializedEntity.add_component<RelationshipComponent>();
+            for (auto childID : relationship_component_node["Children"]) {
                 Core::UUID deserializedChildID = childID.as<Core::UUID>();
-                Entity child = deserializedScene->FindEntityWithUUID(deserializedChildID);
+                Entity child = deserializedScene->find_entity(deserializedChildID);
                 if (!child) {
-                    YAML::Node childNode = FindEntity(scene, deserializedChildID);
-                    child = DeserializeEntity(childNode, scene, deserializedScene);
+                    YAML::Node childNode = find_entity(scene, deserializedChildID);
+                    child = deserialize_entity(childNode, scene, deserializedScene);
                 }
 
                 if (child)
-                    child.SetParent(deserializedEntity, true);
+                    child.set_parent(deserializedEntity, true);
             }
         }
 
@@ -170,18 +166,18 @@ Asset::AssetLoadResult SceneSerializer::load(Asset::AssetMetadata const& assetMe
     try {
         data = YAML::LoadFile(assetMetadata.Path);
     } catch (YAML::ParserException const& ex) {
-        return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::InvalidFormat, ex.what()) };
+        return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::InvalidFormat, ex.what()) };
     } catch (YAML::BadFile const& ex) {
         TR_CORE_ERROR(TR_LOG_CORE, ex.what());
-        return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::NotFound, ex.what()) };
+        return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::NotFound, ex.what()) };
     }
 
     Core::Shared<Scene> scene = Core::CreateShared<Scene>(assetMetadata.Handle);
-    auto entities = data["Entities"];
-    if (entities) {
+
+    if (auto entities = data["Entities"]; entities) {
         for (auto entity : entities) {
-            if (!DeserializeEntity(entity, entities, scene))
-                return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::InvalidFormat) };
+            if (!deserialize_entity(entity, entities, scene))
+                return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::InvalidFormat) };
         }
     }
 

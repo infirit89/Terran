@@ -15,63 +15,62 @@
 #include <glm/glm.hpp>
 
 #include <string>
-#include <type_traits>
 #include <unordered_map>
-#include <vector>
+#include <string_view>
 
 namespace Terran::World {
 
 class Scene final : public Asset::Asset {
 public:
     Scene();
-    Scene(Terran::Core::UUID const& handle);
+    explicit Scene(Terran::Core::UUID const& handle);
     ~Scene() override;
 
     TR_DECLARE_ASSET_TYPE(Scene)
 
-    Entity CreateEntity(std::string const& name = std::string());
-    Entity CreateEntityWithUUID(std::string const& name, Terran::Core::UUID const& uuid);
-    Entity CreateEmptyEntity();
+    Entity create_entity(std::string const& name = std::string());
+    Entity create_entity(std::string const& name, Terran::Core::UUID const& uuid);
+    Entity create_entity();
 
-    void DestroyEntity(Entity entity, bool first);
+    void destrory_entity(Entity entity, bool first);
 
-    void StartRuntime();
-    void StopRuntime();
+    void start_runtime();
+    void stop_runtime();
 
-    void Update(Terran::Core::Time time);
+    void update(Terran::Core::Time time);
 
-    Entity FindEntityWithUUID(Terran::Core::UUID uuid);
-    Entity FindEntityWithName(std::string const& name);
+    Entity find_entity(Terran::Core::UUID uuid);
+    Entity find_entity(std::string_view name);
 
     template<typename... Args, typename... Exclude>
-    auto GetEntitiesWith(entt::exclude_t<Exclude...> exclude = {}) { return m_Registry.view<Args...>(exclude); }
+    auto entities_with(entt::exclude_t<Exclude...> exclude = {}) { return m_registry.view<Args...>(exclude); }
 
-    std::unordered_map<Terran::Core::UUID, entt::entity>& GetEntityMap() { return m_EntityMap; }
+    std::unordered_map<Terran::Core::UUID, entt::entity>& GetEntityMap() { return m_entity_map; }
 
 
-    Entity DuplicateEntity(Entity srcEntity, Entity parent);
-    Entity DuplicateEntity(Entity srcEntity);
+    Entity duplicate_entity(Entity srcEntity, Entity parent);
+    Entity duplicate_entity(Entity srcEntity);
 
-    static Terran::Core::Shared<Scene> CopyScene(Terran::Core::Shared<Scene> const& srcScene);
+    static Terran::Core::Shared<Scene> copy_scene(Terran::Core::Shared<Scene> const& srcScene);
 
-    bool IsPlaying() const { return m_IsPlaying; }
+    bool playing() const { return m_is_playing; }
 
-    Scene* GetRaw() { return this; }
+    Scene* raw() { return this; }
 
-    void UpdateTransformHierarchy();
-    void UpdateEntityTransform(Entity entity);
+    void update_transform_hierarchy();
+    void update_entity_transform(Entity entity);
 
-    void ConvertToLocalSpace(Entity entity);
-    void ConvertToWorldSpace(Entity entity);
+    void convert_to_local_space(Entity entity);
+    void convert_to_world_space(Entity entity);
 
-    void SortEntities();
+    void sort_entities();
 
 private:
-    bool m_IsPlaying = false;
+    bool m_is_playing = false;
 
-    std::unordered_map<Terran::Core::UUID, entt::entity> m_EntityMap;
+    std::unordered_map<Terran::Core::UUID, entt::entity> m_entity_map;
 
-    entt::registry m_Registry;
+    entt::registry m_registry;
 
     friend class Entity;
     friend class SceneSerializer;

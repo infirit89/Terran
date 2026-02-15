@@ -14,7 +14,7 @@
 
 namespace Terran::World {
 
-class SceneSerializer final : Asset::AssetImporter {
+class SceneSerializer final : public Asset::AssetImporter {
 public:
     SceneSerializer() = default;
     ~SceneSerializer() override = default;

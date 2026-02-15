@@ -9,7 +9,6 @@
 #pragma warning(push)
 #pragma warning(disable : 4834)
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -24,84 +23,84 @@ public:
     Entity() = default;
 
     Entity(entt::entity const& handle, Scene* scene)
-        : m_Handle(handle)
-        , m_Scene(scene)
+        : m_handle(handle)
+        , m_scene(scene)
     {
     }
 
     ~Entity() = default;
 
     template<typename Component, typename... Args>
-    Component& AddComponent(Args&&... parameters);
+    Component& add_component(Args&&... parameters);
 
     template<typename Component, typename... Args>
-    Component& AddOrReplaceComponent(Args&&... parameters);
+    Component& add_or_replace_component(Args&&... parameters);
 
     template<typename Component>
-    Component& GetComponent() const;
+    Component& get_component() const;
 
     template<typename Component>
-    void RemoveComponent();
+    void remove_component();
 
     template<typename Component>
-    Component& TryGetComponent() const;
+    Component& try_get_component() const;
 
     template<typename Component>
-    bool HasComponent() const;
+    bool has_component() const;
 
     // visit all the components of an entity
     // the signiture of Func should be void(const entt::type_info)
     template<typename Func>
-    void Visit(Entity entity, Func func) const;
+    void visit(Entity entity, Func func) const;
 
     // base stuffs
-    Terran::Core::UUID const& GetID() const { return GetComponent<TagComponent>().ID; }
-    TransformComponent& GetTransform() const { return GetComponent<TransformComponent>(); }
-    bool Valid() const;
-    std::string const& GetName() const { return GetComponent<TagComponent>().Name; }
+    Terran::Core::UUID const& id() const { return get_component<TagComponent>().ID; }
+    TransformComponent& transform() const { return get_component<TransformComponent>(); }
+    bool valid() const;
+    std::string const& name() const { return get_component<TagComponent>().Name; }
 
     // operators
-    operator entt::entity() const { return m_Handle; }
+    operator entt::entity() const { return m_handle; }
     bool operator!=(Entity const& other) const { return !(*this == other); }
-    operator uint32_t() const { return static_cast<uint32_t>(m_Handle); }
-    operator bool() const { return m_Handle != entt::null; }
+    operator uint32_t() const { return static_cast<uint32_t>(m_handle); }
+    operator bool() const { return m_handle != entt::null; }
     bool operator==(Entity const& other) const;
 
     // relationship component stuffs
-    std::vector<Terran::Core::UUID>& GetChildren() const { return GetComponent<RelationshipComponent>().Children; }
-    size_t GetChildCount() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Children.size() : 0; }
-    Terran::Core::UUID GetParentID() const { return HasComponent<RelationshipComponent>() ? GetComponent<RelationshipComponent>().Parent : Terran::Core::UUID::invalid(); }
-    bool HasParent() const;
+    std::vector<Terran::Core::UUID>& children() const { return get_component<RelationshipComponent>().Children; }
+    size_t children_count() const { return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Children.size() : 0; }
+    Terran::Core::UUID parent_id() const { return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Parent : Terran::Core::UUID::invalid(); }
+    bool has_parent() const;
 
-    Terran::Core::UUID const& GetSceneId() const;
+    Terran::Core::UUID const& scene_id() const;
 
-    Entity GetChild(uint32_t index) const;
+    Entity child_at(uint32_t index) const;
 
-    void SetParentID(Terran::Core::UUID const& id)
+    void set_parent_id(Terran::Core::UUID const& id)
     {
-        if (!HasComponent<RelationshipComponent>())
+        if (!has_component<RelationshipComponent>())
             return;
 
-        auto& relComp = GetComponent<RelationshipComponent>();
+        auto& relComp = get_component<RelationshipComponent>();
         relComp.Parent = id;
     }
 
-    Entity GetParent() const;
+    Entity parent() const;
 
-    bool IsChildOf(Entity entity) const
+    bool is_child_of(Entity entity) const
     {
-        if (!HasComponent<RelationshipComponent>())
+        if (!has_component<RelationshipComponent>())
             return false;
 
-        if (!entity.HasComponent<RelationshipComponent>())
+        if (!entity.has_component<RelationshipComponent>())
             return false;
 
-        return GetParentID() == entity.GetID();
+        return parent_id() == entity.id();
     }
 
-    void SetParent(Entity parent, bool forceTransformUpdate = false);
+    void set_parent(Entity parent, bool forceTransformUpdate = false);
 
-    void Unparent();
+    void unparent();
 
     /*void Unparent(Entity parent, Entity child, bool removeRelationship)
     {
@@ -125,20 +124,20 @@ public:
             }
     }*/
 
-    void RemoveChild(Entity child, bool removeRelationship)
+    void remove_child(Entity child, bool removeRelationship)
     {
-        child.Unparent();
+        child.unparent();
     }
 
-    void Reparent(Entity previousParent, Entity newParent)
+    void reparent(Entity previousParent, Entity newParent)
     {
-        Unparent();
-        SetParent(newParent);
+        unparent();
+        set_parent(newParent);
     }
 
 private:
-    entt::entity m_Handle { entt::null };
-    Scene* m_Scene = nullptr;
+    entt::entity m_handle { entt::null };
+    Scene* m_scene = nullptr;
 };
 
 }
