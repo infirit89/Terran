@@ -1,70 +1,86 @@
+#include "Entity.h"
 #include "Scene.h"
+#include "Components.h"
 
-#include "LibCore/UUID.h"
+#include <LibCore/UUID.h>
+
+#include <cstdint>
 
 namespace Terran::World {
 
-bool Entity::Valid() const { return m_Scene->m_Registry.valid(m_Handle); }
-bool Entity::operator==(Entity const& other) const { return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
-bool Entity::HasParent() const { return HasComponent<RelationshipComponent>() ? m_Scene->FindEntityWithUUID(GetComponent<RelationshipComponent>().Parent) : false; }
-Core::UUID const& Entity::GetSceneId() const { return m_Scene->handle(); }
-
-Entity Entity::GetChild(uint32_t index) const
+bool Entity::valid() const
 {
-    if (!HasComponent<RelationshipComponent>())
+    return m_scene->m_registry.valid(m_handle);
+}
+bool Entity::operator==(Entity const& other) const
+{
+    return m_handle == other.m_handle && m_scene == other.m_scene;
+}
+bool Entity::has_parent() const
+{
+    return has_component<RelationshipComponent>() ? m_scene->find_entity(get_component<RelationshipComponent>().Parent) : false;
+}
+Core::UUID const& Entity::scene_id() const
+{
+    return m_scene->handle();
+}
+
+Entity Entity::child_at(uint32_t index) const
+{
+    if (!has_component<RelationshipComponent>())
         return {};
 
-    return m_Scene->FindEntityWithUUID(GetChildren()[index]);
+    return m_scene->find_entity(children()[index]);
 }
 
-Entity Entity::GetParent() const
+Entity Entity::parent() const
 {
-    if (!HasComponent<RelationshipComponent>())
+    if (!has_component<RelationshipComponent>())
         return {};
 
-    return m_Scene->FindEntityWithUUID(GetParentID());
+    return m_scene->find_entity(parent_id());
 }
-void Entity::SetParent(Entity parent, bool forceTransformUpdate)
+void Entity::set_parent(Entity parent, bool forceTransformUpdate)
 {
-    if (!HasComponent<RelationshipComponent>())
-        AddComponent<RelationshipComponent>();
+    if (!has_component<RelationshipComponent>())
+        add_component<RelationshipComponent>();
 
-    if (!parent.HasComponent<RelationshipComponent>())
-        parent.AddComponent<RelationshipComponent>();
+    if (!parent.has_component<RelationshipComponent>())
+        parent.add_component<RelationshipComponent>();
 
-    if (IsChildOf(parent))
+    if (is_child_of(parent))
         return;
-    if (parent.IsChildOf(*this))
+    if (parent.is_child_of(*this))
         return;
 
-    if (HasParent())
-        Unparent();
+    if (has_parent())
+        unparent();
 
-    auto& relComp = GetComponent<RelationshipComponent>();
-    relComp.Parent = parent.GetID();
-    parent.GetChildren().emplace_back(GetID());
+    auto& relComp = get_component<RelationshipComponent>();
+    relComp.Parent = parent.id();
+    parent.children().emplace_back(id());
 
-    m_Scene->ConvertToLocalSpace(*this);
+    m_scene->convert_to_local_space(*this);
 }
-void Entity::Unparent()
+void Entity::unparent()
 {
-    if (!HasComponent<RelationshipComponent>())
+    if (!has_component<RelationshipComponent>())
         return;
 
-    Core::UUID parentID = GetComponent<RelationshipComponent>().Parent;
-    Entity parent = m_Scene->FindEntityWithUUID(parentID);
+    Core::UUID parentID = get_component<RelationshipComponent>().Parent;
+    Entity parent = m_scene->find_entity(parentID);
 
     if (!parent)
         return;
 
-    m_Scene->ConvertToWorldSpace(*this);
+    m_scene->convert_to_world_space(*this);
 
-    auto const& it = std::ranges::find(parent.GetChildren(), GetID());
+    auto const& it = std::ranges::find(parent.children(), id());
 
-    if (it != parent.GetChildren().end())
-        parent.GetChildren().erase(it);
+    if (it != parent.children().end())
+        parent.children().erase(it);
 
-    SetParentID(Core::UUID({ 0 }));
+    set_parent_id(Core::UUID({ 0 }));
 
     // TODO: if the relationship component is no longer necessary than remove it
 }

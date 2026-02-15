@@ -7,7 +7,7 @@ namespace Terran::World {
 Terran::Core::Shared<Scene> SceneManager::s_CurrentScene;
 std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>> SceneManager::s_ActiveScenes;
 
-Terran::Core::Shared<Scene> SceneManager::CreateEmptyScene()
+Terran::Core::Shared<Scene> SceneManager::create_empty_scene()
 {
     // TODO: create memory asset???
     Terran::Core::Shared<Scene> scene = Terran::Core::CreateShared<Scene>();
@@ -15,7 +15,7 @@ Terran::Core::Shared<Scene> SceneManager::CreateEmptyScene()
     return scene;
 }
 
-void SceneManager::RemoveScene(const Terran::Core::UUID& id)
+void SceneManager::remove_scene(const Terran::Core::UUID& id)
 {
     if (s_ActiveScenes.contains(id))
         s_ActiveScenes.erase(id);
@@ -24,7 +24,7 @@ void SceneManager::RemoveScene(const Terran::Core::UUID& id)
         s_CurrentScene = nullptr;
 }
 
-Terran::Core::Shared<Scene> SceneManager::GetScene(const Terran::Core::UUID& id)
+Terran::Core::Shared<Scene> SceneManager::scene(const Terran::Core::UUID& id)
 {
     if (s_ActiveScenes.contains(id))
         return s_ActiveScenes.at(id);
@@ -32,7 +32,7 @@ Terran::Core::Shared<Scene> SceneManager::GetScene(const Terran::Core::UUID& id)
     return nullptr;
 }
 
-void SceneManager::SetCurrentScene(Terran::Core::Shared<Scene> newScene)
+void SceneManager::set_current_scene(Terran::Core::Shared<Scene> newScene)
 {
     Terran::Core::UUID id({ 0 });
     if (s_CurrentScene)

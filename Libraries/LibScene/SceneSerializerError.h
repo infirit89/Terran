@@ -8,12 +8,12 @@ namespace Terran::World {
 
 class SceneSerializerError final : public Asset::AssetError {
 public:
-    enum Code : uint8_t {
+    enum class Code : uint8_t {
         InvalidFormat,
         NotFound,
     };
 
-    SceneSerializerError(Code code, std::string_view details = "")
+    explicit SceneSerializerError(Code code, std::string_view details = "")
         : m_code(code)
         , m_details(details)
     {
@@ -24,11 +24,13 @@ public:
     [[nodiscard]] std::string_view message() const override
     {
         switch (m_code) {
-        case InvalidFormat:
+        case Code::InvalidFormat:
             return "Scene file has invalid format";
-        case NotFound:
+        case Code::NotFound:
             return "Scene file was not found";
         }
+
+        return "Unknown error";
     }
 
     [[nodiscard]] std::string_view source() const override

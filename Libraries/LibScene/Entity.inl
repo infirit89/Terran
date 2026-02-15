@@ -2,63 +2,63 @@
 namespace Terran::World {
 
 template<typename Component, typename... Args>
-inline Component& Entity::AddComponent(Args&&... parameters)
+inline Component& Entity::add_component(Args&&... parameters)
 {
-    TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    TR_ASSERT(m_handle != entt::null, "Ivalid entity");
 
-    TR_ASSERT(!HasComponent<Component>(), "Entity already has component");
+    TR_ASSERT(!has_component<Component>(), "Entity already has component");
 
-    Component& component = m_Scene->m_Registry.emplace<Component>(m_Handle, std::forward<Args>(parameters)...);
+    Component& component = m_scene->m_registry.emplace<Component>(m_handle, std::forward<Args>(parameters)...);
     return component;
 }
 
 template<typename Component, typename... Args>
-inline Component& Entity::AddOrReplaceComponent(Args&&... parameters)
+inline Component& Entity::add_or_replace_component(Args&&... parameters)
 {
-    TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
-    Component& component = m_Scene->m_Registry.emplace_or_replace<Component>(m_Handle, std::forward<Args>(parameters)...);
+    TR_ASSERT(m_handle != entt::null, "Ivalid entity");
+    Component& component = m_scene->m_registry.emplace_or_replace<Component>(m_handle, std::forward<Args>(parameters)...);
     return component;
 }
 
 template<typename Component>
-inline Component& Entity::GetComponent() const
+inline Component& Entity::get_component() const
 {
-    TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    TR_ASSERT(m_handle != entt::null, "Ivalid entity");
 
-    TR_ASSERT(HasComponent<Component>(), "Entity doesn't have the component");
-    return m_Scene->m_Registry.get<Component>(m_Handle);
+    TR_ASSERT(has_component<Component>(), "Entity doesn't have the component");
+    return m_scene->m_registry.get<Component>(m_handle);
 }
 
 template<typename Component>
-inline void Entity::RemoveComponent()
+inline void Entity::remove_component()
 {
-    TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    TR_ASSERT(m_handle != entt::null, "Ivalid entity");
 
-    TR_ASSERT(HasComponent<Component>(), "Entity doesn't have component");
+    TR_ASSERT(has_component<Component>(), "Entity doesn't have component");
 
-    m_Scene->m_Registry.remove<Component>(m_Handle);
+    m_scene->m_registry.remove<Component>(m_handle);
 }
 
 template<typename Component>
-inline Component& Entity::TryGetComponent() const
+inline Component& Entity::try_get_component() const
 {
-    TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    TR_ASSERT(m_handle != entt::null, "Ivalid entity");
 
-    return m_Scene->m_Registry.try_get<Component>(m_Handle);
+    return m_scene->m_registry.try_get<Component>(m_handle);
 }
 
 template<typename Component>
-inline bool Entity::HasComponent() const
+inline bool Entity::has_component() const
 {
-    TR_ASSERT(m_Handle != entt::null, "Ivalid entity");
+    TR_ASSERT(m_handle != entt::null, "Ivalid entity");
 
-    return m_Scene->m_Registry.all_of<Component>(m_Handle);
+    return m_scene->m_registry.all_of<Component>(m_handle);
 }
 
 template<typename Func>
-inline void Entity::Visit(Entity entity, Func func) const
+inline void Entity::visit(Entity entity, Func func) const
 {
-    m_Scene->m_Registry.visit(entity, std::forward<Func>(func));
+    m_scene->m_registry.visit(entity, std::forward<Func>(func));
 }
 
 }
