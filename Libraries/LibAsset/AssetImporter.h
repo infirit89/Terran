@@ -2,20 +2,25 @@
 
 #include "AssetMetadata.h"
 #include "Asset.h"
+#include "AssetTypes.h"
+#include "AssetError.h"
 
-#include <LibAsset/AssetTypes.h>
 #include <LibCore/Base.h>
+#include <LibCore/Result.h>
+
 #include <filesystem>
 
 namespace Terran::Asset {
 
+using AssetLoadResult = Core::Result<Core::Shared<Asset>, Core::Shared<AssetError>>;
+
 class AssetImporter {
 public:
     virtual ~AssetImporter() = default;
-    virtual void load(AssetMetadata const& assetInfo, Terran::Core::Shared<Asset>& asset) = 0;
-    virtual bool save(AssetMetadata const& assetInfo, Terran::Core::Shared<Asset> const& asset) = 0;
-    virtual bool can_handle(std::filesystem::path const& assetPath) = 0;
-    virtual AssetTypeId asset_type() = 0;
+    [[nodiscard]] virtual AssetLoadResult load(AssetMetadata const& assetMetadata) = 0;
+    virtual bool save(AssetMetadata const& assetMetadata, Core::Shared<Asset> const& asset) = 0;
+    [[nodiscard]] virtual bool can_handle(std::filesystem::path const& assetPath) = 0;
+    [[nodiscard]] virtual AssetTypeId asset_type() = 0;
 };
 
 }

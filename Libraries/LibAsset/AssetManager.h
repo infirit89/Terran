@@ -5,6 +5,7 @@
 #include "AssetMetadata.h"
 #include "AssetTypes.h"
 
+#include <LibAsset/AssetImporter.h>
 #include <LibAsset/AssetMetadataRegistry.h>
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
@@ -26,12 +27,12 @@ public:
     AssetManager(Core::EventDispatcher& event_dispatcher);
     ~AssetManager();
 
-     std::filesystem::path filesystem_path(std::filesystem::path const& path);
+    std::filesystem::path filesystem_path(std::filesystem::path const& path);
 
-     AssetHandle import_asset(std::filesystem::path const& assetPath);
-     void reload_asset_by_handle(AssetHandle const& handle);
+    AssetHandle import_asset(std::filesystem::path const& assetPath);
+    void reload_asset_by_handle(AssetHandle const& handle);
 
-     void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { m_asset_change_callback = callback; }
+    void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { m_asset_change_callback = callback; }
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
@@ -45,15 +46,14 @@ public:
         if (!info)
             return nullptr;
 
-        // NOTE: poc code
-        Terran::Core::Shared<Asset> asset = nullptr;
-        AssetImporterRegistry::load(info, asset);
+        AssetLoadResult assetResult = AssetImporterRegistry::load(info);
 
-        if (!asset) {
+        if (!assetResult) {
             TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
             return nullptr;
         }
 
+        Core::Shared<Asset> const& asset = assetResult.value();
         asset->m_handle = assetHandle;
         m_loaded_assets[assetHandle] = asset;
         return Terran::Core::DynamicCast<TAsset>(m_loaded_assets[assetHandle]);
@@ -66,15 +66,14 @@ public:
         if (m_loaded_assets.contains(assetMetadata.Handle))
             return Terran::Core::DynamicCast<TAsset>(m_loaded_assets.at(assetMetadata.Handle));
 
-        // NOTE: poc code
-        Terran::Core::Shared<Asset> asset = nullptr;
-        AssetImporterRegistry::load(assetMetadata, asset);
+        AssetLoadResult assetResult = AssetImporterRegistry::load(assetMetadata);
 
-        if (!asset) {
+        if (!assetResult) {
             TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetMetadata.Path);
             return nullptr;
         }
 
+        Core::Shared<Asset> const& asset = assetResult.value();
         asset->m_handle = assetMetadata.Handle;
         m_loaded_assets[assetMetadata.Handle] = asset;
         return Terran::Core::DynamicCast<TAsset>(m_loaded_assets[assetMetadata.Handle]);

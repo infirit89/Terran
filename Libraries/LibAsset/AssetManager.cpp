@@ -4,13 +4,13 @@
 #include "AssetMetadata.h"
 #include "AssetMetadataRegistry.h"
 #include "AssetTypes.h"
+#include "AssetEvents.h"
+#include "AssetImporter.h"
 
-#include "LibCore/Base.h"
-#include "LibCore/FileUtils.h"
-#include "LibCore/Log.h"
-
-#include <LibAsset/AssetEvents.h>
+#include <LibCore/FileUtils.h>
+#include <LibCore/Log.h>
 #include <LibCore/Event.h>
+
 #include <filesystem>
 #include <unordered_map>
 #include <vector>
@@ -60,14 +60,15 @@ AssetHandle AssetManager::import_asset(std::filesystem::path const& assetPath)
 void AssetManager::reload_asset_by_handle(AssetHandle const& handle)
 {
     AssetMetadata const& info = AssetMetadataRegistry::asset_metadata_by_handle(handle);
-    if (!m_loaded_assets.contains(handle)) {
+
+    if (!m_loaded_assets.contains(handle))
         TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
-        Terran::Core::Shared<Asset> asset;
-        AssetImporterRegistry::load(info, asset);
+
+    AssetLoadResult assetResult = AssetImporterRegistry::load(info);
+    if (!assetResult)
         return;
-    }
-    Terran::Core::Shared<Asset>& asset = m_loaded_assets.at(handle);
-    AssetImporterRegistry::load(info, asset);
+
+    m_loaded_assets[handle] = assetResult.value();
 }
 
 void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents)
