@@ -41,9 +41,9 @@ static void serialize_entity(YAML::Emitter& out, Entity entity)
         auto const& transform_component = entity.transform();
         out << YAML::Key << "TransformComponent";
         out << YAML::BeginMap;
-        out << YAML::Key << "Position" << YAML::Value << transform_component.Position;
-        out << YAML::Key << "Scale" << YAML::Value << transform_component.Scale;
-        out << YAML::Key << "Rotation" << YAML::Value << transform_component.Rotation;
+        out << YAML::Key << "Position" << YAML::Value << Vec3ToYaml(transform_component.Position);
+        out << YAML::Key << "Scale" << YAML::Value << Vec3ToYaml(transform_component.Scale);
+        out << YAML::Key << "Rotation" << YAML::Value << Vec3ToYaml(transform_component.Rotation);
         out << YAML::EndMap;
     }
 
@@ -149,7 +149,7 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
                 }
 
                 if (child)
-                    child.set_parent(deserializedEntity, true);
+                    child.set_parent(deserializedEntity);
             }
         }
 

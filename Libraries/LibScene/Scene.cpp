@@ -94,7 +94,7 @@ void Scene::destrory_entity(Entity entity, bool first)
 {
     if (entity.has_component<RelationshipComponent>()) {
         if (first && entity.has_parent()) {
-            entity.parent().remove_child(entity, false);
+            entity.parent().remove_child(entity);
         }
 
         for (auto const& child_id : entity.children())

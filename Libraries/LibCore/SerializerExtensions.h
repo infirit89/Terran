@@ -8,37 +8,81 @@
 
 namespace Terran::Core {
 
-struct CustomConversionOperators {
-    friend YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec2 const& v)
+struct Vec2ToYaml {
+    explicit Vec2ToYaml(glm::vec2 const& vec)
+        : data(vec)
+    {
+    }
+    friend YAML::Emitter& operator<<(YAML::Emitter& out, Vec2ToYaml const& v)
     {
         out << YAML::Flow;
-        out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
+        out << YAML::BeginSeq << v.data.x << v.data.y << YAML::EndSeq;
         return out;
     }
 
-    friend YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec3 const& v)
+    glm::vec2 const& data;
+};
+
+struct Vec3ToYaml {
+
+    explicit Vec3ToYaml(glm::vec3 const& vec)
+        : data(vec)
+    {
+    }
+    friend YAML::Emitter& operator<<(YAML::Emitter& out, Vec3ToYaml const& v)
     {
         out << YAML::Flow;
-        out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
+        out << YAML::BeginSeq << v.data.x << v.data.y << v.data.z << YAML::EndSeq;
         return out;
     }
 
-    friend YAML::Emitter& operator<<(YAML::Emitter& out, glm::vec4 const& v)
+    glm::vec3 const& data;
+};
+
+struct Vec4ToYaml {
+
+    explicit Vec4ToYaml(glm::vec4 const& vec)
+        : data(vec)
+    {
+    }
+    friend YAML::Emitter& operator<<(YAML::Emitter& out, Vec4ToYaml const& v)
     {
         out << YAML::Flow;
-        out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+        out << YAML::BeginSeq << v.data.x << v.data.y << v.data.z << v.data.w << YAML::EndSeq;
         return out;
     }
-    friend YAML::Emitter& operator<<(YAML::Emitter& out, Terran::Core::UUID const& v)
+
+    glm::vec4 data;
+};
+
+struct UUIDToYaml {
+
+    explicit UUIDToYaml(Core::UUID const& id)
+        : data(id)
     {
-        out << std::to_string(v);
-        return out;
     }
-    friend YAML::Emitter& operator<<(YAML::Emitter& out, std::byte v)
+    friend YAML::Emitter& operator<<(YAML::Emitter& out, UUIDToYaml const& id)
     {
-        out << static_cast<int>(v);
+        out << std::to_string(id.data);
         return out;
     }
+
+    Core::UUID const& data;
+};
+struct ByteToYaml {
+
+    explicit ByteToYaml(std::byte const& byte)
+        : data(byte)
+    {
+    }
+
+    friend YAML::Emitter& operator<<(YAML::Emitter& out, ByteToYaml const& byte)
+    {
+        out << static_cast<int>(byte.data);
+        return out;
+    }
+
+    std::byte const& data;
 };
 
 }
