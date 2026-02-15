@@ -40,7 +40,7 @@ Entity Entity::parent() const
 
     return m_scene->find_entity(parent_id());
 }
-void Entity::set_parent(Entity parent, bool forceTransformUpdate)
+void Entity::set_parent(Entity parent)
 {
     if (!has_component<RelationshipComponent>())
         add_component<RelationshipComponent>();
@@ -56,8 +56,8 @@ void Entity::set_parent(Entity parent, bool forceTransformUpdate)
     if (has_parent())
         unparent();
 
-    auto& relComp = get_component<RelationshipComponent>();
-    relComp.Parent = parent.id();
+    auto& relationship_component = get_component<RelationshipComponent>();
+    relationship_component.Parent = parent.id();
     parent.children().emplace_back(id());
 
     m_scene->convert_to_local_space(*this);
@@ -75,10 +75,10 @@ void Entity::unparent()
 
     m_scene->convert_to_world_space(*this);
 
-    auto const& it = std::ranges::find(parent.children(), id());
-
-    if (it != parent.children().end())
-        parent.children().erase(it);
+    if (auto const& iterator = std::ranges::find(parent.children(), id());
+        iterator != parent.children().end()) {
+        parent.children().erase(iterator);
+    }
 
     set_parent_id(Core::UUID({ 0 }));
 
