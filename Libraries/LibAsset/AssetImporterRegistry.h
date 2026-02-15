@@ -24,7 +24,7 @@ public:
         s_loaders[TAsset::static_type()] = loader;
     }
 
-    static void load(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset>& asset);
+    static AssetLoadResult load(AssetMetadata const& assetMetadata);
     static bool save(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset> const& asset);
 
     static bool exists_for_path(std::filesystem::path const& path)
