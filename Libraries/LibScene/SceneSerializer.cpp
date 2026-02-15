@@ -12,6 +12,7 @@
 
 #include <yaml-cpp/anchor.h>
 #include <yaml-cpp/emittermanip.h>
+#include <yaml-cpp/node/detail/iterator_fwd.h>
 #include <yaml-cpp/yaml.h>
 
 #include <glm/glm.hpp>
@@ -97,16 +98,17 @@ bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::Shar
     return true;
 }
 
-static YAML::Node find_entity(YAML::Node const& scene, Terran::Core::UUID const& entityID)
+static YAML::const_iterator find_entity(YAML::Node const& scene, Terran::Core::UUID const& entityID)
 {
-    for (auto entity : scene) {
+    for (YAML::const_iterator it = scene.begin(); it != scene.end(); ++it) {
+        auto const& entity = *it;
         TR_CORE_TRACE(TR_LOG_CORE, entity);
         Terran::Core::UUID id = entity["Entity"].as<Terran::Core::UUID>();
         if (id == entityID)
-            return entity;
+            return it;
     }
 
-    return {};
+    return scene.end();
 }
 
 static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene, Core::Shared<Scene> deserializedScene)
@@ -118,8 +120,7 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
             return {};
         }
 
-        Entity entity = deserializedScene->find_entity(id);
-        if (entity)
+        if (Entity entity = deserializedScene->find_entity(id); entity)
             return entity;
 
         auto tagComponent = data["TagComponent"];
@@ -144,8 +145,8 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
                 Core::UUID deserializedChildID = childID.as<Core::UUID>();
                 Entity child = deserializedScene->find_entity(deserializedChildID);
                 if (!child) {
-                    YAML::Node childNode = find_entity(scene, deserializedChildID);
-                    child = deserialize_entity(childNode, scene, deserializedScene);
+                    YAML::const_iterator childNode = find_entity(scene, deserializedChildID);
+                    child = deserialize_entity(*childNode, scene, deserializedScene);
                 }
 
                 if (child)
