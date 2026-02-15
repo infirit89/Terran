@@ -72,22 +72,22 @@ public:
     }
 
     // operators
-    operator entt::entity() const
+    explicit operator entt::entity() const
     {
         return m_handle;
     }
 
-    operator uint32_t() const
+    explicit operator uint32_t() const
     {
         return static_cast<uint32_t>(m_handle);
     }
 
-    operator bool() const
+    explicit operator bool() const
     {
         return m_handle != entt::null;
     }
 
-    bool operator==(Entity const& other) const;
+    bool operator==(Entity const& other) const = default;
 
     // relationship component stuffs
     std::vector<Terran::Core::UUID>& children() const
@@ -111,7 +111,7 @@ public:
 
     Entity child_at(uint32_t index) const;
 
-    void set_parent_id(Terran::Core::UUID const& id)
+    void set_parent_id(Terran::Core::UUID const& id) const
     {
         if (!has_component<RelationshipComponent>())
             return;
@@ -137,7 +137,7 @@ public:
 
     void unparent();
 
-    void remove_child(Entity child)
+    void remove_child(Entity child) const
     {
         child.unparent();
     }

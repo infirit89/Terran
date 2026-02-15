@@ -1,6 +1,6 @@
 #include "Entity.h"
-#include "Scene.h"
 #include "Components.h"
+#include "Scene.h"
 
 #include <LibCore/UUID.h>
 
@@ -12,13 +12,12 @@ bool Entity::valid() const
 {
     return m_scene->m_registry.valid(m_handle);
 }
-bool Entity::operator==(Entity const& other) const
-{
-    return m_handle == other.m_handle && m_scene == other.m_scene;
-}
+
 bool Entity::has_parent() const
 {
-    return has_component<RelationshipComponent>() ? m_scene->find_entity(get_component<RelationshipComponent>().Parent) : false;
+    return has_component<RelationshipComponent>()
+        ? (bool)m_scene->find_entity(get_component<RelationshipComponent>().Parent)
+        : false;
 }
 Core::UUID const& Entity::scene_id() const
 {
@@ -81,8 +80,6 @@ void Entity::unparent()
     }
 
     set_parent_id(Core::UUID({ 0 }));
-
-    // TODO: if the relationship component is no longer necessary than remove it
 }
 
 }

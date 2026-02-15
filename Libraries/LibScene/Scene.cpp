@@ -7,9 +7,6 @@
 #include <LibCore/Math.h>
 #include <LibCore/Time.h>
 
-// #include "Utils/Debug/OptickProfiler.h"
-// #include "Utils/Debug/Profiler.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -104,7 +101,7 @@ void Scene::destrory_entity(Entity entity, bool first)
     if (auto entity_iterator = m_entity_map.find(entity.id()); entity_iterator != m_entity_map.end())
         m_entity_map.erase(entity_iterator);
 
-    m_registry.destroy(entity);
+    m_registry.destroy((entt::entity)entity);
 
     sort_entities();
 }
@@ -158,7 +155,10 @@ Entity Scene::duplicate_entity(Entity source_entity, Entity parent)
 {
     Entity destination_entity = create_entity(source_entity.name() + " Copy");
 
-    copy_component<TransformComponent>(source_entity, destination_entity, m_registry);
+    copy_component<TransformComponent>(
+        (entt::entity)source_entity,
+        (entt::entity)destination_entity,
+        m_registry);
 
     if (source_entity.has_component<RelationshipComponent>()) {
         for (int i = 0; i < source_entity.children_count(); i++) {
@@ -191,8 +191,16 @@ Terran::Core::Shared<Scene> Scene::copy_scene(Terran::Core::Shared<Scene> const&
         Entity source_entity(e, source_scene.get());
         Entity destination_entity = scene->find_entity(source_entity.id());
 
-        copy_component<TransformComponent>(source_entity, destination_entity, source_scene->m_registry, scene->m_registry);
-        copy_component<RelationshipComponent>(source_entity, destination_entity, source_scene->m_registry, scene->m_registry);
+        copy_component<TransformComponent>(
+            (entt::entity)source_entity,
+            (entt::entity)destination_entity,
+            source_scene->m_registry,
+            scene->m_registry);
+        copy_component<RelationshipComponent>(
+            (entt::entity)source_entity,
+            (entt::entity)destination_entity,
+            source_scene->m_registry,
+            scene->m_registry);
     }
 
     scene->sort_entities();
