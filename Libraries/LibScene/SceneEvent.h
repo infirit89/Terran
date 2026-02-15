@@ -23,4 +23,14 @@ private:
     Terran::Core::Shared<Scene> m_new_scene;
 };
 
+class SceneStartSimulationEvent {
+public:
+    SceneStartSimulationEvent() = default;
+};
+
+class SceneStopSimulationEvent {
+public:
+    SceneStopSimulationEvent() = default;
+};
+
 }

@@ -1,28 +1,46 @@
 #pragma once
 
-#include "LibCore/Base.h"
-#include "LibCore/UUID.h"
 #include "Scene.h"
+
+#include <LibCore/Base.h>
+#include <LibCore/Event.h>
+#include <LibCore/Layer.h>
+#include <LibCore/UUID.h>
 
 #include <unordered_map>
 
 namespace Terran::World {
 
-class SceneManager final {
+class SceneManager final : public Core::Layer {
+    using active_scenes_container = std::unordered_map<Core::UUID, Core::Shared<Scene>>;
+
 public:
-    static Terran::Core::Shared<Scene> create_empty_scene();
-    static void remove_scene(Terran::Core::UUID const& id);
+    SceneManager(Core::EventDispatcher& dispatcher)
+        : Core::Layer("Scene", dispatcher)
+    {
+    }
 
-    static Terran::Core::Shared<Scene> scene(Terran::Core::UUID const& id);
+    Core::Shared<Scene> create_empty_scene();
 
-    static Terran::Core::Shared<Scene> const& current_scene() { return s_CurrentScene; }
-    static void set_current_scene(Terran::Core::Shared<Scene> newScene);
+    void remove_scene(Terran::Core::UUID const& id);
 
-    static std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>>& active_scenes() { return s_ActiveScenes; }
+    Core::Shared<Scene> scene(Terran::Core::UUID const& id);
+
+    Core::Shared<Scene> const& current_scene()
+    {
+        return m_current_scene;
+    }
+
+    void set_current_scene(Terran::Core::Shared<Scene> newScene);
+
+    active_scenes_container& active_scenes()
+    {
+        return m_active_scenes;
+    }
 
 private:
-    static std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<Scene>> s_ActiveScenes;
-    static Terran::Core::Shared<Scene> s_CurrentScene;
+    active_scenes_container m_active_scenes;
+    Core::Shared<Scene> m_current_scene;
 };
 
 }

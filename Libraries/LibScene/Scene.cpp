@@ -2,10 +2,11 @@
 
 #include "Components.h"
 #include "Entity.h"
-#include "SceneManager.h"
 
+#include <LibCore/Base.h>
 #include <LibCore/Math.h>
 #include <LibCore/Time.h>
+#include <LibCore/UUID.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -183,7 +184,7 @@ Entity Scene::duplicate_entity(Entity srcEntity)
 
 Terran::Core::Shared<Scene> Scene::copy_scene(Terran::Core::Shared<Scene> const& source_scene)
 {
-    Terran::Core::Shared<Scene> scene = SceneManager::create_empty_scene();
+    Core::Shared<Scene> scene = Core::CreateShared<Scene>();
 
     auto tag_view = source_scene->entities_with<TagComponent>();
 
