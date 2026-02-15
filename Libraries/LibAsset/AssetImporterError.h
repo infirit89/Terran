@@ -9,24 +9,28 @@ namespace Terran::Asset {
 
 class AssetImporterError final : public AssetError {
 public:
-    enum Code : uint8_t {
+    enum class Code : uint8_t {
         ImporterNotFound,
     };
 
-    AssetImporterError(Code code)
+    explicit AssetImporterError(Code code)
         : m_code(code)
     {
     }
 
     ~AssetImporterError() override = default;
 
-    [[nodiscard]] std::string_view message() const override {
-        switch(m_code) {
-            case Code::ImporterNotFound: return "No importer registered for asset type";
+    [[nodiscard]] std::string_view message() const override
+    {
+        if (m_code == Code::ImporterNotFound) {
+            return "No importer registered for asset type";
         }
+
+        return "Unknown error";
     }
 
-    [[nodiscard]] std::string_view source() const override {
+    [[nodiscard]] std::string_view source() const override
+    {
         return "Asset";
     }
 
