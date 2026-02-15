@@ -1,17 +1,22 @@
 #include "SandboxLayer.h"
+#include "LibAsset/AssetMetadata.h"
+#include "LibCore/Log.h"
+#include "LibScene/Components.h"
 
 #include <LibCore/Base.h>
+#include <LibCore/Delegate.h>
 #include <LibCore/Event.h>
 #include <LibCore/Layer.h>
 #include <LibCore/UUID.h>
-#include <LibCore/Delegate.h>
 
 #include <LibMain/Application.h>
+#include <LibScene/Scene.h>
+#include <LibScene/SceneSerializer.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <LibWindow/Window.h>
-#include <LibWindow/WindowSystem.h>
 #include <LibWindow/WindowEvent.h>
+#include <LibWindow/WindowSystem.h>
 #include <glm/gtx/projection.hpp>
 
 #include <glm/glm.hpp>
@@ -34,18 +39,6 @@ static void TestFunc()
     TR_CLIENT_WARN("Some warning");
 }
 
-struct TestStruct {
-    virtual void test() {
-        TR_CLIENT_INFO("It works!");
-    }
-};
-
-struct TestStruct2 : public TestStruct {
-    virtual void test() override {
-        TR_CLIENT_WARN("It doesn't work!!!!!");
-    }
-};
-
 SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem)
     : Layer("Sandbox Layer", event_dispatcher)
     , m_windowSystem(windowSystem)
@@ -59,6 +52,7 @@ SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terr
     auto const& window = m_windowSystem->window(windowId);
 
     event_dispatcher.handlers<Terran::Window::WindowCloseEvent>().connect<&SandboxLayer::on_window_close>(this);
+
 }
 
 Core::Result<void> SandboxLayer::on_attach()
