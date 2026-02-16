@@ -101,7 +101,7 @@ bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::Shar
 
 static YAML::const_iterator find_entity(YAML::Node const& scene, Terran::Core::UUID const& entityID)
 {
-    for (YAML::const_iterator it = scene.begin(); it != scene.end(); ++it) {
+    for (auto it = scene.begin(); it != scene.end(); ++it) {
         auto const& entity = *it;
         TR_CORE_TRACE(TR_LOG_CORE, entity);
         Terran::Core::UUID id = entity["Entity"].as<Terran::Core::UUID>();
