@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    std::atomic_size_t m_reference_count;
+    std::atomic_size_t m_reference_count = 0;
 };
 
 template<typename T>
