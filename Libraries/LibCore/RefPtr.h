@@ -99,7 +99,7 @@ public:
         return std::exchange(m_data, nullptr);
     }
 
-    [[nodiscard]] constexpr value_type* data() noexcept
+    [[nodiscard]] constexpr value_type* data() const noexcept
     {
         return m_data;
     }
@@ -208,5 +208,15 @@ private:
 private:
     value_type* m_data = nullptr;
 };
+
+template<IsRefCounted TValue, IsRefCounted TYValue>
+constexpr RefPtr<TValue> static_pointer_cast(RefPtr<TYValue> const& other) {
+    return RefPtr<TValue>(static_cast<TValue*>(other.data()));
+}
+
+template<IsRefCounted TValue, IsRefCounted TYValue>
+constexpr RefPtr<TValue> dynamic_pointer_cast(RefPtr<TYValue> const& other) {
+    return RefPtr<TValue>(dynamic_cast<TValue*>(other.data()));
+}
 
 }
