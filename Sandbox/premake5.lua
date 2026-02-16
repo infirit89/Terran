@@ -23,6 +23,7 @@ externalincludedirs {
     "%{IncludeDirectories.imguizmo}",
     "%{Dependencies.entt.include}",
     "%{IncludeDirectories.optick}",
+    "%{Dependencies.yaml.include}",
     "%{wks.location}/TerranEditor/vendor/FontAwesome",
 }
 
