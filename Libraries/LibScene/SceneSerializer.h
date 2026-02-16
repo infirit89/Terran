@@ -17,7 +17,7 @@ namespace Terran::World {
 
 class SceneSerializer final : public Asset::AssetImporter {
 public:
-    SceneSerializer(SceneManager& scene_system)
+    explicit SceneSerializer(SceneManager& scene_system)
         : m_scene_system(scene_system)
     {
     }

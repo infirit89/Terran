@@ -23,14 +23,14 @@ namespace Terran::World {
 
 class Scene final : public Asset::Asset {
 public:
-    Scene(Core::EventDispatcher& event_dispatcher);
+    explicit Scene(Core::EventDispatcher& event_dispatcher);
     Scene(Core::EventDispatcher& event_dispatcher, Core::UUID const& handle);
     ~Scene() override;
 
     TR_DECLARE_ASSET_TYPE(Scene)
 
     Entity create_entity(std::string const& name = std::string());
-    Entity create_entity(std::string const& name, Terran::Core::UUID const& uuid);
+    Entity create_entity(std::string const& name, Core::UUID const& uuid);
     Entity create_entity();
 
     void destrory_entity(Entity entity, bool first);
@@ -38,7 +38,7 @@ public:
     void start_runtime();
     void stop_runtime();
 
-    void update(Terran::Core::Time time);
+    void update(Core::Time time);
 
     Entity find_entity(Core::UUID const& uuid);
     Entity find_entity(std::string_view name);

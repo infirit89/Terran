@@ -2,46 +2,41 @@
 
 #include "Scene.h"
 
+#include <LibAsset/AssetSystem.h>
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
 #include <LibCore/Layer.h>
 #include <LibCore/UUID.h>
 
-#include <unordered_map>
-
 namespace Terran::World {
 
 class SceneManager final : public Core::Layer {
-    using active_scenes_container = std::unordered_map<Core::UUID, Core::Shared<Scene>>;
 
 public:
-    SceneManager(Core::EventDispatcher& dispatcher)
+    SceneManager(Core::EventDispatcher& dispatcher, Core::RawPtr<Asset::AssetSystem> asset_system)
         : Core::Layer("Scene", dispatcher)
+        , m_asset_system(asset_system)
     {
     }
 
     Core::Shared<Scene> create_empty_scene();
-
-    void remove_scene(Terran::Core::UUID const& id);
-
-    Core::Shared<Scene> scene(Terran::Core::UUID const& id);
 
     Core::Shared<Scene> const& current_scene()
     {
         return m_current_scene;
     }
 
-    void set_current_scene(Terran::Core::Shared<Scene> newScene);
-    Core::Shared<Scene> copy_scene(Core::Shared<Scene> const& source_scene);
-
-    active_scenes_container& active_scenes()
+    void reset_current_scene()
     {
-        return m_active_scenes;
+        m_current_scene.reset();
     }
 
+    void set_current_scene(Core::Shared<Scene> new_scene);
+    Core::Shared<Scene> copy_scene(Core::Shared<Scene> const& source_scene);
+
 private:
-    active_scenes_container m_active_scenes;
     Core::Shared<Scene> m_current_scene;
+    Core::RawPtr<Asset::AssetSystem> m_asset_system;
 };
 
 }
