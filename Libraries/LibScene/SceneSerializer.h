@@ -5,28 +5,37 @@
 #include <LibCore/Base.h>
 #include <LibCore/Result.h>
 
+#include <LibAsset/Asset.h>
 #include <LibAsset/AssetImporter.h>
 #include <LibAsset/AssetMetadata.h>
-#include <LibAsset/Asset.h>
 #include <LibAsset/AssetTypes.h>
 
+#include <LibScene/SceneManager.h>
 #include <filesystem>
 
 namespace Terran::World {
 
 class SceneSerializer final : public Asset::AssetImporter {
 public:
-    SceneSerializer() = default;
+    SceneSerializer(SceneManager& scene_system)
+        : m_scene_system(scene_system)
+    {
+    }
+
     ~SceneSerializer() override = default;
     bool save(Asset::AssetMetadata const& assetMetadata, Core::Shared<Asset::Asset> const& asset) override;
     Asset::AssetLoadResult load(Asset::AssetMetadata const& assetMetadata) override;
-    [[nodiscard]] bool can_handle(std::filesystem::path const& assetPath) override {
+    [[nodiscard]] bool can_handle(std::filesystem::path const& assetPath) override
+    {
         return assetPath.extension() == ".terran";
     }
-    [[nodiscard]] Asset::AssetTypeId asset_type() override {
+    [[nodiscard]] Asset::AssetTypeId asset_type() override
+    {
         return Scene::static_type();
     }
 
+private:
+    SceneManager& m_scene_system;
 };
 
 }

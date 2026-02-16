@@ -10,6 +10,7 @@
 #include <LibCore/SerializerExtensions.h>
 #include <LibCore/UUID.h>
 
+#include <LibScene/SceneManager.h>
 #include <yaml-cpp/anchor.h>
 #include <yaml-cpp/emittermanip.h>
 #include <yaml-cpp/node/detail/iterator_fwd.h>
@@ -173,7 +174,7 @@ Asset::AssetLoadResult SceneSerializer::load(Asset::AssetMetadata const& assetMe
         return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::NotFound, ex.what()) };
     }
 
-    Core::Shared<Scene> scene = Core::CreateShared<Scene>(assetMetadata.Handle);
+    Core::Shared<Scene> scene = m_scene_system.create_empty_scene();
 
     if (auto entities = data["Entities"]; entities) {
         for (auto entity : entities) {

@@ -32,6 +32,7 @@ public:
     }
 
     void set_current_scene(Terran::Core::Shared<Scene> newScene);
+    Core::Shared<Scene> copy_scene(Core::Shared<Scene> const& source_scene);
 
     active_scenes_container& active_scenes()
     {
