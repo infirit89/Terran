@@ -93,7 +93,7 @@ public:
     requires(
         std::is_base_of_v<Asset, TAsset>,
         HasStaticType<TAsset>)
-    Core::Shared<TAsset> create_asset(std::filesystem::path const& file_path, TArgs... args)
+    Core::Shared<TAsset> create_asset(std::filesystem::path const& file_path, TArgs&&... args)
     {
         AssetMetadata metadata;
         metadata.Handle = AssetHandle();
@@ -110,7 +110,7 @@ public:
 
         AssetMetadataRegistry::add_asset_metadata(metadata);
 
-        Core::Shared<TAsset> asset = Core::CreateShared<TAsset>(args...);
+        Core::Shared<TAsset> asset = Core::CreateShared<TAsset>(std::forward<TArgs>(args)...);
 
         m_loaded_assets[metadata.Handle] = asset;
         AssetImporterRegistry::save(metadata, asset);
@@ -123,9 +123,9 @@ public:
     // something like create_memory_asset(CreateAssetMetadata::Yes)
     template<typename TAsset, typename... TArgs>
     requires(std::is_base_of_v<Asset, TAsset>)
-    Core::Shared<TAsset> create_memory_asset(TArgs... args)
+    Core::Shared<TAsset> create_memory_asset(TArgs&&... args)
     {
-        Core::Shared<Asset> asset = Core::CreateShared<TAsset>(args...);
+        Core::Shared<Asset> asset = Core::CreateShared<TAsset>(std::forward<TArgs>(args)...);
         m_loaded_assets[asset->m_handle] = asset;
 
         return Core::DynamicCast<TAsset>(m_loaded_assets[asset->m_handle]);
