@@ -1,15 +1,16 @@
 #include "AssetManager.h"
 #include "Asset.h"
+#include "AssetEvents.h"
+#include "AssetImporter.h"
 #include "AssetImporterRegistry.h"
 #include "AssetMetadata.h"
 #include "AssetMetadataRegistry.h"
 #include "AssetTypes.h"
-#include "AssetEvents.h"
-#include "AssetImporter.h"
 
+#include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
 #include <LibCore/Log.h>
-#include <LibCore/Event.h>
+#include <LibCore/UUID.h>
 
 #include <filesystem>
 #include <unordered_map>
@@ -31,80 +32,91 @@ AssetManager::~AssetManager()
     TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 }
 
-AssetHandle AssetManager::import_asset(std::filesystem::path const& assetPath)
+AssetHandle AssetManager::import_asset(std::filesystem::path const& asset_path)
 {
-    AssetHandle assetHandle = AssetMetadataRegistry::asset_handle_from_path(assetPath);
+    AssetHandle asset_handle = AssetMetadataRegistry::asset_handle_from_path(asset_path);
 
-    if (assetHandle)
-        return assetHandle;
+    if (asset_handle)
+        return asset_handle;
 
-    assetHandle = AssetHandle();
+    asset_handle = AssetHandle();
 
-    if (assetPath.empty())
+    if (asset_path.empty())
         return AssetHandle::invalid();
 
-    auto const assetLoader = AssetImporterRegistry::find_for_path(assetPath);
-    if (assetLoader)
+    auto const asset_loader = AssetImporterRegistry::find_for_path(asset_path);
+    if (asset_loader)
         return AssetHandle::invalid();
 
-    AssetMetadata assetMetadata;
-    assetMetadata.Path = assetPath;
-    assetMetadata.Type = assetLoader->asset_type();
-    assetMetadata.Handle = assetHandle;
+    AssetMetadata asset_metadata;
+    asset_metadata.Path = asset_path;
+    asset_metadata.Type = asset_loader->asset_type();
+    asset_metadata.Handle = asset_handle;
 
-    AssetMetadataRegistry::add_asset_metadata(assetMetadata);
+    AssetMetadataRegistry::add_asset_metadata(asset_metadata);
 
-    return assetHandle;
+    return asset_handle;
 }
 
 void AssetManager::reload_asset_by_handle(AssetHandle const& handle)
 {
-    AssetMetadata const& info = AssetMetadataRegistry::asset_metadata_by_handle(handle);
+    AssetMetadata const& metadata = AssetMetadataRegistry::asset_metadata_by_handle(handle);
 
     if (!m_loaded_assets.contains(handle))
         TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
 
-    AssetLoadResult assetResult = AssetImporterRegistry::load(info);
-    if (!assetResult)
+    AssetLoadResult asset_result = AssetImporterRegistry::load(metadata);
+    if (!asset_result)
         return;
 
-    m_loaded_assets[handle] = assetResult.value();
+    m_loaded_assets[handle] = asset_result.value();
 }
 
-void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& fileSystemEvents)
+void AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetMetadata remove_metadata)
+{
+    if (m_loaded_assets.contains(handle)) {
+        m_loaded_assets.erase(handle);
+    }
+
+    if (remove_metadata == RemoveAssetMetadata::Yes && AssetMetadataRegistry::contains(handle)) {
+        AssetMetadataRegistry::erase(handle);
+    }
+}
+
+void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& file_system_events)
 {
     if (m_asset_change_callback)
-        m_asset_change_callback(fileSystemEvents);
+        m_asset_change_callback(file_system_events);
 
-    for (auto const& e : fileSystemEvents) {
-        if (std::filesystem::is_directory(e.FileName))
+    for (auto const& event : file_system_events) {
+        if (std::filesystem::is_directory(event.FileName))
             continue;
 
-        switch (e.Action) {
-        case Terran::Core::FileAction::Removed: {
-            on_asset_removed(AssetMetadataRegistry::asset_handle_from_path(e.FileName));
+        switch (event.Action) {
+        case Core::FileAction::Removed: {
+            on_asset_removed(AssetMetadataRegistry::asset_handle_from_path(event.FileName));
             break;
         }
-        case Terran::Core::FileAction::Renamed: {
-            bool was_asset = AssetImporterRegistry::exists_for_path(e.OldFileName);
-            bool is_asset = AssetImporterRegistry::exists_for_path(e.FileName);
+        case Core::FileAction::Renamed: {
+            bool was_asset = AssetImporterRegistry::exists_for_path(event.OldFileName);
+            bool is_asset = AssetImporterRegistry::exists_for_path(event.FileName);
 
             if (!was_asset && is_asset) {
-                import_asset(e.FileName);
+                import_asset(event.FileName);
             } else if (was_asset && !is_asset) {
                 on_asset_removed(
-                    AssetMetadataRegistry::asset_handle_from_path(e.OldFileName));
+                    AssetMetadataRegistry::asset_handle_from_path(event.OldFileName));
             } else {
                 on_asset_renamed(
-                    AssetMetadataRegistry::asset_handle_from_path(e.OldFileName), e.FileName);
+                    AssetMetadataRegistry::asset_handle_from_path(event.OldFileName), event.FileName);
             }
             break;
         }
-        case Terran::Core::FileAction::Modified: {
-            AssetMetadata info = AssetMetadataRegistry::asset_metadata_by_path(e.FileName);
+        case Core::FileAction::Modified: {
+            AssetMetadata metadata = AssetMetadataRegistry::asset_metadata_by_path(event.FileName);
 
-            if (info)
-                reload_asset_by_handle(info.Handle);
+            if (metadata)
+                reload_asset_by_handle(metadata.Handle);
 
             break;
         }
@@ -114,24 +126,20 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
 
 void AssetManager::on_asset_removed(AssetHandle const& handle)
 {
-    if (AssetMetadataRegistry::contains(handle))
-        AssetMetadataRegistry::erase(handle);
-
-    if (m_loaded_assets.contains(handle))
-        m_loaded_assets.erase(handle);
+    remove_asset(handle);
 
     AssetRemovedEvent removed_event(handle);
     m_event_dispatcher.trigger(removed_event);
 }
 
-void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::path const& newFileName)
+void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::path const& new_file_name)
 {
-    AssetMetadata& info = AssetMetadataRegistry::asset_metadata_by_handle__internal(handle);
+    AssetMetadata& metadata = AssetMetadataRegistry::asset_metadata_by_handle__internal(handle);
 
-    AssetRenamedEvent renamed_event(handle, newFileName, info.Path);
+    AssetRenamedEvent renamed_event(handle, new_file_name, metadata.Path);
 
-    if (info)
-        info.Path = newFileName;
+    if (metadata)
+        metadata.Path = new_file_name;
 
     m_event_dispatcher.trigger(renamed_event);
 }
