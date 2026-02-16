@@ -4,15 +4,21 @@
 #include "Entity.h"
 
 #include <LibCore/Base.h>
+#include <LibCore/Event.h>
 #include <LibCore/Math.h>
 #include <LibCore/Time.h>
 #include <LibCore/UUID.h>
 
+#include <LibAsset/Asset.h>
+
+#include <LibScene/SceneEvent.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <cstdint>
+#include <string>
 #include <string_view>
 
 namespace Terran::World {
@@ -24,7 +30,7 @@ struct SceneComponent final {
 namespace {
 
 template<typename Component>
-void copy_component(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
+void copy_component_internal(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry, entt::registry& dstRegistry)
 {
     if (!srcRegistry.all_of<Component>(srcHandle))
         return;
@@ -33,9 +39,9 @@ void copy_component(entt::entity srcHandle, entt::entity dstHandle, entt::regist
 }
 
 template<typename Component>
-void copy_component(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry)
+void copy_component_internal(entt::entity srcHandle, entt::entity dstHandle, entt::registry& srcRegistry)
 {
-    copy_component<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
+    copy_component_internal<Component>(srcHandle, dstHandle, srcRegistry, srcRegistry);
 }
 
 glm::mat4 calculate_transform_matrix(TransformComponent const& transform)
@@ -45,13 +51,14 @@ glm::mat4 calculate_transform_matrix(TransformComponent const& transform)
 
 }
 
-Scene::Scene()
-    : Scene(Terran::Core::UUID())
+Scene::Scene(Core::EventDispatcher& event_dispatcher)
+    : Scene(event_dispatcher, Core::UUID())
 {
 }
 
-Scene::Scene(Terran::Core::UUID const& handle)
+Scene::Scene(Core::EventDispatcher& event_dispatcher, Core::UUID const& handle)
     : Asset(handle)
+    , m_event_dispatcher(event_dispatcher)
 {
     auto const sceneEntity = m_registry.create();
     m_registry.emplace<SceneComponent>(sceneEntity, m_handle);
@@ -114,7 +121,8 @@ void Scene::start_runtime()
 
     m_is_playing = true;
 
-    // TODO: fire an on start playing/start simulation event
+    SceneStartSimulationEvent start_simulation_event;
+    m_event_dispatcher.trigger(start_simulation_event);
 }
 
 void Scene::stop_runtime()
@@ -123,7 +131,9 @@ void Scene::stop_runtime()
         return;
 
     m_is_playing = false;
-    // TODO: fire an on stop playing/stop simulation event
+
+    SceneStopSimulationEvent stop_simulation_event;
+    m_event_dispatcher.trigger(stop_simulation_event);
 }
 
 void Scene::update(Terran::Core::Time)
@@ -131,7 +141,7 @@ void Scene::update(Terran::Core::Time)
     update_transform_hierarchy();
 }
 
-Entity Scene::find_entity(Terran::Core::UUID uuid)
+Entity Scene::find_entity(Core::UUID const& uuid)
 {
     if (m_entity_map.contains(uuid))
         return Entity(m_entity_map.at(uuid), this);
@@ -156,7 +166,7 @@ Entity Scene::duplicate_entity(Entity source_entity, Entity parent)
 {
     Entity destination_entity = create_entity(source_entity.name() + " Copy");
 
-    copy_component<TransformComponent>(
+    copy_component_internal<TransformComponent>(
         (entt::entity)source_entity,
         (entt::entity)destination_entity,
         m_registry);
@@ -175,38 +185,6 @@ Entity Scene::duplicate_entity(Entity source_entity, Entity parent)
     }
 
     return destination_entity;
-}
-
-Entity Scene::duplicate_entity(Entity srcEntity)
-{
-    return duplicate_entity(srcEntity, {});
-}
-
-Terran::Core::Shared<Scene> Scene::copy_scene(Terran::Core::Shared<Scene> const& source_scene)
-{
-    Core::Shared<Scene> scene = Core::CreateShared<Scene>();
-
-    auto tag_view = source_scene->entities_with<TagComponent>();
-
-    for (auto e : tag_view) {
-        Entity source_entity(e, source_scene.get());
-        Entity destination_entity = scene->find_entity(source_entity.id());
-
-        copy_component<TransformComponent>(
-            (entt::entity)source_entity,
-            (entt::entity)destination_entity,
-            source_scene->m_registry,
-            scene->m_registry);
-        copy_component<RelationshipComponent>(
-            (entt::entity)source_entity,
-            (entt::entity)destination_entity,
-            source_scene->m_registry,
-            scene->m_registry);
-    }
-
-    scene->sort_entities();
-
-    return scene;
 }
 
 void Scene::update_transform_hierarchy()

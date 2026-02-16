@@ -1,6 +1,7 @@
 #pragma once
 
 #include <LibCore/Base.h>
+#include <LibCore/Event.h>
 #include <LibCore/Time.h>
 #include <LibCore/UUID.h>
 
@@ -15,15 +16,15 @@
 #include <glm/glm.hpp>
 
 #include <string>
-#include <unordered_map>
 #include <string_view>
+#include <unordered_map>
 
 namespace Terran::World {
 
 class Scene final : public Asset::Asset {
 public:
-    Scene();
-    explicit Scene(Terran::Core::UUID const& handle);
+    Scene(Core::EventDispatcher& event_dispatcher);
+    Scene(Core::EventDispatcher& event_dispatcher, Core::UUID const& handle);
     ~Scene() override;
 
     TR_DECLARE_ASSET_TYPE(Scene)
@@ -39,23 +40,46 @@ public:
 
     void update(Terran::Core::Time time);
 
-    Entity find_entity(Terran::Core::UUID uuid);
+    Entity find_entity(Core::UUID const& uuid);
     Entity find_entity(std::string_view name);
 
     template<typename... Args, typename... Exclude>
-    auto entities_with(entt::exclude_t<Exclude...> exclude = {}) { return m_registry.view<Args...>(exclude); }
+    auto entities_with(entt::exclude_t<Exclude...> exclude = {})
+    {
+        return m_registry.view<Args...>(exclude);
+    }
 
-    std::unordered_map<Terran::Core::UUID, entt::entity>& GetEntityMap() { return m_entity_map; }
+    std::unordered_map<Core::UUID, entt::entity>& GetEntityMap()
+    {
+        return m_entity_map;
+    }
 
+    Entity duplicate_entity(Entity source_entity, Entity parent = {});
 
-    Entity duplicate_entity(Entity srcEntity, Entity parent);
-    Entity duplicate_entity(Entity srcEntity);
+    bool playing() const
+    {
+        return m_is_playing;
+    }
 
-    static Terran::Core::Shared<Scene> copy_scene(Terran::Core::Shared<Scene> const& srcScene);
+    template<typename TComponent>
+    static void copy_component(Entity source_entity, Entity destination_entity, Core::Shared<Scene> source_scene, Core::Shared<Scene> destination_scene)
+    {
+        entt::registry& source_registry = source_scene->m_registry;
+        entt::registry& destination_registry = destination_scene->m_registry;
 
-    bool playing() const { return m_is_playing; }
+        if (!source_registry.all_of<TComponent>((entt::entity)source_entity)) {
+            return;
+        }
 
-    Scene* raw() { return this; }
+        destination_registry.emplace_or_replace<TComponent>(
+            (entt::entity)destination_entity,
+            source_registry.get<TComponent>((entt::entity)source_entity));
+    }
+
+    Scene* raw()
+    {
+        return this;
+    }
 
     void update_transform_hierarchy();
     void update_entity_transform(Entity entity);
@@ -68,12 +92,14 @@ public:
 private:
     bool m_is_playing = false;
 
-    std::unordered_map<Terran::Core::UUID, entt::entity> m_entity_map;
+    std::unordered_map<Core::UUID, entt::entity> m_entity_map;
+    Core::EventDispatcher& m_event_dispatcher;
 
     entt::registry m_registry;
 
     friend class Entity;
     friend class SceneSerializer;
+    friend class SceneManager;
 };
 
 }
