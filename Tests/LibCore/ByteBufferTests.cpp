@@ -1,5 +1,3 @@
-#pragma once
-
 #include <LibCore/Buffer.h>
 
 #include <gtest/gtest.h>
