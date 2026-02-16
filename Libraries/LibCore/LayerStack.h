@@ -45,11 +45,11 @@ public:
      *
      * @param args The arguments passed to the constructor of the layer
      */
-    template<typename TLayer, typename... Args>
+    template<typename TLayer, typename... TArgs>
     requires(std::is_base_of_v<Layer, TLayer>)
-    Result<void> push(Args... args)
+    Result<void> push(TArgs&&... args)
     {
-        Unique<Layer> layer = Unique<TLayer>::create(*m_dispatcher, std::forward<Args>(args)...);
+        Unique<Layer> layer = Unique<TLayer>::create(*m_dispatcher, std::forward<TArgs>(args)...);
         auto result = layer->on_attach();
 
         if (!result.is_ok())
