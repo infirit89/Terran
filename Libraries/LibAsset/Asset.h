@@ -4,13 +4,14 @@
 
 #include <LibCore/Hash.h>
 
+#include <LibCore/RefPtr.h>
 #include <concepts>
 #include <string>
 
 namespace Terran {
 namespace Asset {
 
-class Asset {
+class Asset : public Core::RefCounted {
 public:
     Asset() = default;
     virtual ~Asset() = default;

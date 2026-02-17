@@ -6,6 +6,7 @@
 #include "AssetTypes.h"
 
 #include <LibCore/Base.h>
+#include <LibCore/RefPtr.h>
 
 #include <filesystem>
 #include <type_traits>
@@ -25,7 +26,7 @@ public:
     }
 
     static AssetLoadResult load(AssetMetadata const& assetMetadata);
-    static bool save(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset> const& asset);
+    static bool save(AssetMetadata const& assetMetadata, Terran::Core::RefPtr<Asset> const& asset);
 
     static bool exists_for_path(std::filesystem::path const& path)
     {

@@ -25,7 +25,7 @@ AssetLoadResult AssetImporterRegistry::load(AssetMetadata const& assetMetadata)
     return { Core::CreateShared<AssetImporterError>(AssetImporterError::Code::ImporterNotFound) };
 }
 
-bool AssetImporterRegistry::save(AssetMetadata const& assetMetadata, Terran::Core::Shared<Asset> const& asset)
+bool AssetImporterRegistry::save(AssetMetadata const& assetMetadata, Core::RefPtr<Asset> const& asset)
 {
     AssetTypeId const type_id = assetMetadata.Type;
     if (s_loaders.contains(type_id))
