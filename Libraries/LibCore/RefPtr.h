@@ -11,12 +11,12 @@ class RefCounted {
 public:
     virtual ~RefCounted() = default;
 
-    void increment_count()
+    void increment_count() const
     {
         m_reference_count++;
     }
 
-    void decrement_count()
+    void decrement_count() const
     {
         m_reference_count--;
     }
@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    std::atomic_size_t m_reference_count = 0;
+    mutable std::atomic_size_t m_reference_count = 0;
 };
 
 template<typename T>
@@ -123,7 +123,7 @@ public:
 
     constexpr RefPtr& operator=(RefPtr const& other) noexcept
     {
-        if (this == other)
+        if (this == &other)
             return *this;
 
         other.increment_ref();
@@ -136,7 +136,7 @@ public:
     requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr RefPtr& operator=(RefPtr<TYValue> const& other) noexcept
     {
-        if (this == other)
+        if (this == &other)
             return *this;
 
         other.increment_ref();
@@ -162,7 +162,8 @@ public:
         return *this;
     }
 
-    constexpr RefPtr& operator=(TValue* data) noexcept {
+    constexpr RefPtr& operator=(TValue* data) noexcept
+    {
         m_data = data;
         increment_ref();
         return *this;
@@ -179,19 +180,20 @@ public:
     }
 
     template<typename... TArgs>
-    static constexpr RefPtr create(TArgs&&... args) {
+    static constexpr RefPtr create(TArgs&&... args)
+    {
         return RefPtr(new TValue(std::forward<TArgs>(args)...));
     }
 
 private:
-    void increment_ref()
+    void increment_ref() const
     {
         if (m_data) {
             m_data->increment_count();
         }
     }
 
-    void decrement_ref()
+    void decrement_ref() const
     {
         if (!m_data) {
             return;
@@ -206,16 +208,21 @@ private:
     }
 
 private:
-    value_type* m_data = nullptr;
+    mutable value_type* m_data = nullptr;
+
+    template<IsRefCounted TYValue>
+    friend class RefPtr;
 };
 
 template<IsRefCounted TValue, IsRefCounted TYValue>
-constexpr RefPtr<TValue> static_pointer_cast(RefPtr<TYValue> const& other) {
+constexpr RefPtr<TValue> static_pointer_cast(RefPtr<TYValue> const& other)
+{
     return RefPtr<TValue>(static_cast<TValue*>(other.data()));
 }
 
 template<IsRefCounted TValue, IsRefCounted TYValue>
-constexpr RefPtr<TValue> dynamic_pointer_cast(RefPtr<TYValue> const& other) {
+constexpr RefPtr<TValue> dynamic_pointer_cast(RefPtr<TYValue> const& other)
+{
     return RefPtr<TValue>(dynamic_cast<TValue*>(other.data()));
 }
 
