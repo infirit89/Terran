@@ -4,30 +4,32 @@
 
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
+#include <LibCore/WeakRef.h>
+#include <LibCore/RefPtr.h>
 
 namespace Terran::World {
 
 class SceneTransitionEvent {
 public:
-    SceneTransitionEvent(Core::Weak<Scene> const& oldScene, Core::Shared<Scene> const& newScene)
+    SceneTransitionEvent(Core::WeakPtr<Scene> const& oldScene, Core::RefPtr<Scene> const& newScene)
         : m_old_scene(oldScene)
         , m_new_scene(newScene)
     {
     }
 
-    Core::Weak<Scene> old_scene() const
+    Core::WeakPtr<Scene> old_scene() const
     {
         return m_old_scene;
     }
 
-    Core::Shared<Scene> new_scene() const
+    Core::RefPtr<Scene> new_scene() const
     {
         return m_new_scene;
     }
 
 private:
-    Core::Weak<Scene> m_old_scene;
-    Core::Shared<Scene> m_new_scene;
+    Core::WeakPtr<Scene> m_old_scene;
+    Core::RefPtr<Scene> m_new_scene;
 };
 
 class SceneStartSimulationEvent {
