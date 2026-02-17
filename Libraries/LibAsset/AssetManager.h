@@ -11,6 +11,7 @@
 #include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
 #include <LibCore/Log.h>
+#include <LibCore/RefPtr.h>
 #include <LibCore/UUID.h>
 
 #include <cstdint>
@@ -31,7 +32,7 @@ enum class RemoveAssetMetadata : uint8_t {
 
 class AssetManager final {
     using AssetChangeCallbackFn = std::function<void(std::vector<Core::FileSystemChangeEvent> const&)>;
-    using asset_container = std::unordered_map<AssetHandle, Core::Shared<Asset>>;
+    using asset_container = std::unordered_map<AssetHandle, Core::RefPtr<Asset>>;
 
 public:
     AssetManager(Core::EventDispatcher& event_dispatcher);
@@ -46,10 +47,10 @@ public:
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    Core::Shared<TAsset> asset_by_handle(AssetHandle const& assetHandle)
+    Core::RefPtr<TAsset> asset_by_handle(AssetHandle const& assetHandle)
     {
         if (m_loaded_assets.contains(assetHandle))
-            return Core::DynamicCast<TAsset>(m_loaded_assets.at(assetHandle));
+            return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets.at(assetHandle));
 
         AssetMetadata& info = AssetMetadataRegistry::asset_metadata_by_handle__internal(assetHandle);
 
@@ -63,7 +64,7 @@ public:
             return nullptr;
         }
 
-        Core::Shared<Asset> const& asset = assetResult.value();
+        Core::RefPtr<Asset> const& asset = assetResult.value();
         asset->m_handle = assetHandle;
         m_loaded_assets[assetHandle] = asset;
         return Core::DynamicCast<TAsset>(m_loaded_assets[assetHandle]);
@@ -71,10 +72,10 @@ public:
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    Core::Shared<TAsset> asset_by_metadata(AssetMetadata const& assetMetadata)
+    Core::RefPtr<TAsset> asset_by_metadata(AssetMetadata const& assetMetadata)
     {
         if (m_loaded_assets.contains(assetMetadata.Handle))
-            return Core::DynamicCast<TAsset>(m_loaded_assets.at(assetMetadata.Handle));
+            return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets.at(assetMetadata.Handle));
 
         AssetLoadResult assetResult = AssetImporterRegistry::load(assetMetadata);
 
@@ -83,7 +84,7 @@ public:
             return nullptr;
         }
 
-        Core::Shared<Asset> const& asset = assetResult.value();
+        Core::RefPtr<Asset> const& asset = assetResult.value();
         asset->m_handle = assetMetadata.Handle;
         m_loaded_assets[assetMetadata.Handle] = asset;
         return Core::DynamicCast<TAsset>(m_loaded_assets[assetMetadata.Handle]);
@@ -93,7 +94,7 @@ public:
     requires(
         std::is_base_of_v<Asset, TAsset>,
         HasStaticType<TAsset>)
-    Core::Shared<TAsset> create_asset(std::filesystem::path const& file_path, TArgs&&... args)
+    Core::RefPtr<TAsset> create_asset(std::filesystem::path const& file_path, TArgs&&... args)
     {
         AssetMetadata metadata;
         metadata.Handle = AssetHandle();
@@ -110,12 +111,12 @@ public:
 
         AssetMetadataRegistry::add_asset_metadata(metadata);
 
-        Core::Shared<TAsset> asset = Core::CreateShared<TAsset>(std::forward<TArgs>(args)...);
+        Core::RefPtr<TAsset> asset = Core::RefPtr<TAsset>::create(std::forward<TArgs>(args)...);
 
         m_loaded_assets[metadata.Handle] = asset;
         AssetImporterRegistry::save(metadata, asset);
 
-        return Core::DynamicCast<TAsset>(m_loaded_assets[metadata.Handle]);
+        return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets[metadata.Handle]);
     }
 
     // NOTE: maybe we should take in a parameter that signifies 
@@ -123,12 +124,12 @@ public:
     // something like create_memory_asset(CreateAssetMetadata::Yes)
     template<typename TAsset, typename... TArgs>
     requires(std::is_base_of_v<Asset, TAsset>)
-    Core::Shared<TAsset> create_memory_asset(TArgs&&... args)
+    Core::RefPtr<TAsset> create_memory_asset(TArgs&&... args)
     {
-        Core::Shared<Asset> asset = Core::CreateShared<TAsset>(std::forward<TArgs>(args)...);
+        Core::RefPtr<Asset> asset = Core::RefPtr<TAsset>::create(std::forward<TArgs>(args)...);
         m_loaded_assets[asset->m_handle] = asset;
 
-        return Core::DynamicCast<TAsset>(m_loaded_assets[asset->m_handle]);
+        return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets[asset->m_handle]);
     }
 
     void remove_asset(Core::UUID const& handle, RemoveAssetMetadata remove_metadata = RemoveAssetMetadata::Yes);
