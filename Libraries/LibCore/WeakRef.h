@@ -18,14 +18,14 @@ public:
     }
 
     template<IsRefCounted TYValue>
-    requires(std::is_convertible_v<TYValue, TValue>)
+    requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr(WeakPtr<TYValue> const& other) noexcept
         : m_data(other.m_data)
     {
     }
 
     template<IsRefCounted TYValue>
-    requires(std::is_convertible_v<TYValue, TValue>)
+    requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr(RefPtr<TYValue> const& other) noexcept
         : m_data(other.data())
     {
@@ -37,7 +37,7 @@ public:
     }
 
     template<IsRefCounted TYValue>
-    requires(std::is_convertible_v<TYValue, TValue>)
+    requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr(WeakPtr<TYValue>&& other) noexcept
         : m_data(other.release())
     {
@@ -80,7 +80,7 @@ public:
     }
 
     template<IsRefCounted TYValue>
-    requires(std::is_convertible_v<TYValue, TValue>)
+    requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr& operator=(WeakPtr<TYValue> const& other) noexcept
     {
         if (this == other)
@@ -91,7 +91,7 @@ public:
     }
 
     template<IsRefCounted TYValue>
-    requires(std::is_convertible_v<TYValue, TValue>)
+    requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr& operator=(RefPtr<TYValue> const& other) noexcept
     {
         m_data = other.data();
@@ -105,7 +105,7 @@ public:
     }
 
     template<IsRefCounted TYValue>
-    requires(std::is_convertible_v<TYValue, TValue>)
+    requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr& operator=(WeakPtr<TYValue>&& other) noexcept
     {
         m_data = other.release();
