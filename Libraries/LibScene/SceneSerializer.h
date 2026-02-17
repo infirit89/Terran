@@ -1,16 +1,17 @@
 #pragma once
 
 #include "Scene.h"
+#include "SceneManager.h"
 
 #include <LibCore/Base.h>
 #include <LibCore/Result.h>
+#include <LibCore/RefPtr.h>
 
 #include <LibAsset/Asset.h>
 #include <LibAsset/AssetImporter.h>
 #include <LibAsset/AssetMetadata.h>
 #include <LibAsset/AssetTypes.h>
 
-#include <LibScene/SceneManager.h>
 #include <filesystem>
 
 namespace Terran::World {
@@ -23,7 +24,7 @@ public:
     }
 
     ~SceneSerializer() override = default;
-    bool save(Asset::AssetMetadata const& assetMetadata, Core::Shared<Asset::Asset> const& asset) override;
+    bool save(Asset::AssetMetadata const& assetMetadata, Core::RefPtr<Asset::Asset> const& asset) override;
     Asset::AssetLoadResult load(Asset::AssetMetadata const& assetMetadata) override;
     [[nodiscard]] bool can_handle(std::filesystem::path const& assetPath) override
     {

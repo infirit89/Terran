@@ -61,25 +61,6 @@ public:
         return m_is_playing;
     }
 
-    template<typename TComponent>
-    static void copy_component(Entity source_entity, Entity destination_entity, Core::Shared<Scene> source_scene, Core::Shared<Scene> destination_scene)
-    {
-        entt::registry& source_registry = source_scene->m_registry;
-        entt::registry& destination_registry = destination_scene->m_registry;
-
-        if (!source_registry.all_of<TComponent>((entt::entity)source_entity)) {
-            return;
-        }
-
-        destination_registry.emplace_or_replace<TComponent>(
-            (entt::entity)destination_entity,
-            source_registry.get<TComponent>((entt::entity)source_entity));
-    }
-
-    Scene* raw()
-    {
-        return this;
-    }
 
     void update_transform_hierarchy();
     void update_entity_transform(Entity entity);
@@ -90,6 +71,19 @@ public:
     void sort_entities();
 
 private:
+
+    template<typename TComponent>
+    static void copy_component(Entity source_entity, Entity destination_entity, entt::registry& source_registry, entt::registry& destination_registry)
+    {
+        if (!source_registry.all_of<TComponent>((entt::entity)source_entity)) {
+            return;
+        }
+
+        destination_registry.emplace_or_replace<TComponent>(
+            (entt::entity)destination_entity,
+            source_registry.get<TComponent>((entt::entity)source_entity));
+    }
+
     bool m_is_playing = false;
 
     std::unordered_map<Core::UUID, entt::entity> m_entity_map;

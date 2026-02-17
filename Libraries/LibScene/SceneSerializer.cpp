@@ -2,15 +2,18 @@
 #include "Components.h"
 #include "Entity.h"
 #include "SceneSerializerError.h"
+#include "SceneManager.h"
 
-#include <LibAsset/AssetImporter.h>
 #include <LibCore/Base.h>
 #include <LibCore/Log.h>
 #include <LibCore/Result.h>
 #include <LibCore/SerializerExtensions.h>
 #include <LibCore/UUID.h>
+#include <LibCore/RefPtr.h>
 
-#include <LibScene/SceneManager.h>
+#include <LibAsset/Asset.h>
+#include <LibAsset/AssetImporter.h>
+
 #include <yaml-cpp/anchor.h>
 #include <yaml-cpp/emittermanip.h>
 #include <yaml-cpp/node/detail/iterator_fwd.h>
@@ -71,9 +74,9 @@ static void serialize_entity(YAML::Emitter& out, Entity entity)
     out << YAML::EndMap;
 }
 
-bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::Shared<Asset::Asset> const& asset)
+bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::RefPtr<Asset::Asset> const& asset)
 {
-    Core::Shared<Scene> scene = Core::DynamicCast<Scene>(asset);
+    Core::RefPtr<Scene> scene = Core::dynamic_pointer_cast<Scene>(asset);
     if (!scene)
         return false;
 
@@ -87,7 +90,7 @@ bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::Shar
 
     auto const tagComponentView = scene->entities_with<TagComponent>();
     for (auto e : tagComponentView) {
-        Entity entity(e, scene.get());
+        Entity entity(e, scene.data());
         serialize_entity(out, entity);
     }
 
@@ -112,7 +115,7 @@ static YAML::const_iterator find_entity(YAML::Node const& scene, Terran::Core::U
     return scene.end();
 }
 
-static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene, Core::Shared<Scene> deserializedScene)
+static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene, Core::RefPtr<Scene> deserializedScene)
 {
     try {
         Core::UUID id = data["Entity"].as<Core::UUID>();
@@ -174,7 +177,7 @@ Asset::AssetLoadResult SceneSerializer::load(Asset::AssetMetadata const& assetMe
         return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::NotFound, ex.what()) };
     }
 
-    Core::Shared<Scene> scene = m_scene_system.create_empty_scene();
+    Core::RefPtr<Scene> scene = m_scene_system.create_empty_scene();
 
     if (auto entities = data["Entities"]; entities) {
         for (auto entity : entities) {
