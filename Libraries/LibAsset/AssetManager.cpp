@@ -11,6 +11,7 @@
 #include <LibCore/FileUtils.h>
 #include <LibCore/Log.h>
 #include <LibCore/UUID.h>
+#include <LibCore/Result.h>
 
 #include <filesystem>
 #include <unordered_map>
@@ -32,7 +33,7 @@ AssetManager::~AssetManager()
     TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 }
 
-AssetHandle AssetManager::import_asset(std::filesystem::path const& asset_path)
+AssetHandle AssetManager::import_asset(std::filesystem::path const& asset_path) const
 {
     AssetHandle asset_handle = AssetMetadataRegistry::asset_handle_from_path(asset_path);
 
@@ -72,15 +73,26 @@ void AssetManager::reload_asset_by_handle(AssetHandle const& handle)
     m_loaded_assets[handle] = asset_result.value();
 }
 
-void AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetMetadata remove_metadata)
+Core::Result<void, AssetRemoveError> AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately, RemoveAssetMetadata remove_metadata)
 {
-    if (m_loaded_assets.contains(handle)) {
-        m_loaded_assets.erase(handle);
+    if(!m_loaded_assets.contains(handle))
+        return { AssetRemoveError::AssetNotFound };
+
+    if (remove_metadata == RemoveAssetMetadata::Yes && !AssetMetadataRegistry::contains(handle)) {
+        return { AssetRemoveError::MetadatNotFound };
     }
 
-    if (remove_metadata == RemoveAssetMetadata::Yes && AssetMetadataRegistry::contains(handle)) {
+    if (remove_immediately == RemoveAssetImmediately::Yes) {
+        m_loaded_assets.erase(handle);
+    } else {
+        m_free_queue.emplace_back(handle);
+    }
+
+    if (remove_metadata == RemoveAssetMetadata::Yes) {
         AssetMetadataRegistry::erase(handle);
     }
+
+    return {};
 }
 
 void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemChangeEvent> const& file_system_events)
@@ -142,6 +154,10 @@ void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::
         metadata.Path = new_file_name;
 
     m_event_dispatcher.trigger(renamed_event);
+}
+
+void AssetManager::enqueue_asset_for_deletion(AssetHandle const& handle) {
+    m_free_queue.emplace_back(handle);
 }
 
 }

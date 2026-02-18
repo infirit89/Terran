@@ -40,8 +40,9 @@ public:
     {
         return m_old_file_name;
     }
-    
-    [[nodiscard]] constexpr std::filesystem::path const& new_file_name() const noexcept {
+
+    [[nodiscard]] constexpr std::filesystem::path const& new_file_name() const noexcept
+    {
         return m_new_file_name;
     }
 

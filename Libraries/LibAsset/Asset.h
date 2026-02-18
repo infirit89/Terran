@@ -2,6 +2,7 @@
 
 #include "AssetTypes.h"
 
+#include <LibCore/Base.h>
 #include <LibCore/Hash.h>
 
 #include <LibCore/RefPtr.h>
@@ -11,10 +12,11 @@
 namespace Terran {
 namespace Asset {
 
+class AssetManager;
 class Asset : public Core::RefCounted {
 public:
     Asset() = default;
-    virtual ~Asset() = default;
+    virtual ~Asset() override;
     Asset(AssetHandle const& handle)
         : m_handle(handle)
     {
@@ -35,6 +37,7 @@ public:
 private:
     AssetHandle m_handle;
     AssetTypeId m_type_id;
+    Core::RawPtr<AssetManager> m_asset_manager;
     friend class AssetManager;
 };
 

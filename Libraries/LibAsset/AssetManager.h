@@ -13,8 +13,10 @@
 #include <LibCore/Log.h>
 #include <LibCore/RefPtr.h>
 #include <LibCore/UUID.h>
+#include <LibCore/Result.h>
 
 #include <cstdint>
+#include <deque>
 #include <filesystem>
 #include <format>
 #include <functional>
@@ -30,9 +32,20 @@ enum class RemoveAssetMetadata : uint8_t {
     Yes = 1
 };
 
+enum class RemoveAssetImmediately : uint8_t {
+    No = 0,
+    Yes = 1,
+};
+
+enum class AssetRemoveError : uint8_t {
+    AssetNotFound,
+    MetadatNotFound
+};
+
 class AssetManager final {
     using AssetChangeCallbackFn = std::function<void(std::vector<Core::FileSystemChangeEvent> const&)>;
-    using asset_container = std::unordered_map<AssetHandle, Core::RefPtr<Asset>>;
+    using asset_container_type = std::unordered_map<AssetHandle, Core::RefPtr<Asset>>;
+    using free_queue_type = std::deque<AssetHandle>;
 
 public:
     AssetManager(Core::EventDispatcher& event_dispatcher);
@@ -40,7 +53,7 @@ public:
 
     std::filesystem::path filesystem_path(std::filesystem::path const& path);
 
-    AssetHandle import_asset(std::filesystem::path const& asset_path);
+    AssetHandle import_asset(std::filesystem::path const& asset_path) const;
     void reload_asset_by_handle(AssetHandle const& handle);
 
     void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { m_asset_change_callback = callback; }
@@ -102,9 +115,9 @@ public:
         metadata.Type = TAsset::static_type();
 
         int file_occurrence_count = 2;
-        while (file_exists(metadata.Path)) {
+        while (std::filesystem::exists(metadata.Path)) {
             // Format: parent_directory/file_name (occurrence_count).extension
-            metadata.Path = std::format("{0} ({1}){2}", (file_path.parent_path() / file_path.stem()).string(), std::to_string(file_occurrence_count), file_path.extension().string());
+            metadata.Path = std::format("{} ({}){}", (file_path.parent_path() / file_path.stem()).string(), std::to_string(file_occurrence_count), file_path.extension().string());
 
             file_occurrence_count++;
         }
@@ -132,20 +145,23 @@ public:
         return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets[asset->m_handle]);
     }
 
-    void remove_asset(Core::UUID const& handle, RemoveAssetMetadata remove_metadata = RemoveAssetMetadata::Yes);
-
-    static bool file_exists(std::filesystem::path const& path);
+    Core::Result<void, AssetRemoveError> remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately = RemoveAssetImmediately::Yes, RemoveAssetMetadata remove_metadata = RemoveAssetMetadata::Yes);
 
 private:
     void on_filesystem_changed(std::vector<Core::FileSystemChangeEvent> const& file_system_events);
     void on_asset_removed(AssetHandle const& handle);
     void on_asset_renamed(AssetHandle const& handle, std::filesystem::path const& new_file_name);
-    std::filesystem::path relative_path(std::filesystem::path const& path);
+    void enqueue_asset_for_deletion(AssetHandle const& handle);
 
 private:
-    asset_container m_loaded_assets;
+    asset_container_type m_loaded_assets;
     AssetChangeCallbackFn m_asset_change_callback;
     Core::EventDispatcher& m_event_dispatcher;
+    //NOTE: this needs to be a multithreaded queue, either with or without a lock!!!
+    //This works for now because the engine is not multithreaded
+    //Will cause a bunch of problems if not changed and the engine goes multithreaded!!!
+    free_queue_type m_free_queue;
+    friend class Asset;
 };
 
 }
