@@ -100,7 +100,8 @@ public:
 
     constexpr WeakPtr& operator=(WeakPtr&& other) noexcept
     {
-        m_data = other.release();
+        WeakPtr temp { std::move(other) };
+        m_data = temp.m_data;
         return *this;
     }
 
@@ -108,7 +109,8 @@ public:
     requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr WeakPtr& operator=(WeakPtr<TYValue>&& other) noexcept
     {
-        m_data = other.release();
+        WeakPtr temp { std::move(other) };
+        m_data = temp.m_data;
         return *this;
     }
 
