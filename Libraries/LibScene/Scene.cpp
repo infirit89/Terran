@@ -61,7 +61,7 @@ Scene::Scene(Core::EventDispatcher& event_dispatcher, Core::UUID const& handle)
     , m_event_dispatcher(event_dispatcher)
 {
     auto const sceneEntity = m_registry.create();
-    m_registry.emplace<SceneComponent>(sceneEntity, m_handle);
+    m_registry.emplace<SceneComponent>(sceneEntity, handle);
 }
 
 Scene::~Scene()

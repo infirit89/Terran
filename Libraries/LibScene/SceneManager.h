@@ -23,7 +23,7 @@ public:
 
     Core::RefPtr<Scene> create_empty_scene();
 
-    Core::RefPtr<Scene> const& current_scene()
+    Core::RefPtr<Scene> const& current_scene() const
     {
         return m_current_scene;
     }
