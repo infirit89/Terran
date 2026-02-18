@@ -1,0 +1,50 @@
+project "Test.LibScene"
+language "C++"
+cppdialect "C++20"
+kind "ConsoleApp"
+staticruntime "Off"
+
+files {
+    "**.cpp",
+    "**.hpp",
+}
+
+externalincludedirs {
+    "%{wks.location}/Libraries",
+    "%{Dependencies.spdlog.include}",
+    "%{Dependencies.glm.include}",
+    "%{Dependencies.yaml.include}",
+    "%{Dependencies.entt.include}",
+    "../../vendor/gtest/googletest/include/",
+}
+
+links {
+    "LibCore",
+    "LibAsset",
+    "LibScene",
+    "yaml-cpp",
+    "googletest",
+    "CoreFoundation.framework", -- no path needed for system frameworks
+    "Cocoa.framework",
+    "IOKit.framework",
+    "QuartzCore.framework",
+}
+
+filter { "configurations:Debug" }
+runtime "Debug"
+symbols "On"
+defines { "TERRAN_TESTING_DEBUG" }
+defines "TR_DEBUG"
+filter {}
+
+filter { "configurations:Release" }
+runtime "Release"
+defines { "TERRAN_TESTING_RELEASE" }
+
+filter { "system:macosx" }
+architecture "ARM64"
+
+libdirs { "/usr/local/lib" }
+links {
+    "CoreFoundation.framework", -- no path needed for system frameworks
+}

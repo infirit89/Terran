@@ -88,7 +88,7 @@ Entity Scene::create_entity(std::string const& name, Terran::Core::UUID const& u
     return entity;
 }
 
-Entity Scene::create_entity()
+Entity Scene::create_empty_entity()
 {
     entt::entity e = m_registry.create();
     Entity entity(e, this);

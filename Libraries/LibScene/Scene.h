@@ -31,9 +31,9 @@ public:
 
     Entity create_entity(std::string const& name = std::string());
     Entity create_entity(std::string const& name, Core::UUID const& uuid);
-    Entity create_entity();
+    Entity create_empty_entity();
 
-    void destrory_entity(Entity entity, bool first);
+    void destrory_entity(Entity entity, bool first = true);
 
     void start_runtime();
     void stop_runtime();
@@ -49,7 +49,7 @@ public:
         return m_registry.view<Args...>(exclude);
     }
 
-    std::unordered_map<Core::UUID, entt::entity>& GetEntityMap()
+    std::unordered_map<Core::UUID, entt::entity>& entity_map()
     {
         return m_entity_map;
     }

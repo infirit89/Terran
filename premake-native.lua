@@ -51,3 +51,4 @@ include "Sandbox"
 
 group "Tests"
 include "Tests/LibCore"
+include "Tests/LibScene"
