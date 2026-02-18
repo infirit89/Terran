@@ -132,5 +132,9 @@ bool AssetMetadataRegistry::contains(AssetHandle const& handle) {
     return s_asset_metadata.contains(handle);
 }
 
+void AssetMetadataRegistry::add_asset_metadata(const AssetMetadata &metadata) {
+    s_asset_metadata.emplace(metadata.Handle, metadata);
+}
+
 }
 }
