@@ -42,11 +42,11 @@ class RefPtr final {
 
 public:
     constexpr RefPtr() noexcept = default;
-    constexpr RefPtr(std::nullptr_t) noexcept
+    explicit(false) constexpr RefPtr(std::nullptr_t) noexcept
     {
     }
 
-    constexpr RefPtr(TValue* data) noexcept
+    explicit(false) constexpr RefPtr(TValue* data) noexcept
         : m_data(data)
     {
         increment_ref();
@@ -54,7 +54,7 @@ public:
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
-    constexpr RefPtr(TYValue* data) noexcept
+    explicit(false) constexpr RefPtr(TYValue* data) noexcept
         : m_data(data)
     {
         increment_ref();
@@ -62,7 +62,7 @@ public:
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
-    constexpr RefPtr(RefPtr<TYValue> const& other) noexcept
+    explicit(false) constexpr RefPtr(RefPtr<TYValue> const& other) noexcept
         : m_data(other.m_data)
     {
         increment_ref();
@@ -70,18 +70,18 @@ public:
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
-    constexpr RefPtr(RefPtr<TYValue>&& other) noexcept
+    explicit(false) constexpr RefPtr(RefPtr<TYValue>&& other) noexcept
         : m_data(other.release())
     {
     }
 
-    constexpr RefPtr(RefPtr const& other) noexcept
+    explicit(false) constexpr RefPtr(RefPtr const& other) noexcept
         : m_data(other.m_data)
     {
         increment_ref();
     }
 
-    constexpr RefPtr(RefPtr&& other) noexcept
+    explicit(false) constexpr RefPtr(RefPtr&& other) noexcept
         : m_data(other.release())
     {
     }
@@ -188,7 +188,7 @@ public:
     template<IsRefCounted TYValue>
     RefPtr& operator=(Unique<TYValue> const& other) = delete;
 
-    constexpr operator bool() const noexcept
+    explicit(false) constexpr operator bool() const noexcept
     {
         return !is_null();
     }

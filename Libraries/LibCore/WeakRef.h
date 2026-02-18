@@ -12,33 +12,33 @@ class WeakPtr final {
 
 public:
     constexpr WeakPtr() noexcept = default;
-    constexpr WeakPtr(WeakPtr const& other) noexcept
+    explicit(false) constexpr WeakPtr(WeakPtr const& other) noexcept
         : m_data(other.m_data)
     {
     }
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
-    constexpr WeakPtr(WeakPtr<TYValue> const& other) noexcept
+    explicit(false) constexpr WeakPtr(WeakPtr<TYValue> const& other) noexcept
         : m_data(other.m_data)
     {
     }
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
-    constexpr WeakPtr(RefPtr<TYValue> const& other) noexcept
+    explicit(false) constexpr WeakPtr(RefPtr<TYValue> const& other) noexcept
         : m_data(other.data())
     {
     }
 
-    constexpr WeakPtr(WeakPtr&& other) noexcept
+    explicit(false) constexpr WeakPtr(WeakPtr&& other) noexcept
         : m_data(other.release())
     {
     }
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
-    constexpr WeakPtr(WeakPtr<TYValue>&& other) noexcept
+    explicit(false) constexpr WeakPtr(WeakPtr<TYValue>&& other) noexcept
         : m_data(other.release())
     {
     }
@@ -60,7 +60,7 @@ public:
         return m_data == other.m_data;
     }
 
-    constexpr operator bool() const noexcept
+    explicit(false) constexpr operator bool() const noexcept
     {
         return !is_null();
     }
