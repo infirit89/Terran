@@ -1,10 +1,13 @@
 #pragma once
 
 #include <LibCore/DefaultDelete.h>
+#include <LibCore/Unique.h>
 #include <atomic>
 #include <cstddef>
+#include <iostream>
 #include <type_traits>
 #include <utility>
+
 namespace Terran::Core {
 
 class RefCounted {
@@ -40,7 +43,6 @@ class RefPtr final {
 public:
     constexpr RefPtr() noexcept = default;
     constexpr RefPtr(std::nullptr_t) noexcept
-        : m_data(nullptr)
     {
     }
 
@@ -84,6 +86,9 @@ public:
     {
     }
 
+    template<IsRefCounted TYValue>
+    RefPtr(Unique<TYValue> const& other) = delete;
+
     constexpr ~RefPtr()
     {
         reset();
@@ -102,6 +107,18 @@ public:
     [[nodiscard]] constexpr value_type* data() const noexcept
     {
         return m_data;
+    }
+
+    void swap(RefPtr& other) noexcept
+    {
+        std::swap(m_data, other.m_data);
+    }
+
+    template<IsRefCounted TYValue>
+    requires(std::is_convertible_v<TYValue*, TValue*>)
+    void swap(RefPtr<TYValue>& other) noexcept
+    {
+        std::swap(m_data, other.m_data);
     }
 
     constexpr bool operator==(RefPtr const& other) const noexcept
@@ -147,18 +164,17 @@ public:
 
     constexpr RefPtr& operator=(RefPtr&& other) noexcept
     {
-        decrement_ref();
-        m_data = other.m_data;
-        other.m_data = nullptr;
+        // NOTE: this cleans up memory because temp gets destroyed at the end of the scope
+        RefPtr temp { std::move(other) };
+        swap(temp);
         return *this;
     }
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
     constexpr RefPtr& operator=(RefPtr<TYValue>&& other) noexcept
     {
-        decrement_ref();
-        m_data = other.m_data;
-        other.m_data = nullptr;
+        RefPtr temp { std::move(other) };
+        swap(temp);
         return *this;
     }
 
@@ -168,6 +184,9 @@ public:
         increment_ref();
         return *this;
     }
+
+    template<IsRefCounted TYValue>
+    RefPtr& operator=(Unique<TYValue> const& other) = delete;
 
     constexpr operator bool() const noexcept
     {
@@ -202,7 +221,8 @@ private:
         m_data->decrement_count();
 
         if (m_data->ref_count() == 0) {
-            delete m_data;
+            DefaultDelete<TValue> deleter;
+            deleter(m_data);
             m_data = nullptr;
         }
     }
