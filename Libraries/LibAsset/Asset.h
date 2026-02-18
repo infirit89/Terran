@@ -32,7 +32,7 @@ public:
 
     virtual AssetTypeId type() const = 0;
 
-protected:
+private:
     AssetHandle m_handle;
     AssetTypeId m_type_id;
     friend class AssetManager;
