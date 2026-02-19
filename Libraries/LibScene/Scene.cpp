@@ -172,7 +172,7 @@ Entity Scene::duplicate_entity(Entity source_entity, Entity parent)
         m_registry);
 
     if (source_entity.has_component<RelationshipComponent>()) {
-        for (int i = 0; i < source_entity.children_count(); i++) {
+        for (int i = 0; i < source_entity.children().size(); i++) {
             Entity childEntity = source_entity.child_at(i);
             duplicate_entity(childEntity, destination_entity);
         }
@@ -220,7 +220,7 @@ void Scene::update_entity_transform(Entity entity)
         transform_component.Right = glm::normalize(glm::rotate(rotation, glm::vec3(1.0f, 0.0f, 0.0f)));
     }
 
-    for (size_t i = 0; i < entity.children_count(); i++) {
+    for (size_t i = 0; i < entity.children().size(); i++) {
         Entity currEntity = entity.child_at(static_cast<uint32_t>(i));
 
         if (transform_component.IsDirty)

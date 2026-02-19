@@ -128,6 +128,15 @@ TEST_F(SceneTest, destroy_entity_makes_it_invalid)
     ASSERT_FALSE(entity.valid());
 }
 
+TEST_F(SceneTest, destroy_entity_doesnt_erase_from_entity_map_if_entity_wasnt_registered_in_it)
+{
+    Entity entity = m_scene->create_entity("ToDestroy");
+    Entity empty_entity = m_scene->create_empty_entity();
+    ASSERT_FALSE(m_scene->entity_map().empty());
+    m_scene->destrory_entity(empty_entity);
+    ASSERT_FALSE(m_scene->entity_map().empty());
+}
+
 TEST_F(SceneTest, two_entities_have_different_uuids)
 {
     Entity a = m_scene->create_entity("A");
@@ -162,69 +171,6 @@ TEST_F(SceneTest, find_entity_by_nonexistent_name_returns_null_entity)
     ASSERT_FALSE((bool)found);
 }
 
-// TEST_F(SceneTest, set_parent_makes_child_report_correct_parent)
-// {
-//     Entity parent = m_scene->create_entity("Parent");
-//     Entity child = m_scene->create_entity("Child");
-//     child.set_parent(parent);
-//     ASSERT_EQ(child.parent(), parent);
-// }
-//
-// TEST_F(SceneTest, set_parent_adds_child_to_parents_children_list)
-// {
-//     Entity parent = m_scene->create_entity("Parent");
-//     Entity child = m_scene->create_entity("Child");
-//     child.set_parent(parent);
-//     ASSERT_EQ(parent.children_count(), 1u);
-// }
-//
-// TEST_F(SceneTest, child_is_child_of_parent)
-// {
-//     Entity parent = m_scene->create_entity("Parent");
-//     Entity child = m_scene->create_entity("Child");
-//     child.set_parent(parent);
-//     ASSERT_TRUE(child.is_child_of(parent));
-// }
-//
-// TEST_F(SceneTest, unparent_removes_child_from_parent)
-// {
-//     Entity parent = m_scene->create_entity("Parent");
-//     Entity child = m_scene->create_entity("Child");
-//     child.set_parent(parent);
-//     child.unparent();
-//     ASSERT_EQ(parent.children_count(), 0u);
-// }
-//
-// TEST_F(SceneTest, unparent_clears_childs_parent_reference)
-// {
-//     Entity parent = m_scene->create_entity("Parent");
-//     Entity child = m_scene->create_entity("Child");
-//     child.set_parent(parent);
-//     child.unparent();
-//     ASSERT_FALSE(child.has_parent());
-// }
-//
-// TEST_F(SceneTest, set_parent_does_not_create_cycle_when_parent_is_already_child)
-// {
-//     Entity a = m_scene->create_entity("A");
-//     Entity b = m_scene->create_entity("B");
-//     a.set_parent(b);
-//     // Attempting to make b a child of a should be a no-op (cycle guard)
-//     b.set_parent(a);
-//     ASSERT_FALSE(b.is_child_of(a));
-// }
-//
-// TEST_F(SceneTest, reparent_moves_child_to_new_parent)
-// {
-//     Entity parent1 = m_scene->create_entity("Parent1");
-//     Entity parent2 = m_scene->create_entity("Parent2");
-//     Entity child = m_scene->create_entity("Child");
-//     child.set_parent(parent1);
-//     child.reparent(parent2);
-//     ASSERT_TRUE(child.is_child_of(parent2));
-//     ASSERT_EQ(parent1.children_count(), 0u);
-// }
-//
 TEST_F(SceneTest, destroy_parent_also_destroys_children)
 {
     Entity parent = m_scene->create_entity("Parent");
@@ -272,7 +218,7 @@ TEST_F(SceneTest, duplicate_entity_with_children_duplicates_children)
     Entity child = m_scene->create_entity("Child");
     child.set_parent(parent);
     Entity copy = m_scene->duplicate_entity(parent);
-    ASSERT_EQ(copy.children_count(), 1u);
+    ASSERT_EQ(copy.children().size(), 1u);
 }
 
 TEST_F(SceneTest, scene_is_not_playing_by_default)
