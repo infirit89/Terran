@@ -55,14 +55,32 @@ jobs:
         run: |
             /opt/homebrew/opt/llvm/bin/llvm-profdata merge -sparse coverage/*.profraw -o coverage/coverage.profdata
 
-            SOURCE_FILES=$(find Libraries Sandbox -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) | tr '\n' ' ')
-            TEST_BINS=$(find Tests -type f -name "Test.*" -perm +111 | tr '\n' ' ')
+             # Collect all test binaries into an array
+            TEST_BINS=()
+            while IFS= read -r bin; do
+              TEST_BINS+=("$bin")
+            done < <(find Tests -type f -name "Test.*" -perm +111)
 
-            /opt/homebrew/opt/llvm/bin/llvm-cov show $TEST_BINS \
-            --show-branches=count \
-            -instr-profile=coverage/coverage.profdata \
-            --ignore-filename-regex='.*(/usr/|/opt/|/Library/|\.h$)' \
-            > coverage/coverage.txt
+            if [ ${#TEST_BINS[@]} -eq 0 ]; then
+              echo "No test binaries found!"
+              exit 1
+            fi
+
+            # Build -object flags for every binary after the first
+            OBJECT_FLAGS=()
+            for bin in "${TEST_BINS[@]:1}"; do
+              OBJECT_FLAGS+=(-object "$bin")
+            done
+
+            /opt/homebrew/opt/llvm/bin/llvm-cov show "${TEST_BINS[0]}" \
+              "${OBJECT_FLAGS[@]}" \
+              --show-branches=count \
+              -instr-profile=coverage/coverage.profdata \
+              --ignore-filename-regex='.*(/usr/|/opt/|/Library/)' \
+              > coverage/coverage.txt
+
+            # Sanity check — print coverage size so you can see it in logs
+            wc -l coverage/coverage.txt
             
       # ---- MANAGED BUILD ----
       - name: Generate managed solution
