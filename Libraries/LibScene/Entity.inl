@@ -40,7 +40,7 @@ inline void Entity::remove_component()
 }
 
 template<typename Component>
-inline Component& Entity::try_get_component() const
+inline auto Entity::try_get_component() const
 {
     TR_ASSERT(m_handle != entt::null, "Ivalid entity");
 

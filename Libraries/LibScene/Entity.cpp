@@ -2,8 +2,10 @@
 #include "Components.h"
 #include "Scene.h"
 
+#include <LibCore/Result.h>
 #include <LibCore/UUID.h>
 
+#include <algorithm>
 #include <cstdint>
 
 namespace Terran::World {
@@ -39,7 +41,8 @@ Entity Entity::parent() const
 
     return m_scene->find_entity(parent_id());
 }
-void Entity::set_parent(Entity parent)
+
+Core::Result<void, EntityErrors> Entity::set_parent(Entity parent)
 {
     if (!has_component<RelationshipComponent>())
         add_component<RelationshipComponent>();
@@ -48,38 +51,51 @@ void Entity::set_parent(Entity parent)
         parent.add_component<RelationshipComponent>();
 
     if (is_child_of(parent))
-        return;
+        return { EntityErrors::AlreadyAChildOfThisParent };
     if (parent.is_child_of(*this))
-        return;
+        return { EntityErrors::TargetParentIsAlreadyAChildOfThisEntity };
 
     if (has_parent())
         unparent();
 
     auto& relationship_component = get_component<RelationshipComponent>();
     relationship_component.Parent = parent.id();
-    parent.children().emplace_back(id());
+
+    auto& parent_relationship_component = parent.get_component<RelationshipComponent>();
+    parent_relationship_component.Children.emplace_back(id());
 
     m_scene->convert_to_local_space(*this);
+    return {};
 }
-void Entity::unparent()
+Core::Result<void, EntityErrors> Entity::unparent()
 {
-    if (!has_component<RelationshipComponent>())
-        return;
-
-    Core::UUID parentID = get_component<RelationshipComponent>().Parent;
-    Entity parent = m_scene->find_entity(parentID);
+    RelationshipComponent* relationship_component = try_get_component<RelationshipComponent>();
+    if (!relationship_component) {
+        return { EntityErrors::DoesntHaveRelationshipComponent };
+    }
+    Core::UUID parent_id = relationship_component->Parent;
+    Entity parent = m_scene->find_entity(parent_id);
 
     if (!parent)
-        return;
+        return { EntityErrors::ParentNotFound };
 
-    m_scene->convert_to_world_space(*this);
+    RelationshipComponent* parent_relationship_component = parent.try_get_component<RelationshipComponent>();
 
-    if (auto const& iterator = std::ranges::find(parent.children(), id());
-        iterator != parent.children().end()) {
-        parent.children().erase(iterator);
+    if (!parent_relationship_component) {
+        return { EntityErrors::DoesntHaveRelationshipComponent };
     }
 
+    auto& children = parent_relationship_component->Children;
+    auto const& iterator = std::ranges::find(children, id());
+    if (iterator == parent.children().end()) {
+        return { EntityErrors::ParentDoesntContainChild };
+    }
+
+    children.erase(iterator);
     set_parent_id(Core::UUID({ 0 }));
+
+    m_scene->convert_to_world_space(*this);
+    return {};
 }
 
 }

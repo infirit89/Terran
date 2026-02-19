@@ -15,9 +15,9 @@ namespace Terran::World {
 struct TagComponent {
     TagComponent() = default;
 
-    TagComponent(std::string const& name, Terran::Core::UUID const& id)
+    TagComponent(std::string const& name, Core::UUID const& id)
         : Name(name)
-        , ID(id)
+        , Id(id)
     {
     }
 
@@ -27,7 +27,7 @@ struct TagComponent {
     }
 
     std::string Name;
-    Terran::Core::UUID ID;
+    Core::UUID Id;
 };
 
 struct TransformComponent {

@@ -3,7 +3,9 @@
 #include "Components.h"
 
 #include <LibCore/Assert.h>
+#include <LibCore/Result.h>
 #include <LibCore/UUID.h>
+
 #include <entt.hpp>
 
 #pragma warning(push)
@@ -11,12 +13,21 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
 namespace Terran::World {
 
 class Scene;
+
+enum class EntityErrors : uint8_t {
+    AlreadyAChildOfThisParent,
+    DoesntHaveRelationshipComponent,
+    TargetParentIsAlreadyAChildOfThisEntity,
+    ParentNotFound,
+    ParentDoesntContainChild
+};
 
 class Entity final {
 public:
@@ -43,7 +54,7 @@ public:
     void remove_component();
 
     template<typename Component>
-    Component& try_get_component() const;
+    auto try_get_component() const;
 
     template<typename Component>
     bool has_component() const;
@@ -54,9 +65,11 @@ public:
     void visit(Entity entity, Func func) const;
 
     // base stuffs
-    Terran::Core::UUID const& id() const
+    Core::UUID const& id() const
     {
-        return get_component<TagComponent>().ID;
+        return has_component<TagComponent>()
+            ? get_component<TagComponent>().Id
+            : Core::UUID::invalid();
     }
 
     TransformComponent& transform() const
@@ -90,14 +103,11 @@ public:
     bool operator==(Entity const& other) const = default;
 
     // relationship component stuffs
-    std::vector<Terran::Core::UUID>& children() const
+    std::span<Core::UUID> children() const
     {
-        return get_component<RelationshipComponent>().Children;
-    }
-
-    size_t children_count() const
-    {
-        return has_component<RelationshipComponent>() ? get_component<RelationshipComponent>().Children.size() : 0;
+        return has_component<RelationshipComponent>()
+            ? get_component<RelationshipComponent>().Children
+            : std::span<Core::UUID>();
     }
 
     Terran::Core::UUID parent_id() const
@@ -133,9 +143,9 @@ public:
         return parent_id() == entity.id();
     }
 
-    void set_parent(Entity parent);
+    Core::Result<void, EntityErrors> set_parent(Entity parent);
 
-    void unparent();
+    Core::Result<void, EntityErrors> unparent();
 
     void remove_child(Entity child) const
     {
