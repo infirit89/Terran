@@ -106,8 +106,8 @@ void Scene::destrory_entity(Entity entity, bool first)
             destrory_entity(find_entity(child_id), false);
     }
 
-    if (auto entity_iterator = m_entity_map.find(entity.id()); entity_iterator != m_entity_map.end())
-        m_entity_map.erase(entity_iterator);
+    if (m_entity_map.contains(entity.id()))
+        m_entity_map.erase(entity.id());
 
     m_registry.destroy((entt::entity)entity);
 
