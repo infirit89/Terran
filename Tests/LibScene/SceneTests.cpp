@@ -236,6 +236,15 @@ TEST_F(SceneTest, destroy_parent_also_destroys_children)
     ASSERT_FALSE((bool)found_child);
 }
 
+TEST_F(SceneTest, destroy_child_removes_itself_from_parent_children)
+{
+    Entity parent = m_scene->create_entity("Parent");
+    Entity child = m_scene->create_entity("Child");
+    child.set_parent(parent);
+    m_scene->destrory_entity(child);
+    ASSERT_TRUE(parent.children().empty());
+}
+
 TEST_F(SceneTest, duplicate_entity_creates_new_entity)
 {
     Entity original = m_scene->create_entity("Original");
