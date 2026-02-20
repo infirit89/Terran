@@ -1,13 +1,15 @@
 #include "AssetImporterRegistry.h"
 #include "Asset.h"
 #include "AssetImporter.h"
+#include "AssetImporterError.h"
 #include "AssetMetadata.h"
 #include "AssetTypes.h"
-#include "AssetImporterError.h"
 
 #include <LibCore/Base.h>
 #include <LibCore/Log.h>
+#include <LibCore/RefPtr.h>
 
+#include <LibCore/Result.h>
 #include <unordered_map>
 
 namespace Terran::Asset {
@@ -27,6 +29,10 @@ AssetLoadResult AssetImporterRegistry::load(AssetMetadata const& assetMetadata)
 
 bool AssetImporterRegistry::save(AssetMetadata const& assetMetadata, Core::RefPtr<Asset> const& asset)
 {
+    if(assetMetadata.Type != asset->type()) {
+        return false;
+    }
+
     AssetTypeId const type_id = assetMetadata.Type;
     if (s_loaders.contains(type_id))
         return s_loaders[type_id]->save(assetMetadata, asset);
