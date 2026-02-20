@@ -69,10 +69,12 @@ Core::Result<void, EntityErrors> Entity::set_parent(Entity parent)
 }
 Core::Result<void, EntityErrors> Entity::unparent()
 {
-    RelationshipComponent* relationship_component = try_get_component<RelationshipComponent>();
+    RelationshipComponent const* relationship_component = try_get_component<RelationshipComponent>();
+
     if (!relationship_component) {
         return { EntityErrors::DoesntHaveRelationshipComponent };
     }
+
     Core::UUID parent_id = relationship_component->Parent;
     Entity parent = m_scene->find_entity(parent_id);
 
