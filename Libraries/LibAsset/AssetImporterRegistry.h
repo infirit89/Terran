@@ -20,7 +20,7 @@ public:
     requires(
         std::is_base_of_v<Asset, TAsset>,
         HasStaticType<TAsset>)
-    static void register_asset(Terran::Core::Shared<AssetImporter> loader)
+    static void register_asset(Terran::Core::Shared<AssetImporter> const& loader)
     {
         s_loaders[TAsset::static_type()] = loader;
     }
@@ -46,6 +46,10 @@ public:
         }
 
         return nullptr;
+    }
+
+    static void clear() noexcept {
+        s_loaders.clear();
     }
 
 private:
