@@ -58,9 +58,11 @@ public:
     template<typename U>
     constexpr Result(U const& data) noexcept
     requires(std::is_convertible_v<U, TValue>)
-        : m_storage(data)
-        , m_isError(false)
+        : m_isError(false)
     {
+        // NOTE: use placement new to make "data" the "active"
+        // union member to prevent UB
+        new (&m_storage.data) TValue(data);
     }
 
     /**
@@ -73,10 +75,18 @@ public:
     requires(std::is_convertible_v<E, TError>)
         : m_isError(true)
     {
-        m_storage.error = error;
+        // NOTE: use placement new to make "error" the "active"
+        // union memver to prevent UB
+        new (&m_storage.error) TError(error);
     }
 
-    constexpr ~Result() noexcept = default;
+    constexpr ~Result() noexcept {
+        // NOTE: manually call destructors to prevent UB
+        if(m_isError)
+            m_storage.error.~TError();
+        else
+            m_storage.data.~TValue();
+    }
 
     [[nodiscard]] constexpr bool is_ok() const
     {
