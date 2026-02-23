@@ -16,28 +16,26 @@ class AssetManager;
 class Asset : public Core::RefCounted {
 public:
     Asset() = default;
-    virtual ~Asset() override;
-    Asset(AssetHandle const& handle)
-        : m_handle(handle)
+    Asset(AssetId const& handle)
+        : m_id(handle)
     {
     }
 
     bool is_valid()
     {
-        return m_handle.is_valid();
+        return m_id.is_valid();
     }
 
-    AssetHandle const& handle()
+    AssetId const& id()
     {
-        return m_handle;
+        return m_id;
     }
 
     virtual AssetTypeId type() const = 0;
 
 private:
-    AssetHandle m_handle;
+    AssetId m_id;
     AssetTypeId m_type_id;
-    Core::RawPtr<AssetManager> m_asset_manager;
     friend class AssetManager;
 };
 

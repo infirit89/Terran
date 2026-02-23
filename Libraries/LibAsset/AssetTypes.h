@@ -7,7 +7,8 @@
 namespace Terran {
 namespace Asset {
 
-using AssetHandle = Terran::Core::UUID;
+using AssetId = Terran::Core::UUID;
+
 using AssetTypeId = uint64_t;
 constexpr char const* const TR_LOG_ASSET = "Asset";
 

@@ -25,7 +25,7 @@ bool Entity::has_parent() const
 }
 Core::UUID const& Entity::scene_id() const
 {
-    return m_scene->handle();
+    return m_scene->id();
 }
 
 Entity Entity::child_at(uint32_t index) const

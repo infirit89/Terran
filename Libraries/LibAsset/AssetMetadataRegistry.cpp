@@ -14,10 +14,10 @@
 namespace Terran {
 namespace Asset {
 
-std::map<AssetHandle, AssetMetadata> AssetMetadataRegistry::s_asset_metadata;
+std::map<AssetId, AssetMetadata> AssetMetadataRegistry::s_asset_metadata;
 static AssetMetadata s_invalid_asset_info;
 
-AssetMetadata& AssetMetadataRegistry::asset_metadata_by_handle__internal(AssetHandle const& handle)
+AssetMetadata& AssetMetadataRegistry::asset_metadata_by_handle__internal(AssetId const& handle)
 {
     if (s_asset_metadata.contains(handle))
         return s_asset_metadata.at(handle);
@@ -31,7 +31,7 @@ AssetMetadata& AssetMetadataRegistry::asset_metadata_by_handle__internal(AssetHa
 //     return std::filesystem::relative(path, Project::GetAssetPath());
 // }
 
-AssetMetadata const& AssetMetadataRegistry::asset_metadata_by_handle(AssetHandle const& handle)
+AssetMetadata const& AssetMetadataRegistry::asset_metadata_by_handle(AssetId const& handle)
 {
     if (s_asset_metadata.contains(handle))
         return s_asset_metadata.at(handle);
@@ -51,7 +51,7 @@ AssetMetadata const& AssetMetadataRegistry::asset_metadata_by_path(std::filesyst
     return s_invalid_asset_info;
 }
 
-AssetHandle AssetMetadataRegistry::asset_handle_from_path(std::filesystem::path const& assetPath)
+AssetId AssetMetadataRegistry::asset_handle_from_path(std::filesystem::path const& assetPath)
 {
     for (auto const& [handle, asset_metadata] : s_asset_metadata) {
         if (asset_metadata.Path == assetPath)
@@ -59,7 +59,7 @@ AssetHandle AssetMetadataRegistry::asset_handle_from_path(std::filesystem::path 
     }
 
     TR_ERROR(TR_LOG_ASSET, "Failed to find asset handle from path {}", assetPath);
-    return AssetHandle::invalid();
+    return AssetId::invalid();
 }
 
 void AssetMetadataRegistry::serialize_asset_metadata(YAML::Emitter& out)
@@ -69,7 +69,7 @@ void AssetMetadataRegistry::serialize_asset_metadata(YAML::Emitter& out)
 
     for (auto const& [assetID, assetInfo] : s_asset_metadata) {
         out << YAML::BeginMap;
-        out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.Handle);
+        out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.AssetId);
         out << YAML::Key << "Type" << YAML::Value << assetInfo.Type;
         out << YAML::Key << "Path" << YAML::Value << assetInfo.Path.string();
         out << YAML::EndMap;
@@ -88,11 +88,11 @@ void AssetMetadataRegistry::deserialize_asset_metadata(YAML::Node const& node)
             for (auto const& assetInfo : assetInfos) {
                 AssetMetadata info;
 
-                AssetHandle assetHandle = AssetHandle::from_string(assetInfo["Asset"].as<std::string>());
+                AssetId assetHandle = AssetId::from_string(assetInfo["Asset"].as<std::string>());
 
                 info.Type = assetInfo["Type"].as<AssetTypeId>();
                 info.Path = assetInfo["Path"].as<std::string>();
-                info.Handle = assetHandle;
+                info.AssetId = assetHandle;
 
                 if (info.Path.empty())
                     continue;
@@ -128,16 +128,16 @@ void AssetMetadataRegistry::load_asset_metadata_from_file(std::filesystem::path 
     deserialize_asset_metadata(node);
 }
 
-void AssetMetadataRegistry::erase(AssetHandle const& handle) {
+void AssetMetadataRegistry::erase(AssetId const& handle) {
     s_asset_metadata.erase(handle);
 }
 
-bool AssetMetadataRegistry::contains(AssetHandle const& handle) {
+bool AssetMetadataRegistry::contains(AssetId const& handle) {
     return s_asset_metadata.contains(handle);
 }
 
 void AssetMetadataRegistry::add_asset_metadata(const AssetMetadata &metadata) {
-    s_asset_metadata.emplace(metadata.Handle, metadata);
+    s_asset_metadata.emplace(metadata.AssetId, metadata);
 }
 
 }

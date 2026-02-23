@@ -12,12 +12,12 @@ namespace Terran::World {
 
 Core::RefPtr<Scene> SceneManager::create_empty_scene()
 {
-    return m_asset_system->asset_manager()->create_memory_asset<Scene>(event_dispatcher);
+    return m_asset_system->asset_manager()->create_asset<Scene>(event_dispatcher);
 }
 
 Core::RefPtr<Scene> SceneManager::copy_scene(Core::RefPtr<Scene> const& source_scene)
 {
-    Core::RefPtr<Scene> scene = m_asset_system->asset_manager()->create_memory_asset<Scene>(event_dispatcher);
+    Core::RefPtr<Scene> scene = m_asset_system->asset_manager()->create_asset<Scene>(event_dispatcher);
 
     auto tag_view = source_scene->entities_with<TagComponent>();
 
