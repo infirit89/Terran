@@ -8,30 +8,30 @@ namespace Terran::Asset {
 
 class AssetRemovedEvent {
 public:
-    constexpr AssetRemovedEvent(AssetHandle const& handle) noexcept
+    constexpr AssetRemovedEvent(AssetId const& handle) noexcept
         : m_handle(handle)
     {
     }
 
-    [[nodiscard]] constexpr AssetHandle const& handle() const noexcept
+    [[nodiscard]] constexpr AssetId const& handle() const noexcept
     {
         return m_handle;
     }
 
 private:
-    AssetHandle m_handle;
+    AssetId m_handle;
 };
 
 class AssetRenamedEvent {
 public:
-    AssetRenamedEvent(AssetHandle const& handle, std::filesystem::path const& new_file_name, std::filesystem::path const& old_file_name)
+    AssetRenamedEvent(AssetId const& handle, std::filesystem::path const& new_file_name, std::filesystem::path const& old_file_name)
         : m_handle(handle)
         , m_new_file_name(new_file_name)
         , m_old_file_name(old_file_name)
     {
     }
 
-    [[nodiscard]] constexpr AssetHandle const& handle() const noexcept
+    [[nodiscard]] constexpr AssetId const& handle() const noexcept
     {
         return m_handle;
     }
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    AssetHandle m_handle;
+    AssetId m_handle;
     std::filesystem::path m_new_file_name;
     std::filesystem::path m_old_file_name;
 };

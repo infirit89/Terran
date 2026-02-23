@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Scene.h"
+#include "SceneTypes.h"
 
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
 #include <LibCore/Layer.h>
+#include <LibCore/Log.h>
 #include <LibCore/UUID.h>
 #include <LibCore/RefPtr.h>
 
@@ -19,6 +21,7 @@ public:
         : Core::Layer("Scene", dispatcher)
         , m_asset_system(asset_system)
     {
+        Core::Log::add_logger(TR_LOG_SCENE);
     }
 
     Core::RefPtr<Scene> create_empty_scene();

@@ -52,7 +52,7 @@ TEST_F(EntityTest, has_parent_returns_false_when_entity_doesnt_have_relationship
 TEST_F(EntityTest, entity_reports_correct_scene_id)
 {
     Entity entity = m_scene->create_entity("Parent");
-    ASSERT_EQ(entity.scene_id(), m_scene->handle());
+    ASSERT_EQ(entity.scene_id(), m_scene->id());
 }
 
 TEST_F(EntityTest, set_parent_adds_child_to_parents_children_list)

@@ -10,6 +10,7 @@
 #include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
 #include <LibCore/Log.h>
+#include <LibCore/RefPtr.h>
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
 
@@ -33,46 +34,51 @@ AssetManager::~AssetManager()
     TR_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 }
 
-AssetHandle AssetManager::import_asset(std::filesystem::path const& asset_path) const
+Core::RefPtr<AssetHandle> AssetManager::import_asset(std::filesystem::path const& asset_path) const
 {
-    AssetHandle asset_handle = AssetMetadataRegistry::asset_handle_from_path(asset_path);
+    AssetId id = AssetMetadataRegistry::asset_handle_from_path(asset_path);
 
-    if (asset_handle)
-        return asset_handle;
+    if (id) {
+        return create_asset_handle(id);
+    }
 
-    asset_handle = AssetHandle();
+    id = AssetId();
 
-    if (asset_path.empty())
-        return AssetHandle::invalid();
+    if (asset_path.empty()) {
+        TR_ERROR(TR_LOG_ASSET, "Failed to import asset, due to empty asset path!");
+        return nullptr;
+    }
 
     auto const asset_loader = AssetImporterRegistry::find_for_path(asset_path);
-    if (asset_loader)
-        return AssetHandle::invalid();
+    if (asset_loader) {
+        TR_ERROR(TR_LOG_ASSET, "No registered loaders for asset with path {}", asset_path);
+        return nullptr;
+    }
 
     AssetMetadata asset_metadata;
     asset_metadata.Path = asset_path;
     asset_metadata.Type = asset_loader->asset_type();
-    asset_metadata.Handle = asset_handle;
+    asset_metadata.AssetId = id;
 
     AssetMetadataRegistry::add_asset_metadata(asset_metadata);
 
-    return asset_handle;
+    return create_asset_handle(id);
 }
 
-void AssetManager::reload_asset_by_handle(AssetHandle const& handle)
+void AssetManager::reload_asset_by_id(AssetId const& asset_id)
 {
-    AssetMetadata const& metadata = AssetMetadataRegistry::asset_metadata_by_handle(handle);
+    AssetMetadata const& metadata = AssetMetadataRegistry::asset_metadata_by_handle(asset_id);
 
-    if (!m_loaded_assets.contains(handle))
+    if (!m_loaded_assets.contains(asset_id))
         TR_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
 
     AssetLoadResult asset_result = AssetImporterRegistry::load(metadata);
     if (!asset_result) {
-        TR_ERROR(TR_LOG_ASSET, "Failed to load asset with Id: {} and Path: {}", handle, metadata.Handle);
+        TR_ERROR(TR_LOG_ASSET, "Failed to load asset with Id: {} and Path: {}", asset_id, metadata.AssetId);
         return;
     }
 
-    m_loaded_assets[handle] = asset_result.value();
+    m_loaded_assets[asset_id] = asset_result.value();
 }
 
 Core::Result<void, AssetRemoveError> AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately, RemoveAssetMetadata remove_metadata)
@@ -137,7 +143,7 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
                 break;
             }
 
-            reload_asset_by_handle(metadata.Handle);
+            reload_asset_by_id(metadata.AssetId);
 
             break;
         }
@@ -145,7 +151,7 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
     }
 }
 
-void AssetManager::on_asset_removed(AssetHandle const& handle)
+void AssetManager::on_asset_removed(AssetId const& handle)
 {
     remove_asset(handle);
 
@@ -153,7 +159,7 @@ void AssetManager::on_asset_removed(AssetHandle const& handle)
     m_event_dispatcher.trigger(removed_event);
 }
 
-void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::path const& new_file_name)
+void AssetManager::on_asset_renamed(AssetId const& handle, std::filesystem::path const& new_file_name)
 {
     AssetMetadata& metadata = AssetMetadataRegistry::asset_metadata_by_handle__internal(handle);
 
@@ -165,9 +171,23 @@ void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::
     m_event_dispatcher.trigger(renamed_event);
 }
 
-void AssetManager::enqueue_asset_for_deletion(AssetHandle const& handle)
+void AssetManager::enqueue_asset_for_deletion(AssetId const& handle) const
 {
     m_free_queue.emplace_back(handle);
+}
+
+void AssetManager::purge_stale()
+{
+    while (!m_free_queue.empty()) {
+        AssetId const& id = m_free_queue.front();
+        if (m_loaded_assets.contains(id)) {
+            m_loaded_assets.erase(id);
+        } else {
+            TR_ERROR(TR_LOG_ASSET, "Trying to purge an asset {} which is not loaded!", id);
+        }
+
+        m_free_queue.pop_front();
+    }
 }
 
 }
