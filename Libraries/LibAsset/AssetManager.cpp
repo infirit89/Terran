@@ -10,8 +10,8 @@
 #include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
 #include <LibCore/Log.h>
-#include <LibCore/UUID.h>
 #include <LibCore/Result.h>
+#include <LibCore/UUID.h>
 
 #include <filesystem>
 #include <unordered_map>
@@ -23,14 +23,14 @@ AssetManager::AssetManager(Core::EventDispatcher& event_dispatcher)
     : m_event_dispatcher(event_dispatcher)
 {
     m_loaded_assets.clear();
-    TR_CORE_INFO(TR_LOG_ASSET, "Initialized asset manager");
+    TR_INFO(TR_LOG_ASSET, "Initialized asset manager");
 }
 
 AssetManager::~AssetManager()
 {
     m_loaded_assets.clear();
 
-    TR_CORE_INFO(TR_LOG_ASSET, "Shutdown asset manager");
+    TR_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 }
 
 AssetHandle AssetManager::import_asset(std::filesystem::path const& asset_path) const
@@ -64,21 +64,26 @@ void AssetManager::reload_asset_by_handle(AssetHandle const& handle)
     AssetMetadata const& metadata = AssetMetadataRegistry::asset_metadata_by_handle(handle);
 
     if (!m_loaded_assets.contains(handle))
-        TR_CORE_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
+        TR_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
 
     AssetLoadResult asset_result = AssetImporterRegistry::load(metadata);
-    if (!asset_result)
+    if (!asset_result) {
+        TR_ERROR(TR_LOG_ASSET, "Failed to load asset with Id: {} and Path: {}", handle, metadata.Handle);
         return;
+    }
 
     m_loaded_assets[handle] = asset_result.value();
 }
 
 Core::Result<void, AssetRemoveError> AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately, RemoveAssetMetadata remove_metadata)
 {
-    if(!m_loaded_assets.contains(handle))
+    if (!m_loaded_assets.contains(handle)) {
+        TR_ERROR(TR_LOG_ASSET, "Asset with id {} wasn't found!", handle);
         return { AssetRemoveError::AssetNotFound };
+    }
 
     if (remove_metadata == RemoveAssetMetadata::Yes && !AssetMetadataRegistry::contains(handle)) {
+        TR_ERROR(TR_LOG_ASSET, "Asset metadata with id {} wasn't found!", handle);
         return { AssetRemoveError::MetadatNotFound };
     }
 
@@ -127,8 +132,12 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
         case Core::FileAction::Modified: {
             AssetMetadata metadata = AssetMetadataRegistry::asset_metadata_by_path(event.FileName);
 
-            if (metadata)
-                reload_asset_by_handle(metadata.Handle);
+            if (!metadata) {
+                TR_WARN(TR_LOG_ASSET, "Asset metadata wasn't found for asset with path: {}", event.FileName);
+                break;
+            }
+
+            reload_asset_by_handle(metadata.Handle);
 
             break;
         }
@@ -156,7 +165,8 @@ void AssetManager::on_asset_renamed(AssetHandle const& handle, std::filesystem::
     m_event_dispatcher.trigger(renamed_event);
 }
 
-void AssetManager::enqueue_asset_for_deletion(AssetHandle const& handle) {
+void AssetManager::enqueue_asset_for_deletion(AssetHandle const& handle)
+{
     m_free_queue.emplace_back(handle);
 }
 

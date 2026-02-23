@@ -13,6 +13,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <sstream>
 
 namespace Terran::Core {
 
@@ -41,7 +42,7 @@ static spdlog::level::level_enum GetLogLevel(std::string const& logLevel)
     if (logLevel == "off")
         return spdlog::level::level_enum::off;
 
-    TR_CORE_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
+    TR_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
     return spdlog::level::level_enum::trace;
 }
 
@@ -64,7 +65,7 @@ static std::string LogLevelToString(spdlog::level::level_enum logLevel)
         return "trace";
     }
 
-    TR_CORE_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
+    TR_WARN(TR_LOG_CORE, "Invalid log level, defaulting to trace");
     return "trace";
 }
 
@@ -75,7 +76,7 @@ static void load_log_settings()
     try {
         node = YAML::LoadFile(s_SettingsPath.string());
     } catch (YAML::Exception const& e) {
-        TR_CORE_ERROR(TR_LOG_CORE, e.what());
+        TR_ERROR(TR_LOG_CORE, e.what());
         return;
     }
 
@@ -96,7 +97,7 @@ static void load_log_settings()
             index++;
         }
     } catch (YAML::BadSubscript const& e) {
-        TR_CORE_ERROR(TR_LOG_CORE, e.what());
+        TR_ERROR(TR_LOG_CORE, e.what());
         return;
     }
 }

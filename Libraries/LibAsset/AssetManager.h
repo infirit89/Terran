@@ -73,7 +73,7 @@ public:
         AssetLoadResult assetResult = AssetImporterRegistry::load(info);
 
         if (!assetResult) {
-            TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
+            TR_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
             return nullptr;
         }
 
@@ -93,7 +93,7 @@ public:
         AssetLoadResult assetResult = AssetImporterRegistry::load(assetMetadata);
 
         if (!assetResult) {
-            TR_CORE_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetMetadata.Path);
+            TR_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", assetMetadata.Path);
             return nullptr;
         }
 

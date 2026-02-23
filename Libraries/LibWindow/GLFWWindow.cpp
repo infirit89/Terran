@@ -1,26 +1,30 @@
 #include "GLFWWindow.h"
 
-#include "LibCore/Assert.h"
-
-#include "GamepadEvent.h"
 #include "KeyboardEvent.h"
 #include "MouseEvent.h"
 #include "WindowEvent.h"
+#include "Window.h"
+#include "WindowTypes.h"
+#include "MouseButtons.h"
+#include "KeyCodes.h"
+
+#include <LibCore/Assert.h>
 #include <LibCore/Event.h>
-#include <LibWindow/Window.h>
+#include <LibCore/Log.h>
+
+#include <GLFW/glfw3.h>
+
+#include <string_view>
 
 namespace Terran {
 namespace Window {
 namespace Implementation {
 
-static int s_glfw_init_result = glfwInit();
 static GLFWwindow* s_current_window = nullptr;
 
 GLFWWindow::GLFWWindow(Core::EventDispatcher& event_dispatcher, WindowData const& data)
     : Window(event_dispatcher)
 {
-    TR_ASSERT(s_glfw_init_result, "GFLW couldn't initialze!");
-
     init(data);
 }
 GLFWWindow::~GLFWWindow()
@@ -71,16 +75,17 @@ void GLFWWindow::init(WindowData data)
     m_window_data_ptr.video_mode = vidMode;
 
     m_window = glfwCreateWindow(data.Width, data.Height, data.Name.data(), nullptr, nullptr);
-    s_current_window = m_window;
     TR_ASSERT(m_window, "Couldn't create a GLFW window!");
+    s_current_window = m_window;
 
     glfwSetWindowUserPointer(m_window, &m_window_data_ptr);
 
     glfwGetWindowContentScale(m_window, &m_window_data_ptr.scale_x, &m_window_data_ptr.scale_y);
-    TR_CORE_INFO(TR_LOG_CORE, "Created window");
+    TR_INFO(TR_LOG_WINDOW, "Created window {} {}x{}", data.Name, data.Width, data.Height);
 
+    TR_TRACE(TR_LOG_WINDOW, "Setting up window event handlers");
     setup_callbacks();
-    TR_CORE_INFO(TR_LOG_CORE, "Setup window events");
+    TR_INFO(TR_LOG_WINDOW, "Window event handlers successfuly setup");
 
     glfwMakeContextCurrent(m_window);
     set_vsync(data.VSync);
@@ -190,8 +195,7 @@ void GLFWWindow::setup_callbacks()
 void GLFWWindow::destroy()
 {
     glfwDestroyWindow(m_window);
-    glfwTerminate();
-    TR_CORE_INFO(TR_LOG_CORE, "Destroyed window and opengl context");
+    TR_INFO(TR_LOG_WINDOW, "Destroyed window");
 }
 
 }

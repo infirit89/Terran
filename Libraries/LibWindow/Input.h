@@ -4,6 +4,7 @@
 #include "InputState.h"
 #include "KeyCodes.h"
 #include "MouseButtons.h"
+#include "WindowTypes.h"
 
 #include <LibCore/Log.h>
 #include <LibCore/Macros.h>
@@ -109,7 +110,7 @@ private:
         for (auto const& key : InputUtils::Keys)
             m_keyStates.emplace(key, InputState());
 
-        TR_CORE_INFO(TR_LOG_CORE, "Initialized input system");
+        TR_INFO(TR_LOG_WINDOW, "Initialized input system");
     }
 
     key_state_map m_keyStates;

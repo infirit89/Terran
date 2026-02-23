@@ -23,7 +23,7 @@ AssetLoadResult AssetImporterRegistry::load(AssetMetadata const& assetMetadata)
         return s_loaders[type_id]->load(assetMetadata);
     }
 
-    TR_CORE_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetMetadata.Path);
+    TR_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetMetadata.Path);
     return { Core::CreateShared<AssetImporterError>(AssetImporterError::Code::ImporterNotFound) };
 }
 
@@ -37,7 +37,7 @@ bool AssetImporterRegistry::save(AssetMetadata const& assetMetadata, Core::RefPt
     if (s_loaders.contains(type_id))
         return s_loaders[type_id]->save(assetMetadata, asset);
 
-    TR_CORE_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetMetadata.Path);
+    TR_ERROR(TR_LOG_ASSET, "Invalid asset type for asset: {0}", assetMetadata.Path);
     return false;
 }
 

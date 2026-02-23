@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "SceneSerializerError.h"
 #include "SceneManager.h"
+#include "SceneTypes.h"
 
 #include <LibCore/Base.h>
 #include <LibCore/Log.h>
@@ -106,7 +107,6 @@ static YAML::const_iterator find_entity(YAML::Node const& scene, Terran::Core::U
 {
     for (auto it = scene.begin(); it != scene.end(); ++it) {
         auto const& entity = *it;
-        TR_CORE_TRACE(TR_LOG_CORE, entity);
         Terran::Core::UUID id = entity["Entity"].as<Terran::Core::UUID>();
         if (id == entityID)
             return it;
@@ -120,6 +120,7 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
     try {
         Core::UUID id = data["Entity"].as<Core::UUID>();
         if (!id) {
+            TR_ERROR(TR_LOG_SCENE, "Invalid id");
             TR_ASSERT(false, "Invalid id");
             return {};
         }
@@ -160,7 +161,7 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
 
         return deserializedEntity;
     } catch (YAML::InvalidNode const& ex) {
-        TR_CORE_ERROR(TR_LOG_ASSET, ex.what());
+        TR_ERROR(TR_LOG_CORE, ex.what());
         return Entity();
     }
 }
@@ -171,9 +172,10 @@ Asset::AssetLoadResult SceneSerializer::load(Asset::AssetMetadata const& assetMe
     try {
         data = YAML::LoadFile(assetMetadata.Path);
     } catch (YAML::ParserException const& ex) {
+        TR_ERROR(TR_LOG_SCENE, ex.what());
         return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::InvalidFormat, ex.what()) };
     } catch (YAML::BadFile const& ex) {
-        TR_CORE_ERROR(TR_LOG_CORE, ex.what());
+        TR_ERROR(TR_LOG_SCENE, ex.what());
         return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::NotFound, ex.what()) };
     }
 
