@@ -4,7 +4,9 @@
 
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
+#include <LibCore/Log.h>
 
+#include <LibScene/SceneTypes.h>
 #include <algorithm>
 #include <cstdint>
 
@@ -50,10 +52,15 @@ Core::Result<void, EntityErrors> Entity::set_parent(Entity parent)
     if (!parent.has_component<RelationshipComponent>())
         parent.add_component<RelationshipComponent>();
 
-    if (is_child_of(parent))
+    if (is_child_of(parent)) {
+        TR_WARN(TR_LOG_SCENE, "Trying to parent an entity with Id: {} which is already a child of {}", id(), parent.id());
         return { EntityErrors::AlreadyAChildOfThisParent };
-    if (parent.is_child_of(*this))
+    }
+    if (parent.is_child_of(*this)) {
+        // NOTE: this is a terrible error message, couldn't think of a better one right now though
+        TR_WARN(TR_LOG_SCENE, "Trying to parent to an entity {} which is a child of the current entity", parent.id(), id());
         return { EntityErrors::TargetParentIsAlreadyAChildOfThisEntity };
+    }
 
     if (has_parent())
         unparent();
@@ -72,24 +79,29 @@ Core::Result<void, EntityErrors> Entity::unparent()
     RelationshipComponent const* relationship_component = try_get_component<RelationshipComponent>();
 
     if (!relationship_component) {
+        TR_WARN(TR_LOG_SCENE, "Trying to unparent an enity with Id: {} which doesn't have a relationship component", id());
         return { EntityErrors::DoesntHaveRelationshipComponent };
     }
 
     Core::UUID parent_id = relationship_component->Parent;
     Entity parent = m_scene->find_entity(parent_id);
 
-    if (!parent)
+    if (!parent) {
+        TR_WARN(TR_LOG_SCENE, "Failed to find parent {} while trying to unparent", parent_id);
         return { EntityErrors::ParentNotFound };
+    }
 
     RelationshipComponent* parent_relationship_component = parent.try_get_component<RelationshipComponent>();
 
     if (!parent_relationship_component) {
+        TR_WARN(TR_LOG_SCENE, "Parent {} doesn't have relationship component! Failed to unparent", parent_id);
         return { EntityErrors::DoesntHaveRelationshipComponent };
     }
 
     auto& children = parent_relationship_component->Children;
     auto const& iterator = std::ranges::find(children, id());
     if (iterator == parent.children().end()) {
+        TR_WARN(TR_LOG_SCENE, "Parent {} doesn't contain entity: {}! Failed to unparent", parent_id, id());
         return { EntityErrors::ParentDoesntContainChild };
     }
 

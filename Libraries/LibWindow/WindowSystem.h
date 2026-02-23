@@ -37,6 +37,11 @@ public:
         return m_windows.at(id);
     }
 
+    void destroy(Core::UUID const& id)
+    {
+        m_windows.erase(id);
+    }
+
     constexpr ControllerInput const& controllers() const
     {
         return m_controllerInput;

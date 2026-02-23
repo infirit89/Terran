@@ -47,19 +47,19 @@ public:
     static void add_logger(std::string const& logger_name);
 };
 
-#define TR_CORE_TRACE(LoggerName, ...)           \
+#define TR_TRACE(LoggerName, ...)           \
     if (::Terran::Core::Log::contains(LoggerName)) \
     ::Terran::Core::Log::logger(LoggerName)->trace(__VA_ARGS__)
 
-#define TR_CORE_INFO(LoggerName, ...)            \
+#define TR_INFO(LoggerName, ...)            \
     if (::Terran::Core::Log::contains(LoggerName)) \
     ::Terran::Core::Log::logger(LoggerName)->info(__VA_ARGS__)
 
-#define TR_CORE_WARN(LoggerName, ...)            \
+#define TR_WARN(LoggerName, ...)            \
     if (::Terran::Core::Log::contains(LoggerName)) \
     ::Terran::Core::Log::logger(LoggerName)->warn(__VA_ARGS__)
 
-#define TR_CORE_ERROR(LoggerName, ...)           \
+#define TR_ERROR(LoggerName, ...)           \
     if (::Terran::Core::Log::contains(LoggerName)) \
     ::Terran::Core::Log::logger(LoggerName)->error(__VA_ARGS__)
 

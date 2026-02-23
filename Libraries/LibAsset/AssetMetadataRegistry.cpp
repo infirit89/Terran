@@ -22,6 +22,7 @@ AssetMetadata& AssetMetadataRegistry::asset_metadata_by_handle__internal(AssetHa
     if (s_asset_metadata.contains(handle))
         return s_asset_metadata.at(handle);
 
+    TR_ERROR(TR_LOG_ASSET, "Failed to find asset metadata by handle {}", handle);
     return s_invalid_asset_info;
 }
 
@@ -35,6 +36,7 @@ AssetMetadata const& AssetMetadataRegistry::asset_metadata_by_handle(AssetHandle
     if (s_asset_metadata.contains(handle))
         return s_asset_metadata.at(handle);
 
+    TR_ERROR(TR_LOG_ASSET, "Failed to find asset metadata by handle {}", handle);
     return s_invalid_asset_info;
 }
 
@@ -45,6 +47,7 @@ AssetMetadata const& AssetMetadataRegistry::asset_metadata_by_path(std::filesyst
             return asset_metadata;
     }
 
+    TR_ERROR(TR_LOG_ASSET, "Failed to find asset metadata from path {}", assetPath);
     return s_invalid_asset_info;
 }
 
@@ -55,6 +58,7 @@ AssetHandle AssetMetadataRegistry::asset_handle_from_path(std::filesystem::path 
             return handle;
     }
 
+    TR_ERROR(TR_LOG_ASSET, "Failed to find asset handle from path {}", assetPath);
     return AssetHandle::invalid();
 }
 
@@ -97,7 +101,7 @@ void AssetMetadataRegistry::deserialize_asset_metadata(YAML::Node const& node)
             }
         }
     } catch (YAML::BadSubscript const& e) {
-        TR_CORE_ERROR(TR_LOG_ASSET, e.what());
+        TR_ERROR(TR_LOG_ASSET, e.what());
         return;
     }
 }
@@ -117,7 +121,7 @@ void AssetMetadataRegistry::load_asset_metadata_from_file(std::filesystem::path 
     try {
         node = YAML::LoadFile(path.string());
     } catch (YAML::Exception const& e) {
-        TR_CORE_ERROR(TR_LOG_ASSET, e.what());
+        TR_ERROR(TR_LOG_ASSET, e.what());
         return;
     }
 
