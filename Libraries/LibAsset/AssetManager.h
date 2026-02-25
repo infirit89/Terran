@@ -161,6 +161,7 @@ public:
         metadata.AssetId = asset_id;
         metadata.Path = file_path;
         metadata.Type = TAsset::static_type();
+        return metadata;
     }
 
     Core::Result<void, AssetRemoveError> remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately = RemoveAssetImmediately::Yes, RemoveAssetMetadata remove_metadata = RemoveAssetMetadata::Yes);
@@ -179,7 +180,7 @@ private:
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    inline void asset_by_id(AssetId const& id)
+    inline Core::RefPtr<TAsset> asset_by_id(AssetId const& id)
     {
         return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets.at(id));
     }

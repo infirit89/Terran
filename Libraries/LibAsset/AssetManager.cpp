@@ -6,6 +6,7 @@
 #include "AssetMetadata.h"
 #include "AssetMetadataRegistry.h"
 #include "AssetTypes.h"
+#include "AssetHandle.h"
 
 #include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
@@ -50,7 +51,7 @@ Core::RefPtr<AssetHandle> AssetManager::import_asset(std::filesystem::path const
     }
 
     auto const asset_loader = AssetImporterRegistry::find_for_path(asset_path);
-    if (asset_loader) {
+    if (!asset_loader) {
         TR_ERROR(TR_LOG_ASSET, "No registered loaders for asset with path {}", asset_path);
         return nullptr;
     }
@@ -74,7 +75,7 @@ void AssetManager::reload_asset_by_id(AssetId const& asset_id)
 
     AssetLoadResult asset_result = AssetImporterRegistry::load(metadata);
     if (!asset_result) {
-        TR_ERROR(TR_LOG_ASSET, "Failed to load asset with Id: {} and Path: {}", asset_id, metadata.AssetId);
+        TR_ERROR(TR_LOG_ASSET, "Failed to load asset with Id: {} and Path: {}", asset_id, metadata.Path);
         return;
     }
 
