@@ -5,8 +5,8 @@
 #include "SceneEvent.h"
 
 #include <LibCore/Base.h>
-#include <LibCore/UUID.h>
 #include <LibCore/RefPtr.h>
+#include <LibCore/UUID.h>
 
 namespace Terran::World {
 
@@ -22,6 +22,11 @@ Core::RefPtr<Scene> SceneManager::copy_scene(Core::RefPtr<Scene> const& source_s
     auto tag_view = source_scene->entities_with<TagComponent>();
 
     for (auto e : tag_view) {
+        Entity source_entity(e, source_scene.data());
+        scene->create_entity(source_entity.name(), source_entity.id());
+    }
+    for (auto e : tag_view) {
+
         Entity source_entity(e, source_scene.data());
         Entity destination_entity = scene->find_entity(source_entity.id());
 
@@ -44,7 +49,7 @@ Core::RefPtr<Scene> SceneManager::copy_scene(Core::RefPtr<Scene> const& source_s
 
 void SceneManager::set_current_scene(Core::RefPtr<Scene> new_scene)
 {
-    if (!m_current_scene) {
+    if (m_current_scene == new_scene) {
         return;
     }
 

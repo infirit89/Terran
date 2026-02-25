@@ -1,16 +1,16 @@
 #include "SceneSerializer.h"
 #include "Components.h"
 #include "Entity.h"
-#include "SceneSerializerError.h"
 #include "SceneManager.h"
+#include "SceneSerializerError.h"
 #include "SceneTypes.h"
 
 #include <LibCore/Base.h>
 #include <LibCore/Log.h>
+#include <LibCore/RefPtr.h>
 #include <LibCore/Result.h>
 #include <LibCore/SerializerExtensions.h>
 #include <LibCore/UUID.h>
-#include <LibCore/RefPtr.h>
 
 #include <LibAsset/Asset.h>
 #include <LibAsset/AssetImporter.h>
@@ -103,7 +103,7 @@ bool SceneSerializer::save(Asset::AssetMetadata const& assetMetadata, Core::RefP
     return true;
 }
 
-static YAML::const_iterator find_entity(YAML::Node const& scene, Terran::Core::UUID const& entityID)
+static YAML::const_iterator find_entity_node(YAML::Node const& scene, Terran::Core::UUID const& entityID)
 {
     for (auto it = scene.begin(); it != scene.end(); ++it) {
         auto const& entity = *it;
@@ -128,38 +128,42 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
         if (Entity entity = deserializedScene->find_entity(id); entity)
             return entity;
 
-        auto tagComponent = data["TagComponent"];
-        if (!tagComponent) {
+        auto tag_component_node = data["TagComponent"];
+        if (!tag_component_node) {
             TR_ASSERT(false, "Invalid tag component");
             return {};
         }
 
-        std::string name = tagComponent["Tag"].as<std::string>();
-        Entity deserializedEntity = deserializedScene->create_entity(name, id);
+        std::string name = tag_component_node["Tag"].as<std::string>();
+        Entity deserialized_entity = deserializedScene->create_entity(name, id);
 
         if (auto transform_component_node = data["TransformComponent"]; transform_component_node) {
-            auto& transform_component = deserializedEntity.transform();
+            auto& transform_component = deserialized_entity.transform();
             transform_component.Position = transform_component_node["Position"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
             transform_component.Rotation = transform_component_node["Rotation"].as<glm::vec3>(glm::vec3(0.0f, 0.0f, 0.0f));
             transform_component.Scale = transform_component_node["Scale"].as<glm::vec3>(glm::vec3(1.0f, 1.0f, 1.0f));
         }
 
         if (auto relationship_component_node = data["RelationshipComponent"]; relationship_component_node) {
-            deserializedEntity.add_component<RelationshipComponent>();
-            for (auto childID : relationship_component_node["Children"]) {
-                Core::UUID deserializedChildID = childID.as<Core::UUID>();
-                Entity child = deserializedScene->find_entity(deserializedChildID);
+            deserialized_entity.add_component<RelationshipComponent>();
+            for (auto child_id_node : relationship_component_node["Children"]) {
+                Core::UUID deserialized_child_id = child_id_node.as<Core::UUID>();
+                Entity child = deserializedScene->find_entity(deserialized_child_id);
                 if (!child) {
-                    YAML::const_iterator childNode = find_entity(scene, deserializedChildID);
-                    child = deserialize_entity(*childNode, scene, deserializedScene);
+                    YAML::const_iterator child_node = find_entity_node(scene, deserialized_child_id);
+                    if (child_node == scene.end()) {
+                        TR_WARN(TR_LOG_SCENE, "Entity {} references child entity with Id: {} could not be found! Child is skipped!", id, deserialized_child_id);
+                    } else {
+                        child = deserialize_entity(*child_node, scene, deserializedScene);
+                    }
                 }
 
                 if (child)
-                    child.set_parent(deserializedEntity);
+                    child.set_parent(deserialized_entity);
             }
         }
 
-        return deserializedEntity;
+        return deserialized_entity;
     } catch (YAML::InvalidNode const& ex) {
         TR_ERROR(TR_LOG_CORE, ex.what());
         return Entity();
