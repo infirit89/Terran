@@ -58,7 +58,7 @@ Core::Result<void, EntityErrors> Entity::set_parent(Entity parent)
     }
     if (parent.is_child_of(*this)) {
         // NOTE: this is a terrible error message, couldn't think of a better one right now though
-        TR_WARN(TR_LOG_SCENE, "Trying to parent to an entity {} which is a child of the current entity", parent.id(), id());
+        TR_WARN(TR_LOG_SCENE, "Trying to parent to an entity {} which is a child of the current entity with Id: {}", parent.id(), id());
         return { EntityErrors::TargetParentIsAlreadyAChildOfThisEntity };
     }
 
@@ -100,7 +100,7 @@ Core::Result<void, EntityErrors> Entity::unparent()
 
     auto& children = parent_relationship_component->Children;
     auto const& iterator = std::ranges::find(children, id());
-    if (iterator == parent.children().end()) {
+    if (iterator == children.end()) {
         TR_WARN(TR_LOG_SCENE, "Parent {} doesn't contain entity: {}! Failed to unparent", parent_id, id());
         return { EntityErrors::ParentDoesntContainChild };
     }
