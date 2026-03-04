@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <concepts>
 namespace Terran {
 namespace Core {
 
@@ -17,6 +18,12 @@ namespace Core {
 template<typename T>
 struct DefaultDelete {
     constexpr DefaultDelete() noexcept = default;
+
+    constexpr void operator()(T const* value) noexcept
+    {
+        delete value;
+    }
+
     constexpr void operator()(T* value) noexcept
     {
         delete value;
@@ -37,6 +44,13 @@ struct DefaultDelete<T[]> {
     {
         delete[] value;
     }
+};
+
+template<typename T>
+concept IsDefaultDelete = requires(T t, T* ptr, T const* const_ptr) {
+    { t(ptr) } -> std::same_as<void> ;
+    { t(const_ptr) } -> std::same_as<void> ;
+
 };
 
 }

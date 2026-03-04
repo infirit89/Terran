@@ -1,5 +1,6 @@
 #pragma once
 #include "RefPtr.h"
+#include <LibCore/RefCounted.h>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
@@ -14,44 +15,65 @@ public:
     constexpr WeakPtr() noexcept = default;
     explicit(false) constexpr WeakPtr(WeakPtr const& other) noexcept
         : m_data(other.m_data)
+        , m_weak_data(other.m_weak_data)
     {
+        increment_weak_count();
     }
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
     explicit(false) constexpr WeakPtr(WeakPtr<TYValue> const& other) noexcept
         : m_data(other.m_data)
+        , m_weak_data(other.m_weak_data)
     {
+        increment_weak_count();
     }
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
     explicit(false) constexpr WeakPtr(RefPtr<TYValue> const& other) noexcept
         : m_data(other.data())
+        , m_weak_data(other.data() ? other.data()->acquire_weak_data() : nullptr)
     {
     }
 
     explicit(false) constexpr WeakPtr(WeakPtr&& other) noexcept
         : m_data(other.release())
+        , m_weak_data(std::exchange(other.m_weak_data, nullptr))
     {
+        increment_weak_count();
     }
 
     template<IsRefCounted TYValue>
     requires(std::is_convertible_v<TYValue*, TValue*>)
     explicit(false) constexpr WeakPtr(WeakPtr<TYValue>&& other) noexcept
         : m_data(other.release())
+        , m_weak_data(std::exchange(other.m_weak_data, nullptr))
     {
+        increment_weak_count();
     }
 
-    constexpr ~WeakPtr() noexcept = default;
+    constexpr ~WeakPtr() noexcept
+    {
+        decrement_weak_count();
+    }
 
     [[nodiscard]] constexpr value_type* release() noexcept
     {
         return std::exchange(m_data, nullptr);
     }
 
+    [[nodiscard]] constexpr bool expired() const noexcept
+    {
+        return !m_weak_data || !m_weak_data->is_alive();
+    }
+
     [[nodiscard]] constexpr RefPtr<TValue> lock() noexcept
     {
+        if (expired()) {
+            return RefPtr<TValue>(nullptr);
+        }
+
         return RefPtr<TValue>(m_data);
     }
 
@@ -115,7 +137,23 @@ public:
     }
 
 private:
+    void increment_weak_count() const noexcept
+    {
+        if (m_weak_data) {
+            m_weak_data->increment_weak_count();
+        }
+    }
+
+    void decrement_weak_count() const noexcept
+    {
+        if (m_weak_data) {
+            m_weak_data->decrement_weak_count();
+        }
+    }
+
+private:
     value_type* m_data = nullptr;
+    WeakData* m_weak_data = nullptr;
 };
 
 }
