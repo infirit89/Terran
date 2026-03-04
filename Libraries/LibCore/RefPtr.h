@@ -1,39 +1,15 @@
 #pragma once
 
-#include <LibCore/DefaultDelete.h>
-#include <LibCore/Unique.h>
-#include <atomic>
+#include "DefaultDelete.h"
+#include "RefCounted.h"
+#include "Unique.h"
+
 #include <cstddef>
 #include <type_traits>
 #include <utility>
 
 namespace Terran::Core {
 
-class RefCounted {
-public:
-    virtual ~RefCounted() = default;
-
-    void increment_count() const
-    {
-        m_reference_count++;
-    }
-
-    void decrement_count() const
-    {
-        m_reference_count--;
-    }
-
-    size_t ref_count() const
-    {
-        return m_reference_count.load();
-    }
-
-private:
-    mutable std::atomic_size_t m_reference_count = 0;
-};
-
-template<typename T>
-concept IsRefCounted = std::is_base_of_v<RefCounted, T>;
 
 template<IsRefCounted TValue>
 class RefPtr final {
