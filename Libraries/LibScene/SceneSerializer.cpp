@@ -149,17 +149,20 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
             for (auto child_id_node : relationship_component_node["Children"]) {
                 Core::UUID deserialized_child_id = child_id_node.as<Core::UUID>();
                 Entity child = deserializedScene->find_entity(deserialized_child_id);
-                if (!child) {
-                    YAML::const_iterator child_node = find_entity_node(scene, deserialized_child_id);
-                    if (child_node == scene.end()) {
-                        TR_WARN(TR_LOG_SCENE, "Entity {} references child entity with Id: {} could not be found! Child is skipped!", id, deserialized_child_id);
-                    } else {
-                        child = deserialize_entity(*child_node, scene, deserializedScene);
-                    }
+
+                if (child) {
+                    child.set_parent(deserialized_entity);
+                    continue;
                 }
 
-                if (child)
-                    child.set_parent(deserialized_entity);
+                YAML::const_iterator child_node = find_entity_node(scene, deserialized_child_id);
+                if (child_node == scene.end()) {
+                    TR_WARN(TR_LOG_SCENE, "Entity {} references child entity with Id: {} could not be found! Child is skipped!", id, deserialized_child_id);
+                } else {
+                    child = deserialize_entity(*child_node, scene, deserializedScene);
+                }
+
+                child.set_parent(deserialized_entity);
             }
         }
 
