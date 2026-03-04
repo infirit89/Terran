@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Asset.h"
+#include "AssetHandle.h"
 #include "AssetImporter.h"
 #include "AssetImporterRegistry.h"
 #include "AssetMetadata.h"
 #include "AssetMetadataRegistry.h"
 #include "AssetTypes.h"
-#include "AssetHandle.h"
 
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
@@ -55,7 +55,8 @@ public:
     StrongAssetHandle import_asset(std::filesystem::path const& asset_path) const;
 
     void reload_asset_by_id(AssetId const& asset_id);
-    void reload_asset_by_handle(StrongAssetHandle const& asset_handle) {
+    void reload_asset_by_handle(StrongAssetHandle const& asset_handle)
+    {
         reload_asset_by_id(asset_handle->id());
     }
 
@@ -108,8 +109,7 @@ public:
 
     template<typename TAsset, typename... TArgs>
     requires(
-        std::is_base_of_v<Asset, TAsset>,
-        HasStaticType<TAsset>)
+        std::is_base_of_v<Asset, TAsset> && HasStaticType<TAsset>)
     void save_asset(Core::RefPtr<TAsset> asset)
     {
         if (!AssetMetadataRegistry::contains(asset->id())) {
@@ -153,9 +153,8 @@ public:
 
     template<typename TAsset, typename... TArgs>
     requires(
-        std::is_base_of_v<Asset, TAsset>,
-        HasStaticType<TAsset>)
-    AssetMetadata create_asset_metadata(AssetId const& asset_id, std::filesystem::path const& file_path)
+        std::is_base_of_v<Asset, TAsset> && HasStaticType<TAsset>)
+    AssetMetadata create_asset_metadata(AssetId const& asset_id, std::filesystem::path const& file_path) const
     {
         AssetMetadata metadata;
         metadata.AssetId = asset_id;
@@ -166,7 +165,8 @@ public:
 
     Core::Result<void, AssetRemoveError> remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately = RemoveAssetImmediately::Yes, RemoveAssetMetadata remove_metadata = RemoveAssetMetadata::Yes);
 
-    constexpr bool is_asset_loaded(AssetId const& id) const {
+    constexpr bool is_asset_loaded(AssetId const& id) const
+    {
         return m_loaded_assets.contains(id);
     }
 

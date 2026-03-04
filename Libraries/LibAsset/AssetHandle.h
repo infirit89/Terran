@@ -5,6 +5,7 @@
 #include <LibCore/Event.h>
 #include <LibCore/RefPtr.h>
 #include <LibCore/UUID.h>
+#include <LibCore/RefCounted.h>
 #include <LibCore/WeakRef.h>
 
 namespace Terran::Asset {
@@ -20,7 +21,7 @@ public:
     }
 
     bool is_valid() const;
-    constexpr operator bool() const {
+    explicit(false) constexpr operator bool() const {
         return is_valid();
     }
 

@@ -4,6 +4,7 @@
 
 #include <LibCore/Base.h>
 #include <LibCore/Hash.h>
+#include <LibCore/RefCounted.h>
 
 #include <LibCore/RefPtr.h>
 #include <concepts>
@@ -16,7 +17,7 @@ class AssetManager;
 class Asset : public Core::RefCounted {
 public:
     Asset() = default;
-    Asset(AssetId const& handle)
+    explicit Asset(AssetId const& handle)
         : m_id(handle)
     {
     }
@@ -26,7 +27,7 @@ public:
         return m_id.is_valid();
     }
 
-    AssetId const& id()
+    AssetId const& id() const
     {
         return m_id;
     }
@@ -35,7 +36,6 @@ public:
 
 private:
     AssetId m_id;
-    AssetTypeId m_type_id;
     friend class AssetManager;
 };
 
