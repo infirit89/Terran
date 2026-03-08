@@ -24,6 +24,14 @@ jobs:
       - name: Check compiler version
         run: clang++ --version
 
+      - name: Install Vulkan SDK
+        # using direct commit because the fix from this commit hasn't come out as an official version
+        # once install-vulkan-sdk@v1.3 comes out, this can be changed
+        uses: humbletim/install-vulkan-sdk@0ef43dbc8af56d77bcb1e8b1ebbbaa8718ead524
+        with:
+         version: 1.4.309.0
+         cache: true
+
       # Cache premake + shaderc to avoid re-downloading
       - name: Cache premake and shaderc
         uses: actions/cache@v4
