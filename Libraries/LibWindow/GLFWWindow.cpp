@@ -59,11 +59,12 @@ void GLFWWindow::init(WindowData data)
     m_window_data_ptr.height = data.Height;
     m_window_data_ptr.event_dispatcher = &event_dispatcher;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    if (data.Debug)
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // if (data.Debug)
+    //     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
     if (data.Maximized)
         glfwWindowHint(GLFW_MAXIMIZED, 1);
@@ -87,8 +88,8 @@ void GLFWWindow::init(WindowData data)
     setup_callbacks();
     TR_INFO(TR_LOG_WINDOW, "Window event handlers successfuly setup");
 
-    glfwMakeContextCurrent(m_window);
-    set_vsync(data.VSync);
+    // glfwMakeContextCurrent(m_window);
+    // set_vsync(data.VSync);
 }
 
 void GLFWWindow::setup_callbacks()

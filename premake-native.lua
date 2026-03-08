@@ -40,6 +40,7 @@ include "TerranEngine"
 
 group "Graphics"
 include "Libraries/LibWindow"
+include "Libraries/LibGraphics"
 
 group "Tools"
 -- NOTE: removing the terran editor during the rework as it will cause

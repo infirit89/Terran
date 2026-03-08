@@ -25,6 +25,7 @@ externalincludedirs {
     "%{IncludeDirectories.optick}",
     "%{Dependencies.yaml.include}",
     "%{wks.location}/TerranEditor/vendor/FontAwesome",
+    "%{VULKAN_SDK}/Include",
 }
 
 links {
@@ -33,6 +34,7 @@ links {
     "LibWindow",
     "LibScene",
     "LibAsset",
+    "LibGraphics",
 }
 
 defines {
@@ -63,7 +65,7 @@ architecture "ARM64"
 
 libdirs {
     "/usr/local/lib",
-    -- "%{VULKAN_SDK}/lib",
+    "%{VULKAN_SDK}/lib",
     -- "%{wks.location}/TerranEngine/vendor/shaderc/lib"
 }
 
@@ -82,6 +84,7 @@ links {
     "Coral.Native",
     "msdfgen",
     "freetype",
+    "vulkan",
     -- "shaderc_shared",
 }
 

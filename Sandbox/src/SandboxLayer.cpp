@@ -9,6 +9,7 @@
 #include <LibCore/Layer.h>
 #include <LibCore/UUID.h>
 
+#include <LibGraphics/RendererContext.h>
 #include <LibMain/Application.h>
 #include <LibScene/Scene.h>
 #include <LibScene/SceneSerializer.h>
@@ -50,9 +51,9 @@ SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terr
 
     Core::UUID windowId = m_windowSystem->create(windowData);
     auto const& window = m_windowSystem->window(windowId);
+    m_renderer_context = new Terran::Graphics::RendererContext("Test app", window);
 
     event_dispatcher.handlers<Terran::Window::WindowCloseEvent>().connect<&SandboxLayer::on_window_close>(this);
-
 }
 
 Core::Result<void> SandboxLayer::on_attach()
@@ -62,11 +63,13 @@ Core::Result<void> SandboxLayer::on_attach()
 
 Core::Result<void> SandboxLayer::on_dettach()
 {
+    delete m_renderer_context;
     return {};
 }
 
 void SandboxLayer::update(Terran::Core::Time& time)
 {
+    m_renderer_context->DrawFrame();
 }
 
 void SandboxLayer::imgui_render()
@@ -77,6 +80,16 @@ void SandboxLayer::imgui_render()
 void SandboxLayer::on_window_close(Terran::Window::WindowCloseEvent& event)
 {
     Terran::Main::Application::get()->close();
+}
+void SandboxLayer::on_window_resize(Terran::Window::WindowResizeEvent& event)
+{
+    m_renderer_context->Resize(event.GetWidth(), event.GetHeight());
+}
+
+Terran::Core::Result<void> SandboxLayer::on_shutdown()
+{
+    m_renderer_context->GetLogicalDevice()->WaitIdle();
+    return {};
 }
 
 }

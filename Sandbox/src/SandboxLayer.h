@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LibGraphics/RendererContext.h"
 #include "Transform.h"
 
 #include <LibCore/Base.h>
@@ -24,7 +25,9 @@ public:
 
     // void on_event(Terran::Core::Event& event) override;
     void on_window_close(Terran::Window::WindowCloseEvent& event);
+    void on_window_resize(Terran::Window::WindowResizeEvent& event);
     void imgui_render() override;
+    Terran::Core::Result<void> on_shutdown();
 
 private:
     Transform m_CameraTransform;
@@ -33,6 +36,7 @@ private:
     float m_ZoomLevel = 0.1f;
     glm::vec2 m_ViewportSize = { 1080.0f, 790.0f };
     Terran::Core::RawPtr<Terran::Window::WindowSystem> m_windowSystem;
+    Terran::Graphics::RendererContext* m_renderer_context;
 };
 
 }

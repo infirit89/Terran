@@ -18,12 +18,14 @@ Dependencies = {
     entt = {
         include = "%{wks.location}/vendor/entt/include",
     },
+    stb = {
+        include = "%{wks.location}/vendor/stb/",
+    },
 }
 IncludeDirectories = {}
 
 IncludeDirectories["imgui"] = "%{wks.location}/TerranEngine/vendor/ImGui/"
 IncludeDirectories["glad"] = "%{wks.location}/TerranEngine/vendor/GLAD/include/"
-IncludeDirectories["stb"] = "%{wks.location}/TerranEngine/vendor/stb/"
 IncludeDirectories["msdfgen"] = "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/msdfgen/"
 IncludeDirectories["msdf_atlas_gen"] = "%{wks.location}/TerranEngine/vendor/msdf-atlas-gen/"
 IncludeDirectories["box2d"] = "%{wks.location}/TerranEngine/vendor/Box2D/include/"

@@ -4,6 +4,7 @@
 #include <LibMain/Application.h>
 #include <LibWindow/WindowSystem.h>
 
+#include <functional>
 #include <span>
 #include <string_view>
 
@@ -18,6 +19,8 @@ public:
         TR_ASSERT(windowSystemRes.is_ok(), "Failed to start the window system");
         layer_stack().push<SandboxLayer>(
             layer_stack().get<Terran::Window::WindowSystem>());
+
+        push_shutdown_hook(std::bind_front(&SandboxLayer::on_shutdown, layer_stack().get<SandboxLayer>()));
     }
 
     virtual ~SandboxApp() override = default;

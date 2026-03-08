@@ -1,0 +1,5 @@
+Loggers:
+  - Core:
+      Level: trace
+  - Client:
+      Level: trace
