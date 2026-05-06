@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 #include <LibCore/Unique.h>
+#include <LibGraphics/Texture.h>
 #include <LibWindow/Window.h>
 
 // #define GLFW_EXPOSE_NATIVE_WIN32
@@ -1110,7 +1111,10 @@ void RendererContext::CreateTexture()
 
     VkDeviceSize imageSize = width * height * 4;
 
-    m_test_texture = new Texture(m_LogicalDevice, imageData, width, height, channels);
+    auto test_texture_specification = TextureSpecification()
+        .set_size(width, height)
+        .set_channels(channels);
+    m_test_texture = new Texture(m_LogicalDevice, test_texture_specification, imageData);
 
     stbi_image_free(imageData);
 }

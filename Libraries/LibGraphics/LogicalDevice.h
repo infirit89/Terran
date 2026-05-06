@@ -3,6 +3,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "CommandBuffer.h"
+#include "Texture.h"
 
 namespace Terran::Graphics {
 
@@ -20,6 +21,10 @@ public:
     void QueueSubmit(VkQueue queue, uint32_t submitCount, VkSubmitInfo* submitInfos, VkFence fence);
     void QueueWaitIdle(VkQueue queue);
     void SubmitImmediateCommands(CommandBuffer const& commandBuffer, VkQueue queue);
+
+    Texture* create_texture(const TextureSpecification& specification, void* data){
+        return new Texture(this, specification, data);
+    }
 
 private:
     LogicalDevice(VkDevice device, PhysicalDevice* physicalDevice);

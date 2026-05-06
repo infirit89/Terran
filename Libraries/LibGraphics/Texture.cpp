@@ -3,14 +3,16 @@
 #include "Image.h"
 #include "LogicalDevice.h"
 #include "RendererContext.h"
+#include "CommandBuffer.h"
+#include "Sampler.h"
 
 #include <cstring>
 
 namespace Terran::Graphics {
 
-Texture::Texture(LogicalDevice* logical_device, void* texture_data, int width,
-    int height, int channels)
-    : m_texture_size(width * height * 4)
+Texture::Texture(LogicalDevice* logical_device,
+    TextureSpecification const& specification, void* texture_data)
+    : m_texture_size(specification.Width * specification.Height * specification.Channels)
     , m_logical_device(logical_device)
 {
     GPUBuffer stagingBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, m_texture_size,
@@ -21,8 +23,8 @@ Texture::Texture(LogicalDevice* logical_device, void* texture_data, int width,
     stagingBuffer.UnmapMemory();
 
     ImageCreateInfo imageCreateInfo;
-    imageCreateInfo.Width = width;
-    imageCreateInfo.Height = height;
+    imageCreateInfo.Width = specification.Width;
+    imageCreateInfo.Height = specification.Height;
     imageCreateInfo.Format = VK_FORMAT_R8G8B8A8_SRGB;
     imageCreateInfo.Tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.Usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -36,8 +38,8 @@ Texture::Texture(LogicalDevice* logical_device, void* texture_data, int width,
     transferCommandBuffer.Begin(CommandBufferUsage::OneTimeSubmit);
     transferCommandBuffer.TransitionLayout(m_image,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    transferCommandBuffer.CopyBufferToImage(&stagingBuffer, m_image, width,
-        height);
+    transferCommandBuffer.CopyBufferToImage(
+        &stagingBuffer, m_image, specification.Width, specification.Height);
     transferCommandBuffer.End();
 
     logicalDevice->SubmitImmediateCommands(transferCommandBuffer,
@@ -53,12 +55,12 @@ Texture::Texture(LogicalDevice* logical_device, void* texture_data, int width,
         logicalDevice->GetGraphicsQueue());
 
     SamplerCreateInfo samplerCreateInfo {
-        .MagFilter = TextureFilter::Nearest,
-        .MinFilter = TextureFilter::Nearest,
-        .MipmapFilter = TextureFilter::Nearest,
-        .AddressModeU = TextureAddressMode::Repeat,
-        .AddressModeV = TextureAddressMode::Repeat,
-        .AnisotropyEnable = true,
+        .MagFilter = specification.MagnificationFilter,
+        .MinFilter = specification.MinificationFilter,
+        .MipmapFilter = specification.MipmapFilter,
+        .AddressModeU = specification.AddressModeU,
+        .AddressModeV = specification.AddressModeV,
+        .AnisotropyEnable = specification.UseAnisotropy,
     };
 
     m_sampler = new Sampler(samplerCreateInfo);
