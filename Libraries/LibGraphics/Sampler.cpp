@@ -8,7 +8,7 @@ namespace {
 
 }
 
-Sampler::Sampler(SamplerCreateInfo const& createInfo)
+Sampler::Sampler(SamplerSpecification const& createInfo)
 {
     Create(createInfo);
 }
@@ -19,16 +19,16 @@ Sampler::~Sampler()
     vkDestroySampler(logicalDevice->GetVulkanDevice(), m_Sampler, nullptr);
 }
 
-void Sampler::Create(SamplerCreateInfo const& createInfo)
+void Sampler::Create(SamplerSpecification const& createInfo)
 {
     VkSamplerCreateInfo samplerCreateInfo {};
     samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerCreateInfo.magFilter = static_cast<VkFilter>(createInfo.MagFilter);
-    samplerCreateInfo.minFilter = static_cast<VkFilter>(createInfo.MinFilter);
+    samplerCreateInfo.magFilter = static_cast<VkFilter>(createInfo.MagnificationFilter);
+    samplerCreateInfo.minFilter = static_cast<VkFilter>(createInfo.MinificationFilter);
     samplerCreateInfo.mipmapMode = static_cast<VkSamplerMipmapMode>(createInfo.MipmapFilter);
     samplerCreateInfo.addressModeU = static_cast<VkSamplerAddressMode>(createInfo.AddressModeU);
     samplerCreateInfo.addressModeV = static_cast<VkSamplerAddressMode>(createInfo.AddressModeV);
-    samplerCreateInfo.anisotropyEnable = createInfo.AnisotropyEnable;
+    samplerCreateInfo.anisotropyEnable = createInfo.UseAnisotropy;
 
     LogicalDevice* logicalDevice = RendererContext::GetLogicalDevice();
     PhysicalDevice* physicalDevice = logicalDevice->GetPhysicalDevice();

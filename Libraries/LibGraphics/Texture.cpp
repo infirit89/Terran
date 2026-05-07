@@ -54,16 +54,15 @@ Texture::Texture(LogicalDevice* logical_device,
     logicalDevice->SubmitImmediateCommands(graphicsCommandBuffer,
         logicalDevice->GetGraphicsQueue());
 
-    SamplerCreateInfo samplerCreateInfo {
-        .MagFilter = specification.MagnificationFilter,
-        .MinFilter = specification.MinificationFilter,
-        .MipmapFilter = specification.MipmapFilter,
-        .AddressModeU = specification.AddressModeU,
-        .AddressModeV = specification.AddressModeV,
-        .AnisotropyEnable = specification.UseAnisotropy,
-    };
+    auto sampler_specification = SamplerSpecification()
+        .set_magnification_filter(specification.MagnificationFilter)
+        .set_minification_filter(specification.MinificationFilter)
+        .set_mipmap_filter(specification.MipmapFilter)
+        .set_address_mode_u(specification.AddressModeU)
+        .set_address_mode_v(specification.AddressModeV)
+        .set_anisotropy(specification.UseAnisotropy);
 
-    m_sampler = new Sampler(samplerCreateInfo);
+    m_sampler = new Sampler(sampler_specification);
 }
 Texture::~Texture()
 {
