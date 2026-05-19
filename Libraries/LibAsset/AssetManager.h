@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Asset.h"
-#include "AssetHandle.h"
 #include "AssetImporter.h"
 #include "AssetImporterRegistry.h"
 #include "AssetMetadata.h"
@@ -11,11 +10,15 @@
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
+#include <LibCore/Layer.h>
 #include <LibCore/Log.h>
 #include <LibCore/RefPtr.h>
 #include <LibCore/Result.h>
+#include <LibCore/Time.h>
 #include <LibCore/UUID.h>
+#include <LibCore/WeakRef.h>
 
+#include <chrono>
 #include <cstdint>
 #include <deque>
 #include <filesystem>
@@ -28,6 +31,8 @@
 
 namespace Terran::Asset {
 
+using SteadyClock = std::chrono::steady_clock;
+using TimePoint = SteadyClock::time_point;
 enum class RemoveAssetMetadata : uint8_t {
     No = 0,
     Yes = 1
@@ -43,33 +48,34 @@ enum class AssetRemoveError : uint8_t {
     MetadatNotFound
 };
 
-class AssetManager final {
+struct CacheEntry {
+    Core::WeakPtr<Asset> data;
+    TimePoint last_accessed_time;
+};
+
+class AssetManager final : public Core::Layer {
     using AssetChangeCallbackFn = std::function<void(std::vector<Core::FileSystemChangeEvent> const&)>;
-    using asset_container_type = std::unordered_map<AssetId, Core::RefPtr<Asset>>;
+    using asset_container_type = std::unordered_map<AssetId, CacheEntry>;
     using free_queue_type = std::deque<AssetId>;
 
 public:
     AssetManager(Core::EventDispatcher& event_dispatcher);
     ~AssetManager();
 
-    StrongAssetHandle import_asset(std::filesystem::path const& asset_path) const;
+    AssetId import_asset(std::filesystem::path const& asset_path) const;
 
     void reload_asset_by_id(AssetId const& asset_id);
-    void reload_asset_by_handle(StrongAssetHandle const& asset_handle)
-    {
-        reload_asset_by_id(asset_handle->id());
-    }
 
     void SetAssetChangedCallback(AssetChangeCallbackFn const& callback) { m_asset_change_callback = callback; }
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    Core::RefPtr<TAsset> asset_by_handle(StrongAssetHandle const& asset_handle)
+    Core::RefPtr<TAsset> asset_by_id(AssetId const& id)
     {
-        if (m_loaded_assets.contains(asset_handle->id()))
-            return asset_by_id<TAsset>(asset_handle->id());
+        if (m_loaded_assets.contains(id))
+            return asset_by_id<TAsset>(id);
 
-        AssetMetadata& info = AssetMetadataRegistry::asset_metadata_by_handle__internal(asset_handle->id());
+        AssetMetadata& info = AssetMetadataRegistry::asset_metadata_by_handle__internal(id);
 
         if (!info)
             return nullptr;
@@ -82,8 +88,8 @@ public:
         }
 
         Core::RefPtr<Asset> const& asset = assetResult.value();
-        asset->m_id = asset_handle->id();
-        m_loaded_assets[asset_handle->id()] = asset;
+        asset->m_id = id;
+        m_loaded_assets[id] = { .data = asset, .last_accessed_time = SteadyClock::now() };
         return Core::dynamic_pointer_cast<TAsset>(asset);
     }
 
@@ -103,7 +109,7 @@ public:
 
         Core::RefPtr<Asset> const& asset = asset_result.value();
         asset->m_id = asset_metadata.AssetId;
-        m_loaded_assets[asset_metadata.AssetId] = asset;
+        m_loaded_assets[asset_metadata.AssetId] = { .data = asset, .last_accessed_time = SteadyClock::now() };
         return Core::dynamic_pointer_cast<TAsset>(asset);
     }
 
@@ -137,10 +143,10 @@ public:
     // NOTE: maybe we should take in a parameter that signifies
     // whether to create metadata for this asset
     // something like create_memory_asset(CreateAssetMetadata::Yes)
-    StrongAssetHandle add_asset(Core::RefPtr<Asset> const& asset)
+    AssetId add_asset(Core::RefPtr<Asset> const& asset)
     {
-        m_loaded_assets[asset->id()] = asset;
-        return create_asset_handle(asset->id());
+        m_loaded_assets[asset->id()] = { .data = asset, .last_accessed_time = SteadyClock::now() };
+        return asset->id();
     }
 
     template<typename TAsset, typename... TArgs>
@@ -170,7 +176,13 @@ public:
         return m_loaded_assets.contains(id);
     }
 
+    virtual void update(Core::Time& time) override {
+        purge_stale();
+        gc_sweep();
+    }
+
     void purge_stale();
+    void gc_sweep();
 
 private:
     void on_filesystem_changed(std::vector<Core::FileSystemChangeEvent> const& file_system_events);
@@ -180,20 +192,18 @@ private:
 
     template<typename TAsset>
     requires(std::is_base_of_v<Asset, TAsset>)
-    inline Core::RefPtr<TAsset> asset_by_id(AssetId const& id)
+    inline Core::RefPtr<TAsset> loaded_asset_by_id(AssetId const& id)
     {
-        return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets.at(id));
-    }
-
-    inline StrongAssetHandle create_asset_handle(AssetId const& asset_id) const
-    {
-        return StrongAssetHandle::create(asset_id, this);
+        return Core::dynamic_pointer_cast<TAsset>(m_loaded_assets.at(id).data.lock());
     }
 
 private:
     asset_container_type m_loaded_assets;
     AssetChangeCallbackFn m_asset_change_callback;
-    Core::EventDispatcher& m_event_dispatcher;
+
+    // TODO: make this a configurable setting
+    static constexpr uint32_t m_last_accessed_threshold = 30;
+
     // NOTE: this needs to be a multithreaded queue, either with or without a lock!!!
     // This works for now because the engine is not multithreaded
     // Will cause a bunch of problems if not changed and the engine goes multithreaded!!!

@@ -6,15 +6,16 @@
 #include "AssetMetadata.h"
 #include "AssetMetadataRegistry.h"
 #include "AssetTypes.h"
-#include "AssetHandle.h"
 
 #include <LibCore/Event.h>
 #include <LibCore/FileUtils.h>
+#include <LibCore/Layer.h>
 #include <LibCore/Log.h>
 #include <LibCore/RefPtr.h>
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
 
+#include <chrono>
 #include <filesystem>
 #include <unordered_map>
 #include <vector>
@@ -22,8 +23,9 @@
 namespace Terran::Asset {
 
 AssetManager::AssetManager(Core::EventDispatcher& event_dispatcher)
-    : m_event_dispatcher(event_dispatcher)
+    : Core::Layer("Asset", event_dispatcher)
 {
+    Core::Log::add_logger(TR_LOG_ASSET);
     m_loaded_assets.clear();
     TR_INFO(TR_LOG_ASSET, "Initialized asset manager");
 }
@@ -35,25 +37,25 @@ AssetManager::~AssetManager()
     TR_INFO(TR_LOG_ASSET, "Shutdown asset manager");
 }
 
-Core::RefPtr<AssetHandle> AssetManager::import_asset(std::filesystem::path const& asset_path) const
+AssetId AssetManager::import_asset(std::filesystem::path const& asset_path) const
 {
     AssetId id = AssetMetadataRegistry::asset_handle_from_path(asset_path);
 
     if (id) {
-        return create_asset_handle(id);
+        return id;
     }
 
     id = AssetId();
 
     if (asset_path.empty()) {
         TR_ERROR(TR_LOG_ASSET, "Failed to import asset, due to empty asset path!");
-        return nullptr;
+        return AssetId::invalid();
     }
 
     auto const asset_loader = AssetImporterRegistry::find_for_path(asset_path);
     if (!asset_loader) {
         TR_ERROR(TR_LOG_ASSET, "No registered loaders for asset with path {}", asset_path);
-        return nullptr;
+        return AssetId::invalid();
     }
 
     AssetMetadata asset_metadata;
@@ -63,7 +65,7 @@ Core::RefPtr<AssetHandle> AssetManager::import_asset(std::filesystem::path const
 
     AssetMetadataRegistry::add_asset_metadata(asset_metadata);
 
-    return create_asset_handle(id);
+    return id;
 }
 
 void AssetManager::reload_asset_by_id(AssetId const& asset_id)
@@ -79,7 +81,7 @@ void AssetManager::reload_asset_by_id(AssetId const& asset_id)
         return;
     }
 
-    m_loaded_assets[asset_id] = asset_result.value();
+    m_loaded_assets[asset_id] = { .data = asset_result.value(), .last_accessed_time = SteadyClock::now() };
 }
 
 Core::Result<void, AssetRemoveError> AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately, RemoveAssetMetadata remove_metadata)
@@ -157,7 +159,7 @@ void AssetManager::on_asset_removed(AssetId const& handle)
     remove_asset(handle);
 
     AssetRemovedEvent removed_event(handle);
-    m_event_dispatcher.trigger(removed_event);
+    event_dispatcher.trigger(removed_event);
 }
 
 void AssetManager::on_asset_renamed(AssetId const& handle, std::filesystem::path const& new_file_name)
@@ -169,7 +171,7 @@ void AssetManager::on_asset_renamed(AssetId const& handle, std::filesystem::path
     if (metadata)
         metadata.Path = new_file_name;
 
-    m_event_dispatcher.trigger(renamed_event);
+    event_dispatcher.trigger(renamed_event);
 }
 
 void AssetManager::enqueue_asset_for_deletion(AssetId const& handle) const
@@ -188,6 +190,22 @@ void AssetManager::purge_stale()
         }
 
         m_free_queue.pop_front();
+    }
+}
+
+void AssetManager::gc_sweep()
+{
+    auto now = SteadyClock::now();
+    for(auto it = m_loaded_assets.begin(); it != m_loaded_assets.end(); ) {
+        bool expired = it->second.data.expired();
+        bool stale = (now - it->second.last_accessed_time) > std::chrono::seconds(m_last_accessed_threshold);
+
+        if(expired && stale) {
+            m_loaded_assets.erase(it);
+        }
+        else {
+            it++;
+        }
     }
 }
 

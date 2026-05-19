@@ -10,14 +10,14 @@
 #include <LibCore/UUID.h>
 #include <LibCore/RefPtr.h>
 
-#include <LibAsset/AssetSystem.h>
+#include <LibAsset/AssetManager.h>
 
 namespace Terran::World {
 
 class SceneManager final : public Core::Layer {
 
 public:
-    SceneManager(Core::EventDispatcher& dispatcher, Core::RawPtr<Asset::AssetSystem> asset_system)
+    SceneManager(Core::EventDispatcher& dispatcher, Core::RawPtr<Asset::AssetManager> asset_system)
         : Core::Layer("Scene", dispatcher)
         , m_asset_system(asset_system)
     {
@@ -41,7 +41,7 @@ public:
 
 private:
     Core::RefPtr<Scene> m_current_scene;
-    Core::RawPtr<Asset::AssetSystem> m_asset_system;
+    Core::RawPtr<Asset::AssetManager> m_asset_system;
 };
 
 }

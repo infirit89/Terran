@@ -47,6 +47,11 @@
 |---|---|---|---|
 | load | `AssetLoadResult` | `AssetMetadata` | Tries to load an asset, if successful the result will contain the loaded asset, if unsuccessful the result will contain an AssetError |
 | save | `bool` | `AssetMetadata`, `Core::RefPtr<Asset>` | Tries to save an asset if unssucessful returns false |
+| can_handle | `bool` | `filesystem::path` | Returns true if the importer can handle the specific file
+| asset_type | `AssetTypeId` | None | Returns the asset type which the importer can handle |
+
+
+
 
 ## Notes
 
