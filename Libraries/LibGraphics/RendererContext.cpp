@@ -1114,7 +1114,7 @@ void RendererContext::CreateTexture()
     auto test_texture_specification = TextureSpecification()
         .set_size(width, height)
         .set_channels(channels);
-    m_test_texture = new Texture(m_LogicalDevice, test_texture_specification, imageData);
+    m_test_texture = m_LogicalDevice->create_texture(test_texture_specification, imageData);
 
     stbi_image_free(imageData);
 }

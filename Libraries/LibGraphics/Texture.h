@@ -79,9 +79,6 @@ public:
 class Texture {
 
 public:
-    Texture(LogicalDevice* logical_device,
-        TextureSpecification const& specification,
-        void* data);
     ~Texture();
 
     Image const* GetImage() const { return m_image; }
@@ -89,10 +86,17 @@ public:
     Sampler const* GetSampler() const { return m_sampler; }
 
 private:
+    Texture(LogicalDevice* logical_device,
+        TextureSpecification const& specification,
+        void* data);
+
+private:
     LogicalDevice* m_logical_device;
     Image* m_image;
     Sampler* m_sampler;
     size_t m_texture_size;
+
+    friend class LogicalDevice;
 };
 
 }

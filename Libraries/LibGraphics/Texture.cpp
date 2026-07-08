@@ -1,9 +1,9 @@
 #include "Texture.h"
+#include "CommandBuffer.h"
 #include "GPUBuffer.h"
 #include "Image.h"
 #include "LogicalDevice.h"
 #include "RendererContext.h"
-#include "CommandBuffer.h"
 #include "Sampler.h"
 
 #include <cstring>
@@ -55,19 +55,20 @@ Texture::Texture(LogicalDevice* logical_device,
         logicalDevice->GetGraphicsQueue());
 
     auto sampler_specification = SamplerSpecification()
-        .set_magnification_filter(specification.MagnificationFilter)
-        .set_minification_filter(specification.MinificationFilter)
-        .set_mipmap_filter(specification.MipmapFilter)
-        .set_address_mode_u(specification.AddressModeU)
-        .set_address_mode_v(specification.AddressModeV)
-        .set_anisotropy(specification.UseAnisotropy);
+                                     .set_magnification_filter(specification.MagnificationFilter)
+                                     .set_minification_filter(specification.MinificationFilter)
+                                     .set_mipmap_filter(specification.MipmapFilter)
+                                     .set_address_mode_u(specification.AddressModeU)
+                                     .set_address_mode_v(specification.AddressModeV)
+                                     .set_anisotropy(specification.UseAnisotropy);
 
     m_sampler = new Sampler(sampler_specification);
 }
+
 Texture::~Texture()
 {
     delete m_sampler;
     delete m_image;
 }
 
-} // namespace LearningVulkan
+}

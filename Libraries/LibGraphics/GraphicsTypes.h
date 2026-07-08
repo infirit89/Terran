@@ -15,4 +15,9 @@ enum class Format : uint8_t {
     D24S8,
 };
 
+enum class ImageTiling : uint8_t {
+    Optimal,
+    Linear
+};
+
 }
