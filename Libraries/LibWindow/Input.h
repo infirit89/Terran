@@ -110,7 +110,7 @@ private:
         for (auto const& key : InputUtils::Keys)
             m_keyStates.emplace(key, InputState());
 
-        TR_INFO(TR_LOG_WINDOW, "Initialized input system");
+        TR_INFO(WINDOW_SYSTEM, "Initialized input system");
     }
 
     key_state_map m_keyStates;

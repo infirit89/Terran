@@ -1,3 +1,7 @@
 #pragma once
 
-constexpr char const* const TR_LOG_SCENE = "Scene";
+namespace Terran::World {
+
+constexpr char const* const SCENE_SYSTEM = "Scene";
+
+}

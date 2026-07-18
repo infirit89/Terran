@@ -81,11 +81,11 @@ void GLFWWindow::init(WindowData data)
     glfwSetWindowUserPointer(m_window, &m_window_data_ptr);
 
     glfwGetWindowContentScale(m_window, &m_window_data_ptr.scale_x, &m_window_data_ptr.scale_y);
-    TR_INFO(TR_LOG_WINDOW, "Created window {} {}x{}", data.Name, data.Width, data.Height);
+    TR_INFO(WINDOW_SYSTEM, "Created window {} {}x{}", data.Name, data.Width, data.Height);
 
-    TR_TRACE(TR_LOG_WINDOW, "Setting up window event handlers");
+    TR_TRACE(WINDOW_SYSTEM, "Setting up window event handlers");
     setup_callbacks();
-    TR_INFO(TR_LOG_WINDOW, "Window event handlers successfuly setup");
+    TR_INFO(WINDOW_SYSTEM, "Window event handlers successfuly setup");
 
     glfwMakeContextCurrent(m_window);
     set_vsync(data.VSync);
@@ -195,7 +195,7 @@ void GLFWWindow::setup_callbacks()
 void GLFWWindow::destroy()
 {
     glfwDestroyWindow(m_window);
-    TR_INFO(TR_LOG_WINDOW, "Destroyed window");
+    TR_INFO(WINDOW_SYSTEM, "Destroyed window");
 }
 
 }
