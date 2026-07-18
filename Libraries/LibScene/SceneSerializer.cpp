@@ -120,7 +120,7 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
     try {
         Core::UUID id = data["Entity"].as<Core::UUID>();
         if (!id) {
-            TR_ERROR(TR_LOG_SCENE, "Invalid id");
+            TR_ERROR(SCENE_SYSTEM, "Invalid id");
             TR_ASSERT(false, "Invalid id");
             return {};
         }
@@ -157,7 +157,7 @@ static Entity deserialize_entity(YAML::Node const& data, YAML::Node const& scene
 
                 YAML::const_iterator child_node = find_entity_node(scene, deserialized_child_id);
                 if (child_node == scene.end()) {
-                    TR_WARN(TR_LOG_SCENE, "Entity {} references child entity with Id: {} could not be found! Child is skipped!", id, deserialized_child_id);
+                    TR_WARN(SCENE_SYSTEM, "Entity {} references child entity with Id: {} could not be found! Child is skipped!", id, deserialized_child_id);
                 } else {
                     child = deserialize_entity(*child_node, scene, deserializedScene);
                 }
@@ -179,10 +179,10 @@ Asset::AssetLoadResult SceneSerializer::load(Asset::AssetMetadata const& assetMe
     try {
         data = YAML::LoadFile(assetMetadata.Path);
     } catch (YAML::ParserException const& ex) {
-        TR_ERROR(TR_LOG_SCENE, ex.what());
+        TR_ERROR(SCENE_SYSTEM, ex.what());
         return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::InvalidFormat, ex.what()) };
     } catch (YAML::BadFile const& ex) {
-        TR_ERROR(TR_LOG_SCENE, ex.what());
+        TR_ERROR(SCENE_SYSTEM, ex.what());
         return { Core::CreateShared<SceneSerializerError>(SceneSerializerError::Code::NotFound, ex.what()) };
     }
 

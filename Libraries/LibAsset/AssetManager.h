@@ -24,7 +24,6 @@
 #include <filesystem>
 #include <format>
 #include <functional>
-#include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
@@ -83,7 +82,7 @@ public:
         AssetLoadResult assetResult = AssetImporterRegistry::load(info);
 
         if (!assetResult) {
-            TR_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", info.Path);
+            TR_ERROR(ASSET_SYSTEM, "Failed to load asset with path: {0}", info.Path);
             return nullptr;
         }
 
@@ -103,7 +102,7 @@ public:
         AssetLoadResult asset_result = AssetImporterRegistry::load(asset_metadata);
 
         if (!asset_result) {
-            TR_ERROR(TR_LOG_ASSET, "Failed to load asset with path: {0}", asset_metadata.Path);
+            TR_ERROR(ASSET_SYSTEM, "Failed to load asset with path: {0}", asset_metadata.Path);
             return nullptr;
         }
 
@@ -119,7 +118,7 @@ public:
     void save_asset(Core::RefPtr<TAsset> asset)
     {
         if (!AssetMetadataRegistry::contains(asset->id())) {
-            TR_ERROR(TR_LOG_ASSET, "Failed to save asset {} as there is no metadata associated with it", asset->id());
+            TR_ERROR(ASSET_SYSTEM, "Failed to save asset {} as there is no metadata associated with it", asset->id());
             return;
         }
         AssetMetadata& metadata = AssetMetadataRegistry::asset_metadata_by_handle__internal(asset->id());

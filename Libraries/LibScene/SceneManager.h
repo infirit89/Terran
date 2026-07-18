@@ -21,7 +21,6 @@ public:
         : Core::Layer("Scene", dispatcher)
         , m_asset_system(asset_system)
     {
-        Core::Log::add_logger(TR_LOG_SCENE);
     }
 
     Core::RefPtr<Scene> create_empty_scene();

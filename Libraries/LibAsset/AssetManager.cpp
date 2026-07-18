@@ -25,16 +25,15 @@ namespace Terran::Asset {
 AssetManager::AssetManager(Core::EventDispatcher& event_dispatcher)
     : Core::Layer("Asset", event_dispatcher)
 {
-    Core::Log::add_logger(TR_LOG_ASSET);
     m_loaded_assets.clear();
-    TR_INFO(TR_LOG_ASSET, "Initialized asset manager");
+    TR_INFO(ASSET_SYSTEM, "Initialized asset manager");
 }
 
 AssetManager::~AssetManager()
 {
     m_loaded_assets.clear();
 
-    TR_INFO(TR_LOG_ASSET, "Shutdown asset manager");
+    TR_INFO(ASSET_SYSTEM, "Shutdown asset manager");
 }
 
 AssetId AssetManager::import_asset(std::filesystem::path const& asset_path) const
@@ -48,13 +47,13 @@ AssetId AssetManager::import_asset(std::filesystem::path const& asset_path) cons
     id = AssetId();
 
     if (asset_path.empty()) {
-        TR_ERROR(TR_LOG_ASSET, "Failed to import asset, due to empty asset path!");
+        TR_ERROR(ASSET_SYSTEM, "Failed to import asset, due to empty asset path!");
         return AssetId::invalid();
     }
 
     auto const asset_loader = AssetImporterRegistry::find_for_path(asset_path);
     if (!asset_loader) {
-        TR_ERROR(TR_LOG_ASSET, "No registered loaders for asset with path {}", asset_path);
+        TR_ERROR(ASSET_SYSTEM, "No registered loaders for asset with path {}", asset_path);
         return AssetId::invalid();
     }
 
@@ -73,11 +72,11 @@ void AssetManager::reload_asset_by_id(AssetId const& asset_id)
     AssetMetadata const& metadata = AssetMetadataRegistry::asset_metadata_by_handle(asset_id);
 
     if (!m_loaded_assets.contains(asset_id))
-        TR_WARN(TR_LOG_ASSET, "Trying to reload an asset that was never loaded");
+        TR_WARN(ASSET_SYSTEM, "Trying to reload an asset that was never loaded");
 
     AssetLoadResult asset_result = AssetImporterRegistry::load(metadata);
     if (!asset_result) {
-        TR_ERROR(TR_LOG_ASSET, "Failed to load asset with Id: {} and Path: {}", asset_id, metadata.Path);
+        TR_ERROR(ASSET_SYSTEM, "Failed to load asset with Id: {} and Path: {}", asset_id, metadata.Path);
         return;
     }
 
@@ -87,12 +86,12 @@ void AssetManager::reload_asset_by_id(AssetId const& asset_id)
 Core::Result<void, AssetRemoveError> AssetManager::remove_asset(Core::UUID const& handle, RemoveAssetImmediately remove_immediately, RemoveAssetMetadata remove_metadata)
 {
     if (!m_loaded_assets.contains(handle)) {
-        TR_ERROR(TR_LOG_ASSET, "Asset with id {} wasn't found!", handle);
+        TR_ERROR(ASSET_SYSTEM, "Asset with id {} wasn't found!", handle);
         return { AssetRemoveError::AssetNotFound };
     }
 
     if (remove_metadata == RemoveAssetMetadata::Yes && !AssetMetadataRegistry::contains(handle)) {
-        TR_ERROR(TR_LOG_ASSET, "Asset metadata with id {} wasn't found!", handle);
+        TR_ERROR(ASSET_SYSTEM, "Asset metadata with id {} wasn't found!", handle);
         return { AssetRemoveError::MetadatNotFound };
     }
 
@@ -142,7 +141,7 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
             AssetMetadata metadata = AssetMetadataRegistry::asset_metadata_by_path(event.FileName);
 
             if (!metadata) {
-                TR_WARN(TR_LOG_ASSET, "Asset metadata wasn't found for asset with path: {}", event.FileName);
+                TR_WARN(ASSET_SYSTEM, "Asset metadata wasn't found for asset with path: {}", event.FileName);
                 break;
             }
 
@@ -186,7 +185,7 @@ void AssetManager::purge_stale()
         if (m_loaded_assets.contains(id)) {
             m_loaded_assets.erase(id);
         } else {
-            TR_ERROR(TR_LOG_ASSET, "Trying to purge an asset {} which is not loaded!", id);
+            TR_ERROR(ASSET_SYSTEM, "Trying to purge an asset {} which is not loaded!", id);
         }
 
         m_free_queue.pop_front();

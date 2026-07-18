@@ -6,11 +6,13 @@
 #pragma once
 
 #include "Event.h"
+#include "Log.h"
 #include "Macros.h"
 #include "Result.h"
 #include "Time.h"
 
 #include <string_view>
+#include <string>
 
 namespace Terran::Core {
 
@@ -61,9 +63,12 @@ public:
     }
 
 protected:
-    constexpr Layer(std::string_view name, EventDispatcher& dispatcher) noexcept
+    constexpr Layer(std::string_view name, EventDispatcher& dispatcher, bool add_logger = true) noexcept
         : m_name(name), event_dispatcher(dispatcher)
     {
+        if(add_logger) {
+            Core::Log::add_logger(std::string(name));
+        }
     }
 
     EventDispatcher& event_dispatcher;

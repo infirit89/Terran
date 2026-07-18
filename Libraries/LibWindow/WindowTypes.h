@@ -1,3 +1,7 @@
 #pragma once
 
-constexpr char const* const TR_LOG_WINDOW = "Window";
+namespace Terran::Window {
+
+constexpr char const* const WINDOW_SYSTEM = "Window";
+
+}

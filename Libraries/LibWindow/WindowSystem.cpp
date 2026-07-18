@@ -23,7 +23,6 @@ WindowSystem::WindowSystem(Core::EventDispatcher& dispatcher)
     : Core::Layer("WindowLayer", dispatcher)
 {
     s_event_dispatcher = &dispatcher;
-    Core::Log::add_logger(TR_LOG_WINDOW);
 }
 
 WindowSystem::~WindowSystem()
@@ -32,29 +31,29 @@ WindowSystem::~WindowSystem()
 
 static void window_error_callback(int error, char const* description)
 {
-    TR_ERROR(TR_LOG_WINDOW, "{}: {}", error, description);
+    TR_ERROR(WINDOW_SYSTEM, "{}: {}", error, description);
 }
 Core::Result<void> WindowSystem::on_attach()
 {
     // we want hats and buttons to be queried using different functions
     // without this querying a joystick buttons' state will also give us
     // its hats' state
-    TR_TRACE(TR_LOG_WINDOW, "Intializing GLFW...");
+    TR_TRACE(WINDOW_SYSTEM, "Intializing GLFW...");
     glfwSetErrorCallback(window_error_callback);
     glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
     if (glfwInit() != GLFW_TRUE) {
         char const* error_description;
         int error_code = glfwGetError(&error_description);
         if (error_description) {
-            TR_ERROR(TR_LOG_WINDOW, "Couldn't initialize GLFW! {}: {}", error_code, error_description);
+            TR_ERROR(WINDOW_SYSTEM, "Couldn't initialize GLFW! {}: {}", error_code, error_description);
         } else {
-            TR_ERROR(TR_LOG_WINDOW, "Couldn't initialize GLFW! {}", error_code);
+            TR_ERROR(WINDOW_SYSTEM, "Couldn't initialize GLFW! {}", error_code);
         }
         return Core::Bad();
     }
 
     m_controllerInput.initialize();
-    TR_INFO(TR_LOG_WINDOW, "GLFW successfuly initialized!");
+    TR_INFO(WINDOW_SYSTEM, "GLFW successfuly initialized!");
 
     // maybe not the greatest solution???
     // for now though i still want the users to be able to access the controller input through the WindowSystem
@@ -81,9 +80,9 @@ Core::Result<void> WindowSystem::on_dettach()
     // thus there is no need to conditionally run it
     m_windows.clear();
 
-    TR_TRACE(TR_LOG_WINDOW, "Terminating GLFW...");
+    TR_TRACE(WINDOW_SYSTEM, "Terminating GLFW...");
     glfwTerminate();
-    TR_INFO(TR_LOG_WINDOW, "GLFW successfuly terminated!");
+    TR_INFO(WINDOW_SYSTEM, "GLFW successfuly terminated!");
     return {};
 }
 
