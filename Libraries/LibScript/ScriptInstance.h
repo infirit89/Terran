@@ -20,7 +20,7 @@ class FieldInfo;
 
 }
 
-namespace TerranEngine {
+namespace Terran::Script {
 
 struct ScriptField final {
     ScriptFieldType Type = ScriptFieldType::None;

@@ -44,4 +44,4 @@ if __name__ == "__main__":
     from SetupShaderc import ShadercSetup
 
     PremakeSetup.setup(premake_version=args.premake_version)
-    ShadercSetup.setup()
+    #ShadercSetup.setup()

@@ -26,12 +26,12 @@
 [submodule "TerranEngine/vendor/ImGui"]
 	path = TerranEngine/vendor/ImGui
 	url = https://github.com/OKAY808/imgui
-[submodule "TerranEngine/vendor/Coral"]
-	path = TerranEngine/vendor/Coral
-	url = https://github.com/infirit89/Coral
 [submodule "vendor/premake-vscode"]
 	path = vendor/premake-vscode
 	url = https://github.com/peter1745/premake-vscode
 [submodule "vendor/gtest"]
 	path = vendor/gtest
 	url = https://github.com/infirit89/googletest.git
+[submodule "vendor/Coral"]
+	path = vendor/Coral
+	url = https://github.com/infirit89/Coral

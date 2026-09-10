@@ -29,13 +29,14 @@ include "TerranEngine/vendor/Box2D"
 -- include "TerranEngine/vendor/Optick" Think about replacing with Tracy
 include "vendor/yaml-cpp"
 include "vendor/gtest/googletest"
-include "TerranEngine/vendor/Coral/Coral.Native"
+include "vendor/Coral/Coral.Native"
 
 group "Core"
 include "Libraries/LibMain"
 include "Libraries/LibCore"
 include "Libraries/LibAsset"
 include "Libraries/LibScene"
+include "Libraries/LibScript"
 include "TerranEngine"
 
 group "Graphics"

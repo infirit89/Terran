@@ -18,6 +18,9 @@ Dependencies = {
     entt = {
         include = "%{wks.location}/vendor/entt/include",
     },
+    coral = {
+        include = "%{wks.location}/vendor/Coral/Coral.Native/Include",
+    },
 }
 IncludeDirectories = {}
 
@@ -32,7 +35,6 @@ IncludeDirectories["yaml"] = "%{wks.location}/TerranEngine/vendor/yaml-cpp/inclu
 IncludeDirectories["imguizmo"] = "%{wks.location}/TerranEditor/vendor/ImGuizmo/"
 IncludeDirectories["shaderc"] = "%{VULKAN_SDK}/include/"
 -- IncludeDirectories["shaderc"] = "%{wks.location}/TerranEngine/vendor/shaderc/include/"
-IncludeDirectories["coral"] = "%{wks.location}/TerranEngine/vendor/Coral/Coral.Native/Include/"
 
 ExternalLibraries = {}
 ExternalLibraries["optick"] = "%{wks.location}/TerranEngine/vendor/Optick/bin/%{outputdir}/OptickCore.dll"
