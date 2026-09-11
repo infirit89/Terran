@@ -1,15 +1,14 @@
 #pragma once
 
-#include "LibCore/UUID.h"
-#include "Scene/Entity.h"
+#include <LibCore/UUID.h>
+#include <LibScene/Entity.h>
 
 #include <glm/glm.hpp>
 
 #include <cstdint>
 #include <string>
 
-namespace TerranEngine {
-namespace Utils {
+namespace Terran::Utils {
 
 class Variant final {
 public:
@@ -62,7 +61,7 @@ public:
     Variant(glm::vec4 const& vec4);
 
     Variant(Terran::Core::UUID const& id);
-    Variant(Entity entity);
+    Variant(Terran::World::Entity entity);
 
     Variant(char* data, Type const& type);
 
@@ -118,5 +117,4 @@ private:
     Type m_Type = Type::None;
 };
 
-}
 }

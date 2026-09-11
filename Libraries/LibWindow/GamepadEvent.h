@@ -1,5 +1,4 @@
 #pragma once
-#include <LibCore/Event.h>
 
 #include <cstdint>
 

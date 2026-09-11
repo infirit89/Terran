@@ -2,51 +2,74 @@
 
 #include "ScriptInstance.h"
 
-#include "LibCore/Base.h"
-#include "LibCore/UUID.h"
+#include <LibCore/Base.h>
+#include <LibCore/Event.h>
+#include <LibCore/Layer.h>
+#include <LibCore/UUID.h>
 
-#include "Scene/Scene.h"
+#include <LibScene/Entity.h>
+#include <LibScene/Scene.h>
 
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <unordered_map>
 
-namespace TerranEngine {
+#include <Coral/GC.hpp>
+#include <Coral/HostInstance.hpp>
+#include <Coral/TypeCache.hpp>
+
+namespace Terran::Script {
 
 #define TR_CORE_ASSEMBLY_INDEX 0
 #define TR_APP_ASSEMBLY_INDEX 1
 #define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
 
-class ScriptEngine final {
+class ScriptEngine final : public Terran::Core::Layer {
 public:
+    using script_instance_container_type = std::unordered_map<Core::UUID, std::unordered_map<Core::UUID, Core::Shared<ScriptInstance>>>;
+
     using ScriptTypeFilterFn = std::function<bool()>;
-    static void Initialize(std::filesystem::path const& scriptCoreAssemblyPath);
-    static void Shutdown();
+    ScriptEngine(Core::EventDispatcher& event_dispatcher, std::filesystem::path const& scriptCoreAssemblyPath);
+    virtual ~ScriptEngine() override;
 
-    static void ReloadAppAssembly();
+    void ReloadAppAssembly();
 
-    static Terran::Core::Shared<ScriptInstance> GetScriptInstance(Entity entity);
-    static Terran::Core::Shared<ScriptInstance> GetScriptInstance(Terran::Core::UUID const& sceneID, Terran::Core::UUID const& entityID);
-    static Terran::Core::Shared<ScriptInstance> CreateScriptInstance(Entity entity);
-    static void DestroyScriptInstance(Entity entity);
+    Core::Shared<ScriptInstance> GetScriptInstance(World::Entity entity);
+    Core::Shared<ScriptInstance> GetScriptInstance(Core::UUID const& sceneID, Core::UUID const& entityID);
+    Core::Shared<ScriptInstance> CreateScriptInstance(World::Entity entity);
+    void DestroyScriptInstance(World::Entity entity);
 
-    static void OnStart(Entity entity);
-    static void OnUpdate(Entity entity, float deltaTime);
+    void OnStart(World::Entity entity);
+    void OnUpdate(World::Entity entity, float deltaTime);
 
-    static void OnPhysicsBeginContact(Entity collider, Entity collidee);
-    static void OnPhysicsEndContact(Entity collider, Entity collidee);
-    static void OnPhysicsUpdate(Entity entity);
+    // static void OnPhysicsBeginContact(Entity collider, Entity collidee);
+    // static void OnPhysicsEndContact(Entity collider, Entity collidee);
+    // static void OnPhysicsUpdate(Entity entity);
 
-    static void const* CreateEntityInstance(Terran::Core::UUID const& id);
-    static int32_t GetEntityIDFieldHandle();
+    void const* CreateEntityInstance(Core::UUID const& id);
+    int32_t GetEntityIDFieldHandle();
 
-    static void const* CreateComponentInstance(int32_t componentTypeId, Terran::Core::UUID const& entityId);
+    void const* CreateComponentInstance(int32_t componentTypeId, Core::UUID const& entityId);
 
-    static bool LoadAppAssembly();
+    bool LoadAppAssembly();
 
 private:
-    static bool LoadCoreAssembly();
-    static void InitializeTypeConverters();
+    bool LoadCoreAssembly();
+    void InitializeTypeConverters();
+
+private:
+    Coral::HostInstance HostInstance;
+    Coral::AssemblyLoadContext LoadContext;
+    std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> Assemblies;
+
+    std::string CoralDirectory = "Resources/Scripts";
+    int32_t EntityIDFieldHandle = 0;
+
+    script_instance_container_type ScriptInstanceMap;
+    std::filesystem::path ScriptCoreAssemblyPath;
+    std::unordered_map<Coral::TypeId, ScriptFieldType> TypeConverters;
+    std::unordered_map<std::string, Coral::Type> ScriptTypeMap;
 
     friend class ScriptBindings;
 };

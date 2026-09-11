@@ -19,4 +19,6 @@ public:
     static Coral::Type const* SerializeFieldType;
 };
 
+constexpr char const* const SCRIPT_SYSTEM = "Script";
+
 }

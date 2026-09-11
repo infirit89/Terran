@@ -23,6 +23,7 @@ externalincludedirs {
     "%{Dependencies.spdlog.include}",
     "%{Dependencies.glm.include}",
     "%{Dependencies.yaml.include}",
+    "%{Dependencies.entt.include}",
     "%{Dependencies.coral.include}",
 }
 

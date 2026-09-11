@@ -1,7 +1,7 @@
-#include "trpch.h"
-
 #include "ScriptInstance.h"
 
+#include <LibCore/Log.h>
+#include <LibScript/ScriptTypes.h>
 #include <ranges>
 
 #include "ScriptEngine.h"
@@ -13,7 +13,7 @@
 #include <Coral/String.hpp>
 #include <Coral/Type.hpp>
 
-namespace TerranEngine {
+namespace Terran::Script {
 
 ScriptInstance::ScriptInstance(Coral::Type const& type, Terran::Core::UUID const& id)
 {
@@ -21,15 +21,15 @@ ScriptInstance::ScriptInstance(Coral::Type const& type, Terran::Core::UUID const
 
     m_OnInitMethodHandle = type.GetMethod("Init").GetHandle();
     m_OnUpdateMethodHandle = type.GetMethod<float>("Update").GetHandle();
-    m_OnPhysicsUpdateMethodHandle = type.GetMethod("PhysicsUpdate").GetHandle();
-    m_OnCollisionBeginMethodHandle = type.GetMethod("Void OnCollisionBegin(Entity)").GetHandle();
-    m_OnCollisionEndMethodHandle = type.GetMethod("Void OnCollisionEnd(Entity)").GetHandle();
+    // m_OnPhysicsUpdateMethodHandle = type.GetMethod("PhysicsUpdate").GetHandle();
+    // m_OnCollisionBeginMethodHandle = type.GetMethod("Void OnCollisionBegin(Entity)").GetHandle();
+    // m_OnCollisionEndMethodHandle = type.GetMethod("Void OnCollisionEnd(Entity)").GetHandle();
 }
 
 ScriptInstance::~ScriptInstance()
 {
     Coral::ManagedObject object = m_Context;
-    TR_CORE_TRACE(TR_LOG_SCRIPT, "destroying script instance");
+    TR_TRACE(SCRIPT_SYSTEM, "destroying script instance");
     for (auto const& [fieldHandle, value] : m_FieldObjects) {
         ScriptField const& field = GetScriptField(fieldHandle);
         if (field.IsArray) {
@@ -164,7 +164,7 @@ void ScriptInstance::SetFieldValue<Utils::Variant>(int32_t fieldHandle, Utils::V
 template<>
 std::string ScriptInstance::GetFieldValue<std::string>(int32_t fieldHandle) const
 {
-    TR_PROFILE_FUNCTION();
+    // TR_PROFILE_FUNCTION();
     Coral::String string;
     GetFieldValueInternal(fieldHandle, &string);
     std::string result = string;
@@ -175,7 +175,7 @@ std::string ScriptInstance::GetFieldValue<std::string>(int32_t fieldHandle) cons
 template<>
 Terran::Core::UUID ScriptInstance::GetFieldValue<Terran::Core::UUID>(int32_t fieldHandle) const
 {
-    TR_PROFILE_FUNCTION();
+    // TR_PROFILE_FUNCTION();
     Coral::ManagedObject object = m_Context;
     auto it = m_FieldObjects.find(fieldHandle);
     Coral::ManagedObject entityObject;
@@ -189,7 +189,7 @@ Terran::Core::UUID ScriptInstance::GetFieldValue<Terran::Core::UUID>(int32_t fie
     } else
         entityObject = it->second.Handle;
 
-    Terran::Core::UUID id = Terran::Core::UUID::Invalid();
+    Terran::Core::UUID id = Terran::Core::UUID::invalid();
     entityObject.GetFieldValueByHandleRaw(ScriptEngine::GetEntityIDFieldHandle(), &id);
     return id;
 }
@@ -331,7 +331,7 @@ std::string ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t
 template<>
 Terran::Core::UUID ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t const* indices, size_t indicesSize)
 {
-    TR_PROFILE_FUNCTION();
+    // TR_PROFILE_FUNCTION();
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     Coral::ManagedObject entityObject;
     managedArray.GetValueRaw(indices, indicesSize, &entityObject);
@@ -339,7 +339,7 @@ Terran::Core::UUID ScriptInstance::GetFieldArrayValue(ScriptArray const& array, 
     if (entityObject.GetHandle() == nullptr)
         return {};
 
-    Terran::Core::UUID id = Terran::Core::UUID::Invalid();
+    Terran::Core::UUID id = Terran::Core::UUID::invalid();
     entityObject.GetFieldValueByHandleRaw(ScriptEngine::GetEntityIDFieldHandle(), &id);
     entityObject.Destroy();
     return id;
@@ -451,32 +451,32 @@ void ScriptInstance::InvokeUpdate(float deltaTime) const
         object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnUpdateMethodHandle, deltaTime);
 }
 
-void ScriptInstance::InvokePhysicsUpdate() const
-{
-    Coral::ManagedObject object = m_Context;
-    if (m_OnPhysicsUpdateMethodHandle)
-        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnPhysicsUpdateMethodHandle);
-}
+// void ScriptInstance::InvokePhysicsUpdate() const
+// {
+//     Coral::ManagedObject object = m_Context;
+//     if (m_OnPhysicsUpdateMethodHandle)
+//         object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnPhysicsUpdateMethodHandle);
+// }
 
-void ScriptInstance::InvokeCollisionBegin(Entity other) const
-{
-    Coral::ManagedObject object = m_Context;
-    if (m_OnCollisionBeginMethodHandle) {
-        Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
-        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnCollisionBeginMethodHandle, entityObject);
-        entityObject.Destroy();
-    }
-}
+// void ScriptInstance::InvokeCollisionBegin(Entity other) const
+// {
+//     Coral::ManagedObject object = m_Context;
+//     if (m_OnCollisionBeginMethodHandle) {
+//         Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
+//         object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnCollisionBeginMethodHandle, entityObject);
+//         entityObject.Destroy();
+//     }
+// }
 
-void ScriptInstance::InvokeCollisionEnd(Entity other) const
-{
-    Coral::ManagedObject object = m_Context;
-    if (m_OnCollisionEndMethodHandle) {
-        Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
-        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnCollisionEndMethodHandle, entityObject);
-        entityObject.Destroy();
-    }
-}
+// void ScriptInstance::InvokeCollisionEnd(Entity other) const
+// {
+//     Coral::ManagedObject object = m_Context;
+//     if (m_OnCollisionEndMethodHandle) {
+//         Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(other.GetID());
+//         object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnCollisionEndMethodHandle, entityObject);
+//         entityObject.Destroy();
+//     }
+// }
 
 void ScriptInstance::CopyFieldFrom(int32_t fieldHandle, Terran::Core::Shared<ScriptInstance> const& source)
 {

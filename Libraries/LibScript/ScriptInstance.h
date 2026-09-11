@@ -2,11 +2,11 @@
 
 #include "ScriptType.h"
 
-#include "Scene/Entity.h"
+#include <LibScene/Entity.h>
 
-#include "LibCore/Base.h"
-#include "LibCore/UUID.h"
-#include "Utils/Variant.h"
+#include <LibCore/Base.h>
+#include <LibCore/UUID.h>
+#include "Variant.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -164,9 +164,9 @@ public:
 
     void InvokeInit() const;
     void InvokeUpdate(float deltaTime) const;
-    void InvokePhysicsUpdate() const;
-    void InvokeCollisionBegin(Entity other) const;
-    void InvokeCollisionEnd(Entity other) const;
+    // void InvokePhysicsUpdate() const;
+    // void InvokeCollisionBegin(Entity other) const;
+    // void InvokeCollisionEnd(Entity other) const;
 
     void CopyFieldFrom(int32_t fieldHandle, Terran::Core::Shared<ScriptInstance> const& source);
     void CopyAllFieldsFrom(Terran::Core::Shared<ScriptInstance> const& source);
@@ -185,9 +185,9 @@ private:
     void const* m_Context;
     int32_t m_OnInitMethodHandle;
     int32_t m_OnUpdateMethodHandle;
-    int32_t m_OnPhysicsUpdateMethodHandle;
-    int32_t m_OnCollisionBeginMethodHandle;
-    int32_t m_OnCollisionEndMethodHandle;
+    // int32_t m_OnPhysicsUpdateMethodHandle;
+    // int32_t m_OnCollisionBeginMethodHandle;
+    // int32_t m_OnCollisionEndMethodHandle;
     std::unordered_map<int32_t, ScriptField> m_Fields;
     mutable std::unordered_map<int32_t, ScriptObject> m_FieldObjects;
 

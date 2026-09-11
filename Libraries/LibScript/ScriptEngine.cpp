@@ -1,48 +1,24 @@
 #include "ScriptEngine.h"
-#include "trpch.h"
 
 #include "ScriptBindings.h"
 #include "ScriptTypes.h"
+#include "ScriptEngineEvent.h"
+#include "Variant.h"
 
-#include "Core/Application.h"
-#include "LibCore/Log.h"
+#include <LibCore/Layer.h>
+#include <LibCore/Log.h>
 
-#include "Events/ScriptEngineEvent.h"
+#include <LibScene/SceneManager.h>
+// #include "Project/Project.h"
 
-#include "Project/Project.h"
 
-#include "Scene/Components.h"
-#include "Scene/SceneManager.h"
-
-#include "Utils/Variant.h"
-
-#include "Utils/Debug/OptickProfiler.h"
-
-#include <unordered_map>
+// #include "Utils/Debug/OptickProfiler.h"
 
 #include <Coral/GC.hpp>
 #include <Coral/HostInstance.hpp>
 #include <Coral/TypeCache.hpp>
 
-namespace TerranEngine {
-
-using ScriptInstanceMap = std::unordered_map<Terran::Core::UUID, std::unordered_map<Terran::Core::UUID, Terran::Core::Shared<ScriptInstance>>>;
-
-struct ScriptEngineData final {
-    Coral::HostInstance HostInstance;
-    Coral::AssemblyLoadContext LoadContext;
-    std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> Assemblies;
-
-    std::string CoralDirectory = "Resources/Scripts";
-    int32_t EntityIDFieldHandle = 0;
-
-    ScriptInstanceMap ScriptInstanceMap;
-    std::filesystem::path ScriptCoreAssemblyPath;
-    std::unordered_map<Coral::TypeId, ScriptFieldType> TypeConverters;
-    std::unordered_map<std::string, Coral::Type> ScriptTypeMap;
-};
-
-static ScriptEngineData* s_Data;
+namespace Terran::Script {
 
 static void Log(std::string_view message, spdlog::level::level_enum logLevel)
 {
@@ -75,49 +51,49 @@ static void OnMessage(std::string_view message, Coral::MessageLevel messageLevel
 
 static void CreateAssemblyLoadContext()
 {
-    s_Data->LoadContext = s_Data->HostInstance.CreateAssemblyLoadContext("ScriptAppContext");
+    LoadContext = HostInstance.CreateAssemblyLoadContext("ScriptAppContext");
 }
 
-void ScriptEngine::Initialize(std::filesystem::path const& scriptCoreAssemblyPath)
+ScriptEngine::ScriptEngine(Core::EventDispatcher& event_dispatcher, std::filesystem::path const& scriptCoreAssemblyPath)
+    : Core::Layer(SCRIPT_SYSTEM, event_dispatcher)
 {
-    s_Data = new ScriptEngineData;
-    s_Data->ScriptCoreAssemblyPath = scriptCoreAssemblyPath;
+    ScriptCoreAssemblyPath = scriptCoreAssemblyPath;
 
     Coral::HostSettings settings = {
-        .CoralDirectory = s_Data->CoralDirectory,
+        .CoralDirectory = CoralDirectory,
         .MessageCallback = OnMessage,
         .ExceptionCallback = OnException
     };
 
-    s_Data->HostInstance.Initialize(settings);
+    HostInstance.Initialize(settings);
     CreateAssemblyLoadContext();
 
     LoadCoreAssembly();
-    TR_CORE_INFO(TR_LOG_SCRIPT, "Initialized script engine");
+    TR_INFO(SCRIPT_SYSTEM, "Initialized script engine");
 }
 
 bool ScriptEngine::LoadCoreAssembly()
 {
-    auto& coreAssembly = s_Data->Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
-    TR_CORE_INFO(TR_LOG_SCRIPT, "Loading core assembly at {}", s_Data->ScriptCoreAssemblyPath);
-    coreAssembly = s_Data->LoadContext.LoadAssembly(s_Data->ScriptCoreAssemblyPath.string());
+    auto& coreAssembly = Assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+    TR_CORE_INFO(TR_LOG_SCRIPT, "Loading core assembly at {}", ScriptCoreAssemblyPath);
+    coreAssembly = LoadContext.LoadAssembly(ScriptCoreAssemblyPath.string());
     TR_ASSERT(coreAssembly.GetLoadStatus() == Coral::AssemblyLoadStatus::Success, "Couldn't load the TerranScriptCore assembly");
 
     ScriptTypes::Initialize();
-    s_Data->EntityIDFieldHandle = ScriptTypes::EntityType->GetField("m_Handle");
-    TR_ASSERT(s_Data->EntityIDFieldHandle > -1, "Failed to find Terran.Entity m_ID field");
+    EntityIDFieldHandle = ScriptTypes::EntityType->GetField("m_Handle");
+    TR_ASSERT(EntityIDFieldHandle > -1, "Failed to find Terran.Entity m_ID field");
 
     InitializeTypeConverters();
     ScriptBindings::Bind(coreAssembly);
     return true;
 }
 
-void ScriptEngine::Shutdown()
+ScriptEngine::~ScriptEngine()
 {
-    s_Data->ScriptInstanceMap.clear();
+    ScriptInstanceMap.clear();
     Coral::GC::Collect();
-    s_Data->HostInstance.UnloadAssemblyLoadContext(s_Data->LoadContext);
-    TR_CORE_INFO(TR_LOG_SCRIPT, "Shutdown script system");
+    HostInstance.UnloadAssemblyLoadContext(LoadContext);
+    TR_INFO(SCRIPT_SYSTEM, "Shutdown script system");
 }
 
 void ScriptEngine::ReloadAppAssembly()
@@ -126,7 +102,7 @@ void ScriptEngine::ReloadAppAssembly()
     std::unordered_map<Terran::Core::UUID, std::unordered_map<Terran::Core::UUID, std::unordered_map<std::string, Utils::Variant>>> scriptFieldsStates;
     std::unordered_map<Terran::Core::UUID, std::unordered_map<Terran::Core::UUID, std::unordered_map<std::string, std::vector<Utils::Variant>>>> scriptFieldArraysStates;
 
-    for (auto const& [sceneId, entityScriptMap] : s_Data->ScriptInstanceMap) {
+    for (auto const& [sceneId, entityScriptMap] : ScriptInstanceMap) {
         auto scene = SceneManager::GetScene(sceneId);
         if (!scene)
             continue;
@@ -222,8 +198,8 @@ static ScriptFieldType GetScriptType(Coral::Type const& type)
     if (managedType != Coral::ManagedType::Unknown && managedType != Coral::ManagedType::Pointer)
         return static_cast<ScriptFieldType>(managedType);
 
-    if (s_Data->TypeConverters.contains(type.GetTypeId()))
-        return s_Data->TypeConverters.at(type.GetTypeId());
+    if (TypeConverters.contains(type.GetTypeId()))
+        return TypeConverters.at(type.GetTypeId());
 
     return ScriptFieldType::None;
 }
@@ -238,7 +214,7 @@ void ScriptEngine::InitializeTypeConverters()
 {
     TR_CORE_INFO(TR_LOG_SCRIPT, "Initializing type converters");
     auto& typeCache = Coral::TypeCache::Get();
-    auto& typeConverters = s_Data->TypeConverters;
+    auto& typeConverters = TypeConverters;
     /*ADD_SYSTEM_TYPE(Byte, UInt8);
     ADD_SYSTEM_TYPE(UInt16, UInt16);
     ADD_SYSTEM_TYPE(UInt32, UInt32);
@@ -269,7 +245,7 @@ Terran::Core::Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Entity enti
 Terran::Core::Shared<ScriptInstance> ScriptEngine::GetScriptInstance(Terran::Core::UUID const& sceneID, Terran::Core::UUID const& entityID)
 {
     try {
-        return s_Data->ScriptInstanceMap.at(sceneID).at(entityID);
+        return ScriptInstanceMap.at(sceneID).at(entityID);
     } catch (std::out_of_range e) {
         return nullptr;
     }
@@ -283,7 +259,7 @@ Terran::Core::Shared<ScriptInstance> ScriptEngine::CreateScriptInstance(Entity e
     if (scriptComponent.ModuleName.empty())
         return nullptr;
 
-    Coral::ManagedAssembly& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+    Coral::ManagedAssembly& appAssembly = Assemblies.at(TR_APP_ASSEMBLY_INDEX);
     Coral::Type& type = appAssembly.GetType(scriptComponent.ModuleName);
 
     if (!type) {
@@ -294,9 +270,9 @@ Terran::Core::Shared<ScriptInstance> ScriptEngine::CreateScriptInstance(Entity e
 
     scriptComponent.ClassExists = true;
 
-    if (s_Data->ScriptInstanceMap.contains(entity.GetSceneId())) {
-        auto obj = s_Data->ScriptInstanceMap.at(entity.GetSceneId()).find(entity.GetID());
-        if (obj != s_Data->ScriptInstanceMap.at(entity.GetSceneId()).end())
+    if (ScriptInstanceMap.contains(entity.GetSceneId())) {
+        auto obj = ScriptInstanceMap.at(entity.GetSceneId()).find(entity.GetID());
+        if (obj != ScriptInstanceMap.at(entity.GetSceneId()).end())
             return ((*obj).second);
     }
 
@@ -305,7 +281,7 @@ Terran::Core::Shared<ScriptInstance> ScriptEngine::CreateScriptInstance(Entity e
         return nullptr;
     }
 
-    Terran::Core::Shared<ScriptInstance> instance = s_Data->ScriptInstanceMap[entity.GetSceneId()][entity.GetID()] = Terran::Core::CreateShared<ScriptInstance>(type, entity.GetID());
+    Terran::Core::Shared<ScriptInstance> instance = ScriptInstanceMap[entity.GetSceneId()][entity.GetID()] = Terran::Core::CreateShared<ScriptInstance>(type, entity.GetID());
 
     scriptComponent.FieldHandles.clear();
     for (Coral::FieldInfo& fieldInfo : type.GetFields()) {
@@ -323,7 +299,7 @@ Terran::Core::Shared<ScriptInstance> ScriptEngine::CreateScriptInstance(Entity e
         }
     }
 
-    return s_Data->ScriptInstanceMap.at(entity.GetSceneId()).at(entity.GetID());
+    return ScriptInstanceMap.at(entity.GetSceneId()).at(entity.GetID());
 }
 
 void ScriptEngine::DestroyScriptInstance(Entity entity)
@@ -331,11 +307,11 @@ void ScriptEngine::DestroyScriptInstance(Entity entity)
     if (!entity || !entity.HasComponent<TagComponent>())
         return;
 
-    if (s_Data->ScriptInstanceMap.contains(entity.GetSceneId()) && s_Data->ScriptInstanceMap.at(entity.GetSceneId()).contains(entity.GetID())) {
-        s_Data->ScriptInstanceMap[entity.GetSceneId()].erase(entity.GetID());
+    if (ScriptInstanceMap.contains(entity.GetSceneId()) && ScriptInstanceMap.at(entity.GetSceneId()).contains(entity.GetID())) {
+        ScriptInstanceMap[entity.GetSceneId()].erase(entity.GetID());
 
-        if (s_Data->ScriptInstanceMap.empty())
-            s_Data->ScriptInstanceMap.erase(entity.GetSceneId());
+        if (ScriptInstanceMap.empty())
+            ScriptInstanceMap.erase(entity.GetSceneId());
     }
 }
 
@@ -384,7 +360,7 @@ void const* ScriptEngine::CreateEntityInstance(Terran::Core::UUID const& id)
 
 int32_t ScriptEngine::GetEntityIDFieldHandle()
 {
-    return s_Data->EntityIDFieldHandle;
+    return EntityIDFieldHandle;
 }
 
 void const* ScriptEngine::CreateComponentInstance(int32_t componentTypeId, Terran::Core::UUID const& entityId)
@@ -397,9 +373,9 @@ void const* ScriptEngine::CreateComponentInstance(int32_t componentTypeId, Terra
 
 bool ScriptEngine::LoadAppAssembly()
 {
-    auto& appAssembly = s_Data->Assemblies.at(TR_APP_ASSEMBLY_INDEX);
+    auto& appAssembly = Assemblies.at(TR_APP_ASSEMBLY_INDEX);
     TR_CORE_INFO(TR_LOG_SCRIPT, "Loading app assembly at: {}", Project::GetAppAssemblyPath());
-    appAssembly = s_Data->LoadContext.LoadAssembly(Project::GetAppAssemblyPath().string());
+    appAssembly = LoadContext.LoadAssembly(Project::GetAppAssemblyPath().string());
 
     Coral::AssemblyLoadStatus status = appAssembly.GetLoadStatus();
 

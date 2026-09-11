@@ -1,6 +1,7 @@
 #include "ScriptTypes.h"
 
-#include "LibCore/Assert.h"
+#include <LibCore/Assert.h>
+#include <LibCore/Log.h>
 
 #include <Coral/Type.hpp>
 #include <Coral/TypeCache.hpp>
@@ -17,7 +18,7 @@ Coral::Type const* ScriptTypes::SerializeFieldType;
 // TODO: should return Result<>, reporting if types were not found
 void ScriptTypes::Initialize()
 {
-    TR_CORE_INFO(TR_LOG_SCRIPT, "Caching script types");
+    TR_INFO(SCRIPT_SYSTEM, "Caching script types");
     ScriptableType = Coral::TypeCache::Get().GetTypeByName("Terran.Scriptable");
     TR_ASSERT(ScriptableType, "Failed to find the Terran.Scriptable type");
 

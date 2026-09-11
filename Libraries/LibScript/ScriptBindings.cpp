@@ -1,25 +1,24 @@
 #include "ScriptBindings.h"
-#include "trpch.h"
 
 #include "ScriptEngine.h"
 #include "ScriptTypes.h"
 
-#include "Core/Application.h"
-#include "Core/Input.h"
+// #include "Core/Application.h"
+// #include "Core/Input.h"
 
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneManager.h"
 #include "Scene/Systems/SceneRenderer.h"
 
-#include "Physics/Collider.h"
-#include "Physics/Physics.h"
-#include "Physics/PhysicsBody.h"
-#include "Physics/PhysicsLayerManager.h"
+// #include "Physics/Collider.h"
+// #include "Physics/Physics.h"
+// #include "Physics/PhysicsBody.h"
+// #include "Physics/PhysicsLayerManager.h"
 
-#include "Asset/AssetManager.h"
+// #include "Asset/AssetManager.h"
 
-#include "Utils/Debug/OptickProfiler.h"
+// #include "Utils/Debug/OptickProfiler.h"
 
 #include <glm/glm.hpp>
 
@@ -50,48 +49,48 @@ void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
     TR_CORE_INFO(TR_LOG_SCRIPT, "Binding internal calls for core assembly");
     REGISTER_COMPONENT(Transform, TransformComponent);
     REGISTER_COMPONENT(Tag, TagComponent);
-    REGISTER_COMPONENT(CapsuleCollider2D, CapsuleCollider2DComponent);
-    REGISTER_COMPONENT(CircleCollider2D, CircleCollider2DComponent);
-    REGISTER_COMPONENT(BoxCollider2D, BoxCollider2DComponent);
-    REGISTER_COMPONENT(Rigidbody2D, Rigidbody2DComponent);
-    REGISTER_COMPONENT(Camera, CameraComponent);
-    REGISTER_COMPONENT(SpriteRenderer, SpriteRendererComponent);
-    REGISTER_COMPONENT(CircleRenderer, CircleRendererComponent);
-    REGISTER_COMPONENT(TextRenderer, TextRendererComponent);
+    // REGISTER_COMPONENT(CapsuleCollider2D, CapsuleCollider2DComponent);
+    // REGISTER_COMPONENT(CircleCollider2D, CircleCollider2DComponent);
+    // REGISTER_COMPONENT(BoxCollider2D, BoxCollider2DComponent);
+    // REGISTER_COMPONENT(Rigidbody2D, Rigidbody2DComponent);
+    // REGISTER_COMPONENT(Camera, CameraComponent);
+    // REGISTER_COMPONENT(SpriteRenderer, SpriteRendererComponent);
+    // REGISTER_COMPONENT(CircleRenderer, CircleRendererComponent);
+    // REGISTER_COMPONENT(TextRenderer, TextRendererComponent);
 
     BIND_INTERNAL_FUNC(Log_LogICall);
 
 // ---- Input ----
-#pragma region Input
-    BIND_INTERNAL_FUNC(Input_KeyDownICall);
-    BIND_INTERNAL_FUNC(Input_KeyPressedICall);
-    BIND_INTERNAL_FUNC(Input_KeyReleasedICall);
-
-    BIND_INTERNAL_FUNC(Input_MouseButtonDownICall);
-    BIND_INTERNAL_FUNC(Input_MouseButtonPressedICall);
-    BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
-    BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
-
-    BIND_INTERNAL_FUNC(Input_IsControllerConnectedICall);
-    BIND_INTERNAL_FUNC(Input_GetControllerNameICall);
-    BIND_INTERNAL_FUNC(Input_IsControllerButtonPressedICall);
-    BIND_INTERNAL_FUNC(Input_GetControllerAxisICall);
-    BIND_INTERNAL_FUNC(Input_GetConnectedControllersICall);
-#pragma endregion
+// #pragma region Input
+//     BIND_INTERNAL_FUNC(Input_KeyDownICall);
+//     BIND_INTERNAL_FUNC(Input_KeyPressedICall);
+//     BIND_INTERNAL_FUNC(Input_KeyReleasedICall);
+//
+//     BIND_INTERNAL_FUNC(Input_MouseButtonDownICall);
+//     BIND_INTERNAL_FUNC(Input_MouseButtonPressedICall);
+//     BIND_INTERNAL_FUNC(Input_MouseButtonReleasedICall);
+//     BIND_INTERNAL_FUNC(Input_GetMousePositionICall);
+//
+//     BIND_INTERNAL_FUNC(Input_IsControllerConnectedICall);
+//     BIND_INTERNAL_FUNC(Input_GetControllerNameICall);
+//     BIND_INTERNAL_FUNC(Input_IsControllerButtonPressedICall);
+//     BIND_INTERNAL_FUNC(Input_GetControllerAxisICall);
+//     BIND_INTERNAL_FUNC(Input_GetConnectedControllersICall);
+// #pragma endregion
 // ---------------
 
 // ---- Entity ----
-#pragma region Entity
-    BIND_INTERNAL_FUNC(Entity_HasComponentICall);
-    BIND_INTERNAL_FUNC(Entity_AddComponentICall);
-    BIND_INTERNAL_FUNC(Entity_RemoveComponentICall);
-    BIND_INTERNAL_FUNC(Entity_GetScriptableComponentICall);
-    BIND_INTERNAL_FUNC(Entity_DestroyEntityICall);
-    BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
-    BIND_INTERNAL_FUNC(Entity_GetChildrenCountICall);
-    BIND_INTERNAL_FUNC(Entity_GetChildICall);
-    BIND_INTERNAL_FUNC(Entity_GetParentICall);
-#pragma endregion
+// #pragma region Entity
+//     BIND_INTERNAL_FUNC(Entity_HasComponentICall);
+//     BIND_INTERNAL_FUNC(Entity_AddComponentICall);
+//     BIND_INTERNAL_FUNC(Entity_RemoveComponentICall);
+//     BIND_INTERNAL_FUNC(Entity_GetScriptableComponentICall);
+//     BIND_INTERNAL_FUNC(Entity_DestroyEntityICall);
+//     BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
+//     BIND_INTERNAL_FUNC(Entity_GetChildrenCountICall);
+//     BIND_INTERNAL_FUNC(Entity_GetChildICall);
+//     BIND_INTERNAL_FUNC(Entity_GetParentICall);
+// #pragma endregion
 // ----------------
 
 // ---- Tag Component ----
@@ -117,118 +116,118 @@ void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 // -----------------------------
 
 // ---- Sprite Renderer Component ----
-#pragma region Sprite Renderer Component
-    BIND_INTERNAL_FUNC(SpriteRenderer_GetColorICall);
-    BIND_INTERNAL_FUNC(SpriteRenderer_SetColorICall);
-#pragma endregion
+// #pragma region Sprite Renderer Component
+//     BIND_INTERNAL_FUNC(SpriteRenderer_GetColorICall);
+//     BIND_INTERNAL_FUNC(SpriteRenderer_SetColorICall);
+// #pragma endregion
 // -----------------------------------
 
 // ---- Camera Component ----
-#pragma region Camera Component
-    BIND_INTERNAL_FUNC(Camera_IsPrimaryICall);
-    BIND_INTERNAL_FUNC(Camera_SetPrimaryICall);
-    BIND_INTERNAL_FUNC(Camera_GetBackgroundColorICall);
-    BIND_INTERNAL_FUNC(Camera_SetBackgroundColorICall);
-    BIND_INTERNAL_FUNC(Camera_ScreenToWorldPointICall);
-#pragma endregion
+// #pragma region Camera Component
+//     BIND_INTERNAL_FUNC(Camera_IsPrimaryICall);
+//     BIND_INTERNAL_FUNC(Camera_SetPrimaryICall);
+//     BIND_INTERNAL_FUNC(Camera_GetBackgroundColorICall);
+//     BIND_INTERNAL_FUNC(Camera_SetBackgroundColorICall);
+//     BIND_INTERNAL_FUNC(Camera_ScreenToWorldPointICall);
+// #pragma endregion
 // --------------------------
 
 // ---- Circle Renderer Component ----
-#pragma region Circle Renderer Component
-    BIND_INTERNAL_FUNC(CircleRenderer_GetColorICall);
-    BIND_INTERNAL_FUNC(CircleRenderer_SetColorICall);
-    BIND_INTERNAL_FUNC(CircleRenderer_GetThicknessICall);
-    BIND_INTERNAL_FUNC(CircleRenderer_SetThicknessICall);
-#pragma endregion
+// #pragma region Circle Renderer Component
+//     BIND_INTERNAL_FUNC(CircleRenderer_GetColorICall);
+//     BIND_INTERNAL_FUNC(CircleRenderer_SetColorICall);
+//     BIND_INTERNAL_FUNC(CircleRenderer_GetThicknessICall);
+//     BIND_INTERNAL_FUNC(CircleRenderer_SetThicknessICall);
+// #pragma endregion
 // -----------------------------------
 
 // ---- Text Renderer Component ----
-#pragma region Text Renderer Component
-    BIND_INTERNAL_FUNC(TextRenderer_GetColorICall);
-    BIND_INTERNAL_FUNC(TextRenderer_SetColorICall);
-    BIND_INTERNAL_FUNC(TextRenderer_GetTextICall);
-    BIND_INTERNAL_FUNC(TextRenderer_SetTextICall);
-#pragma endregion
+// #pragma region Text Renderer Component
+//     BIND_INTERNAL_FUNC(TextRenderer_GetColorICall);
+//     BIND_INTERNAL_FUNC(TextRenderer_SetColorICall);
+//     BIND_INTERNAL_FUNC(TextRenderer_GetTextICall);
+//     BIND_INTERNAL_FUNC(TextRenderer_SetTextICall);
+// #pragma endregion
 // ---------------------------------
 
 // ---- Physics ----
-#pragma region Physics
-    BIND_INTERNAL_FUNC(LayerMask_GetNameICall);
-    BIND_INTERNAL_FUNC(Physics2D_RayCastICall);
-    BIND_INTERNAL_FUNC(Physics2D_RayCastAllICall);
+// #pragma region Physics
+//     BIND_INTERNAL_FUNC(LayerMask_GetNameICall);
+//     BIND_INTERNAL_FUNC(Physics2D_RayCastICall);
+//     BIND_INTERNAL_FUNC(Physics2D_RayCastAllICall);
 
 // ---- Rigidbody 2D ----
-#pragma region Rigidbody 2D
-    BIND_INTERNAL_FUNC(Rigidbody2D_IsFixedRotationICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_SetFixedRotationICall);
-
-    BIND_INTERNAL_FUNC(Rigidbody2D_GetSleepStateICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_SetSleepStateICall);
-
-    BIND_INTERNAL_FUNC(Rigidbody2D_GetGravityScaleICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_SetGravityScaleICall);
-
-    BIND_INTERNAL_FUNC(Rigidbody2D_ApplyForceICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_ApplyForceAtCenterICall);
-
-    BIND_INTERNAL_FUNC(Rigidbody2D_GetLinearVelocityICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_SetLinearVelocityICall);
-
-    BIND_INTERNAL_FUNC(Rigidbody2D_GetAngularVelocityICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_SetAngularVelocityICall);
-
-    BIND_INTERNAL_FUNC(Rigidbody2D_GetTypeICall);
-    BIND_INTERNAL_FUNC(Rigidbody2D_SetTypeICall);
-#pragma endregion
+// #pragma region Rigidbody 2D
+//     BIND_INTERNAL_FUNC(Rigidbody2D_IsFixedRotationICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_SetFixedRotationICall);
+//
+//     BIND_INTERNAL_FUNC(Rigidbody2D_GetSleepStateICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_SetSleepStateICall);
+//
+//     BIND_INTERNAL_FUNC(Rigidbody2D_GetGravityScaleICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_SetGravityScaleICall);
+//
+//     BIND_INTERNAL_FUNC(Rigidbody2D_ApplyForceICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_ApplyForceAtCenterICall);
+//
+//     BIND_INTERNAL_FUNC(Rigidbody2D_GetLinearVelocityICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_SetLinearVelocityICall);
+//
+//     BIND_INTERNAL_FUNC(Rigidbody2D_GetAngularVelocityICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_SetAngularVelocityICall);
+//
+//     BIND_INTERNAL_FUNC(Rigidbody2D_GetTypeICall);
+//     BIND_INTERNAL_FUNC(Rigidbody2D_SetTypeICall);
+// #pragma endregion
 // ----------------------
 
 // ---- Collider 2D ----
-#pragma region Collider 2D
-    BIND_INTERNAL_FUNC(Collider2D_GetOffsetICall);
-    BIND_INTERNAL_FUNC(Collider2D_SetOffsetICall);
-
-    BIND_INTERNAL_FUNC(Collider2D_IsSensorICall);
-    BIND_INTERNAL_FUNC(Collider2D_SetSensorICall);
-#pragma endregion
+// #pragma region Collider 2D
+//     BIND_INTERNAL_FUNC(Collider2D_GetOffsetICall);
+//     BIND_INTERNAL_FUNC(Collider2D_SetOffsetICall);
+//
+//     BIND_INTERNAL_FUNC(Collider2D_IsSensorICall);
+//     BIND_INTERNAL_FUNC(Collider2D_SetSensorICall);
+// #pragma endregion
 // ---------------------
 
 // ---- Box Collider 2D ----
-#pragma region Box Collider 2D
-    BIND_INTERNAL_FUNC(BoxCollider2D_GetSizeICall);
-    BIND_INTERNAL_FUNC(BoxCollider2D_SetSizeICall);
-#pragma endregion
+// #pragma region Box Collider 2D
+//     BIND_INTERNAL_FUNC(BoxCollider2D_GetSizeICall);
+//     BIND_INTERNAL_FUNC(BoxCollider2D_SetSizeICall);
+// #pragma endregion
 // -------------------------
 
 // ---- Circle Collider 2D ----
-#pragma region Circle Collider 2D
-    BIND_INTERNAL_FUNC(CircleCollider2D_GetRadiusICall);
-    BIND_INTERNAL_FUNC(CircleCollider2D_SetRadiusICall);
-#pragma endregion
+// #pragma region Circle Collider 2D
+//     BIND_INTERNAL_FUNC(CircleCollider2D_GetRadiusICall);
+//     BIND_INTERNAL_FUNC(CircleCollider2D_SetRadiusICall);
+// #pragma endregion
 // ----------------------------
 
 // ---- Capsule Collider 2D ----
-#pragma region Capsule Collider 2D
-    BIND_INTERNAL_FUNC(CapsuleCollider2D_GetSizeICall);
-    BIND_INTERNAL_FUNC(CapsuleCollider2D_SetSizeICall);
-#pragma endregion
+// #pragma region Capsule Collider 2D
+//     BIND_INTERNAL_FUNC(CapsuleCollider2D_GetSizeICall);
+//     BIND_INTERNAL_FUNC(CapsuleCollider2D_SetSizeICall);
+// #pragma endregion
     // -----------------------------
 
-#pragma endregion
+// #pragma endregion
 // -----------------
 
 // ---- Window ----
-#pragma region Window
-    BIND_INTERNAL_FUNC(Window_GetWidthICall);
-    BIND_INTERNAL_FUNC(Window_GetHeightICall);
-    BIND_INTERNAL_FUNC(Window_IsVSyncICall);
-    BIND_INTERNAL_FUNC(Window_GetContentScaleICall);
-#pragma endregion
+// #pragma region Window
+//     BIND_INTERNAL_FUNC(Window_GetWidthICall);
+//     BIND_INTERNAL_FUNC(Window_GetHeightICall);
+//     BIND_INTERNAL_FUNC(Window_IsVSyncICall);
+//     BIND_INTERNAL_FUNC(Window_GetContentScaleICall);
+// #pragma endregion
 // ----------------
 
 // ---- Scene ----
-#pragma region Scene
-    BIND_INTERNAL_FUNC(Scene_GetMainCameraICall);
-#pragma endregion
+// #pragma region Scene
+//     BIND_INTERNAL_FUNC(Scene_GetMainCameraICall);
+// #pragma endregion
     // ---------------
 
     BIND_INTERNAL_FUNC(SceneManager_LoadSceneICall);
