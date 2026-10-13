@@ -1,26 +1,33 @@
 #include "ScriptInstance.h"
+#include "ScriptEngine.h"
+#include "ScriptTypes.h"
+#include "Variant.h"
+#include "ScriptFieldType.h"
 
 #include <LibCore/Log.h>
-#include <LibScript/ScriptTypes.h>
-#include <ranges>
+#include <LibCore/UUID.h>
 
-#include "ScriptEngine.h"
-
-#include "Utils/Debug/OptickProfiler.h"
+// #include "Utils/Debug/OptickProfiler.h"
 
 #include <Coral/Attribute.hpp>
 #include <Coral/ManagedArray.hpp>
 #include <Coral/String.hpp>
 #include <Coral/Type.hpp>
 
+#include <ranges>
+#include <cstdint>
+#include <cstddef>
+#include <string>
+
 namespace Terran::Script {
 
-ScriptInstance::ScriptInstance(Coral::Type const& type, Terran::Core::UUID const& id)
+ScriptInstance::ScriptInstance(ScriptEngine* script_engine, Coral::Type const& type, Terran::Core::UUID const& id)
+    : m_script_engine(script_engine)
 {
-    m_Context = type.CreateInstance(id).GetHandle();
+    m_context = type.CreateInstance(id).GetHandle();
 
-    m_OnInitMethodHandle = type.GetMethod("Init").GetHandle();
-    m_OnUpdateMethodHandle = type.GetMethod<float>("Update").GetHandle();
+    m_oninit_method_handle = type.GetMethod("Init").GetHandle();
+    m_onupdate_method_handle = type.GetMethod<float>("Update").GetHandle();
     // m_OnPhysicsUpdateMethodHandle = type.GetMethod("PhysicsUpdate").GetHandle();
     // m_OnCollisionBeginMethodHandle = type.GetMethod("Void OnCollisionBegin(Entity)").GetHandle();
     // m_OnCollisionEndMethodHandle = type.GetMethod("Void OnCollisionEnd(Entity)").GetHandle();
@@ -28,11 +35,11 @@ ScriptInstance::ScriptInstance(Coral::Type const& type, Terran::Core::UUID const
 
 ScriptInstance::~ScriptInstance()
 {
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     TR_TRACE(SCRIPT_SYSTEM, "destroying script instance");
-    for (auto const& [fieldHandle, value] : m_FieldObjects) {
-        ScriptField const& field = GetScriptField(fieldHandle);
-        if (field.IsArray) {
+    for (auto const& [fieldHandle, value] : m_field_objects) {
+        ScriptField const& current_field = field(fieldHandle);
+        if (current_field.IsArray) {
             ScriptArray const& scriptArray = reinterpret_cast<ScriptArray const&>(value);
             Coral::ManagedArray array(scriptArray.Handle, scriptArray.Rank);
             array.Destroy();
@@ -43,12 +50,12 @@ ScriptInstance::~ScriptInstance()
     }
 
     object.Destroy();
-    m_Context = nullptr;
+    m_context = nullptr;
 }
 
-void ScriptInstance::GetFieldValueInternal(int32_t fieldHandle, void* value) const
+void ScriptInstance::field_value_internal(int32_t fieldHandle, void* value) const
 {
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     object.GetFieldValueByHandleRaw(fieldHandle, value);
 }
 
@@ -61,13 +68,13 @@ void ScriptInstance::GetFieldValueInternal(int32_t fieldHandle, void* value) con
     } else                                                                                      \
         array = Coral::ManagedArray(it->second.Handle, it->second.Rank)
 
-void ScriptInstance::SetFieldArrayValueInternal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize)
+void ScriptInstance::set_field_array_value_internal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize)
 {
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     managedArray.SetValueRaw(indices, indicesSize, value);
 }
 
-void ScriptInstance::GetFieldArrayValueInternal(ScriptArray const& array, void* value, int32_t const* indices, size_t indicesSize)
+void ScriptInstance::field_array_value_internal(ScriptArray const& array, void* value, int32_t const* indices, size_t indicesSize)
 {
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     managedArray.GetValueRaw(indices, indicesSize, value);
@@ -77,20 +84,20 @@ template<>
 void ScriptInstance::SetFieldValue<std::string>(int32_t fieldHandle, std::string const& value) const
 {
     Coral::String string = Coral::String::New(value);
-    SetFieldValueInternal(fieldHandle, &string);
+    set_field_value_internal(fieldHandle, &string);
     Coral::String::Free(string);
 }
 
 template<>
 void ScriptInstance::SetFieldValue<Terran::Core::UUID>(int32_t fieldHandle, Terran::Core::UUID const& value) const
 {
-    Coral::ManagedObject object = m_Context;
-    Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(value);
-    auto it = m_FieldObjects.find(fieldHandle);
-    if (it == m_FieldObjects.end())
-        m_FieldObjects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
+    Coral::ManagedObject object = m_context;
+    Coral::ManagedObject entityObject = m_script_engine->create_entity_type_instance(value);
+    auto it = m_field_objects.find(fieldHandle);
+    if (it == m_field_objects.end())
+        m_field_objects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
     else {
-        ScriptObject& temp = m_FieldObjects.at(fieldHandle);
+        ScriptObject& temp = m_field_objects.at(fieldHandle);
         Coral::ManagedObject tempObject = temp.Handle;
         tempObject.Destroy();
         temp.Handle = entityObject.GetHandle();
@@ -102,7 +109,7 @@ void ScriptInstance::SetFieldValue<Terran::Core::UUID>(int32_t fieldHandle, Terr
 template<>
 void ScriptInstance::SetFieldValue<Utils::Variant>(int32_t fieldHandle, Utils::Variant const& value) const
 {
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     switch (value.GetType()) {
     case Utils::Variant::Type::Int8:
         object.SetFieldValueByHandle<int8_t>(fieldHandle, value);
@@ -166,7 +173,7 @@ std::string ScriptInstance::GetFieldValue<std::string>(int32_t fieldHandle) cons
 {
     // TR_PROFILE_FUNCTION();
     Coral::String string;
-    GetFieldValueInternal(fieldHandle, &string);
+    field_value_internal(fieldHandle, &string);
     std::string result = string;
     Coral::String::Free(string);
     return result;
@@ -176,29 +183,29 @@ template<>
 Terran::Core::UUID ScriptInstance::GetFieldValue<Terran::Core::UUID>(int32_t fieldHandle) const
 {
     // TR_PROFILE_FUNCTION();
-    Coral::ManagedObject object = m_Context;
-    auto it = m_FieldObjects.find(fieldHandle);
+    Coral::ManagedObject object = m_context;
+    auto it = m_field_objects.find(fieldHandle);
     Coral::ManagedObject entityObject;
-    if (it == m_FieldObjects.end()) {
+    if (it == m_field_objects.end()) {
         entityObject = object.GetFieldValueByHandle<Coral::ManagedObject>(fieldHandle);
 
         if (entityObject.GetHandle() == nullptr)
             return {};
 
-        m_FieldObjects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
+        m_field_objects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
     } else
         entityObject = it->second.Handle;
 
     Terran::Core::UUID id = Terran::Core::UUID::invalid();
-    entityObject.GetFieldValueByHandleRaw(ScriptEngine::GetEntityIDFieldHandle(), &id);
+    entityObject.GetFieldValueByHandleRaw(m_script_engine->entity_id_field_handle(), &id);
     return id;
 }
 
 template<>
 Utils::Variant ScriptInstance::GetFieldValue<Utils::Variant>(int32_t fieldHandle) const
 {
-    Coral::ManagedObject object = m_Context;
-    switch (m_Fields.at(fieldHandle).Type) {
+    Coral::ManagedObject object = m_context;
+    switch (m_fields.at(fieldHandle).Type) {
     case ScriptFieldType::Int8:
         return object.GetFieldValueByHandle<int8_t>(fieldHandle);
     case ScriptFieldType::UInt8:
@@ -244,7 +251,7 @@ template<>
 void ScriptInstance::SetFieldArrayValue<std::string>(ScriptArray const& array, std::string const& value, int32_t const* indices, size_t indicesSize)
 {
     Coral::String string = Coral::String::New(value);
-    SetFieldArrayValueInternal(array, &string, indices, indicesSize);
+    set_field_array_value_internal(array, &string, indices, indicesSize);
     Coral::String::Free(string);
 }
 
@@ -252,7 +259,7 @@ template<>
 void ScriptInstance::SetFieldArrayValue(ScriptArray const& array, Terran::Core::UUID const& value, int32_t const* indices, size_t indicesSize)
 {
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
-    Coral::ManagedObject entityObject = ScriptEngine::CreateEntityInstance(value);
+    Coral::ManagedObject entityObject = m_script_engine->create_entity_type_instance(value);
     managedArray.SetValueRaw(indices, indicesSize, &entityObject);
 }
 
@@ -322,7 +329,7 @@ template<>
 std::string ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t const* indices, size_t indicesSize)
 {
     Coral::String string;
-    GetFieldArrayValueInternal(array, &string, indices, indicesSize);
+    field_array_value_internal(array, &string, indices, indicesSize);
     std::string result = string;
     Coral::String::Free(string);
     return result;
@@ -340,7 +347,7 @@ Terran::Core::UUID ScriptInstance::GetFieldArrayValue(ScriptArray const& array, 
         return {};
 
     Terran::Core::UUID id = Terran::Core::UUID::invalid();
-    entityObject.GetFieldValueByHandleRaw(ScriptEngine::GetEntityIDFieldHandle(), &id);
+    entityObject.GetFieldValueByHandleRaw(m_script_engine->entity_id_field_handle(), &id);
     entityObject.Destroy();
     return id;
 }
@@ -349,7 +356,7 @@ template<>
 Utils::Variant ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t const* indices, size_t indicesSize)
 {
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
-    switch (m_Fields.at(array.FieldHandle).Type) {
+    switch (m_fields.at(array.FieldHandle).Type) {
     case ScriptFieldType::Int8:
         return managedArray.GetValue<int8_t>(indices, static_cast<int32_t>(indicesSize));
     case ScriptFieldType::UInt8:
@@ -391,18 +398,18 @@ Utils::Variant ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int3
     return {};
 }
 
-void ScriptInstance::ResizeFieldArrayInternal(ScriptArray& array, int32_t length)
+void ScriptInstance::resize_field_array_internal(ScriptArray& array, int32_t length)
 {
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     managedArray.Resize(length);
     object.SetFieldValueByHandle<Coral::ManagedArray>(array.FieldHandle, managedArray);
     array.Handle = managedArray.GetHandle();
 }
 
-void ScriptInstance::ResizeFieldArrayInternal(ScriptArray& array, int32_t const* lengths, size_t lengthsSize)
+void ScriptInstance::resize_field_array_internal(ScriptArray& array, int32_t const* lengths, size_t lengthsSize)
 {
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     managedArray.Resize(lengths, lengthsSize);
     object.SetFieldValueByHandle<Coral::ManagedArray>(array.FieldHandle, managedArray);
@@ -416,7 +423,7 @@ int32_t ScriptInstance::GetFieldArrayLength(ScriptArray const& array, int dimens
 }
 
 // NOTE: maybe cache the field array?
-ScriptArray ScriptInstance::GetScriptArray(int32_t fieldHandle)
+ScriptArray ScriptInstance::script_array(int32_t fieldHandle)
 {
     /*auto it = m_FieldObjects.find(fieldHandle);
     if (it == m_FieldObjects.end())
@@ -432,23 +439,23 @@ ScriptArray ScriptInstance::GetScriptArray(int32_t fieldHandle)
 
     return (ScriptArray&)m_FieldObjects.at(fieldHandle);*/
 
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     Coral::ManagedArray array = object.GetFieldValueByHandle<Coral::ManagedArray>(fieldHandle);
     return ScriptArray { array.GetHandle(), array.GetRank(), fieldHandle };
 }
 
-void ScriptInstance::InvokeInit() const
+void ScriptInstance::invoke_init() const
 {
-    Coral::ManagedObject object = m_Context;
-    if (m_OnInitMethodHandle)
-        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnInitMethodHandle);
+    Coral::ManagedObject object = m_context;
+    if (m_oninit_method_handle)
+        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_oninit_method_handle);
 }
 
-void ScriptInstance::InvokeUpdate(float deltaTime) const
+void ScriptInstance::invoke_update(float deltaTime) const
 {
-    Coral::ManagedObject object = m_Context;
-    if (m_OnUpdateMethodHandle)
-        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_OnUpdateMethodHandle, deltaTime);
+    Coral::ManagedObject object = m_context;
+    if (m_onupdate_method_handle)
+        object.InvokeMethodByMethodInfoWithUnwrappedExceptions(m_onupdate_method_handle, deltaTime);
 }
 
 // void ScriptInstance::InvokePhysicsUpdate() const
@@ -478,13 +485,13 @@ void ScriptInstance::InvokeUpdate(float deltaTime) const
 //     }
 // }
 
-void ScriptInstance::CopyFieldFrom(int32_t fieldHandle, Terran::Core::Shared<ScriptInstance> const& source)
+void ScriptInstance::copy_field_from(int32_t fieldHandle, Terran::Core::Shared<ScriptInstance> const& source)
 {
-    ScriptField const& field = GetScriptField(fieldHandle);
+    ScriptField const& current_field = field(fieldHandle);
 
-    if (field.IsArray) {
-        ScriptArray sourceArray = source->GetScriptArray(fieldHandle);
-        ScriptArray destArray = GetScriptArray(fieldHandle);
+    if (current_field.IsArray) {
+        ScriptArray sourceArray = source->script_array(fieldHandle);
+        ScriptArray destArray = script_array(fieldHandle);
         if (sourceArray.Rank > 1 || destArray.Rank > 1)
             return;
 
@@ -506,15 +513,15 @@ void ScriptInstance::CopyFieldFrom(int32_t fieldHandle, Terran::Core::Shared<Scr
     SetFieldValue(fieldHandle, value);
 }
 
-void ScriptInstance::CopyAllFieldsFrom(Terran::Core::Shared<ScriptInstance> const& source)
+void ScriptInstance::copy_all_fields_from(Core::Shared<ScriptInstance> const& source)
 {
-    for (auto const& fieldHandle : m_Fields | std::views::keys)
-        CopyFieldFrom(fieldHandle, source);
+    for (auto const& fieldHandle : m_fields | std::views::keys)
+        copy_field_from(fieldHandle, source);
 }
 
-void ScriptInstance::SetFieldValueInternal(int32_t fieldHandle, void* value) const
+void ScriptInstance::set_field_value_internal(int32_t fieldHandle, void* value) const
 {
-    Coral::ManagedObject object = m_Context;
+    Coral::ManagedObject object = m_context;
     object.SetFieldValueByHandleRaw(fieldHandle, value);
 }
 

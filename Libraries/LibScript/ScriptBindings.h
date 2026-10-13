@@ -6,7 +6,7 @@
 
 // #include "Physics/Collider.h"
 // #include "Physics/PhysicsStates.h"
-#include "LibCore/UUID.h"
+#include <LibCore/UUID.h>
 #include <cstdint>
 
 #include <Coral/ManagedObject.hpp>
@@ -21,10 +21,6 @@ public:
 
     // clear the entity functions
     static void Unbind();
-
-    // ---- Utils ----
-    static void Log_LogICall(uint8_t logLevel, Coral::String message);
-// ---------------
 
 // ---- Input ----
 // #pragma region Input
@@ -228,9 +224,6 @@ public:
 #pragma endregion
     // ---------------
 
-    // ---- Scene Manager ----
-    static bool SceneManager_LoadSceneICall(Coral::String scenePath);
-    // -----------------------
 };
 
 }

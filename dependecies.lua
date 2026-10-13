@@ -20,6 +20,10 @@ Dependencies = {
     },
     coral = {
         include = "%{wks.location}/vendor/Coral/Coral.Native/Include",
+        external = "%{wks.location}/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json",
+    },
+    script_core = {
+        link = "%{wks.location}/TerranScriptCore/Build/%{cfg.buildcfg}",
     },
 }
 IncludeDirectories = {}
@@ -42,9 +46,3 @@ ExternalLibraries["shaderc"] = "%{wks.location}/TerranEngine/vendor/shaderc/lib/
 ExternalLibraries["shaderc_shared"] = "%{wks.location}/TerranEngine/vendor/shaderc/bin/shaderc_shared.dll"
 ExternalLibraries["imm32"] = "Imm32.lib"
 ExternalLibraries["rpcrt4"] = "Rpcrt4.lib"
-
-External = {}
-External["coral"] = "%{wks.location}/TerranEngine/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json"
-
-InternalLibraries = {}
-InternalLibraries["script_core"] = "%{wks.location}/TerranScriptCore/Build/%{cfg.buildcfg}"
