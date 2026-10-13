@@ -24,6 +24,7 @@ externalincludedirs {
     "%{Dependencies.entt.include}",
     "%{IncludeDirectories.optick}",
     "%{Dependencies.yaml.include}",
+    "%{Dependencies.coral.include}",
     "%{wks.location}/TerranEditor/vendor/FontAwesome",
 }
 
@@ -33,6 +34,7 @@ links {
     "LibWindow",
     "LibScene",
     "LibAsset",
+    "LibScript",
 }
 
 defines {
@@ -42,8 +44,8 @@ defines {
 CopyCommands = {}
 CopyCommands["optick"] = "{COPY} %{ExternalLibraries.optick} %{prj.location}/bin/%{outputdir}"
 CopyCommands["shaderc"] = "{COPY} %{ExternalLibraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
-CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
-CopyCommands["script_core"] = "{COPY} %{InternalLibraries.script_core} %{prj.location}/Resources/Scripts"
+CopyCommands["coral"] = "{COPY} %{Dependencies.coral.external} %{prj.location}/Resources/Scripts"
+CopyCommands["script_core"] = "{COPY} %{Dependencies.script_core.link} %{prj.location}/Resources/Scripts"
 
 filter "system:windows"
 architecture "x86_64"
@@ -87,9 +89,9 @@ links {
 
 postbuildcommands {
     -- todo: copy the pdb
-    -- "{MKDIR} %{prj.location}/Resources/Scripts",
-    -- "%{CopyCommands.coral}",
-    -- "%{CopyCommands.script_core}",
+    "{MKDIR} %{prj.location}/Resources/Scripts",
+    "%{CopyCommands.coral}",
+    "%{CopyCommands.script_core}",
 }
 
 defines "TR_SANDBOX"

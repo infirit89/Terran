@@ -39,9 +39,10 @@ static void TestFunc()
     TR_CLIENT_WARN("Some warning");
 }
 
-SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem)
+SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem, Terran::Core::RawPtr<Terran::Script::ScriptEngine> script_system)
     : Layer("Sandbox Layer", event_dispatcher)
     , m_windowSystem(windowSystem)
+    , m_script_system(script_system)
 {
     Terran::Core::EventDispatcher dispatcher;
     Window::WindowData windowData {
