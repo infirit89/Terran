@@ -23,7 +23,7 @@ Dependencies = {
         external = "%{wks.location}/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json",
     },
     script_core = {
-        link = "%{wks.location}/TerranScriptCore/Build/%{cfg.buildcfg}",
+        link = "%{wks.location}/Terran.Core/Build/%{cfg.buildcfg}/",
     },
 }
 IncludeDirectories = {}

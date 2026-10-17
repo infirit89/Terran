@@ -14,9 +14,6 @@ namespace Terran
 
 	public class Test : Scriptable
 	{
-		internal static unsafe delegate*<NativeString, void> PrintICall;
-		internal static unsafe delegate*<NativeArray<UUID>> GetIDs;
-        internal static unsafe delegate*<in UUID, void> Cum;
 		public int[] TestArr = new[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
         void T1() 
 		{

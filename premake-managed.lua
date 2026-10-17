@@ -15,5 +15,4 @@ group "Dependencies"
 include "vendor/Coral/Coral.Managed"
 
 group "Core"
-include "TerranScriptCore"
-
+include "Terran.Core"
