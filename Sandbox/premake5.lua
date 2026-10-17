@@ -44,8 +44,8 @@ defines {
 CopyCommands = {}
 CopyCommands["optick"] = "{COPY} %{ExternalLibraries.optick} %{prj.location}/bin/%{outputdir}"
 CopyCommands["shaderc"] = "{COPY} %{ExternalLibraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
-CopyCommands["coral"] = "{COPY} %{Dependencies.coral.external} %{prj.location}/Resources/Scripts"
-CopyCommands["script_core"] = "{COPY} %{Dependencies.script_core.link} %{prj.location}/Resources/Scripts"
+CopyCommands["coral"] = "{COPYFILE} %{Dependencies.coral.external} %{prj.location}/Resources/Scripts"
+CopyCommands["script_core"] = "{COPYDIR} %[%{Dependencies.script_core.link}] %[%{prj.location}/Resources/Scripts]"
 
 filter "system:windows"
 architecture "x86_64"
