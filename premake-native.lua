@@ -12,9 +12,7 @@ configurations {
     "Release",
 }
 
-flags {
-    "MultiProcessorCompile",
-}
+multiprocessorcompile "On"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 

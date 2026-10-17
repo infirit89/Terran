@@ -5,7 +5,7 @@ import platform
 
 class PremakeSetup:
 
-    SUPPORTED_VERSIONS = ["5.0.0-beta7"]
+    SUPPORTED_VERSIONS = ["5.0.0"]
     SUPPORTED_PLATFORMS = {
         "windows": "windows",
         "darwin": "macosx"
