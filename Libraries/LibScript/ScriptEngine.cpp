@@ -27,6 +27,7 @@
 #include <Coral/GC.hpp>
 #include <Coral/HostInstance.hpp>
 #include <Coral/TypeCache.hpp>
+#include <LibScript/bindings/LogBinding.h>
 #include <functional>
 
 #include <filesystem>
@@ -36,22 +37,22 @@
 
 namespace Terran::Script {
 
-void ScriptEngine::DispatchLog(std::string_view message, spdlog::level::level_enum logLevel)
+void ScriptEngine::dispatch_log(std::string_view message, spdlog::level::level_enum log_level)
 {
-    ScriptEngineLogEvent logEvent(message, logLevel);
+    ScriptEngineLogEvent logEvent(message, log_level);
     event_dispatcher.trigger(logEvent);
 }
 
-void ScriptEngine::OnException(std::string_view message)
+void ScriptEngine::on_exception(std::string_view message)
 {
-    std::string_view processedMessage = message.substr(0, message.find_first_of('\n'));
-    TR_ERROR(SCRIPT_SYSTEM, processedMessage);
-    DispatchLog(processedMessage, spdlog::level::err);
+    std::string_view processed_message = message.substr(0, message.find_first_of('\n'));
+    TR_ERROR(SCRIPT_SYSTEM, processed_message);
+    dispatch_log(processed_message, spdlog::level::err);
 }
 
-static void OnMessage(std::string_view message, Coral::MessageLevel messageLevel)
+static void OnMessage(std::string_view message, Coral::MessageLevel message_level)
 {
-    switch (messageLevel) {
+    switch (message_level) {
     case Coral::MessageLevel::Info:
         TR_INFO(SCRIPT_SYSTEM, message);
         break;
@@ -65,7 +66,7 @@ static void OnMessage(std::string_view message, Coral::MessageLevel messageLevel
     }
 }
 
-void ScriptEngine::CreateAssemblyLoadContext()
+void ScriptEngine::create_assembly_load_context()
 {
     m_load_context = m_host_instance.CreateAssemblyLoadContext("ScriptAppContext");
 }
@@ -81,28 +82,29 @@ Core::Result<void> ScriptEngine::on_attach()
     Coral::HostSettings settings = {
         .CoralDirectory = CoralDirectory,
         .MessageCallback = OnMessage,
-        .ExceptionCallback = std::bind_front(&ScriptEngine::OnException, this),
+        .ExceptionCallback = std::bind_front(&ScriptEngine::on_exception, this),
     };
 
     if (!m_host_instance.Initialize(settings)) {
         TR_ERROR(SCRIPT_SYSTEM, "Failed to initialize host instance");
+
         return Core::Bad();
     }
 
-    CreateAssemblyLoadContext();
+    create_assembly_load_context();
 
-    LoadCoreAssembly();
+    load_core_assembly();
     TR_INFO(SCRIPT_SYSTEM, "Initialized script engine");
 
     return {};
 }
 
-bool ScriptEngine::LoadCoreAssembly()
+bool ScriptEngine::load_core_assembly()
 {
-    auto& coreAssembly = m_assemblies.at(TR_CORE_ASSEMBLY_INDEX);
+    auto& core_assembly = m_assemblies.at(TR_CORE_ASSEMBLY_INDEX);
     TR_INFO(SCRIPT_SYSTEM, "Loading core assembly at {}", m_core_assembly_path);
-    coreAssembly = m_load_context.LoadAssembly(m_core_assembly_path.string());
-    if (coreAssembly.GetLoadStatus() != Coral::AssemblyLoadStatus::Success) {
+    core_assembly = m_load_context.LoadAssembly(m_core_assembly_path.string());
+    if (core_assembly.GetLoadStatus() != Coral::AssemblyLoadStatus::Success) {
         return false;
     }
 
@@ -122,6 +124,7 @@ bool ScriptEngine::LoadCoreAssembly()
 
     intialize_type_map();
     // ScriptBindings::Bind(coreAssembly);
+    bind_internal_calls(core_assembly);
     return true;
 }
 
@@ -229,7 +232,7 @@ void ScriptEngine::ReloadAppAssembly()
     // Log("Reloaded assemblies", spdlog::level::info);
 }
 
-ScriptFieldType ScriptEngine::field_type(Coral::Type const& type)
+ScriptFieldType ScriptEngine::convert_coral_type_to_field_type(Coral::Type const& type)
 {
     Coral::ManagedType managedType = type.GetManagedType();
     if (managedType != Coral::ManagedType::Unknown && managedType != Coral::ManagedType::Pointer)
@@ -350,7 +353,7 @@ Core::Shared<ScriptInstance> ScriptEngine::create_script_instance(World::Entity 
         ScriptField field;
         Coral::Type& fieldType = fieldInfo.GetType();
         field.IsArray = fieldType.IsArray();
-        field.Type = field_type(field.IsArray ? fieldType.GetElementType() : fieldType);
+        field.Type = convert_coral_type_to_field_type(field.IsArray ? fieldType.GetElementType() : fieldType);
 
         field.Name = fieldName;
         instance->m_fields.emplace(fieldInfo.GetHandle(), field);
@@ -442,6 +445,10 @@ bool ScriptEngine::load_app_assembly(std::filesystem::path const& assembly_path)
     }
 
     return true;
+}
+
+void ScriptEngine::bind_internal_calls(Coral::ManagedAssembly& assembly) {
+    LogBinding::bind(assembly, this);
 }
 
 }

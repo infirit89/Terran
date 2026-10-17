@@ -2,6 +2,7 @@
 
 #include "BindingBase.h"
 
+#include <LibCore/Base.h>
 #include <vector>
 #include <Coral/Assembly.hpp>
 #include <LibCore/Log.h>
@@ -14,14 +15,13 @@
 namespace Terran::Script {
 
 // NOTE: maybe pass the ScriptEngine instance to C# as an IntPtr and then call internal functions with that instance
-class LogBinding final : public BindingBase {
+class LogBinding final {
 public:
-    LogBinding(Coral::ManagedAssembly& assembly)
+    static void bind(Coral::ManagedAssembly& assembly, Core::RawPtr<ScriptEngine> script_engine)
     {
+        s_script_engine = script_engine;
         BIND_INTERNAL_FUNC(LogBinding::Log_LogICall);
     }
-    virtual ~LogBinding() override = default;
-
 private:
     enum class ScriptLogLevel : uint8_t {
         Trace = 1 << 0,
@@ -36,19 +36,22 @@ private:
         switch ((ScriptLogLevel)logLevel) {
         case ScriptLogLevel::Trace:
             TR_TRACE(SCRIPT_SYSTEM, messageStr);
-            ScriptEngine::the()->DispatchLog(messageStr, spdlog::level::trace);
+            s_script_engine->dispatch_log(messageStr, spdlog::level::trace);
             break;
         case ScriptLogLevel::Warn:
             TR_WARN(SCRIPT_SYSTEM, messageStr);
-            ScriptEngine::the()->DispatchLog(messageStr, spdlog::level::warn);
+            s_script_engine->dispatch_log(messageStr, spdlog::level::warn);
             break;
         case ScriptLogLevel::Error:
             TR_ERROR(SCRIPT_SYSTEM, messageStr);
-            ScriptEngine::the()->DispatchLog(messageStr, spdlog::level::err);
+            s_script_engine->dispatch_log(messageStr, spdlog::level::err);
             break;
         default:;
         }
     }
+
+    static Core::RawPtr<ScriptEngine> s_script_engine;
 };
+
 
 }

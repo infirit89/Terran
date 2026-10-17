@@ -1,7 +1,10 @@
 #pragma once
 
 #include "ScriptInstance.h"
+#include "ManagedTypesCache.h"
+#include "bindings/BindingBase.h"
 
+#include <Coral/Assembly.hpp>
 #include <Coral/FieldInfo.hpp>
 #include <Coral/Type.hpp>
 #include <LibCore/Base.h>
@@ -10,14 +13,17 @@
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
 
+#include <LibCore/Unique.h>
 #include <LibScene/Entity.h>
 #include <LibScene/Scene.h>
 
-#include <LibScript/ManagedTypesCache.h>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <unordered_map>
+#include <vector>
+#include <string_view>
+#include <string>
 
 #include <Coral/GC.hpp>
 #include <Coral/HostInstance.hpp>
@@ -41,9 +47,9 @@ public:
 
     void ReloadAppAssembly();
 
-    Core::Shared<ScriptInstance> script_instance(World::Entity entity);
+    Core::Shared<ScriptInstance> script_instance(World::Entity);
 
-    Core::Shared<ScriptInstance> script_instance(Core::UUID const& sceneID, Core::UUID const& entityID);
+    Core::Shared<ScriptInstance> script_instance(Core::UUID const& scene_id, Core::UUID const& entity_id);
     Core::Shared<ScriptInstance> create_script_instance(World::Entity entity);
     void destroy_script_instance(World::Entity entity);
 
@@ -66,14 +72,16 @@ public:
     bool load_app_assembly(std::filesystem::path const& assembly_path);
 
 private:
-    void CreateAssemblyLoadContext();
-    bool LoadCoreAssembly();
+    void create_assembly_load_context();
+    bool load_core_assembly();
     bool intialize_type_map();
-    void DispatchLog(std::string_view message, spdlog::level::level_enum logLevel);
-    void OnException(std::string_view message);
-    ScriptFieldType field_type(Coral::Type const& type);
-    bool is_field_accessible(Coral::FieldInfo& field);
-    bool is_type_scriptable_type(Coral::Type& type);
+    void dispatch_log(std::string_view message, spdlog::level::level_enum logLevel);
+    void on_exception(std::string_view message);
+    ScriptFieldType convert_coral_type_to_field_type(Coral::Type const&);
+    bool is_field_accessible(Coral::FieldInfo&);
+    bool is_type_scriptable_type(Coral::Type&);
+
+    void bind_internal_calls(Coral::ManagedAssembly&);
 
 private:
     Coral::HostInstance m_host_instance;
@@ -87,6 +95,7 @@ private:
     std::filesystem::path m_core_assembly_path;
     std::unordered_map<Coral::TypeId, ScriptFieldType> m_field_type_map;
     std::unordered_map<std::string, Coral::Type> m_type_map;
+
     ManagedTypesCache m_managed_types_cache;
 
     friend class ScriptBindings;
