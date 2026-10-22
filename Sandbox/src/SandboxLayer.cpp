@@ -12,6 +12,7 @@
 #include <LibMain/Application.h>
 #include <LibScene/Scene.h>
 #include <LibScene/SceneSerializer.h>
+#include <LibScript/ScriptComponent.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <LibWindow/Window.h>
@@ -39,9 +40,13 @@ static void TestFunc()
     TR_CLIENT_WARN("Some warning");
 }
 
-SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem, Terran::Core::RawPtr<Terran::Script::ScriptEngine> script_system)
+SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher,
+    Terran::Core::RawPtr<Terran::Window::WindowSystem> windowSystem,
+    Terran::Core::RawPtr<Terran::World::SceneManager> scene_system,
+    Terran::Core::RawPtr<Terran::Script::ScriptEngine> script_system)
     : Layer("Sandbox Layer", event_dispatcher)
     , m_windowSystem(windowSystem)
+    , m_scene_system(scene_system)
     , m_script_system(script_system)
 {
     Terran::Core::EventDispatcher dispatcher;
@@ -53,11 +58,17 @@ SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher, Terr
     auto const& window = m_windowSystem->window(windowId);
 
     event_dispatcher.handlers<Terran::Window::WindowCloseEvent>().connect<&SandboxLayer::on_window_close>(this);
-
 }
 
 Core::Result<void> SandboxLayer::on_attach()
 {
+    auto scene = m_scene_system->create_empty_scene();
+    auto entity = scene->create_entity("Test");
+    entity.add_component<Terran::Script::ScriptComponent>()
+        .ModuleName
+        = "Terran.Test";
+    auto scriptInstance = m_script_system->create_script_instance(entity);
+    m_script_system->on_start(entity);
     return {};
 }
 
