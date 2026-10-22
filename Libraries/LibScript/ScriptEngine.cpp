@@ -102,7 +102,6 @@ Core::Result<void> ScriptEngine::on_attach()
 bool ScriptEngine::load_core_assembly()
 {
     auto& core_assembly = m_assemblies.at(TR_CORE_ASSEMBLY_INDEX);
-    TR_INFO(SCRIPT_SYSTEM, "Loading core assembly at {}", m_core_assembly_path);
     core_assembly = m_load_context.LoadAssembly(m_core_assembly_path.string());
     if (core_assembly.GetLoadStatus() != Coral::AssemblyLoadStatus::Success) {
         return false;
@@ -429,7 +428,6 @@ void const* ScriptEngine::create_component_instance(int32_t componentTypeId, Cor
 bool ScriptEngine::load_app_assembly(std::filesystem::path const& assembly_path)
 {
     auto& appAssembly = m_assemblies.at(TR_APP_ASSEMBLY_INDEX);
-    TR_INFO(SCRIPT_SYSTEM, "Loading app assembly at: {}", assembly_path);
     appAssembly = m_load_context.LoadAssembly(assembly_path.string());
 
     Coral::AssemblyLoadStatus status = appAssembly.GetLoadStatus();
@@ -449,6 +447,7 @@ bool ScriptEngine::load_app_assembly(std::filesystem::path const& assembly_path)
 
 void ScriptEngine::bind_internal_calls(Coral::ManagedAssembly& assembly) {
     LogBinding::bind(assembly, this);
+    assembly.UploadInternalCalls();
 }
 
 }
