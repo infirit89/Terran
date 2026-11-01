@@ -34,7 +34,7 @@ using SteadyClock = std::chrono::steady_clock;
 using TimePoint = SteadyClock::time_point;
 enum class RemoveAssetMetadata : uint8_t {
     No = 0,
-    Yes = 1
+    Yes = 1,
 };
 
 enum class RemoveAssetImmediately : uint8_t {
@@ -44,7 +44,7 @@ enum class RemoveAssetImmediately : uint8_t {
 
 enum class AssetRemoveError : uint8_t {
     AssetNotFound,
-    MetadatNotFound
+    MetadatNotFound,
 };
 
 struct CacheEntry {
@@ -96,8 +96,8 @@ public:
     requires(std::is_base_of_v<Asset, TAsset>)
     Core::RefPtr<TAsset> asset_by_metadata(AssetMetadata const& asset_metadata)
     {
-        if (m_loaded_assets.contains(asset_metadata.AssetId))
-            return asset_by_id<TAsset>(asset_metadata.AssetId);
+        if (m_loaded_assets.contains(asset_metadata.Id))
+            return asset_by_id<TAsset>(asset_metadata.Id);
 
         AssetLoadResult asset_result = AssetImporterRegistry::load(asset_metadata);
 
@@ -107,8 +107,8 @@ public:
         }
 
         Core::RefPtr<Asset> const& asset = asset_result.value();
-        asset->m_id = asset_metadata.AssetId;
-        m_loaded_assets[asset_metadata.AssetId] = { .data = asset, .last_accessed_time = SteadyClock::now() };
+        asset->m_id = asset_metadata.Id;
+        m_loaded_assets[asset_metadata.Id] = { .data = asset, .last_accessed_time = SteadyClock::now() };
         return Core::dynamic_pointer_cast<TAsset>(asset);
     }
 
@@ -162,7 +162,7 @@ public:
     AssetMetadata create_asset_metadata(AssetId const& asset_id, std::filesystem::path const& file_path) const
     {
         AssetMetadata metadata;
-        metadata.AssetId = asset_id;
+        metadata.Id = asset_id;
         metadata.Path = file_path;
         metadata.Type = TAsset::static_type();
         return metadata;

@@ -43,18 +43,18 @@ public:
 
 // ---- Entity ----
 #pragma region Entity
-    static bool Entity_HasComponentICall(const Terran::Core::UUID& id, int32_t typeId);
-    static void Entity_AddComponentICall(Terran::Core::UUID const& id, int32_t typeId);
-    static void Entity_RemoveComponentICall(Terran::Core::UUID const& id, int32_t typeId);
-    static void* Entity_GetScriptableComponentICall(Terran::Core::UUID const& id);
+    static bool Entity_HasComponentICall(const Core::UUID& id, int32_t typeId);
+    static void Entity_AddComponentICall(Core::UUID const& id, int32_t typeId);
+    static void Entity_RemoveComponentICall(Core::UUID const& id, int32_t typeId);
+    static void* Entity_GetScriptableComponentICall(Core::UUID const& id);
 
-    static bool Entity_FindEntityWithNameICall(Coral::String entityName, Terran::Core::UUID& id);
+    static bool Entity_FindEntityWithNameICall(Coral::String entityName, Core::UUID& id);
 
-    static void Entity_DestroyEntityICall(Terran::Core::UUID const& id);
+    static void Entity_DestroyEntityICall(Core::UUID const& id);
 
-    static int Entity_GetChildrenCountICall(Terran::Core::UUID const& id);
-    static Terran::Core::UUID Entity_GetChildICall(Terran::Core::UUID const& id, int index);
-    static Terran::Core::UUID Entity_GetParentICall(Terran::Core::UUID const& id);
+    static int Entity_GetChildrenCountICall(Core::UUID const& id);
+    static Core::UUID Entity_GetChildICall(Core::UUID const& id, int index);
+    static Core::UUID Entity_GetParentICall(Core::UUID const& id);
 #pragma endregion
     // ----------------
 
@@ -155,20 +155,20 @@ public:
 
 // ---- Transform component ----
 #pragma region Transform Component
-    static glm::vec3 Transform_GetPositionICall(const Terran::Core::UUID& id);
-    static void Transform_SetPositionICall(Terran::Core::UUID const& id, glm::vec3 const& inPosition);
+    static glm::vec3 Transform_GetPositionICall(const Core::UUID& id);
+    static void Transform_SetPositionICall(Core::UUID const& id, glm::vec3 const& inPosition);
 
-    static glm::vec3 Transform_GetRotationICall(Terran::Core::UUID const& id);
-    static void Transform_SetRotationICall(Terran::Core::UUID const& id, glm::vec3 const& inRotation);
+    static glm::vec3 Transform_GetRotationICall(Core::UUID const& id);
+    static void Transform_SetRotationICall(Core::UUID const& id, glm::vec3 const& inRotation);
 
-    static glm::vec3 Transform_GetScaleICall(Terran::Core::UUID const& id);
-    static void Transform_SetScaleICall(Terran::Core::UUID const& id, glm::vec3 const& inScale);
+    static glm::vec3 Transform_GetScaleICall(Core::UUID const& id);
+    static void Transform_SetScaleICall(Core::UUID const& id, glm::vec3 const& inScale);
 
-    static bool Transform_IsDirtyICall(Terran::Core::UUID const& id);
+    static bool Transform_IsDirtyICall(Core::UUID const& id);
 
-    static glm::vec3 Transform_GetForwardICall(Terran::Core::UUID const& id);
-    static glm::vec3 Transform_GetUpICall(Terran::Core::UUID const& id);
-    static glm::vec3 Transform_GetRightICall(Terran::Core::UUID const& id);
+    static glm::vec3 Transform_GetForwardICall(Core::UUID const& id);
+    static glm::vec3 Transform_GetUpICall(Core::UUID const& id);
+    static glm::vec3 Transform_GetRightICall(Core::UUID const& id);
 #pragma endregion
 // -----------------------------
 
@@ -220,7 +220,7 @@ public:
 
 // ---- Scene ----
 #pragma region Scene
-    static Terran::Core::UUID Scene_GetMainCameraICall();
+    static Core::UUID Scene_GetMainCameraICall();
 #pragma endregion
     // ---------------
 

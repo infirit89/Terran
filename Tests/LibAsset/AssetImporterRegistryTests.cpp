@@ -39,7 +39,7 @@ public:
     virtual ~MockAssetImporter() override = default;
     [[nodiscard]] virtual AssetLoadResult load(AssetMetadata const& assetMetadata) override
     {
-        Core::RefPtr<MockAsset> asset = Core::RefPtr<MockAsset>::create(assetMetadata.AssetId);
+        Core::RefPtr<MockAsset> asset = Core::RefPtr<MockAsset>::create(assetMetadata.Id);
         return { asset };
     }
     virtual bool save(AssetMetadata const&, Core::RefPtr<Asset> const&) override
@@ -59,7 +59,7 @@ class AssetImporterRegistryTest : public testing::Test {
 protected:
     AssetImporterRegistryTest()
     {
-        m_asset_metadata.AssetId = Core::UUID();
+        m_asset_metadata.Id = Core::UUID();
         m_asset_metadata.Path = "";
         m_asset_metadata.Type = MockAsset::static_type();
 
@@ -80,7 +80,7 @@ TEST_F(AssetImporterRegistryTest, load_calls_load_for_a_given_asset_importer_whe
     auto assetRes = AssetImporterRegistry::load(m_asset_metadata);
     ASSERT_TRUE(assetRes.is_ok());
     ASSERT_TRUE(assetRes.value()->is_valid());
-    ASSERT_EQ(assetRes.value()->id(), m_asset_metadata.AssetId);
+    ASSERT_EQ(assetRes.value()->id(), m_asset_metadata.Id);
 }
 
 TEST_F(AssetImporterRegistryTest, load_returns_error_when_asset_importer_of_a_given_type_is_not_registered)
@@ -95,7 +95,7 @@ TEST_F(AssetImporterRegistryTest, load_returns_error_when_asset_importer_of_a_gi
 
 TEST_F(AssetImporterRegistryTest, save_calls_save_for_a_given_asset_importer_when_it_is_registered)
 {
-    Core::RefPtr<MockAsset> mockAsset = Core::RefPtr<MockAsset>::create(m_asset_metadata.AssetId);
+    Core::RefPtr<MockAsset> mockAsset = Core::RefPtr<MockAsset>::create(m_asset_metadata.Id);
     bool result = AssetImporterRegistry::save(m_asset_metadata, mockAsset);
     ASSERT_TRUE(result);
 }

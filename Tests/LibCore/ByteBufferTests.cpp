@@ -2,7 +2,9 @@
 
 #include <gtest/gtest.h>
 
-namespace Terran::Tests {
+namespace {
+
+using namespace Terran;
 
 class ByteBufferTest : public testing::Test {
 protected:

@@ -1,8 +1,8 @@
 #include "ScriptInstance.h"
 #include "ScriptEngine.h"
+#include "ScriptFieldType.h"
 #include "ScriptTypes.h"
 #include "Variant.h"
-#include "ScriptFieldType.h"
 
 #include <LibCore/Log.h>
 #include <LibCore/UUID.h>
@@ -14,14 +14,14 @@
 #include <Coral/String.hpp>
 #include <Coral/Type.hpp>
 
-#include <ranges>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
+#include <ranges>
 #include <string>
 
 namespace Terran::Script {
 
-ScriptInstance::ScriptInstance(ScriptEngine* script_engine, Coral::Type const& type, Terran::Core::UUID const& id)
+ScriptInstance::ScriptInstance(ScriptEngine* script_engine, Coral::Type const& type, Core::UUID const& id)
     : m_script_engine(script_engine)
 {
     m_context = type.CreateInstance(id).GetHandle();
@@ -68,7 +68,7 @@ void ScriptInstance::field_value_internal(int32_t fieldHandle, void* value) cons
     } else                                                                                      \
         array = Coral::ManagedArray(it->second.Handle, it->second.Rank)
 
-void ScriptInstance::set_field_array_value_internal(const ScriptArray& array, void* value, const int32_t* indices, size_t indicesSize)
+void ScriptInstance::set_field_array_value_internal(ScriptArray const& array, void* value, int32_t const* indices, size_t indicesSize)
 {
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     managedArray.SetValueRaw(indices, indicesSize, value);
@@ -89,14 +89,14 @@ void ScriptInstance::SetFieldValue<std::string>(int32_t fieldHandle, std::string
 }
 
 template<>
-void ScriptInstance::SetFieldValue<Terran::Core::UUID>(int32_t fieldHandle, Terran::Core::UUID const& value) const
+void ScriptInstance::SetFieldValue<Core::UUID>(int32_t fieldHandle, Core::UUID const& value) const
 {
     Coral::ManagedObject object = m_context;
     Coral::ManagedObject entityObject = m_script_engine->create_entity_type_instance(value);
     auto it = m_field_objects.find(fieldHandle);
-    if (it == m_field_objects.end())
+    if (it == m_field_objects.end()) {
         m_field_objects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
-    else {
+    } else {
         ScriptObject& temp = m_field_objects.at(fieldHandle);
         Coral::ManagedObject tempObject = temp.Handle;
         tempObject.Destroy();
@@ -160,7 +160,7 @@ void ScriptInstance::SetFieldValue<Utils::Variant>(int32_t fieldHandle, Utils::V
         SetFieldValue<std::string>(fieldHandle, value);
         return;
     case Utils::Variant::Type::UUID:
-        SetFieldValue<Terran::Core::UUID>(fieldHandle, value);
+        SetFieldValue<Core::UUID>(fieldHandle, value);
         return;
     default:;
     }
@@ -180,7 +180,7 @@ std::string ScriptInstance::GetFieldValue<std::string>(int32_t fieldHandle) cons
 }
 
 template<>
-Terran::Core::UUID ScriptInstance::GetFieldValue<Terran::Core::UUID>(int32_t fieldHandle) const
+Core::UUID ScriptInstance::GetFieldValue<Core::UUID>(int32_t fieldHandle) const
 {
     // TR_PROFILE_FUNCTION();
     Coral::ManagedObject object = m_context;
@@ -190,13 +190,14 @@ Terran::Core::UUID ScriptInstance::GetFieldValue<Terran::Core::UUID>(int32_t fie
         entityObject = object.GetFieldValueByHandle<Coral::ManagedObject>(fieldHandle);
 
         if (entityObject.GetHandle() == nullptr)
-            return {};
+            return { };
 
         m_field_objects.emplace(fieldHandle, ScriptObject { entityObject.GetHandle() });
-    } else
+    } else {
         entityObject = it->second.Handle;
+    }
 
-    Terran::Core::UUID id = Terran::Core::UUID::invalid();
+    Core::UUID id = Core::UUID::invalid();
     entityObject.GetFieldValueByHandleRaw(m_script_engine->entity_id_field_handle(), &id);
     return id;
 }
@@ -239,12 +240,12 @@ Utils::Variant ScriptInstance::GetFieldValue<Utils::Variant>(int32_t fieldHandle
     case ScriptFieldType::String:
         return GetFieldValue<std::string>(fieldHandle);
     case ScriptFieldType::Entity:
-        return GetFieldValue<Terran::Core::UUID>(fieldHandle);
+        return GetFieldValue<Core::UUID>(fieldHandle);
     default:;
     }
 
     TR_ASSERT(false, "Unknown script field type");
-    return {};
+    return { };
 }
 
 template<>
@@ -256,7 +257,7 @@ void ScriptInstance::SetFieldArrayValue<std::string>(ScriptArray const& array, s
 }
 
 template<>
-void ScriptInstance::SetFieldArrayValue(ScriptArray const& array, Terran::Core::UUID const& value, int32_t const* indices, size_t indicesSize)
+void ScriptInstance::SetFieldArrayValue(ScriptArray const& array, Core::UUID const& value, int32_t const* indices, size_t indicesSize)
 {
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
     Coral::ManagedObject entityObject = m_script_engine->create_entity_type_instance(value);
@@ -317,7 +318,7 @@ void ScriptInstance::SetFieldArrayValue<Utils::Variant>(ScriptArray const& array
         SetFieldArrayValue<std::string>(array, value, indices, static_cast<int32_t>(indicesSize));
         return;
     case Utils::Variant::Type::UUID:
-        SetFieldArrayValue<Terran::Core::UUID>(array, value, indices, static_cast<int32_t>(indicesSize));
+        SetFieldArrayValue<Core::UUID>(array, value, indices, static_cast<int32_t>(indicesSize));
         return;
     default:;
     }
@@ -336,7 +337,7 @@ std::string ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t
 }
 
 template<>
-Terran::Core::UUID ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t const* indices, size_t indicesSize)
+Core::UUID ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int32_t const* indices, size_t indicesSize)
 {
     // TR_PROFILE_FUNCTION();
     Coral::ManagedArray managedArray(array.Handle, array.Rank);
@@ -344,9 +345,9 @@ Terran::Core::UUID ScriptInstance::GetFieldArrayValue(ScriptArray const& array, 
     managedArray.GetValueRaw(indices, indicesSize, &entityObject);
 
     if (entityObject.GetHandle() == nullptr)
-        return {};
+        return { };
 
-    Terran::Core::UUID id = Terran::Core::UUID::invalid();
+    Core::UUID id = Core::UUID::invalid();
     entityObject.GetFieldValueByHandleRaw(m_script_engine->entity_id_field_handle(), &id);
     entityObject.Destroy();
     return id;
@@ -390,12 +391,12 @@ Utils::Variant ScriptInstance::GetFieldArrayValue(ScriptArray const& array, int3
     case ScriptFieldType::String:
         return GetFieldArrayValue<std::string>(array, indices, static_cast<int32_t>(indicesSize));
     case ScriptFieldType::Entity:
-        return GetFieldArrayValue<Terran::Core::UUID>(array, indices, static_cast<int32_t>(indicesSize));
+        return GetFieldArrayValue<Core::UUID>(array, indices, static_cast<int32_t>(indicesSize));
     default:;
     }
 
     TR_ASSERT(false, "Unknown script field type");
-    return {};
+    return { };
 }
 
 void ScriptInstance::resize_field_array_internal(ScriptArray& array, int32_t length)
@@ -485,7 +486,7 @@ void ScriptInstance::invoke_update(float deltaTime) const
 //     }
 // }
 
-void ScriptInstance::copy_field_from(int32_t fieldHandle, Terran::Core::Shared<ScriptInstance> const& source)
+void ScriptInstance::copy_field_from(int32_t fieldHandle, Core::Shared<ScriptInstance> const& source)
 {
     ScriptField const& current_field = field(fieldHandle);
 

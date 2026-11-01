@@ -7,9 +7,9 @@
 
 #include <array>
 
-namespace Terran::Core {
+namespace Terran::Core::Math {
 
-bool Math::decompose_transform_matrix(glm::mat4 const& modelMatrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
+bool decompose_transform_matrix(glm::mat4 const& modelMatrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
 {
     glm::mat4 LocalMatrix(modelMatrix);
 
@@ -71,7 +71,7 @@ bool Math::decompose_transform_matrix(glm::mat4 const& modelMatrix, glm::vec3& t
     return true;
 }
 
-glm::mat4 Math::compose_transform_matrix(glm::vec3 const& translation, glm::vec3 const& rotation, glm::vec3 const& scale)
+glm::mat4 compose_transform_matrix(glm::vec3 const& translation, glm::vec3 const& rotation, glm::vec3 const& scale)
 {
     return glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f), scale);
 }

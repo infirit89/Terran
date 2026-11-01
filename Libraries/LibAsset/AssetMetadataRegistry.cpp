@@ -69,7 +69,7 @@ void AssetMetadataRegistry::serialize_asset_metadata(YAML::Emitter& out)
 
     for (auto const& [assetID, assetInfo] : s_asset_metadata) {
         out << YAML::BeginMap;
-        out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.AssetId);
+        out << YAML::Key << "Asset" << YAML::Value << std::to_string(assetInfo.Id);
         out << YAML::Key << "Type" << YAML::Value << assetInfo.Type;
         out << YAML::Key << "Path" << YAML::Value << assetInfo.Path.string();
         out << YAML::EndMap;
@@ -92,7 +92,7 @@ void AssetMetadataRegistry::deserialize_asset_metadata(YAML::Node const& node)
 
                 info.Type = assetInfo["Type"].as<AssetTypeId>();
                 info.Path = assetInfo["Path"].as<std::string>();
-                info.AssetId = assetHandle;
+                info.Id = assetHandle;
 
                 if (info.Path.empty())
                     continue;
@@ -137,7 +137,7 @@ bool AssetMetadataRegistry::contains(AssetId const& handle) {
 }
 
 void AssetMetadataRegistry::add_asset_metadata(const AssetMetadata &metadata) {
-    s_asset_metadata.emplace(metadata.AssetId, metadata);
+    s_asset_metadata.emplace(metadata.Id, metadata);
 }
 
 }

@@ -116,6 +116,32 @@ UUID::type UUID::generate()
 
     m_Data = data;
 }
+#elif defined(TR_LINUX)
+#include <uuid/uuid.h>
+UUID::type UUID::generate()
+{
+    uuid_t out;
+    uuid_generate(out);
+    // explicit for visibility
+    return {
+        out[0],
+        out[1],
+        out[2],
+        out[3],
+        out[4],
+        out[5],
+        out[6],
+        out[7],
+        out[8],
+        out[9],
+        out[10],
+        out[11],
+        out[12],
+        out[13],
+        out[14],
+        out[15],
+    };
+}
 #endif
 
 }

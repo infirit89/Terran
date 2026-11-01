@@ -35,7 +35,7 @@ namespace Terran::Script {
 #define TR_APP_ASSEMBLY_INDEX 1
 #define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
 
-class ScriptEngine final : public Terran::Core::Layer {
+class ScriptEngine final : public Core::Layer {
 public:
     using script_instance_container_type = std::unordered_map<Core::UUID, std::unordered_map<Core::UUID, Core::Shared<ScriptInstance>>>;
     using ScriptTypeFilterFn = std::function<bool()>;

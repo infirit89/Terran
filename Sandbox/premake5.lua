@@ -29,12 +29,12 @@ externalincludedirs {
 }
 
 links {
-    "LibCore",
     "LibMain",
     "LibWindow",
     "LibScene",
     "LibAsset",
     "LibScript",
+    "LibCore",
 }
 
 defines {
@@ -94,6 +94,31 @@ postbuildcommands {
     "%{CopyCommands.script_core}",
 }
 
+filter "system:linux"
+architecture "x86_64"
+systemversion "latest"
+
+links {
+    "uuid",
+    "GLFW",
+    "ImGui",
+    "GLAD",
+    "msdf-atlas-gen",
+    "Box2D",
+    "yaml-cpp",
+    "Coral.Native",
+    "msdfgen",
+    "freetype",
+}
+
+postbuildcommands {
+    -- todo: copy the pdb
+    "{MKDIR} %{prj.location}/Resources/Scripts",
+    "%{CopyCommands.coral}",
+    "%{CopyCommands.script_core}",
+}
+
+filter ""
 defines "TR_SANDBOX"
 
 filter "configurations:Debug"

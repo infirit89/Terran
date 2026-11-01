@@ -8,7 +8,8 @@ class PremakeSetup:
     SUPPORTED_VERSIONS = ["5.0.0"]
     SUPPORTED_PLATFORMS = {
         "windows": "windows",
-        "darwin": "macosx"
+        "darwin": "macosx",
+        "linux": "linux"
     }
     PREMAKE_DIRECTORY = "./premake"
     PREMAKE_URL_TEMPLATE = "https://github.com/premake/premake-core/releases/download/v{premake_version}/premake-{premake_version}-{premake_platform}.{extension}" 

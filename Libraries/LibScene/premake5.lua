@@ -36,6 +36,13 @@ links {
     "CoreFoundation.framework", -- no path needed for system frameworks
 }
 
+filter { "system:linux" }
+architecture "x86_64"
+libdirs { "/usr/local/lib" }
+links {
+    "LibCore"
+}
+
 filter "system:windows"
 architecture "x86_64"
 systemversion "latest"
