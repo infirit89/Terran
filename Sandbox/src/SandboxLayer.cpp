@@ -52,6 +52,7 @@ SandboxLayer::SandboxLayer(Terran::Core::EventDispatcher& event_dispatcher,
     Terran::Core::EventDispatcher dispatcher;
     Window::WindowData windowData {
         .Name = "Test Window",
+        .Maximized = false,
     };
 
     Core::UUID windowId = m_windowSystem->create(windowData);
