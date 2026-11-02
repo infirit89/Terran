@@ -301,11 +301,6 @@ bool ScriptEngine::is_field_accessible(Coral::FieldInfo& field)
         || field.HasAttribute(*m_managed_types_cache.serialize_field_type());
 }
 
-bool ScriptEngine::is_type_scriptable_type(Coral::Type& type)
-{
-    return type.IsSubclassOf(*m_managed_types_cache.scriptable_type());
-}
-
 Core::Shared<ScriptInstance> ScriptEngine::create_script_instance(World::Entity entity)
 {
     // TR_PROFILE_FUNCTION();
@@ -331,7 +326,7 @@ Core::Shared<ScriptInstance> ScriptEngine::create_script_instance(World::Entity 
             return ((*obj).second);
     }
 
-    if (!is_type_scriptable_type(type)) {
+    if (!is_type_scriptable(type)) {
         TR_ERROR(SCRIPT_SYSTEM, "Class {0} doesn not extend Scriptable", scriptComponent.ModuleName);
         return nullptr;
     }
@@ -448,6 +443,10 @@ bool ScriptEngine::load_app_assembly(std::filesystem::path const& assembly_path)
 void ScriptEngine::bind_internal_calls(Coral::ManagedAssembly& assembly) {
     LogBinding::bind(assembly, this);
     assembly.UploadInternalCalls();
+}
+
+bool ScriptEngine::is_type_scriptable(Coral::Type& type) {
+    return type.IsSubclassOf(*m_managed_types_cache.scriptable_type());
 }
 
 }

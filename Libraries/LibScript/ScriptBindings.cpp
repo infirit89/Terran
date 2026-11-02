@@ -33,9 +33,6 @@ namespace Terran::Script {
 
 #define BIND_INTERNAL_FUNC(func) assembly.AddInternalCall("Terran.Internal", #func, reinterpret_cast<void*>(&func))
 
-static std::unordered_map<int32_t, std::function<bool(World::Entity)>> s_HasComponentFuncs;
-static std::unordered_map<int32_t, std::function<void(World::Entity)>> s_AddComponentFuncs;
-static std::unordered_map<int32_t, std::function<void(World::Entity)>> s_RemoveComponentFuncs;
 
 #define REGISTER_COMPONENT(ComponentType, Component)                                                                                       \
     Coral::Type type_##ComponentType = assembly.GetType("Terran." #ComponentType);                                                         \
@@ -179,73 +176,12 @@ void ScriptBindings::Unbind()
 // ---------------
 
 // ---- Entity ----
-// #pragma region Entity
-// #define GET_ENTITY() \
-//     World::Entity entity = World::SceneManager::GetCurrentScene()->FindEntityWithUUID(id)
 //
-// bool ScriptBindings::Entity_HasComponentICall(const Terran::Core::UUID& id, int32_t typeId)
-// {
-//     // TR_PROFILE_FUNCTION();
-//     GET_ENTITY();
-//     if (!entity)
-//         return false;
-//
-//     if (s_HasComponentFuncs.find(typeId) != s_HasComponentFuncs.end())
-//         return s_HasComponentFuncs.at(typeId)(entity);
-//
-//     Coral::Type* type = Coral::TypeCache::Get().GetTypeByID(typeId);
-//     if (!type)
-//         return false;
-//
-//     if (type->IsSubclassOf(*ScriptTypes::ScriptableType) && entity.HasComponent<ScriptComponent>()) {
-//         Coral::ScopedString typeName = type->GetFullName();
-//         return entity.GetComponent<ScriptComponent>().ModuleName == typeName;
-//     }
-//
-//     return false;
-// }
-//
-// void ScriptBindings::Entity_AddComponentICall(Terran::Core::UUID const& id, int32_t typeId)
-// {
-//     TR_PROFILE_FUNCTION();
-//     GET_ENTITY();
-//     if (!entity)
-//         return;
-//
-//     if (s_AddComponentFuncs.find(typeId) != s_AddComponentFuncs.end()) {
-//         s_AddComponentFuncs.at(typeId)(entity);
-//         return;
-//     }
-//
-//     Coral::Type* type = Coral::TypeCache::Get().GetTypeByID(typeId);
-//     if (type->IsSubclassOf(*ScriptTypes::ScriptableType)) {
-//         Coral::ScopedString typeName = type->GetFullName();
-//         entity.AddComponent<ScriptComponent>((std::string)typeName);
-//     }
-// }
-//
-// void ScriptBindings::Entity_RemoveComponentICall(Terran::Core::UUID const& id, int32_t typeId)
-// {
-//     TR_PROFILE_FUNCTION();
-//     GET_ENTITY();
-//     if (!entity)
-//         return;
-//
-//     if (s_RemoveComponentFuncs.find(typeId) != s_RemoveComponentFuncs.end())
-//         s_RemoveComponentFuncs.at(typeId)(entity);
-//
-//     // TODO: handle removing script component
-// }
 //
 // void* ScriptBindings::Entity_GetScriptableComponentICall(Terran::Core::UUID const& id)
 // {
 //     TR_PROFILE_FUNCTION();
 //     GET_ENTITY();
-//     if (!entity)
-//         return nullptr;
-//
-//     Terran::Core::Shared<ScriptInstance> scriptInstance = ScriptEngine::GetScriptInstance(entity);
-//     return (void*)scriptInstance->GetHandle();
 // }
 //
 // bool ScriptBindings::Entity_FindEntityWithNameICall(Coral::String entityName, Terran::Core::UUID& id)

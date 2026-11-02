@@ -55,6 +55,7 @@ public:
 
     void on_start(World::Entity entity);
     void on_update(World::Entity entity, float deltaTime);
+    bool is_type_scriptable(Coral::Type& type);
 
     // static void OnPhysicsBeginContact(Entity collider, Entity collidee);
     // static void OnPhysicsEndContact(Entity collider, Entity collidee);
@@ -71,6 +72,10 @@ public:
 
     bool load_app_assembly(std::filesystem::path const& assembly_path);
 
+    [[nodiscard]] constexpr ManagedTypesCache const& managed_types_cache() const {
+        return m_managed_types_cache;
+    }
+
 private:
     void create_assembly_load_context();
     bool load_core_assembly();
@@ -79,7 +84,6 @@ private:
     void on_exception(std::string_view message);
     ScriptFieldType convert_coral_type_to_field_type(Coral::Type const&);
     bool is_field_accessible(Coral::FieldInfo&);
-    bool is_type_scriptable_type(Coral::Type&);
 
     void bind_internal_calls(Coral::ManagedAssembly&);
 

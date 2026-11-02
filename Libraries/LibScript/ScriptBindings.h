@@ -41,25 +41,8 @@ public:
 // #pragma endregion
 // ---------------
 
-// ---- Entity ----
-#pragma region Entity
-    static bool Entity_HasComponentICall(const Core::UUID& id, int32_t typeId);
-    static void Entity_AddComponentICall(Core::UUID const& id, int32_t typeId);
-    static void Entity_RemoveComponentICall(Core::UUID const& id, int32_t typeId);
-    static void* Entity_GetScriptableComponentICall(Core::UUID const& id);
-
-    static bool Entity_FindEntityWithNameICall(Coral::String entityName, Core::UUID& id);
-
-    static void Entity_DestroyEntityICall(Core::UUID const& id);
-
-    static int Entity_GetChildrenCountICall(Core::UUID const& id);
-    static Core::UUID Entity_GetChildICall(Core::UUID const& id, int index);
-    static Core::UUID Entity_GetParentICall(Core::UUID const& id);
-#pragma endregion
-    // ----------------
-
-    // ---- Physics ----
-    // static Coral::String LayerMask_GetNameICall(uint16_t layer);
+// ---- Physics ----
+// static Coral::String LayerMask_GetNameICall(uint16_t layer);
 
 // ---- Physics 2D ----
 // #pragma region Physics 2D
