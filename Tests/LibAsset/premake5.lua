@@ -22,10 +22,6 @@ links {
     "LibAsset",
     "yaml-cpp",
     "googletest",
-    "CoreFoundation.framework", -- no path needed for system frameworks
-    "Cocoa.framework",
-    "IOKit.framework",
-    "QuartzCore.framework",
 }
 
 filter { "configurations:Debug" }
@@ -42,11 +38,17 @@ defines { "TERRAN_TESTING_RELEASE" }
 filter { "system:macosx" }
 architecture "ARM64"
 
-filter { "system:linux" }
-architecture "x86_64"
-libdirs { "/usr/local/lib" }
-
 libdirs { "/usr/local/lib" }
 links {
     "CoreFoundation.framework", -- no path needed for system frameworks
+    "Cocoa.framework",
+    "IOKit.framework",
+    "QuartzCore.framework",
+}
+
+filter { "system:linux" }
+architecture "x86_64"
+libdirs { "/usr/local/lib" }
+links {
+    "uuid"
 }
