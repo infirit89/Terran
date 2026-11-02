@@ -55,6 +55,15 @@ jobs:
     - name: Set premake executable permissions
       run: chmod +x premake/premake5
 
+    # ---- MANAGED BUILD ----
+    - name: Generate managed solution
+      run: |
+          premake/premake5 vs2022 --file=premake-managed.lua
+
+    - name: Build managed projects
+      run: |
+          dotnet build Terran-Managed.sln --configuration Debug
+
     # ---- NATIVE BUILD ----
     - name: Generate native Makefiles
       run: |
@@ -64,11 +73,3 @@ jobs:
       run: |
           make -j$(sysctl -n hw.ncpu)
 
-    # ---- MANAGED BUILD ----
-    - name: Generate managed solution
-      run: |
-          premake/premake5 vs2022 --file=premake-managed.lua
-
-    - name: Build managed projects
-      run: |
-          dotnet build Terran-Managed.sln --configuration Release
