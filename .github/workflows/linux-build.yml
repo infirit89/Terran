@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
 
@@ -44,7 +47,9 @@ jobs:
           source .venv/bin/activate
           python3 scripts/Setup.py --premake-version=5.0.0 --skip-python-packages
 
-     
+    - name: Set premake executable permissions
+      run: chmod +x premake/premake5
+
     # ---- NATIVE BUILD ----
     - name: Generate native Makefiles
       run: |
