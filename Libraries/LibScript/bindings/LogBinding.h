@@ -20,7 +20,7 @@ public:
     static void bind(Coral::ManagedAssembly& assembly, Core::RawPtr<ScriptEngine> script_engine)
     {
         s_script_engine = script_engine;
-        BIND_INTERNAL_FUNC(Log_LogICall);
+        TR_BIND_INTERNAL_FUNC(Log_LogICall);
     }
 private:
     enum class ScriptLogLevel : uint8_t {
@@ -50,7 +50,7 @@ private:
         }
     }
 
-    static Core::RawPtr<ScriptEngine> s_script_engine;
+    inline static Core::RawPtr<ScriptEngine> s_script_engine = nullptr;
 };
 
 
