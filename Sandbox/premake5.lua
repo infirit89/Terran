@@ -76,14 +76,14 @@ links {
     "IOKit.framework",
     "QuartzCore.framework",
     "GLFW",
-    "ImGui",
-    "GLAD",
-    "msdf-atlas-gen",
-    "Box2D",
+    -- "ImGui",
+    -- "GLAD",
+    -- "msdf-atlas-gen",
+    -- "Box2D",
     "yaml-cpp",
     "Coral.Native",
-    "msdfgen",
-    "freetype",
+    -- "msdfgen",
+    -- "freetype",
     -- "shaderc_shared",
 }
 
@@ -101,14 +101,14 @@ systemversion "latest"
 links {
     "uuid",
     "GLFW",
-    "ImGui",
-    "GLAD",
-    "msdf-atlas-gen",
-    "Box2D",
+    -- "ImGui",
+    -- "GLAD",
+    -- "msdf-atlas-gen",
+    -- "Box2D",
     "yaml-cpp",
     "Coral.Native",
-    "msdfgen",
-    "freetype",
+    -- "msdfgen",
+    -- "freetype",
 }
 
 postbuildcommands {
