@@ -1,29 +1,32 @@
 #pragma once
 
-#include "ScriptInstance.h"
 #include "ManagedTypesCache.h"
-#include "bindings/BindingBase.h"
+#include "ScriptInstance.h"
 
 #include <Coral/Assembly.hpp>
 #include <Coral/FieldInfo.hpp>
 #include <Coral/Type.hpp>
+#include <LibCore/Assert.h>
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
 #include <LibCore/Layer.h>
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
 
+#include <LibScene/SceneManager.h>
+
 #include <LibCore/Unique.h>
 #include <LibScene/Entity.h>
 #include <LibScene/Scene.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
-#include <unordered_map>
-#include <string_view>
-#include <string>
 #include <span>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 #include <Coral/GC.hpp>
 #include <Coral/HostInstance.hpp>
@@ -52,7 +55,9 @@ public:
     using script_instance_container_type = std::unordered_map<Core::UUID, std::unordered_map<Core::UUID, Core::Shared<ScriptInstance>>>;
     using ScriptTypeFilterFn = std::function<bool()>;
 
-    ScriptEngine(Core::EventDispatcher& event_dispatcher, ScriptEngineOptions const& options);
+    ScriptEngine(Core::EventDispatcher& event_dispatcher,
+                 Core::RawPtr<World::SceneManager> scene_manager,
+                 ScriptEngineOptions const& options);
     virtual ~ScriptEngine() override;
 
     virtual Core::Result<void> on_attach() override;
@@ -69,6 +74,32 @@ public:
     void on_update(World::Entity entity, float deltaTime);
     bool is_type_scriptable(Coral::Type& type);
 
+    template<typename TComponent>
+    void register_component_binding(size_t assembly_index, std::string_view component_type_name)
+    {
+        Coral::ManagedAssembly& assembly = m_assemblies.at(assembly_index);
+        Coral::Type component_type = assembly.GetType(component_type_name);
+        TR_ASSERT(component_type, "Invalid component type: {} inside assembly: {}", component_type_name, assembly.GetName());
+
+        m_has_component_type_delegate_map.emplace(
+            component_type.GetTypeId(),
+            [](World::Entity entity) {
+                return entity.has_component<TComponent>();
+            });
+
+        m_add_component_type_delegate_map.emplace(
+            component_type.GetTypeId(),
+            [](World::Entity entity) {
+                entity.add_component<TComponent>();
+            });
+
+        m_remove_component_type_delegate_map.emplace(
+            component_type.GetTypeId(),
+            [](World::Entity entity) {
+                entity.remove_component<TComponent>();
+            });
+    }
+
     // static void OnPhysicsBeginContact(Entity collider, Entity collidee);
     // static void OnPhysicsEndContact(Entity collider, Entity collidee);
     // static void OnPhysicsUpdate(Entity entity);
@@ -84,7 +115,8 @@ public:
 
     bool load_app_assembly(std::filesystem::path const& assembly_path);
 
-    [[nodiscard]] constexpr ManagedTypesCache const& managed_types_cache() const {
+    [[nodiscard]] constexpr ManagedTypesCache const& managed_types_cache() const
+    {
         return m_managed_types_cache;
     }
 
@@ -100,6 +132,11 @@ private:
     void bind_internal_calls(Coral::ManagedAssembly&);
 
 private:
+    using has_component_delegate = std::function<bool(World::Entity)>;
+    using add_component_delegate = std::function<void(World::Entity)>;
+    using remove_component_delegate = std::function<void(World::Entity)>;
+
+    Core::RawPtr<World::SceneManager> m_scene_manager;
     Coral::HostInstance m_host_instance;
     Coral::AssemblyLoadContext m_load_context;
     std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> m_assemblies;
@@ -114,8 +151,13 @@ private:
 
     ManagedTypesCache m_managed_types_cache;
 
+    std::unordered_map<int32_t, has_component_delegate> m_has_component_type_delegate_map;
+    std::unordered_map<int32_t, add_component_delegate> m_add_component_type_delegate_map;
+    std::unordered_map<int32_t, remove_component_delegate> m_remove_component_type_delegate_map;
+
     friend class ScriptBindings;
     friend class LogBinding;
+    friend class EntityBinding;
 };
 
 }

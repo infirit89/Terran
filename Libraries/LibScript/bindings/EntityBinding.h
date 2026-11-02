@@ -5,47 +5,51 @@
 #include <LibCore/Base.h>
 #include <LibCore/Log.h>
 
+#include <LibCore/UUID.h>
 #include <LibScene/Entity.h>
 #include <LibScene/SceneManager.h>
 
 #include <LibScript/ScriptComponent.h>
-#include <LibScript/ScriptEngine.h>
+#include <LibScript/ScriptInstance.h>
 #include <LibScript/ScriptTypes.h>
+#include <LibScript/ScriptEngine.h>
 
 #include <Coral/Assembly.hpp>
+#include <Coral/TypeCache.hpp>
 #include <cstdint>
-#include <functional>
 #include <spdlog/common.h>
-#include <string>
-#include <vector>
 
 namespace Terran::Script {
 
 // NOTE: maybe pass the ScriptEngine instance to C# as an IntPtr and then call internal functions with that instance
 class EntityBinding final {
 public:
-    EntityBinding(Coral::ManagedAssembly& assembly,
+    static void bind(Coral::ManagedAssembly& assembly,
         Core::RawPtr<World::SceneManager> scene_manager,
         Core::RawPtr<ScriptEngine> script_engine)
-        : m_scene_manager(scene_manager)
-        , m_script_engine(script_engine)
 
     {
-        s_instance = this;
+        s_scene_manager = scene_manager;
+        s_script_engine = script_engine;
+        TR_BIND_INTERNAL_FUNC(Entity_AddComponentICall);
+        TR_BIND_INTERNAL_FUNC(Entity_RemoveComponentICall);
+        TR_BIND_INTERNAL_FUNC(Entity_HasComponentICall);
+        TR_BIND_INTERNAL_FUNC(Entity_GetScriptableComponentICall);
+        TR_BIND_INTERNAL_FUNC(Entity_FindEntityWithNameICall);
+        TR_BIND_INTERNAL_FUNC(Entity_DestroyEntityICall);
+        TR_BIND_INTERNAL_FUNC(Entity_GetChildrenCountICall);
+        TR_BIND_INTERNAL_FUNC(Entity_GetChildICall);
+        TR_BIND_INTERNAL_FUNC(Entity_GetParentICall);
     }
 
 private:
-    using has_component_delegate = std::function<bool(World::Entity)>;
-    using add_component_delegate = std::function<void(World::Entity)>;
-    using remove_component_delegate = std::function<void(World::Entity)>;
-
     static bool Entity_HasComponentICall(Core::UUID const& id, int32_t typeId)
     {
-        World::Entity entity = s_instance->m_scene_manager->current_scene()->find_entity(id);
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
         if (!entity)
             return false;
 
-        auto& has_component_delegates = s_instance->m_has_component_type_delegate_map;
+        auto& has_component_delegates = s_script_engine->m_has_component_type_delegate_map;
         if (has_component_delegates.contains(typeId))
             return has_component_delegates.at(typeId)(entity);
 
@@ -53,7 +57,7 @@ private:
         if (!type)
             return false;
 
-        if (s_instance->m_script_engine->is_type_scriptable(*type) && entity.has_component<ScriptComponent>()) {
+        if (s_script_engine->is_type_scriptable(*type) && entity.has_component<ScriptComponent>()) {
             Coral::ScopedString typeName = type->GetFullName();
             return entity.get_component<ScriptComponent>().ModuleName == typeName;
         }
@@ -63,19 +67,19 @@ private:
 
     static void Entity_AddComponentICall(Core::UUID const& id, int32_t typeId)
     {
-        World::Entity entity = s_instance->m_scene_manager->current_scene()->find_entity(id);
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
 
         if (!entity)
             return;
 
-        auto& add_component_delegates = s_instance->m_add_component_type_delegate_map;
+        auto& add_component_delegates = s_script_engine->m_add_component_type_delegate_map;
         if (add_component_delegates.contains(typeId)) {
             add_component_delegates.at(typeId)(entity);
             return;
         }
 
         Coral::Type* type = Coral::TypeCache::Get().GetTypeByID(typeId);
-        if (s_instance->m_script_engine->is_type_scriptable(*type)) {
+        if (s_script_engine->is_type_scriptable(*type)) {
             Coral::ScopedString typeName = type->GetFullName();
             entity.add_component<ScriptComponent>((std::string)typeName);
         }
@@ -83,12 +87,12 @@ private:
 
     static void Entity_RemoveComponentICall(Core::UUID const& id, int32_t typeId)
     {
-        World::Entity entity = s_instance->m_scene_manager->current_scene()->find_entity(id);
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
 
         if (!entity)
             return;
 
-        auto& remove_component_delegates = s_instance->m_remove_component_type_delegate_map;
+        auto& remove_component_delegates = s_script_engine->m_remove_component_type_delegate_map;
         if (remove_component_delegates.contains(typeId))
             remove_component_delegates.at(typeId)(entity);
 
@@ -97,28 +101,60 @@ private:
 
     static void* Entity_GetScriptableComponentICall(Core::UUID const& id)
     {
-        World::Entity entity = s_instance->m_scene_manager->current_scene()->find_entity(id);
+
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
         if (!entity)
             return nullptr;
 
-        Core::Shared<ScriptInstance> scriptInstance = s_instance->m_script_engine->script_instance(entity);
+        Core::Shared<ScriptInstance> scriptInstance = s_script_engine->script_instance(entity);
         return (void*)scriptInstance->handle();
     }
 
-    static bool Entity_FindEntityWithNameICall(Coral::String entityName, Core::UUID& id);
+    static bool Entity_FindEntityWithNameICall(Coral::String entityName, Core::UUID& id)
+    {
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(entityName.Data());
 
-    static void Entity_DestroyEntityICall(Core::UUID const& id);
+        if (!entity)
+            return false;
 
-    static int Entity_GetChildrenCountICall(Core::UUID const& id);
-    static Core::UUID Entity_GetChildICall(Core::UUID const& id, int index);
-    static Core::UUID Entity_GetParentICall(Core::UUID const& id);
+        id = entity.id();
+        return true;
+    }
 
-    Core::RawPtr<World::SceneManager> m_scene_manager;
-    Core::RawPtr<ScriptEngine> m_script_engine;
-    std::unordered_map<int32_t, has_component_delegate> m_has_component_type_delegate_map;
-    std::unordered_map<int32_t, add_component_delegate> m_add_component_type_delegate_map;
-    std::unordered_map<int32_t, remove_component_delegate> m_remove_component_type_delegate_map;
-    inline static EntityBinding* s_instance = nullptr;
+    static void Entity_DestroyEntityICall(Core::UUID const& id)
+    {
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
+        s_scene_manager->current_scene()->destrory_entity(entity);
+    }
+
+    static int Entity_GetChildrenCountICall(Core::UUID const& id)
+    {
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
+        if (!entity)
+            return 0;
+
+        return static_cast<int>(entity.children().size());
+    }
+    static Core::UUID Entity_GetChildICall(Core::UUID const& id, int index)
+    {
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
+        if (!entity)
+            return Core::UUID::invalid();
+
+        return entity.child_at(index).id();
+    }
+
+    static Core::UUID Entity_GetParentICall(Core::UUID const& id)
+    {
+        World::Entity entity = s_scene_manager->current_scene()->find_entity(id);
+        if (!entity)
+            return Core::UUID::invalid();
+
+        return entity.parent_id();
+    }
+
+    inline static Core::RawPtr<World::SceneManager> s_scene_manager = nullptr;
+    inline static Core::RawPtr<ScriptEngine> s_script_engine = nullptr;
 };
 
 }
