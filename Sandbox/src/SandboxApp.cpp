@@ -35,7 +35,7 @@ public:
             .build_configuration = Terran::Script::ScriptEngineOptions::BuildConfiguration::Debug,
             .assemblies = assemblies,
         };
-        auto script_system_res = layer_stack().push<Terran::Script::ScriptEngine>(options);
+        auto script_system_res = layer_stack().push<Terran::Script::ScriptEngine>(layer_stack().get<Terran::World::SceneManager>(), options);
         TR_ASSERT(script_system_res.is_ok(), "Failed to start the script system");
 
         layer_stack().push<TerranEngine::SandboxLayer>(
