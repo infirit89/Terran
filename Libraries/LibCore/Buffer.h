@@ -40,7 +40,11 @@ public:
     /**
      * @brief Constructs an empty buffer.
      */
-    constexpr ByteBuffer() noexcept;
+    constexpr ByteBuffer() noexcept
+        : m_data(nullptr)
+        , m_size(0)
+    {
+    }
 
     /**
      * @brief Destroys the buffer and frees owned memory.
@@ -81,7 +85,16 @@ public:
      * @details
      * After calling this function, the buffer becomes empty.
      */
-    void free();
+    constexpr void free()
+    {
+
+        if (!m_data)
+            return;
+
+        delete[] m_data;
+        m_data = nullptr;
+        m_size = 0;
+    }
 
     /**
      * @brief Creates a copy of another ByteBuffer.
