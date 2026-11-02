@@ -3,7 +3,7 @@
     // ---- Scriptable ----
     public class Scriptable : Component
     {
-        public Scriptable() 
+        protected Scriptable() 
             : base(default) 
         {
         }
