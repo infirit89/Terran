@@ -129,31 +129,6 @@ public:
 
 // ------------------
 
-// ---- Tag component ----
-// #pragma region Tag Component
-//     static Coral::String Tag_GetNameICall(const Terran::Core::UUID& id);
-//     static void Tag_SetNameICall(Terran::Core::UUID const& id, Coral::String name);
-// #pragma endregion
-// -----------------------
-
-// ---- Transform component ----
-#pragma region Transform Component
-    static glm::vec3 Transform_GetPositionICall(const Core::UUID& id);
-    static void Transform_SetPositionICall(Core::UUID const& id, glm::vec3 const& inPosition);
-
-    static glm::vec3 Transform_GetRotationICall(Core::UUID const& id);
-    static void Transform_SetRotationICall(Core::UUID const& id, glm::vec3 const& inRotation);
-
-    static glm::vec3 Transform_GetScaleICall(Core::UUID const& id);
-    static void Transform_SetScaleICall(Core::UUID const& id, glm::vec3 const& inScale);
-
-    static bool Transform_IsDirtyICall(Core::UUID const& id);
-
-    static glm::vec3 Transform_GetForwardICall(Core::UUID const& id);
-    static glm::vec3 Transform_GetUpICall(Core::UUID const& id);
-    static glm::vec3 Transform_GetRightICall(Core::UUID const& id);
-#pragma endregion
-// -----------------------------
 
 // ---- Sprite Renderer Component ----
 // #pragma region Sprite Renderer Component

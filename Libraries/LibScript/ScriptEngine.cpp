@@ -1,21 +1,20 @@
 #include "ScriptEngine.h"
 
 #include "ManagedTypesCache.h"
-#include "ScriptBindings.h"
 #include "ScriptComponent.h"
 #include "ScriptEngineEvent.h"
 #include "ScriptFieldType.h"
 #include "ScriptInstance.h"
 #include "ScriptTypes.h"
-#include "Variant.h"
 
+#include <LibCore/Assert.h>
 #include <LibCore/Base.h>
 #include <LibCore/Event.h>
 #include <LibCore/Layer.h>
 #include <LibCore/Log.h>
 #include <LibCore/Result.h>
 #include <LibCore/UUID.h>
-#include <LibCore/Assert.h>
+#include <LibCore/Unique.h>
 
 #include <LibScene/Components.h>
 #include <LibScene/Entity.h>
@@ -27,13 +26,16 @@
 #include <Coral/GC.hpp>
 #include <Coral/HostInstance.hpp>
 #include <Coral/TypeCache.hpp>
+#include <LibScript/bindings/EntityBinding.h>
 #include <LibScript/bindings/LogBinding.h>
+#include <LibScript/bindings/TagComponentBindings.h>
+#include <LibScript/bindings/TransformComponentBindings.h>
 #include <functional>
 
 #include <filesystem>
 #include <stdexcept>
-#include <string_view>
 #include <string>
+#include <string_view>
 
 namespace Terran::Script {
 
@@ -71,19 +73,24 @@ void ScriptEngine::create_assembly_load_context()
     m_load_context = m_host_instance.CreateAssemblyLoadContext("ScriptAppContext");
 }
 
-static std::string convert_build_configuration_to_string(ScriptEngineOptions::BuildConfiguration build_configuration) {
+static std::string convert_build_configuration_to_string(ScriptEngineOptions::BuildConfiguration build_configuration)
+{
     switch (build_configuration) {
-        case ScriptEngineOptions::BuildConfiguration::Debug:
-            return "Debug";
-        case ScriptEngineOptions::BuildConfiguration::Release:
-            return "Release";
+    case ScriptEngineOptions::BuildConfiguration::Debug:
+        return "Debug";
+    case ScriptEngineOptions::BuildConfiguration::Release:
+        return "Release";
     }
 
     return "Debug";
 }
 
-ScriptEngine::ScriptEngine(Core::EventDispatcher& event_dispatcher, ScriptEngineOptions const& options)
+ScriptEngine::ScriptEngine(
+    Core::EventDispatcher& event_dispatcher,
+    Core::RawPtr<World::SceneManager> scene_manager,
+    ScriptEngineOptions const& options)
     : Core::Layer(SCRIPT_SYSTEM, event_dispatcher)
+    , m_scene_manager(scene_manager)
     , m_coral_directory(options.script_directory / convert_build_configuration_to_string(options.build_configuration))
     , m_core_assembly_path(m_coral_directory / options.assemblies[0])
 {
@@ -108,7 +115,7 @@ Core::Result<void> ScriptEngine::on_attach()
     load_core_assembly();
     TR_INFO(SCRIPT_SYSTEM, "Initialized script engine");
 
-    return {};
+    return { };
 }
 
 bool ScriptEngine::load_core_assembly()
@@ -136,6 +143,10 @@ bool ScriptEngine::load_core_assembly()
     intialize_type_map();
     // ScriptBindings::Bind(coreAssembly);
     bind_internal_calls(core_assembly);
+
+    register_component_binding<World::TagComponent>(0, "Terran.Tag");
+    register_component_binding<World::TransformComponent>(0, "Terran.Transform");
+    register_component_binding<Script::ScriptComponent>(0, "Terran.Scriptable");
     return true;
 }
 
@@ -452,12 +463,17 @@ bool ScriptEngine::load_app_assembly(std::filesystem::path const& assembly_path)
     return true;
 }
 
-void ScriptEngine::bind_internal_calls(Coral::ManagedAssembly& assembly) {
+void ScriptEngine::bind_internal_calls(Coral::ManagedAssembly& assembly)
+{
     LogBinding::bind(assembly, this);
+    EntityBinding::bind(assembly, m_scene_manager, this);
+    TagComponentBindings::bind(assembly, m_scene_manager);
+    TransformComponentBindings::bind(assembly, m_scene_manager);
     assembly.UploadInternalCalls();
 }
 
-bool ScriptEngine::is_type_scriptable(Coral::Type& type) {
+bool ScriptEngine::is_type_scriptable(Coral::Type& type)
+{
     return type.IsSubclassOf(*m_managed_types_cache.scriptable_type());
 }
 
