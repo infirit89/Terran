@@ -53,7 +53,7 @@ jobs:
     # ---- NATIVE BUILD ----
     - name: Generate native Makefiles
       run: |
-          premake/premake5 gmake --file=premake-native.lua
+          premake/premake5 gmake --file=premake-native.lua --linux-display-server=x11
 
     - name: Build native projects
       run: |
