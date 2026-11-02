@@ -21,9 +21,9 @@
 #include <filesystem>
 #include <functional>
 #include <unordered_map>
-#include <vector>
 #include <string_view>
 #include <string>
+#include <span>
 
 #include <Coral/GC.hpp>
 #include <Coral/HostInstance.hpp>
@@ -35,12 +35,24 @@ namespace Terran::Script {
 #define TR_APP_ASSEMBLY_INDEX 1
 #define TR_ASSEMBLIES ((TR_APP_ASSEMBLY_INDEX) + 1)
 
+struct ScriptEngineOptions final {
+    std::filesystem::path script_directory;
+
+    enum class BuildConfiguration : uint8_t {
+        Debug,
+        Release,
+    };
+
+    BuildConfiguration build_configuration;
+    std::span<std::string_view> assemblies;
+};
+
 class ScriptEngine final : public Core::Layer {
 public:
     using script_instance_container_type = std::unordered_map<Core::UUID, std::unordered_map<Core::UUID, Core::Shared<ScriptInstance>>>;
     using ScriptTypeFilterFn = std::function<bool()>;
 
-    ScriptEngine(Core::EventDispatcher& event_dispatcher, std::filesystem::path const& scriptCoreAssemblyPath);
+    ScriptEngine(Core::EventDispatcher& event_dispatcher, ScriptEngineOptions const& options);
     virtual ~ScriptEngine() override;
 
     virtual Core::Result<void> on_attach() override;
@@ -92,7 +104,7 @@ private:
     Coral::AssemblyLoadContext m_load_context;
     std::array<Coral::ManagedAssembly, TR_ASSEMBLIES> m_assemblies;
 
-    std::string CoralDirectory = "Resources/Scripts";
+    std::filesystem::path m_coral_directory;
     int32_t m_entity_id_field_handle = 0;
 
     script_instance_container_type script_instance_map;

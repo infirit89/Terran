@@ -71,16 +71,28 @@ void ScriptEngine::create_assembly_load_context()
     m_load_context = m_host_instance.CreateAssemblyLoadContext("ScriptAppContext");
 }
 
-ScriptEngine::ScriptEngine(Core::EventDispatcher& event_dispatcher, std::filesystem::path const& scriptCoreAssemblyPath)
+static std::string convert_build_configuration_to_string(ScriptEngineOptions::BuildConfiguration build_configuration) {
+    switch (build_configuration) {
+        case ScriptEngineOptions::BuildConfiguration::Debug:
+            return "Debug";
+        case ScriptEngineOptions::BuildConfiguration::Release:
+            return "Release";
+    }
+
+    return "Debug";
+}
+
+ScriptEngine::ScriptEngine(Core::EventDispatcher& event_dispatcher, ScriptEngineOptions const& options)
     : Core::Layer(SCRIPT_SYSTEM, event_dispatcher)
-    , m_core_assembly_path(scriptCoreAssemblyPath)
+    , m_coral_directory(options.script_directory / convert_build_configuration_to_string(options.build_configuration))
+    , m_core_assembly_path(m_coral_directory / options.assemblies[0])
 {
 }
 
 Core::Result<void> ScriptEngine::on_attach()
 {
     Coral::HostSettings settings = {
-        .CoralDirectory = CoralDirectory,
+        .CoralDirectory = m_coral_directory.string(),
         .MessageCallback = OnMessage,
         .ExceptionCallback = std::bind_front(&ScriptEngine::on_exception, this),
     };
