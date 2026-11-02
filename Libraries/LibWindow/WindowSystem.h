@@ -32,7 +32,7 @@ public:
         return id;
     }
 
-    constexpr Core::Unique<Window> const& window(Core::UUID const& id) const
+    Core::Unique<Window> const& window(Core::UUID const& id) const
     {
         return m_windows.at(id);
     }
