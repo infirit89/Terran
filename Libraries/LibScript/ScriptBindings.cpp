@@ -100,9 +100,9 @@ void ScriptBindings::Bind(Coral::ManagedAssembly& assembly)
 
 void ScriptBindings::Unbind()
 {
-    s_HasComponentFuncs.clear();
-    s_AddComponentFuncs.clear();
-    s_RemoveComponentFuncs.clear();
+    // s_HasComponentFuncs.clear();
+    // s_AddComponentFuncs.clear();
+    // s_RemoveComponentFuncs.clear();
 }
 
 
