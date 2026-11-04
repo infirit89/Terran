@@ -20,7 +20,7 @@ namespace Window {
 // maybe consider using glfwpp???
 static Core::RawPtr<Core::EventDispatcher> s_event_dispatcher;
 WindowSystem::WindowSystem(Core::EventDispatcher& dispatcher)
-    : Core::Layer("WindowLayer", dispatcher)
+    : Core::Layer(WINDOW_SYSTEM, dispatcher)
 {
     s_event_dispatcher = &dispatcher;
 }
@@ -89,6 +89,7 @@ Core::Result<void> WindowSystem::on_dettach()
 void WindowSystem::update(Core::Time&)
 {
     for (auto& [id, window] : m_windows) {
+        window->swap_buffers();
         window->poll_events();
     }
 

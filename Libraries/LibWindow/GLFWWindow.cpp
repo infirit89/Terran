@@ -62,6 +62,7 @@ void GLFWWindow::init(WindowData data)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     if (data.Debug)
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
@@ -97,9 +98,11 @@ void GLFWWindow::setup_callbacks()
     glfwSetWindowMaximizeCallback(m_window, [](GLFWwindow* window, int maximize) {
         WindowDataPtr& data = *static_cast<WindowDataPtr*>(glfwGetWindowUserPointer(window));
 
-        if (maximize == 0) {
-            int xpos = ((GLFWvidmode*)data.video_mode)->width / 2 - data.width / 2;
-            int ypos = ((GLFWvidmode*)data.video_mode)->height / 2 - data.height / 2;
+        // Wayland does not support setting the window position
+        if (maximize == 0 && glfwGetPlatform() != GLFW_PLATFORM_WAYLAND) {
+            GLFWvidmode const* video_mode = static_cast<GLFWvidmode const*>(data.video_mode);
+            int xpos = (video_mode->width / 2) - static_cast<int>(data.width / 2);
+            int ypos = (video_mode->height / 2) - static_cast<int>(data.height / 2);
 
             glfwSetWindowPos(window, xpos, ypos);
         }

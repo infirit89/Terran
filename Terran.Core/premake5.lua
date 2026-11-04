@@ -1,4 +1,4 @@
-project "TerranScriptCore"
+project "Terran.Core"
 kind "SharedLib"
 language "C#"
 dotnetframework "net8.0"

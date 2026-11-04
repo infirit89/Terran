@@ -103,3 +103,6 @@ Makefile
 
 # Doxygen
 docs/
+
+# Terran
+LogSettings.settings

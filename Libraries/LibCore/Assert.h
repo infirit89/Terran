@@ -7,6 +7,8 @@
 #    define TR_DEBUGBREAK __debugbreak
 #elif defined(TR_MACOSX)
 #    define TR_DEBUGBREAK __builtin_trap
+#elif defined(TR_LINUX)
+#    define TR_DEBUGBREAK __builtin_trap
 #endif
 
 #if defined(TR_DEBUG)

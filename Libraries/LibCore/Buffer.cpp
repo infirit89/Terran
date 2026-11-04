@@ -7,12 +7,6 @@
 
 namespace Terran::Core {
 
-constexpr ByteBuffer::ByteBuffer() noexcept
-    : m_data(nullptr)
-    , m_size(0)
-{
-}
-
 ByteBuffer::ByteBuffer(size_t size)
 {
     allocate(size);
@@ -31,16 +25,6 @@ void ByteBuffer::allocate(size_t size)
 
     m_data = new uint8_t[size];
     m_size = size;
-}
-
-void ByteBuffer::free()
-{
-    if (!m_data)
-        return;
-
-    delete[] m_data;
-    m_data = nullptr;
-    m_size = 0;
 }
 
 ByteBuffer ByteBuffer::Copy(ByteBuffer const& other)

@@ -32,6 +32,11 @@ filter "system:windows"
 architecture "x86_64"
 systemversion "latest"
 
+
+filter { "system:linux" }
+architecture "x86_64"
+libdirs { "/usr/local/lib" }
+
 defines {
     "_CRT_SECURE_NO_WARNINGS",
 }

@@ -39,3 +39,10 @@ libdirs { "/usr/local/lib" }
 links {
     "CoreFoundation.framework", -- no path needed for system frameworks
 }
+
+filter { "system:linux" }
+architecture "x86_64"
+libdirs { "/usr/local/lib" }
+links {
+    "uuid"
+}

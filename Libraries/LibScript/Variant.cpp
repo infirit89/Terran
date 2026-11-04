@@ -1,8 +1,6 @@
 #include "Variant.h"
-#include "trpch.h"
 
-namespace TerranEngine {
-namespace Utils {
+namespace Terran::Utils {
 
 Variant::Variant()
 {
@@ -136,11 +134,11 @@ Variant::Variant(Terran::Core::UUID const& id)
 {
     m_Type = Type::UUID;
     m_Data.ptr = new Terran::Core::UUID();
-    static_cast<Terran::Core::UUID*>(m_Data.ptr)->set_data(id.GetData());
+    static_cast<Terran::Core::UUID*>(m_Data.ptr)->set_data(id.data());
 }
 
-Variant::Variant(Entity entity)
-    : Variant(entity.GetID())
+Variant::Variant(Terran::World::Entity entity)
+    : Variant(entity.id())
 {
 }
 
@@ -211,7 +209,7 @@ Variant::Variant(char* data, Type const& type)
     case Type::UUID: {
         Terran::Core::UUID id = *reinterpret_cast<Terran::Core::UUID*>(data);
         m_Data.ptr = new Terran::Core::UUID();
-        static_cast<Terran::Core::UUID*>(m_Data.ptr)->set_data(id.GetData());
+        static_cast<Terran::Core::UUID*>(m_Data.ptr)->set_data(id.data());
         break;
     }
     default:;
@@ -326,7 +324,7 @@ void Variant::Copy(Variant& result, Variant const& in)
     case Type::UUID: {
         Terran::Core::UUID id = in;
         result.m_Data.ptr = new Terran::Core::UUID();
-        static_cast<Terran::Core::UUID*>(result.m_Data.ptr)->set_data(id.GetData());
+        static_cast<Terran::Core::UUID*>(result.m_Data.ptr)->set_data(id.data());
         break;
     }
     default:;
@@ -352,5 +350,4 @@ Variant::operator glm::vec3() const { return *static_cast<glm::vec3*>(m_Data.ptr
 Variant::operator glm::vec4() const { return *static_cast<glm::vec4*>(m_Data.ptr); }
 Variant::operator Terran::Core::UUID() const { return *static_cast<Terran::Core::UUID*>(m_Data.ptr); }
 
-}
 }

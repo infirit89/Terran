@@ -1,20 +1,16 @@
 workspace "Terran-Managed"
-  
-    configurations
-    {
-        "Debug",
-        "Release"
-    }
 
-    flags 
-    {
-        "MultiProcessorCompile"
-    }
+configurations {
+    "Debug",
+    "Release",
+}
+
+multiprocessorcompile "On"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
-    include "TerranEngine/vendor/Coral/Coral.Managed"
+include "vendor/Coral/Coral.Managed"
 
 group "Core"
-    include "TerranScriptCore"
+include "Terran.Core"

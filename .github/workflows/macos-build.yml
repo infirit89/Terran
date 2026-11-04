@@ -2,7 +2,12 @@ name: macOS Build
 
 on:
   push:
+    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -43,7 +48,19 @@ jobs:
       - name: Run Setup.py
         run: |
           source .venv/bin/activate
-          python3 scripts/Setup.py --premake-version=5.0.0-beta7 --skip-python-packages
+          python3 scripts/Setup.py --premake-version=5.0.0 --skip-python-packages
+
+      - name: Set premake executable permissions
+        run: chmod +x premake/premake5
+
+      # ---- MANAGED BUILD ----
+      - name: Generate managed solution
+        run: |
+          premake/premake5 vs2022 --file=premake-managed.lua
+
+      - name: Build managed projects
+        run: |
+          dotnet build Terran-Managed.sln --configuration Debug
 
       # ---- NATIVE BUILD ----
       - name: Generate native Makefiles
@@ -54,11 +71,3 @@ jobs:
         run: |
           make -j$(sysctl -n hw.ncpu)
 
-      # ---- MANAGED BUILD ----
-      - name: Generate managed solution
-        run: |
-          premake/premake5 vs2022 --file=premake-managed.lua
-
-      - name: Build managed projects
-        run: |
-          dotnet build Terran-Managed.sln --configuration Release

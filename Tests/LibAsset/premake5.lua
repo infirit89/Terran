@@ -22,10 +22,6 @@ links {
     "LibAsset",
     "yaml-cpp",
     "googletest",
-    "CoreFoundation.framework", -- no path needed for system frameworks
-    "Cocoa.framework",
-    "IOKit.framework",
-    "QuartzCore.framework",
 }
 
 filter { "configurations:Debug" }
@@ -45,4 +41,14 @@ architecture "ARM64"
 libdirs { "/usr/local/lib" }
 links {
     "CoreFoundation.framework", -- no path needed for system frameworks
+    "Cocoa.framework",
+    "IOKit.framework",
+    "QuartzCore.framework",
+}
+
+filter { "system:linux" }
+architecture "x86_64"
+libdirs { "/usr/local/lib" }
+links {
+    "uuid"
 }

@@ -24,15 +24,17 @@ externalincludedirs {
     "%{Dependencies.entt.include}",
     "%{IncludeDirectories.optick}",
     "%{Dependencies.yaml.include}",
+    "%{Dependencies.coral.include}",
     "%{wks.location}/TerranEditor/vendor/FontAwesome",
 }
 
 links {
-    "LibCore",
     "LibMain",
     "LibWindow",
     "LibScene",
     "LibAsset",
+    "LibScript",
+    "LibCore",
 }
 
 defines {
@@ -42,8 +44,10 @@ defines {
 CopyCommands = {}
 CopyCommands["optick"] = "{COPY} %{ExternalLibraries.optick} %{prj.location}/bin/%{outputdir}"
 CopyCommands["shaderc"] = "{COPY} %{ExternalLibraries.shaderc_shared} %{prj.location}/bin/%{outputdir}"
-CopyCommands["coral"] = "{COPY} %{External.coral} %{prj.location}/Resources/Scripts"
-CopyCommands["script_core"] = "{COPY} %{InternalLibraries.script_core} %{prj.location}/Resources/Scripts"
+CopyCommands["coral"] =
+    "{COPYFILE} %[%{Dependencies.coral.external}] %[%{prj.location}/Resources/Scripts/%{cfg.buildcfg}/]"
+CopyCommands["script_core"] =
+    "{COPYDIR} %[%{Dependencies.script_core.link}] %[%{prj.location}/Resources/Scripts/%{cfg.buildcfg}]"
 
 filter "system:windows"
 architecture "x86_64"
@@ -74,24 +78,49 @@ links {
     "IOKit.framework",
     "QuartzCore.framework",
     "GLFW",
-    "ImGui",
-    "GLAD",
-    "msdf-atlas-gen",
-    "Box2D",
+    -- "ImGui",
+    -- "GLAD",
+    -- "msdf-atlas-gen",
+    -- "Box2D",
     "yaml-cpp",
     "Coral.Native",
-    "msdfgen",
-    "freetype",
+    -- "msdfgen",
+    -- "freetype",
     -- "shaderc_shared",
 }
 
 postbuildcommands {
     -- todo: copy the pdb
-    -- "{MKDIR} %{prj.location}/Resources/Scripts",
-    -- "%{CopyCommands.coral}",
-    -- "%{CopyCommands.script_core}",
+    "{MKDIR} %[%{prj.location}/Resources/Scripts/%{cfg.buildcfg}]",
+    "%{CopyCommands.script_core}",
+    "%{CopyCommands.coral}",
 }
 
+filter "system:linux"
+architecture "x86_64"
+systemversion "latest"
+
+links {
+    "uuid",
+    "GLFW",
+    -- "ImGui",
+    -- "GLAD",
+    -- "msdf-atlas-gen",
+    -- "Box2D",
+    "yaml-cpp",
+    "Coral.Native",
+    -- "msdfgen",
+    -- "freetype",
+}
+
+postbuildcommands {
+    -- todo: copy the pdb
+    "{MKDIR} %{prj.location}/Resources/Scripts",
+    "%{CopyCommands.script_core}",
+    "%{CopyCommands.coral}",
+}
+
+filter ""
 defines "TR_SANDBOX"
 
 filter "configurations:Debug"

@@ -60,7 +60,7 @@ AssetId AssetManager::import_asset(std::filesystem::path const& asset_path) cons
     AssetMetadata asset_metadata;
     asset_metadata.Path = asset_path;
     asset_metadata.Type = asset_loader->asset_type();
-    asset_metadata.AssetId = id;
+    asset_metadata.Id = id;
 
     AssetMetadataRegistry::add_asset_metadata(asset_metadata);
 
@@ -145,7 +145,7 @@ void AssetManager::on_filesystem_changed(std::vector<Terran::Core::FileSystemCha
                 break;
             }
 
-            reload_asset_by_id(metadata.AssetId);
+            reload_asset_by_id(metadata.Id);
 
             break;
         }

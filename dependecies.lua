@@ -12,11 +12,18 @@ Dependencies = {
         link = "yaml-cpp",
     },
     glfw = {
-        include = "%{wks.location}/vendor/GLFW/include",
+        include = "%{wks.location}/vendor/glfw/include",
         link = "glfw",
     },
     entt = {
         include = "%{wks.location}/vendor/entt/include",
+    },
+    coral = {
+        include = "%{wks.location}/vendor/Coral/Coral.Native/Include",
+        external = "%{wks.location}/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json",
+    },
+    script_core = {
+        link = "%{wks.location}/Terran.Core/Build/%{cfg.buildcfg}/",
     },
 }
 IncludeDirectories = {}
@@ -32,7 +39,6 @@ IncludeDirectories["yaml"] = "%{wks.location}/TerranEngine/vendor/yaml-cpp/inclu
 IncludeDirectories["imguizmo"] = "%{wks.location}/TerranEditor/vendor/ImGuizmo/"
 IncludeDirectories["shaderc"] = "%{VULKAN_SDK}/include/"
 -- IncludeDirectories["shaderc"] = "%{wks.location}/TerranEngine/vendor/shaderc/include/"
-IncludeDirectories["coral"] = "%{wks.location}/TerranEngine/vendor/Coral/Coral.Native/Include/"
 
 ExternalLibraries = {}
 ExternalLibraries["optick"] = "%{wks.location}/TerranEngine/vendor/Optick/bin/%{outputdir}/OptickCore.dll"
@@ -40,9 +46,3 @@ ExternalLibraries["shaderc"] = "%{wks.location}/TerranEngine/vendor/shaderc/lib/
 ExternalLibraries["shaderc_shared"] = "%{wks.location}/TerranEngine/vendor/shaderc/bin/shaderc_shared.dll"
 ExternalLibraries["imm32"] = "Imm32.lib"
 ExternalLibraries["rpcrt4"] = "Rpcrt4.lib"
-
-External = {}
-External["coral"] = "%{wks.location}/TerranEngine/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json"
-
-InternalLibraries = {}
-InternalLibraries["script_core"] = "%{wks.location}/TerranScriptCore/Build/%{cfg.buildcfg}"

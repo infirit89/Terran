@@ -1,0 +1,75 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Verify Python
+      run: python3 --version
+
+    - name: Install .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "8.0.x" # adjust if needed
+
+    # Cache premake + shaderc to avoid re-downloading
+    - name: Cache premake and shaderc
+      uses: actions/cache@v4
+      with:
+        path: |
+            premake
+            shaderc
+        key: ${{ runner.os }}-tools-v1
+
+    - name: Set up Python venv
+      run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install requests numpy
+
+    - name: Run Setup.py
+      run: |
+          source .venv/bin/activate
+          python3 scripts/Setup.py --premake-version=5.0.0 --skip-python-packages
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxfixes-dev libxrender-dev libxkbcommon-dev libwayland-dev wayland-protocols libgl1-mesa-dev uuid-dev
+
+    - name: Set premake executable permissions
+      run: chmod +x premake/premake5
+
+    # ---- MANAGED BUILD ----
+    - name: Generate managed solution
+      run: |
+          premake/premake5 vs2022 --file=premake-managed.lua
+
+    - name: Build managed projects
+      run: |
+          dotnet build Terran-Managed.sln --configuration Debug
+
+    # ---- NATIVE BUILD ----
+    - name: Generate native Makefiles
+      run: |
+          premake/premake5 gmake --file=premake-native.lua --linux-display-server=x11
+
+    - name: Build native projects
+      run: |
+          make -j$(sysctl -n hw.ncpu)
+

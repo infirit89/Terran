@@ -23,12 +23,12 @@ struct AssetMetadata final {
 
     operator bool() const
     {
-        return Path != "" && AssetId.is_valid();
+        return Path != "" && Id.is_valid();
     }
 
     std::filesystem::path Path = "";
     AssetTypeId Type;
-    AssetId AssetId = AssetId::invalid();
+    AssetId Id = AssetId::invalid();
 };
 
 }

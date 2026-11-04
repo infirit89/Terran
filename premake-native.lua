@@ -12,31 +12,30 @@ configurations {
     "Release",
 }
 
-flags {
-    "MultiProcessorCompile",
-}
+multiprocessorcompile "On"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
-include "vendor/GLFW"
-include "TerranEngine/vendor/ImGui"
-include "TerranEngine/vendor/GLAD"
-include "TerranEngine/vendor/msdf-atlas-gen"
-include "TerranEngine/vendor/msdf-atlas-gen/msdfgen"
-include "TerranEngine/vendor/msdf-atlas-gen/msdfgen/Freetype"
-include "TerranEngine/vendor/Box2D"
+include "vendor/glfw"
+-- include "TerranEngine/vendor/ImGui"
+-- include "TerranEngine/vendor/GLAD"
+-- include "TerranEngine/vendor/msdf-atlas-gen"
+-- include "TerranEngine/vendor/msdf-atlas-gen/msdfgen"
+-- include "TerranEngine/vendor/msdf-atlas-gen/msdfgen/freetype"
+-- include "TerranEngine/vendor/Box2D"
 -- include "TerranEngine/vendor/Optick" Think about replacing with Tracy
 include "vendor/yaml-cpp"
 include "vendor/gtest/googletest"
-include "TerranEngine/vendor/Coral/Coral.Native"
+include "vendor/Coral/Coral.Native"
 
 group "Core"
 include "Libraries/LibMain"
 include "Libraries/LibCore"
 include "Libraries/LibAsset"
 include "Libraries/LibScene"
-include "TerranEngine"
+include "Libraries/LibScript"
+-- include "TerranEngine"
 
 group "Graphics"
 include "Libraries/LibWindow"
